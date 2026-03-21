@@ -1,0 +1,56 @@
+<main class="page-shell">
+  <section class="hero-card">
+    <p class="status">Official Website In Development</p>
+    <h1>{{ title() }}</h1>
+    <p class="message">
+      The new public website is being prepared for resident services, public notices,
+      meeting information, and town contacts.
+    </p>
+    <p class="subtext">
+      This page is intentionally simple while the final content and service integrations are being built.
+    </p>
+  </section>
+
+  <section class="content-grid">
+    <section class="panel">
+      <h2>Quick Links</h2>
+      <div class="stack-list">
+        @for (link of quickLinks; track link.title) {
+          <div class="info-row">
+            <strong>{{ link.title }}</strong>
+            <span>{{ link.description }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Current Notices</h2>
+      <div class="stack-list">
+        @for (notice of notices; track notice.title) {
+          <div class="info-row">
+            <strong>{{ notice.title }}</strong>
+            <span>{{ notice.detail }}</span>
+          </div>
+        }
+      </div>
+    </section>
+  </section>
+
+  <section class="panel contact-panel">
+    <h2>Town Contacts</h2>
+    <div class="contact-list">
+      @for (contact of contacts; track contact.label) {
+        <div class="contact-row">
+          <span>{{ contact.label }}</span>
+          <strong>{{ contact.value }}</strong>
+        </div>
+      }
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>&copy; {{ currentYear }} {{ title() }}</p>
+    <p>Main page published for deployment verification</p>
+  </footer>
+</main>

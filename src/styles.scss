@@ -1,0 +1,47 @@
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/700.css';
+@import '@fontsource/source-sans-3/400.css';
+@import '@fontsource/source-sans-3/600.css';
+
+:root {
+	--font-display: 'Fraunces', Georgia, serif;
+	--font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+	--civic-blue: #0d2c54;
+	--civic-rust: #a45a2c;
+	--civic-cream: #f9f4ec;
+	--ink-900: #13243e;
+	--ink-800: #29425f;
+	--ink-700: #526b87;
+	--ink-600: #70849a;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: var(--font-body);
+	color: var(--ink-900);
+	background:
+		radial-gradient(circle at top left, rgba(164, 90, 44, 0.18), transparent 28%),
+		radial-gradient(circle at 85% 12%, rgba(13, 44, 84, 0.16), transparent 26%),
+		linear-gradient(180deg, #fbf6ef 0%, #eff3f8 52%, #f8f4ec 100%);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+a {
+	color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+}
