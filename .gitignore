@@ -41,6 +41,8 @@ __ng_tmp__/
 playwright-report/
 test-results/
 blob-report/
+/secrets/local/*
+!/secrets/local/.gitignore
 
 # System files
 .DS_Store

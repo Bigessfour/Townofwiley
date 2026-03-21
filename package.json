@@ -13,7 +13,15 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:smoke": "playwright test e2e/specs/smoke",
-    "test:e2e:install": "playwright install chromium"
+    "test:e2e:install": "playwright install chromium",
+    "secrets:init": "node scripts/user-secrets.mjs init",
+    "secrets:init:local-passphrase": "node scripts/user-secrets.mjs init --generate-passphrase",
+    "secrets:status": "node scripts/user-secrets.mjs status",
+    "secrets:unlock": "node scripts/user-secrets.mjs unlock",
+    "secrets:lock": "node scripts/user-secrets.mjs lock",
+    "secrets:lock:prune": "node scripts/user-secrets.mjs lock --prune-local",
+    "secrets:prune-local": "node scripts/user-secrets.mjs prune-local",
+    "secrets:import-env": "node scripts/user-secrets.mjs import-env --lock"
   },
   "prettier": {
     "printWidth": 100,
@@ -55,5 +63,8 @@
     "playwright": "^1.58.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
+  },
+  "overrides": {
+    "undici": "^7.24.5"
   }
 }
