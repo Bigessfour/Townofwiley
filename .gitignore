@@ -38,6 +38,9 @@ testem.log
 /typings
 __screenshots__/
 __ng_tmp__/
+playwright-report/
+test-results/
+blob-report/
 
 # System files
 .DS_Store

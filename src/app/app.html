@@ -1,56 +1,187 @@
-<main class="page-shell">
-  <section class="hero-card">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<header class="site-header">
+  <div class="masthead">
+    <p class="eyebrow">Municipal Website Scaffold</p>
     <p class="status">Official Website In Development</p>
     <h1>{{ title() }}</h1>
     <p class="message">
-      The new public website is being prepared for resident services, public notices,
-      meeting information, and town contacts.
+      A resident-first homepage scaffold for Wiley, Colorado, built around accessibility,
+      clear top tasks, public transparency, and the everyday services a small plains town needs first.
     </p>
     <p class="subtext">
-      This page is intentionally simple while the final content and service integrations are being built.
+      For a town of about 437 residents in eastern Colorado, the homepage should stay practical:
+      fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.
     </p>
-  </section>
+  </div>
 
-  <section class="content-grid">
-    <section class="panel">
-      <h2>Quick Links</h2>
-      <div class="stack-list">
-        @for (link of quickLinks; track link.title) {
-          <div class="info-row">
-            <strong>{{ link.title }}</strong>
-            <span>{{ link.description }}</span>
-          </div>
+  <nav class="section-nav" aria-label="Homepage sections">
+    @for (link of navLinks; track link.label) {
+      <a [attr.href]="link.href">{{ link.label }}</a>
+    }
+  </nav>
+</header>
+
+<main class="page-shell" id="main-content">
+  <section class="hero-grid">
+    <section class="hero-card" id="top-tasks" aria-labelledby="top-tasks-heading">
+      <div class="community-facts" aria-label="Wiley profile">
+        @for (fact of communityFacts; track fact.label) {
+          <article class="fact-card">
+            <p class="meta-label">{{ fact.label }}</p>
+            <strong>{{ fact.value }}</strong>
+            <span>{{ fact.detail }}</span>
+          </article>
+        }
+      </div>
+
+      <p class="section-kicker">Resident Priorities</p>
+      <h2 id="top-tasks-heading">Top tasks should be visible before residents start hunting through departments</h2>
+      <div class="task-grid">
+        @for (task of topTasks; track task.title) {
+          <a class="task-card" [attr.href]="task.href">
+            <strong>{{ task.title }}</strong>
+            <span>{{ task.description }}</span>
+            <small>{{ task.note }}</small>
+          </a>
         }
       </div>
     </section>
 
+    <aside class="search-panel panel" id="search-panel" aria-labelledby="search-heading">
+      <p class="section-kicker">Plain-Language Search</p>
+      <h2 id="search-heading">Search the site the way residents ask questions</h2>
+      <label class="search-label" for="site-search">
+        Try phrases like “pay water bill,” “report pothole,” or “next town meeting.”
+      </label>
+      <input
+        id="site-search"
+        class="search-input"
+        type="search"
+        [value]="searchQuery()"
+        (input)="updateSearch($any($event.target).value)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <p class="search-note">
+        This scaffold uses guided keyword matching now and leaves room for AI-assisted search later.
+      </p>
+
+      <div class="search-results" aria-live="polite">
+        @if (searchResults().length) {
+          @for (result of searchResults(); track result.title) {
+            <a class="search-result" [attr.href]="result.href">
+              <strong>{{ result.title }}</strong>
+              <span>{{ result.summary }}</span>
+              <small>{{ result.category }}</small>
+            </a>
+          }
+        } @else {
+          <p class="empty-state">
+            No matching shortcut yet. Expand the search index as pages, documents, and services go live.
+          </p>
+        }
+      </div>
+    </aside>
+  </section>
+
+  <section class="content-grid" id="alerts">
     <section class="panel">
-      <h2>Current Notices</h2>
-      <div class="stack-list">
+      <p class="section-kicker">Public Notices</p>
+      <h2>Current notices and alert space</h2>
+      <div class="stack-list notice-list">
         @for (notice of notices; track notice.title) {
-          <div class="info-row">
+          <article class="info-row notice-card">
+            <p class="meta-label">{{ notice.date }}</p>
             <strong>{{ notice.title }}</strong>
             <span>{{ notice.detail }}</span>
-          </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="meetings-heading">
+      <p class="section-kicker">Meetings and Calendar</p>
+      <h2 id="meetings-heading">Meeting access and community timing belong on the homepage</h2>
+      <div class="stack-list">
+        @for (meeting of meetings; track meeting.title) {
+          <article class="info-row meeting-card">
+            <strong>{{ meeting.title }}</strong>
+            <span>{{ meeting.schedule }}</span>
+            <small>{{ meeting.format }}</small>
+          </article>
         }
       </div>
     </section>
   </section>
 
-  <section class="panel contact-panel">
-    <h2>Town Contacts</h2>
-    <div class="contact-list">
+  <section class="panel service-panel" id="services">
+    <p class="section-kicker">Digital Services</p>
+    <h2>Self-service tools should reduce office calls, not add more friction</h2>
+    <div class="service-grid">
+      @for (service of serviceCards; track service.title) {
+        <article class="service-card">
+          <p class="meta-label">{{ service.availability }}</p>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
+          <a class="text-link" [attr.href]="service.href">{{ service.cta }}</a>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="content-grid records-grid">
+    <section class="panel" id="records">
+      <p class="section-kicker">Transparency</p>
+      <h2>Records, budgets, and notices must be easy to find and easy to understand</h2>
+      <div class="stack-list">
+        @for (item of transparencyItems; track item.title) {
+          <article class="info-row">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.detail }}</span>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="panel" id="accessibility">
+      <p class="section-kicker">Accessibility</p>
+      <h2>ADA and WCAG 2.1 AA work has to be visible in both design and operations</h2>
+      <div class="stack-list">
+        @for (item of accessibilityItems; track item.title) {
+          <article class="info-row accessibility-row">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.detail }}</span>
+          </article>
+        }
+      </div>
+      <p class="compliance-note">
+        Publish an accessibility statement, keep audits recurring, and provide a direct path for alternate-format and barrier reports.
+      </p>
+    </section>
+  </section>
+
+  <section class="panel contact-panel" id="contact">
+    <p class="section-kicker">Contact and Response Paths</p>
+    <h2>Residents should always know where to go next</h2>
+    <div class="contact-grid">
       @for (contact of contacts; track contact.label) {
-        <div class="contact-row">
+        <article class="contact-card">
           <span>{{ contact.label }}</span>
           <strong>{{ contact.value }}</strong>
-        </div>
+          <p>{{ contact.detail }}</p>
+        </article>
       }
     </div>
   </section>
 
   <footer class="site-footer">
+    <div class="footer-links">
+      <a href="#accessibility">Accessibility statement</a>
+      <a href="#records">Public records and FOIA</a>
+      <a href="#alerts">Meeting notices</a>
+      <a href="#contact">Contact Town Hall</a>
+    </div>
     <p>&copy; {{ currentYear }} {{ title() }}</p>
-    <p>Main page published for deployment verification</p>
   </footer>
 </main>

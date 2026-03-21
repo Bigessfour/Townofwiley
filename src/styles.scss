@@ -10,6 +10,8 @@
 	--civic-blue: #0d2c54;
 	--civic-rust: #a45a2c;
 	--civic-cream: #f9f4ec;
+	--civic-gold: #d5a14b;
+	--focus-ring: #ffbf47;
 	--ink-900: #13243e;
 	--ink-800: #29425f;
 	--ink-700: #526b87;
@@ -26,9 +28,9 @@ body {
 	font-family: var(--font-body);
 	color: var(--ink-900);
 	background:
-		radial-gradient(circle at top left, rgba(164, 90, 44, 0.18), transparent 28%),
-		radial-gradient(circle at 85% 12%, rgba(13, 44, 84, 0.16), transparent 26%),
-		linear-gradient(180deg, #fbf6ef 0%, #eff3f8 52%, #f8f4ec 100%);
+		radial-gradient(circle at top left, rgba(164, 90, 44, 0.2), transparent 24%),
+		radial-gradient(circle at 85% 12%, rgba(13, 44, 84, 0.18), transparent 22%),
+		linear-gradient(180deg, #fbf6ef 0%, #eef3f9 42%, #f7f1e7 100%);
 }
 
 * {
@@ -37,6 +39,11 @@ body {
 
 a {
 	color: inherit;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
 }
 
 button,

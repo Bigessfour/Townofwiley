@@ -20,6 +20,8 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Official Website In Development');
-    expect(compiled.querySelector('h2')?.textContent).toContain('Quick Links');
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Top tasks');
+    expect(compiled.querySelector('#site-search')).toBeTruthy();
+    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain('ADA and WCAG 2.1 AA');
   });
 });
