@@ -15,6 +15,25 @@
     </p>
   </div>
 
+  <section class="welcome-hero" aria-labelledby="welcome-hero-heading">
+    <div class="welcome-hero-copy">
+      <p class="hero-label">Main Welcome Image</p>
+      <h2 id="welcome-hero-heading">The homepage now opens with the Wiley hero image instead of only scaffold copy</h2>
+      <p>
+        This banner places a recognizable local visual at the top of the page while the rest of the
+        homepage continues to organize notices, meetings, services, and contact details around resident tasks.
+      </p>
+    </div>
+
+    <figure class="welcome-hero-media">
+      <img
+        src="/hero-wiley.jpg"
+        alt="Family walking down a country road between irrigated fields outside Wiley, Colorado."
+      />
+      <figcaption>Current draft hero image for the Town of Wiley welcome page.</figcaption>
+    </figure>
+  </section>
+
   <nav class="section-nav" aria-label="Homepage sections">
     @for (link of navLinks; track link.label) {
       <a [attr.href]="link.href">{{ link.label }}</a>
