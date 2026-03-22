@@ -15,6 +15,66 @@ function jsonResponse(statusCode, body) {
   };
 }
 
+function safeParseJson(value) {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim().replace(/^\uFEFF/, '');
+
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(trimmedValue);
+  } catch {
+    return undefined;
+  }
+}
+
+function isRecord(value) {
+  return typeof value === 'object' && value !== null;
+}
+
+function extractResponseText(payload, rawText) {
+  if (isRecord(payload)) {
+    if (typeof payload.response === 'string' && payload.response.trim()) {
+      return payload.response.trim();
+    }
+
+    if (typeof payload.text === 'string' && payload.text.trim()) {
+      return payload.text.trim();
+    }
+
+    if (isRecord(payload.bot) && typeof payload.bot.text === 'string' && payload.bot.text.trim()) {
+      return payload.bot.text.trim();
+    }
+
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message.trim();
+    }
+  }
+
+  return typeof rawText === 'string' ? rawText.trim() : '';
+}
+
+function extractSources(payload) {
+  if (!isRecord(payload)) {
+    return [];
+  }
+
+  if (Array.isArray(payload.sources)) {
+    return payload.sources;
+  }
+
+  if (isRecord(payload.bot) && Array.isArray(payload.bot.sources)) {
+    return payload.bot.sources;
+  }
+
+  return [];
+}
+
 function getHistory(history) {
   if (!Array.isArray(history)) {
     return [];
@@ -106,27 +166,30 @@ export async function handler(event) {
     );
 
     const responseText = await upstreamResponse.text();
-    const responsePayload = responseText ? JSON.parse(responseText) : {};
+    const responsePayload = safeParseJson(responseText);
 
     if (!upstreamResponse.ok) {
       return jsonResponse(upstreamResponse.status, {
         error:
-          typeof responsePayload.error === 'string'
+          isRecord(responsePayload) && typeof responsePayload.error === 'string'
             ? responsePayload.error
+            : typeof responseText === 'string' && responseText.trim()
+              ? responseText.trim().slice(0, 400)
             : 'Easy-Peasy returned an error.',
       });
     }
 
+    const response = extractResponseText(responsePayload, responseText);
+
+    if (!response) {
+      return jsonResponse(502, {
+        error: 'Easy-Peasy returned a malformed response.',
+      });
+    }
+
     return jsonResponse(200, {
-      response:
-        typeof responsePayload.response === 'string'
-          ? responsePayload.response
-          : typeof responsePayload.bot?.text === 'string'
-            ? responsePayload.bot.text
-            : typeof responsePayload.text === 'string'
-              ? responsePayload.text
-              : '',
-      sources: Array.isArray(responsePayload.sources) ? responsePayload.sources : [],
+      response,
+      sources: extractSources(responsePayload),
     });
   } catch {
     return jsonResponse(502, {

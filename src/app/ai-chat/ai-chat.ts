@@ -29,6 +29,7 @@ interface BotHistoryMessage {
 
 interface BotChatResponse {
   response: string;
+  error?: string;
   sources?: Array<{
     title?: string;
     url?: string;
@@ -103,12 +104,17 @@ export class AiChat {
     this.isSending.set(true);
 
     try {
-      const response = await firstValueFrom(
-        this.http.post<BotChatResponse>(this.chatbotConfig.apiEndpoint, {
+      const rawResponse = await firstValueFrom(
+        this.http.post(this.chatbotConfig.apiEndpoint, {
           message: question,
           history,
-        }),
+        }, { responseType: 'text' }),
       );
+      const response = this.parseBotResponse(rawResponse);
+
+      if (response.error && !response.response) {
+        throw new Error(response.error);
+      }
 
       this.appendAssistantMessage(
         response.response?.trim() ||
@@ -202,6 +208,84 @@ export class AiChat {
     }
 
     return [...links.values()].slice(0, 3);
+  }
+
+  private parseBotResponse(rawResponse: string): BotChatResponse {
+    const payload = this.parseJsonRecord(rawResponse);
+    const unwrappedPayload = this.unwrapProxyPayload(payload);
+    const response = this.extractText(unwrappedPayload);
+    const rawError = unwrappedPayload['error'];
+    const error = typeof rawError === 'string' ? rawError.trim() : undefined;
+
+    return {
+      response,
+      error,
+      sources: this.extractSources(unwrappedPayload),
+    };
+  }
+
+  private parseJsonRecord(value: string): Record<string, unknown> | undefined {
+    const trimmedValue = value.trim().replace(/^\uFEFF/, '');
+
+    if (!trimmedValue) {
+      return undefined;
+    }
+
+    try {
+      const parsedValue: unknown = JSON.parse(trimmedValue);
+
+      return this.isRecord(parsedValue) ? parsedValue : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private unwrapProxyPayload(payload?: Record<string, unknown>): Record<string, unknown> {
+    if (!payload) {
+      return {};
+    }
+
+    const wrappedBody = payload['body'];
+
+    if (typeof wrappedBody !== 'string') {
+      return payload;
+    }
+
+    const parsedBody = this.parseJsonRecord(wrappedBody);
+
+    return parsedBody ?? payload;
+  }
+
+  private extractText(payload: Record<string, unknown>): string {
+    const directResponse = payload['response'];
+
+    if (typeof directResponse === 'string') {
+      return directResponse.trim();
+    }
+
+    const text = payload['text'];
+
+    if (typeof text === 'string') {
+      return text.trim();
+    }
+
+    const bot = payload['bot'];
+
+    if (this.isRecord(bot) && typeof bot['text'] === 'string') {
+      return bot['text'].trim();
+    }
+
+    return '';
+  }
+
+  private extractSources(payload: Record<string, unknown>): BotChatResponse['sources'] | undefined {
+    const sources = payload['sources'];
+
+    return Array.isArray(sources) ? (sources as BotChatResponse['sources']) : undefined;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
   }
 
   private scrollMessagesToLatest(): void {
