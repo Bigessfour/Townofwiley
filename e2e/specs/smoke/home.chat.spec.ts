@@ -43,9 +43,9 @@ test.describe('homepage chat', () => {
         response: 'Ask about meetings, services, records, or contacts.',
       };
 
-        if (message === 'When is the next City Council meeting?') {
-          await firstResponseGate;
-        }
+      if (message === 'When is the next City Council meeting?') {
+        await firstResponseGate;
+      }
 
       await route.fulfill({
         status: 200,

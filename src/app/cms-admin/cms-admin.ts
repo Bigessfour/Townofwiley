@@ -37,7 +37,8 @@ export class CmsAdmin {
   protected readonly persistenceSummary = this.cmsStore.persistenceSummary;
   protected readonly statusMessage = signal<string | null>(null);
   protected readonly hasUnsavedChanges = computed(
-    () => JSON.stringify(this.getDraftContent()) !== JSON.stringify(this.cmsStore.getDraftContent()),
+    () =>
+      JSON.stringify(this.getDraftContent()) !== JSON.stringify(this.cmsStore.getDraftContent()),
   );
   protected readonly noticeCount = computed(() => this.notices().length);
   protected readonly contactCount = computed(() => this.contacts().length);
@@ -108,9 +109,7 @@ export class CmsAdmin {
     value: CmsContact[K],
   ): void {
     this.contacts.update((items) =>
-      items.map((contact) =>
-        contact.id === contactId ? { ...contact, [field]: value } : contact,
-      ),
+      items.map((contact) => (contact.id === contactId ? { ...contact, [field]: value } : contact)),
     );
     this.statusMessage.set(null);
   }

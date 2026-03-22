@@ -83,7 +83,8 @@ describe('App', () => {
           subtext: 'This version highlights emergency notices and resident-facing updates first.',
           welcomeLabel: 'Welcome Photo',
           welcomeHeading: 'A fresh homepage for Wiley residents',
-          welcomeBody: 'The welcome area now explains what residents can do on the site right away.',
+          welcomeBody:
+            'The welcome area now explains what residents can do on the site right away.',
           welcomeCaption: 'Updated caption for the Wiley homepage photo.',
         },
         alertBanner: {
