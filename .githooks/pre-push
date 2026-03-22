@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+set -eu
+
+if ! command -v trunk >/dev/null 2>&1; then
+  echo "Trunk CLI is required for this repository's pre-push formatting hook."
+  echo "Install Trunk, then retry the push."
+  exit 1
+fi
+
+before_worktree_hash="$(git diff --no-ext-diff --binary -- . | git hash-object --stdin)"
+before_index_hash="$(git diff --cached --no-ext-diff --binary -- . | git hash-object --stdin)"
+
+echo "Running trunk fmt on tracked files before push..."
+git ls-files -z | xargs -0 trunk fmt
+
+after_worktree_hash="$(git diff --no-ext-diff --binary -- . | git hash-object --stdin)"
+after_index_hash="$(git diff --cached --no-ext-diff --binary -- . | git hash-object --stdin)"
+
+if [ "$before_worktree_hash" != "$after_worktree_hash" ] || [ "$before_index_hash" != "$after_index_hash" ]; then
+  echo ""
+  echo "Trunk formatting changed tracked files during pre-push."
+  echo "Review the changes, stage them, create a new commit, and push again."
+  exit 1
+fi
+
+echo "Trunk formatting is clean. Continuing with push."

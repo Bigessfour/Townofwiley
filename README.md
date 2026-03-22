@@ -401,3 +401,30 @@ Mobile-specific regression coverage now checks:
 - Programmatic chat submission on the mobile homepage
 - Chat fallback handling when the proxy returns malformed data
 - Weather refresh behavior on the mobile homepage without a full page reload
+
+## Trunk Hook
+
+This repository now includes a tracked Git `pre-push` hook at [.githooks/pre-push](.githooks/pre-push).
+
+Behavior:
+
+- Runs Trunk formatting across tracked repository files before every push.
+- Allows the push to continue only if Trunk leaves the tracked file set unchanged.
+- Aborts the push if formatting changed any tracked file so the formatted result can be reviewed and committed first.
+
+One-time setup for each clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Manual verification:
+
+```bash
+trunk fmt --all
+```
+
+Operational note:
+
+- The hook requires the Trunk CLI to be installed and on `PATH`.
+- The current repo-local Trunk configuration lives in [.trunk/trunk.yaml](.trunk/trunk.yaml).
