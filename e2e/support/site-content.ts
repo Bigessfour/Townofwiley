@@ -1,5 +1,5 @@
 export const siteContent = {
-  documentTitle: 'Town of Wiley | In Development',
+  documentTitle: 'Town of Wiley | Official Website',
   heading: 'Town of Wiley',
   topTaskHeadings: [
     'Pay utility bill',

@@ -47,18 +47,18 @@ export interface CmsPortalContent {
 export const TOW_CMS_STORAGE_KEY = 'tow-cms-content-v1';
 
 export const DEFAULT_CMS_HERO: CmsHeroContent = {
-  eyebrow: 'Municipal Website Scaffold',
-  status: 'Official Website In Development',
+  eyebrow: 'Town of Wiley, Colorado',
+  status: 'Official Town Website',
   title: 'Town of Wiley',
   message:
-    'A resident-first homepage scaffold for Wiley, Colorado, built around accessibility, clear top tasks, public transparency, and the everyday services a small plains town needs first.',
+    'Find town notices, meeting details, weather updates, and essential resident services in one place.',
   subtext:
     'For a town of about 437 residents in eastern Colorado, the homepage should stay practical: fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.',
   welcomeLabel: 'Main Welcome Image',
-  welcomeHeading: 'The homepage now opens with the Wiley hero image instead of only scaffold copy',
+  welcomeHeading: 'Welcome to the Town of Wiley online home',
   welcomeBody:
-    'This banner places a recognizable local visual at the top of the page while the rest of the homepage continues to organize notices, meetings, services, and contact details around resident tasks.',
-  welcomeCaption: 'Current draft hero image for the Town of Wiley welcome page.',
+    'Use this homepage to reach the most important town information quickly, including meetings, notices, contact paths, and weather-sensitive updates.',
+  welcomeCaption: 'Town of Wiley welcome image.',
 };
 
 export const DEFAULT_CMS_ALERT_BANNER: CmsAlertBanner = {
@@ -73,10 +73,10 @@ export const DEFAULT_CMS_ALERT_BANNER: CmsAlertBanner = {
 export const DEFAULT_CMS_NOTICES: CmsNotice[] = [
   {
     id: 'homepage-rebuild',
-    title: 'Homepage rebuild focused on Wiley essentials',
+    title: 'Town services and notices are available here',
     date: 'March 2026',
     detail:
-      'The new design is being scoped around small-town essentials: payments, meetings, service issues, office contacts, and clear emergency or weather-sensitive notices.',
+      'Residents can use the website to find meetings, service information, office contacts, weather alerts, and public notices without navigating through multiple departments.',
   },
   {
     id: 'digital-self-service-rollout',

@@ -34,7 +34,7 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the in-development message', async () => {
+  it('should render the default homepage message', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await flushWeatherRequests();
@@ -43,9 +43,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('.status')?.textContent).toContain(
-      'Official Website In Development',
-    );
+    expect(compiled.querySelector('.status')?.textContent).toContain('Official Town Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Top tasks');
     expect(compiled.querySelector('#weather-heading')?.textContent).toContain(
       'National Weather Service forecast',

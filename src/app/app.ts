@@ -75,6 +75,7 @@ interface ServiceCard {
   description: string;
   href: string;
   cta: string;
+  isComingSoon?: boolean;
 }
 
 interface TransparencyItem {
@@ -313,7 +314,8 @@ export class App {
       description:
         'Start with utility and routine fee payments, then expand to permits or court-related payments only when the workflows are stable.',
       href: '#contact',
-      cta: 'Add payment portal and disclosure copy',
+      cta: 'Pay utility bill',
+      isComingSoon: true,
     },
     {
       title: 'Street, utility, and property issue reporting',
