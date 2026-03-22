@@ -35,6 +35,19 @@ def build_backend(alerts: list[dict] | None = None) -> APP.SevereWeatherBackend:
   )
 
 
+class FailingNotificationGateway:
+  def __init__(self, message: str) -> None:
+    self._message = message
+
+  def send_confirmation(self, channel: str, destination: str, subject: str, message: str) -> None:
+    del channel, destination, subject, message
+    raise RuntimeError(self._message)
+
+  def send_alert(self, channel: str, destination: str, subject: str, message: str) -> None:
+    del channel, destination, subject, message
+    raise RuntimeError(self._message)
+
+
 class SevereWeatherBackendTests(unittest.TestCase):
   def test_creates_pending_subscription_and_sends_confirmation(self) -> None:
     backend = build_backend()
@@ -77,6 +90,49 @@ class SevereWeatherBackendTests(unittest.TestCase):
 
     self.assertEqual(response['statusCode'], 400)
     self.assertIn('81092', response['body'])
+
+  def test_returns_actionable_error_when_email_confirmation_delivery_fails(self) -> None:
+    subscription_store = APP.MemorySubscriptionStore()
+    backend = APP.SevereWeatherBackend(
+      config=APP.AppConfig(
+        subscriptions_table='subscriptions',
+        deliveries_table='deliveries',
+        sender_email='bigessfour@gmail.com',
+        notification_sender_name='Town of Wiley Alerts',
+        allowed_zip_code='81092',
+        alert_zone_code='COZ098',
+        public_api_base_url='https://alerts.example.com',
+        nws_user_agent='TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)',
+        nws_api_key='',
+      ),
+      subscription_store=subscription_store,
+      delivery_store=APP.MemoryDeliveryStore(),
+      notification_gateway=FailingNotificationGateway(
+        'Email address is not verified. The following identities failed the check in region US-EAST-2: resident@example.com'
+      ),
+      nws_client=APP.StaticNwsClient([]),
+    )
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps(
+          {
+            'channel': 'email',
+            'destination': 'resident@example.com',
+            'zipCode': '81092',
+          },
+        ),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 502)
+    self.assertIn('Email confirmations are temporarily unavailable', response['body'])
+    self.assertIsNone(
+      subscription_store.find_existing_subscription('email', 'resident@example.com'),
+    )
 
   def test_confirms_subscription_and_renders_html(self) -> None:
     backend = build_backend()

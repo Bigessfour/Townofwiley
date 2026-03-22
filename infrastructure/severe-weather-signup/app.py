@@ -433,12 +433,16 @@ class SevereWeatherBackend:
           },
         )
 
-      self._notification_gateway.send_confirmation(
-        channel,
-        normalized_destination,
-        'Confirm Town of Wiley severe weather alerts',
-        self._build_confirmation_message(confirm_url, unsubscribe_url),
-      )
+      try:
+        self._send_confirmation_message(
+          channel,
+          normalized_destination,
+          confirm_url,
+          unsubscribe_url,
+        )
+      except RuntimeError as error:
+        return json_response(502, {'error': str(error)})
+
       return json_response(
         202,
         {
@@ -467,13 +471,17 @@ class SevereWeatherBackend:
     confirm_url = build_token_url(request_base_url, '/confirm', confirmation_token)
     unsubscribe_url = build_token_url(request_base_url, '/unsubscribe', unsubscribe_token)
 
+    try:
+      self._send_confirmation_message(
+        channel,
+        normalized_destination,
+        confirm_url,
+        unsubscribe_url,
+      )
+    except RuntimeError as error:
+      return json_response(502, {'error': str(error)})
+
     self._subscription_store.save_subscription(item)
-    self._notification_gateway.send_confirmation(
-      channel,
-      normalized_destination,
-      'Confirm Town of Wiley severe weather alerts',
-      self._build_confirmation_message(confirm_url, unsubscribe_url),
-    )
 
     return json_response(
       202,
@@ -569,6 +577,40 @@ class SevereWeatherBackend:
       f'Cancel signup: {unsubscribe_url}\n\n'
       'You will receive notifications only after the confirmation step is completed.'
     )
+
+  def _send_confirmation_message(
+    self,
+    channel: str,
+    destination: str,
+    confirm_url: str,
+    unsubscribe_url: str,
+  ) -> None:
+    try:
+      self._notification_gateway.send_confirmation(
+        channel,
+        destination,
+        'Confirm Town of Wiley severe weather alerts',
+        self._build_confirmation_message(confirm_url, unsubscribe_url),
+      )
+    except Exception as error:
+      raise RuntimeError(self._build_confirmation_delivery_error(channel, error)) from error
+
+  def _build_confirmation_delivery_error(self, channel: str, error: Exception) -> str:
+    error_message = normalize_whitespace(str(error))
+    normalized_error = error_message.lower()
+
+    if channel == EMAIL_CHANNEL:
+      if 'sandbox' in normalized_error or 'email address is not verified' in normalized_error:
+        return (
+          'Email confirmations are temporarily unavailable. Try SMS text alerts instead or contact Town Hall.'
+        )
+
+      return 'Email confirmations are temporarily unavailable. Please try again or contact Town Hall.'
+
+    if channel == SMS_CHANNEL:
+      return 'Text alert confirmations are temporarily unavailable. Please try email alerts or contact Town Hall.'
+
+    return 'Alert confirmations are temporarily unavailable. Please try again or contact Town Hall.'
 
   def _build_alert_message(self, subscription: dict[str, Any], alert: dict[str, Any]) -> str:
     expires_label = format_expiration(alert.get('expires', ''))
