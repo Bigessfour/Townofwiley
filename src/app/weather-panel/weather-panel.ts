@@ -404,9 +404,7 @@ export class WeatherPanel {
   private buildAlertSignupUrl(pathname: string): string {
     const baseUrl = this.weatherConfig.alertSignup.apiEndpoint.trim();
     const resolvedBaseUrl =
-      typeof window === 'undefined'
-        ? new URL(baseUrl)
-        : new URL(baseUrl, window.location.origin);
+      typeof window === 'undefined' ? new URL(baseUrl) : new URL(baseUrl, window.location.origin);
 
     return new URL(
       pathname.replace(/^\/+/, ''),
