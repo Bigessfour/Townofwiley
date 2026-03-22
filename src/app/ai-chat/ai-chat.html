@@ -15,14 +15,38 @@
     </p>
   </div>
 
-  <div class="assistant-actions">
-    <button type="button" class="assistant-launch" (click)="toggleOpen()">
-      {{ isOpen() ? 'Hide assistant' : 'Ask a question' }}
-    </button>
+  <div class="assistant-form">
+    <label class="assistant-label" for="assistant-question">Type a question for Ask Wiley</label>
+    <p class="assistant-helper">
+      Enter a question below or tap one of the example prompts. The reply appears directly
+      underneath in the conversation panel.
+    </p>
+    <div class="assistant-entry-row">
+      <input
+        id="assistant-question"
+        class="assistant-input"
+        type="text"
+        [value]="draft()"
+        (input)="updateDraft($any($event.target).value)"
+        (keydown.enter)="sendMessage()"
+        placeholder="Ask a Town of Wiley question"
+        autocomplete="off"
+        [disabled]="isSending()"
+      />
+      <button
+        type="button"
+        class="assistant-send"
+        (click)="sendMessage()"
+        [disabled]="isSending()"
+      >
+        {{ isSending() ? 'Sending...' : 'Send' }}
+      </button>
+    </div>
   </div>
 
-  @if (isOpen()) {
-    <div class="assistant-window">
+  <div class="assistant-window">
+    <div class="assistant-prompts-shell">
+      <p class="assistant-prompt-label">Try one of these questions</p>
       <div class="assistant-prompts" aria-label="Suggested questions">
         @for (prompt of starterPrompts; track prompt) {
           <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
@@ -30,8 +54,20 @@
           </button>
         }
       </div>
+    </div>
 
-      <div class="assistant-messages" aria-live="polite">
+    <div class="assistant-thread">
+      <div class="assistant-thread-header">
+        <div>
+          <p class="assistant-thread-kicker">Conversation</p>
+          <h4 class="assistant-thread-title">Latest response</h4>
+        </div>
+        <p class="assistant-thread-status">
+          {{ isSending() ? 'Waiting for Wiley...' : 'Responses appear here' }}
+        </p>
+      </div>
+
+      <div class="assistant-messages" aria-live="polite" #messagesContainer>
         @for (message of messages(); track $index) {
           <article class="assistant-message" [class.is-user]="message.role === 'user'">
             <span class="assistant-role">{{
@@ -49,33 +85,6 @@
           </article>
         }
       </div>
-
-      <div class="assistant-form">
-        <label class="assistant-label" for="assistant-question"
-          >Ask about meetings, officials, records, or services</label
-        >
-        <div class="assistant-entry-row">
-          <input
-            id="assistant-question"
-            class="assistant-input"
-            type="text"
-            [value]="draft()"
-            (input)="updateDraft($any($event.target).value)"
-            (keydown.enter)="sendMessage()"
-            placeholder="Ask a Town of Wiley question"
-            autocomplete="off"
-            [disabled]="isSending()"
-          />
-          <button
-            type="button"
-            class="assistant-send"
-            (click)="sendMessage()"
-            [disabled]="isSending()"
-          >
-            {{ isSending() ? 'Sending...' : 'Send' }}
-          </button>
-        </div>
-      </div>
     </div>
-  }
+  </div>
 </section>

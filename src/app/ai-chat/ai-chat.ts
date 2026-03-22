@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
 
@@ -45,8 +45,8 @@ interface BotChatResponse {
 export class AiChat {
   private readonly http = inject(HttpClient);
   private readonly chatbotConfig = getChatbotRuntimeConfig();
+  private readonly messagesContainer = viewChild<ElementRef<HTMLDivElement>>('messagesContainer');
 
-  protected readonly isOpen = signal(false);
   protected readonly isSending = signal(false);
   protected readonly draft = signal('');
   protected readonly starterPrompts = [
@@ -60,18 +60,13 @@ export class AiChat {
 
   protected readonly messages = signal<ChatMessage[]>([this.createWelcomeMessage()]);
 
-  protected toggleOpen(): void {
-    this.isOpen.update((open) => !open);
-  }
-
   protected updateDraft(value: string): void {
     this.draft.set(value);
   }
 
   protected askPrompt(prompt: string): void {
-    this.isOpen.set(true);
     this.draft.set(prompt);
-    this.sendMessage();
+    void this.sendMessage();
   }
 
   protected async sendMessage(): Promise<void> {
@@ -92,9 +87,9 @@ export class AiChat {
         },
       ];
     });
+    this.scrollMessagesToLatest();
 
     this.draft.set('');
-    this.isOpen.set(true);
 
     if (!this.isConfigured) {
       this.appendAssistantMessage(
@@ -171,6 +166,7 @@ export class AiChat {
         },
       ];
     });
+    this.scrollMessagesToLatest();
   }
 
   private buildHistory(): BotHistoryMessage[] {
@@ -206,5 +202,17 @@ export class AiChat {
     }
 
     return [...links.values()].slice(0, 3);
+  }
+
+  private scrollMessagesToLatest(): void {
+    queueMicrotask(() => {
+      const container = this.messagesContainer()?.nativeElement;
+
+      if (!container) {
+        return;
+      }
+
+      container.scrollTop = container.scrollHeight;
+    });
   }
 }
