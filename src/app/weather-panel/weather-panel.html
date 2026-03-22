@@ -128,6 +128,99 @@
           </article>
         }
 
+        @if (isAlertSignupEnabled()) {
+          <section class="weather-signup-shell" aria-labelledby="weather-signup-heading">
+            <div class="weather-signup-copy">
+              <p class="meta-label">Resident alerts</p>
+              <h4 id="weather-signup-heading">Sign up for severe weather alerts</h4>
+              <p>
+                Residents in ZIP code 81092 can request confirmation-based email or SMS weather
+                alerts for the Wiley service area.
+              </p>
+            </div>
+
+            <form class="weather-signup-form" (submit)="submitAlertSignup($event)">
+              <div class="weather-signup-grid">
+                <label class="weather-signup-field" for="weather-alert-signup-channel">
+                  <span>Notification method</span>
+                  <select
+                    id="weather-alert-signup-channel"
+                    [value]="alertSignupChannel()"
+                    (change)="updateAlertSignupChannel($any($event.target).value)"
+                    [disabled]="isAlertSignupSubmitting()"
+                  >
+                    <option value="email">Email</option>
+                    <option value="sms">SMS text</option>
+                  </select>
+                </label>
+
+                <label class="weather-signup-field" for="weather-alert-signup-destination">
+                  <span>{{ alertSignupDestinationLabel() }}</span>
+                  <input
+                    id="weather-alert-signup-destination"
+                    [type]="alertSignupDestinationType()"
+                    [value]="alertSignupDestination()"
+                    (input)="updateAlertSignupDestination($any($event.target).value)"
+                    [placeholder]="alertSignupDestinationPlaceholder()"
+                    [attr.inputmode]="alertSignupChannel() === 'sms' ? 'tel' : 'email'"
+                    [disabled]="isAlertSignupSubmitting()"
+                    autocomplete="off"
+                    required
+                  />
+                </label>
+
+                <label class="weather-signup-field" for="weather-alert-signup-full-name">
+                  <span>Full name (optional)</span>
+                  <input
+                    id="weather-alert-signup-full-name"
+                    type="text"
+                    [value]="alertSignupFullName()"
+                    (input)="updateAlertSignupFullName($any($event.target).value)"
+                    placeholder="Jordan Resident"
+                    [disabled]="isAlertSignupSubmitting()"
+                    autocomplete="name"
+                  />
+                </label>
+
+                <label class="weather-signup-field" for="weather-alert-signup-zip-code">
+                  <span>Service ZIP code</span>
+                  <input
+                    id="weather-alert-signup-zip-code"
+                    type="text"
+                    value="81092"
+                    readonly
+                    aria-readonly="true"
+                  />
+                </label>
+              </div>
+
+              <p class="weather-signup-note">
+                We send a confirmation first. Alerts do not start until the resident finishes the
+                confirmation step.
+              </p>
+
+              @if (alertSignupFeedback(); as feedback) {
+                <p
+                  class="weather-signup-status"
+                  [class.is-error]="alertSignupFeedbackTone() === 'error'"
+                  [class.is-success]="alertSignupFeedbackTone() === 'success'"
+                  aria-live="polite"
+                >
+                  {{ feedback }}
+                </p>
+              }
+
+              <button
+                type="submit"
+                class="weather-action weather-signup-submit"
+                [disabled]="isAlertSignupSubmitting() || !isAlertSignupDestinationValid()"
+              >
+                {{ alertSignupSubmitLabel() }}
+              </button>
+            </form>
+          </section>
+        }
+
         <div class="weather-link-row">
           <a
             class="text-link"

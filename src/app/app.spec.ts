@@ -3,13 +3,14 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { TOW_CMS_STORAGE_KEY } from './cms-content';
+import { WeatherPanel } from './weather-panel/weather-panel';
 
 describe('App', () => {
   let httpTesting: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, WeatherPanel],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
@@ -17,6 +18,7 @@ describe('App', () => {
   });
 
   afterEach(() => {
+    delete (window as any).__TOW_RUNTIME_CONFIG__;
     delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem(TOW_CMS_STORAGE_KEY);
     window.history.replaceState({}, '', '/');
@@ -24,7 +26,7 @@ describe('App', () => {
   });
 
   it('should create the app', async () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(WeatherPanel);
     fixture.detectChanges();
     await flushWeatherRequests();
     const app = fixture.componentInstance;
@@ -141,7 +143,7 @@ describe('App', () => {
       },
     };
 
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(WeatherPanel);
     fixture.detectChanges();
 
     httpTesting.expectOne('/api/weather/nws').flush({
@@ -170,6 +172,55 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.weather-source')?.textContent).toContain('AWS weather service');
+  });
+
+  it('should render the severe weather signup form when signup runtime config is enabled', async () => {
+    (window as any).__TOW_RUNTIME_CONFIG__ = {
+      weather: {
+        apiEndpoint: '/api/weather/nws',
+        allowBrowserFallback: false,
+        alertSignup: {
+          enabled: true,
+          apiEndpoint: 'https://alerts.example.com',
+        },
+      },
+    };
+
+    const fixture = TestBed.createComponent(WeatherPanel);
+    fixture.detectChanges();
+
+    httpTesting.expectOne('/api/weather/nws').flush({
+      locationLabel: 'Wiley, CO',
+      updatedAt: '2026-03-22T12:57:10+00:00',
+      periods: [
+        {
+          name: 'Today',
+          startTime: '2026-03-22T09:00:00-06:00',
+          isDaytime: true,
+          temperature: 67,
+          temperatureUnit: 'F',
+          probabilityOfPrecipitation: { value: 1 },
+          windSpeed: '15 to 20 mph',
+          windDirection: 'NE',
+          icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+          shortForecast: 'Partly Sunny',
+          detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+        },
+      ],
+      alerts: [],
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as WeatherPanel & {
+      isAlertSignupEnabled: () => boolean;
+      alertSignupSubmitLabel: () => string;
+    };
+
+    expect(component.isAlertSignupEnabled()).toBe(true);
+    expect(component.alertSignupSubmitLabel()).toBe('Sign up for alerts');
   });
 
   it('should render the clerk editor on the admin path', async () => {

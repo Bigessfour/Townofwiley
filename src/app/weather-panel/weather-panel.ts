@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -6,10 +6,22 @@ const WILEY_POINT_URL = 'https://api.weather.gov/points/38.154,-102.72';
 const WILEY_FORECAST_PAGE_URL =
   'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248';
 const NWS_FORECAST_MAPS_URL = 'https://www.weather.gov/forecastmaps';
+const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
+const EMAIL_DESTINATION_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SMS_DESTINATION_PATTERN = /^1?\d{10}$/;
+
+type AlertSignupChannel = 'email' | 'sms';
+type AlertSignupFeedbackTone = 'success' | 'error';
+
+interface RuntimeAlertSignupConfig {
+  enabled: boolean;
+  apiEndpoint: string;
+}
 
 interface RuntimeWeatherConfig {
   apiEndpoint: string;
   allowBrowserFallback: boolean;
+  alertSignup: RuntimeAlertSignupConfig;
 }
 
 interface NwsPointResponse {
@@ -92,6 +104,12 @@ interface WeatherAlert {
   expiresLabel?: string;
 }
 
+interface AlertSignupResponse {
+  message?: string;
+  unsubscribeUrl?: string;
+  error?: string;
+}
+
 @Component({
   selector: 'app-weather-panel',
   imports: [],
@@ -123,6 +141,12 @@ export class WeatherPanel {
   protected readonly loadError = signal<string | null>(null);
   protected readonly weatherPeriods = signal<WeatherPeriod[]>([]);
   protected readonly weatherAlerts = signal<WeatherAlert[]>([]);
+  protected readonly alertSignupChannel = signal<AlertSignupChannel>('email');
+  protected readonly alertSignupDestination = signal('');
+  protected readonly alertSignupFullName = signal('');
+  protected readonly alertSignupFeedback = signal<string | null>(null);
+  protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
+  protected readonly isAlertSignupSubmitting = signal(false);
 
   protected readonly currentPeriod = computed(() => this.weatherPeriods()[0] ?? null);
   protected readonly upcomingPeriods = computed(() => this.weatherPeriods().slice(1, 5));
@@ -133,9 +157,105 @@ export class WeatherPanel {
     return total === 1 ? '1 active alert' : `${total} active alerts`;
   });
   protected readonly isBusy = computed(() => this.isLoading() || this.isRefreshing());
+  protected readonly isAlertSignupEnabled = computed(() => {
+    return (
+      this.weatherConfig.alertSignup.enabled && Boolean(this.weatherConfig.alertSignup.apiEndpoint)
+    );
+  });
+  protected readonly alertSignupDestinationLabel = computed(() => {
+    return this.alertSignupChannel() === 'sms' ? 'Mobile number' : 'Email address';
+  });
+  protected readonly alertSignupDestinationPlaceholder = computed(() => {
+    return this.alertSignupChannel() === 'sms' ? '(719) 555-0102' : 'resident@example.com';
+  });
+  protected readonly alertSignupDestinationType = computed(() => {
+    return this.alertSignupChannel() === 'sms' ? 'tel' : 'email';
+  });
+  protected readonly isAlertSignupDestinationValid = computed(() => {
+    const destination = this.alertSignupDestination().trim();
+
+    if (!destination) {
+      return false;
+    }
+
+    if (this.alertSignupChannel() === 'sms') {
+      return SMS_DESTINATION_PATTERN.test(destination.replace(/\D/g, ''));
+    }
+
+    return EMAIL_DESTINATION_PATTERN.test(destination);
+  });
+  protected readonly alertSignupSubmitLabel = computed(() => {
+    return this.isAlertSignupSubmitting() ? 'Sending confirmation...' : 'Sign up for alerts';
+  });
 
   constructor() {
     void this.loadWeather();
+  }
+
+  protected updateAlertSignupChannel(value: string): void {
+    this.alertSignupChannel.set(value === 'sms' ? 'sms' : 'email');
+    this.alertSignupDestination.set('');
+    this.alertSignupFeedback.set(null);
+  }
+
+  protected updateAlertSignupDestination(value: string): void {
+    this.alertSignupDestination.set(value);
+    this.alertSignupFeedback.set(null);
+  }
+
+  protected updateAlertSignupFullName(value: string): void {
+    this.alertSignupFullName.set(value);
+    this.alertSignupFeedback.set(null);
+  }
+
+  protected async submitAlertSignup(event?: Event): Promise<void> {
+    event?.preventDefault();
+
+    const destination = this.alertSignupDestination().trim();
+    const fullName = this.alertSignupFullName().trim();
+
+    if (!this.isAlertSignupEnabled() || this.isAlertSignupSubmitting() || !destination) {
+      return;
+    }
+
+    if (!this.isAlertSignupDestinationValid()) {
+      this.alertSignupFeedbackTone.set('error');
+      this.alertSignupFeedback.set(
+        this.alertSignupChannel() === 'sms'
+          ? 'Enter a valid mobile number with area code before signing up for text alerts.'
+          : 'Enter a valid email address before signing up for severe weather alerts.',
+      );
+      return;
+    }
+
+    this.isAlertSignupSubmitting.set(true);
+    this.alertSignupFeedback.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<AlertSignupResponse>(this.buildAlertSignupUrl('/subscriptions'), {
+          channel: this.alertSignupChannel(),
+          destination,
+          fullName,
+          zipCode: ALLOWED_ALERT_SIGNUP_ZIP_CODE,
+        }),
+      );
+
+      this.alertSignupFeedbackTone.set('success');
+      this.alertSignupFeedback.set(
+        this.normalizeWhitespace(
+          response.message?.trim() ||
+            'Request received. Confirm the link that was sent before alerts start flowing.',
+        ),
+      );
+      this.alertSignupDestination.set('');
+      this.alertSignupFullName.set('');
+    } catch (error) {
+      this.alertSignupFeedbackTone.set('error');
+      this.alertSignupFeedback.set(this.readAlertSignupError(error));
+    } finally {
+      this.isAlertSignupSubmitting.set(false);
+    }
   }
 
   protected async refreshWeather(): Promise<void> {
@@ -281,6 +401,49 @@ export class WeatherPanel {
     return value.replace(/\s+/g, ' ').trim();
   }
 
+  private buildAlertSignupUrl(pathname: string): string {
+    const baseUrl = this.weatherConfig.alertSignup.apiEndpoint.trim();
+    const resolvedBaseUrl =
+      typeof window === 'undefined'
+        ? new URL(baseUrl)
+        : new URL(baseUrl, window.location.origin);
+
+    return new URL(
+      pathname.replace(/^\/+/, ''),
+      resolvedBaseUrl.toString().endsWith('/')
+        ? resolvedBaseUrl.toString()
+        : `${resolvedBaseUrl.toString()}/`,
+    ).toString();
+  }
+
+  private readAlertSignupError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (this.isRecord(error.error)) {
+        const apiError = error.error['error'];
+
+        if (typeof apiError === 'string' && apiError.trim()) {
+          return this.normalizeWhitespace(apiError.trim());
+        }
+
+        const apiMessage = error.error['message'];
+
+        if (typeof apiMessage === 'string' && apiMessage.trim()) {
+          return this.normalizeWhitespace(apiMessage.trim());
+        }
+      }
+
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return this.normalizeWhitespace(error.error.trim());
+      }
+    }
+
+    return 'Unable to start severe weather alerts right now. Please try again or contact Town Hall.';
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+  }
+
   private getWeatherRuntimeConfig(): RuntimeWeatherConfig {
     const runtimeWindow =
       typeof window === 'undefined'
@@ -290,12 +453,20 @@ export class WeatherPanel {
               weather?: {
                 apiEndpoint?: string;
                 allowBrowserFallback?: boolean;
+                alertSignup?: {
+                  enabled?: boolean;
+                  apiEndpoint?: string;
+                };
               };
             };
             __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
               weather?: {
                 apiEndpoint?: string;
                 allowBrowserFallback?: boolean;
+                alertSignup?: {
+                  enabled?: boolean;
+                  apiEndpoint?: string;
+                };
               };
             };
           });
@@ -307,6 +478,13 @@ export class WeatherPanel {
     return {
       apiEndpoint: typeof weatherConfig.apiEndpoint === 'string' ? weatherConfig.apiEndpoint : '',
       allowBrowserFallback: weatherConfig.allowBrowserFallback !== false,
+      alertSignup: {
+        enabled: weatherConfig.alertSignup?.enabled !== false,
+        apiEndpoint:
+          typeof weatherConfig.alertSignup?.apiEndpoint === 'string'
+            ? weatherConfig.alertSignup.apiEndpoint
+            : '',
+      },
     };
   }
 }

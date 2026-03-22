@@ -18,6 +18,13 @@ export class HomePage {
   readonly weatherAlertPill: Locator;
   readonly weatherAlertCards: Locator;
   readonly weatherRefreshButton: Locator;
+  readonly weatherSignupShell: Locator;
+  readonly weatherSignupChannel: Locator;
+  readonly weatherSignupDestination: Locator;
+  readonly weatherSignupFullName: Locator;
+  readonly weatherSignupZipCode: Locator;
+  readonly weatherSignupSubmitButton: Locator;
+  readonly weatherSignupStatus: Locator;
   readonly noticeCards: Locator;
   readonly meetingCards: Locator;
   readonly serviceCards: Locator;
@@ -52,7 +59,14 @@ export class HomePage {
     this.weatherCurrentCard = page.locator('.weather-current-card');
     this.weatherAlertPill = page.locator('.weather-alert-pill');
     this.weatherAlertCards = page.locator('.weather-alert-card');
-    this.weatherRefreshButton = page.locator('button.weather-action');
+    this.weatherRefreshButton = page.locator('.weather-action-row > button.weather-action');
+    this.weatherSignupShell = page.locator('.weather-signup-shell');
+    this.weatherSignupChannel = page.locator('#weather-alert-signup-channel');
+    this.weatherSignupDestination = page.locator('#weather-alert-signup-destination');
+    this.weatherSignupFullName = page.locator('#weather-alert-signup-full-name');
+    this.weatherSignupZipCode = page.locator('#weather-alert-signup-zip-code');
+    this.weatherSignupSubmitButton = page.locator('.weather-signup-submit');
+    this.weatherSignupStatus = page.locator('.weather-signup-status');
     this.noticeCards = page.locator('.notice-card');
     this.meetingCards = page.locator('.meeting-card');
     this.serviceCards = page.locator('.service-card');
@@ -143,6 +157,46 @@ export class HomePage {
     );
   }
 
+  async enableAlertSignup(apiEndpoint = '/mock-alert-signup', enabled = true): Promise<void> {
+    await this.page.addInitScript(
+      (args) => {
+        const [endpoint, isEnabled] = args as [string, boolean];
+
+        const runtimeWindow = window as Window & {
+          __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+            chatbot?: {
+              provider?: string;
+              mode?: string;
+              chatUrl?: string;
+              buttonPosition?: string;
+              apiEndpoint?: string;
+            };
+            weather?: {
+              apiEndpoint?: string;
+              allowBrowserFallback?: boolean;
+              alertSignup?: {
+                enabled?: boolean;
+                apiEndpoint?: string;
+              };
+            };
+          };
+        };
+
+        runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+          weather: {
+            ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
+            alertSignup: {
+              enabled: isEnabled,
+              apiEndpoint: endpoint,
+            },
+          },
+        };
+      },
+      [apiEndpoint, enabled],
+    );
+  }
+
   async sendAssistantQuestion(question: string): Promise<void> {
     await expect(this.assistantInput).toBeEnabled();
     await this.assistantInput.fill(question);
@@ -165,5 +219,17 @@ export class HomePage {
   async searchFor(query: string): Promise<void> {
     await this.searchInput.fill(query);
     await expect(this.searchInput).toHaveValue(query);
+  }
+
+  async submitWeatherAlertSignup(destination: string, fullName?: string): Promise<void> {
+    await this.weatherSignupDestination.fill(destination);
+
+    if (fullName) {
+      await this.weatherSignupFullName.fill(fullName);
+    }
+
+    await this.weatherSignupSubmitButton.scrollIntoViewIfNeeded();
+    await this.weatherSignupSubmitButton.focus();
+    await this.weatherSignupSubmitButton.press('Enter');
   }
 }

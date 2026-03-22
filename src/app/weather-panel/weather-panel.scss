@@ -37,7 +37,10 @@
 .weather-current-card,
 .weather-period-card,
 .weather-alert-card,
-.weather-alert-list {
+.weather-alert-list,
+.weather-signup-shell,
+.weather-signup-form,
+.weather-signup-field {
   display: grid;
 }
 
@@ -46,7 +49,10 @@
 .weather-current-card,
 .weather-period-card,
 .weather-alert-card,
-.weather-alert-list {
+.weather-alert-list,
+.weather-signup-shell,
+.weather-signup-form,
+.weather-signup-field {
   gap: 0.75rem;
 }
 
@@ -59,7 +65,10 @@
 .weather-period-card span,
 .weather-alert-card p,
 .weather-alert-card small,
-.weather-alert-meta span {
+.weather-alert-meta span,
+.weather-signup-copy p,
+.weather-signup-note,
+.weather-signup-status {
   margin: 0;
   line-height: 1.6;
 }
@@ -72,7 +81,9 @@
 .weather-alert-card small,
 .weather-alert-meta span,
 .weather-source,
-.weather-updated {
+.weather-updated,
+.weather-signup-copy p,
+.weather-signup-note {
   color: var(--ink-700);
 }
 
@@ -235,6 +246,66 @@
   background: rgba(241, 248, 244, 0.95);
 }
 
+.weather-signup-shell {
+  padding: 1.2rem;
+  border-radius: 24px;
+  border: 1px solid rgba(13, 44, 84, 0.1);
+  background: rgba(244, 248, 255, 0.96);
+}
+
+.weather-signup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.weather-signup-copy h4,
+.weather-signup-field span {
+  color: var(--ink-900);
+}
+
+.weather-signup-copy h4 {
+  margin: 0;
+}
+
+.weather-signup-field span {
+  font-weight: 700;
+}
+
+.weather-signup-field input,
+.weather-signup-field select {
+  width: 100%;
+  padding: 0.82rem 0.95rem;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink-900);
+}
+
+.weather-signup-field input[readonly] {
+  background: rgba(13, 44, 84, 0.05);
+}
+
+.weather-signup-status {
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  font-weight: 700;
+}
+
+.weather-signup-status.is-success {
+  background: rgba(43, 117, 79, 0.12);
+  color: #185d39;
+}
+
+.weather-signup-status.is-error {
+  background: rgba(168, 35, 57, 0.08);
+  color: #7c2130;
+}
+
+.weather-signup-submit {
+  width: 100%;
+}
+
 .weather-alert-meta {
   justify-content: space-between;
   gap: 0.75rem;
@@ -299,7 +370,9 @@
 
 .weather-action:focus-visible,
 .weather-action.is-link:focus-visible,
-.weather-icon:focus-visible {
+.weather-icon:focus-visible,
+.weather-signup-field input:focus-visible,
+.weather-signup-field select:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
@@ -331,6 +404,10 @@
   }
 
   .weather-period-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .weather-signup-grid {
     grid-template-columns: 1fr;
   }
 

@@ -140,4 +140,48 @@ test.describe('homepage weather', () => {
     await expect(homePage.weatherUpdatedLabel).toContainText('Forecast updated');
     expect(requestCount).toBe(2);
   });
+
+  test('submits the severe weather signup form when alert signups are enabled', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    const signupRequests: Array<Record<string, unknown>> = [];
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      signupRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message:
+            'Thanks. Check your inbox or phone for the confirmation step before Wiley alerts begin.',
+        }),
+      });
+    });
+
+    await homePage.goto();
+
+    await expect(homePage.weatherSignupShell).toBeVisible();
+    await expect(homePage.weatherSignupZipCode).toHaveValue('81092');
+
+    await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident');
+
+    await expect(homePage.weatherSignupStatus).toContainText(
+      'Check your inbox or phone for the confirmation step',
+    );
+    await expect(homePage.weatherSignupDestination).toHaveValue('');
+    await expect(homePage.weatherSignupFullName).toHaveValue('');
+    expect(signupRequests).toEqual([
+      {
+        channel: 'email',
+        destination: 'resident@example.com',
+        fullName: 'Jordan Resident',
+        zipCode: '81092',
+      },
+    ]);
+  });
 });

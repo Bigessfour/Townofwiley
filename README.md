@@ -53,15 +53,16 @@ frontend:
 			- node_modules/**/*
 ```
 
-Custom domain recovery details:
+Current public domain details:
 
-- Domain under recovery: `townofwiley.gov`
-- Preferred public hostname during recovery: `www.townofwiley.gov`
+- Public hostnames: `townofwiley.gov` and `www.townofwiley.gov`
 - Known-good fallback hostname: `https://main.d331voxr1fhoir.amplifyapp.com`
 - Amplify status at last check: `AVAILABLE`
 - Current Amplify branch mapping:
+  - apex (`townofwiley.gov`) -> `main`
   - `www` -> `main`
-- Current Amplify-required `www` target:
+- Current Amplify target:
+  - `townofwiley.gov` -> `d3fmdu29qcwosh.cloudfront.net`
   - `www.townofwiley.gov` -> `d3fmdu29qcwosh.cloudfront.net`
 - Amplify verification CNAME:
   - Name: `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov`
@@ -69,10 +70,11 @@ Custom domain recovery details:
 
 Important custom-domain note for future maintainers:
 
-- The apex domain (`townofwiley.gov`) repeatedly caused CloudFront alias conflicts when attached directly in Amplify.
-- The current stable recovery strategy is to let Amplify own `www` only and handle the root-domain redirect separately after `www` is healthy.
-- Route 53 is now the intended authoritative DNS provider for `townofwiley.gov`.
-- Do not point the apex at an old or random CloudFront hostname from a failed Amplify attempt.
+- Route 53 is the authoritative DNS provider for `townofwiley.gov`.
+- Both `townofwiley.gov` and `www.townofwiley.gov` are attached to Amplify and serve the live site.
+- The Route 53 hosted zone now includes an apex alias `A` record that points at the Amplify CloudFront target.
+- Keep the apex hosted through Route 53 alias records; do not replace it with a zone-apex `CNAME` or a random historical CloudFront hostname from a failed setup.
+- If the domain is ever rebuilt, update the Amplify domain association first, then verify the Route 53 apex alias and `www` record together.
 
 ### Route 53
 
@@ -86,16 +88,20 @@ Important custom-domain note for future maintainers:
 
 Route 53 DNS records expected during the current recovery path:
 
+- `townofwiley.gov` `A` alias -> `d3fmdu29qcwosh.cloudfront.net`
 - `www.townofwiley.gov` `CNAME` -> `d3fmdu29qcwosh.cloudfront.net`
 - `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov` `CNAME` -> `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
-- Root-domain handling should be treated separately from Amplify until an explicit apex plan is implemented.
+- Route 53 may also create or later require an apex `AAAA` alias if IPv6 is enabled for the attached CloudFront target.
 
-Current DNS migration note:
+Current DNS note:
 
-- During registrar propagation, some public resolvers may still return the old delegated nameservers for several hours.
-- Route 53 can be considered ready once public NS lookups stop returning Cloudflare and instead return the four AWS nameservers above.
-- As of the current recovery state, only `www` is intentionally wired through Amplify. The bare domain still needs a separate redirect or direct apex-hosting decision.
-- If mail forwarding is still needed after the Cloudflare removal, replace the old Cloudflare Email Routing plan with an AWS-native or other managed mail-routing solution.
+- Public resolvers can disagree for a while after a nameserver migration. If a resolver still shows the old Cloudflare nameservers, wait for cache expiry and re-check against the four Route 53 nameservers above.
+- The AWS-side source of truth is the Route 53 hosted zone plus the Amplify domain association for `townofwiley.gov`.
+- Never use a `CNAME` at the zone apex.
+- When debugging apex outages, verify these in order:
+  1. `aws amplify get-domain-association --app-id d331voxr1fhoir --domain-name townofwiley.gov`
+  2. `aws route53 list-resource-record-sets --hosted-zone-id Z088746831TMIL67NZ0VF`
+  3. `Resolve-DnsName -Name townofwiley.gov -Type A -Server ns-360.awsdns-45.com`
 
 Verification check completed after creating the ACM CNAME:
 
@@ -259,6 +265,13 @@ Required runtime settings:
 - Lambda environment variable: `NWS_USER_AGENT`
 - Optional Lambda environment variable: `NWS_API_KEY`
 
+Current resident-facing weather UI behavior:
+
+- The weather panel shows the forecast, active alerts, and a severe-weather signup form when `weather.alertSignup.enabled` and `weather.alertSignup.apiEndpoint` are present in runtime config.
+- The signup form posts to `POST /subscriptions` on the severe-weather backend and asks residents to confirm before alerts begin.
+- The resident-facing signup is currently limited to ZIP code `81092` because the backend enforces that service area.
+- The checked-in runtime config currently enables this signup form and points it at the live severe-weather backend, so if the form disappears in production the first thing to verify is whether `public/runtime-config.js` was regenerated with the expected alert-signup block during the build.
+
 Recommended `NWS_USER_AGENT` format:
 
 ```text
@@ -317,6 +330,8 @@ Core backend files:
 - Lambda entrypoint shim: [infrastructure/severe-weather-signup/index.py](infrastructure/severe-weather-signup/index.py)
 - Backend tests: [infrastructure/severe-weather-signup/tests/test_app.py](infrastructure/severe-weather-signup/tests/test_app.py)
 - Deployment script: [scripts/deploy-severe-weather-backend.py](scripts/deploy-severe-weather-backend.py)
+- Frontend signup form logic: [src/app/weather-panel/weather-panel.ts](src/app/weather-panel/weather-panel.ts)
+- Frontend signup form template: [src/app/weather-panel/weather-panel.html](src/app/weather-panel/weather-panel.html)
 
 Service contract:
 
@@ -412,7 +427,7 @@ The weather integration is now covered at three layers:
 
 - Angular browser unit tests for direct NWS, proxy mode, and proxy fallback.
 - Node-level proxy tests for the AWS handler.
-- Playwright smoke coverage for homepage weather rendering and refresh behavior.
+- Playwright smoke coverage for homepage weather rendering, severe-weather signup, and refresh behavior.
 
 Commands:
 
