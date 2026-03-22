@@ -33,6 +33,20 @@ const templateSecrets = {
     secretAccessKey: '',
     sessionToken: '',
   },
+  xai: {
+    username: '',
+    password: '',
+    apiKey: '',
+  },
+  chatbot: {
+    easyPeasy: {
+      apiKey: '',
+      publicUrl: '',
+      apiEndpoint: '',
+      chatUrl: '',
+      buttonPosition: 'bottom-right',
+    },
+  },
 };
 
 const envMappings = [
@@ -41,6 +55,14 @@ const envMappings = [
   { env: 'AWS_SECRET_ACCESS_KEY', path: ['aws', 'secretAccessKey'] },
   { env: 'AWS_SESSION_TOKEN', path: ['aws', 'sessionToken'] },
   { env: 'AWS_REGION', path: ['aws', 'region'] },
+  { env: 'XAI_USERNAME', path: ['xai', 'username'] },
+  { env: 'XAI_PASSWORD', path: ['xai', 'password'] },
+  { env: 'XAI_API_KEY', path: ['xai', 'apiKey'] },
+  { env: 'EASYPEASY_API_KEY', path: ['chatbot', 'easyPeasy', 'apiKey'] },
+  { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },
+  { env: 'EASYPEASY_API_ENDPOINT', path: ['chatbot', 'easyPeasy', 'apiEndpoint'] },
+  { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
+  { env: 'EASYPEASY_BUTTON_POSITION', path: ['chatbot', 'easyPeasy', 'buttonPosition'] },
 ];
 
 function ensureStructure() {

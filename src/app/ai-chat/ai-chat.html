@@ -1,0 +1,81 @@
+<section class="assistant-shell" aria-labelledby="assistant-heading">
+  <div class="assistant-intro">
+    <p class="assistant-kicker">Scoped Site Assistant</p>
+    <h3 id="assistant-heading">Ask Wiley</h3>
+    <p class="assistant-copy">
+      This assistant uses the Town of Wiley Easy-Peasy bot through a secure proxy, so the API key
+      stays off the public site.
+    </p>
+    <p class="assistant-status" [class.is-offline]="!isConfigured">
+      {{
+        isConfigured
+          ? 'Programmatic chat is online.'
+          : 'Programmatic chat is offline in this environment.'
+      }}
+    </p>
+  </div>
+
+  <div class="assistant-actions">
+    <button type="button" class="assistant-launch" (click)="toggleOpen()">
+      {{ isOpen() ? 'Hide assistant' : 'Ask a question' }}
+    </button>
+  </div>
+
+  @if (isOpen()) {
+    <div class="assistant-window">
+      <div class="assistant-prompts" aria-label="Suggested questions">
+        @for (prompt of starterPrompts; track prompt) {
+          <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
+            {{ prompt }}
+          </button>
+        }
+      </div>
+
+      <div class="assistant-messages" aria-live="polite">
+        @for (message of messages(); track $index) {
+          <article class="assistant-message" [class.is-user]="message.role === 'user'">
+            <span class="assistant-role">{{
+              message.role === 'user' ? 'You' : 'Wiley assistant'
+            }}</span>
+            <p>{{ message.content }}</p>
+
+            @if (message.links?.length) {
+              <div class="assistant-links">
+                @for (link of message.links; track link.href) {
+                  <a [attr.href]="link.href">{{ link.label }}</a>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+
+      <div class="assistant-form">
+        <label class="assistant-label" for="assistant-question"
+          >Ask about meetings, officials, records, or services</label
+        >
+        <div class="assistant-entry-row">
+          <input
+            id="assistant-question"
+            class="assistant-input"
+            type="text"
+            [value]="draft()"
+            (input)="updateDraft($any($event.target).value)"
+            (keydown.enter)="sendMessage()"
+            placeholder="Ask a Town of Wiley question"
+            autocomplete="off"
+            [disabled]="isSending()"
+          />
+          <button
+            type="button"
+            class="assistant-send"
+            (click)="sendMessage()"
+            [disabled]="isSending()"
+          >
+            {{ isSending() ? 'Sending...' : 'Send' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

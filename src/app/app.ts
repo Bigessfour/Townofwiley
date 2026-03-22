@@ -1,4 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
+import { AiChat } from './ai-chat/ai-chat';
+import { getChatbotRuntimeConfig } from './chatbot-config';
 
 interface NavLink {
   label: string;
@@ -22,6 +24,43 @@ interface MeetingItem {
   title: string;
   schedule: string;
   format: string;
+  location?: string;
+  agendaNote?: string;
+  cta?: string;
+  href?: string;
+}
+
+interface CalendarAction {
+  label: string;
+  href: string;
+  downloadFileName?: string;
+  external?: boolean;
+}
+
+interface CalendarItem {
+  title: string;
+  date: string;
+  category: string;
+  detail: string;
+  location: string;
+  recurrence: string;
+  agendaNote?: string;
+  actions: CalendarAction[];
+}
+
+interface CalendarEventSeed {
+  title: string;
+  dateLabel: string;
+  category: string;
+  detail: string;
+  location: string;
+  recurrence: string;
+  agendaNote?: string;
+  startLocal: string;
+  endLocal: string;
+  recurrenceRule?: string;
+  extraActions?: CalendarAction[];
+  slug: string;
 }
 
 interface ServiceCard {
@@ -46,6 +85,14 @@ interface ContactItem {
   label: string;
   value: string;
   detail: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+interface LeadershipGroup {
+  title: string;
+  detail: string;
+  members: string[];
 }
 
 interface SearchItem {
@@ -64,14 +111,18 @@ interface CommunityFact {
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [AiChat],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
+  private readonly chatbotConfig = getChatbotRuntimeConfig();
+
   protected readonly title = signal('Town of Wiley');
   protected readonly searchQuery = signal('');
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly isProgrammaticChatEnabled =
+    this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
 
   protected readonly communityFacts: CommunityFact[] = [
     {
@@ -99,6 +150,10 @@ export class App {
     {
       label: 'Notices',
       href: '#alerts'
+    },
+    {
+      label: 'Calendar',
+      href: '#calendar'
     },
     {
       label: 'Services',
@@ -165,20 +220,76 @@ export class App {
 
   protected readonly meetings: MeetingItem[] = [
     {
-      title: 'Town Board Regular Meeting',
-      schedule: 'Second Tuesday of each month, 6:00 PM',
-      format: 'Agenda packet, minutes, livestream link, and ADA-accessible documents should publish here.'
+      title: 'City Council Regular Meeting',
+      schedule: 'Every 2nd Monday of each month, starts promptly at 6:00 PM',
+      format: 'Agenda packets, approved minutes, livestream or recording links, and ADA-accessible documents should all publish through this meeting record.',
+      location: 'Wiley Town Hall, 304 Main Street',
+      agendaNote: 'Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they wish time on the agenda.',
+      cta: 'Add the recurring council meeting to your calendar',
+      href: '#calendar'
     },
     {
       title: 'Planning and zoning review',
       schedule: 'First Thursday of each month, 5:30 PM',
-      format: 'Use this slot for hearing notices, staff reports, application deadlines, and map links.'
+      format: 'Use this slot for hearing notices, staff reports, application deadlines, and map links.',
+      location: 'Wiley Town Hall, 304 Main Street'
     },
     {
       title: 'Community calendar and school-centered events',
       schedule: 'Resident events, closures, and deadlines',
-      format: 'Calendar filters should separate meetings, alerts, school events, recreation, and facility reservations.'
+      format: 'Calendar filters should separate meetings, alerts, school events, recreation, and facility reservations.',
+      cta: 'Browse the calendar section',
+      href: '#calendar'
     }
+  ];
+
+  protected readonly calendarItems: CalendarItem[] = [
+    this.createCalendarItem({
+      title: 'City Council Regular Meeting',
+      dateLabel: 'Every 2nd Monday, 6:00 PM',
+      category: 'City Council',
+      detail: 'Make this the canonical event record for agendas, minutes, livestream links, accessible attachments, cancellations, and room changes so residents know exactly where to look each month.',
+      location: 'Wiley Town Hall, 304 Main Street',
+      recurrence: 'Recurring monthly',
+      agendaNote: 'Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they wish to be placed on the agenda before the meeting opens.',
+      startLocal: '20260413T180000',
+      endLocal: '20260413T190000',
+      recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
+      extraActions: [
+        {
+          label: 'Call Town Hall',
+          href: 'tel:+17198294974'
+        },
+        {
+          label: 'Email the Clerk',
+          href: 'mailto:deb.dillon@townofwiley.gov'
+        }
+      ],
+      slug: 'city-council-regular-meeting'
+    }),
+    this.createCalendarItem({
+      title: 'Planning and zoning review',
+      dateLabel: 'First Thursday, 5:30 PM',
+      category: 'Hearing and land use',
+      detail: 'Attach hearing notices, staff reports, filing deadlines, maps, and application packets directly to the event so the process stays transparent.',
+      location: 'Wiley Town Hall, 304 Main Street',
+      recurrence: 'Recurring monthly',
+      startLocal: '20260402T173000',
+      endLocal: '20260402T183000',
+      recurrenceRule: 'FREQ=MONTHLY;BYDAY=1TH',
+      slug: 'planning-zoning-review'
+    }),
+    this.createCalendarItem({
+      title: 'Community deadlines and service updates',
+      dateLabel: 'Seasonal deadlines, closures, and town reminders',
+      category: 'Community calendar',
+      detail: 'Use calendar cards for cleanup days, utility interruptions, school-centered events, seasonal deadlines, and weather-sensitive notices instead of burying them in scattered updates.',
+      location: 'Town-wide notices and service locations',
+      recurrence: 'Operational updates',
+      startLocal: '20260425T080000',
+      endLocal: '20260425T090000',
+      slug: 'community-deadlines-service-updates'
+    })
   ];
 
   protected readonly serviceCards: ServiceCard[] = [
@@ -266,24 +377,54 @@ export class App {
 
   protected readonly contacts: ContactItem[] = [
     {
-      label: 'Town Hall and clerk services',
-      value: 'Address, office hours, and primary phone number',
-      detail: 'In a small town, the homepage should keep core contact details visible instead of hiding them on a separate department page.'
+      label: 'Town Information',
+      value: '(719) 829-4974',
+      detail: 'Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.',
+      href: 'tel:+17198294974'
     },
     {
-      label: 'Report an accessibility barrier',
-      value: 'Dedicated email form and phone route',
-      detail: 'Publish a direct way for residents to request alternate formats or report inaccessible features.'
+      label: 'Mayor',
+      value: 'Stephen McKitrick',
+      detail: 'Official mayoral correspondence can be sent to this alias and routed through Cloudflare Email Routing to the current verified destination inbox.',
+      href: 'mailto:stephen.mckitrick@townofwiley.gov',
+      linkLabel: 'stephen.mckitrick@townofwiley.gov'
     },
     {
-      label: 'Emergency and public works contact',
-      value: 'Service outage and urgent issue intake',
-      detail: 'Reserve space for after-hours utility issues, road hazards, snow or weather-related service changes, and time-sensitive closures.'
+      label: 'City Clerk',
+      value: 'Deb Dillon',
+      detail: 'Clerk services, meeting packets, records coordination, and agenda planning support.',
+      href: 'mailto:deb.dillon@townofwiley.gov',
+      linkLabel: 'deb.dillon@townofwiley.gov'
     },
     {
-      label: 'Clerk, records, and permits',
-      value: 'Forms, submissions, and records help',
-      detail: 'Group routine clerk services so residents are not forced to guess which office handles each task.'
+      label: 'Town Superintendent',
+      value: 'Scott Whitman',
+      detail: 'Town operations, public works coordination, and service follow-up.',
+      href: 'mailto:scott.whitman@townofwiley.gov',
+      linkLabel: 'scott.whitman@townofwiley.gov'
+    }
+  ];
+
+  protected readonly leadershipGroups: LeadershipGroup[] = [
+    {
+      title: 'Mayor and Council',
+      detail: 'Elected leadership should be visible near meetings and contact paths so residents can quickly identify who represents them.',
+      members: [
+        'Mayor: Steve McKitrick',
+        'Councilman: Julie Esgar',
+        'Councilman: Dale Specht',
+        'Councilman: Dale Stewart',
+        'Councilman: Alan Campbell',
+        'Councilman: Sandy Coen'
+      ]
+    },
+    {
+      title: 'Town Administration',
+      detail: 'Administrative leaders should stay visible because small-town residents often need direct, role-based contacts rather than department directories.',
+      members: [
+        'City Clerk: Deb Dillon',
+        'Town Superintendent: Scott Whitman'
+      ]
     }
   ];
 
@@ -304,10 +445,17 @@ export class App {
     },
     {
       title: 'Find the next town meeting',
-      summary: 'Jump to current notices, schedules, and agenda publishing expectations.',
+      summary: 'Jump to the City Council schedule, agenda guidance, and the calendar section.',
       category: 'Meetings',
       href: '#alerts',
-      keywords: ['meeting', 'agenda', 'minutes', 'board meeting', 'public notice']
+      keywords: ['meeting', 'agenda', 'minutes', 'city council', '2nd monday', 'public notice', '304 main street']
+    },
+    {
+      title: 'Open the town calendar',
+      summary: 'See City Council meetings, hearings, deadlines, and community events in one calendar section with add-to-calendar links.',
+      category: 'Calendar',
+      href: '#calendar',
+      keywords: ['calendar', 'events', 'schedule', 'deadlines', 'hearing', 'community calendar', 'google calendar', 'ics', 'city council']
     },
     {
       title: 'Request public records',
@@ -325,10 +473,10 @@ export class App {
     },
     {
       title: 'Contact Town Hall',
-      summary: 'Find office hours, department contacts, and issue escalation points.',
+      summary: 'Find office hours, department contacts, official alias emails, and issue escalation points.',
       category: 'Contact',
       href: '#contact',
-      keywords: ['contact', 'office hours', 'phone', 'town hall', 'clerk', 'permits', 'wiley']
+      keywords: ['contact', 'office hours', 'phone', 'town hall', 'clerk', 'permits', 'wiley', '719 829 4974', 'deb.dillon@townofwiley.gov', 'scott.whitman@townofwiley.gov', 'stephen.mckitrick@townofwiley.gov', 'deb dillon', 'scott whitman', 'stephen mckitrick', 'steve mckitrick', 'julie esgar']
     }
   ];
 
@@ -352,5 +500,85 @@ export class App {
 
   protected updateSearch(query: string): void {
     this.searchQuery.set(query);
+  }
+
+  private createCalendarItem(seed: CalendarEventSeed): CalendarItem {
+    return {
+      title: seed.title,
+      date: seed.dateLabel,
+      category: seed.category,
+      detail: seed.detail,
+      location: seed.location,
+      recurrence: seed.recurrence,
+      agendaNote: seed.agendaNote,
+      actions: [
+        {
+          label: 'Add to Google Calendar',
+          href: this.createGoogleCalendarLink(seed),
+          external: true
+        },
+        {
+          label: 'Download ICS',
+          href: this.createIcsLink(seed),
+          downloadFileName: `${seed.slug}.ics`
+        },
+        {
+          label: 'Agenda details',
+          href: '#contact'
+        },
+        ...(seed.extraActions ?? [])
+      ]
+    };
+  }
+
+  private createGoogleCalendarLink(seed: CalendarEventSeed): string {
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: seed.title,
+      dates: `${seed.startLocal}/${seed.endLocal}`,
+      details: [seed.detail, seed.agendaNote].filter(Boolean).join(' '),
+      location: seed.location,
+      ctz: 'America/Denver'
+    });
+
+    if (seed.recurrenceRule) {
+      params.set('recur', `RRULE:${seed.recurrenceRule}`);
+    }
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  private createIcsLink(seed: CalendarEventSeed): string {
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Town of Wiley//Public Calendar//EN',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${seed.slug}@townofwiley.gov`,
+      `DTSTAMP:${this.createUtcTimestamp()}`,
+      `SUMMARY:${this.escapeIcsText(seed.title)}`,
+      `DTSTART;TZID=America/Denver:${seed.startLocal}`,
+      `DTEND;TZID=America/Denver:${seed.endLocal}`,
+      `LOCATION:${this.escapeIcsText(seed.location)}`,
+      `DESCRIPTION:${this.escapeIcsText([seed.detail, seed.agendaNote].filter(Boolean).join(' '))}`,
+      seed.recurrenceRule ? `RRULE:${seed.recurrenceRule}` : '',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].filter(Boolean);
+
+    return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join('\r\n'))}`;
+  }
+
+  private createUtcTimestamp(): string {
+    return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  }
+
+  private escapeIcsText(value: string): string {
+    return value
+      .replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;')
+      .replace(/,/g, '\\,')
+      .replace(/\n/g, '\\n');
   }
 }

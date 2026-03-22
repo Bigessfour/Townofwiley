@@ -24,5 +24,11 @@ test.describe('homepage navigation', () => {
 
     await homePage.searchFor('next town meeting');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.meetings);
+
+    await homePage.searchFor('community calendar');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.calendar);
+
+    await homePage.searchFor('city council 2nd monday');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.council);
   });
 });

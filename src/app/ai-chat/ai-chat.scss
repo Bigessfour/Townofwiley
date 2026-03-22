@@ -1,0 +1,185 @@
+:host {
+  display: block;
+  margin-top: 1.1rem;
+}
+
+.assistant-shell {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.assistant-intro {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.assistant-kicker,
+.assistant-copy,
+.assistant-status,
+.assistant-role,
+.assistant-label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.assistant-status {
+  font-size: 0.88rem;
+}
+
+.assistant-status.is-offline {
+  color: rgba(255, 219, 153, 0.98);
+}
+
+.assistant-kicker,
+.assistant-role {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.assistant-copy,
+.assistant-message p,
+.assistant-input {
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.assistant-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.assistant-launch,
+.assistant-chip,
+.assistant-send,
+.assistant-links a {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.assistant-launch,
+.assistant-send {
+  padding: 0.8rem 1rem;
+}
+
+.assistant-chip,
+.assistant-links a {
+  padding: 0.55rem 0.8rem;
+  font-size: 0.88rem;
+}
+
+.assistant-launch:hover,
+.assistant-chip:hover,
+.assistant-send:hover,
+.assistant-links a:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.assistant-launch:disabled,
+.assistant-chip:disabled,
+.assistant-send:disabled,
+.assistant-input:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+  box-shadow: none;
+}
+
+.assistant-window {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.assistant-prompts,
+.assistant-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.assistant-messages {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 20rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.assistant-message {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.assistant-message.is-user {
+  background: rgba(164, 90, 44, 0.28);
+}
+
+.assistant-message p {
+  margin: 0;
+  white-space: pre-line;
+  color: #fff;
+}
+
+.assistant-form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.assistant-entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.assistant-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.assistant-input::placeholder {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.assistant-input:focus-visible,
+.assistant-launch:focus-visible,
+.assistant-chip:focus-visible,
+.assistant-send:focus-visible,
+.assistant-links a:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .assistant-entry-row {
+    grid-template-columns: 1fr;
+  }
+
+  .assistant-send {
+    width: 100%;
+  }
+}

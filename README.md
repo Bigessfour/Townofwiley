@@ -61,6 +61,17 @@ Cloudflare DNS records confirmed on this machine:
 - `www.townofwiley.gov` `CNAME` -> `main.d331voxr1fhoir.amplifyapp.com`
 - `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov` `CNAME` -> `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
 
+Cloudflare Email Routing plan:
+
+- Use Cloudflare's built-in Email Routing for inbound official alias forwarding.
+- Current front-end aliases referenced on the site:
+	- `stephen.mckitrick@townofwiley.gov`
+	- `deb.dillon@townofwiley.gov`
+	- `scott.whitman@townofwiley.gov`
+- Each custom address must forward to one verified destination inbox in Cloudflare Email Routing.
+- Enabling Email Routing will add and lock the required Cloudflare-managed `MX` and `SPF` records for the zone.
+- The current repo-local API token can read the zone but does not yet have Email Routing management permission, so alias creation must be completed in the Cloudflare dashboard or with a broader token before these links become live.
+
 Verification check completed after creating the ACM CNAME:
 
 ```text
@@ -120,3 +131,27 @@ Practical workflow:
 Current security hardening:
 
 - `package.json` now overrides `undici` to `^7.24.5` so the dependency tree does not stay pinned to the vulnerable `7.22.0` version pulled in by `@angular/build`.
+
+## Easy-Peasy Chatbot
+
+The site can now load the Easy-Peasy chatbot from deployment-time runtime config instead of hardcoding a bot URL into the Angular app shell.
+
+How it works:
+
+- `public/runtime-config.js` stores the browser-safe chatbot settings.
+- `public/easy-peasy-loader.js` injects the Easy-Peasy widget only when a chatbot URL is configured.
+- `npm start` and `npm run build` both regenerate `public/runtime-config.js` before Angular starts.
+
+Configuration sources:
+
+- `EASYPEASY_CHAT_URL`
+- Optional `EASYPEASY_BUTTON_POSITION`
+- `secrets/local/user-secrets.json -> chatbot.easyPeasy.chatUrl`
+
+Amplify setup:
+
+1. Create the bot in Easy-Peasy and copy the bot URL.
+2. Add `EASYPEASY_CHAT_URL` as an Amplify environment variable for the `main` branch.
+3. Redeploy. If the value is present, the widget loads automatically on every page.
+
+If no chatbot URL is configured, the site renders normally and no Easy-Peasy script is injected.

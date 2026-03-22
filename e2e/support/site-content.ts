@@ -8,7 +8,7 @@ export const siteContent = {
     'Request records, permits, or clerk help',
   ],
   communityFactLabels: ['Town profile', 'Location', 'Regional access'],
-  navLabels: ['Top Tasks', 'Notices', 'Services', 'Records', 'Accessibility', 'Contact'],
+  navLabels: ['Top Tasks', 'Notices', 'Calendar', 'Services', 'Records', 'Accessibility', 'Contact'],
   serviceLabels: [
     'Online payments',
     'Street, utility, and property issue reporting',
@@ -21,5 +21,8 @@ export const siteContent = {
     payments: 'Pay utility bill',
     issues: 'Report a pothole, outage, or street issue',
     meetings: 'Find the next town meeting',
+    calendar: 'Open the town calendar',
+    council: 'City Council Regular Meeting',
+    clerk: 'Contact Town Hall',
   },
 };

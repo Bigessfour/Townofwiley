@@ -40,70 +40,70 @@
 }
 
 .welcome-hero {
-       display: grid;
-       grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
-       gap: 1rem;
-       align-items: end;
-       margin-top: 1.75rem;
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
+	gap: 1rem;
+	align-items: end;
+	margin-top: 1.75rem;
 }
 
 .welcome-hero-copy {
-       display: grid;
-       gap: 1rem;
-       padding: 1.5rem;
-       border: 1px solid rgba(13, 44, 84, 0.12);
-       border-radius: 28px;
-       background: linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(247, 241, 231, 0.92));
-       box-shadow: 0 24px 60px rgba(17, 36, 61, 0.1);
+	display: grid;
+	gap: 1rem;
+	padding: 1.5rem;
+	border: 1px solid rgba(13, 44, 84, 0.12);
+	border-radius: 28px;
+	background: linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(247, 241, 231, 0.92));
+	box-shadow: 0 24px 60px rgba(17, 36, 61, 0.1);
 }
 
 .hero-label {
-       margin: 0;
-       color: var(--civic-rust);
-       font-size: 0.82rem;
-       font-weight: 700;
-       letter-spacing: 0.16em;
-       text-transform: uppercase;
+	margin: 0;
+	color: var(--civic-rust);
+	font-size: 0.82rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
 }
 
 .welcome-hero-copy p:last-child {
-       margin: 0;
-       line-height: 1.65;
-       color: var(--ink-700);
+	margin: 0;
+	line-height: 1.65;
+	color: var(--ink-700);
 }
 
 .welcome-hero-media {
-       position: relative;
-       margin: 0;
-       overflow: hidden;
-       border-radius: 32px;
-       border: 1px solid rgba(13, 44, 84, 0.12);
-       box-shadow: 0 28px 70px rgba(17, 36, 61, 0.16);
-       aspect-ratio: 16 / 9;
-       min-height: 20rem;
-       background: rgba(19, 36, 62, 0.12);
+	position: relative;
+	margin: 0;
+	overflow: hidden;
+	border-radius: 32px;
+	border: 1px solid rgba(13, 44, 84, 0.12);
+	box-shadow: 0 28px 70px rgba(17, 36, 61, 0.16);
+	aspect-ratio: 16 / 9;
+	min-height: 20rem;
+	background: rgba(19, 36, 62, 0.12);
 }
 
 .welcome-hero-media img {
-       width: 100%;
-       height: 100%;
-       object-fit: cover;
-       display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
 }
 
 .welcome-hero-media figcaption {
-       position: absolute;
-       left: 1rem;
-       bottom: 1rem;
-       max-width: min(28rem, calc(100% - 2rem));
-       margin: 0;
-       padding: 0.8rem 1rem;
-       border-radius: 18px;
-       background: rgba(19, 36, 62, 0.76);
-       color: #fff;
-       font-weight: 600;
-       line-height: 1.45;
-       backdrop-filter: blur(6px);
+	position: absolute;
+	left: 1rem;
+	bottom: 1rem;
+	max-width: min(28rem, calc(100% - 2rem));
+	margin: 0;
+	padding: 0.8rem 1rem;
+	border-radius: 18px;
+	background: rgba(19, 36, 62, 0.76);
+	color: #fff;
+	font-weight: 600;
+	line-height: 1.45;
+	backdrop-filter: blur(6px);
 }
 
 .eyebrow,
@@ -240,7 +240,9 @@ h3 {
 
 .task-grid,
 .service-grid,
-.contact-grid {
+.contact-grid,
+.calendar-grid,
+.leadership-grid {
 	display: grid;
 	gap: 1rem;
 }
@@ -310,6 +312,8 @@ h3 {
 .search-result span,
 .search-note,
 .info-row span,
+.meeting-location,
+.meeting-agenda-note,
 .meeting-card small,
 .service-card p,
 .contact-card p,
@@ -401,6 +405,113 @@ h3 {
 	margin-top: 1rem;
 }
 
+.calendar-panel {
+	margin-top: 1rem;
+}
+
+.calendar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1.5rem;
+}
+
+.calendar-meta-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.calendar-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.4rem 0.75rem;
+	border-radius: 999px;
+	background: rgba(13, 44, 84, 0.09);
+	color: var(--ink-800);
+	font-size: 0.82rem;
+	font-weight: 700;
+}
+
+.calendar-copy {
+	max-width: 48rem;
+	margin: 0.9rem 0 0;
+	line-height: 1.7;
+	color: var(--ink-700);
+}
+
+.calendar-grid {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin-top: 1.4rem;
+}
+
+.calendar-card {
+	display: grid;
+	gap: 0.6rem;
+	padding: 1.35rem;
+	border-radius: 22px;
+	background: rgba(13, 44, 84, 0.04);
+	border: 1px solid rgba(13, 44, 84, 0.08);
+}
+
+.calendar-card strong {
+	color: var(--ink-900);
+	font-size: 1rem;
+}
+
+.calendar-location {
+	margin: 0;
+	font-weight: 700;
+	color: var(--ink-800);
+}
+
+.calendar-agenda-note,
+.meeting-agenda-note {
+	margin: 0;
+	padding: 0.85rem 1rem;
+	border-radius: 16px;
+	background: rgba(212, 161, 75, 0.12);
+	color: var(--ink-900);
+	font-weight: 600;
+}
+
+.calendar-card p {
+	margin: 0;
+	line-height: 1.6;
+	color: var(--ink-700);
+}
+
+.calendar-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 0.4rem;
+}
+
+.calendar-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem 0.95rem;
+	border: 1px solid rgba(13, 44, 84, 0.12);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.82);
+	color: var(--civic-blue);
+	font-weight: 700;
+	text-decoration: none;
+	transition:
+		transform 160ms ease,
+		box-shadow 160ms ease,
+		border-color 160ms ease,
+		background-color 160ms ease;
+}
+
+.calendar-action:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 28px rgba(17, 36, 61, 0.12);
+}
+
 .service-grid,
 .contact-grid {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -420,6 +531,20 @@ h3 {
 	margin-top: 0.45rem;
 }
 
+.contact-card strong {
+	display: block;
+}
+
+.contact-link {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 0.45rem;
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--civic-blue);
+	text-decoration: none;
+}
+
 .text-link {
 	display: inline-flex;
 	align-items: center;
@@ -435,6 +560,38 @@ h3 {
 
 .contact-grid {
 	margin-top: 1.25rem;
+}
+
+.leadership-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	margin-top: 1.25rem;
+}
+
+.leadership-card {
+	padding: 1.35rem;
+	border-radius: 22px;
+	background: rgba(13, 44, 84, 0.04);
+	border: 1px solid rgba(13, 44, 84, 0.08);
+}
+
+.leadership-card h3 {
+	margin-bottom: 0.55rem;
+}
+
+.leadership-card p {
+	margin: 0;
+	line-height: 1.6;
+	color: var(--ink-700);
+}
+
+.leadership-list {
+	margin: 1rem 0 0;
+	padding-left: 1.15rem;
+	color: var(--ink-900);
+}
+
+.leadership-list li + li {
+	margin-top: 0.45rem;
 }
 
 .compliance-note {
@@ -482,14 +639,24 @@ input:focus-visible {
 	.records-grid,
 	.service-grid,
 	.contact-grid,
+	.calendar-grid,
+	.leadership-grid,
 	.task-grid,
 	.community-facts {
 		grid-template-columns: 1fr;
 	}
 
+	.calendar-header {
+		flex-direction: column;
+	}
+
 	.site-footer {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.welcome-hero {
+		grid-template-columns: 1fr;
 	}
 }
 
@@ -510,5 +677,23 @@ input:focus-visible {
 
 	.section-nav {
 		gap: 0.5rem;
+	}
+
+	.welcome-hero-copy {
+		padding: 1.25rem;
+	}
+
+	.welcome-hero-media {
+		min-height: 15rem;
+		border-radius: 24px;
+	}
+
+	.welcome-hero-media figcaption {
+		left: 0.75rem;
+		right: 0.75rem;
+		bottom: 0.75rem;
+		max-width: none;
+		padding: 0.7rem 0.85rem;
+		font-size: 0.92rem;
 	}
 }
