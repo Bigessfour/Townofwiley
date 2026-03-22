@@ -47,6 +47,19 @@ const templateSecrets = {
       buttonPosition: 'bottom-right',
     },
   },
+  weather: {
+    nws: {
+      apiEndpoint: '',
+      allowBrowserFallback: true,
+      userAgent: '',
+      apiKey: '',
+    },
+    alertSignup: {
+      enabled: false,
+      apiEndpoint: '',
+      senderEmail: '',
+    },
+  },
 };
 
 const envMappings = [
@@ -63,6 +76,27 @@ const envMappings = [
   { env: 'EASYPEASY_API_ENDPOINT', path: ['chatbot', 'easyPeasy', 'apiEndpoint'] },
   { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BUTTON_POSITION', path: ['chatbot', 'easyPeasy', 'buttonPosition'] },
+  { env: 'NWS_PROXY_ENDPOINT', path: ['weather', 'nws', 'apiEndpoint'] },
+  {
+    env: 'NWS_ALLOW_BROWSER_FALLBACK',
+    path: ['weather', 'nws', 'allowBrowserFallback'],
+    transform: (value) => value.trim().toLowerCase() !== 'false',
+  },
+  { env: 'NWS_USER_AGENT', path: ['weather', 'nws', 'userAgent'] },
+  { env: 'NWS_API_KEY', path: ['weather', 'nws', 'apiKey'] },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_ENABLED',
+    path: ['weather', 'alertSignup', 'enabled'],
+    transform: (value) => value.trim().toLowerCase() === 'true',
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_API_ENDPOINT',
+    path: ['weather', 'alertSignup', 'apiEndpoint'],
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_SENDER_EMAIL',
+    path: ['weather', 'alertSignup', 'senderEmail'],
+  },
 ];
 
 function ensureStructure() {
@@ -274,7 +308,7 @@ function importEnvSecrets() {
       continue;
     }
 
-    setDeepValue(secrets, mapping.path, value);
+    setDeepValue(secrets, mapping.path, mapping.transform ? mapping.transform(value) : value);
     imported.push(mapping.env);
   }
 

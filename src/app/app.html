@@ -1,4 +1,4 @@
-<a class="skip-link" href="#main-content">Skip to main content</a>
+<a class="skip-link" href="#main-content" (click)="focusMainContent()">Skip to main content</a>
 
 <header class="site-header">
   <div class="masthead">
@@ -6,29 +6,36 @@
     <p class="status">Official Website In Development</p>
     <h1>{{ title() }}</h1>
     <p class="message">
-      A resident-first homepage scaffold for Wiley, Colorado, built around accessibility,
-      clear top tasks, public transparency, and the everyday services a small plains town needs first.
+      A resident-first homepage scaffold for Wiley, Colorado, built around accessibility, clear top
+      tasks, public transparency, and the everyday services a small plains town needs first.
     </p>
     <p class="subtext">
       For a town of about 437 residents in eastern Colorado, the homepage should stay practical:
-      fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.
+      fast notices, visible contact details, meeting access, utility help, and weather-sensitive
+      service updates.
     </p>
   </div>
 
   <section class="welcome-hero" aria-labelledby="welcome-hero-heading">
     <div class="welcome-hero-copy">
       <p class="hero-label">Main Welcome Image</p>
-      <h2 id="welcome-hero-heading">The homepage now opens with the Wiley hero image instead of only scaffold copy</h2>
+      <h2 id="welcome-hero-heading">
+        The homepage now opens with the Wiley hero image instead of only scaffold copy
+      </h2>
       <p>
         This banner places a recognizable local visual at the top of the page while the rest of the
-        homepage continues to organize notices, meetings, services, and contact details around resident tasks.
+        homepage continues to organize notices, meetings, services, and contact details around
+        resident tasks.
       </p>
     </div>
 
     <figure class="welcome-hero-media">
       <img
-        src="/hero-wiley.jpg"
+        ngSrc="/hero-wiley.jpg"
         alt="Family walking down a country road between irrigated fields outside Wiley, Colorado."
+        fill
+        priority
+        sizes="(max-width: 960px) 100vw, 60vw"
       />
       <figcaption>Current draft hero image for the Town of Wiley welcome page.</figcaption>
     </figure>
@@ -41,7 +48,7 @@
   </nav>
 </header>
 
-<main class="page-shell" id="main-content">
+<main class="page-shell" id="main-content" #mainContent tabindex="-1">
   <section class="hero-grid">
     <section class="hero-card" id="top-tasks" aria-labelledby="top-tasks-heading">
       <div class="community-facts" aria-label="Wiley profile">
@@ -55,7 +62,9 @@
       </div>
 
       <p class="section-kicker">Resident Priorities</p>
-      <h2 id="top-tasks-heading">Top tasks should be visible before residents start hunting through departments</h2>
+      <h2 id="top-tasks-heading">
+        Top tasks should be visible before residents start hunting through departments
+      </h2>
       <div class="task-grid">
         @for (task of topTasks; track task.title) {
           <a class="task-card" [attr.href]="task.href">
@@ -83,7 +92,8 @@
         spellcheck="false"
       />
       <p class="search-note">
-        Guided keyword matching stays in place for on-page shortcuts, and the in-page AI assistant can switch between embed and programmatic modes from deployment config.
+        Guided keyword matching stays in place for on-page shortcuts, and the in-page AI assistant
+        can switch between embed and programmatic modes from deployment config.
       </p>
 
       <div class="search-results" aria-live="polite">
@@ -97,7 +107,8 @@
           }
         } @else {
           <p class="empty-state">
-            No matching shortcut yet. Expand the search index as pages, documents, and services go live.
+            No matching shortcut yet. Expand the search index as pages, documents, and services go
+            live.
           </p>
         }
       </div>
@@ -107,6 +118,8 @@
       }
     </aside>
   </section>
+
+  <app-weather-panel id="weather" />
 
   <section class="content-grid" id="alerts">
     <section class="panel">
@@ -152,9 +165,13 @@
     <p class="section-kicker">Calendar</p>
     <div class="calendar-header">
       <div>
-        <h2 id="calendar-heading">A calendar app should combine meetings, hearings, deadlines, and community events</h2>
+        <h2 id="calendar-heading">
+          A calendar app should combine meetings, hearings, deadlines, and community events
+        </h2>
         <p class="calendar-copy">
-          Start with a single public calendar feed for board meetings, planning hearings, clerk deadlines, school-centered events, and service interruptions. Later, this can grow into filters, ICS exports, and department-managed entries.
+          Start with a single public calendar feed for board meetings, planning hearings, clerk
+          deadlines, school-centered events, and service interruptions. Later, this can grow into
+          filters, ICS exports, and department-managed entries.
         </p>
       </div>
       <a class="text-link" href="#alerts">Tie alerts back to notices and agendas</a>
@@ -233,7 +250,8 @@
         }
       </div>
       <p class="compliance-note">
-        Publish an accessibility statement, keep audits recurring, and provide a direct path for alternate-format and barrier reports.
+        Publish an accessibility statement, keep audits recurring, and provide a direct path for
+        alternate-format and barrier reports.
       </p>
     </section>
   </section>

@@ -11,10 +11,13 @@
     "test": "ng test",
     "test:unit": "ng test",
     "test:unit:browser": "ng test --watch=false --browsers=chromiumHeadless",
+    "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs",
+    "test:infra:alerts": "python -m unittest discover infrastructure/severe-weather-signup/tests",
+    "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:smoke",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:smoke": "playwright test e2e/specs/smoke",
+    "test:e2e:smoke": "playwright test e2e/specs/smoke --workers=1",
     "test:e2e:install": "playwright install chromium",
     "generate:runtime-config": "node scripts/generate-runtime-config.mjs",
     "secrets:init": "node scripts/user-secrets.mjs init",
@@ -24,7 +27,8 @@
     "secrets:lock": "node scripts/user-secrets.mjs lock",
     "secrets:lock:prune": "node scripts/user-secrets.mjs lock --prune-local",
     "secrets:prune-local": "node scripts/user-secrets.mjs prune-local",
-    "secrets:import-env": "node scripts/user-secrets.mjs import-env --lock"
+    "secrets:import-env": "node scripts/user-secrets.mjs import-env --lock",
+    "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py"
   },
   "prettier": {
     "printWidth": 100,
@@ -40,6 +44,10 @@
   },
   "private": true,
   "packageManager": "npm@11.6.2",
+  "engines": {
+    "node": "^24.0.0 || ^22.12.0",
+    "npm": "^11.0.0"
+  },
   "dependencies": {
     "@angular/animations": "^21.2.5",
     "@angular/cdk": "^21.2.3",

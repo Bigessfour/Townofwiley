@@ -26,6 +26,26 @@ const apiEndpoint =
   process.env.EASYPEASY_API_ENDPOINT?.trim() ||
   localSecrets.chatbot?.easyPeasy?.apiEndpoint?.trim() ||
   '';
+const weatherApiEndpoint =
+  process.env.NWS_PROXY_ENDPOINT?.trim() || localSecrets.weather?.nws?.apiEndpoint?.trim() || '';
+const severeWeatherSignupApiEndpoint =
+  process.env.SEVERE_WEATHER_SIGNUP_API_ENDPOINT?.trim() ||
+  localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
+  '';
+const severeWeatherSignupEnabled =
+  process.env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'
+    ? false
+    : process.env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'true'
+      ? true
+      : localSecrets.weather?.alertSignup?.enabled === false
+        ? false
+        : Boolean(severeWeatherSignupApiEndpoint || localSecrets.weather?.alertSignup?.enabled);
+const weatherAllowBrowserFallback =
+  process.env.NWS_ALLOW_BROWSER_FALLBACK?.trim().toLowerCase() === 'false'
+    ? false
+    : localSecrets.weather?.nws?.allowBrowserFallback === false
+      ? false
+      : true;
 const buttonPosition =
   process.env.EASYPEASY_BUTTON_POSITION?.trim() ||
   localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
@@ -39,6 +59,15 @@ const runtimeConfig = {
     chatUrl,
     buttonPosition,
     apiEndpoint,
+  },
+  weather: {
+    provider: 'nws',
+    apiEndpoint: weatherApiEndpoint,
+    allowBrowserFallback: weatherAllowBrowserFallback,
+    alertSignup: {
+      enabled: severeWeatherSignupEnabled,
+      apiEndpoint: severeWeatherSignupApiEndpoint,
+    },
   },
 };
 

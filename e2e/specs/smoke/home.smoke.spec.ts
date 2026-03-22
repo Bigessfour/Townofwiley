@@ -7,6 +7,8 @@ test.describe('homepage smoke', () => {
 
     await expect(homePage.page).toHaveTitle(siteContent.documentTitle);
     await expect(homePage.heroHeading).toContainText(siteContent.heading);
+    await expect(homePage.weatherPanel).toBeVisible();
+    await expect(homePage.weatherHeading).toContainText('National Weather Service forecast');
     await expect(homePage.communityFacts).toHaveCount(3);
     await expect(homePage.topTaskCards).toHaveCount(4);
     await expect(homePage.noticeCards).toHaveCount(3);

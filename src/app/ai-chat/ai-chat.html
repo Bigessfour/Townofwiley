@@ -33,12 +33,7 @@
         autocomplete="off"
         [disabled]="isSending()"
       />
-      <button
-        type="button"
-        class="assistant-send"
-        (click)="sendMessage()"
-        [disabled]="isSending()"
-      >
+      <button type="button" class="assistant-send" (click)="sendMessage()" [disabled]="isSending()">
         {{ isSending() ? 'Sending...' : 'Send' }}
       </button>
     </div>

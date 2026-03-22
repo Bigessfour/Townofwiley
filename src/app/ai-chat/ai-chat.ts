@@ -105,10 +105,14 @@ export class AiChat {
 
     try {
       const rawResponse = await firstValueFrom(
-        this.http.post(this.chatbotConfig.apiEndpoint, {
-          message: question,
-          history,
-        }, { responseType: 'text' }),
+        this.http.post(
+          this.chatbotConfig.apiEndpoint,
+          {
+            message: question,
+            history,
+          },
+          { responseType: 'text' },
+        ),
       );
       const response = this.parseBotResponse(rawResponse);
 
@@ -212,10 +216,23 @@ export class AiChat {
 
   private parseBotResponse(rawResponse: string): BotChatResponse {
     const payload = this.parseJsonRecord(rawResponse);
+
+    if (!payload && rawResponse.trim()) {
+      return {
+        response: '',
+        error: 'Malformed chatbot response.',
+      };
+    }
+
     const unwrappedPayload = this.unwrapProxyPayload(payload);
     const response = this.extractText(unwrappedPayload);
     const rawError = unwrappedPayload['error'];
-    const error = typeof rawError === 'string' ? rawError.trim() : undefined;
+    const error =
+      typeof rawError === 'string'
+        ? rawError.trim()
+        : !response && rawResponse.trim()
+          ? 'Malformed chatbot response.'
+          : undefined;
 
     return {
       response,

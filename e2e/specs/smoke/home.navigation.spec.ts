@@ -13,6 +13,24 @@ test.describe('homepage navigation', () => {
     }
   });
 
+  test('supports keyboard skip-link navigation to main content', async ({ homePage }, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'mobile-chromium',
+      'Desktop covers hardware-keyboard skip-link behavior; mobile emulation is not reliable for that flow.',
+    );
+
+    await homePage.goto();
+
+    await homePage.page.keyboard.press('Tab');
+
+    await expect(homePage.skipLink).toBeFocused();
+
+    await homePage.page.keyboard.press('Enter');
+
+    await expect(homePage.page).toHaveURL(/#main-content$/);
+    await expect(homePage.mainContent).toBeFocused();
+  });
+
   test('returns useful results from plain-language search prompts', async ({ homePage }) => {
     await homePage.goto();
 

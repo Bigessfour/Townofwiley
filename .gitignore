@@ -43,6 +43,10 @@ test-results/
 blob-report/
 /secrets/local/*
 !/secrets/local/.gitignore
+scripts/__pycache__/
+*.pyc
+.vitest-attachments/
+*-access-logs.csv
 
 # System files
 .DS_Store

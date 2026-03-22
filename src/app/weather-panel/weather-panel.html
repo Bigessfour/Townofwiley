@@ -1,0 +1,144 @@
+<section class="weather-panel panel" aria-labelledby="weather-heading">
+  <div class="weather-header">
+    <div class="weather-header-copy">
+      <p class="section-kicker">Local Weather</p>
+      <h2 id="weather-heading">National Weather Service forecast for {{ locationLabel() }}</h2>
+      <p class="weather-copy">
+        Official weather and alert data from the National Weather Service, surfaced here so
+        residents can quickly spot wind, temperature swings, and any active advisories that may
+        affect town services.
+      </p>
+    </div>
+
+    <div class="weather-header-actions">
+      <p class="weather-source">{{ weatherSourceLabel() }}</p>
+      @if (updatedLabel()) {
+        <p class="weather-updated">Forecast updated {{ updatedLabel() }}</p>
+      }
+      <div class="weather-action-row">
+        <button
+          type="button"
+          class="weather-action"
+          (click)="refreshWeather()"
+          [disabled]="isBusy()"
+        >
+          {{ isRefreshing() ? 'Refreshing...' : 'Refresh forecast' }}
+        </button>
+        <a
+          class="weather-action is-link"
+          [attr.href]="weatherGovUrl"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Open full forecast
+        </a>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <p class="weather-status" aria-live="polite">Loading official forecast and alerts...</p>
+  } @else {
+    @if (loadError()) {
+      <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
+    }
+
+    <div class="weather-grid">
+      <section class="weather-forecast" aria-labelledby="weather-current-heading">
+        @if (currentPeriod(); as period) {
+          <article class="weather-current-card" [class.is-night]="!period.isDaytime">
+            <div class="weather-current-topline">
+              <div>
+                <p class="meta-label">{{ period.name }}</p>
+                <h3 id="weather-current-heading">{{ period.shortForecast }}</h3>
+                <p class="weather-temperature">{{ period.temperatureLabel }}</p>
+              </div>
+
+              @if (period.iconUrl) {
+                <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
+              }
+            </div>
+
+            <p class="weather-detail">{{ period.detailedForecast }}</p>
+
+            <dl class="weather-metrics">
+              <div>
+                <dt>Wind</dt>
+                <dd>{{ period.windLabel }}</dd>
+              </div>
+              <div>
+                <dt>Precipitation</dt>
+                <dd>{{ period.precipitationLabel }}</dd>
+              </div>
+            </dl>
+          </article>
+        }
+
+        <div class="weather-period-grid" aria-label="Upcoming forecast periods">
+          @for (period of upcomingPeriods(); track period.name) {
+            <article class="weather-period-card" [class.is-night]="!period.isDaytime">
+              <div class="weather-period-heading">
+                <p class="meta-label">{{ period.name }}</p>
+                <strong>{{ period.temperatureLabel }}</strong>
+              </div>
+              <p class="weather-period-summary">{{ period.shortForecast }}</p>
+              <p>{{ period.windLabel }}</p>
+              <span>{{ period.precipitationLabel }}</span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="weather-alerts" aria-labelledby="weather-alerts-heading">
+        <div class="weather-alerts-header">
+          <div>
+            <p class="meta-label">Alerts</p>
+            <h3 id="weather-alerts-heading">Active watches, warnings, and advisories</h3>
+          </div>
+          <span class="weather-alert-pill" [class.is-clear]="!hasAlerts()">
+            {{ hasAlerts() ? alertSummary() : 'No active alerts' }}
+          </span>
+        </div>
+
+        @if (hasAlerts()) {
+          <div class="weather-alert-list">
+            @for (alert of weatherAlerts(); track alert.event + alert.headline) {
+              <article class="weather-alert-card">
+                <div class="weather-alert-meta">
+                  <strong>{{ alert.event }}</strong>
+                  <span>{{ alert.severity }} · {{ alert.urgency }}</span>
+                </div>
+                <p>{{ alert.headline }}</p>
+                @if (alert.instruction) {
+                  <p class="weather-alert-instruction">{{ alert.instruction }}</p>
+                }
+                @if (alert.expiresLabel) {
+                  <small>{{ alert.expiresLabel }}</small>
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <article class="weather-alert-card is-clear">
+            <strong>No active NWS alerts for the Wiley forecast zone.</strong>
+            <p>
+              Normal conditions do not guarantee there will be no service interruptions. Residents
+              should still monitor town notices for utility, road, or closure updates.
+            </p>
+          </article>
+        }
+
+        <div class="weather-link-row">
+          <a
+            class="text-link"
+            [attr.href]="forecastMapsUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Browse national forecast maps
+          </a>
+        </div>
+      </aside>
+    </div>
+  }
+</section>

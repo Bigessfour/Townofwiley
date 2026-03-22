@@ -1,26 +1,46 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
 describe('App', () => {
+  let httpTesting: HttpTestingController;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App]
+      imports: [App],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
+
+    httpTesting = TestBed.inject(HttpTestingController);
   });
 
-  it('should create the app', () => {
+  afterEach(() => {
+    delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    httpTesting.verify();
+  });
+
+  it('should create the app', async () => {
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
     const app = fixture.componentInstance;
+
     expect(app).toBeTruthy();
   });
 
   it('should render the in-development message', async () => {
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
+
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Official Website In Development');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Top tasks');
+    expect(compiled.querySelector('#weather-heading')?.textContent).toContain('National Weather Service forecast');
     expect(compiled.querySelector('#site-search')).toBeTruthy();
     expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendar app');
     expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('City Council');
@@ -31,4 +51,189 @@ describe('App', () => {
     expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain('Mayor and Council');
     expect(compiled.querySelector('#accessibility h2')?.textContent).toContain('ADA and WCAG 2.1 AA');
   });
+
+  it('should use the configured weather proxy when available', async () => {
+    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      weather: {
+        apiEndpoint: '/api/weather/nws',
+        allowBrowserFallback: false,
+      },
+    };
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    httpTesting.expectOne('/api/weather/nws').flush({
+      locationLabel: 'Wiley, CO',
+      updatedAt: '2026-03-22T12:57:10+00:00',
+      periods: [
+        {
+          name: 'Today',
+          startTime: '2026-03-22T09:00:00-06:00',
+          isDaytime: true,
+          temperature: 67,
+          temperatureUnit: 'F',
+          probabilityOfPrecipitation: { value: 1 },
+          windSpeed: '15 to 20 mph',
+          windDirection: 'NE',
+          icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+          shortForecast: 'Partly Sunny',
+          detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+        },
+      ],
+      alerts: [],
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.weather-source')?.textContent).toContain('AWS weather service');
+  });
+
+  it('should fall back to the public NWS feed when the configured proxy fails', async () => {
+    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      weather: {
+        apiEndpoint: '/api/weather/nws',
+        allowBrowserFallback: true,
+      },
+    };
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    httpTesting.expectOne('/api/weather/nws').flush('proxy unavailable', {
+      status: 502,
+      statusText: 'Bad Gateway',
+    });
+
+    await flushWeatherRequests();
+    await Promise.resolve();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(
+      'fell back to the public National Weather Service feed',
+    );
+  });
+
+  async function flushWeatherRequests(): Promise<void> {
+    const pointRequest = await waitForRequest('https://api.weather.gov/points/38.154,-102.72');
+
+    pointRequest.flush({
+      properties: {
+        forecast: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
+        forecastZone: 'https://api.weather.gov/zones/forecast/COZ098',
+        relativeLocation: {
+          properties: {
+            city: 'Wiley',
+            state: 'CO',
+          },
+        },
+      },
+    });
+
+    await Promise.resolve();
+
+    const forecastRequest = await waitForRequest(
+      'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
+    );
+    forecastRequest.flush({
+      properties: {
+        updatedAt: '2026-03-22T12:57:10+00:00',
+        periods: [
+          {
+            name: 'Today',
+            startTime: '2026-03-22T09:00:00-06:00',
+            isDaytime: true,
+            temperature: 67,
+            temperatureUnit: 'F',
+            probabilityOfPrecipitation: { value: 1 },
+            windSpeed: '15 to 20 mph',
+            windDirection: 'NE',
+            icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+            shortForecast: 'Partly Sunny',
+            detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+          },
+          {
+            name: 'Tonight',
+            startTime: '2026-03-22T18:00:00-06:00',
+            isDaytime: false,
+            temperature: 36,
+            temperatureUnit: 'F',
+            probabilityOfPrecipitation: { value: 1 },
+            windSpeed: '5 to 15 mph',
+            windDirection: 'ESE',
+            icon: 'https://api.weather.gov/icons/land/night/bkn?size=medium',
+            shortForecast: 'Mostly Cloudy',
+            detailedForecast: 'Mostly cloudy, with a low around 36.',
+          },
+          {
+            name: 'Monday',
+            startTime: '2026-03-23T06:00:00-06:00',
+            isDaytime: true,
+            temperature: 73,
+            temperatureUnit: 'F',
+            probabilityOfPrecipitation: { value: 0 },
+            windSpeed: '10 to 30 mph',
+            windDirection: 'SE',
+            icon: 'https://api.weather.gov/icons/land/day/wind_bkn?size=medium',
+            shortForecast: 'Partly Sunny',
+            detailedForecast: 'Partly sunny, with a high near 73.',
+          },
+          {
+            name: 'Monday Night',
+            startTime: '2026-03-23T18:00:00-06:00',
+            isDaytime: false,
+            temperature: 36,
+            temperatureUnit: 'F',
+            probabilityOfPrecipitation: { value: 2 },
+            windSpeed: '5 to 25 mph',
+            windDirection: 'SE',
+            icon: 'https://api.weather.gov/icons/land/night/wind_sct?size=medium',
+            shortForecast: 'Partly Cloudy',
+            detailedForecast: 'Partly cloudy, with a low around 36.',
+          },
+          {
+            name: 'Tuesday',
+            startTime: '2026-03-24T06:00:00-06:00',
+            isDaytime: true,
+            temperature: 88,
+            temperatureUnit: 'F',
+            probabilityOfPrecipitation: { value: 0 },
+            windSpeed: '5 to 10 mph',
+            windDirection: 'SSW',
+            icon: 'https://api.weather.gov/icons/land/day/sct?size=medium',
+            shortForecast: 'Mostly Sunny',
+            detailedForecast: 'Mostly sunny, with a high near 88.',
+          },
+        ],
+      },
+    });
+
+    const alertsRequest = await waitForRequest(
+      'https://api.weather.gov/alerts/active?zone=COZ098',
+    );
+    alertsRequest.flush({
+      features: [],
+    });
+
+    await Promise.resolve();
+  }
+
+  async function waitForRequest(url: string) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const matches = httpTesting.match(url);
+
+      if (matches.length) {
+        return matches[0];
+      }
+
+      await Promise.resolve();
+    }
+
+    throw new Error(`Timed out waiting for request: ${url}`);
+  }
 });
