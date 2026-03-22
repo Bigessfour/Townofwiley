@@ -1,0 +1,403 @@
+<main class="cms-shell">
+  <header class="cms-header">
+    <div>
+      <p class="cms-kicker">Clerk Content Editor</p>
+      <h1 class="cms-title">Update Wiley homepage content without touching code</h1>
+      <p class="cms-copy">
+        This portal keeps the most important public information in one place: homepage text,
+        emergency banner content, public notices, and contact cards. It is intentionally plain,
+        readable, and safe to hand to a non-technical editor.
+      </p>
+    </div>
+
+    <div class="cms-actions">
+      <a class="cms-link" href="/">Return to homepage</a>
+      <button type="button" class="cms-button secondary" (click)="restoreStarterContent()">
+        Restore starter notices
+      </button>
+      <button type="button" class="cms-button secondary" (click)="discardChanges()">
+        Discard local edits
+      </button>
+      <button type="button" class="cms-button primary" (click)="saveChanges()">
+        Save homepage notices
+      </button>
+    </div>
+  </header>
+
+  <section class="cms-banner" aria-label="Editor status">
+    <p>{{ persistenceSummary() }}</p>
+    @if (statusMessage()) {
+      <strong>{{ statusMessage() }}</strong>
+    } @else if (hasUnsavedChanges()) {
+      <strong>You have unsaved changes in this editor.</strong>
+    }
+  </section>
+
+  <nav class="cms-section-nav" aria-label="CMS sections">
+    <a class="cms-section-link" href="#cms-homepage">Homepage text</a>
+    <a class="cms-section-link" href="#cms-banner">Emergency banner</a>
+    <a class="cms-section-link" href="#cms-notices">Notices</a>
+    <a class="cms-section-link" href="#cms-contacts">Contacts</a>
+  </nav>
+
+  <section class="cms-summary" aria-label="Portal summary">
+    <article class="cms-summary-card">
+      <p class="cms-help-kicker">Homepage</p>
+      <strong>{{ hero().title }}</strong>
+      <span>Public homepage title currently loaded in the editor.</span>
+    </article>
+    <article class="cms-summary-card">
+      <p class="cms-help-kicker">Banner</p>
+      <strong>{{ alertStatusLabel() }}</strong>
+      <span>Turn the emergency banner on or off for urgent updates.</span>
+    </article>
+    <article class="cms-summary-card">
+      <p class="cms-help-kicker">Notices</p>
+      <strong>{{ noticeCount() }} notice cards</strong>
+      <span>Homepage announcement cards residents see in the notices section.</span>
+    </article>
+    <article class="cms-summary-card">
+      <p class="cms-help-kicker">Contacts</p>
+      <strong>{{ contactCount() }} public contacts</strong>
+      <span>Visible phone numbers, email links, and role-based contact cards.</span>
+    </article>
+  </section>
+
+  <section class="cms-help" aria-labelledby="cms-help-heading">
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">Quick Guide</p>
+      <h2 id="cms-help-heading">How to update the homepage</h2>
+      <ol class="cms-help-list">
+        <li>Add a new notice or edit an existing one.</li>
+        <li>Fill in the title, date label, and detail message.</li>
+        <li>Click <strong>Save homepage notices</strong>.</li>
+        <li>Return to the homepage and confirm the notice looks right.</li>
+      </ol>
+    </div>
+
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">Important</p>
+      <h2>What this portal can update</h2>
+      <ul class="cms-help-list simple">
+        <li>Homepage title and welcome text</li>
+        <li>Emergency banner text</li>
+        <li>Homepage notices</li>
+        <li>Public contact cards</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="editor-section" id="cms-homepage" aria-labelledby="cms-homepage-heading">
+    <div class="editor-section-header">
+      <div>
+        <p class="cms-help-kicker">Section 1</p>
+        <h2 id="cms-homepage-heading">Homepage text</h2>
+      </div>
+      <p>
+        Edit the top part of the public homepage so the main message stays current and easy to read.
+      </p>
+    </div>
+
+    <div class="editor-grid">
+      <div class="field-group">
+        <label for="hero-eyebrow">Small label above the title</label>
+        <input
+          id="hero-eyebrow"
+          type="text"
+          [ngModel]="hero().eyebrow"
+          (ngModelChange)="updateHero('eyebrow', $event)"
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="hero-status">Status line</label>
+        <input
+          id="hero-status"
+          type="text"
+          [ngModel]="hero().status"
+          (ngModelChange)="updateHero('status', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="hero-title">Main homepage title</label>
+        <input
+          id="hero-title"
+          type="text"
+          [ngModel]="hero().title"
+          (ngModelChange)="updateHero('title', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="hero-message">Main message</label>
+        <textarea
+          id="hero-message"
+          rows="4"
+          [ngModel]="hero().message"
+          (ngModelChange)="updateHero('message', $event)"
+        ></textarea>
+      </div>
+
+      <div class="field-group two-column">
+        <label for="hero-subtext">Supporting message</label>
+        <textarea
+          id="hero-subtext"
+          rows="4"
+          [ngModel]="hero().subtext"
+          (ngModelChange)="updateHero('subtext', $event)"
+        ></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="welcome-label">Image section label</label>
+        <input
+          id="welcome-label"
+          type="text"
+          [ngModel]="hero().welcomeLabel"
+          (ngModelChange)="updateHero('welcomeLabel', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="welcome-heading">Welcome image heading</label>
+        <input
+          id="welcome-heading"
+          type="text"
+          [ngModel]="hero().welcomeHeading"
+          (ngModelChange)="updateHero('welcomeHeading', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="welcome-body">Welcome image text</label>
+        <textarea
+          id="welcome-body"
+          rows="4"
+          [ngModel]="hero().welcomeBody"
+          (ngModelChange)="updateHero('welcomeBody', $event)"
+        ></textarea>
+      </div>
+
+      <div class="field-group two-column">
+        <label for="welcome-caption">Photo caption</label>
+        <input
+          id="welcome-caption"
+          type="text"
+          [ngModel]="hero().welcomeCaption"
+          (ngModelChange)="updateHero('welcomeCaption', $event)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="editor-section" id="cms-banner" aria-labelledby="cms-banner-heading">
+    <div class="editor-section-header">
+      <div>
+        <p class="cms-help-kicker">Section 2</p>
+        <h2 id="cms-banner-heading">Emergency banner</h2>
+      </div>
+      <p>
+        Use this for urgent closures, service interruptions, or other high-visibility alerts at the
+        top of the homepage.
+      </p>
+    </div>
+
+    <div class="editor-grid">
+      <label class="toggle-row two-column" for="alert-enabled">
+        <input
+          id="alert-enabled"
+          type="checkbox"
+          [ngModel]="alertBanner().enabled"
+          (ngModelChange)="updateAlertBanner('enabled', $event)"
+        />
+        <span>Show emergency banner on homepage</span>
+      </label>
+
+      <div class="field-group">
+        <label for="alert-label">Banner label</label>
+        <input
+          id="alert-label"
+          type="text"
+          [ngModel]="alertBanner().label"
+          (ngModelChange)="updateAlertBanner('label', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="alert-title">Banner headline</label>
+        <input
+          id="alert-title"
+          type="text"
+          [ngModel]="alertBanner().title"
+          (ngModelChange)="updateAlertBanner('title', $event)"
+        />
+      </div>
+
+      <div class="field-group two-column">
+        <label for="alert-detail">Banner message</label>
+        <textarea
+          id="alert-detail"
+          rows="4"
+          [ngModel]="alertBanner().detail"
+          (ngModelChange)="updateAlertBanner('detail', $event)"
+        ></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="alert-link-label">Button label</label>
+        <input
+          id="alert-link-label"
+          type="text"
+          [ngModel]="alertBanner().linkLabel"
+          (ngModelChange)="updateAlertBanner('linkLabel', $event)"
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="alert-link-href">Button link</label>
+        <input
+          id="alert-link-href"
+          type="text"
+          [ngModel]="alertBanner().linkHref"
+          (ngModelChange)="updateAlertBanner('linkHref', $event)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="cms-toolbar" id="cms-notices" aria-label="Notice actions">
+    <button type="button" class="cms-button add" (click)="addNotice()">Add new notice</button>
+  </section>
+
+  <section class="cms-grid" aria-label="Homepage notices">
+    @for (notice of notices(); track notice.id) {
+      <article class="notice-editor-card">
+        <div class="field-group">
+          <label [attr.for]="'notice-title-' + notice.id">Notice title</label>
+          <input
+            [id]="'notice-title-' + notice.id"
+            type="text"
+            [ngModel]="notice.title"
+            (ngModelChange)="updateNotice(notice.id, 'title', $event)"
+          />
+        </div>
+
+        <div class="field-group">
+          <label [attr.for]="'notice-date-' + notice.id">Display date or label</label>
+          <input
+            [id]="'notice-date-' + notice.id"
+            type="text"
+            [ngModel]="notice.date"
+            (ngModelChange)="updateNotice(notice.id, 'date', $event)"
+          />
+        </div>
+
+        <div class="field-group">
+          <label [attr.for]="'notice-detail-' + notice.id">Notice detail</label>
+          <textarea
+            [id]="'notice-detail-' + notice.id"
+            rows="6"
+            [ngModel]="notice.detail"
+            (ngModelChange)="updateNotice(notice.id, 'detail', $event)"
+          ></textarea>
+        </div>
+
+        <div class="card-footer">
+          <p>
+            Use this area for closures, water service updates, meeting notices, or emergency
+            messaging.
+          </p>
+          <button type="button" class="cms-button danger" (click)="removeNotice(notice.id)">
+            Remove notice
+          </button>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="editor-section" id="cms-contacts" aria-labelledby="cms-contacts-heading">
+    <div class="editor-section-header">
+      <div>
+        <p class="cms-help-kicker">Section 4</p>
+        <h2 id="cms-contacts-heading">Public contact cards</h2>
+      </div>
+      <p>
+        Keep phone numbers, names, and public email links current so residents always know who to
+        contact next.
+      </p>
+    </div>
+
+    <div class="cms-toolbar inline-toolbar" aria-label="Contact actions">
+      <button type="button" class="cms-button add" (click)="addContact()">Add new contact</button>
+    </div>
+
+    <div class="cms-grid" aria-label="Public contacts">
+      @for (contact of contacts(); track contact.id) {
+        <article class="notice-editor-card">
+          <div class="editor-grid">
+            <div class="field-group">
+              <label [attr.for]="'contact-label-' + contact.id">Card label</label>
+              <input
+                [id]="'contact-label-' + contact.id"
+                type="text"
+                [ngModel]="contact.label"
+                (ngModelChange)="updateContact(contact.id, 'label', $event)"
+              />
+            </div>
+
+            <div class="field-group">
+              <label [attr.for]="'contact-value-' + contact.id">Main value</label>
+              <input
+                [id]="'contact-value-' + contact.id"
+                type="text"
+                [ngModel]="contact.value"
+                (ngModelChange)="updateContact(contact.id, 'value', $event)"
+              />
+            </div>
+
+            <div class="field-group two-column">
+              <label [attr.for]="'contact-detail-' + contact.id">Helpful description</label>
+              <textarea
+                [id]="'contact-detail-' + contact.id"
+                rows="4"
+                [ngModel]="contact.detail"
+                (ngModelChange)="updateContact(contact.id, 'detail', $event)"
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label [attr.for]="'contact-href-' + contact.id">Link address</label>
+              <input
+                [id]="'contact-href-' + contact.id"
+                type="text"
+                [ngModel]="contact.href ?? ''"
+                (ngModelChange)="updateContact(contact.id, 'href', $event)"
+              />
+            </div>
+
+            <div class="field-group">
+              <label [attr.for]="'contact-link-label-' + contact.id">Link text</label>
+              <input
+                [id]="'contact-link-label-' + contact.id"
+                type="text"
+                [ngModel]="contact.linkLabel ?? ''"
+                (ngModelChange)="updateContact(contact.id, 'linkLabel', $event)"
+              />
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <p>
+              Use phone links like <strong>tel:+17198294974</strong> and email links like
+              <strong>mailto:deb.dillon@townofwiley.gov</strong>.
+            </p>
+            <button type="button" class="cms-button danger" (click)="removeContact(contact.id)">
+              Remove contact
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+</main>

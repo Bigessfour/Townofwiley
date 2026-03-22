@@ -4,6 +4,17 @@ import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 test.describe('homepage weather', () => {
   test('renders the weather panel from the AWS proxy configuration', async ({ homePage }) => {
     await homePage.enableWeatherProxy();
+
+    let directWeatherGovRequestCount = 0;
+    await homePage.page.route('https://api.weather.gov/**', async (route) => {
+      directWeatherGovRequestCount += 1;
+      await route.fulfill({
+        status: 599,
+        contentType: 'text/plain',
+        body: 'Proxy-mode weather test should not hit weather.gov directly.',
+      });
+    });
+
     await mockWeatherProxyRoute(homePage.page, '/mock-weather', {
       locationLabel: 'Wiley, CO',
       updatedAt: '2026-03-22T12:57:10+00:00',
@@ -37,15 +48,27 @@ test.describe('homepage weather', () => {
     await homePage.goto();
 
     await expect(homePage.weatherSource).toContainText('AWS weather service');
+    await expect(homePage.weatherHeading).toContainText('Wiley, CO');
     await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
+    await expect(homePage.weatherCurrentCard).toContainText('67°F');
+    await expect(homePage.weatherCurrentCard).toContainText('NE 15 to 20 mph');
+    await expect(homePage.weatherCurrentCard).toContainText('1% chance of precipitation');
     await expect(homePage.weatherAlertPill).toContainText('1 active alert');
     await expect(homePage.weatherAlertCards.first()).toContainText('High Wind Warning');
+    await expect(homePage.weatherAlertCards.first()).toContainText('Severe · Immediate');
+    await expect(homePage.weatherAlertCards.first()).toContainText('Avoid unnecessary travel.');
+    expect(directWeatherGovRequestCount).toBe(0);
   });
 
   test('refreshes weather data without leaving the page', async ({ homePage }) => {
     await homePage.enableWeatherProxy('/mock-weather-refresh');
 
     let requestCount = 0;
+    let releaseRefreshResponse = () => {};
+    const refreshResponseGate = new Promise<void>((resolve) => {
+      releaseRefreshResponse = resolve;
+    });
+
     await homePage.page.route('**/mock-weather-refresh', async (route) => {
       requestCount += 1;
 
@@ -93,6 +116,10 @@ test.describe('homepage weather', () => {
               alerts: [],
             };
 
+      if (requestCount === 2) {
+        await refreshResponseGate;
+      }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -104,6 +131,13 @@ test.describe('homepage weather', () => {
 
     await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
     await homePage.tapWeatherRefresh();
+    await expect(homePage.weatherRefreshButton).toBeDisabled();
+    await expect(homePage.weatherRefreshButton).toContainText('Refreshing...');
+    releaseRefreshResponse();
     await expect(homePage.weatherCurrentCard).toContainText('Mostly Sunny');
+    await expect(homePage.weatherCurrentCard).toContainText('70°F');
+    await expect(homePage.weatherCurrentCard).toContainText('E 10 to 15 mph');
+    await expect(homePage.weatherUpdatedLabel).toContainText('Forecast updated');
+    expect(requestCount).toBe(2);
   });
 });

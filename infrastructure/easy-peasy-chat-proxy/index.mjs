@@ -175,7 +175,7 @@ export async function handler(event) {
             ? responsePayload.error
             : typeof responseText === 'string' && responseText.trim()
               ? responseText.trim().slice(0, 400)
-            : 'Easy-Peasy returned an error.',
+              : 'Easy-Peasy returned an error.',
       });
     }
 

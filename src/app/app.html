@@ -1,32 +1,38 @@
-<a class="skip-link" href="#main-content" (click)="focusMainContent()">Skip to main content</a>
+@if (isAdminMode) {
+  <app-cms-admin />
+} @else {
+  <a class="skip-link" href="#main-content" (click)="focusMainContent()">Skip to main content</a>
 
-<header class="site-header">
-  <div class="masthead">
-    <p class="eyebrow">Municipal Website Scaffold</p>
-    <p class="status">Official Website In Development</p>
-    <h1>{{ title() }}</h1>
-    <p class="message">
-      A resident-first homepage scaffold for Wiley, Colorado, built around accessibility, clear top
-      tasks, public transparency, and the everyday services a small plains town needs first.
-    </p>
-    <p class="subtext">
-      For a town of about 437 residents in eastern Colorado, the homepage should stay practical:
-      fast notices, visible contact details, meeting access, utility help, and weather-sensitive
-      service updates.
-    </p>
-  </div>
+  @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
+    <section class="site-alert" aria-label="Town alert banner">
+      <div class="site-alert-copy">
+        <p class="site-alert-label">{{ alertBanner().label }}</p>
+        <h2 class="site-alert-title">{{ alertBanner().title }}</h2>
+        <p class="site-alert-detail">{{ alertBanner().detail }}</p>
+      </div>
+
+      @if (alertBanner().linkLabel && alertBanner().linkHref) {
+        <a class="site-alert-link" [attr.href]="alertBanner().linkHref">
+          {{ alertBanner().linkLabel }}
+        </a>
+      }
+    </section>
+  }
+
+  <header class="site-header">
+    <div class="masthead">
+      <p class="eyebrow">{{ heroContent().eyebrow }}</p>
+      <p class="status">{{ heroContent().status }}</p>
+      <h1>{{ pageTitle() }}</h1>
+      <p class="message">{{ heroContent().message }}</p>
+      <p class="subtext">{{ heroContent().subtext }}</p>
+    </div>
 
   <section class="welcome-hero" aria-labelledby="welcome-hero-heading">
     <div class="welcome-hero-copy">
-      <p class="hero-label">Main Welcome Image</p>
-      <h2 id="welcome-hero-heading">
-        The homepage now opens with the Wiley hero image instead of only scaffold copy
-      </h2>
-      <p>
-        This banner places a recognizable local visual at the top of the page while the rest of the
-        homepage continues to organize notices, meetings, services, and contact details around
-        resident tasks.
-      </p>
+      <p class="hero-label">{{ heroContent().welcomeLabel }}</p>
+      <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
+      <p>{{ heroContent().welcomeBody }}</p>
     </div>
 
     <figure class="welcome-hero-media">
@@ -37,7 +43,7 @@
         priority
         sizes="(max-width: 960px) 100vw, 60vw"
       />
-      <figcaption>Current draft hero image for the Town of Wiley welcome page.</figcaption>
+      <figcaption>{{ heroContent().welcomeCaption }}</figcaption>
     </figure>
   </section>
 
@@ -46,9 +52,9 @@
       <a [attr.href]="link.href">{{ link.label }}</a>
     }
   </nav>
-</header>
+  </header>
 
-<main class="page-shell" id="main-content" #mainContent tabindex="-1">
+  <main class="page-shell" id="main-content" #mainContent tabindex="-1">
   <section class="hero-grid">
     <section class="hero-card" id="top-tasks" aria-labelledby="top-tasks-heading">
       <div class="community-facts" aria-label="Wiley profile">
@@ -126,7 +132,7 @@
       <p class="section-kicker">Public Notices</p>
       <h2>Current notices and alert space</h2>
       <div class="stack-list notice-list">
-        @for (notice of notices; track notice.title) {
+        @for (notice of notices(); track notice.id) {
           <article class="info-row notice-card">
             <p class="meta-label">{{ notice.date }}</p>
             <strong>{{ notice.title }}</strong>
@@ -260,7 +266,7 @@
     <p class="section-kicker">Contact and Response Paths</p>
     <h2>Residents should always know where to go next</h2>
     <div class="contact-grid">
-      @for (contact of contacts; track contact.label) {
+      @for (contact of contacts(); track contact.id) {
         <article class="contact-card">
           <span>{{ contact.label }}</span>
           @if (contact.href) {
@@ -300,6 +306,7 @@
       <a href="#alerts">Meeting notices</a>
       <a href="#contact">Contact Town Hall</a>
     </div>
-    <p>&copy; {{ currentYear }} {{ title() }}</p>
+    <p>&copy; {{ currentYear }} {{ pageTitle() }}</p>
   </footer>
-</main>
+  </main>
+}

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { TOW_CMS_STORAGE_KEY } from './cms-content';
 
 describe('App', () => {
   let httpTesting: HttpTestingController;
@@ -17,6 +18,8 @@ describe('App', () => {
 
   afterEach(() => {
     delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    window.localStorage.removeItem(TOW_CMS_STORAGE_KEY);
+    window.history.replaceState({}, '', '/');
     httpTesting.verify();
   });
 
@@ -38,18 +41,95 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('.status')?.textContent).toContain('Official Website In Development');
+    expect(compiled.querySelector('.status')?.textContent).toContain(
+      'Official Website In Development',
+    );
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Top tasks');
-    expect(compiled.querySelector('#weather-heading')?.textContent).toContain('National Weather Service forecast');
+    expect(compiled.querySelector('#weather-heading')?.textContent).toContain(
+      'National Weather Service forecast',
+    );
     expect(compiled.querySelector('#site-search')).toBeTruthy();
     expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendar app');
     expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('City Council');
     expect(compiled.querySelector('.meeting-location')?.textContent).toContain('304 Main Street');
-    expect(compiled.querySelector('.contact-link[href="tel:+17198294974"]')?.textContent).toContain('(719) 829-4974');
-    expect(compiled.querySelector('.contact-link[href="mailto:deb.dillon@townofwiley.gov"]')?.textContent).toContain('deb.dillon@townofwiley.gov');
-    expect(compiled.querySelector('.contact-link[href="mailto:stephen.mckitrick@townofwiley.gov"]')?.textContent).toContain('stephen.mckitrick@townofwiley.gov');
-    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain('Mayor and Council');
-    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain('ADA and WCAG 2.1 AA');
+    expect(compiled.querySelector('.contact-link[href="tel:+17198294974"]')?.textContent).toContain(
+      '(719) 829-4974',
+    );
+    expect(
+      compiled.querySelector('.contact-link[href="mailto:deb.dillon@townofwiley.gov"]')
+        ?.textContent,
+    ).toContain('deb.dillon@townofwiley.gov');
+    expect(
+      compiled.querySelector('.contact-link[href="mailto:stephen.mckitrick@townofwiley.gov"]')
+        ?.textContent,
+    ).toContain('stephen.mckitrick@townofwiley.gov');
+    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain(
+      'Mayor and Council',
+    );
+    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain(
+      'ADA and WCAG 2.1 AA',
+    );
+  });
+
+  it('should render clerk-managed homepage content from browser CMS storage', async () => {
+    window.localStorage.setItem(
+      TOW_CMS_STORAGE_KEY,
+      JSON.stringify({
+        hero: {
+          eyebrow: 'Town Website',
+          status: 'Open for Residents',
+          title: 'Wiley Community Updates',
+          message: 'Find the latest notices, meeting updates, and town information in one place.',
+          subtext: 'This version highlights emergency notices and resident-facing updates first.',
+          welcomeLabel: 'Welcome Photo',
+          welcomeHeading: 'A fresh homepage for Wiley residents',
+          welcomeBody: 'The welcome area now explains what residents can do on the site right away.',
+          welcomeCaption: 'Updated caption for the Wiley homepage photo.',
+        },
+        alertBanner: {
+          enabled: true,
+          label: 'Emergency Notice',
+          title: 'Main Street closed tonight',
+          detail: 'Crews will close Main Street from 8 PM until midnight for utility repairs.',
+          linkLabel: 'Call Town Hall',
+          linkHref: 'tel:+17198294974',
+        },
+        notices: [
+          {
+            id: 'water-outage',
+            title: 'Water outage on Main Street',
+            date: 'Tonight',
+            detail: 'Crews will repair a broken main from 10 PM until approximately 2 AM.',
+          },
+        ],
+        contacts: [
+          {
+            id: 'clerk-desk',
+            label: 'Clerk Desk',
+            value: 'Deb Dillon',
+            detail: 'Call or email for meeting packets and town records requests.',
+            href: 'mailto:deb.dillon@townofwiley.gov',
+            linkLabel: 'deb.dillon@townofwiley.gov',
+          },
+        ],
+      }),
+    );
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Wiley Community Updates');
+    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
+      'Main Street closed tonight',
+    );
+    expect(compiled.querySelector('.notice-card strong')?.textContent).toContain(
+      'Water outage on Main Street',
+    );
+    expect(compiled.querySelector('.contact-card strong')?.textContent).toContain('Deb Dillon');
   });
 
   it('should use the configured weather proxy when available', async () => {
@@ -91,6 +171,23 @@ describe('App', () => {
     expect(compiled.querySelector('.weather-source')?.textContent).toContain('AWS weather service');
   });
 
+  it('should render the clerk editor on the admin path', async () => {
+    window.history.pushState({}, '', '/admin');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
+      'Update Wiley homepage content',
+    );
+    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
+      'Save homepage notices',
+    );
+    expect(compiled.querySelector('.cms-section-link')?.textContent).toContain('Homepage text');
+  });
+
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {
     (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       weather: {
@@ -114,9 +211,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      'fell back to the public National Weather Service feed',
-    );
+    expect(compiled.textContent).toContain('fell back to the public National Weather Service feed');
   });
 
   async function flushWeatherRequests(): Promise<void> {
@@ -213,9 +308,7 @@ describe('App', () => {
       },
     });
 
-    const alertsRequest = await waitForRequest(
-      'https://api.weather.gov/alerts/active?zone=COZ098',
-    );
+    const alertsRequest = await waitForRequest('https://api.weather.gov/alerts/active?zone=COZ098');
     alertsRequest.flush({
       features: [],
     });

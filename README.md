@@ -58,11 +58,11 @@ Custom domain recovery details:
 - Domain under recovery: `townofwiley.gov`
 - Preferred public hostname during recovery: `www.townofwiley.gov`
 - Known-good fallback hostname: `https://main.d331voxr1fhoir.amplifyapp.com`
-- Amplify status at last check: `AWAITING_APP_CNAME`
+- Amplify status at last check: `AVAILABLE`
 - Current Amplify branch mapping:
   - `www` -> `main`
 - Current Amplify-required `www` target:
-  - `www.townofwiley.gov` -> `d2y3zxf4fo3d1p.cloudfront.net`
+  - `www.townofwiley.gov` -> `d3fmdu29qcwosh.cloudfront.net`
 - Amplify verification CNAME:
   - Name: `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov`
   - Target: `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
@@ -70,31 +70,32 @@ Custom domain recovery details:
 Important custom-domain note for future maintainers:
 
 - The apex domain (`townofwiley.gov`) repeatedly caused CloudFront alias conflicts when attached directly in Amplify.
-- The current stable recovery strategy is to let Amplify own `www` only and handle the root-domain redirect separately at Cloudflare after `www` is healthy.
-- If Amplify shows `Route53 domain selected` while Cloudflare is the authoritative DNS provider, check for and remove any stale duplicate hosted zone in Route 53 before retrying the custom-domain flow.
+- The current stable recovery strategy is to let Amplify own `www` only and handle the root-domain redirect separately after `www` is healthy.
+- Route 53 is now the intended authoritative DNS provider for `townofwiley.gov`.
+- Do not point the apex at an old or random CloudFront hostname from a failed Amplify attempt.
 
-### Cloudflare
+### Route 53
 
-- Zone: `townofwiley.gov`
-- Zone status: `active`
-- DNS mode for Amplify records: `DNS only` (`proxied: false`)
+- Hosted zone: `townofwiley.gov`
+- Hosted zone ID: `Z088746831TMIL67NZ0VF`
+- Authoritative nameservers:
+  - `ns-360.awsdns-45.com`
+  - `ns-1383.awsdns-44.org`
+  - `ns-1718.awsdns-22.co.uk`
+  - `ns-530.awsdns-02.net`
 
-Cloudflare DNS records expected during the current recovery path:
+Route 53 DNS records expected during the current recovery path:
 
-- `www.townofwiley.gov` `CNAME` -> `d2y3zxf4fo3d1p.cloudfront.net` (`DNS only`)
-- `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov` `CNAME` -> `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws` (`DNS only`)
-- Root-domain handling should be treated separately from Amplify until `www` is verified. Do not point the apex at a random historical CloudFront target from a failed Amplify attempt.
+- `www.townofwiley.gov` `CNAME` -> `d3fmdu29qcwosh.cloudfront.net`
+- `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov` `CNAME` -> `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
+- Root-domain handling should be treated separately from Amplify until an explicit apex plan is implemented.
 
-Cloudflare Email Routing plan:
+Current DNS migration note:
 
-- Use Cloudflare's built-in Email Routing for inbound official alias forwarding.
-- Current front-end aliases referenced on the site:
-  - `stephen.mckitrick@townofwiley.gov`
-  - `deb.dillon@townofwiley.gov`
-  - `scott.whitman@townofwiley.gov`
-- Each custom address must forward to one verified destination inbox in Cloudflare Email Routing.
-- Enabling Email Routing will add and lock the required Cloudflare-managed `MX` and `SPF` records for the zone.
-- The current repo-local API token can read the zone but does not yet have Email Routing management permission, so alias creation must be completed in the Cloudflare dashboard or with a broader token before these links become live.
+- During registrar propagation, some public resolvers may still return the old delegated nameservers for several hours.
+- Route 53 can be considered ready once public NS lookups stop returning Cloudflare and instead return the four AWS nameservers above.
+- As of the current recovery state, only `www` is intentionally wired through Amplify. The bare domain still needs a separate redirect or direct apex-hosting decision.
+- If mail forwarding is still needed after the Cloudflare removal, replace the old Cloudflare Email Routing plan with an AWS-native or other managed mail-routing solution.
 
 Verification check completed after creating the ACM CNAME:
 
@@ -179,6 +180,33 @@ Amplify setup:
 3. Redeploy. If the value is present, the widget loads automatically on every page.
 
 If no chatbot URL is configured, the site renders normally and no Easy-Peasy script is injected.
+
+## Clerk CMS Starter
+
+The site now includes a starter clerk-facing content editor at `/admin`.
+
+Plain-language staff guide:
+
+- See [CLERK-CMS-GUIDE.md](CLERK-CMS-GUIDE.md) for a non-technical walkthrough written for town staff.
+
+Current scope:
+
+- Purpose: edit homepage text, emergency banner content, notice cards, and public contact cards without touching code
+- Current persistence: browser-local storage only
+- Current audience: prototype and workflow validation for the future clerk CMS
+- Current limitation: there is no authentication or shared AWS-backed content API yet
+
+What this starter proves:
+
+- A non-technical editor can manage the most important homepage content from a plain-language screen
+- The homepage can already read banner, notice, contact, and headline content from a runtime content store instead of hardcoded arrays and strings
+- The next AWS step can focus on Cognito plus a shared Lambda and DynamoDB content API without changing the public editing workflow much
+
+Operational note:
+
+- Treat `/admin` as a local prototype route until authentication is added
+- Do not rely on browser-local storage for official production publishing across devices
+- The next implementation step is to move this content store behind an authenticated AWS API so clerk changes publish for all residents, not just one browser session
 
 ## NWS Weather Proxy
 

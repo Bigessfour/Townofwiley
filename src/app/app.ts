@@ -4,10 +4,13 @@ import {
   Component,
   ElementRef,
   computed,
+  inject,
   signal,
   viewChild,
 } from '@angular/core';
 import { AiChat } from './ai-chat/ai-chat';
+import { CmsAdmin } from './cms-admin/cms-admin';
+import { CmsContentStore } from './cms-content';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { WeatherPanel } from './weather-panel/weather-panel';
 
@@ -21,12 +24,6 @@ interface TopTask {
   description: string;
   href: string;
   note: string;
-}
-
-interface Notice {
-  title: string;
-  date: string;
-  detail: string;
 }
 
 interface MeetingItem {
@@ -90,14 +87,6 @@ interface AccessibilityItem {
   detail: string;
 }
 
-interface ContactItem {
-  label: string;
-  value: string;
-  detail: string;
-  href?: string;
-  linkLabel?: string;
-}
-
 interface LeadershipGroup {
   title: string;
   detail: string;
@@ -120,20 +109,27 @@ interface CommunityFact {
 
 @Component({
   selector: 'app-root',
-  imports: [NgOptimizedImage, AiChat, WeatherPanel],
+  imports: [NgOptimizedImage, AiChat, WeatherPanel, CmsAdmin],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
+  private readonly cmsStore = inject(CmsContentStore);
   private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
 
-  protected readonly title = signal('Town of Wiley');
   protected readonly searchQuery = signal('');
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly isAdminMode =
+    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/admin';
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
+  protected readonly heroContent = this.cmsStore.hero;
+  protected readonly alertBanner = this.cmsStore.alertBanner;
+  protected readonly pageTitle = computed(() => this.heroContent().title);
+  protected readonly notices = this.cmsStore.notices;
+  protected readonly contacts = this.cmsStore.contacts;
 
   protected focusMainContent(): void {
     queueMicrotask(() => {
@@ -225,27 +221,6 @@ export class App {
         'Group routine clerk and permit needs under plain-language labels so residents do not have to guess which office handles the task.',
       href: '#records',
       note: 'Use forms, clear instructions, and document standards that support WCAG 2.1 AA.',
-    },
-  ];
-
-  protected readonly notices: Notice[] = [
-    {
-      title: 'Homepage rebuild focused on Wiley essentials',
-      date: 'March 2026',
-      detail:
-        'The new design is being scoped around small-town essentials: payments, meetings, service issues, office contacts, and clear emergency or weather-sensitive notices.',
-    },
-    {
-      title: 'Digital self-service rollout planned in phases',
-      date: 'Spring 2026',
-      detail:
-        'Payments, service requests, permits, meeting archives, and records access are being organized around resident tasks instead of department structure.',
-    },
-    {
-      title: 'Public notice placement reserved for high-visibility alerts',
-      date: 'Operational',
-      detail:
-        'Emergency information, special meeting notices, utility interruptions, and weather-related updates should remain visible without forcing residents to search.',
     },
   ];
 
@@ -428,38 +403,6 @@ export class App {
     },
   ];
 
-  protected readonly contacts: ContactItem[] = [
-    {
-      label: 'Town Information',
-      value: '(719) 829-4974',
-      detail:
-        'Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.',
-      href: 'tel:+17198294974',
-    },
-    {
-      label: 'Mayor',
-      value: 'Stephen McKitrick',
-      detail:
-        'Official mayoral correspondence can be sent to this alias and routed through Cloudflare Email Routing to the current verified destination inbox.',
-      href: 'mailto:stephen.mckitrick@townofwiley.gov',
-      linkLabel: 'stephen.mckitrick@townofwiley.gov',
-    },
-    {
-      label: 'City Clerk',
-      value: 'Deb Dillon',
-      detail: 'Clerk services, meeting packets, records coordination, and agenda planning support.',
-      href: 'mailto:deb.dillon@townofwiley.gov',
-      linkLabel: 'deb.dillon@townofwiley.gov',
-    },
-    {
-      label: 'Town Superintendent',
-      value: 'Scott Whitman',
-      detail: 'Town operations, public works coordination, and service follow-up.',
-      href: 'mailto:scott.whitman@townofwiley.gov',
-      linkLabel: 'scott.whitman@townofwiley.gov',
-    },
-  ];
-
   protected readonly leadershipGroups: LeadershipGroup[] = [
     {
       title: 'Mayor and Council',
@@ -624,7 +567,7 @@ export class App {
       return this.searchIndex.slice(0, 4);
     }
 
-    const terms = query.split(/\s+/).filter(Boolean);
+    const terms: string[] = query.split(/\s+/).filter(Boolean);
 
     return this.searchIndex.filter((item) => {
       const haystack = [item.title, item.summary, item.category, ...item.keywords]

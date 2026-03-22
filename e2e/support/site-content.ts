@@ -8,7 +8,16 @@ export const siteContent = {
     'Request records, permits, or clerk help',
   ],
   communityFactLabels: ['Town profile', 'Location', 'Regional access'],
-  navLabels: ['Top Tasks', 'Weather', 'Notices', 'Calendar', 'Services', 'Records', 'Accessibility', 'Contact'],
+  navLabels: [
+    'Top Tasks',
+    'Weather',
+    'Notices',
+    'Calendar',
+    'Services',
+    'Records',
+    'Accessibility',
+    'Contact',
+  ],
   serviceLabels: [
     'Online payments',
     'Street, utility, and property issue reporting',

@@ -26,11 +26,14 @@ export class HomePage {
   readonly footerLinks: Locator;
   readonly assistantShell: Locator;
   readonly assistantStatus: Locator;
+  readonly assistantThreadStatus: Locator;
   readonly assistantInput: Locator;
   readonly assistantSendButton: Locator;
   readonly assistantPromptButtons: Locator;
   readonly assistantMessages: Locator;
   readonly assistantLinks: Locator;
+  readonly weatherUpdatedLabel: Locator;
+  readonly emptySearchState: Locator;
 
   constructor(page: Page, baseURL: string) {
     this.page = page;
@@ -49,7 +52,7 @@ export class HomePage {
     this.weatherCurrentCard = page.locator('.weather-current-card');
     this.weatherAlertPill = page.locator('.weather-alert-pill');
     this.weatherAlertCards = page.locator('.weather-alert-card');
-    this.weatherRefreshButton = page.locator('.weather-action').filter({ hasText: 'Refresh forecast' });
+    this.weatherRefreshButton = page.locator('button.weather-action');
     this.noticeCards = page.locator('.notice-card');
     this.meetingCards = page.locator('.meeting-card');
     this.serviceCards = page.locator('.service-card');
@@ -58,11 +61,14 @@ export class HomePage {
     this.footerLinks = page.locator('.footer-links a');
     this.assistantShell = page.locator('.assistant-shell');
     this.assistantStatus = page.locator('.assistant-status');
+    this.assistantThreadStatus = page.locator('.assistant-thread-status');
     this.assistantInput = page.locator('#assistant-question');
     this.assistantSendButton = page.locator('.assistant-send');
     this.assistantPromptButtons = page.locator('.assistant-chip');
     this.assistantMessages = page.locator('.assistant-message');
     this.assistantLinks = page.locator('.assistant-links a');
+    this.weatherUpdatedLabel = page.locator('.weather-updated');
+    this.emptySearchState = page.locator('.empty-state');
   }
 
   async goto(): Promise<void> {
@@ -72,8 +78,24 @@ export class HomePage {
 
   async enableProgrammaticChat(apiEndpoint = '/mock-chatbot'): Promise<void> {
     await this.page.addInitScript((endpoint) => {
-      window.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(window.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          chatbot?: {
+            provider?: string;
+            mode?: string;
+            chatUrl?: string;
+            buttonPosition?: string;
+            apiEndpoint?: string;
+          };
+          weather?: {
+            apiEndpoint?: string;
+            allowBrowserFallback?: boolean;
+          };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
         chatbot: {
           provider: 'easyPeasy',
           mode: 'api',
@@ -85,21 +107,53 @@ export class HomePage {
     }, apiEndpoint);
   }
 
-  async enableWeatherProxy(apiEndpoint = '/mock-weather', allowBrowserFallback = false): Promise<void> {
-    await this.page.addInitScript(([endpoint, fallback]) => {
-      window.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(window.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        weather: {
-          apiEndpoint: endpoint,
-          allowBrowserFallback: fallback,
-        },
-      };
-    }, [apiEndpoint, allowBrowserFallback]);
+  async enableWeatherProxy(
+    apiEndpoint = '/mock-weather',
+    allowBrowserFallback = false,
+  ): Promise<void> {
+    await this.page.addInitScript(
+      (args) => {
+        const [endpoint, fallback] = args as [string, boolean];
+
+        const runtimeWindow = window as Window & {
+          __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+            chatbot?: {
+              provider?: string;
+              mode?: string;
+              chatUrl?: string;
+              buttonPosition?: string;
+              apiEndpoint?: string;
+            };
+            weather?: {
+              apiEndpoint?: string;
+              allowBrowserFallback?: boolean;
+            };
+          };
+        };
+
+        runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+          weather: {
+            apiEndpoint: endpoint,
+            allowBrowserFallback: fallback,
+          },
+        };
+      },
+      [apiEndpoint, allowBrowserFallback],
+    );
   }
 
   async sendAssistantQuestion(question: string): Promise<void> {
+    await expect(this.assistantInput).toBeEnabled();
     await this.assistantInput.fill(question);
+    await expect(this.assistantInput).toHaveValue(question);
     await this.assistantInput.press('Enter');
+    await expect(this.assistantInput).toHaveValue('');
+  }
+
+  async chooseAssistantPrompt(prompt: string): Promise<void> {
+    await this.assistantPromptButtons.filter({ hasText: prompt }).click();
+    await expect(this.assistantInput).toHaveValue('');
   }
 
   async tapWeatherRefresh(): Promise<void> {
@@ -110,5 +164,6 @@ export class HomePage {
 
   async searchFor(query: string): Promise<void> {
     await this.searchInput.fill(query);
+    await expect(this.searchInput).toHaveValue(query);
   }
 }

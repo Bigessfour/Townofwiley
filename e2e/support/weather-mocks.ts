@@ -1,5 +1,37 @@
 import type { Page } from '@playwright/test';
 
+interface MockForecastPeriod {
+  name: string;
+  startTime: string;
+  isDaytime: boolean;
+  temperature: number;
+  temperatureUnit: string;
+  probabilityOfPrecipitation: {
+    value: number | null;
+  };
+  windSpeed: string;
+  windDirection: string;
+  icon: string | null;
+  shortForecast: string;
+  detailedForecast: string;
+}
+
+interface MockWeatherAlert {
+  event: string;
+  headline: string;
+  severity: string;
+  urgency: string;
+  instruction?: string;
+  expires?: string;
+}
+
+export interface MockWeatherProxyPayload {
+  locationLabel: string;
+  updatedAt: string;
+  periods: MockForecastPeriod[];
+  alerts: MockWeatherAlert[];
+}
+
 const pointPayload = {
   properties: {
     forecast: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
@@ -90,7 +122,7 @@ const alertPayload = {
   features: [],
 };
 
-export const defaultProxyWeatherPayload = {
+export const defaultProxyWeatherPayload: MockWeatherProxyPayload = {
   locationLabel: 'Wiley, CO',
   updatedAt: '2026-03-22T12:57:10+00:00',
   periods: forecastPayload.properties.periods,
@@ -126,7 +158,7 @@ export async function mockDirectNwsRoutes(page: Page): Promise<void> {
 export async function mockWeatherProxyRoute(
   page: Page,
   apiEndpoint = '/mock-weather',
-  payload = defaultProxyWeatherPayload,
+  payload: MockWeatherProxyPayload = defaultProxyWeatherPayload,
 ): Promise<void> {
   await page.route(`**${apiEndpoint}`, async (route) => {
     await route.fulfill({

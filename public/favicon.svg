@@ -1,12 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Town of Wiley">
-    <defs>
-        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stop-color="#0d2c54" />
-            <stop offset="100%" stop-color="#a45a2c" />
-        </linearGradient>
-    </defs>
-    <rect width="128" height="128" rx="28" fill="url(#bg)" />
-    <circle cx="64" cy="64" r="42" fill="none" stroke="#f9f4ec" stroke-width="6" />
-    <path d="M38 78V50h10l16 18V50h10v28H64L48 60v18H38Z" fill="#f9f4ec" />
-    <path d="M82 50h10v28H82z" fill="#f9f4ec" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" aria-label="Town of Wiley" viewBox="0 0 128 128"><defs><linearGradient id="a" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0d2c54"/><stop offset="100%" stop-color="#a45a2c"/></linearGradient></defs><rect width="128" height="128" fill="url(#a)" rx="28"/><circle cx="64" cy="64" r="42" fill="none" stroke="#f9f4ec" stroke-width="6"/><path fill="#f9f4ec" d="M38 78V50h10l16 18V50h10v28H64L48 60v18zm44-28h10v28H82z"/></svg>
