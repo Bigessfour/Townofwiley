@@ -147,15 +147,15 @@ export class CmsAdmin {
   protected readonly persistenceSummary = this.cmsStore.persistenceSummary;
   protected readonly isLoading = this.cmsStore.isLoading;
   protected readonly loadError = this.cmsStore.loadError;
-  protected readonly copy = computed(() => CMS_ADMIN_COPY[this.siteLanguageService.currentLanguage()]);
+  protected readonly copy = computed(
+    () => CMS_ADMIN_COPY[this.siteLanguageService.currentLanguage()],
+  );
   protected readonly heroTitle = computed(() => this.cmsStore.hero().title);
   protected readonly heroMessage = computed(() => this.cmsStore.hero().message);
   protected readonly noticeCount = computed(() => this.cmsStore.notices().length);
   protected readonly contactCount = computed(() => this.cmsStore.contacts().length);
   protected readonly alertStatusLabel = computed(() =>
-    this.cmsStore.alertBanner().enabled
-      ? this.copy().bannerEnabled
-      : this.copy().bannerHidden,
+    this.cmsStore.alertBanner().enabled ? this.copy().bannerEnabled : this.copy().bannerHidden,
   );
   protected readonly studioUrl =
     'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir';

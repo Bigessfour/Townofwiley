@@ -43,7 +43,9 @@ describe('App', () => {
 
     expect(compiled.querySelector('h1')?.textContent).toContain('Pueblo de Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Sitio web oficial');
-    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Las tareas principales');
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain(
+      'Las tareas principales',
+    );
     expect(compiled.querySelector('#weather-heading')?.textContent).toContain('Pronostico');
     expect(compiled.querySelector('#site-search')).toBeTruthy();
     expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendario');
@@ -60,7 +62,9 @@ describe('App', () => {
       compiled.querySelector('.contact-link[href="mailto:stephen.mckitrick@townofwiley.gov"]')
         ?.textContent,
     ).toContain('stephen.mckitrick@townofwiley.gov');
-    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain('Alcalde y concejo');
+    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain(
+      'Alcalde y concejo',
+    );
     expect(compiled.querySelector('#accessibility h2')?.textContent).toContain('ADA y WCAG 2.1 AA');
   });
 
@@ -80,7 +84,9 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('.footer-links')?.textContent).toContain('Accessibility statement');
+    expect(compiled.querySelector('.footer-links')?.textContent).toContain(
+      'Accessibility statement',
+    );
   });
 
   it('should render homepage content from Amplify Studio CMS when AppSync runtime config is present', async () => {
@@ -169,7 +175,9 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Actualizaciones comunitarias');
-    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain('Main Street cerrada');
+    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
+      'Main Street cerrada',
+    );
     expect(compiled.querySelector('.notice-card strong')?.textContent).toContain('Corte de agua');
     expect(compiled.querySelector('.contact-card strong')?.textContent).toContain('Deb Dillon');
   });
@@ -262,7 +270,7 @@ describe('App', () => {
     };
 
     expect(component.isAlertSignupEnabled()).toBe(true);
-  expect(component.alertSignupSubmitLabel()).toBe('Suscribirse a alertas');
+    expect(component.alertSignupSubmitLabel()).toBe('Suscribirse a alertas');
     expect(component.alertSignupLanguageLabel()).toBe('English');
 
     component.updateAlertSignupLanguage('es');
@@ -284,7 +292,9 @@ describe('App', () => {
       'Amplify Studio es el unico CMS',
     );
     expect(compiled.textContent).toContain('La edicion local en el navegador fue deshabilitada');
-    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain('Abrir Amplify Console');
+    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
+      'Abrir Amplify Console',
+    );
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {
