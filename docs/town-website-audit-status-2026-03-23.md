@@ -7,17 +7,20 @@ This document converts the attached audit into Markdown and updates it against t
 ## Executive Summary
 
 - The homepage is no longer just a static brochure page. It now includes guided resident-service intake, a records/document center, an accessibility statement and barrier-report flow, expanded search entries, mobile-responsive Playwright coverage, and a richer calendar section that makes live event publishing visible.
+- The records/document area now includes a resident-facing `/documents` hub that gives meeting documents, finance records, code references, and records requests stable public destinations instead of guidance-only dead ends.
 - English is now the default homepage language when no saved preference exists, while resident-selected language still persists through local storage.
 - Several audit items are still open, but they are now mostly backend and operational gaps rather than missing homepage UI.
-- Focused unit and homepage smoke coverage are now green for the current calendar UI after the stale records-center assertion was corrected.
+- Focused unit and homepage smoke coverage are now green for the current calendar UI and the first-pass public document hub routing.
 - The highest-value remaining work is still the same general theme: connect the homepage workflows to real backend systems instead of mailto-style routing and seeded content.
 - Utility billing implementation now has a clearer path: the Town can keep RVS Mosaics as the clerk-facing billing system while integrating one of RVS's published payment partners or commissioning a custom bridge.
 - Paystar is now the selected first implementation target because it has the clearest website-link onboarding path for an Amplify-hosted resident portal while remaining compatible with RVS Mosaics.
 
 ## Current Validation Snapshot
 
-- Focused app unit coverage for the homepage language default is green.
-- Focused homepage smoke coverage is green in both desktop and mobile Chromium for the updated calendar UI.
+- Focused app unit coverage is green for the homepage shell, `/admin`, `/clerk-setup`, and `/documents` route.
+- Focused homepage smoke coverage is green in desktop and mobile Chromium for the homepage scaffold plus navigation from the records center into the public document hub.
+- Focused homepage unit and smoke coverage is also green for search routing into the public document destinations.
+- Severe-weather email confirmations are now working through SES with `alerts@townofwiley.gov` as the official sender, while SMS remains blocked by the separate Amazon SNS SMS sandbox state in `us-east-2`.
 - The earlier homepage smoke failure on the records-center assertion was stale test text and has now been corrected in source.
 
 ## What Is Complete Now
@@ -69,27 +72,34 @@ What is still missing:
 
 ### Records center and transparency entry points
 
-Status: Partially complete
+Status: Complete for the current public-destination scope
 
 Evidence:
 
 - [src/app/records-center/records-center.ts](../src/app/records-center/records-center.ts)
+- [src/app/document-hub/document-hub.ts](../src/app/document-hub/document-hub.ts)
 - [src/app/app.ts](../src/app/app.ts)
 
 What is complete:
 
-- The records area now has real guidance cards for:
+- The records area now has real resident-facing destination cards for:
   - public records and FOIA
   - meeting packets and approved minutes
   - budget summaries and annual reports
   - ordinances, zoning, and permit references
-- Transparency quick actions now link residents into the records form, calendar, and contact sections.
+- A public `/documents` route now exists and groups those destinations into resident-readable sections for:
+  - records requests
+  - meeting documents
+  - financial documents
+  - code references
+- Transparency quick actions now link residents into document-hub destinations instead of generic section anchors.
+- Search entries and meeting-related actions now route residents into the new public document destinations where appropriate.
 
 What is still missing:
 
-- No live archive of agenda packets, minutes, budgets, annual reports, or ordinances
-- No true records portal or document repository
-- The current experience is routing and guidance, not a hosted records library
+- No downloadable archive of agenda packets, minutes, budgets, annual reports, or ordinances yet
+- No CMS-managed document upload workflow or versioned public records library yet
+- No true records portal or document repository yet
 
 ### Top tasks and homepage routing fixes
 
@@ -126,8 +136,8 @@ What is complete:
 
 What is still missing:
 
-- The `Event` records still do not carry richer categories, attached agenda URLs, or document destinations.
-- The calendar still needs document-level publishing behind agenda, packet, minutes, and ordinance links.
+- The `Event` records still do not carry richer categories, attached agenda URLs, or per-event document attachments.
+- The document hub now gives meeting-related calls to action a stable public destination, but the calendar still does not publish real per-meeting files.
 
 ### Responsive and mobile coverage
 
@@ -158,13 +168,14 @@ Evidence:
 What is complete:
 
 - Smoke tests now cover the resident-service cards, records-center cards, and accessibility barrier reporting.
+- Smoke tests now also verify navigation from the records center into the public document hub.
 - Navigation smoke coverage passed in both desktop and mobile Chromium.
 - Weather smoke coverage passed in both desktop and mobile Chromium, including alert signup flows.
 - Chat smoke coverage passed in both desktop and mobile Chromium.
 
 Validation:
 
-- `npx playwright test e2e/specs/smoke/home.smoke.spec.ts --project=desktop-chromium --project=mobile-chromium` passed with 4 tests passed.
+- `npx playwright test e2e/specs/smoke/home.smoke.spec.ts --project=desktop-chromium --project=mobile-chromium --grep '(renders the Wiley landing page scaffold|opens the public document hub from the records center)'` passed with 4 tests passed.
 - The earlier records-center assertion drift was corrected in source, and the homepage scaffold smoke test now passes again.
 
 What is still missing:
@@ -199,7 +210,7 @@ What is still missing:
 
 ### Search and discovery
 
-Status: Partially complete
+Status: Partially complete, with content-derived homepage search now in place
 
 Evidence:
 
@@ -208,12 +219,15 @@ Evidence:
 What has improved since the original audit:
 
 - Search is no longer limited to a tiny set of older entries.
-- The search index now includes records guides, accessibility reporting, calendar access, contact routing, and resident-service flows.
+- The homepage search index is no longer maintained as a second hand-written content list.
+- Search results now derive from the current homepage model, including top tasks, meetings, calendar items, service cards, transparency actions, accessibility content, contacts, and notices.
+- Search now also picks up live CMS-published contacts, notices, and calendar events, so results can change when staff content changes without a code edit.
+- The search index now includes records guides and public document destinations sourced from the shared records-center content instead of a separate search-only definition.
 
 What is still missing:
 
-- Search is still hardcoded in the client.
-- No CMS-driven indexing
+- No document-library metadata indexing beyond the current resident-facing destination guides.
+- No uploaded-file or archive crawl.
 - No document crawling or hosted records search
 - No external search service for larger archives
 
@@ -244,24 +258,29 @@ What is still missing:
 
 ### Weather alert signup
 
-Status: Partially complete
+Status: Partially complete, with live email confirmations now verified
 
 Evidence:
 
 - [src/app/weather-panel](../src/app/weather-panel)
 - [infrastructure/severe-weather-signup/app.py](../infrastructure/severe-weather-signup/app.py)
+- [README.md](../README.md)
 
 What is complete:
 
 - Frontend signup exists.
 - Backend code exists.
 - Playwright smoke coverage includes signup behavior.
+- The checked-in runtime config is wired to the live severe-weather backend.
+- Structured backend logging now records request handling, validation results, and delivery outcomes for signup attempts.
+- The official sender is now `alerts@townofwiley.gov`.
+- Email confirmations are now working through Amazon SES for the live backend.
 
 What is still missing:
 
-- End-to-end delivery verification for real email and SMS channels
-- Unsubscribe-token handling
-- Explicit double-opt-in confirmation journey validation in production
+- SMS confirmations are still blocked because Amazon SNS SMS in `us-east-2` reports `IsInSandbox: true` for this account.
+- SES and SNS SMS remain separate AWS delivery systems, so SES production access does not remove the SNS SMS sandbox.
+- Explicit live unsubscribe journey validation is still pending.
 
 ### Deployment and runtime config
 
@@ -423,8 +442,8 @@ What is still missing:
 
 ### High priority
 
-1. Publish actual document destinations for agendas, minutes, budgets, annual reports, ordinances, and code references.
-2. Move search from hardcoded homepage metadata to dynamic content and document indexing.
+1. Turn the new `/documents` destinations into a downloadable archive with real published files and a clerk-friendly document publishing workflow.
+2. Extend the new content-derived search into uploaded document metadata and larger document indexing.
 3. Add operational accessibility artifacts: audit cadence, media checklist, and content-publishing accessibility rules.
 
 ### Medium priority
@@ -445,26 +464,25 @@ What is still missing:
 
 Selected item:
 
-1. High priority #1: Publish actual document destinations for agendas, minutes, budgets, annual reports, ordinances, and code references.
+1. High priority #1: Turn the new `/documents` destinations into a downloadable archive with real published files and a clerk-friendly publishing workflow.
 
 Why this is the next best visually confirmable task:
 
-- It is now the highest-ranked remaining item that produces an obvious resident-facing change after the calendar UI completion.
-- It makes the existing calendar, records center, and transparency actions materially more useful instead of merely better presented.
-- Residents will be able to confirm the difference immediately because calendar and records calls to action can resolve to real public documents instead of guidance-only routes.
-- It builds directly on the completed live calendar surface by giving meeting and records entries real destinations.
+- The `/documents` route now works as a stable public hub and the homepage search now routes residents into those destinations, so the next clear public-facing improvement is to replace guidance-only sections with actual downloadable files.
+- Residents will be able to verify the change immediately when meeting packets, approved minutes, budget documents, and ordinance references become directly downloadable instead of being described as destinations.
+- It builds directly on the current document hub and search work without requiring residents to understand the internal CMS model structure.
+- It remains the highest-ranked remaining item that creates an obvious visible improvement on the public site before deeper backend intake systems are finished.
 
 Suggested visual acceptance signals:
 
-- Agenda and packet links resolve to actual published destinations instead of generic contact routing.
-- Records-center calls to action open real document or archive destinations where those resources exist.
-- Residents can confirm budget, annual report, ordinance, and code references from the homepage without falling back to email-only guidance.
-- Smoke coverage can assert concrete document destinations instead of placeholder text only.
+- The `/documents` sections show real downloadable files instead of guidance-only copy.
+- Residents can open at least meeting, finance, and code-reference files directly from the public document hub.
+- Records-center and homepage search flows still route into the same stable destinations, but those destinations now contain published files.
 
 Why the other open items are not the next visually confirmable pick:
 
 - Critical payment, issue-reporting, and records-backend tasks are important, but they are more backend-heavy and harder to confirm safely through a simple visual pass.
-- Dynamic search is visible, but it is still ranked below document publishing and depends on broader content indexing decisions.
+- Search has now moved off the duplicate hand-maintained homepage list, so the sharper remaining visual gap is the lack of real published files behind the document destinations.
 - Accessibility operations artifacts matter, but they are more procedural than visually demonstrable in the homepage itself.
 
 ## Audit Items That Were Stale In The Attached File
@@ -480,7 +498,7 @@ The following claims in the attached audit were no longer accurate by the time t
 ## Recommended Next Build Order
 
 1. Live Paystar rollout plus backend intake for issue reporting and permit or records workflows
-2. Published document destinations and hosted records archive
+2. Extend search into uploaded document metadata and larger archive indexing
 3. Production chat deployment
-4. Dynamic search and document indexing
+4. Downloadable archive files and hosted records library on top of `/documents`
 5. CMS operations hardening and publishing governance

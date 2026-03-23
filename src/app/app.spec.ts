@@ -115,14 +115,40 @@ describe('App', () => {
       'ADA and WCAG 2.1 AA',
     );
     expect(
-      compiled.querySelector('#records .transparency-action[href="#records-request"]')?.textContent,
-    ).toContain('Start a records or FOIA request');
+      compiled.querySelector('#records .transparency-action[href="/documents#records-requests"]')
+        ?.textContent,
+    ).toContain('Open the public records request destination');
     expect(compiled.querySelector('#records-guide-packets h4')?.textContent).toContain(
-      'Meeting packets and approved minutes',
+      'Find meeting packets and approved minutes',
     );
+    expect(
+      compiled.querySelector('#records-guide-packets .records-guide-link')?.getAttribute('href'),
+    ).toBe('/documents#meeting-documents');
     expect(compiled.querySelector('#barrier-report h3')?.textContent).toContain(
       'Report an accessibility barrier',
     );
+  });
+
+  it('should route document-related search queries into the public document hub', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
+
+    searchInput.value = 'budget summaries';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const financeResult = compiled.querySelector(
+      '.search-result[href="/documents#financial-documents"]',
+    );
+
+    expect(financeResult?.textContent).toContain('budget');
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
@@ -291,6 +317,26 @@ describe('App', () => {
       'Wiley Community Park',
     );
     expect(compiled.querySelector('.contact-card strong')?.textContent).toContain('Deb Dillon');
+
+    const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
+    searchInput.value = 'spring cleanup';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(compiled.querySelector('.search-result strong')?.textContent).toContain(
+      'Spring Cleanup Day',
+    );
+
+    searchInput.value = 'deb dillon';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(
+      compiled.querySelector('.search-result[href="mailto:deb.dillon@townofwiley.gov"]')
+        ?.textContent,
+    ).toContain('Deb Dillon');
   });
 
   it('should use the configured weather proxy when available', async () => {
@@ -467,6 +513,25 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Town Clerk Setup');
     expect(compiled.textContent).toContain('Open Studio Home');
     expect(compiled.textContent).toContain('Open Data Manager');
+  });
+
+  it('should render the public document hub on the documents path', async () => {
+    window.history.pushState({}, '', '/documents');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.document-hub-title')?.textContent).toContain(
+      'Stable public destinations for meetings, finance records, and code references',
+    );
+    expect(compiled.querySelector('#meeting-documents')?.textContent).toContain(
+      'City Council packets and approved minutes',
+    );
+    expect(compiled.querySelector('.document-hub-button.primary')?.getAttribute('href')).toBe(
+      '/#records-request',
+    );
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {

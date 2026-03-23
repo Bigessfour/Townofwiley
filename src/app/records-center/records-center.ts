@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface RecordsGuide {
@@ -16,88 +17,88 @@ interface RecordsCenterCopy {
   guides: RecordsGuide[];
 }
 
-const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
+export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
   en: {
     kicker: 'Document Center',
-    title: 'Use clear document guides while the full archive is still growing',
+    title: 'Open stable public document destinations while the full archive keeps growing',
     guides: [
       {
         id: 'records-guide-foia',
         kicker: 'Records Requests',
         title: 'Public records and FOIA guide',
         detail:
-          'Start with the records request workflow when you need specific documents, date ranges, accessible copies, or a reply from the clerk.',
-        cta: 'Open the records request form',
-        href: '#records-request',
+          'Use the public document hub for records-request instructions, accessible-copy follow-up, and the clerk route for files that are not posted yet.',
+        cta: 'Open records request destination',
+        href: DOCUMENT_HUB_LINKS.requests,
       },
       {
         id: 'records-guide-packets',
         kicker: 'Meeting Documents',
-        title: 'Meeting packets and approved minutes',
+        title: 'Find meeting packets and approved minutes',
         detail:
-          'Use the calendar section for recurring meetings, then route packet and approved-minute follow-up through the clerk if the posting is not available yet.',
-        cta: 'Open calendar and meeting access',
-        href: '#calendar',
+          'Open the meeting-documents destination for council packets, approved minutes, agenda timing, and recurring calendar access in one public place.',
+        cta: 'Open meeting documents destination',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
         id: 'records-guide-budgets',
         kicker: 'Financial Documents',
-        title: 'Budget summaries and annual reports',
+        title: 'Find budget summaries and annual reports',
         detail:
-          'Until a searchable archive is published, request budget summaries, annual reports, and related finance documents through the clerk intake path.',
-        cta: 'Request budget or annual report help',
-        href: '#records-request',
+          'Open the finance-document destination for budget summaries, annual reports, and the clerk follow-up path for files that are still being posted.',
+        cta: 'Open finance documents destination',
+        href: DOCUMENT_HUB_LINKS.finance,
       },
       {
         id: 'records-guide-ordinances',
         kicker: 'Code and Zoning',
-        title: 'Ordinances, zoning, and permit references',
+        title: 'Locate ordinances and zoning guidance',
         detail:
-          'Use the records and permit workflow for ordinance lookups, zoning references, and supporting forms when the code library is not posted online yet.',
-        cta: 'Open ordinance and permit help',
-        href: '#records-request',
+          'Open the ordinance and code destination for municipal-code lookups, zoning references, and permit-support follow-up instead of falling back to email-only guidance.',
+        cta: 'Open ordinance and code destination',
+        href: DOCUMENT_HUB_LINKS.code,
       },
     ],
   },
   es: {
     kicker: 'Centro de documentos',
-    title: 'Use guias claras de documentos mientras el archivo completo sigue creciendo',
+    title: 'Abra destinos publicos estables mientras el archivo completo sigue creciendo',
     guides: [
       {
         id: 'records-guide-foia',
         kicker: 'Solicitudes de registros',
         title: 'Guia de registros publicos y FOIA',
         detail:
-          'Empiece con el flujo de solicitud de registros cuando necesite documentos especificos, rangos de fechas, copias accesibles o una respuesta de la secretaria.',
-        cta: 'Abrir el formulario de registros',
-        href: '#records-request',
+          'Use el centro publico de documentos para instrucciones de solicitud, copias accesibles y la ruta de secretaria para archivos que todavia no estan publicados.',
+        cta: 'Abrir destino de solicitud de registros',
+        href: DOCUMENT_HUB_LINKS.requests,
       },
       {
         id: 'records-guide-packets',
         kicker: 'Documentos de reuniones',
-        title: 'Paquetes de reuniones y minutas aprobadas',
+        title: 'Encontrar paquetes de reuniones y minutas aprobadas',
         detail:
-          'Use la seccion del calendario para reuniones recurrentes y despues canalice con la secretaria la solicitud de paquetes o minutas aprobadas si la publicacion todavia no aparece.',
-        cta: 'Abrir calendario y acceso a reuniones',
-        href: '#calendar',
+          'Abra el destino de documentos de reuniones para paquetes del concejo, minutas aprobadas, tiempos de agenda y acceso recurrente al calendario en un solo lugar publico.',
+        cta: 'Abrir destino de documentos de reuniones',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
         id: 'records-guide-budgets',
         kicker: 'Documentos financieros',
-        title: 'Resumenes de presupuesto e informes anuales',
+        title: 'Encontrar resumenes de presupuesto e informes anuales',
         detail:
-          'Mientras no exista un archivo buscable, solicite resumenes de presupuesto, informes anuales y documentos financieros relacionados por medio de la ruta de secretaria.',
-        cta: 'Solicitar ayuda sobre presupuesto o informe anual',
-        href: '#records-request',
+          'Abra el destino de documentos financieros para resumenes de presupuesto, informes anuales y la ruta de secretaria para archivos que todavia se estan publicando.',
+        cta: 'Abrir destino de documentos financieros',
+        href: DOCUMENT_HUB_LINKS.finance,
       },
       {
         id: 'records-guide-ordinances',
         kicker: 'Codigo y zonificacion',
-        title: 'Ordenanzas, zonificacion y referencias para permisos',
+        title: 'Ubicar ordenanzas y orientacion de zonificacion',
         detail:
-          'Use el flujo de registros y permisos para buscar ordenanzas, referencias de zonificacion y formularios de apoyo cuando la biblioteca del codigo aun no este publicada.',
-        cta: 'Abrir ayuda sobre ordenanzas y permisos',
-        href: '#records-request',
+          'Abra el destino de ordenanzas y codigo para busquedas de codigo municipal, referencias de zonificacion y apoyo para permisos sin depender solo del correo electronico.',
+        cta: 'Abrir destino de ordenanzas y codigo',
+        href: DOCUMENT_HUB_LINKS.code,
       },
     ],
   },

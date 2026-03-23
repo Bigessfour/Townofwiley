@@ -13,7 +13,9 @@ import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
-import { RecordsCenter } from './records-center/records-center';
+import { DocumentHub } from './document-hub/document-hub';
+import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
+import { RecordsCenter, RECORDS_CENTER_COPY } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
   CmsAlertBanner,
@@ -215,7 +217,6 @@ interface AppCopy {
   transparencyActions: TransparencyAction[];
   accessibilityItems: AccessibilityItem[];
   leadershipGroups: LeadershipGroup[];
-  searchIndex: SearchItem[];
 }
 
 const APP_COPY: Record<SiteLanguage, AppCopy> = {
@@ -353,7 +354,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Find a meeting or agenda',
         description:
           'Put board meetings, notices, agendas, and minutes directly on the homepage for a town where civic information should stay one click away.',
-        href: '#alerts',
+        href: DOCUMENT_HUB_LINKS.meetings,
         note: 'Open meetings information should stay one click away from the homepage.',
       },
       {
@@ -374,7 +375,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         agendaNote:
           'Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they wish time on the agenda.',
         cta: 'Add the recurring council meeting to your calendar',
-        href: '#calendar',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
         title: 'Planning and zoning review',
@@ -389,7 +390,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         format:
           'Calendar filters should separate meetings, alerts, school events, recreation, and facility reservations.',
         cta: 'Browse the calendar section',
-        href: '#calendar',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
     ],
     calendarSeeds: [
@@ -519,19 +520,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     transparencyActionsLabel: 'Transparency quick actions',
     transparencyActions: [
       {
-        title: 'Start a records or FOIA request',
-        detail: 'Jump to the clerk intake form for records, permits, and document requests.',
-        href: '#records-request',
+        title: 'Open the public records request destination',
+        detail:
+          'Go to the public records destination for FOIA routing, accessible-copy follow-up, and clerk intake.',
+        href: DOCUMENT_HUB_LINKS.requests,
       },
       {
-        title: 'Open meetings and agenda timing',
-        detail: 'Go straight to the public calendar and recurring meeting details.',
-        href: '#calendar',
+        title: 'Open meeting packets and agenda access',
+        detail:
+          'Go straight to the public meeting-documents destination for packets, minutes, agenda timing, and calendar access.',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
-        title: 'Contact Town Hall for packets or agendas',
-        detail: 'Use the public contact section when you need direct follow-up from the clerk.',
-        href: '#contact',
+        title: 'Browse budgets, annual reports, and code references',
+        detail:
+          'Open the finance and ordinance destinations instead of falling back to email-only guidance.',
+        href: DOCUMENT_HUB_LINKS.finance,
       },
     ],
     accessibilityItems: [
@@ -575,209 +579,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         detail:
           'Administrative leaders should stay visible because small-town residents often need direct, role-based contacts rather than department directories.',
         members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
-      },
-    ],
-    searchIndex: [
-      {
-        title: 'Check weather and active alerts',
-        summary:
-          'See the latest National Weather Service forecast, wind conditions, and any active alerts for Wiley.',
-        category: 'Weather',
-        href: '#weather',
-        keywords: [
-          'weather',
-          'forecast',
-          'alerts',
-          'warning',
-          'watch',
-          'advisory',
-          'wind',
-          'snow',
-          'temperature',
-          'weather.gov',
-          'nws',
-        ],
-      },
-      {
-        title: 'Pay utility bill',
-        summary:
-          'Open the billing help desk to request the current payment instructions and account support.',
-        category: 'Payments',
-        href: '#payment-help',
-        keywords: ['pay bill', 'water bill', 'utility bill', 'payment', 'fees', 'online payment'],
-      },
-      {
-        title: 'Report a pothole, outage, or street issue',
-        summary: 'Start a resident request and track the response status.',
-        category: 'Service request',
-        href: '#issue-report',
-        keywords: [
-          'report issue',
-          'pothole',
-          'outage',
-          'street',
-          'streetlight',
-          '311',
-          'public works',
-        ],
-      },
-      {
-        title: 'City Council Regular Meeting',
-        summary:
-          'See the recurring 2nd Monday schedule, agenda guidance, and calendar links for the main council meeting.',
-        category: 'Meetings',
-        href: '#calendar',
-        keywords: [
-          'city council',
-          'regular meeting',
-          '2nd monday',
-          'second monday',
-          '6:00 pm',
-          'agenda',
-          'wiley town hall',
-        ],
-      },
-      {
-        title: 'Find the next town meeting',
-        summary: 'Jump to the City Council schedule, agenda guidance, and the calendar section.',
-        category: 'Meetings',
-        href: '#alerts',
-        keywords: [
-          'meeting',
-          'agenda',
-          'minutes',
-          'city council',
-          '2nd monday',
-          'public notice',
-          '304 main street',
-        ],
-      },
-      {
-        title: 'Open the town calendar',
-        summary:
-          'See City Council meetings, hearings, deadlines, and community events in one calendar section with add-to-calendar links.',
-        category: 'Calendar',
-        href: '#calendar',
-        keywords: [
-          'calendar',
-          'events',
-          'schedule',
-          'deadlines',
-          'hearing',
-          'community calendar',
-          'google calendar',
-          'ics',
-          'city council',
-        ],
-      },
-      {
-        title: 'Request public records',
-        summary: 'Locate FOIA forms, records guidance, and response expectations.',
-        category: 'Transparency',
-        href: '#records-request',
-        keywords: ['foia', 'records', 'public records', 'documents', 'minutes', 'budget'],
-      },
-      {
-        title: 'Find meeting packets and approved minutes',
-        summary:
-          'Use the records center to find meeting-document guidance and the fastest route back to calendar access or the clerk.',
-        category: 'Transparency',
-        href: '#records-guide-packets',
-        keywords: [
-          'meeting packet',
-          'agenda packet',
-          'approved minutes',
-          'minutes pdf',
-          'council packet',
-          'packet request',
-        ],
-      },
-      {
-        title: 'Find budget summaries and annual reports',
-        summary:
-          'Use the records center for budget, annual report, and finance-document guidance while the archive is still growing.',
-        category: 'Transparency',
-        href: '#records-guide-budgets',
-        keywords: [
-          'budget',
-          'budget summary',
-          'annual report',
-          'audit',
-          'financial report',
-          'town budget',
-        ],
-      },
-      {
-        title: 'Locate ordinances and zoning guidance',
-        summary:
-          'Use the records center to route ordinance, municipal-code, zoning, and permit-reference questions to the right workflow.',
-        category: 'Transparency',
-        href: '#records-guide-ordinances',
-        keywords: [
-          'ordinance',
-          'municipal code',
-          'zoning',
-          'land use',
-          'zoning map',
-          'code information',
-        ],
-      },
-      {
-        title: 'Report an accessibility barrier',
-        summary:
-          'Prepare an accessibility report for a page, document, image, or service that is difficult to use.',
-        category: 'Accessibility',
-        href: '#barrier-report',
-        keywords: [
-          'accessibility statement',
-          'accessibility',
-          'barrier report',
-          'screen reader issue',
-          'keyboard problem',
-          'alternate format',
-          'ada',
-          'wcag',
-        ],
-      },
-      {
-        title: 'Check accessibility and language support',
-        summary:
-          'Read the accessibility commitments, translation priorities, and alternate format pathways.',
-        category: 'Accessibility',
-        href: '#accessibility',
-        keywords: [
-          'accessibility',
-          'ada',
-          'wcag',
-          'translation',
-          'language access',
-          'screen reader',
-        ],
-      },
-      {
-        title: 'Contact Town Hall',
-        summary:
-          'Find office hours, department contacts, official alias emails, and issue escalation points.',
-        category: 'Contact',
-        href: '#contact',
-        keywords: [
-          'contact',
-          'office hours',
-          'phone',
-          'town hall',
-          'clerk',
-          'permits',
-          'wiley',
-          '719 829 4974',
-          'deb.dillon@townofwiley.gov',
-          'scott.whitman@townofwiley.gov',
-          'stephen.mckitrick@townofwiley.gov',
-          'deb dillon',
-          'scott whitman',
-          'stephen mckitrick',
-          'steve mckitrick',
-          'julie esgar',
-        ],
       },
     ],
   },
@@ -917,7 +718,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Encontrar una reunion o agenda',
         description:
           'Ponga reuniones, avisos, agendas y minutas directamente en la pagina principal para que la informacion civica quede a un clic.',
-        href: '#alerts',
+        href: DOCUMENT_HUB_LINKS.meetings,
         note: 'La informacion de reuniones abiertas debe quedar a un solo clic de la pagina principal.',
       },
       {
@@ -938,7 +739,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         agendaNote:
           'Los residentes deben llamar al ayuntamiento al (719) 829-4974 o escribir a Deb Dillon a deb.dillon@townofwiley.gov si desean tiempo en la agenda.',
         cta: 'Agregar la reunion recurrente del concejo a su calendario',
-        href: '#calendar',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
         title: 'Revision de planeacion y zonificacion',
@@ -953,7 +754,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         format:
           'Los filtros del calendario deben separar reuniones, alertas, eventos escolares, recreacion y reservaciones de instalaciones.',
         cta: 'Ver la seccion del calendario',
-        href: '#calendar',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
     ],
     calendarSeeds: [
@@ -1083,22 +884,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     transparencyActionsLabel: 'Acciones rapidas de transparencia',
     transparencyActions: [
       {
-        title: 'Iniciar una solicitud de registros o FOIA',
+        title: 'Abrir el destino publico de registros',
         detail:
-          'Vaya al formulario de recepcion de secretaria para registros, permisos y solicitudes de documentos.',
-        href: '#records-request',
+          'Vaya al destino publico de registros para la ruta FOIA, copias accesibles y solicitudes con la secretaria.',
+        href: DOCUMENT_HUB_LINKS.requests,
       },
       {
-        title: 'Abrir reuniones y fechas de agenda',
+        title: 'Abrir paquetes y acceso a agendas',
         detail:
-          'Vaya directamente al calendario publico y a los detalles de reuniones recurrentes.',
-        href: '#calendar',
+          'Vaya directamente al destino publico de documentos de reuniones para paquetes, minutas, tiempos de agenda y acceso al calendario.',
+        href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
-        title: 'Contactar al ayuntamiento por paquetes o agendas',
+        title: 'Explorar presupuestos, informes y referencias de codigo',
         detail:
-          'Use la seccion de contacto publico cuando necesite seguimiento directo de la secretaria.',
-        href: '#contact',
+          'Abra los destinos de finanzas y ordenanzas en lugar de depender solo del correo electronico.',
+        href: DOCUMENT_HUB_LINKS.finance,
       },
     ],
     accessibilityItems: [
@@ -1144,188 +945,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
       },
     ],
-    searchIndex: [
-      {
-        title: 'Ver clima y alertas activas',
-        summary:
-          'Revise el pronostico mas reciente del Servicio Nacional de Meteorologia, las condiciones de viento y cualquier alerta activa para Wiley.',
-        category: 'Clima',
-        href: '#weather',
-        keywords: [
-          'clima',
-          'pronostico',
-          'alertas',
-          'advertencia',
-          'vigilancia',
-          'aviso',
-          'viento',
-          'nieve',
-          'temperatura',
-          'weather.gov',
-          'nws',
-        ],
-      },
-      {
-        title: 'Pagar recibo de servicios',
-        summary:
-          'Abra la mesa de ayuda de facturacion para solicitar las instrucciones actuales de pago y apoyo con la cuenta.',
-        category: 'Pagos',
-        href: '#payment-help',
-        keywords: ['pagar recibo', 'agua', 'servicios', 'pago', 'cuotas', 'pago en linea'],
-      },
-      {
-        title: 'Reportar un bache, corte o problema de calle',
-        summary: 'Inicie una solicitud del residente y seguimiento a la respuesta.',
-        category: 'Solicitud de servicio',
-        href: '#issue-report',
-        keywords: ['reportar problema', 'bache', 'corte', 'calle', 'alumbrado', 'obras publicas'],
-      },
-      {
-        title: 'Reunion ordinaria del concejo municipal',
-        summary:
-          'Revise el horario recurrente del segundo lunes, la orientacion sobre agendas y los enlaces del calendario para la reunion principal del concejo.',
-        category: 'Reuniones',
-        href: '#calendar',
-        keywords: [
-          'concejo municipal',
-          'reunion',
-          'segundo lunes',
-          'agenda',
-          'ayuntamiento de wiley',
-        ],
-      },
-      {
-        title: 'Encontrar la proxima reunion del pueblo',
-        summary:
-          'Vaya al horario del concejo, la orientacion sobre agendas y la seccion del calendario.',
-        category: 'Reuniones',
-        href: '#alerts',
-        keywords: ['reunion', 'agenda', 'minutas', 'concejo', 'segundo lunes', 'aviso publico'],
-      },
-      {
-        title: 'Abrir el calendario del pueblo',
-        summary:
-          'Vea reuniones del concejo, audiencias, fechas limite y eventos comunitarios en una sola seccion con enlaces para agregar al calendario.',
-        category: 'Calendario',
-        href: '#calendar',
-        keywords: [
-          'calendario',
-          'eventos',
-          'horario',
-          'fechas limite',
-          'audiencia',
-          'google calendar',
-          'ics',
-          'concejo',
-        ],
-      },
-      {
-        title: 'Solicitar registros publicos',
-        summary:
-          'Localice formularios FOIA, orientacion sobre registros y expectativas de respuesta.',
-        category: 'Transparencia',
-        href: '#records-request',
-        keywords: [
-          'foia',
-          'registros',
-          'registros publicos',
-          'documentos',
-          'minutas',
-          'presupuesto',
-        ],
-      },
-      {
-        title: 'Encontrar paquetes de reuniones y minutas aprobadas',
-        summary:
-          'Use el centro de documentos para encontrar la guia de documentos de reuniones y la ruta mas rapida al calendario o a la secretaria.',
-        category: 'Transparencia',
-        href: '#records-guide-packets',
-        keywords: [
-          'paquete de reunion',
-          'paquete de agenda',
-          'minutas aprobadas',
-          'paquete del concejo',
-          'documentos de reunion',
-          'acta aprobada',
-        ],
-      },
-      {
-        title: 'Encontrar resumenes de presupuesto e informes anuales',
-        summary:
-          'Use el centro de documentos para orientacion sobre presupuesto, informe anual y documentos financieros mientras el archivo sigue creciendo.',
-        category: 'Transparencia',
-        href: '#records-guide-budgets',
-        keywords: [
-          'presupuesto',
-          'resumen de presupuesto',
-          'informe anual',
-          'auditoria',
-          'reporte financiero',
-          'presupuesto del pueblo',
-        ],
-      },
-      {
-        title: 'Localizar ordenanzas y orientacion de zonificacion',
-        summary:
-          'Use el centro de documentos para dirigir preguntas sobre ordenanzas, codigo municipal, zonificacion y referencias de permisos.',
-        category: 'Transparencia',
-        href: '#records-guide-ordinances',
-        keywords: [
-          'ordenanza',
-          'codigo municipal',
-          'zonificacion',
-          'uso de suelo',
-          'mapa de zonificacion',
-          'codigo',
-        ],
-      },
-      {
-        title: 'Reportar una barrera de accesibilidad',
-        summary:
-          'Prepare un reporte de accesibilidad para una pagina, documento, imagen o servicio dificil de usar.',
-        category: 'Accesibilidad',
-        href: '#barrier-report',
-        keywords: [
-          'declaracion de accesibilidad',
-          'accesibilidad',
-          'barrera',
-          'lector de pantalla',
-          'teclado',
-          'formato alternativo',
-          'ada',
-          'wcag',
-        ],
-      },
-      {
-        title: 'Revisar accesibilidad y apoyo de idioma',
-        summary:
-          'Lea los compromisos de accesibilidad, las prioridades de traduccion y las rutas para formatos alternativos.',
-        category: 'Accesibilidad',
-        href: '#accessibility',
-        keywords: ['accesibilidad', 'ada', 'wcag', 'traduccion', 'idioma', 'lector de pantalla'],
-      },
-      {
-        title: 'Contactar al ayuntamiento',
-        summary:
-          'Encuentre horarios, contactos de oficina, correos oficiales y puntos de escalamiento para problemas.',
-        category: 'Contacto',
-        href: '#contact',
-        keywords: [
-          'contacto',
-          'telefono',
-          'ayuntamiento',
-          'secretaria',
-          'permisos',
-          'wiley',
-          '719 829 4974',
-          'deb dillon',
-          'scott whitman',
-          'stephen mckitrick',
-          'steve mckitrick',
-          'julie esgar',
-        ],
-      },
-    ],
   },
 };
 
@@ -1338,6 +957,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     LocalizedWeatherPanel,
     CmsAdmin,
     ClerkSetup,
+    DocumentHub,
     RecordsCenter,
     ResidentServices,
   ],
@@ -1359,6 +979,8 @@ export class App {
   protected readonly isClerkSetupMode =
     typeof window !== 'undefined' &&
     window.location.pathname.replace(/\/+$/, '') === '/clerk-setup';
+  protected readonly isDocumentHubMode =
+    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/documents';
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
   protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
@@ -1460,6 +1082,116 @@ export class App {
   protected readonly transparencyActions = computed(() => this.appCopy().transparencyActions);
   protected readonly accessibilityItems = computed(() => this.appCopy().accessibilityItems);
   protected readonly leadershipGroups = computed(() => this.appCopy().leadershipGroups);
+  protected readonly searchIndex = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+    const recordsCopy = RECORDS_CENTER_COPY[this.siteLanguage()];
+    const alertBanner = this.alertBanner();
+    const weatherKeywords =
+      this.siteLanguage() === 'en'
+        ? ['weather', 'forecast', 'alerts', 'warning', 'watch', 'advisory', 'wind', 'snow']
+        : [
+            'clima',
+            'pronostico',
+            'alertas',
+            'advertencia',
+            'vigilancia',
+            'aviso',
+            'viento',
+            'nieve',
+          ];
+
+    const items: SearchItem[] = [
+      {
+        title: alertBanner.title || copy.alertHeadline,
+        summary: alertBanner.detail || this.heroContent().message,
+        category: copy.nwsAlertLabel,
+        href: '#weather',
+        keywords: this.buildSearchKeywords(
+          copy.alertHeadline,
+          copy.alertActionLabel,
+          copy.nwsAlertLinkLabel,
+          ...weatherKeywords,
+        ),
+      },
+      ...this.topTasks().map((task) => ({
+        title: task.title,
+        summary: task.description,
+        category: copy.topTasksKicker,
+        href: task.href,
+        keywords: this.buildSearchKeywords(task.description, task.note),
+      })),
+      ...this.meetings().map((meeting) => ({
+        title: meeting.title,
+        summary: meeting.format,
+        category: copy.meetingsKicker,
+        href: meeting.href ?? '#calendar',
+        keywords: this.buildSearchKeywords(
+          meeting.schedule,
+          meeting.location,
+          meeting.agendaNote,
+          meeting.cta,
+        ),
+      })),
+      ...this.calendarItems().map((item) => ({
+        title: item.title,
+        summary: item.detail,
+        category: copy.calendarKicker,
+        href: '#calendar',
+        keywords: this.buildSearchKeywords(
+          item.date,
+          item.category,
+          item.location,
+          item.recurrence,
+          item.agendaNote,
+          ...item.actions.map((action) => action.label),
+        ),
+      })),
+      ...recordsCopy.guides.map((guide) => ({
+        title: guide.title,
+        summary: guide.detail,
+        category: recordsCopy.kicker,
+        href: guide.href,
+        keywords: this.buildSearchKeywords(guide.kicker, guide.cta),
+      })),
+      ...this.serviceCards().map((service) => ({
+        title: service.title,
+        summary: service.description,
+        category: copy.servicesKicker,
+        href: service.href,
+        keywords: this.buildSearchKeywords(service.availability, service.cta),
+      })),
+      ...this.transparencyActions().map((action) => ({
+        title: action.title,
+        summary: action.detail,
+        category: copy.transparencyKicker,
+        href: action.href,
+        keywords: this.buildSearchKeywords(action.detail),
+      })),
+      ...this.notices().map((notice) => ({
+        title: notice.title,
+        summary: notice.detail,
+        category: copy.noticesKicker,
+        href: '#alerts',
+        keywords: this.buildSearchKeywords(notice.date),
+      })),
+      ...this.contacts().map((contact) => ({
+        title: contact.value ? `${contact.label}: ${contact.value}` : contact.label,
+        summary: contact.detail,
+        category: copy.contactKicker,
+        href: contact.href ?? '#contact',
+        keywords: this.buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
+      })),
+      ...this.accessibilityItems().map((item) => ({
+        title: item.title,
+        summary: item.detail,
+        category: copy.accessibilityKicker,
+        href: '#accessibility',
+        keywords: this.buildSearchKeywords(item.detail),
+      })),
+    ];
+
+    return this.dedupeSearchItems(items);
+  });
 
   protected focusMainContent(): void {
     queueMicrotask(() => {
@@ -1468,10 +1200,10 @@ export class App {
   }
   protected readonly searchResults = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
-    const searchIndex = this.appCopy().searchIndex;
+    const searchIndex = this.searchIndex();
 
     if (!query) {
-      return searchIndex.slice(0, 4);
+      return searchIndex.slice(0, 5);
     }
 
     const terms: string[] = query.split(/\s+/).filter(Boolean);
@@ -1517,6 +1249,25 @@ export class App {
 
   protected updateSiteLanguage(value: string): void {
     this.siteLanguageService.setLanguage(value);
+  }
+
+  private buildSearchKeywords(...values: Array<string | null | undefined>): string[] {
+    return values.filter((value): value is string => Boolean(value?.trim()));
+  }
+
+  private dedupeSearchItems(items: SearchItem[]): SearchItem[] {
+    const seen = new Set<string>();
+
+    return items.filter((item) => {
+      const key = `${item.href}::${item.title}`.toLowerCase();
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
   }
 
   private navigateToHref(href: string): void {
@@ -1590,7 +1341,7 @@ export class App {
         },
         {
           label: copy.calendarAgendaActionLabel,
-          href: '#contact',
+          href: DOCUMENT_HUB_LINKS.meetings,
         },
         ...(seed.extraActions ?? []),
       ],
@@ -1626,7 +1377,7 @@ export class App {
         },
         {
           label: copy.calendarAgendaActionLabel,
-          href: '#contact',
+          href: DOCUMENT_HUB_LINKS.meetings,
         },
       ],
     };

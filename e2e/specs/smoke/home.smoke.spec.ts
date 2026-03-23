@@ -18,11 +18,18 @@ test.describe('homepage smoke', () => {
     await expect(homePage.page.locator('#records .records-guide-card')).toHaveCount(4);
     await expect(homePage.page.locator('#resident-services .resident-service-card')).toHaveCount(3);
     await expect(homePage.page.locator('#records .transparency-action').first()).toContainText(
-      'records or FOIA request',
+      'public records request destination',
+    );
+    await expect(homePage.page.locator('#records .transparency-action').first()).toHaveAttribute(
+      'href',
+      '/documents#records-requests',
     );
     await expect(homePage.page.locator('#records-guide-packets')).toContainText(
-      'Meeting packets and approved minutes',
+      'Find meeting packets and approved minutes',
     );
+    await expect(
+      homePage.page.locator('#records-guide-packets .records-guide-link'),
+    ).toHaveAttribute('href', '/documents#meeting-documents');
     await expect(homePage.page.locator('.calendar-overview')).toContainText(
       'Seeded schedule fallback',
     );
@@ -46,5 +53,31 @@ test.describe('homepage smoke', () => {
     for (const label of siteContent.topTaskHeadings) {
       await expect(homePage.topTaskCards.filter({ hasText: label })).toHaveCount(1);
     }
+  });
+
+  test('opens the public document hub from the records center', async ({ homePage }) => {
+    await homePage.goto();
+
+    await homePage.page.locator('#records-guide-packets .records-guide-link').click();
+
+    await expect(homePage.page).toHaveURL(/\/documents#meeting-documents$/);
+    await expect(homePage.page.locator('.document-hub-title')).toContainText(
+      'Stable public destinations for meetings, finance records, and code references',
+    );
+    await expect(homePage.page.locator('#meeting-documents')).toContainText(
+      'City Council packets and approved minutes',
+    );
+  });
+
+  test('routes search results into public document destinations', async ({ homePage }) => {
+    await homePage.goto();
+
+    await homePage.page.locator('#site-search').fill('budget summaries');
+    await homePage.page.locator('.search-submit').click();
+
+    await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
+    await expect(homePage.page.locator('#financial-documents')).toContainText(
+      'Budget summaries and annual reports',
+    );
   });
 });

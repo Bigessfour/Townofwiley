@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 import re
 import time
@@ -14,7 +15,6 @@ from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
-
 
 EMAIL_CHANNEL = 'email'
 SMS_CHANNEL = 'sms'
@@ -32,6 +32,9 @@ DEFAULT_CORS_HEADERS = {
   'access-control-allow-methods': 'GET,POST,OPTIONS',
   'access-control-allow-headers': 'content-type',
 }
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
 PHONE_DIGIT_PATTERN = re.compile(r'\D+')
 TRANSLATION_URL_PATTERN = re.compile(r'https?://\S+')
 
@@ -401,6 +404,8 @@ class SevereWeatherBackend:
     method = request_method(event)
     path = request_path(event)
 
+    log_http_request(method, path)
+
     if method == 'OPTIONS':
       return {
         'statusCode': 204,
@@ -432,9 +437,20 @@ class SevereWeatherBackend:
     return json_response(404, {'error': 'Route not found.'})
 
   def _create_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
+    method = request_method(event)
+    path = request_path(event)
+
     try:
       payload = parse_json_body(event)
     except ValueError as error:
+      log_signup_attempt(
+        method=method,
+        path=path,
+        validation_result='invalid_json',
+        delivery_outcome='not_attempted',
+        status_code=400,
+        error=str(error),
+      )
       return json_response(400, {'error': str(error)})
 
     channel = str(payload.get('channel', '')).strip().lower()
@@ -443,10 +459,32 @@ class SevereWeatherBackend:
     try:
       preferred_language = normalize_alert_language(payload.get('preferredLanguage', LANGUAGE_EN))
     except ValueError as error:
+      log_signup_attempt(
+        method=method,
+        path=path,
+        channel=channel,
+        destination=destination,
+        validation_result='invalid_language',
+        delivery_outcome='not_attempted',
+        status_code=400,
+        error=str(error),
+      )
       return json_response(400, {'error': str(error)})
     zip_code = str(payload.get('zipCode', self._config.allowed_zip_code)).strip()
 
     if zip_code != self._config.allowed_zip_code:
+      log_signup_attempt(
+        method=method,
+        path=path,
+        channel=channel,
+        destination=destination,
+        preferred_language=preferred_language,
+        zip_code=zip_code,
+        validation_result='invalid_zip_code',
+        delivery_outcome='not_attempted',
+        status_code=400,
+        error=f'This signup is currently limited to ZIP code {self._config.allowed_zip_code}.',
+      )
       return json_response(
         400,
         {
@@ -457,6 +495,18 @@ class SevereWeatherBackend:
     try:
       normalized_destination, subscriber_key = normalize_destination(channel, destination)
     except ValueError as error:
+      log_signup_attempt(
+        method=method,
+        path=path,
+        channel=channel,
+        destination=destination,
+        preferred_language=preferred_language,
+        zip_code=zip_code,
+        validation_result='invalid_destination',
+        delivery_outcome='not_attempted',
+        status_code=400,
+        error=str(error),
+      )
       return json_response(400, {'error': str(error)})
 
     existing = self._subscription_store.find_existing_subscription(channel, subscriber_key)
@@ -471,6 +521,18 @@ class SevereWeatherBackend:
       unsubscribe_url = build_token_url(request_base_url, '/unsubscribe', existing['unsubscribeToken'])
 
       if existing['status'] == ACTIVE_STATUS:
+        log_signup_attempt(
+          method=method,
+          path=path,
+          channel=channel,
+          destination=normalized_destination,
+          preferred_language=preferred_language,
+          zip_code=zip_code,
+          validation_result='already_active',
+          delivery_outcome='not_attempted',
+          status_code=200,
+          existing_status=ACTIVE_STATUS,
+        )
         return json_response(
           200,
           {
@@ -491,7 +553,33 @@ class SevereWeatherBackend:
           preferred_language,
         )
       except RuntimeError as error:
+        log_signup_attempt(
+          method=method,
+          path=path,
+          channel=channel,
+          destination=normalized_destination,
+          preferred_language=preferred_language,
+          zip_code=zip_code,
+          validation_result='existing_pending_subscription',
+          delivery_outcome='failed',
+          status_code=502,
+          error=str(error),
+          existing_status=PENDING_STATUS,
+        )
         return json_response(502, {'error': str(error)})
+
+      log_signup_attempt(
+        method=method,
+        path=path,
+        channel=channel,
+        destination=normalized_destination,
+        preferred_language=preferred_language,
+        zip_code=zip_code,
+        validation_result='existing_pending_subscription',
+        delivery_outcome='sent',
+        status_code=202,
+        existing_status=PENDING_STATUS,
+      )
 
       return json_response(
         202,
@@ -531,9 +619,33 @@ class SevereWeatherBackend:
         preferred_language,
       )
     except RuntimeError as error:
+      log_signup_attempt(
+        method=method,
+        path=path,
+        channel=channel,
+        destination=normalized_destination,
+        preferred_language=preferred_language,
+        zip_code=zip_code,
+        validation_result='new_subscription',
+        delivery_outcome='failed',
+        status_code=502,
+        error=str(error),
+      )
       return json_response(502, {'error': str(error)})
 
     self._subscription_store.save_subscription(item)
+
+    log_signup_attempt(
+      method=method,
+      path=path,
+      channel=channel,
+      destination=normalized_destination,
+      preferred_language=preferred_language,
+      zip_code=zip_code,
+      validation_result='new_subscription',
+      delivery_outcome='sent',
+      status_code=202,
+    )
 
     return json_response(
       202,
@@ -817,6 +929,81 @@ def normalize_phone(destination: str) -> tuple[str, str]:
 
 def normalize_whitespace(value: str) -> str:
   return ' '.join(value.split())
+
+
+def log_http_request(method: str, path: str) -> None:
+  LOGGER.info(
+    json.dumps(
+      {
+        'event': 'http_request',
+        'method': method,
+        'path': path,
+      },
+    ),
+  )
+
+
+def log_signup_attempt(
+  *,
+  method: str,
+  path: str,
+  validation_result: str,
+  delivery_outcome: str,
+  status_code: int,
+  channel: str | None = None,
+  destination: str | None = None,
+  preferred_language: str | None = None,
+  zip_code: str | None = None,
+  error: str | None = None,
+  existing_status: str | None = None,
+) -> None:
+  payload: dict[str, Any] = {
+    'event': 'signup_attempt',
+    'method': method,
+    'path': path,
+    'validationResult': validation_result,
+    'deliveryOutcome': delivery_outcome,
+    'statusCode': status_code,
+  }
+
+  if channel:
+    payload['channel'] = channel
+
+  if destination:
+    payload['destinationMasked'] = mask_destination(destination)
+
+  if preferred_language:
+    payload['preferredLanguage'] = preferred_language
+
+  if zip_code:
+    payload['zipCode'] = zip_code
+
+  if existing_status:
+    payload['existingStatus'] = existing_status
+
+  if error:
+    payload['error'] = error
+
+  LOGGER.info(json.dumps(payload))
+
+
+def mask_destination(destination: str) -> str:
+  if '@' in destination:
+    local_part, _, domain = destination.partition('@')
+
+    if len(local_part) <= 2:
+      masked_local = f'{local_part[:1]}*'
+    else:
+      masked_local = f'{local_part[:2]}***{local_part[-1:]}'
+
+    return f'{masked_local}@{domain}'
+
+  digits = PHONE_DIGIT_PATTERN.sub('', destination)
+
+  if len(digits) >= 4:
+    return f'***-***-{digits[-4:]}'
+
+  return '***'
 
 
 def mask_urls_for_translation(value: str) -> tuple[str, dict[str, str]]:

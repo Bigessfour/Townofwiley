@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SECRETS_PATH = REPO_ROOT / 'secrets' / 'local' / 'user-secrets.json'
 BACKEND_DIR = REPO_ROOT / 'infrastructure' / 'severe-weather-signup'
@@ -382,6 +381,19 @@ def check_ses_sender(sender_email: str) -> str:
   try:
     identity = run_aws(['sesv2', 'get-email-identity', '--email-identity', sender_email])
   except RuntimeError:
+    domain = sender_email.split('@', 1)[1] if '@' in sender_email else ''
+
+    if domain:
+      try:
+        domain_identity = run_aws(['sesv2', 'get-email-identity', '--email-identity', domain])
+      except RuntimeError:
+        return f'SES sender {sender_email} is not verified in this region yet.'
+
+      if domain_identity.get('VerifiedForSendingStatus'):
+        return f'SES sender {sender_email} can send through verified domain identity {domain}.'
+
+      return f'SES sender {sender_email} exists under domain {domain}, but that domain is not verified for sending yet.'
+
     return f'SES sender {sender_email} is not verified in this region yet.'
 
   if identity.get('VerifiedForSendingStatus'):

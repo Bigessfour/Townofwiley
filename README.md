@@ -226,6 +226,28 @@ Operational notes:
 - The site falls back to bundled homepage content if AppSync runtime config is missing or the CMS request fails.
 - The repo secrets workflow now carries the AppSync endpoint and public read key in the encrypted lockbox for future maintainers.
 
+## Public document hub
+
+The public site now includes a resident-facing document hub at `/documents`.
+
+Current implementation status:
+
+- The homepage records center, transparency actions, selected search results, and meeting-related calls to action now route residents into stable public document destinations instead of generic section anchors.
+- The `/documents` page is organized into four resident-facing destinations:
+  - records requests
+  - meeting documents
+  - financial documents
+  - code references
+- This is a first-pass public destination layer, not yet a downloadable file archive or CMS-managed document library.
+
+Traceability:
+
+- `src/app/document-hub/document-links.ts`
+- `src/app/document-hub/document-hub.ts`
+- `src/app/records-center/records-center.ts`
+- `src/app/app.ts`
+- `docs/town-website-audit-status-2026-03-23.md`
+
 ## Utility Payments
 
 The Town's preferred utility payment rollout path is now Paystar because it best fits the current RVS Mosaics setup and can be incorporated into the AWS Amplify-hosted site with the least friction.
@@ -427,6 +449,9 @@ Current resident-facing weather UI behavior:
 - The signup form posts to `POST /subscriptions` on the severe-weather backend and asks residents to confirm before alerts begin.
 - The resident-facing signup is currently limited to ZIP code `81092` because the backend enforces that service area.
 - The checked-in runtime config currently enables this signup form and points it at the live severe-weather backend, so if the form disappears in production the first thing to verify is whether `public/runtime-config.js` was regenerated with the expected alert-signup block during the build.
+- The live severe-weather backend sender is now `alerts@townofwiley.gov`, which is allowed through the verified `townofwiley.gov` SES domain identity in `us-east-2`.
+- Email confirmations are working through SES, but SMS confirmations are still blocked because Amazon SNS SMS in `us-east-2` reports `IsInSandbox: true` for this account.
+- SES and SNS SMS are separate AWS delivery systems. SES production access does not remove the SNS SMS sandbox.
 
 Recommended `NWS_USER_AGENT` format:
 

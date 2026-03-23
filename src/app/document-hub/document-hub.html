@@ -1,0 +1,54 @@
+<main class="document-hub-shell">
+  <section class="document-hub-hero" aria-labelledby="document-hub-heading">
+    <p class="document-hub-kicker">{{ copy().kicker }}</p>
+    <h1 id="document-hub-heading" class="document-hub-title">{{ copy().title }}</h1>
+    <p class="document-hub-intro">{{ copy().intro }}</p>
+
+    <div class="document-hub-actions">
+      <a class="document-hub-button secondary" href="/">{{ copy().returnHome }}</a>
+      <a class="document-hub-button primary" href="/#records-request">{{
+        copy().openRecordsForm
+      }}</a>
+    </div>
+  </section>
+
+  <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
+    @for (section of copy().sections; track section.id) {
+      <a class="document-hub-nav-link" [attr.href]="'#' + section.id">{{ section.title }}</a>
+    }
+  </nav>
+
+  <section class="document-hub-sections">
+    @for (section of copy().sections; track section.id) {
+      <article class="document-section" [attr.id]="section.id">
+        <p class="document-hub-kicker">{{ section.kicker }}</p>
+        <h2>{{ section.title }}</h2>
+        <p class="document-section-intro">{{ section.intro }}</p>
+
+        <div class="document-card-grid">
+          @for (item of section.items; track item.title) {
+            <article class="document-card">
+              <div class="document-card-top">
+                <h3>{{ item.title }}</h3>
+                <span class="document-status">{{ item.status }}</span>
+              </div>
+              <p>{{ item.detail }}</p>
+              <div class="document-card-actions">
+                @for (action of item.actions; track action.label) {
+                  <a
+                    class="document-card-link"
+                    [attr.href]="action.href"
+                    [attr.target]="action.external ? '_blank' : null"
+                    [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                  >
+                    {{ action.label }}
+                  </a>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </article>
+    }
+  </section>
+</main>

@@ -1,4 +1,6 @@
-@if (isClerkSetupMode) {
+@if (isDocumentHubMode) {
+  <app-document-hub />
+} @else if (isClerkSetupMode) {
   <app-clerk-setup />
 } @else if (isAdminMode) {
   <app-cms-admin />
@@ -243,7 +245,7 @@
 
         <div class="search-results" aria-live="polite">
           @if (searchResults().length) {
-            @for (result of searchResults(); track result.title) {
+            @for (result of searchResults(); track result.href + result.title) {
               <a class="search-result" [attr.href]="result.href">
                 <strong>{{ result.title }}</strong>
                 <span>{{ result.summary }}</span>
