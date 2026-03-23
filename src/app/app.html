@@ -23,17 +23,31 @@
 
   <header class="site-header">
     <div class="site-toolbar">
-      <label class="site-language-switcher" for="site-language-select">
-        <span>{{ appCopy().languageLabel }}</span>
-        <select
-          id="site-language-select"
-          [value]="siteLanguage()"
-          (change)="updateSiteLanguage($any($event.target).value)"
-        >
-          <option value="es">{{ appCopy().languageOptions.es }}</option>
-          <option value="en">{{ appCopy().languageOptions.en }}</option>
-        </select>
-      </label>
+      <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
+        <span class="site-language-label">{{ appCopy().languageLabel }}</span>
+        <div class="site-language-buttons" role="group" [attr.aria-label]="appCopy().languageLabel">
+          <button
+            id="site-language-es"
+            type="button"
+            class="site-language-button"
+            [class.is-active]="siteLanguage() === 'es'"
+            [attr.aria-pressed]="siteLanguage() === 'es'"
+            (click)="updateSiteLanguage('es')"
+          >
+            {{ appCopy().languageOptions.es }}
+          </button>
+          <button
+            id="site-language-en"
+            type="button"
+            class="site-language-button"
+            [class.is-active]="siteLanguage() === 'en'"
+            [attr.aria-pressed]="siteLanguage() === 'en'"
+            (click)="updateSiteLanguage('en')"
+          >
+            {{ appCopy().languageOptions.en }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="masthead">

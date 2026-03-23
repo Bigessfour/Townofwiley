@@ -104,6 +104,7 @@
 .site-language-switcher {
   display: inline-grid;
   gap: 0.45rem;
+  justify-items: end;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -111,19 +112,51 @@
   color: var(--ink-800);
 }
 
-.site-language-switcher select {
-  min-width: 10rem;
-  padding: 0.78rem 1rem;
-  border: 1px solid rgba(13, 44, 84, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--ink-900);
+.site-language-label {
   font: inherit;
-  letter-spacing: normal;
-  text-transform: none;
 }
 
-.site-language-switcher select:focus-visible {
+.site-language-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem;
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 16px 34px rgba(17, 36, 61, 0.08);
+}
+
+.site-language-button {
+  min-width: 6.75rem;
+  padding: 0.72rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-800);
+  font: inherit;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.site-language-button:hover {
+  transform: translateY(-1px);
+}
+
+.site-language-button.is-active {
+  background: linear-gradient(135deg, rgba(13, 44, 84, 0.96), rgba(28, 59, 102, 0.92));
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
+}
+
+.site-language-button:focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.24);
   outline-offset: 3px;
 }
@@ -801,6 +834,14 @@ input:focus-visible {
 }
 
 @media (max-width: 960px) {
+  .site-toolbar {
+    justify-content: flex-start;
+  }
+
+  .site-language-switcher {
+    justify-items: start;
+  }
+
   .site-alert,
   .hero-grid,
   .content-grid,
@@ -829,6 +870,15 @@ input:focus-visible {
 }
 
 @media (max-width: 720px) {
+  .site-language-buttons {
+    width: 100%;
+  }
+
+  .site-language-button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   .site-header {
     padding-top: 1.5rem;
   }

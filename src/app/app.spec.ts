@@ -74,11 +74,10 @@ describe('App', () => {
     await flushWeatherRequests();
     fixture.detectChanges();
 
-    const languageSelect = fixture.nativeElement.querySelector(
-      '#site-language-select',
-    ) as HTMLSelectElement;
-    languageSelect.value = 'en';
-    languageSelect.dispatchEvent(new Event('change'));
+    const englishButton = fixture.nativeElement.querySelector(
+      '#site-language-en',
+    ) as HTMLButtonElement;
+    englishButton.click();
     fixture.detectChanges();
     await fixture.whenStable();
 
