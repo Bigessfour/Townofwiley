@@ -28,10 +28,7 @@
     "editor.formatOnSave": true
   },
   "eslint.useFlatConfig": true,
-  "eslint.validate": [
-    "typescript",
-    "html"
-  ],
+  "eslint.validate": ["typescript", "html"],
   "eslint.format.enable": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
