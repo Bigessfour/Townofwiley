@@ -95,6 +95,39 @@
   padding-top: 2.6rem;
 }
 
+.site-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.1rem;
+}
+
+.site-language-switcher {
+  display: inline-grid;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-800);
+}
+
+.site-language-switcher select {
+  min-width: 10rem;
+  padding: 0.78rem 1rem;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink-900);
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.site-language-switcher select:focus-visible {
+  outline: 3px solid rgba(13, 44, 84, 0.24);
+  outline-offset: 3px;
+}
+
 .page-shell {
   display: grid;
   gap: 3.5rem;

@@ -2,14 +2,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { WeatherPanel } from './weather-panel/weather-panel';
+import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
 describe('App', () => {
   let httpTesting: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App, WeatherPanel],
+      imports: [App, LocalizedWeatherPanel],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
@@ -19,12 +19,13 @@ describe('App', () => {
   afterEach(() => {
     delete (window as any).__TOW_RUNTIME_CONFIG__;
     delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    window.localStorage.removeItem('tow-site-language');
     window.history.replaceState({}, '', '/');
     httpTesting.verify();
   });
 
   it('should create the app', async () => {
-    const fixture = TestBed.createComponent(WeatherPanel);
+    const fixture = TestBed.createComponent(LocalizedWeatherPanel);
     fixture.detectChanges();
     await flushWeatherRequests();
     const app = fixture.componentInstance;
@@ -32,7 +33,7 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the default homepage message', async () => {
+  it('should render the Spanish homepage by default', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await flushWeatherRequests();
@@ -40,15 +41,13 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('.status')?.textContent).toContain('Official Town Website');
-    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Top tasks');
-    expect(compiled.querySelector('#weather-heading')?.textContent).toContain(
-      'National Weather Service forecast',
-    );
+    expect(compiled.querySelector('h1')?.textContent).toContain('Pueblo de Wiley');
+    expect(compiled.querySelector('.status')?.textContent).toContain('Sitio web oficial');
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Las tareas principales');
+    expect(compiled.querySelector('#weather-heading')?.textContent).toContain('Pronostico');
     expect(compiled.querySelector('#site-search')).toBeTruthy();
-    expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendar app');
-    expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('City Council');
+    expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendario');
+    expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('concejo');
     expect(compiled.querySelector('.meeting-location')?.textContent).toContain('304 Main Street');
     expect(compiled.querySelector('.contact-link[href="tel:+17198294974"]')?.textContent).toContain(
       '(719) 829-4974',
@@ -61,12 +60,27 @@ describe('App', () => {
       compiled.querySelector('.contact-link[href="mailto:stephen.mckitrick@townofwiley.gov"]')
         ?.textContent,
     ).toContain('stephen.mckitrick@townofwiley.gov');
-    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain(
-      'Mayor and Council',
-    );
-    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain(
-      'ADA and WCAG 2.1 AA',
-    );
+    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain('Alcalde y concejo');
+    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain('ADA y WCAG 2.1 AA');
+  });
+
+  it('should switch the homepage language back to English', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+
+    const languageSelect = fixture.nativeElement.querySelector(
+      '#site-language-select',
+    ) as HTMLSelectElement;
+    languageSelect.value = 'en';
+    languageSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
+    expect(compiled.querySelector('.footer-links')?.textContent).toContain('Accessibility statement');
   });
 
   it('should render homepage content from Amplify Studio CMS when AppSync runtime config is present', async () => {
@@ -154,13 +168,9 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Wiley Community Updates');
-    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
-      'Main Street closed tonight',
-    );
-    expect(compiled.querySelector('.notice-card strong')?.textContent).toContain(
-      'Water outage on Main Street',
-    );
+    expect(compiled.querySelector('h1')?.textContent).toContain('Actualizaciones comunitarias');
+    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain('Main Street cerrada');
+    expect(compiled.querySelector('.notice-card strong')?.textContent).toContain('Corte de agua');
     expect(compiled.querySelector('.contact-card strong')?.textContent).toContain('Deb Dillon');
   });
 
@@ -172,7 +182,7 @@ describe('App', () => {
       },
     };
 
-    const fixture = TestBed.createComponent(WeatherPanel);
+    const fixture = TestBed.createComponent(LocalizedWeatherPanel);
     fixture.detectChanges();
 
     httpTesting.expectOne('/api/weather/nws').flush({
@@ -200,7 +210,7 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.weather-source')?.textContent).toContain('AWS weather service');
+    expect(compiled.querySelector('.weather-source')?.textContent).toContain('servicio AWS');
   });
 
   it('should render the severe weather signup form when signup runtime config is enabled', async () => {
@@ -215,7 +225,7 @@ describe('App', () => {
       },
     };
 
-    const fixture = TestBed.createComponent(WeatherPanel);
+    const fixture = TestBed.createComponent(LocalizedWeatherPanel);
     fixture.detectChanges();
 
     httpTesting.expectOne('/api/weather/nws').flush({
@@ -244,7 +254,7 @@ describe('App', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as WeatherPanel & {
+    const component = fixture.componentInstance as LocalizedWeatherPanel & {
       isAlertSignupEnabled: () => boolean;
       alertSignupSubmitLabel: () => string;
       alertSignupLanguageLabel: () => string;
@@ -252,14 +262,14 @@ describe('App', () => {
     };
 
     expect(component.isAlertSignupEnabled()).toBe(true);
-    expect(component.alertSignupSubmitLabel()).toBe('Sign up for alerts');
+  expect(component.alertSignupSubmitLabel()).toBe('Suscribirse a alertas');
     expect(component.alertSignupLanguageLabel()).toBe('English');
 
     component.updateAlertSignupLanguage('es');
     fixture.detectChanges();
 
-    expect(component.alertSignupLanguageLabel()).toBe('Spanish');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Alert language');
+    expect(component.alertSignupLanguageLabel()).toBe('Espanol');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Idioma de la alerta');
   });
 
   it('should render the clerk editor on the admin path', async () => {
@@ -271,12 +281,10 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Amplify Studio is the only CMS',
+      'Amplify Studio es el unico CMS',
     );
-    expect(compiled.textContent).toContain('Browser-local editing has been disabled');
-    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Open Amplify Console',
-    );
+    expect(compiled.textContent).toContain('La edicion local en el navegador fue deshabilitada');
+    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain('Abrir Amplify Console');
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {
@@ -302,7 +310,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('fell back to the public National Weather Service feed');
+    expect(compiled.textContent).toContain('volvio al canal publico del Servicio Nacional');
   });
 
   async function flushWeatherRequests(): Promise<void> {

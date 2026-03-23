@@ -1,0 +1,885 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { SiteLanguage, SiteLanguageService } from './site-language';
+
+export interface CmsNotice {
+  id: string;
+  title: string;
+  date: string;
+  detail: string;
+}
+
+export interface CmsHeroContent {
+  eyebrow: string;
+  status: string;
+  title: string;
+  message: string;
+  subtext: string;
+  welcomeLabel: string;
+  welcomeHeading: string;
+  welcomeBody: string;
+  welcomeCaption: string;
+}
+
+export interface CmsAlertBanner {
+  enabled: boolean;
+  label: string;
+  title: string;
+  detail: string;
+  linkLabel: string;
+  linkHref: string;
+}
+
+export interface CmsContact {
+  id: string;
+  label: string;
+  value: string;
+  detail: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+const DEFAULT_CMS_HERO: CmsHeroContent = {
+  eyebrow: 'Town of Wiley, Colorado',
+  status: 'Official Town Website',
+  title: 'Town of Wiley',
+  message:
+    'Find town notices, meeting details, weather updates, and essential resident services in one place.',
+  subtext:
+    'For a town of about 437 residents in eastern Colorado, the homepage should stay practical: fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.',
+  welcomeLabel: 'Main Welcome Image',
+  welcomeHeading: 'Welcome to the Town of Wiley online home',
+  welcomeBody:
+    'Use this homepage to reach the most important town information quickly, including meetings, notices, contact paths, and weather-sensitive updates.',
+  welcomeCaption: 'Town of Wiley welcome image.',
+};
+
+const DEFAULT_CMS_HERO_ES: CmsHeroContent = {
+  eyebrow: 'Pueblo de Wiley, Colorado',
+  status: 'Sitio web oficial del pueblo',
+  title: 'Pueblo de Wiley',
+  message:
+    'Encuentre avisos del pueblo, detalles de reuniones, actualizaciones del clima y servicios esenciales para residentes en un solo lugar.',
+  subtext:
+    'Para un pueblo de alrededor de 437 residentes en el este de Colorado, la pagina principal debe seguir siendo practica: avisos rapidos, contactos visibles, acceso a reuniones, ayuda con servicios y actualizaciones sensibles al clima.',
+  welcomeLabel: 'Imagen principal de bienvenida',
+  welcomeHeading: 'Bienvenidos al sitio en linea del Pueblo de Wiley',
+  welcomeBody:
+    'Use esta pagina principal para llegar rapidamente a la informacion mas importante del pueblo, incluidas reuniones, avisos, rutas de contacto y actualizaciones sensibles al clima.',
+  welcomeCaption: 'Imagen de bienvenida del Pueblo de Wiley.',
+};
+
+const DEFAULT_CMS_ALERT_BANNER: CmsAlertBanner = {
+  enabled: false,
+  label: 'Town Alert',
+  title: 'Urgent town update',
+  detail: 'Use this banner for emergency changes, closures, or critical public information.',
+  linkLabel: 'Contact Town Hall',
+  linkHref: 'tel:+17198294974',
+};
+
+const DEFAULT_CMS_ALERT_BANNER_ES: CmsAlertBanner = {
+  enabled: false,
+  label: 'Alerta del pueblo',
+  title: 'Actualizacion urgente del pueblo',
+  detail: 'Use este banner para emergencias, cierres o informacion publica critica.',
+  linkLabel: 'Contactar al ayuntamiento',
+  linkHref: 'tel:+17198294974',
+};
+
+const DEFAULT_CMS_NOTICES: CmsNotice[] = [
+  {
+    id: 'homepage-rebuild',
+    title: 'Town services and notices are available here',
+    date: 'March 2026',
+    detail:
+      'Residents can use the website to find meetings, service information, office contacts, weather alerts, and public notices without navigating through multiple departments.',
+  },
+  {
+    id: 'digital-self-service-rollout',
+    title: 'Digital self-service rollout planned in phases',
+    date: 'Spring 2026',
+    detail:
+      'Payments, service requests, permits, meeting archives, and records access are being organized around resident tasks instead of department structure.',
+  },
+  {
+    id: 'notice-placement',
+    title: 'Public notice placement reserved for high-visibility alerts',
+    date: 'Operational',
+    detail:
+      'Emergency information, special meeting notices, utility interruptions, and weather-related updates should remain visible without forcing residents to search.',
+  },
+];
+
+const DEFAULT_CMS_NOTICES_ES: CmsNotice[] = [
+  {
+    id: 'homepage-rebuild',
+    title: 'Los servicios y avisos del pueblo estan disponibles aqui',
+    date: 'Marzo de 2026',
+    detail:
+      'Los residentes pueden usar el sitio web para encontrar reuniones, informacion de servicios, contactos de oficina, alertas del clima y avisos publicos sin navegar por varios departamentos.',
+  },
+  {
+    id: 'digital-self-service-rollout',
+    title: 'El lanzamiento del autoservicio digital esta planeado por fases',
+    date: 'Primavera de 2026',
+    detail:
+      'Los pagos, solicitudes de servicio, permisos, archivos de reuniones y acceso a registros se estan organizando alrededor de tareas de residentes y no por estructura departamental.',
+  },
+  {
+    id: 'notice-placement',
+    title: 'El espacio para avisos publicos se reserva para alertas de alta visibilidad',
+    date: 'Operacion',
+    detail:
+      'La informacion de emergencia, avisos de reuniones especiales, interrupciones de servicios y actualizaciones relacionadas con el clima deben seguir visibles sin obligar a los residentes a buscar.',
+  },
+];
+
+const DEFAULT_CMS_CONTACTS: CmsContact[] = [
+  {
+    id: 'town-information',
+    label: 'Town Information',
+    value: '(719) 829-4974',
+    detail:
+      'Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.',
+    href: 'tel:+17198294974',
+  },
+  {
+    id: 'mayor',
+    label: 'Mayor',
+    value: 'Stephen McKitrick',
+    detail:
+      'Official mayoral correspondence can be sent to this alias and routed through the town email workflow.',
+    href: 'mailto:stephen.mckitrick@townofwiley.gov',
+    linkLabel: 'stephen.mckitrick@townofwiley.gov',
+  },
+  {
+    id: 'city-clerk',
+    label: 'City Clerk',
+    value: 'Deb Dillon',
+    detail: 'Clerk services, meeting packets, records coordination, and agenda planning support.',
+    href: 'mailto:deb.dillon@townofwiley.gov',
+    linkLabel: 'deb.dillon@townofwiley.gov',
+  },
+  {
+    id: 'town-superintendent',
+    label: 'Town Superintendent',
+    value: 'Scott Whitman',
+    detail: 'Town operations, public works coordination, and service follow-up.',
+    href: 'mailto:scott.whitman@townofwiley.gov',
+    linkLabel: 'scott.whitman@townofwiley.gov',
+  },
+];
+
+const DEFAULT_CMS_CONTACTS_ES: CmsContact[] = [
+  {
+    id: 'town-information',
+    label: 'Informacion del pueblo',
+    value: '(719) 829-4974',
+    detail:
+      'Ayuntamiento de Wiley, 304 Main Street. Llame con anticipacion si desea tiempo en la agenda del concejo municipal o necesita ayuda del secretario.',
+    href: 'tel:+17198294974',
+  },
+  {
+    id: 'mayor',
+    label: 'Alcalde',
+    value: 'Stephen McKitrick',
+    detail:
+      'La correspondencia oficial del alcalde puede enviarse a este alias y se canaliza a traves del flujo de correo del pueblo.',
+    href: 'mailto:stephen.mckitrick@townofwiley.gov',
+    linkLabel: 'stephen.mckitrick@townofwiley.gov',
+  },
+  {
+    id: 'city-clerk',
+    label: 'Secretaria municipal',
+    value: 'Deb Dillon',
+    detail:
+      'Servicios de secretaria, paquetes de reuniones, coordinacion de registros y apoyo para planeacion de agendas.',
+    href: 'mailto:deb.dillon@townofwiley.gov',
+    linkLabel: 'deb.dillon@townofwiley.gov',
+  },
+  {
+    id: 'town-superintendent',
+    label: 'Superintendente del pueblo',
+    value: 'Scott Whitman',
+    detail: 'Operaciones del pueblo, coordinacion de obras publicas y seguimiento de servicios.',
+    href: 'mailto:scott.whitman@townofwiley.gov',
+    linkLabel: 'scott.whitman@townofwiley.gov',
+  },
+];
+
+const DEFAULT_NOTICE_MAP = {
+  en: new Map(DEFAULT_CMS_NOTICES.map((notice) => [notice.id, notice])),
+  es: new Map(DEFAULT_CMS_NOTICES_ES.map((notice) => [notice.id, notice])),
+};
+
+const DEFAULT_CONTACT_MAP = {
+  en: new Map(DEFAULT_CMS_CONTACTS.map((contact) => [contact.id, contact])),
+  es: new Map(DEFAULT_CMS_CONTACTS_ES.map((contact) => [contact.id, contact])),
+};
+
+const KNOWN_CMS_TEXT_TRANSLATIONS: Record<string, string> = {
+  'Town of Wiley, Colorado': 'Pueblo de Wiley, Colorado',
+  'Official Town Website': 'Sitio web oficial del pueblo',
+  'Town of Wiley': 'Pueblo de Wiley',
+  'Find town notices, meeting details, weather updates, and essential resident services in one place.':
+    'Encuentre avisos del pueblo, detalles de reuniones, actualizaciones del clima y servicios esenciales para residentes en un solo lugar.',
+  'For a town of about 437 residents in eastern Colorado, the homepage should stay practical: fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.':
+    'Para un pueblo de alrededor de 437 residentes en el este de Colorado, la pagina principal debe seguir siendo practica: avisos rapidos, contactos visibles, acceso a reuniones, ayuda con servicios y actualizaciones sensibles al clima.',
+  'Main Welcome Image': 'Imagen principal de bienvenida',
+  'Welcome to the Town of Wiley online home': 'Bienvenidos al sitio en linea del Pueblo de Wiley',
+  'Use this homepage to reach the most important town information quickly, including meetings, notices, contact paths, and weather-sensitive updates.':
+    'Use esta pagina principal para llegar rapidamente a la informacion mas importante del pueblo, incluidas reuniones, avisos, rutas de contacto y actualizaciones sensibles al clima.',
+  'Town of Wiley welcome image.': 'Imagen de bienvenida del Pueblo de Wiley.',
+  'Town Alert': 'Alerta del pueblo',
+  'Urgent town update': 'Actualizacion urgente del pueblo',
+  'Use this banner for emergency changes, closures, or critical public information.':
+    'Use este banner para emergencias, cierres o informacion publica critica.',
+  'Contact Town Hall': 'Contactar al ayuntamiento',
+  'Town services and notices are available here':
+    'Los servicios y avisos del pueblo estan disponibles aqui',
+  'March 2026': 'Marzo de 2026',
+  'Residents can use the website to find meetings, service information, office contacts, weather alerts, and public notices without navigating through multiple departments.':
+    'Los residentes pueden usar el sitio web para encontrar reuniones, informacion de servicios, contactos de oficina, alertas del clima y avisos publicos sin navegar por varios departamentos.',
+  'Digital self-service rollout planned in phases':
+    'El lanzamiento del autoservicio digital esta planeado por fases',
+  'Spring 2026': 'Primavera de 2026',
+  'Payments, service requests, permits, meeting archives, and records access are being organized around resident tasks instead of department structure.':
+    'Los pagos, solicitudes de servicio, permisos, archivos de reuniones y acceso a registros se estan organizando alrededor de tareas de residentes y no por estructura departamental.',
+  'Public notice placement reserved for high-visibility alerts':
+    'El espacio para avisos publicos se reserva para alertas de alta visibilidad',
+  Operational: 'Operacion',
+  'Emergency information, special meeting notices, utility interruptions, and weather-related updates should remain visible without forcing residents to search.':
+    'La informacion de emergencia, avisos de reuniones especiales, interrupciones de servicios y actualizaciones relacionadas con el clima deben seguir visibles sin obligar a los residentes a buscar.',
+  'Town Information': 'Informacion del pueblo',
+  'Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.':
+    'Ayuntamiento de Wiley, 304 Main Street. Llame con anticipacion si desea tiempo en la agenda del concejo municipal o necesita ayuda del secretario.',
+  Mayor: 'Alcalde',
+  'Official mayoral correspondence can be sent to this alias and routed through the town email workflow.':
+    'La correspondencia oficial del alcalde puede enviarse a este alias y se canaliza a traves del flujo de correo del pueblo.',
+  'City Clerk': 'Secretaria municipal',
+  'Clerk services, meeting packets, records coordination, and agenda planning support.':
+    'Servicios de secretaria, paquetes de reuniones, coordinacion de registros y apoyo para planeacion de agendas.',
+  'Town Superintendent': 'Superintendente del pueblo',
+  'Town operations, public works coordination, and service follow-up.':
+    'Operaciones del pueblo, coordinacion de obras publicas y seguimiento de servicios.',
+  'Town Website': 'Sitio del pueblo',
+  'Open for Residents': 'Abierto para residentes',
+  'Wiley Community Updates': 'Actualizaciones comunitarias de Wiley',
+  'Find the latest notices, meeting updates, and town information in one place.':
+    'Encuentre los avisos mas recientes, actualizaciones de reuniones e informacion del pueblo en un solo lugar.',
+  'This version highlights emergency notices and resident-facing updates first.':
+    'Esta version destaca primero los avisos de emergencia y las actualizaciones para residentes.',
+  'Welcome Photo': 'Foto de bienvenida',
+  'A fresh homepage for Wiley residents': 'Una pagina principal renovada para residentes de Wiley',
+  'The welcome area now explains what residents can do on the site right away.':
+    'El area de bienvenida ahora explica de inmediato lo que los residentes pueden hacer en el sitio.',
+  'Updated caption for the Wiley homepage photo.':
+    'Pie de foto actualizado para la imagen principal de Wiley.',
+  'Emergency Notice': 'Aviso de emergencia',
+  'Main Street closed tonight': 'Main Street cerrada esta noche',
+  'Crews will close Main Street from 8 PM until midnight for utility repairs.':
+    'Las cuadrillas cerraran Main Street desde las 8 PM hasta la medianoche por reparaciones de servicios.',
+  'Call Town Hall': 'Llamar al ayuntamiento',
+  'Water outage on Main Street': 'Corte de agua en Main Street',
+  'Crews will repair a broken main from 10 PM until approximately 2 AM.':
+    'Las cuadrillas repararan una linea principal rota desde las 10 PM hasta aproximadamente las 2 AM.',
+  'Clerk Desk': 'Oficina de secretaria',
+  'Call or email for meeting packets and town records requests.':
+    'Llame o escriba para paquetes de reuniones y solicitudes de registros del pueblo.',
+};
+
+interface RuntimeCmsConfig {
+  region: string;
+  apiEndpoint: string;
+  apiKey: string;
+}
+
+interface CmsGraphqlList<T> {
+  items?: Array<T | null> | null;
+}
+
+interface SiteSettingsRecord {
+  townName: string;
+  pageTitle?: string | null;
+  heroEyebrow?: string | null;
+  heroStatus?: string | null;
+  heroTitle?: string | null;
+  heroMessage?: string | null;
+  heroSubtext?: string | null;
+  welcomeLabel?: string | null;
+  welcomeHeading?: string | null;
+  welcomeBody?: string | null;
+  welcomeCaption?: string | null;
+}
+
+interface AlertBannerRecord {
+  id: string;
+  enabled: boolean;
+  label: string;
+  title: string;
+  detail: string;
+  linkLabel?: string | null;
+  linkHref?: string | null;
+  updatedAt?: string | null;
+}
+
+interface AnnouncementRecord {
+  id: string;
+  title: string;
+  date?: string | null;
+  detail: string;
+  priority?: number | null;
+  active: boolean;
+}
+
+interface OfficialContactRecord {
+  id: string;
+  label: string;
+  value: string;
+  detail: string;
+  href?: string | null;
+  linkLabel?: string | null;
+  displayOrder?: number | null;
+}
+
+interface CmsGraphqlResponse {
+  data?: {
+    listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
+    listAlertBanners?: CmsGraphqlList<AlertBannerRecord>;
+    listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
+    listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
+  };
+  errors?: Array<{
+    message?: string;
+  }>;
+}
+
+const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
+  listSiteSettings(limit: 1) {
+    items {
+      townName
+      pageTitle
+      heroEyebrow
+      heroStatus
+      heroTitle
+      heroMessage
+      heroSubtext
+      welcomeLabel
+      welcomeHeading
+      welcomeBody
+      welcomeCaption
+    }
+  }
+  listAlertBanners(limit: 20) {
+    items {
+      id
+      enabled
+      label
+      title
+      detail
+      linkLabel
+      linkHref
+      updatedAt
+    }
+  }
+  listAnnouncements(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      title
+      date
+      detail
+      priority
+      active
+    }
+  }
+  listOfficialContacts(limit: 50) {
+    items {
+      id
+      label
+      value
+      detail
+      href
+      linkLabel
+      displayOrder
+    }
+  }
+}`;
+
+@Injectable({
+  providedIn: 'root',
+})
+export class LocalizedCmsContentStore {
+  private readonly http = inject(HttpClient);
+  private readonly cmsConfig = this.getCmsRuntimeConfig();
+  private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly englishDateFormatter = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  private readonly spanishDateFormatter = new Intl.DateTimeFormat('es-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  private readonly siteLanguage = this.siteLanguageService.currentLanguage;
+  private readonly siteSettingsState = signal<SiteSettingsRecord | undefined>(undefined);
+  private readonly alertBannerRecordsState = signal<AlertBannerRecord[]>([]);
+  private readonly noticeRecordsState = signal<AnnouncementRecord[]>([]);
+  private readonly contactRecordsState = signal<OfficialContactRecord[]>([]);
+  private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
+    this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
+  );
+  private readonly loadErrorState = signal<string | null>(null);
+
+  readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
+  readonly alertBanner = computed(() =>
+    this.normalizeAlertBanner(
+      this.pickAlertBanner(this.alertBannerRecordsState()),
+      this.siteLanguage(),
+    ),
+  );
+  readonly notices = computed(() =>
+    this.normalizeAnnouncements(this.noticeRecordsState(), this.siteLanguage()),
+  );
+  readonly contacts = computed(() =>
+    this.normalizeContacts(this.contactRecordsState(), this.siteLanguage()),
+  );
+  readonly isLoading = computed(() => this.loadState() === 'loading');
+  readonly loadError = computed(() => this.loadErrorState());
+  readonly persistenceSummary = computed(() => {
+    const language = this.siteLanguage();
+
+    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+      return language === 'es'
+        ? 'Falta la configuracion de tiempo de ejecucion del CMS de Amplify Studio. El sitio muestra contenido incluido en la aplicacion hasta que se inyecten los ajustes de AppSync durante la compilacion o el despliegue.'
+        : 'Amplify Studio CMS runtime config is missing. The site is showing bundled fallback content until AppSync settings are injected at build or deploy time.';
+    }
+
+    switch (this.loadState()) {
+      case 'loading':
+        return language === 'es'
+          ? 'Cargando el contenido de la pagina principal desde Amplify Studio.'
+          : 'Loading homepage content from Amplify Studio.';
+      case 'studio':
+        return language === 'es'
+          ? 'El contenido de la pagina principal llega desde Amplify Studio por AppSync. La edicion del CMS en el navegador esta deshabilitada.'
+          : 'Homepage content is coming from Amplify Studio through AppSync. Browser-based CMS editing is disabled.';
+      case 'error':
+        return language === 'es'
+          ? 'No se pudo cargar el contenido de Amplify Studio. El sitio volvio al contenido incluido en la aplicacion.'
+          : 'Amplify Studio content could not be loaded. The site fell back to bundled homepage content.';
+      default:
+        return language === 'es'
+          ? 'Mostrando el contenido incluido en la aplicacion.'
+          : 'Showing bundled fallback homepage content.';
+    }
+  });
+
+  constructor() {
+    if (this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey) {
+      void this.loadContent();
+    }
+  }
+
+  private async loadContent(): Promise<void> {
+    this.loadState.set('loading');
+    this.loadErrorState.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<CmsGraphqlResponse>(
+          this.cmsConfig.apiEndpoint,
+          {
+            query: PUBLIC_CMS_QUERY,
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+              'x-api-key': this.cmsConfig.apiKey,
+            },
+          },
+        ),
+      );
+
+      if (response.errors?.length) {
+        throw new Error(
+          response.errors
+            .map((error) => error.message?.trim())
+            .filter((message): message is string => Boolean(message))
+            .join(' '),
+        );
+      }
+
+      this.siteSettingsState.set(
+        response.data?.listSiteSettings?.items?.find((item): item is SiteSettingsRecord =>
+          Boolean(item),
+        ),
+      );
+      this.alertBannerRecordsState.set(
+        (response.data?.listAlertBanners?.items ?? []).filter((item): item is AlertBannerRecord =>
+          Boolean(item),
+        ),
+      );
+      this.noticeRecordsState.set(
+        (response.data?.listAnnouncements?.items ?? []).filter((item): item is AnnouncementRecord =>
+          Boolean(item),
+        ),
+      );
+      this.contactRecordsState.set(
+        (response.data?.listOfficialContacts?.items ?? []).filter(
+          (item): item is OfficialContactRecord => Boolean(item),
+        ),
+      );
+      this.loadState.set('studio');
+    } catch (error) {
+      this.applyFallbackContent();
+      this.loadState.set('error');
+      this.loadErrorState.set(this.readLoadError(error));
+    }
+  }
+
+  private applyFallbackContent(): void {
+    this.siteSettingsState.set(undefined);
+    this.alertBannerRecordsState.set([]);
+    this.noticeRecordsState.set([]);
+    this.contactRecordsState.set([]);
+  }
+
+  private normalizeHero(
+    siteSettings: SiteSettingsRecord | undefined,
+    language: SiteLanguage,
+  ): CmsHeroContent {
+    const englishFallback = DEFAULT_CMS_HERO;
+    const localizedFallback = language === 'es' ? DEFAULT_CMS_HERO_ES : DEFAULT_CMS_HERO;
+
+    return {
+      eyebrow: this.localizeKnownText(
+        siteSettings?.heroEyebrow,
+        language,
+        englishFallback.eyebrow,
+        localizedFallback.eyebrow,
+      ),
+      status: this.localizeKnownText(
+        siteSettings?.heroStatus,
+        language,
+        englishFallback.status,
+        localizedFallback.status,
+      ),
+      title: this.localizeKnownText(
+        siteSettings?.heroTitle ?? siteSettings?.pageTitle ?? siteSettings?.townName,
+        language,
+        englishFallback.title,
+        localizedFallback.title,
+      ),
+      message: this.localizeKnownText(
+        siteSettings?.heroMessage,
+        language,
+        englishFallback.message,
+        localizedFallback.message,
+      ),
+      subtext: this.localizeKnownText(
+        siteSettings?.heroSubtext,
+        language,
+        englishFallback.subtext,
+        localizedFallback.subtext,
+      ),
+      welcomeLabel: this.localizeKnownText(
+        siteSettings?.welcomeLabel,
+        language,
+        englishFallback.welcomeLabel,
+        localizedFallback.welcomeLabel,
+      ),
+      welcomeHeading: this.localizeKnownText(
+        siteSettings?.welcomeHeading,
+        language,
+        englishFallback.welcomeHeading,
+        localizedFallback.welcomeHeading,
+      ),
+      welcomeBody: this.localizeKnownText(
+        siteSettings?.welcomeBody,
+        language,
+        englishFallback.welcomeBody,
+        localizedFallback.welcomeBody,
+      ),
+      welcomeCaption: this.localizeKnownText(
+        siteSettings?.welcomeCaption,
+        language,
+        englishFallback.welcomeCaption,
+        localizedFallback.welcomeCaption,
+      ),
+    };
+  }
+
+  private normalizeAlertBanner(
+    alertBanner: AlertBannerRecord | undefined,
+    language: SiteLanguage,
+  ): CmsAlertBanner {
+    const englishFallback = DEFAULT_CMS_ALERT_BANNER;
+    const localizedFallback =
+      language === 'es' ? DEFAULT_CMS_ALERT_BANNER_ES : DEFAULT_CMS_ALERT_BANNER;
+
+    return {
+      enabled: Boolean(alertBanner?.enabled),
+      label: this.localizeKnownText(
+        alertBanner?.label,
+        language,
+        englishFallback.label,
+        localizedFallback.label,
+      ),
+      title: this.localizeKnownText(
+        alertBanner?.title,
+        language,
+        englishFallback.title,
+        localizedFallback.title,
+      ),
+      detail: this.localizeKnownText(
+        alertBanner?.detail,
+        language,
+        englishFallback.detail,
+        localizedFallback.detail,
+      ),
+      linkLabel: this.localizeKnownText(
+        alertBanner?.linkLabel,
+        language,
+        englishFallback.linkLabel,
+        localizedFallback.linkLabel,
+      ),
+      linkHref: this.cleanText(alertBanner?.linkHref) ?? localizedFallback.linkHref,
+    };
+  }
+
+  private normalizeAnnouncements(
+    records: AnnouncementRecord[],
+    language: SiteLanguage,
+  ): CmsNotice[] {
+    const notices = records
+      .filter((record) => Boolean(record.active))
+      .map((record) => ({
+        ...record,
+        id: record.id.trim(),
+        title: this.cleanText(record.title) ?? '',
+        detail: this.cleanText(record.detail) ?? '',
+        priority: typeof record.priority === 'number' ? record.priority : Number.MAX_SAFE_INTEGER,
+      }))
+      .filter((record) => record.id && record.title && record.detail)
+      .sort((left, right) => left.priority - right.priority)
+      .map((record) => {
+        const englishFallback = DEFAULT_NOTICE_MAP.en.get(record.id);
+        const localizedFallback = DEFAULT_NOTICE_MAP[language].get(record.id);
+
+        return {
+          id: record.id,
+          title: this.localizeKnownText(
+            record.title,
+            language,
+            englishFallback?.title,
+            localizedFallback?.title,
+          ),
+          date: this.formatDateLabel(
+            record.date,
+            language,
+            englishFallback?.date,
+            localizedFallback?.date,
+          ),
+          detail: this.localizeKnownText(
+            record.detail,
+            language,
+            englishFallback?.detail,
+            localizedFallback?.detail,
+          ),
+        };
+      });
+
+    if (notices.length) {
+      return notices;
+    }
+
+    const fallbackNotices = language === 'es' ? DEFAULT_CMS_NOTICES_ES : DEFAULT_CMS_NOTICES;
+
+    return fallbackNotices.map((notice) => ({ ...notice }));
+  }
+
+  private normalizeContacts(
+    records: OfficialContactRecord[],
+    language: SiteLanguage,
+  ): CmsContact[] {
+    const contacts = records
+      .map((record) => ({
+        ...record,
+        id: record.id.trim(),
+        label: this.cleanText(record.label) ?? '',
+        value: this.cleanText(record.value) ?? '',
+        detail: this.cleanText(record.detail) ?? '',
+        href: this.cleanText(record.href),
+        linkLabel: this.cleanText(record.linkLabel),
+        displayOrder:
+          typeof record.displayOrder === 'number' ? record.displayOrder : Number.MAX_SAFE_INTEGER,
+      }))
+      .filter((record) => record.id && record.label && record.value && record.detail)
+      .sort((left, right) => left.displayOrder - right.displayOrder)
+      .map((record) => {
+        const englishFallback = DEFAULT_CONTACT_MAP.en.get(record.id);
+        const localizedFallback = DEFAULT_CONTACT_MAP[language].get(record.id);
+
+        return {
+          id: record.id,
+          label: this.localizeKnownText(
+            record.label,
+            language,
+            englishFallback?.label,
+            localizedFallback?.label,
+          ),
+          value: record.value,
+          detail: this.localizeKnownText(
+            record.detail,
+            language,
+            englishFallback?.detail,
+            localizedFallback?.detail,
+          ),
+          href: record.href,
+          linkLabel:
+            this.cleanText(record.linkLabel) ??
+            localizedFallback?.linkLabel ??
+            englishFallback?.linkLabel,
+        };
+      });
+
+    if (contacts.length) {
+      return contacts;
+    }
+
+    const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+
+    return fallbackContacts.map((contact) => ({ ...contact }));
+  }
+
+  private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {
+    return [...records].sort((left, right) => {
+      if (left.enabled !== right.enabled) {
+        return left.enabled ? -1 : 1;
+      }
+
+      return (right.updatedAt ?? '').localeCompare(left.updatedAt ?? '');
+    })[0];
+  }
+
+  private formatDateLabel(
+    value: string | null | undefined,
+    language: SiteLanguage,
+    englishFallback?: string,
+    localizedFallback?: string,
+  ): string {
+    const trimmedValue = this.cleanText(value);
+
+    if (!trimmedValue) {
+      return localizedFallback ?? (language === 'es' ? 'Actualizacion del pueblo' : 'Town update');
+    }
+
+    if (
+      language === 'es' &&
+      englishFallback &&
+      localizedFallback &&
+      trimmedValue === englishFallback
+    ) {
+      return localizedFallback;
+    }
+
+    const parsedDate = new Date(trimmedValue);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return (language === 'es' ? this.spanishDateFormatter : this.englishDateFormatter).format(
+        parsedDate,
+      );
+    }
+
+    return language === 'es'
+      ? (KNOWN_CMS_TEXT_TRANSLATIONS[trimmedValue] ?? trimmedValue)
+      : trimmedValue;
+  }
+
+  private localizeKnownText(
+    value: string | null | undefined,
+    language: SiteLanguage,
+    englishFallback?: string,
+    localizedFallback?: string,
+  ): string {
+    const cleanedValue = this.cleanText(value);
+
+    if (language === 'en') {
+      return cleanedValue ?? englishFallback ?? '';
+    }
+
+    if (!cleanedValue) {
+      return localizedFallback ?? englishFallback ?? '';
+    }
+
+    if (englishFallback && localizedFallback && cleanedValue === englishFallback) {
+      return localizedFallback;
+    }
+
+    return KNOWN_CMS_TEXT_TRANSLATIONS[cleanedValue] ?? cleanedValue;
+  }
+
+  private cleanText(value: string | null | undefined): string | undefined {
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  }
+
+  private readLoadError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return error.error.trim();
+      }
+
+      if (typeof error.message === 'string' && error.message.trim()) {
+        return error.message.trim();
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message.trim();
+    }
+
+    return this.siteLanguage() === 'es'
+      ? 'No se pudo cargar el contenido de Amplify Studio en este momento.'
+      : 'Unable to load Amplify Studio content right now.';
+  }
+
+  private getCmsRuntimeConfig(): RuntimeCmsConfig {
+    const runtimeWindow =
+      typeof window === 'undefined'
+        ? undefined
+        : (window as Window & {
+            __TOW_RUNTIME_CONFIG__?: {
+              cms?: {
+                appSync?: {
+                  region?: string;
+                  apiEndpoint?: string;
+                  apiKey?: string;
+                };
+              };
+            };
+            __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+              cms?: {
+                appSync?: {
+                  region?: string;
+                  apiEndpoint?: string;
+                  apiKey?: string;
+                };
+              };
+            };
+          });
+    const appSyncConfig = {
+      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG__?.cms?.appSync ?? {}),
+      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms?.appSync ?? {}),
+    };
+
+    return {
+      region: typeof appSyncConfig.region === 'string' ? appSyncConfig.region : '',
+      apiEndpoint: typeof appSyncConfig.apiEndpoint === 'string' ? appSyncConfig.apiEndpoint : '',
+      apiKey: typeof appSyncConfig.apiKey === 'string' ? appSyncConfig.apiKey : '',
+    };
+  }
+}

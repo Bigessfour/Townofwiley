@@ -191,6 +191,17 @@ If no chatbot URL is configured, the site renders normally and no Easy-Peasy scr
 
 Homepage publishing now relies on Amplify Studio and AppSync. The old browser-local CMS workflow has been disabled.
 
+## Site language
+
+The public site now defaults to Spanish and exposes a runtime language switch so residents can move between Spanish and English without a rebuild.
+
+Current implementation notes:
+
+- The selected language is persisted in browser storage under `tow-site-language`.
+- The public shell, weather panel chrome, AI assistant chrome, and `/admin` operations route all switch languages at runtime.
+- Homepage CMS content is localized in the frontend with bundled Spanish fallbacks and known-text mappings layered over the current single-language AppSync models.
+- If Amplify Studio content changes to brand-new English text that is not yet covered by the translation map, that field will fall back to English until the mapping is updated or bilingual CMS fields are introduced.
+
 Plain-language staff guide:
 
 - See [CLERK-CMS-GUIDE.md](CLERK-CMS-GUIDE.md) for the current staff workflow.

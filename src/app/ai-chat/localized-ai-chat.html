@@ -1,0 +1,75 @@
+<section class="assistant-shell" aria-labelledby="assistant-heading">
+  <div class="assistant-intro">
+    <p class="assistant-kicker">{{ copy().kicker }}</p>
+    <h3 id="assistant-heading">{{ copy().title }}</h3>
+    <p class="assistant-copy">{{ copy().intro }}</p>
+    <p class="assistant-status" [class.is-offline]="!isConfigured">
+      {{ isConfigured ? copy().onlineStatus : copy().offlineStatus }}
+    </p>
+  </div>
+
+  <div class="assistant-form">
+    <label class="assistant-label" for="assistant-question">{{ copy().questionLabel }}</label>
+    <p class="assistant-helper">{{ copy().helper }}</p>
+    <div class="assistant-entry-row">
+      <input
+        id="assistant-question"
+        class="assistant-input"
+        type="text"
+        [value]="draft()"
+        (input)="updateDraft($any($event.target).value)"
+        (keydown.enter)="sendMessage()"
+        [attr.placeholder]="copy().placeholder"
+        autocomplete="off"
+        [disabled]="isSending()"
+      />
+      <button type="button" class="assistant-send" (click)="sendMessage()" [disabled]="isSending()">
+        {{ isSending() ? copy().sending : copy().send }}
+      </button>
+    </div>
+  </div>
+
+  <div class="assistant-window">
+    <div class="assistant-prompts-shell">
+      <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
+      <div class="assistant-prompts" [attr.aria-label]="copy().promptsAriaLabel">
+        @for (prompt of starterPrompts(); track prompt) {
+          <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
+            {{ prompt }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="assistant-thread">
+      <div class="assistant-thread-header">
+        <div>
+          <p class="assistant-thread-kicker">{{ copy().conversationKicker }}</p>
+          <h4 class="assistant-thread-title">{{ copy().conversationTitle }}</h4>
+        </div>
+        <p class="assistant-thread-status">
+          {{ isSending() ? copy().conversationWaiting : copy().conversationReady }}
+        </p>
+      </div>
+
+      <div class="assistant-messages" aria-live="polite" #messagesContainer>
+        @for (message of messages(); track $index) {
+          <article class="assistant-message" [class.is-user]="message.role === 'user'">
+            <span class="assistant-role">{{
+              message.role === 'user' ? copy().userRole : copy().assistantRole
+            }}</span>
+            <p>{{ message.content }}</p>
+
+            @if (message.links?.length) {
+              <div class="assistant-links">
+                @for (link of message.links; track link.href) {
+                  <a [attr.href]="link.href">{{ link.label }}</a>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </div>
+</section>
