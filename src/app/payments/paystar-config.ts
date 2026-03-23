@@ -14,13 +14,6 @@ interface RuntimeConfigShape {
   };
 }
 
-const defaultPaystarConfig: RuntimePaystarConfig = {
-  provider: 'paystar',
-  mode: 'none',
-  portalUrl: '',
-  apiEndpoint: '',
-};
-
 export function getPaystarRuntimeConfig(): RuntimePaystarConfig {
   const runtimeWindow =
     typeof window === 'undefined'

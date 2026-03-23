@@ -45,7 +45,7 @@ test.describe('homepage weather', () => {
       ],
     });
 
-    await homePage.goto();
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.weatherSource).toContainText('AWS weather service');
     await expect(homePage.weatherHeading).toContainText('Wiley, CO');
@@ -127,7 +127,7 @@ test.describe('homepage weather', () => {
       });
     });
 
-    await homePage.goto();
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
     await homePage.tapWeatherRefresh();
@@ -163,7 +163,7 @@ test.describe('homepage weather', () => {
       });
     });
 
-    await homePage.goto();
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.weatherSignupShell).toBeVisible();
     await expect(homePage.weatherSignupChannel).toHaveValue('sms');
@@ -211,7 +211,7 @@ test.describe('homepage weather', () => {
       });
     });
 
-    await homePage.goto();
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await homePage.weatherSignupChannel.selectOption('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident', 'es');

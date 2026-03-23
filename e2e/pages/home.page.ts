@@ -7,6 +7,7 @@ export class HomePage {
   readonly mainContent: Locator;
   readonly heroHeading: Locator;
   readonly communityFacts: Locator;
+  readonly featureCards: Locator;
   readonly topTaskCards: Locator;
   readonly sectionNavLinks: Locator;
   readonly searchInput: Locator;
@@ -50,6 +51,7 @@ export class HomePage {
     this.mainContent = page.locator('#main-content');
     this.heroHeading = page.getByRole('heading', { level: 1, name: 'Town of Wiley' });
     this.communityFacts = page.locator('.fact-card');
+    this.featureCards = page.locator('.feature-card');
     this.topTaskCards = page.locator('.task-card');
     this.sectionNavLinks = page.locator('.section-nav a');
     this.searchInput = page.locator('#site-search');

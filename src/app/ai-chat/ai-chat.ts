@@ -88,7 +88,7 @@ export class AiChat {
     if (!this.isConfigured) {
       this.appendAssistantMessage(
         'Programmatic chat is not connected yet. Set EASYPEASY_API_ENDPOINT in deployment config after the proxy is deployed.',
-        [{ label: 'Contact Town Hall', href: '#contact' }],
+        [{ label: 'Contact Town Hall', href: '/contact' }],
         true,
       );
       return;
@@ -121,7 +121,7 @@ export class AiChat {
     } catch {
       this.appendAssistantMessage(
         'The assistant is temporarily unavailable. Please try again in a moment or contact Town Hall directly.',
-        [{ label: 'Town contacts', href: '#contact' }],
+        [{ label: 'Town contacts', href: '/contact' }],
         true,
       );
     } finally {
@@ -136,9 +136,9 @@ export class AiChat {
         content:
           'Ask about meetings, officials, records, services, or contacts. This assistant now talks to the Town of Wiley Easy-Peasy bot through a secure server-side proxy, so the API key does not live in the browser.',
         links: [
-          { label: 'Calendar', href: '#calendar' },
-          { label: 'Contact', href: '#contact' },
-          { label: 'Records', href: '#records' },
+          { label: 'Calendar', href: '/meetings' },
+          { label: 'Contact', href: '/contact' },
+          { label: 'Records', href: '/records' },
         ],
         omitFromHistory: true,
       };
@@ -148,7 +148,7 @@ export class AiChat {
       role: 'assistant',
       content:
         'Programmatic chat is currently offline in this environment. Deploy the Easy-Peasy proxy and set EASYPEASY_API_ENDPOINT to turn it on.',
-      links: [{ label: 'Contact Town Hall', href: '#contact' }],
+      links: [{ label: 'Contact Town Hall', href: '/contact' }],
       omitFromHistory: true,
     };
   }

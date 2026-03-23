@@ -6,28 +6,73 @@ This document converts the attached audit into Markdown and updates it against t
 
 ## Executive Summary
 
-- The homepage is no longer just a static brochure page. It now includes guided resident-service intake, a records/document center, an accessibility statement and barrier-report flow, expanded search entries, mobile-responsive Playwright coverage, and a richer calendar section that makes live event publishing visible.
+- The public information architecture has been tightened up substantially. The homepage is now a compact landing page with feature cards, quick tasks, search, and footer access points, while detailed content lives on dedicated public paths instead of one dense scroll.
+- The current public detail-page structure is now:
+  - `/weather`
+  - `/notices`
+  - `/meetings`
+  - `/services`
+  - `/records`
+  - `/contact`
+  - `/accessibility`
 - The records/document area now includes a resident-facing `/documents` hub that gives meeting documents, finance records, code references, and records requests stable public destinations instead of guidance-only dead ends.
 - English is now the default homepage language when no saved preference exists, while resident-selected language still persists through local storage.
-- Several audit items are still open, but they are now mostly backend and operational gaps rather than missing homepage UI.
-- Focused unit and homepage smoke coverage are now green for the current calendar UI and the first-pass public document hub routing.
+- Several audit items are still open, but they are now mostly backend and operational gaps rather than missing public-facing information architecture.
+- The current repo state is now validated by lint, production build, unit tests, infrastructure tests, and the full Playwright suite.
 - The highest-value remaining work is still the same general theme: connect the homepage workflows to real backend systems instead of mailto-style routing and seeded content.
 - Utility billing implementation now has a clearer path: the Town can keep RVS Mosaics as the clerk-facing billing system while integrating one of RVS's published payment partners or commissioning a custom bridge.
 - Paystar is now the selected first implementation target because it has the clearest website-link onboarding path for an Amplify-hosted resident portal while remaining compatible with RVS Mosaics.
 
 ## Current Validation Snapshot
 
-- Focused app unit coverage is green for the homepage shell, `/admin`, `/clerk-setup`, and `/documents` route.
-- Focused homepage smoke coverage is green in desktop and mobile Chromium for the homepage scaffold plus navigation from the records center into the public document hub.
-- Focused homepage unit and smoke coverage is also green for search routing into the public document destinations.
+- `npm run lint` passes. Current note: ESLint still warns that the untracked `.eslintignore` file format is deprecated, but linting itself is green.
+- `npm run build` passes and writes `dist/townofwiley-app`. Current warnings only:
+  - initial bundle size is `541.62 kB` against a `500.00 kB` warning budget
+  - `src/app/app.scss` is `17.85 kB` against a `16.00 kB` warning budget
+- `npm run test:unit:browser` passes with `13/13` tests green.
+- `npm run test:infra` passes with `6/6` tests green.
+- `npm run test:infra:alerts` passes with `7/7` tests green.
+- `npm run test:infra:mail` passes with `4/4` tests green.
+- `npm run test:e2e -- --workers=1` passes with `43` tests green and `3` expected skips.
+- Playwright coverage now directly validates the compact homepage, the dedicated feature pages, mobile detail-page reachability, and critical/serious axe compliance on `/`, `/weather`, `/services`, `/records`, and `/accessibility`.
 - Severe-weather email confirmations are now working through SES with `alerts@townofwiley.gov` as the official sender, while SMS remains blocked by the separate Amazon SNS SMS sandbox state in `us-east-2`.
-- The earlier homepage smoke failure on the records-center assertion was stale test text and has now been corrected in source.
+- The Easy Peasy loader now adds accessible labeling to the injected chatbot launch button so the public shell can pass current axe coverage without excluding the widget.
+
+## What Changed Visibly
+
+### Homepage information architecture
+
+Status: Complete
+
+Evidence:
+
+- [src/app/app.ts](../src/app/app.ts)
+- [src/app/app.html](../src/app/app.html)
+- [src/app/app.scss](../src/app/app.scss)
+
+What is complete:
+
+- `/` is now a compact landing page instead of a long all-in-one destination.
+- The homepage now focuses on:
+  - hero and town identity
+  - community facts
+  - feature-card navigation
+  - resident quick tasks
+  - search
+  - footer utility links
+- Detailed public content now lives on dedicated page paths for weather, notices, meetings, services, records, contacts, and accessibility.
+- Weather alert priming still works on public non-weather pages through a hidden background weather panel, so active alert behavior was preserved while removing the visible weather stack from the homepage.
+
+What is still missing:
+
+- The public pages are still implemented through pathname-based shell branching inside `App` rather than Angular Router.
+- Bundle and stylesheet budgets now warn, which should be addressed in a later cleanup pass.
 
 ## What Is Complete Now
 
 ### Resident service intake flows
 
-Status: Complete on the homepage as guided intake
+Status: Complete on the dedicated `/services` page, linked from the homepage
 
 Evidence:
 
@@ -36,11 +81,14 @@ Evidence:
 
 What is complete:
 
-- Residents can now start three structured workflows directly from the homepage:
+- Residents can now start three structured workflows from the dedicated resident-services page:
   - utility payment help
   - street or utility issue reporting
   - records, permits, or clerk help
-- The top-task links no longer point to the generic `#services` section. They now route directly to the relevant intake cards.
+- The homepage top-task links now route residents directly into the correct service destinations:
+  - `/services#payment-help`
+  - `/services#issue-report`
+  - `/services#records-request`
 - These forms are bilingual and build structured messages instead of leaving residents with a blank email.
 
 What is still missing:
@@ -51,7 +99,7 @@ What is still missing:
 
 ### Accessibility statement and barrier reporting
 
-Status: Complete on the homepage as a public-facing workflow
+Status: Complete on the dedicated `/accessibility` page
 
 Evidence:
 
@@ -60,10 +108,10 @@ Evidence:
 
 What is complete:
 
-- A published accessibility statement now exists on the homepage.
+- A published accessibility statement now exists on a dedicated public page instead of the homepage body.
 - Residents can prepare an accessibility barrier report from a dedicated form.
 - The barrier-report flow includes direct Town Hall and clerk contact paths.
-- The search experience now includes accessibility and barrier-report discovery.
+- The search experience includes accessibility and barrier-report discovery, and the footer keeps a stable public access point to `/accessibility`.
 
 What is still missing:
 
@@ -72,7 +120,7 @@ What is still missing:
 
 ### Records center and transparency entry points
 
-Status: Complete for the current public-destination scope
+Status: Complete for the current public-destination scope on `/records` and `/documents`
 
 Evidence:
 
@@ -82,7 +130,7 @@ Evidence:
 
 What is complete:
 
-- The records area now has real resident-facing destination cards for:
+- The records area now has real resident-facing destination cards on `/records` for:
   - public records and FOIA
   - meeting packets and approved minutes
   - budget summaries and annual reports
@@ -111,14 +159,15 @@ Evidence:
 
 What is complete:
 
-- `Pay utility bill` now links to `#payment-help`.
-- `Report a street or utility issue` now links to `#issue-report`.
-- `Request records, permits, or clerk help` now links to `#records-request`.
-- The earlier audit claim that these tasks still pointed to `#services` is no longer true.
+- `Pay utility bill` now links to `/services#payment-help`.
+- `Report a street or utility issue` now links to `/services#issue-report`.
+- `Find a meeting or agenda` now links to `/meetings`.
+- `Request records, permits, or clerk help` now links to `/services#records-request`.
+- The earlier audit claim that these tasks still pointed to generic in-page sections is no longer true.
 
 ### Calendar UI and live event publishing state
 
-Status: Complete for current homepage scope
+Status: Complete for the dedicated `/meetings` page
 
 Evidence:
 
@@ -129,7 +178,7 @@ Evidence:
 
 What is complete:
 
-- The homepage calendar now clearly tells residents whether they are seeing staff-managed live events or the bundled fallback schedule.
+- The meetings page now clearly tells residents whether they are seeing staff-managed live events or the bundled fallback schedule.
 - The next event is visually featured instead of rendering as an undifferentiated card list.
 - Live AppSync `Event` records now drive the homepage calendar presentation when they exist.
 - The `/admin` operations guide now includes the `Event` model in both the publishing flow and the model coverage summary.
@@ -141,7 +190,7 @@ What is still missing:
 
 ### Responsive and mobile coverage
 
-Status: Complete for current homepage scope
+Status: Complete for the compact homepage plus dedicated detail pages
 
 Evidence:
 
@@ -150,24 +199,26 @@ Evidence:
 What is complete:
 
 - Mobile-specific Playwright coverage exists.
-- The spec verifies no horizontal overflow and confirms the key resident-service and accessibility actions remain reachable on mobile.
+- The responsive suite verifies the compact homepage remains scannable with no horizontal overflow.
+- The responsive suite also verifies that key actions remain reachable on `/weather`, `/services`, and `/accessibility` in the mobile viewport.
 
 Validation:
 
-- `npx playwright test e2e/specs/responsive --project=mobile-chromium` passed.
+- `npx playwright test e2e/specs/responsive --workers=1` passed with the current expected desktop skips and mobile checks green.
 
 ### Smoke coverage for the current homepage
 
-Status: Complete for current homepage scope
+Status: Complete for the compact homepage and the new public detail-page structure
 
 Evidence:
 
 - [e2e/specs/smoke/home.smoke.spec.ts](../e2e/specs/smoke/home.smoke.spec.ts)
-- [smoke-report.json](../smoke-report.json)
+- [e2e/specs/smoke/home.navigation.spec.ts](../e2e/specs/smoke/home.navigation.spec.ts)
+- [e2e/specs/smoke/home.weather.spec.ts](../e2e/specs/smoke/home.weather.spec.ts)
 
 What is complete:
 
-- Smoke tests now cover the resident-service cards, records-center cards, and accessibility barrier reporting.
+- Smoke tests now cover the compact landing page scaffold, the dedicated feature pages, records-to-documents navigation, accessibility routing, search destinations, chat behavior, and weather/signup behavior.
 - Smoke tests now also verify navigation from the records center into the public document hub.
 - Navigation smoke coverage passed in both desktop and mobile Chromium.
 - Weather smoke coverage passed in both desktop and mobile Chromium, including alert signup flows.
@@ -175,8 +226,8 @@ What is complete:
 
 Validation:
 
-- `npx playwright test e2e/specs/smoke/home.smoke.spec.ts --project=desktop-chromium --project=mobile-chromium --grep '(renders the Wiley landing page scaffold|opens the public document hub from the records center)'` passed with 4 tests passed.
-- The earlier records-center assertion drift was corrected in source, and the homepage scaffold smoke test now passes again.
+- `npm run test:e2e -- --workers=1` passed with all smoke coverage green inside the broader suite.
+- Dedicated feature-page smoke coverage now includes direct checks for `/notices`, `/meetings`, `/services`, and `/contact` rather than only checking that the homepage links exist.
 
 What is still missing:
 
@@ -223,6 +274,7 @@ What has improved since the original audit:
 - Search results now derive from the current homepage model, including top tasks, meetings, calendar items, service cards, transparency actions, accessibility content, contacts, and notices.
 - Search now also picks up live CMS-published contacts, notices, and calendar events, so results can change when staff content changes without a code edit.
 - The search index now includes records guides and public document destinations sourced from the shared records-center content instead of a separate search-only definition.
+- Search results now route residents into the dedicated public paths instead of relying on one long homepage scroll.
 
 What is still missing:
 

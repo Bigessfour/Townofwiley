@@ -1,4 +1,43 @@
 (function loadEasyPeasyChatbot() {
+  var chatbotButtonLabel = 'Open Town of Wiley assistant chat';
+
+  var labelChatButton = function () {
+    var chatButton = document.getElementById('dialoq-btn');
+
+    if (!chatButton) {
+      return false;
+    }
+
+    if (!chatButton.getAttribute('aria-label')) {
+      chatButton.setAttribute('aria-label', chatbotButtonLabel);
+    }
+
+    if (!chatButton.getAttribute('title')) {
+      chatButton.setAttribute('title', chatbotButtonLabel);
+    }
+
+    return true;
+  };
+
+  var watchForChatButton = function () {
+    if (labelChatButton()) {
+      return;
+    }
+
+    var observer = new MutationObserver(function () {
+      if (!labelChatButton()) {
+        return;
+      }
+
+      observer.disconnect();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  };
+
   const runtimeConfig = window.__TOW_RUNTIME_CONFIG__;
   const chatbotConfig = runtimeConfig && runtimeConfig.chatbot;
 
@@ -29,6 +68,7 @@
     widgetScript.async = true;
 
     document.body.appendChild(widgetScript);
+    watchForChatButton();
   };
 
   const scheduleWidgetLoad = function () {

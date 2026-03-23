@@ -15,13 +15,12 @@ test.describe('homepage navigation', () => {
 
     expect(navHrefs).toEqual([
       '#top-tasks',
-      '#weather',
-      '#alerts',
-      '#calendar',
-      '#services',
-      '#records',
-      '#accessibility',
-      '#contact',
+      '/weather',
+      '/notices',
+      '/meetings',
+      '/services',
+      '/records',
+      '/contact',
     ]);
 
     for (const label of siteContent.navLabels) {
@@ -52,33 +51,32 @@ test.describe('homepage navigation', () => {
 
     await homePage.searchFor('pay water bill');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.payments);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#payment-help');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/services#payment-help');
 
     await homePage.searchFor('street outage');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.issues);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#issue-report');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/services#issue-report');
 
-    await homePage.searchFor('next town meeting');
+    await homePage.searchFor('city council meeting');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.meetings);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#alerts');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/meetings');
 
     await homePage.searchFor('community calendar');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.calendar);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#calendar');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/meetings');
 
-    await homePage.searchFor('city council 2nd monday');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.council);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#calendar');
-
-    await homePage.searchFor('meeting packet');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.packets);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#records-guide-packets');
-
-    await homePage.searchFor('screen reader issue');
+    await homePage.searchFor('screen reader support');
     await expect(homePage.searchResults.first()).toContainText(
       siteContent.searchMatches.accessibility,
     );
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#barrier-report');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/accessibility');
+
+    await homePage.searchFor('city clerk deb dillon');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.clerk);
+    await expect(homePage.searchResults.first()).toHaveAttribute(
+      'href',
+      'mailto:deb.dillon@townofwiley.gov',
+    );
 
     await homePage.searchFor('snowmobile permit banana');
     await expect(homePage.searchResults).toHaveCount(0);

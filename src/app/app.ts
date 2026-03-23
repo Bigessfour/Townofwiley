@@ -141,6 +141,26 @@ interface CommunityFact {
   detail: string;
 }
 
+type FeaturePageId =
+  | 'weather'
+  | 'notices'
+  | 'meetings'
+  | 'services'
+  | 'records'
+  | 'contact'
+  | 'accessibility';
+
+type FeatureTitles = Record<FeaturePageId, string>;
+
+interface FeaturePage {
+  id: FeaturePageId;
+  kicker: string;
+  title: string;
+  summary: string;
+  href: string;
+  showOnHomepage: boolean;
+}
+
 interface AppCopy {
   skipLinkLabel: string;
   languageLabel: string;
@@ -158,6 +178,9 @@ interface AppCopy {
   heroImageAlt: string;
   topTasksKicker: string;
   topTasksHeading: string;
+  featureHubKicker: string;
+  featureHubHeading: string;
+  featureHubBody: string;
   searchKicker: string;
   searchHeading: string;
   searchLabel: string;
@@ -204,6 +227,8 @@ interface AppCopy {
   complianceNote: string;
   contactKicker: string;
   contactHeading: string;
+  backHomeLabel: string;
+  featureTitles: FeatureTitles;
   comingSoonLabel: string;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];
@@ -217,6 +242,12 @@ interface AppCopy {
   transparencyActions: TransparencyAction[];
   accessibilityItems: AccessibilityItem[];
   leadershipGroups: LeadershipGroup[];
+}
+
+function normalizePath(pathname: string): string {
+  const trimmedPath = pathname.replace(/\/+$/, '');
+
+  return trimmedPath || '/';
 }
 
 const APP_COPY: Record<SiteLanguage, AppCopy> = {
@@ -241,6 +272,10 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
+    featureHubKicker: 'Town features',
+    featureHubHeading: 'Open the town section you need',
+    featureHubBody:
+      'The homepage now stays compact. Use these feature pages for weather, notices, meetings, services, records, and Town Hall contacts.',
     searchKicker: 'Wiley Search',
     searchHeading: 'Search Wiley services',
     searchLabel:
@@ -298,12 +333,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Publish an accessibility statement, keep audits recurring, and provide a direct path for alternate-format and barrier reports.',
     contactKicker: 'Contact and Response Paths',
     contactHeading: 'Residents should always know where to go next',
+    backHomeLabel: 'Return to homepage',
+    featureTitles: {
+      weather: 'Local weather',
+      notices: 'Town notices',
+      meetings: 'Meetings and calendar',
+      services: 'Resident services',
+      records: 'Records and documents',
+      contact: 'Contact Town Hall',
+      accessibility: 'Accessibility statement',
+    },
     comingSoonLabel: 'Coming Soon',
     footerLinks: [
-      { label: 'Accessibility statement', href: '#accessibility' },
-      { label: 'Public records and FOIA', href: '#records' },
-      { label: 'Meeting notices', href: '#alerts' },
-      { label: 'Contact Town Hall', href: '#contact' },
+      { label: 'Accessibility statement', href: '/accessibility' },
+      { label: 'Public records and FOIA', href: '/records' },
+      { label: 'Meeting notices', href: '/meetings' },
+      { label: 'Contact Town Hall', href: '/contact' },
     ],
     communityFacts: [
       {
@@ -327,41 +372,40 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     navLinks: [
       { label: 'Top Tasks', href: '#top-tasks' },
-      { label: 'Weather', href: '#weather' },
-      { label: 'Notices', href: '#alerts' },
-      { label: 'Calendar', href: '#calendar' },
-      { label: 'Services', href: '#services' },
-      { label: 'Records', href: '#records' },
-      { label: 'Accessibility', href: '#accessibility' },
-      { label: 'Contact', href: '#contact' },
+      { label: 'Weather', href: '/weather' },
+      { label: 'Notices', href: '/notices' },
+      { label: 'Meetings', href: '/meetings' },
+      { label: 'Services', href: '/services' },
+      { label: 'Records', href: '/records' },
+      { label: 'Contact', href: '/contact' },
     ],
     topTasks: [
       {
         title: 'Pay utility bill',
         description:
           'Surface water and utility payments immediately so residents are not forced to navigate a deep department structure.',
-        href: '#payment-help',
+        href: '/services#payment-help',
         note: 'Use the billing help desk to request the current payment path and account guidance.',
       },
       {
         title: 'Report a street or utility issue',
         description:
           'Give residents a direct path for outages, potholes, drainage concerns, and streetlight issues without relying on phone tag.',
-        href: '#issue-report',
+        href: '/services#issue-report',
         note: 'Use the issue report form to prepare the right message for town operations.',
       },
       {
         title: 'Find a meeting or agenda',
         description:
           'Put board meetings, notices, agendas, and minutes directly on the homepage for a town where civic information should stay one click away.',
-        href: DOCUMENT_HUB_LINKS.meetings,
+        href: '/meetings',
         note: 'Open meetings information should stay one click away from the homepage.',
       },
       {
         title: 'Request records, permits, or clerk help',
         description:
           'Group routine clerk and permit needs under plain-language labels so residents do not have to guess which office handles the task.',
-        href: '#records-request',
+        href: '/services#records-request',
         note: 'Use the request form to send structured records, permit, and clerk questions.',
       },
     ],
@@ -451,7 +495,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Billing help desk',
         description:
           'Open the billing help desk to request the current payment path, account assistance, and follow-up from Wiley staff.',
-        href: '#payment-help',
+        href: '/services#payment-help',
         cta: 'Open billing help desk',
       },
       {
@@ -459,7 +503,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Self-service',
         description:
           'Focus on a few high-value request types first: utility concerns, potholes, signage, nuisance issues, and public works follow-up.',
-        href: '#issue-report',
+        href: '/services#issue-report',
         cta: 'Open issue report form',
       },
       {
@@ -467,7 +511,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Business-ready',
         description:
           'Provide application steps, document uploads, fee details, and status tracking without making residents or contractors drive in repeatedly.',
-        href: '#records-request',
+        href: '/services#records-request',
         cta: 'Open permit and records request form',
       },
       {
@@ -475,7 +519,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Multi-channel',
         description:
           'Pair website notices with SMS, email, and app notifications so wind, snow, outages, and service disruptions reach residents quickly.',
-        href: '#alerts',
+        href: '/weather',
         cta: 'Establish alert topics and subscriber controls',
       },
       {
@@ -483,7 +527,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Inclusive access',
         description:
           'Start with critical notices, payment help, clerk services, and emergency updates so language access improves the most-used pages first.',
-        href: '#accessibility',
+        href: '/accessibility',
         cta: 'Prioritize high-impact pages for translation',
       },
       {
@@ -491,7 +535,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Plain-language findability',
         description:
           'Help residents find agendas, forms, ordinances, and services using task-based queries rather than internal government terminology.',
-        href: '#search-panel',
+        href: '/#search-panel',
         cta: 'Expand search index and document metadata',
       },
     ],
@@ -603,6 +647,10 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
     topTasksKicker: 'Tareas rapidas',
     topTasksHeading: 'Como puedo...',
+    featureHubKicker: 'Funciones del pueblo',
+    featureHubHeading: 'Abra la seccion del pueblo que necesita',
+    featureHubBody:
+      'La pagina principal ahora se mantiene compacta. Use estas paginas para clima, avisos, reuniones, servicios, registros y contactos del ayuntamiento.',
     searchKicker: 'Busqueda de Wiley',
     searchHeading: 'Busque servicios de Wiley',
     searchLabel:
@@ -662,12 +710,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Publique una declaracion de accesibilidad, mantenga auditorias recurrentes y ofrezca una via directa para solicitar formatos alternativos y reportar barreras.',
     contactKicker: 'Contacto y rutas de respuesta',
     contactHeading: 'Los residentes siempre deben saber a donde ir despues',
+    backHomeLabel: 'Volver a la pagina principal',
+    featureTitles: {
+      weather: 'Clima local',
+      notices: 'Avisos del pueblo',
+      meetings: 'Reuniones y calendario',
+      services: 'Servicios para residentes',
+      records: 'Registros y documentos',
+      contact: 'Contactar al ayuntamiento',
+      accessibility: 'Declaracion de accesibilidad',
+    },
     comingSoonLabel: 'Proximamente',
     footerLinks: [
-      { label: 'Declaracion de accesibilidad', href: '#accessibility' },
-      { label: 'Registros publicos y FOIA', href: '#records' },
-      { label: 'Avisos de reuniones', href: '#alerts' },
-      { label: 'Contactar al ayuntamiento', href: '#contact' },
+      { label: 'Declaracion de accesibilidad', href: '/accessibility' },
+      { label: 'Registros publicos y FOIA', href: '/records' },
+      { label: 'Avisos de reuniones', href: '/meetings' },
+      { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
     communityFacts: [
       {
@@ -691,41 +749,40 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     navLinks: [
       { label: 'Tareas clave', href: '#top-tasks' },
-      { label: 'Clima', href: '#weather' },
-      { label: 'Avisos', href: '#alerts' },
-      { label: 'Calendario', href: '#calendar' },
-      { label: 'Servicios', href: '#services' },
-      { label: 'Registros', href: '#records' },
-      { label: 'Accesibilidad', href: '#accessibility' },
-      { label: 'Contacto', href: '#contact' },
+      { label: 'Clima', href: '/weather' },
+      { label: 'Avisos', href: '/notices' },
+      { label: 'Reuniones', href: '/meetings' },
+      { label: 'Servicios', href: '/services' },
+      { label: 'Registros', href: '/records' },
+      { label: 'Contacto', href: '/contact' },
     ],
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
         description:
           'Muestre de inmediato los pagos de agua y servicios para que los residentes no tengan que navegar una estructura profunda por departamentos.',
-        href: '#payment-help',
+        href: '/services#payment-help',
         note: 'Use la mesa de ayuda de facturacion para solicitar la ruta actual de pago y orientacion de cuenta.',
       },
       {
         title: 'Reportar un problema de calle o servicio',
         description:
           'Ofrezca una ruta directa para cortes, baches, drenaje y alumbrado publico sin depender de llamadas repetidas.',
-        href: '#issue-report',
+        href: '/services#issue-report',
         note: 'Use el formulario de reporte para preparar el mensaje correcto para operaciones del pueblo.',
       },
       {
         title: 'Encontrar una reunion o agenda',
         description:
           'Ponga reuniones, avisos, agendas y minutas directamente en la pagina principal para que la informacion civica quede a un clic.',
-        href: DOCUMENT_HUB_LINKS.meetings,
+        href: '/meetings',
         note: 'La informacion de reuniones abiertas debe quedar a un solo clic de la pagina principal.',
       },
       {
         title: 'Solicitar registros, permisos o ayuda del secretario',
         description:
           'Agrupe necesidades rutinarias del secretario y permisos con etiquetas sencillas para que los residentes no tengan que adivinar que oficina maneja cada tramite.',
-        href: '#records-request',
+        href: '/services#records-request',
         note: 'Use el formulario de solicitud para enviar preguntas estructuradas sobre registros, permisos y secretaria.',
       },
     ],
@@ -815,7 +872,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Mesa de ayuda de facturacion',
         description:
           'Abra la mesa de ayuda de facturacion para solicitar la ruta actual de pago, ayuda con la cuenta y seguimiento del personal de Wiley.',
-        href: '#payment-help',
+        href: '/services#payment-help',
         cta: 'Abrir ayuda de facturacion',
       },
       {
@@ -823,7 +880,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Autoservicio',
         description:
           'Enfoquese primero en unos cuantos tipos de solicitud de alto valor: servicios, baches, senalizacion, molestias y seguimiento de obras publicas.',
-        href: '#issue-report',
+        href: '/services#issue-report',
         cta: 'Abrir formulario de reporte',
       },
       {
@@ -831,7 +888,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Listo para negocios',
         description:
           'Ofrezca pasos de solicitud, carga de documentos, detalles de cuotas y seguimiento de estado sin obligar a residentes o contratistas a viajar repetidamente.',
-        href: '#records-request',
+        href: '/services#records-request',
         cta: 'Abrir formulario de permisos y registros',
       },
       {
@@ -839,7 +896,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Multicanal',
         description:
           'Combine avisos del sitio con SMS, correo electronico y notificaciones para que viento, nieve, cortes y cambios de servicio lleguen rapido a los residentes.',
-        href: '#alerts',
+        href: '/weather',
         cta: 'Definir temas de alerta y controles para suscriptores',
       },
       {
@@ -847,7 +904,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Acceso inclusivo',
         description:
           'Empiece con avisos criticos, ayuda de facturacion, servicios de secretaria y actualizaciones de emergencia para mejorar primero las paginas de uso mas frecuente.',
-        href: '#accessibility',
+        href: '/accessibility',
         cta: 'Priorizar paginas de alto impacto para traduccion',
       },
       {
@@ -855,7 +912,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         availability: 'Busqueda en lenguaje sencillo',
         description:
           'Ayude a los residentes a encontrar agendas, formularios, ordenanzas y servicios mediante consultas orientadas a tareas y no a terminologia interna del gobierno.',
-        href: '#search-panel',
+        href: '/#search-panel',
         cta: 'Ampliar el indice de busqueda y los metadatos de documentos',
       },
     ],
@@ -970,17 +1027,32 @@ export class App {
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
+  private readonly currentPath =
+    typeof window !== 'undefined' ? normalizePath(window.location.pathname) : '/';
 
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly currentYear = new Date().getFullYear();
-  protected readonly isAdminMode =
-    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/admin';
-  protected readonly isClerkSetupMode =
-    typeof window !== 'undefined' &&
-    window.location.pathname.replace(/\/+$/, '') === '/clerk-setup';
-  protected readonly isDocumentHubMode =
-    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/documents';
+  protected readonly isAdminMode = this.currentPath === '/admin';
+  protected readonly isClerkSetupMode = this.currentPath === '/clerk-setup';
+  protected readonly isDocumentHubMode = this.currentPath === '/documents';
+  protected readonly isWeatherMode = this.currentPath === '/weather';
+  protected readonly isNoticesMode = this.currentPath === '/notices';
+  protected readonly isMeetingsMode = this.currentPath === '/meetings';
+  protected readonly isServicesMode = this.currentPath === '/services';
+  protected readonly isRecordsMode = this.currentPath === '/records';
+  protected readonly isContactMode = this.currentPath === '/contact';
+  protected readonly isAccessibilityMode = this.currentPath === '/accessibility';
+  protected readonly isFeaturePageMode =
+    this.isWeatherMode ||
+    this.isNoticesMode ||
+    this.isMeetingsMode ||
+    this.isServicesMode ||
+    this.isRecordsMode ||
+    this.isContactMode ||
+    this.isAccessibilityMode;
+  protected readonly shouldPrimeWeatherAlerts =
+    !this.isAdminMode && !this.isClerkSetupMode && !this.isDocumentHubMode && !this.isWeatherMode;
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
   protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
@@ -1033,6 +1105,90 @@ export class App {
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
+  protected readonly featurePages = computed<FeaturePage[]>(() => {
+    const copy = this.appCopy();
+    const alertBanner = this.alertBanner();
+    const latestNotice = this.notices()[0];
+    const nextCalendarItem = this.calendarItems()[0];
+    const primaryContact = this.primaryContact();
+    const clerkContact = this.clerkContact();
+
+    return [
+      {
+        id: 'weather',
+        kicker: copy.nwsAlertLabel,
+        title: copy.featureTitles.weather,
+        summary:
+          [alertBanner.title, alertBanner.detail].filter(Boolean).join(' ') || copy.alertHeadline,
+        href: '/weather',
+        showOnHomepage: true,
+      },
+      {
+        id: 'notices',
+        kicker: copy.noticesKicker,
+        title: copy.featureTitles.notices,
+        summary: latestNotice
+          ? `${latestNotice.title}. ${latestNotice.detail}`
+          : copy.noticesHeading,
+        href: '/notices',
+        showOnHomepage: true,
+      },
+      {
+        id: 'meetings',
+        kicker: copy.meetingsKicker,
+        title: copy.featureTitles.meetings,
+        summary: nextCalendarItem
+          ? `${nextCalendarItem.title}. ${nextCalendarItem.date}`
+          : copy.openCalendarLabel,
+        href: '/meetings',
+        showOnHomepage: true,
+      },
+      {
+        id: 'services',
+        kicker: copy.servicesKicker,
+        title: copy.featureTitles.services,
+        summary: copy.topTasks
+          .slice(0, 3)
+          .map((task) => task.title)
+          .join(' · '),
+        href: '/services',
+        showOnHomepage: true,
+      },
+      {
+        id: 'records',
+        kicker: copy.transparencyKicker,
+        title: copy.featureTitles.records,
+        summary: copy.transparencyHeading,
+        href: '/records',
+        showOnHomepage: true,
+      },
+      {
+        id: 'contact',
+        kicker: copy.contactKicker,
+        title: copy.featureTitles.contact,
+        summary:
+          [primaryContact?.value, clerkContact?.linkLabel ?? clerkContact?.value]
+            .filter(Boolean)
+            .join(' · ') || copy.contactHeading,
+        href: '/contact',
+        showOnHomepage: true,
+      },
+      {
+        id: 'accessibility',
+        kicker: copy.accessibilityKicker,
+        title: copy.featureTitles.accessibility,
+        summary: copy.complianceNote,
+        href: '/accessibility',
+        showOnHomepage: false,
+      },
+    ];
+  });
+  protected readonly homepageFeaturePages = computed(() =>
+    this.featurePages().filter((page) => page.showOnHomepage),
+  );
+  protected readonly currentFeaturePage = computed<FeaturePage | null>(() => {
+    return this.featurePages().find((page) => page.href === this.currentPath) ?? null;
+  });
   protected readonly meetings = computed(() => this.appCopy().meetings);
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
@@ -1105,7 +1261,7 @@ export class App {
         title: alertBanner.title || copy.alertHeadline,
         summary: alertBanner.detail || this.heroContent().message,
         category: copy.nwsAlertLabel,
-        href: '#weather',
+        href: '/weather',
         keywords: this.buildSearchKeywords(
           copy.alertHeadline,
           copy.alertActionLabel,
@@ -1124,7 +1280,7 @@ export class App {
         title: meeting.title,
         summary: meeting.format,
         category: copy.meetingsKicker,
-        href: meeting.href ?? '#calendar',
+        href: '/meetings',
         keywords: this.buildSearchKeywords(
           meeting.schedule,
           meeting.location,
@@ -1136,7 +1292,7 @@ export class App {
         title: item.title,
         summary: item.detail,
         category: copy.calendarKicker,
-        href: '#calendar',
+        href: '/meetings',
         keywords: this.buildSearchKeywords(
           item.date,
           item.category,
@@ -1171,21 +1327,21 @@ export class App {
         title: notice.title,
         summary: notice.detail,
         category: copy.noticesKicker,
-        href: '#alerts',
+        href: '/notices',
         keywords: this.buildSearchKeywords(notice.date),
       })),
       ...this.contacts().map((contact) => ({
         title: contact.value ? `${contact.label}: ${contact.value}` : contact.label,
         summary: contact.detail,
         category: copy.contactKicker,
-        href: contact.href ?? '#contact',
+        href: contact.href ?? '/contact',
         keywords: this.buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
       })),
       ...this.accessibilityItems().map((item) => ({
         title: item.title,
         summary: item.detail,
         category: copy.accessibilityKicker,
-        href: '#accessibility',
+        href: '/accessibility',
         keywords: this.buildSearchKeywords(item.detail),
       })),
     ];
@@ -1240,7 +1396,12 @@ export class App {
   }
 
   protected openSignup(): void {
-    this.scrollToFragment('#weather-signup-heading', '#weather');
+    if (this.isWeatherMode) {
+      this.scrollToFragment('#weather-signup-heading', '#weather');
+      return;
+    }
+
+    this.navigateToHref('/weather');
   }
 
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {
@@ -1251,7 +1412,7 @@ export class App {
     this.siteLanguageService.setLanguage(value);
   }
 
-  private buildSearchKeywords(...values: Array<string | null | undefined>): string[] {
+  private buildSearchKeywords(...values: (string | null | undefined)[]): string[] {
     return values.filter((value): value is string => Boolean(value?.trim()));
   }
 

@@ -55,7 +55,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use the structured clerk intake form for public records, meeting packets, approved minutes, permit references, or accessible document copies that still need staff follow-up.',
             actions: [
-              { label: 'Open records request form', href: '/#records-request' },
+              { label: 'Open records request form', href: '/services#records-request' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -74,7 +74,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination for the recurring second-Monday council record, agenda timing, packet follow-up, and approved-minute publishing guidance.',
             actions: [
-              { label: 'Open the public calendar', href: '/#calendar' },
+              { label: 'Open the public calendar', href: '/meetings' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
               { label: 'Call Town Hall', href: 'tel:+17198294974' },
             ],
@@ -85,8 +85,8 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination for recurring hearing timing, map follow-up, staff-report routing, and packet requests tied to planning and zoning review.',
             actions: [
-              { label: 'Open the public calendar', href: '/#calendar' },
-              { label: 'Request clerk follow-up', href: '/#records-request' },
+              { label: 'Open the public calendar', href: '/meetings' },
+              { label: 'Request clerk follow-up', href: '/services#records-request' },
             ],
           },
         ],
@@ -104,7 +104,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination for budget-summary requests, finance-document follow-up, and the clerk path when a current posting is still being prepared.',
             actions: [
-              { label: 'Request budget documents', href: '/#records-request' },
+              { label: 'Request budget documents', href: '/services#records-request' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -114,7 +114,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination when you need annual reports, audit-related records, or finance packets that are not yet published as a downloadable archive.',
             actions: [
-              { label: 'Open records request form', href: '/#records-request' },
+              { label: 'Open records request form', href: '/services#records-request' },
               { label: 'Call Town Hall', href: 'tel:+17198294974' },
             ],
           },
@@ -133,7 +133,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination for ordinance lookups, municipal-code questions, and code-reference follow-up when the exact file is not yet posted online.',
             actions: [
-              { label: 'Request ordinance or code help', href: '/#records-request' },
+              { label: 'Request ordinance or code help', href: '/services#records-request' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -143,7 +143,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use this destination for zoning references, hearing support materials, and permit guidance that needs clerk or Town Hall follow-up.',
             actions: [
-              { label: 'Open permit and records request form', href: '/#records-request' },
+              { label: 'Open permit and records request form', href: '/services#records-request' },
               { label: 'Call Town Hall', href: 'tel:+17198294974' },
             ],
           },
@@ -173,7 +173,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use el formulario estructurado de la secretaria para registros publicos, paquetes de reuniones, minutas aprobadas, referencias para permisos o copias accesibles que aun requieren seguimiento del personal.',
             actions: [
-              { label: 'Abrir formulario de registros', href: '/#records-request' },
+              { label: 'Abrir formulario de registros', href: '/services#records-request' },
               { label: 'Escribir a la secretaria', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -192,7 +192,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino para el registro recurrente del concejo del segundo lunes, los tiempos de agenda, el seguimiento de paquetes y la publicacion de minutas aprobadas.',
             actions: [
-              { label: 'Abrir calendario publico', href: '/#calendar' },
+              { label: 'Abrir calendario publico', href: '/meetings' },
               { label: 'Escribir a la secretaria', href: 'mailto:deb.dillon@townofwiley.gov' },
               { label: 'Llamar al ayuntamiento', href: 'tel:+17198294974' },
             ],
@@ -203,8 +203,8 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino para horarios de audiencias recurrentes, seguimiento de mapas, rutas para informes del personal y solicitudes de paquetes de planeacion y zonificacion.',
             actions: [
-              { label: 'Abrir calendario publico', href: '/#calendar' },
-              { label: 'Solicitar seguimiento de secretaria', href: '/#records-request' },
+              { label: 'Abrir calendario publico', href: '/meetings' },
+              { label: 'Solicitar seguimiento de secretaria', href: '/services#records-request' },
             ],
           },
         ],
@@ -222,7 +222,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino para solicitudes de resumenes de presupuesto, seguimiento de documentos financieros y la ruta de secretaria cuando la publicacion actual todavia se esta preparando.',
             actions: [
-              { label: 'Solicitar documentos de presupuesto', href: '/#records-request' },
+              { label: 'Solicitar documentos de presupuesto', href: '/services#records-request' },
               { label: 'Escribir a la secretaria', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -232,7 +232,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino cuando necesite informes anuales, registros relacionados con auditorias o paquetes financieros que todavia no esten publicados como archivo descargable.',
             actions: [
-              { label: 'Abrir formulario de registros', href: '/#records-request' },
+              { label: 'Abrir formulario de registros', href: '/services#records-request' },
               { label: 'Llamar al ayuntamiento', href: 'tel:+17198294974' },
             ],
           },
@@ -251,7 +251,10 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino para buscar ordenanzas, preguntas sobre codigo municipal y seguimiento de referencias cuando el archivo exacto todavia no este publicado en linea.',
             actions: [
-              { label: 'Solicitar ayuda sobre ordenanzas o codigo', href: '/#records-request' },
+              {
+                label: 'Solicitar ayuda sobre ordenanzas o codigo',
+                href: '/services#records-request',
+              },
               { label: 'Escribir a la secretaria', href: 'mailto:deb.dillon@townofwiley.gov' },
             ],
           },
@@ -261,7 +264,10 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             detail:
               'Use este destino para referencias de zonificacion, materiales de audiencias y orientacion de permisos que requieren seguimiento de la secretaria o del ayuntamiento.',
             actions: [
-              { label: 'Abrir formulario de permisos y registros', href: '/#records-request' },
+              {
+                label: 'Abrir formulario de permisos y registros',
+                href: '/services#records-request',
+              },
               { label: 'Llamar al ayuntamiento', href: 'tel:+17198294974' },
             ],
           },

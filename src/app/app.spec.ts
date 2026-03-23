@@ -77,55 +77,29 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Official Town Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    expect(compiled.querySelector('.task-card[href="#payment-help"]')?.textContent).toContain(
-      'Pay utility bill',
+    expect(
+      compiled.querySelector('.task-card[href="/services#payment-help"]')?.textContent,
+    ).toContain('Pay utility bill');
+    expect(
+      compiled.querySelector('.task-card[href="/services#issue-report"]')?.textContent,
+    ).toContain('Report a street or utility issue');
+    expect(
+      compiled.querySelector('.task-card[href="/services#records-request"]')?.textContent,
+    ).toContain('Request records, permits, or clerk help');
+    expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
+      'Local weather',
     );
-    expect(compiled.querySelector('.task-card[href="#issue-report"]')?.textContent).toContain(
-      'Report a street or utility issue',
+    expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
+      'Records and documents',
     );
-    expect(compiled.querySelector('.task-card[href="#records-request"]')?.textContent).toContain(
-      'Request records, permits, or clerk help',
-    );
-    expect(compiled.querySelector('#weather-heading')?.textContent).toContain(
-      'National Weather Service forecast',
+    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
+      'Contact Town Hall',
     );
     expect(compiled.querySelector('#site-search')).toBeTruthy();
     expect(compiled.querySelector('.search-submit')?.textContent).toContain('Search');
-    expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendar app');
-    expect(compiled.querySelector('.calendar-overview strong')?.textContent).toContain(
-      'Seeded schedule fallback',
-    );
-    expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('City Council');
-    expect(compiled.querySelector('.meeting-location')?.textContent).toContain('304 Main Street');
-    expect(compiled.querySelector('.contact-link[href="tel:+17198294974"]')?.textContent).toContain(
-      '(719) 829-4974',
-    );
-    expect(
-      compiled.querySelector('.contact-link[href="mailto:deb.dillon@townofwiley.gov"]')
-        ?.textContent,
-    ).toContain('deb.dillon@townofwiley.gov');
-    expect(
-      compiled.querySelector('.contact-link[href="mailto:stephen.mckitrick@townofwiley.gov"]')
-        ?.textContent,
-    ).toContain('stephen.mckitrick@townofwiley.gov');
-    expect(compiled.querySelector('.leadership-card h3')?.textContent).toContain(
-      'Mayor and Council',
-    );
-    expect(compiled.querySelector('#accessibility h2')?.textContent).toContain(
-      'ADA and WCAG 2.1 AA',
-    );
-    expect(
-      compiled.querySelector('#records .transparency-action[href="/documents#records-requests"]')
-        ?.textContent,
-    ).toContain('Open the public records request destination');
-    expect(compiled.querySelector('#records-guide-packets h4')?.textContent).toContain(
-      'Find meeting packets and approved minutes',
-    );
-    expect(
-      compiled.querySelector('#records-guide-packets .records-guide-link')?.getAttribute('href'),
-    ).toBe('/documents#meeting-documents');
-    expect(compiled.querySelector('#barrier-report h3')?.textContent).toContain(
-      'Report an accessibility barrier',
+    expect(compiled.querySelector('#accessibility')).toBeNull();
+    expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
+      'Accessibility statement',
     );
   });
 
@@ -152,6 +126,8 @@ describe('App', () => {
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
+    window.history.pushState({}, '', '/services');
+
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       payments: {
         paystar: {
@@ -306,17 +282,15 @@ describe('App', () => {
     expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
       'Main Street cerrada',
     );
-    expect(compiled.querySelector('.notice-card strong')?.textContent).toContain('Corte de agua');
-    expect(compiled.querySelector('#calendar .calendar-card h3')?.textContent).toContain(
+    expect(compiled.querySelector('.feature-card[href="/notices"]')?.textContent).toContain(
+      'Corte de agua',
+    );
+    expect(compiled.querySelector('.feature-card[href="/meetings"]')?.textContent).toContain(
       'Spring Cleanup Day',
     );
-    expect(compiled.querySelector('.calendar-overview')?.textContent).toContain(
-      '1 evento publicado',
+    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
+      'Deb Dillon',
     );
-    expect(compiled.querySelector('#calendar .calendar-location')?.textContent).toContain(
-      'Wiley Community Park',
-    );
-    expect(compiled.querySelector('.contact-card strong')?.textContent).toContain('Deb Dillon');
 
     const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
     searchInput.value = 'spring cleanup';
@@ -530,7 +504,7 @@ describe('App', () => {
       'City Council packets and approved minutes',
     );
     expect(compiled.querySelector('.document-hub-button.primary')?.getAttribute('href')).toBe(
-      '/#records-request',
+      '/services#records-request',
     );
   });
 

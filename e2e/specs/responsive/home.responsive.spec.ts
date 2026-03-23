@@ -15,13 +15,15 @@ test.describe('homepage responsive coverage', () => {
 
     expect(overflowPixels).toBeLessThanOrEqual(1);
     await expect(homePage.topTaskCards).toHaveCount(4);
-    await expect(homePage.page.locator('#payment-help')).toBeVisible();
-    await expect(homePage.page.locator('#issue-report')).toBeVisible();
-    await expect(homePage.page.locator('#records-request')).toBeVisible();
-    await expect(homePage.page.locator('#barrier-report')).toBeVisible();
+    await expect(homePage.featureCards).toHaveCount(6);
+    await expect(homePage.page.locator('.feature-card[href="/weather"]')).toBeVisible();
+    await expect(homePage.page.locator('.feature-card[href="/services"]')).toBeVisible();
+    await expect(
+      homePage.page.getByRole('link', { name: 'Accessibility statement' }),
+    ).toBeVisible();
   });
 
-  test('keeps key mobile actions reachable without horizontal scrolling', async ({
+  test('keeps key mobile actions reachable on the dedicated detail pages', async ({
     homePage,
   }, testInfo) => {
     test.skip(
@@ -29,11 +31,18 @@ test.describe('homepage responsive coverage', () => {
       'This spec is focused on the dedicated mobile viewport project.',
     );
 
-    await homePage.goto();
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.weatherRefreshButton).toBeVisible();
+    await expect(homePage.weatherSignupSubmitButton).toBeVisible();
+
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+
     await expect(homePage.page.locator('#payment-help .resident-action')).toBeVisible();
     await expect(homePage.page.locator('#records-request .resident-action')).toBeVisible();
+
+    await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
+
     await expect(homePage.page.locator('#barrier-report .accessibility-action')).toBeVisible();
   });
 });

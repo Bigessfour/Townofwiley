@@ -257,7 +257,7 @@ export class LocalizedAiChat {
     if (!this.isConfigured) {
       this.appendAssistantMessage(
         this.copy().missingProgrammaticMessage,
-        [{ label: this.copy().townContactLink, href: '#contact' }],
+        [{ label: this.copy().townContactLink, href: '/contact' }],
         true,
       );
       return;
@@ -299,9 +299,9 @@ export class LocalizedAiChat {
         role: 'assistant',
         content: this.copy().configuredWelcome,
         links: [
-          { label: this.copy().calendarLink, href: '#calendar' },
-          { label: this.copy().contactLink, href: '#contact' },
-          { label: this.copy().recordsLink, href: '#records' },
+          { label: this.copy().calendarLink, href: '/meetings' },
+          { label: this.copy().contactLink, href: '/contact' },
+          { label: this.copy().recordsLink, href: '/records' },
         ],
         omitFromHistory: true,
       };
@@ -344,7 +344,7 @@ export class LocalizedAiChat {
   }
 
   private buildUnavailableLinks(): AssistantLink[] {
-    const links: AssistantLink[] = [{ label: this.copy().townContactLink, href: '#contact' }];
+    const links: AssistantLink[] = [{ label: this.copy().townContactLink, href: '/contact' }];
 
     if (this.chatbotConfig.chatUrl.trim()) {
       links.unshift({
