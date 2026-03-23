@@ -72,6 +72,6 @@ test.describe('homepage navigation', () => {
 
     await homePage.searchFor('snowmobile permit banana');
     await expect(homePage.searchResults).toHaveCount(0);
-    await expect(homePage.emptySearchState).toContainText('No matching shortcut yet.');
+    await expect(homePage.emptySearchState).toContainText(siteContent.emptySearchMessage);
   });
 });

@@ -166,9 +166,11 @@ test.describe('homepage weather', () => {
     await homePage.goto();
 
     await expect(homePage.weatherSignupShell).toBeVisible();
+    await expect(homePage.weatherSignupChannel).toHaveValue('sms');
     await expect(homePage.weatherSignupZipCode).toHaveValue('81092');
     await expect(homePage.weatherSignupLanguage).toHaveValue('en');
 
+    await homePage.weatherSignupChannel.selectOption('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident');
 
     await expect(homePage.weatherSignupStatus).toContainText(
@@ -211,6 +213,7 @@ test.describe('homepage weather', () => {
 
     await homePage.goto();
 
+    await homePage.weatherSignupChannel.selectOption('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident', 'es');
 
     await expect(homePage.weatherSignupStatus).toContainText('Gracias');

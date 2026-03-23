@@ -88,7 +88,7 @@ export class HomePage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/');
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(this.heroHeading).toBeVisible();
   }
 

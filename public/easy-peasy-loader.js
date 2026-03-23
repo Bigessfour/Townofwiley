@@ -15,13 +15,35 @@
     return;
   }
 
-  const widgetScript = document.createElement('script');
+  const injectWidgetScript = function () {
+    if (document.querySelector('script[data-tow-chatbot="easy-peasy"]')) {
+      return;
+    }
 
-  widgetScript.src = 'https://bots.easy-peasy.ai/chat.min.js';
-  widgetScript.dataset.chatUrl = chatbotConfig.chatUrl;
-  widgetScript.dataset.btnPosition = chatbotConfig.buttonPosition || 'bottom-right';
-  widgetScript.dataset.towChatbot = 'easy-peasy';
-  widgetScript.defer = true;
+    const widgetScript = document.createElement('script');
 
-  document.body.appendChild(widgetScript);
+    widgetScript.src = 'https://bots.easy-peasy.ai/chat.min.js';
+    widgetScript.dataset.chatUrl = chatbotConfig.chatUrl;
+    widgetScript.dataset.btnPosition = chatbotConfig.buttonPosition || 'bottom-right';
+    widgetScript.dataset.towChatbot = 'easy-peasy';
+    widgetScript.async = true;
+
+    document.body.appendChild(widgetScript);
+  };
+
+  const scheduleWidgetLoad = function () {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(injectWidgetScript, { timeout: 4000 });
+      return;
+    }
+
+    window.setTimeout(injectWidgetScript, 0);
+  };
+
+  if (document.readyState === 'complete') {
+    scheduleWidgetLoad();
+    return;
+  }
+
+  window.addEventListener('load', scheduleWidgetLoad, { once: true });
 })();

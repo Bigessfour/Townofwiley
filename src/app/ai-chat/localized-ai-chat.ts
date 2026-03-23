@@ -186,7 +186,11 @@ export class LocalizedAiChat {
       const messages = this.messages();
 
       if (messages.length === 1 && messages[0]?.omitFromHistory) {
-        this.messages.set([this.createWelcomeMessage()]);
+        const nextWelcomeMessage = this.createWelcomeMessage();
+
+        if (!this.isSameMessage(messages[0], nextWelcomeMessage)) {
+          this.messages.set([nextWelcomeMessage]);
+        }
       }
     });
   }
@@ -313,6 +317,38 @@ export class LocalizedAiChat {
     }
 
     return links;
+  }
+
+  private isSameMessage(current: ChatMessage | undefined, next: ChatMessage): boolean {
+    if (!current) {
+      return false;
+    }
+
+    return (
+      current.role === next.role &&
+      current.content === next.content &&
+      current.omitFromHistory === next.omitFromHistory &&
+      this.areLinksEqual(current.links, next.links)
+    );
+  }
+
+  private areLinksEqual(
+    currentLinks: AssistantLink[] | undefined,
+    nextLinks: AssistantLink[] | undefined,
+  ): boolean {
+    if (!currentLinks && !nextLinks) {
+      return true;
+    }
+
+    if (!currentLinks || !nextLinks || currentLinks.length !== nextLinks.length) {
+      return false;
+    }
+
+    return currentLinks.every((link, index) => {
+      const nextLink = nextLinks[index];
+
+      return link?.label === nextLink?.label && link?.href === nextLink?.href;
+    });
   }
 
   private buildHistory(): BotHistoryMessage[] {

@@ -34,4 +34,6 @@ export const siteContent = {
     council: 'City Council Regular Meeting',
     clerk: 'Contact Town Hall',
   },
+  emptySearchMessage:
+    'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
 };

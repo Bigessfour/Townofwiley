@@ -138,7 +138,7 @@ test.describe('homepage chat', () => {
     await expect(
       homePage.assistantMessages.filter({ hasText: 'The assistant is temporarily unavailable.' }),
     ).toHaveCount(1);
-    await expect(homePage.assistantLinks.filter({ hasText: 'Town contacts' })).toHaveCount(1);
+    await expect(homePage.assistantLinks.filter({ hasText: 'Contact Town Hall' })).toHaveCount(1);
     await expect(homePage.assistantInput).toBeEnabled();
     expect(requestBodies).toEqual([
       {
