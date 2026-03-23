@@ -8,8 +8,14 @@
 
     <div class="cms-actions">
       <a class="cms-link" href="/">{{ copy().returnHome }}</a>
+      <a class="cms-button secondary" [href]="clerkSetupUrl">
+        {{ copy().openSetupPage }}
+      </a>
       <a class="cms-button primary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
         {{ copy().openAmplify }}
+      </a>
+      <a class="cms-button secondary" [href]="dataManagerUrl" target="_blank" rel="noreferrer noopener">
+        {{ copy().openDataManager }}
       </a>
     </div>
   </header>
@@ -40,6 +46,11 @@
       <span>{{ copy().noticesSummary }}</span>
     </article>
     <article class="cms-summary-card">
+      <p class="cms-help-kicker">{{ copy().eventsKicker }}</p>
+      <strong>{{ eventCount() }} {{ copy().eventsCountSuffix }}</strong>
+      <span>{{ copy().eventsSummary }}</span>
+    </article>
+    <article class="cms-summary-card">
       <p class="cms-help-kicker">{{ copy().contactsKicker }}</p>
       <strong>{{ contactCount() }} {{ copy().contactsCountSuffix }}</strong>
       <span>{{ copy().contactsSummary }}</span>
@@ -47,6 +58,25 @@
   </section>
 
   <section class="cms-help" aria-labelledby="cms-help-heading">
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">{{ copy().accessKicker }}</p>
+      <h2>{{ copy().accessTitle }}</h2>
+      <p>{{ copy().accessBody }}</p>
+      <div class="cms-access-links">
+        <a class="cms-link" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+          {{ copy().openAmplify }}
+        </a>
+        <a class="cms-link" [href]="dataManagerUrl" target="_blank" rel="noreferrer noopener">
+          {{ copy().openDataManager }}
+        </a>
+      </div>
+      <ul class="cms-help-list simple">
+        @for (item of copy().accessChecklist; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+
     <div class="cms-help-card">
       <p class="cms-help-kicker">{{ copy().publishingKicker }}</p>
       <h2 id="cms-help-heading">{{ copy().publishingTitle }}</h2>
@@ -64,6 +94,36 @@
         @for (item of copy().modelMapItems; track item) {
           <li>{{ item }}</li>
         }
+      </ul>
+    </div>
+
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">{{ copy().aliasKicker }}</p>
+      <h2>{{ copy().aliasTitle }}</h2>
+      <p>{{ copy().aliasBody }}</p>
+      <ul class="cms-help-list simple">
+        @for (item of copy().aliasChecklist; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">{{ copy().verificationKicker }}</p>
+      <h2>{{ copy().verificationTitle }}</h2>
+      <ul class="cms-help-list simple">
+        <li>
+          <strong>{{ copy().runtimeConfigLabel }}:</strong>
+          {{ hasAppSyncRuntimeConfig ? copy().runtimeConfigPresent : copy().runtimeConfigMissing }}
+        </li>
+        <li>
+          <strong>{{ copy().contentSourceLabel }}:</strong>
+          {{ contentSourceStatus() }}
+        </li>
+        <li>
+          <strong>{{ copy().modelCoverageLabel }}:</strong>
+          {{ copy().modelCoverageItems.join(', ') }}
+        </li>
       </ul>
     </div>
   </section>

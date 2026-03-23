@@ -1,20 +1,37 @@
 import { expect, test } from '../../fixtures/town.fixture';
-import { siteContent } from '../../support/site-content';
 
-test.describe('homepage responsive behavior', () => {
-  test('keeps essential resident tasks visible across viewport projects', async ({
-    homePage,
-  }, testInfo) => {
+test.describe('homepage responsive coverage', () => {
+  test('keeps the homepage scannable on the mobile viewport', async ({ homePage }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'mobile-chromium',
+      'This spec is focused on the dedicated mobile viewport project.',
+    );
+
     await homePage.goto();
 
-    await expect(
-      homePage.page.getByText(siteContent.serviceLabels[0], { exact: true }),
-    ).toBeVisible();
-    await expect(homePage.page.getByText('Accessibility statement', { exact: true })).toBeVisible();
+    const overflowPixels = await homePage.page.evaluate(() => {
+      return document.documentElement.scrollWidth - document.documentElement.clientWidth;
+    });
 
-    if (testInfo.project.name === 'mobile-chromium') {
-      await expect(homePage.sectionNavLinks.first()).toBeVisible();
-      await expect(homePage.searchInput).toBeVisible();
-    }
+    expect(overflowPixels).toBeLessThanOrEqual(1);
+    await expect(homePage.topTaskCards).toHaveCount(4);
+    await expect(homePage.page.locator('#payment-help')).toBeVisible();
+    await expect(homePage.page.locator('#issue-report')).toBeVisible();
+    await expect(homePage.page.locator('#records-request')).toBeVisible();
+    await expect(homePage.page.locator('#barrier-report')).toBeVisible();
+  });
+
+  test('keeps key mobile actions reachable without horizontal scrolling', async ({ homePage }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'mobile-chromium',
+      'This spec is focused on the dedicated mobile viewport project.',
+    );
+
+    await homePage.goto();
+
+    await expect(homePage.weatherRefreshButton).toBeVisible();
+    await expect(homePage.page.locator('#payment-help .resident-action')).toBeVisible();
+    await expect(homePage.page.locator('#records-request .resident-action')).toBeVisible();
+    await expect(homePage.page.locator('#barrier-report .accessibility-action')).toBeVisible();
   });
 });

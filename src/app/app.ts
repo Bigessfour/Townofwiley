@@ -1,21 +1,30 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
+import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
+import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
-import { CmsAlertBanner, CmsContact, LocalizedCmsContentStore } from './site-cms-content';
+import { RecordsCenter } from './records-center/records-center';
+import { ResidentServices } from './resident-services/resident-services';
+import {
+    CmsAlertBanner,
+    CmsCalendarEvent,
+    CmsContact,
+    LocalizedCmsContentStore,
+} from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-  HomepageWeatherAlert,
-  LocalizedWeatherPanel,
+    HomepageWeatherAlert,
+    LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -48,6 +57,10 @@ interface CalendarAction {
 }
 
 interface CalendarItem {
+  id: string;
+  source: 'live' | 'seed';
+  sourceLabel: string;
+  isFeatured: boolean;
   title: string;
   date: string;
   category: string;
@@ -73,6 +86,14 @@ interface CalendarEventSeed {
   slug: string;
 }
 
+interface CalendarOverview {
+  statusKicker: string;
+  summary: string;
+  detail: string;
+  nextEventLabel: string;
+  nextEventValue: string;
+}
+
 interface ServiceCard {
   title: string;
   availability: string;
@@ -85,6 +106,12 @@ interface ServiceCard {
 interface TransparencyItem {
   title: string;
   detail: string;
+}
+
+interface TransparencyAction {
+  title: string;
+  detail: string;
+  href: string;
 }
 
 interface AccessibilityItem {
@@ -145,10 +172,27 @@ interface AppCopy {
   calendarHeading: string;
   calendarCopy: string;
   calendarBridgeLabel: string;
+  calendarStatusAriaLabel: string;
+  calendarStatusKicker: string;
+  calendarStatusLiveSummarySingular: string;
+  calendarStatusLiveSummaryPlural: string;
+  calendarStatusLiveDetail: string;
+  calendarStatusFallbackSummary: string;
+  calendarStatusFallbackDetail: string;
+  calendarStatusNextLabel: string;
+  calendarStatusFallbackNextLabel: string;
+  calendarManagedBadge: string;
+  calendarFallbackBadge: string;
+  calendarFeaturedBadge: string;
+  calendarPublishedEventCategory: string;
   calendarGoogleActionLabel: string;
   calendarDownloadActionLabel: string;
   calendarAgendaActionLabel: string;
   calendarActionsAriaLabel: string;
+  calendarLiveEventCategory: string;
+  calendarScheduledEventLabel: string;
+  calendarEventFallbackDetail: string;
+  calendarEventFallbackLocation: string;
   servicesKicker: string;
   servicesHeading: string;
   transparencyKicker: string;
@@ -167,6 +211,8 @@ interface AppCopy {
   calendarSeeds: CalendarEventSeed[];
   serviceCards: ServiceCard[];
   transparencyItems: TransparencyItem[];
+  transparencyActionsLabel: string;
+  transparencyActions: TransparencyAction[];
   accessibilityItems: AccessibilityItem[];
   leadershipGroups: LeadershipGroup[];
   searchIndex: SearchItem[];
@@ -215,10 +261,30 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarCopy:
       'Start with a single public calendar feed for board meetings, planning hearings, clerk deadlines, school-centered events, and service interruptions. Later, this can grow into filters, ICS exports, and department-managed entries.',
     calendarBridgeLabel: 'Tie alerts back to notices and agendas',
+    calendarStatusAriaLabel: 'Calendar publishing status',
+    calendarStatusKicker: 'Publishing status',
+    calendarStatusLiveSummarySingular: 'published event',
+    calendarStatusLiveSummaryPlural: 'published events',
+    calendarStatusLiveDetail:
+      'These calendar cards are currently coming from staff-managed event records instead of the bundled fallback schedule.',
+    calendarStatusFallbackSummary: 'Seeded schedule fallback',
+    calendarStatusFallbackDetail:
+      'The site is still showing the bundled recurring schedule until staff publish live calendar events.',
+    calendarStatusNextLabel: 'Next published event',
+    calendarStatusFallbackNextLabel: 'Default meeting anchor',
+    calendarManagedBadge: 'Staff managed',
+    calendarFallbackBadge: 'Seeded schedule',
+    calendarFeaturedBadge: 'Next up',
+    calendarPublishedEventCategory: 'Published event',
     calendarGoogleActionLabel: 'Add to Google Calendar',
     calendarDownloadActionLabel: 'Download ICS',
     calendarAgendaActionLabel: 'Agenda details',
     calendarActionsAriaLabel: 'Calendar links',
+    calendarLiveEventCategory: 'Community calendar',
+    calendarScheduledEventLabel: 'Scheduled event',
+    calendarEventFallbackDetail:
+      'Community calendar details will appear here as staff publish live event information.',
+    calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Digital Services',
     servicesHeading: 'Self-service tools should reduce office calls, not add more friction',
     transparencyKicker: 'Transparency',
@@ -273,15 +339,15 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Pay utility bill',
         description:
           'Surface water and utility payments immediately so residents are not forced to navigate a deep department structure.',
-        href: '#services',
-        note: 'Payment links should warn that they open a separate secure payment provider.',
+        href: '#payment-help',
+        note: 'Use the billing help desk to request the current payment path and account guidance.',
       },
       {
         title: 'Report a street or utility issue',
         description:
           'Give residents a direct path for outages, potholes, drainage concerns, and streetlight issues without relying on phone tag.',
-        href: '#services',
-        note: 'Residents should be able to submit requests and track status without calling Town Hall.',
+        href: '#issue-report',
+        note: 'Use the issue report form to prepare the right message for town operations.',
       },
       {
         title: 'Find a meeting or agenda',
@@ -294,8 +360,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Request records, permits, or clerk help',
         description:
           'Group routine clerk and permit needs under plain-language labels so residents do not have to guess which office handles the task.',
-        href: '#records',
-        note: 'Use forms, clear instructions, and document standards that support WCAG 2.1 AA.',
+        href: '#records-request',
+        note: 'Use the request form to send structured records, permit, and clerk questions.',
       },
     ],
     meetings: [
@@ -381,28 +447,27 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     serviceCards: [
       {
         title: 'Online payments',
-        availability: 'Priority service',
+        availability: 'Billing help desk',
         description:
-          'Start with utility and routine fee payments, then expand to permits or court-related payments only when the workflows are stable.',
-        href: '#contact',
-        cta: 'Pay utility bill',
-        isComingSoon: true,
+          'Open the billing help desk to request the current payment path, account assistance, and follow-up from Wiley staff.',
+        href: '#payment-help',
+        cta: 'Open billing help desk',
       },
       {
         title: 'Street, utility, and property issue reporting',
         availability: 'Self-service',
         description:
           'Focus on a few high-value request types first: utility concerns, potholes, signage, nuisance issues, and public works follow-up.',
-        href: '#contact',
-        cta: 'Define request categories and status messages',
+        href: '#issue-report',
+        cta: 'Open issue report form',
       },
       {
         title: 'Permits and licenses',
         availability: 'Business-ready',
         description:
           'Provide application steps, document uploads, fee details, and status tracking without making residents or contractors drive in repeatedly.',
-        href: '#records',
-        cta: 'Map required forms and department routing',
+        href: '#records-request',
+        cta: 'Open permit and records request form',
       },
       {
         title: 'Weather, utility, and emergency alerts',
@@ -449,6 +514,24 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Project and service status updates',
         detail:
           'Use status pages or compact dashboards to show road work, closures, utility projects, and request backlogs without forcing phone calls.',
+      },
+    ],
+    transparencyActionsLabel: 'Transparency quick actions',
+    transparencyActions: [
+      {
+        title: 'Start a records or FOIA request',
+        detail: 'Jump to the clerk intake form for records, permits, and document requests.',
+        href: '#records-request',
+      },
+      {
+        title: 'Open meetings and agenda timing',
+        detail: 'Go straight to the public calendar and recurring meeting details.',
+        href: '#calendar',
+      },
+      {
+        title: 'Contact Town Hall for packets or agendas',
+        detail: 'Use the public contact section when you need direct follow-up from the clerk.',
+        href: '#contact',
       },
     ],
     accessibilityItems: [
@@ -518,16 +601,16 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pay utility bill',
         summary:
-          'Find the secure online payment entry point and disclosure copy for third-party billing.',
+          'Open the billing help desk to request the current payment instructions and account support.',
         category: 'Payments',
-        href: '#services',
+        href: '#payment-help',
         keywords: ['pay bill', 'water bill', 'utility bill', 'payment', 'fees', 'online payment'],
       },
       {
         title: 'Report a pothole, outage, or street issue',
         summary: 'Start a resident request and track the response status.',
         category: 'Service request',
-        href: '#services',
+        href: '#issue-report',
         keywords: [
           'report issue',
           'pothole',
@@ -591,8 +674,70 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Request public records',
         summary: 'Locate FOIA forms, records guidance, and response expectations.',
         category: 'Transparency',
-        href: '#records',
+        href: '#records-request',
         keywords: ['foia', 'records', 'public records', 'documents', 'minutes', 'budget'],
+      },
+      {
+        title: 'Find meeting packets and approved minutes',
+        summary:
+          'Use the records center to find meeting-document guidance and the fastest route back to calendar access or the clerk.',
+        category: 'Transparency',
+        href: '#records-guide-packets',
+        keywords: [
+          'meeting packet',
+          'agenda packet',
+          'approved minutes',
+          'minutes pdf',
+          'council packet',
+          'packet request',
+        ],
+      },
+      {
+        title: 'Find budget summaries and annual reports',
+        summary:
+          'Use the records center for budget, annual report, and finance-document guidance while the archive is still growing.',
+        category: 'Transparency',
+        href: '#records-guide-budgets',
+        keywords: [
+          'budget',
+          'budget summary',
+          'annual report',
+          'audit',
+          'financial report',
+          'town budget',
+        ],
+      },
+      {
+        title: 'Locate ordinances and zoning guidance',
+        summary:
+          'Use the records center to route ordinance, municipal-code, zoning, and permit-reference questions to the right workflow.',
+        category: 'Transparency',
+        href: '#records-guide-ordinances',
+        keywords: [
+          'ordinance',
+          'municipal code',
+          'zoning',
+          'land use',
+          'zoning map',
+          'code information',
+        ],
+      },
+      {
+        title: 'Report an accessibility barrier',
+        summary:
+          'Prepare an accessibility report for a page, document, image, or service that is difficult to use.',
+        category: 'Accessibility',
+        href: '#barrier-report',
+        keywords: [
+          'accessibility statement',
+          'accessibility',
+          'barrier report',
+          'screen reader issue',
+          'keyboard problem',
+          'alternate format',
+          'ada',
+          'wcag',
+        ],
       },
       {
         title: 'Check accessibility and language support',
@@ -647,7 +792,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
     alertActionLabel: 'Inscribirse para alertas por texto o correo',
     nwsAlertLabel: 'Alerta del Servicio Nacional de Meteorologia',
-    nwsAlertLinkLabel: 'Abrir pronostico del NWS',
+    nwsAlertLinkLabel: 'Abrir pronostico del SMN',
     nwsAlertSummarySingle: '1 alerta activa del NWS para Wiley.',
     nwsAlertSummaryPluralSuffix: 'alertas activas del NWS para Wiley.',
     homepageSectionsAriaLabel: 'Secciones de la pagina principal',
@@ -679,10 +824,30 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarCopy:
       'Empiece con un solo calendario publico para reuniones de juntas, audiencias de planeacion, fechas limite de la oficina del secretario, eventos escolares e interrupciones del servicio. Despues puede crecer con filtros, exportaciones ICS y entradas administradas por departamentos.',
     calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
+    calendarStatusAriaLabel: 'Estado de publicacion del calendario',
+    calendarStatusKicker: 'Estado de publicacion',
+    calendarStatusLiveSummarySingular: 'evento publicado',
+    calendarStatusLiveSummaryPlural: 'eventos publicados',
+    calendarStatusLiveDetail:
+      'Estas tarjetas del calendario ahora provienen de registros de eventos administrados por el personal en lugar del horario incluido en la aplicacion.',
+    calendarStatusFallbackSummary: 'Horario incluido como respaldo',
+    calendarStatusFallbackDetail:
+      'El sitio todavia muestra el horario recurrente incluido hasta que el personal publique eventos del calendario en vivo.',
+    calendarStatusNextLabel: 'Proximo evento publicado',
+    calendarStatusFallbackNextLabel: 'Reunion predeterminada destacada',
+    calendarManagedBadge: 'Administrado por personal',
+    calendarFallbackBadge: 'Horario incluido',
+    calendarFeaturedBadge: 'Sigue',
+    calendarPublishedEventCategory: 'Evento publicado',
     calendarGoogleActionLabel: 'Agregar a Google Calendar',
     calendarDownloadActionLabel: 'Descargar ICS',
     calendarAgendaActionLabel: 'Detalles de la agenda',
     calendarActionsAriaLabel: 'Enlaces del calendario',
+    calendarLiveEventCategory: 'Calendario comunitario',
+    calendarScheduledEventLabel: 'Evento programado',
+    calendarEventFallbackDetail:
+      'Los detalles del calendario comunitario apareceran aqui cuando el personal publique eventos en vivo.',
+    calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Servicios digitales',
     servicesHeading:
       'Las herramientas de autoservicio deben reducir llamadas a la oficina, no crear mas friccion',
@@ -738,15 +903,15 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Pagar recibo de servicios',
         description:
           'Muestre de inmediato los pagos de agua y servicios para que los residentes no tengan que navegar una estructura profunda por departamentos.',
-        href: '#services',
-        note: 'Los enlaces de pago deben advertir que abren un proveedor seguro de pago por separado.',
+        href: '#payment-help',
+        note: 'Use la mesa de ayuda de facturacion para solicitar la ruta actual de pago y orientacion de cuenta.',
       },
       {
         title: 'Reportar un problema de calle o servicio',
         description:
           'Ofrezca una ruta directa para cortes, baches, drenaje y alumbrado publico sin depender de llamadas repetidas.',
-        href: '#services',
-        note: 'Los residentes deben poder enviar solicitudes y seguir su estado sin llamar al ayuntamiento.',
+        href: '#issue-report',
+        note: 'Use el formulario de reporte para preparar el mensaje correcto para operaciones del pueblo.',
       },
       {
         title: 'Encontrar una reunion o agenda',
@@ -759,8 +924,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Solicitar registros, permisos o ayuda del secretario',
         description:
           'Agrupe necesidades rutinarias del secretario y permisos con etiquetas sencillas para que los residentes no tengan que adivinar que oficina maneja cada tramite.',
-        href: '#records',
-        note: 'Use formularios, instrucciones claras y estandares documentales compatibles con WCAG 2.1 AA.',
+        href: '#records-request',
+        note: 'Use el formulario de solicitud para enviar preguntas estructuradas sobre registros, permisos y secretaria.',
       },
     ],
     meetings: [
@@ -846,28 +1011,27 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     serviceCards: [
       {
         title: 'Pagos en linea',
-        availability: 'Servicio prioritario',
+        availability: 'Mesa de ayuda de facturacion',
         description:
-          'Empiece con pagos de servicios y cuotas rutinarias, y despues amplie a permisos o pagos judiciales solo cuando los flujos sean estables.',
-        href: '#contact',
-        cta: 'Pagar recibo de servicios',
-        isComingSoon: true,
+          'Abra la mesa de ayuda de facturacion para solicitar la ruta actual de pago, ayuda con la cuenta y seguimiento del personal de Wiley.',
+        href: '#payment-help',
+        cta: 'Abrir ayuda de facturacion',
       },
       {
         title: 'Reporte de calles, servicios y problemas de propiedad',
         availability: 'Autoservicio',
         description:
           'Enfoquese primero en unos cuantos tipos de solicitud de alto valor: servicios, baches, senalizacion, molestias y seguimiento de obras publicas.',
-        href: '#contact',
-        cta: 'Definir categorias de solicitud y mensajes de estado',
+        href: '#issue-report',
+        cta: 'Abrir formulario de reporte',
       },
       {
         title: 'Permisos y licencias',
         availability: 'Listo para negocios',
         description:
           'Ofrezca pasos de solicitud, carga de documentos, detalles de cuotas y seguimiento de estado sin obligar a residentes o contratistas a viajar repetidamente.',
-        href: '#records',
-        cta: 'Mapear formularios requeridos y la ruta departamental',
+        href: '#records-request',
+        cta: 'Abrir formulario de permisos y registros',
       },
       {
         title: 'Alertas de clima, servicios y emergencias',
@@ -881,7 +1045,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Acceso en otros idiomas para servicios criticos',
         availability: 'Acceso inclusivo',
         description:
-          'Empiece por avisos criticos, ayuda con pagos, servicios de secretaria y actualizaciones de emergencia para mejorar primero las paginas mas usadas.',
+          'Empiece con avisos criticos, ayuda de facturacion, servicios de secretaria y actualizaciones de emergencia para mejorar primero las paginas de uso mas frecuente.',
         href: '#accessibility',
         cta: 'Priorizar paginas de alto impacto para traduccion',
       },
@@ -914,6 +1078,26 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Actualizaciones de proyectos y estado del servicio',
         detail:
           'Use paginas de estado o paneles compactos para mostrar obras viales, cierres, proyectos de servicios y atrasos de solicitudes sin obligar a llamar.',
+      },
+    ],
+    transparencyActionsLabel: 'Acciones rapidas de transparencia',
+    transparencyActions: [
+      {
+        title: 'Iniciar una solicitud de registros o FOIA',
+        detail:
+          'Vaya al formulario de recepcion de secretaria para registros, permisos y solicitudes de documentos.',
+        href: '#records-request',
+      },
+      {
+        title: 'Abrir reuniones y fechas de agenda',
+        detail: 'Vaya directamente al calendario publico y a los detalles de reuniones recurrentes.',
+        href: '#calendar',
+      },
+      {
+        title: 'Contactar al ayuntamiento por paquetes o agendas',
+        detail:
+          'Use la seccion de contacto publico cuando necesite seguimiento directo de la secretaria.',
+        href: '#contact',
       },
     ],
     accessibilityItems: [
@@ -983,16 +1167,16 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pagar recibo de servicios',
         summary:
-          'Encuentre el acceso seguro de pago en linea y la informacion sobre facturacion de terceros.',
+          'Abra la mesa de ayuda de facturacion para solicitar las instrucciones actuales de pago y apoyo con la cuenta.',
         category: 'Pagos',
-        href: '#services',
+        href: '#payment-help',
         keywords: ['pagar recibo', 'agua', 'servicios', 'pago', 'cuotas', 'pago en linea'],
       },
       {
         title: 'Reportar un bache, corte o problema de calle',
-        summary: 'Inicie una solicitud del residente y de seguimiento a la respuesta.',
+        summary: 'Inicie una solicitud del residente y seguimiento a la respuesta.',
         category: 'Solicitud de servicio',
-        href: '#services',
+        href: '#issue-report',
         keywords: ['reportar problema', 'bache', 'corte', 'calle', 'alumbrado', 'obras publicas'],
       },
       {
@@ -1039,7 +1223,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         summary:
           'Localice formularios FOIA, orientacion sobre registros y expectativas de respuesta.',
         category: 'Transparencia',
-        href: '#records',
+        href: '#records-request',
         keywords: [
           'foia',
           'registros',
@@ -1047,6 +1231,68 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'documentos',
           'minutas',
           'presupuesto',
+        ],
+      },
+      {
+        title: 'Encontrar paquetes de reuniones y minutas aprobadas',
+        summary:
+          'Use el centro de documentos para encontrar la guia de documentos de reuniones y la ruta mas rapida al calendario o a la secretaria.',
+        category: 'Transparencia',
+        href: '#records-guide-packets',
+        keywords: [
+          'paquete de reunion',
+          'paquete de agenda',
+          'minutas aprobadas',
+          'paquete del concejo',
+          'documentos de reunion',
+          'acta aprobada',
+        ],
+      },
+      {
+        title: 'Encontrar resumenes de presupuesto e informes anuales',
+        summary:
+          'Use el centro de documentos para orientacion sobre presupuesto, informe anual y documentos financieros mientras el archivo sigue creciendo.',
+        category: 'Transparencia',
+        href: '#records-guide-budgets',
+        keywords: [
+          'presupuesto',
+          'resumen de presupuesto',
+          'informe anual',
+          'auditoria',
+          'reporte financiero',
+          'presupuesto del pueblo',
+        ],
+      },
+      {
+        title: 'Localizar ordenanzas y orientacion de zonificacion',
+        summary:
+          'Use el centro de documentos para dirigir preguntas sobre ordenanzas, codigo municipal, zonificacion y referencias de permisos.',
+        category: 'Transparencia',
+        href: '#records-guide-ordinances',
+        keywords: [
+          'ordenanza',
+          'codigo municipal',
+          'zonificacion',
+          'uso de suelo',
+          'mapa de zonificacion',
+          'codigo',
+        ],
+      },
+      {
+        title: 'Reportar una barrera de accesibilidad',
+        summary:
+          'Prepare un reporte de accesibilidad para una pagina, documento, imagen o servicio dificil de usar.',
+        category: 'Accesibilidad',
+        href: '#barrier-report',
+        keywords: [
+          'declaracion de accesibilidad',
+          'accesibilidad',
+          'barrera',
+          'lector de pantalla',
+          'teclado',
+          'formato alternativo',
+          'ada',
+          'wcag',
         ],
       },
       {
@@ -1084,7 +1330,16 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
 
 @Component({
   selector: 'app-root',
-  imports: [NgOptimizedImage, LocalizedAiChat, LocalizedWeatherPanel, CmsAdmin],
+  imports: [
+    NgOptimizedImage,
+    AccessibilitySupport,
+    LocalizedAiChat,
+    LocalizedWeatherPanel,
+    CmsAdmin,
+    ClerkSetup,
+    RecordsCenter,
+    ResidentServices,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -1100,12 +1355,16 @@ export class App {
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/admin';
+  protected readonly isClerkSetupMode =
+    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/clerk-setup';
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
+  protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
   protected readonly heroContent = this.cmsStore.hero;
   protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);
   protected readonly notices = this.cmsStore.notices;
+  protected readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
@@ -1151,11 +1410,48 @@ export class App {
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
   protected readonly meetings = computed(() => this.appCopy().meetings);
-  protected readonly calendarItems = computed(() =>
-    this.appCopy().calendarSeeds.map((seed) => this.createCalendarItem(seed)),
-  );
+  protected readonly calendarItems = computed(() => {
+    const liveEvents = this.liveCalendarEvents();
+
+    if (liveEvents.length) {
+      return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
+    }
+
+    return this.appCopy().calendarSeeds.map((seed, index) => this.createCalendarItem(seed, index === 0));
+  });
+  protected readonly calendarOverview = computed<CalendarOverview>(() => {
+    const copy = this.appCopy();
+    const liveEvents = this.liveCalendarEvents();
+
+    if (liveEvents.length) {
+      const nextEvent = liveEvents[0];
+      const start = new Date(nextEvent.start);
+      const end = this.resolveCalendarEventEnd(nextEvent);
+
+      return {
+        statusKicker: copy.calendarStatusKicker,
+        summary:
+          liveEvents.length === 1
+            ? `1 ${copy.calendarStatusLiveSummarySingular}`
+            : `${liveEvents.length} ${copy.calendarStatusLiveSummaryPlural}`,
+        detail: copy.calendarStatusLiveDetail,
+        nextEventLabel: copy.calendarStatusNextLabel,
+        nextEventValue: `${nextEvent.title} · ${this.formatCalendarEventDate(start, end)}`,
+      };
+    }
+
+    return {
+      statusKicker: copy.calendarStatusKicker,
+      summary: copy.calendarStatusFallbackSummary,
+      detail: copy.calendarStatusFallbackDetail,
+      nextEventLabel: copy.calendarStatusFallbackNextLabel,
+      nextEventValue: copy.calendarSeeds[0]?.dateLabel ?? copy.openCalendarLabel,
+    };
+  });
   protected readonly serviceCards = computed(() => this.appCopy().serviceCards);
   protected readonly transparencyItems = computed(() => this.appCopy().transparencyItems);
+  protected readonly transparencyActionsLabel = computed(() => this.appCopy().transparencyActionsLabel);
+  protected readonly transparencyActions = computed(() => this.appCopy().transparencyActions);
   protected readonly accessibilityItems = computed(() => this.appCopy().accessibilityItems);
   protected readonly leadershipGroups = computed(() => this.appCopy().leadershipGroups);
 
@@ -1260,10 +1556,14 @@ export class App {
     });
   }
 
-  private createCalendarItem(seed: CalendarEventSeed): CalendarItem {
+  private createCalendarItem(seed: CalendarEventSeed, isFeatured: boolean): CalendarItem {
     const copy = this.appCopy();
 
     return {
+      id: seed.slug,
+      source: 'seed',
+      sourceLabel: copy.calendarFallbackBadge,
+      isFeatured,
       title: seed.title,
       date: seed.dateLabel,
       category: seed.category,
@@ -1287,6 +1587,41 @@ export class App {
           href: '#contact',
         },
         ...(seed.extraActions ?? []),
+      ],
+    };
+  }
+
+  private createCalendarItemFromEvent(event: CmsCalendarEvent, isFeatured: boolean): CalendarItem {
+    const copy = this.appCopy();
+    const start = new Date(event.start);
+    const end = this.resolveCalendarEventEnd(event);
+
+    return {
+      id: event.id,
+      source: 'live',
+      sourceLabel: copy.calendarManagedBadge,
+      isFeatured,
+      title: event.title,
+      date: this.formatCalendarEventDate(start, end),
+      category: copy.calendarPublishedEventCategory,
+      detail: event.description || copy.calendarEventFallbackDetail,
+      location: event.location || copy.calendarEventFallbackLocation,
+      recurrence: copy.calendarScheduledEventLabel,
+      actions: [
+        {
+          label: copy.calendarGoogleActionLabel,
+          href: this.createGoogleCalendarLinkFromEvent(event, end),
+          external: true,
+        },
+        {
+          label: copy.calendarDownloadActionLabel,
+          href: this.createIcsLinkFromEvent(event, end),
+          downloadFileName: `${event.id}.ics`,
+        },
+        {
+          label: copy.calendarAgendaActionLabel,
+          href: '#contact',
+        },
       ],
     };
   }
@@ -1328,6 +1663,92 @@ export class App {
     ].filter(Boolean);
 
     return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join('\r\n'))}`;
+  }
+
+  private createGoogleCalendarLinkFromEvent(event: CmsCalendarEvent, end: Date): string {
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: event.title,
+      dates: `${this.formatGoogleCalendarDate(new Date(event.start))}/${this.formatGoogleCalendarDate(end)}`,
+      details: event.description || this.appCopy().calendarEventFallbackDetail,
+      location: event.location || this.appCopy().calendarEventFallbackLocation,
+      ctz: 'America/Denver',
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  private createIcsLinkFromEvent(event: CmsCalendarEvent, end: Date): string {
+    const start = new Date(event.start);
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Town of Wiley//Public Calendar//EN',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${event.id}@townofwiley.gov`,
+      `DTSTAMP:${this.createUtcTimestamp()}`,
+      `SUMMARY:${this.escapeIcsText(event.title)}`,
+      `DTSTART:${this.formatUtcIcsDate(start)}`,
+      `DTEND:${this.formatUtcIcsDate(end)}`,
+      `LOCATION:${this.escapeIcsText(event.location || this.appCopy().calendarEventFallbackLocation)}`,
+      `DESCRIPTION:${this.escapeIcsText(event.description || this.appCopy().calendarEventFallbackDetail)}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ];
+
+    return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join('\r\n'))}`;
+  }
+
+  private resolveCalendarEventEnd(event: CmsCalendarEvent): Date {
+    if (event.end) {
+      const explicitEnd = new Date(event.end);
+
+      if (!Number.isNaN(explicitEnd.getTime())) {
+        return explicitEnd;
+      }
+    }
+
+    const defaultEnd = new Date(event.start);
+    defaultEnd.setHours(defaultEnd.getHours() + 1);
+
+    return defaultEnd;
+  }
+
+  private formatCalendarEventDate(start: Date, end: Date): string {
+    const formatter =
+      this.siteLanguage() === 'es'
+        ? new Intl.DateTimeFormat('es-US', {
+            weekday: 'short',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          })
+        : new Intl.DateTimeFormat('en-US', {
+            weekday: 'short',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          });
+
+    const endFormatter =
+      this.siteLanguage() === 'es'
+        ? new Intl.DateTimeFormat('es-US', { hour: 'numeric', minute: '2-digit' })
+        : new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    return `${formatter.format(start)} - ${endFormatter.format(end)}`;
+  }
+
+  private formatGoogleCalendarDate(value: Date): string {
+    return value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  }
+
+  private formatUtcIcsDate(value: Date): string {
+    return value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
   }
 
   private createUtcTimestamp(): string {

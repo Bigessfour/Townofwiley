@@ -40,6 +40,15 @@ export interface CmsContact {
   linkLabel?: string;
 }
 
+export interface CmsCalendarEvent {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  start: string;
+  end: string | null;
+}
+
 const DEFAULT_CMS_HERO: CmsHeroContent = {
   eyebrow: 'Town of Wiley, Colorado',
   status: 'Official Town Website',
@@ -344,11 +353,22 @@ interface OfficialContactRecord {
   displayOrder?: number | null;
 }
 
+interface EventRecord {
+  id: string;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  start: string;
+  end?: string | null;
+  active: boolean;
+}
+
 interface CmsGraphqlResponse {
   data?: {
     listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
     listAlertBanners?: CmsGraphqlList<AlertBannerRecord>;
     listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
+    listEvents?: CmsGraphqlList<EventRecord>;
     listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
   };
   errors?: {
@@ -394,6 +414,17 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       active
     }
   }
+  listEvents(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      title
+      description
+      location
+      start
+      end
+      active
+    }
+  }
   listOfficialContacts(limit: 50) {
     items {
       id
@@ -428,6 +459,7 @@ export class LocalizedCmsContentStore {
   private readonly siteSettingsState = signal<SiteSettingsRecord | undefined>(undefined);
   private readonly alertBannerRecordsState = signal<AlertBannerRecord[]>([]);
   private readonly noticeRecordsState = signal<AnnouncementRecord[]>([]);
+  private readonly eventRecordsState = signal<EventRecord[]>([]);
   private readonly contactRecordsState = signal<OfficialContactRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
     this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
@@ -444,6 +476,7 @@ export class LocalizedCmsContentStore {
   readonly notices = computed(() =>
     this.normalizeAnnouncements(this.noticeRecordsState(), this.siteLanguage()),
   );
+  readonly events = computed(() => this.normalizeEvents(this.eventRecordsState()));
   readonly contacts = computed(() =>
     this.normalizeContacts(this.contactRecordsState(), this.siteLanguage()),
   );
@@ -528,6 +561,9 @@ export class LocalizedCmsContentStore {
           Boolean(item),
         ),
       );
+      this.eventRecordsState.set(
+        (response.data?.listEvents?.items ?? []).filter((item): item is EventRecord => Boolean(item)),
+      );
       this.contactRecordsState.set(
         (response.data?.listOfficialContacts?.items ?? []).filter(
           (item): item is OfficialContactRecord => Boolean(item),
@@ -545,6 +581,7 @@ export class LocalizedCmsContentStore {
     this.siteSettingsState.set(undefined);
     this.alertBannerRecordsState.set([]);
     this.noticeRecordsState.set([]);
+    this.eventRecordsState.set([]);
     this.contactRecordsState.set([]);
   }
 
@@ -754,6 +791,21 @@ export class LocalizedCmsContentStore {
     const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
 
     return fallbackContacts.map((contact) => ({ ...contact }));
+  }
+
+  private normalizeEvents(records: EventRecord[]): CmsCalendarEvent[] {
+    return records
+      .filter((record) => Boolean(record.active))
+      .map((record) => ({
+        id: record.id.trim(),
+        title: this.cleanText(record.title) ?? '',
+        description: this.cleanText(record.description) ?? '',
+        location: this.cleanText(record.location) ?? '',
+        start: this.cleanText(record.start) ?? '',
+        end: this.cleanText(record.end) ?? null,
+      }))
+      .filter((record) => record.id && record.title && record.start && !Number.isNaN(Date.parse(record.start)))
+      .sort((left, right) => Date.parse(left.start) - Date.parse(right.start));
   }
 
   private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {

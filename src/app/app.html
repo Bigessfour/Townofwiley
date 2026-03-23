@@ -1,4 +1,6 @@
-@if (isAdminMode) {
+@if (isClerkSetupMode) {
+  <app-clerk-setup />
+} @else if (isAdminMode) {
   <app-cms-admin />
 } @else {
   <a class="skip-link" href="#main-content" (click)="focusMainContent()">
@@ -253,7 +255,7 @@
           }
         </div>
 
-        @if (isProgrammaticChatEnabled) {
+        @if (isAssistantEnabled) {
           <app-ai-chat />
         }
       </aside>
@@ -304,19 +306,42 @@
     <section class="panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">
       <p class="section-kicker">{{ appCopy().calendarKicker }}</p>
       <div class="calendar-header">
-        <div>
+        <div class="calendar-header-copy">
           <h2 id="calendar-heading">{{ appCopy().calendarHeading }}</h2>
           <p class="calendar-copy">{{ appCopy().calendarCopy }}</p>
+          <a class="text-link" href="#alerts">{{ appCopy().calendarBridgeLabel }}</a>
         </div>
-        <a class="text-link" href="#alerts">{{ appCopy().calendarBridgeLabel }}</a>
+        <aside class="calendar-overview" [attr.aria-label]="appCopy().calendarStatusAriaLabel">
+          <p class="meta-label">{{ calendarOverview().statusKicker }}</p>
+          <strong>{{ calendarOverview().summary }}</strong>
+          <p class="calendar-overview-copy">{{ calendarOverview().detail }}</p>
+          <div class="calendar-overview-next">
+            <span>{{ calendarOverview().nextEventLabel }}</span>
+            <strong>{{ calendarOverview().nextEventValue }}</strong>
+          </div>
+        </aside>
       </div>
 
       <div class="calendar-grid">
-        @for (item of calendarItems(); track item.title) {
-          <article class="calendar-card">
-            <div class="calendar-meta-row">
-              <p class="meta-label">{{ item.category }}</p>
-              <span class="calendar-pill">{{ item.recurrence }}</span>
+        @for (item of calendarItems(); track item.id) {
+          <article
+            class="calendar-card"
+            [class.is-featured]="item.isFeatured"
+            [class.is-live]="item.source === 'live'"
+          >
+            <div class="calendar-card-top">
+              <div class="calendar-meta-row">
+                <p class="meta-label">{{ item.category }}</p>
+                <div class="calendar-pill-group">
+                  @if (item.isFeatured) {
+                    <span class="calendar-pill is-featured">{{ appCopy().calendarFeaturedBadge }}</span>
+                  }
+                  <span class="calendar-pill">{{ item.recurrence }}</span>
+                </div>
+              </div>
+              <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
+                {{ item.sourceLabel }}
+              </span>
             </div>
             <h3>{{ item.title }}</h3>
             <strong>{{ item.date }}</strong>
@@ -342,6 +367,8 @@
         }
       </div>
     </section>
+
+    <app-resident-services id="resident-services" [contacts]="contacts()" />
 
     <section class="panel service-panel" id="services">
       <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
@@ -375,6 +402,15 @@
             </article>
           }
         </div>
+        <div class="transparency-actions" [attr.aria-label]="transparencyActionsLabel()">
+          @for (action of transparencyActions(); track action.title) {
+            <a class="transparency-action" [attr.href]="action.href">
+              <strong>{{ action.title }}</strong>
+              <span>{{ action.detail }}</span>
+            </a>
+          }
+        </div>
+        <app-records-center />
       </section>
 
       <section class="panel" id="accessibility">
@@ -389,6 +425,7 @@
           }
         </div>
         <p class="compliance-note">{{ appCopy().complianceNote }}</p>
+        <app-accessibility-support [contacts]="contacts()" />
       </section>
     </section>
 

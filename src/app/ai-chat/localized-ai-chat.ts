@@ -36,9 +36,11 @@ interface AiChatCopy {
   title: string;
   intro: string;
   onlineStatus: string;
+  embedStatus: string;
   offlineStatus: string;
   questionLabel: string;
   helper: string;
+  embedHelper: string;
   placeholder: string;
   send: string;
   sending: string;
@@ -52,6 +54,7 @@ interface AiChatCopy {
   assistantRole: string;
   starterPrompts: string[];
   configuredWelcome: string;
+  embedWelcome: string;
   offlineWelcome: string;
   missingProgrammaticMessage: string;
   retryMessage: string;
@@ -72,10 +75,13 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     intro:
       'This assistant uses the Town of Wiley Easy-Peasy bot through a secure proxy, so the API key stays off the public site.',
     onlineStatus: 'Programmatic chat is online.',
+    embedStatus: 'The Easy-Peasy assistant is live on this page.',
     offlineStatus: 'Programmatic chat is offline in this environment.',
     questionLabel: 'Type a question for Ask Wiley',
     helper:
       'Enter a question below or tap one of the example prompts. The reply appears directly underneath in the conversation panel.',
+    embedHelper:
+      'Use the floating assistant button on this page or open the assistant directly in a separate tab.',
     placeholder: 'Ask a Town of Wiley question',
     send: 'Send',
     sending: 'Sending...',
@@ -95,6 +101,8 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     ],
     configuredWelcome:
       'Ask about meetings, officials, records, services, or contacts. This assistant now talks to the Town of Wiley Easy-Peasy bot through a secure server-side proxy, so the API key does not live in the browser.',
+    embedWelcome:
+      'Ask Wiley is available through the embedded Easy-Peasy assistant on this page. Use the floating button or open the direct assistant link if you want a larger chat window.',
     offlineWelcome:
       'Programmatic chat is currently offline in this environment. Deploy the Easy-Peasy proxy and set EASYPEASY_API_ENDPOINT to turn it on.',
     missingProgrammaticMessage:
@@ -117,10 +125,13 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     intro:
       'Este asistente usa el bot Easy-Peasy del Pueblo de Wiley mediante un proxy seguro, por lo que la clave de API no vive en el sitio publico.',
     onlineStatus: 'El chat programatico esta en linea.',
+    embedStatus: 'El asistente Easy-Peasy esta activo en esta pagina.',
     offlineStatus: 'El chat programatico esta fuera de linea en este entorno.',
     questionLabel: 'Escriba una pregunta para Pregunta a Wiley',
     helper:
       'Escriba una pregunta abajo o toque uno de los ejemplos. La respuesta aparece directamente debajo en el panel de conversacion.',
+    embedHelper:
+      'Use el boton flotante del asistente en esta pagina o abra el asistente directamente en una pestana separada.',
     placeholder: 'Haga una pregunta sobre el Pueblo de Wiley',
     send: 'Enviar',
     sending: 'Enviando...',
@@ -140,6 +151,8 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     ],
     configuredWelcome:
       'Pregunte sobre reuniones, funcionarios, registros, servicios o contactos. Este asistente ahora habla con el bot Easy-Peasy del Pueblo de Wiley mediante un proxy seguro del lado del servidor, por lo que la clave de API no vive en el navegador.',
+    embedWelcome:
+      'Pregunta a Wiley esta disponible mediante el asistente Easy-Peasy integrado en esta pagina. Use el boton flotante o abra el enlace directo del asistente si desea una ventana de chat mas amplia.',
     offlineWelcome:
       'El chat programatico esta fuera de linea en este entorno. Despliegue el proxy de Easy-Peasy y configure EASYPEASY_API_ENDPOINT para activarlo.',
     missingProgrammaticMessage:
@@ -177,6 +190,21 @@ export class LocalizedAiChat {
   protected readonly starterPrompts = computed(() => this.copy().starterPrompts);
   protected readonly isConfigured =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
+  protected readonly isEmbedConfigured =
+    this.chatbotConfig.mode === 'embed' && Boolean(this.chatbotConfig.chatUrl.trim());
+  protected readonly directChatUrl = this.chatbotConfig.chatUrl.trim();
+  protected readonly hasDirectChatLink = Boolean(this.directChatUrl);
+  protected readonly statusText = computed(() => {
+    if (this.isConfigured) {
+      return this.copy().onlineStatus;
+    }
+
+    if (this.isEmbedConfigured) {
+      return this.copy().embedStatus;
+    }
+
+    return this.copy().offlineStatus;
+  });
   protected readonly messages = signal<ChatMessage[]>([this.createWelcomeMessage()]);
 
   constructor() {
@@ -279,10 +307,19 @@ export class LocalizedAiChat {
       };
     }
 
+    if (this.isEmbedConfigured) {
+      return {
+        role: 'assistant',
+        content: this.copy().embedWelcome,
+        links: this.buildUnavailableLinks(),
+        omitFromHistory: true,
+      };
+    }
+
     return {
       role: 'assistant',
       content: this.copy().offlineWelcome,
-      links: [{ label: this.copy().townContactLink, href: '#contact' }],
+      links: this.buildUnavailableLinks(),
       omitFromHistory: true,
     };
   }

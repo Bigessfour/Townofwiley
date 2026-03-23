@@ -1,0 +1,66 @@
+<div class="accessibility-support-grid">
+  <article class="accessibility-statement-card">
+    <p class="meta-label">{{ copy().statementKicker }}</p>
+    <h3>{{ copy().statementTitle }}</h3>
+    <p>{{ copy().statementBody }}</p>
+    <ul class="accessibility-support-list">
+      @for (commitment of copy().statementCommitments; track commitment) {
+        <li>{{ commitment }}</li>
+      }
+    </ul>
+  </article>
+
+  <article class="accessibility-report-card" id="barrier-report">
+    <p class="meta-label">{{ copy().reportKicker }}</p>
+    <h3>{{ copy().reportTitle }}</h3>
+    <p>{{ copy().reportBody }}</p>
+
+    <div class="accessibility-contact-row">
+      @if (townHallPhoneHref()) {
+        <a class="accessibility-contact-link" [attr.href]="townHallPhoneHref()">
+          {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+        </a>
+      }
+      @if (clerkEmailHref()) {
+        <a class="accessibility-contact-link" [attr.href]="clerkEmailHref()">
+          {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
+        </a>
+      }
+    </div>
+
+    <form class="accessibility-report-form" [formGroup]="reportForm">
+      <div class="accessibility-report-grid">
+        <label class="accessibility-field">
+          <span>{{ copy().nameLabel }}</span>
+          <input type="text" formControlName="name" autocomplete="name" />
+        </label>
+        <label class="accessibility-field">
+          <span>{{ copy().contactLabel }}</span>
+          <input type="text" formControlName="preferredContact" autocomplete="email" />
+        </label>
+        <label class="accessibility-field accessibility-field--wide">
+          <span>{{ copy().pageLabel }}</span>
+          <input type="text" formControlName="pageOrDocument" />
+        </label>
+        <label class="accessibility-field accessibility-field--wide">
+          <span>{{ copy().detailsLabel }}</span>
+          <textarea rows="4" formControlName="details"></textarea>
+        </label>
+      </div>
+
+      <div class="accessibility-action-row">
+        <a
+          class="accessibility-action"
+          [class.is-disabled]="!accessibilityMailtoHref()"
+          [attr.href]="accessibilityMailtoHref()"
+          (click)="openAccessibilityMailto($event)"
+        >
+          {{ copy().actionLabel }}
+        </a>
+        @if (status(); as status) {
+          <p class="accessibility-status" aria-live="polite">{{ status }}</p>
+        }
+      </div>
+    </form>
+  </article>
+</div>

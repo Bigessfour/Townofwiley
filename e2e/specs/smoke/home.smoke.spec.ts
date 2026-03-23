@@ -14,6 +14,30 @@ test.describe('homepage smoke', () => {
     await expect(homePage.noticeCards).toHaveCount(3);
     await expect(homePage.serviceCards).toHaveCount(6);
     await expect(homePage.contactCards).toHaveCount(4);
+    await expect(homePage.page.locator('#records .transparency-action')).toHaveCount(3);
+    await expect(homePage.page.locator('#records .records-guide-card')).toHaveCount(4);
+    await expect(homePage.page.locator('#resident-services .resident-service-card')).toHaveCount(3);
+    await expect(homePage.page.locator('#records .transparency-action').first()).toContainText(
+      'records or FOIA request',
+    );
+    await expect(homePage.page.locator('#records-guide-packets')).toContainText(
+      'Meeting packets and approved minutes',
+    );
+    await expect(homePage.page.locator('.calendar-overview')).toContainText(
+      'Seeded schedule fallback',
+    );
+    await expect(homePage.page.locator('#payment-help')).toContainText('Pay utility bill');
+    await expect(homePage.page.locator('#issue-report')).toContainText(
+      'Report a street or utility issue',
+    );
+    await expect(homePage.page.locator('#records-request')).toContainText(
+      'Request records, permits, or clerk help',
+    );
+    await expect(homePage.accessibilitySection).toContainText('Accessibility Statement');
+    await expect(homePage.accessibilitySection).toContainText('Report an accessibility barrier');
+    await expect(homePage.page.locator('#barrier-report')).toContainText(
+      'Open accessibility report email',
+    );
   });
 
   test('surfaces the expected resident-first tasks', async ({ homePage }) => {

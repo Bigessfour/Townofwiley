@@ -11,8 +11,9 @@
     "test": "ng test",
     "test:unit": "ng test",
     "test:unit:browser": "ng test --watch=false --browsers=chromiumHeadless",
-    "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs",
+    "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs infrastructure/paystar-proxy/index.test.mjs",
     "test:infra:alerts": "python -m unittest discover infrastructure/severe-weather-signup/tests",
+    "test:infra:mail": "python -m unittest discover infrastructure/email-alias-router/tests",
     "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:smoke",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
@@ -28,6 +29,7 @@
     "secrets:lock:prune": "node scripts/user-secrets.mjs lock --prune-local",
     "secrets:prune-local": "node scripts/user-secrets.mjs prune-local",
     "secrets:import-env": "node scripts/user-secrets.mjs import-env --lock",
+    "deploy:email-alias-router": "python scripts/deploy-email-alias-router.py",
     "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",
     "lint": "ng lint"
   },

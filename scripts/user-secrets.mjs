@@ -60,6 +60,30 @@ const templateSecrets = {
       senderEmail: '',
     },
   },
+  payments: {
+    paystar: {
+      mode: 'none',
+      portalUrl: '',
+      apiEndpoint: '',
+    },
+  },
+  mail: {
+    aliasForwarding: {
+      ingressRegion: 'us-east-1',
+      aliasTableName: '',
+      aliasTableRegion: 'us-east-2',
+      forwarderFrom: '',
+      sendRegion: 'us-east-2',
+      aliasDomain: 'townofwiley.gov',
+      ingressBucketName: '',
+      functionName: 'TownOfWileyEmailAliasRouter',
+      roleName: 'TownOfWileyEmailAliasRouterRole',
+      receiptRuleSetName: 'TownOfWileyAliasForwarding',
+      receiptRuleName: 'StoreTownMailInS3',
+      receiptRecipients: 'townofwiley.gov',
+      receiptPrefix: 'incoming/',
+    },
+  },
   cms: {
     appSync: {
       region: 'us-east-2',
@@ -104,6 +128,9 @@ const envMappings = [
     env: 'SEVERE_WEATHER_SIGNUP_SENDER_EMAIL',
     path: ['weather', 'alertSignup', 'senderEmail'],
   },
+  { env: 'PAYSTAR_MODE', path: ['payments', 'paystar', 'mode'] },
+  { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },
+  { env: 'PAYSTAR_API_ENDPOINT', path: ['payments', 'paystar', 'apiEndpoint'] },
   { env: 'APPSYNC_CMS_REGION', path: ['cms', 'appSync', 'region'] },
   { env: 'APPSYNC_CMS_ENDPOINT', path: ['cms', 'appSync', 'apiEndpoint'] },
   { env: 'APPSYNC_CMS_API_KEY', path: ['cms', 'appSync', 'apiKey'] },

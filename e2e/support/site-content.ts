@@ -31,7 +31,9 @@ export const siteContent = {
     issues: 'Report a pothole, outage, or street issue',
     meetings: 'Find the next town meeting',
     calendar: 'Open the town calendar',
+    packets: 'Find meeting packets and approved minutes',
     council: 'City Council Regular Meeting',
+    accessibility: 'Report an accessibility barrier',
     clerk: 'Contact Town Hall',
   },
   emptySearchMessage:

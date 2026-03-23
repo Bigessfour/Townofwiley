@@ -3,7 +3,7 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 
 export type SiteLanguage = 'en' | 'es';
 
-const DEFAULT_SITE_LANGUAGE: SiteLanguage = 'es';
+const DEFAULT_SITE_LANGUAGE: SiteLanguage = 'en';
 const SITE_LANGUAGE_STORAGE_KEY = 'tow-site-language';
 
 @Injectable({

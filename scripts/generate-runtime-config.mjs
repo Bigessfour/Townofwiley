@@ -32,6 +32,16 @@ const severeWeatherSignupApiEndpoint =
   process.env.SEVERE_WEATHER_SIGNUP_API_ENDPOINT?.trim() ||
   localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
   '';
+const paystarPortalUrl =
+  process.env.PAYSTAR_PORTAL_URL?.trim() || localSecrets.payments?.paystar?.portalUrl?.trim() || '';
+const paystarApiEndpoint =
+  process.env.PAYSTAR_API_ENDPOINT?.trim() ||
+  localSecrets.payments?.paystar?.apiEndpoint?.trim() ||
+  '';
+const explicitPaystarMode =
+  process.env.PAYSTAR_MODE?.trim().toLowerCase() ||
+  localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
+  '';
 const cmsApiEndpoint =
   process.env.APPSYNC_CMS_ENDPOINT?.trim() || localSecrets.cms?.appSync?.apiEndpoint?.trim() || '';
 const cmsApiKey =
@@ -59,6 +69,14 @@ const buttonPosition =
   process.env.EASYPEASY_BUTTON_POSITION?.trim() ||
   localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
   'bottom-right';
+const paystarMode =
+  explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
+    ? explicitPaystarMode
+    : paystarApiEndpoint
+      ? 'api'
+      : paystarPortalUrl
+        ? 'hosted'
+        : 'none';
 const mode = apiEndpoint ? 'api' : chatUrl ? 'embed' : 'none';
 
 const runtimeConfig = {
@@ -76,6 +94,14 @@ const runtimeConfig = {
     alertSignup: {
       enabled: severeWeatherSignupEnabled,
       apiEndpoint: severeWeatherSignupApiEndpoint,
+    },
+  },
+  payments: {
+    provider: 'paystar',
+    paystar: {
+      mode: paystarMode,
+      portalUrl: paystarPortalUrl,
+      apiEndpoint: paystarApiEndpoint,
     },
   },
   cms: {

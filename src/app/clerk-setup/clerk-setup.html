@@ -1,0 +1,56 @@
+<main class="setup-shell">
+  <section class="setup-card" aria-labelledby="clerk-setup-heading">
+    <p class="setup-kicker">Town Clerk Setup</p>
+    <h1 id="clerk-setup-heading">Welcome, {{ clerkName }}</h1>
+    <p class="setup-copy">
+      This page is the Town of Wiley clerk setup handoff for the live CMS. Use it to open the
+      Town's Amplify Studio workspace and begin managing homepage content.
+    </p>
+
+    <div class="setup-actions">
+      <a class="setup-button primary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+        Open Studio Home
+      </a>
+      <a class="setup-button secondary" [href]="dataManagerUrl" target="_blank" rel="noreferrer noopener">
+        Open Data Manager
+      </a>
+    </div>
+
+    <div class="setup-grid">
+      <article class="setup-panel">
+        <h2>What you need first</h2>
+        <ul>
+          <li>An AWS console login for the Town AWS account</li>
+          <li>Access to the Townofwiley Amplify app in us-east-2</li>
+          <li>Your browser signed in to the correct AWS account before opening Studio</li>
+        </ul>
+      </article>
+
+      <article class="setup-panel">
+        <h2>What you will edit</h2>
+        <ul>
+          <li>SiteSettings for homepage title and welcome text</li>
+          <li>AlertBanner for emergency banner content</li>
+          <li>Announcement for notices</li>
+          <li>Event for calendar entries</li>
+          <li>OfficialContact for public contact cards</li>
+          <li>EmailAlias for private town email forwarding rules</li>
+        </ul>
+      </article>
+    </div>
+
+    <article class="setup-panel full-width">
+      <h2>First-time sign-in notes</h2>
+      <ol>
+        <li>Open Studio Home first.</li>
+        <li>If AWS asks you to sign in, use your Town AWS console account.</li>
+        <li>After Studio loads, open Data Manager to edit records.</li>
+        <li>Save your changes and refresh the public homepage to confirm them.</li>
+      </ol>
+      <p class="setup-note">
+        This is a setup handoff page, not a standalone CMS login portal. If access is denied, the
+        Town AWS account still needs to grant your AWS console permissions.
+      </p>
+    </article>
+  </section>
+</main>

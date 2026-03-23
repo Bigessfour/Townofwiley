@@ -1,0 +1,15 @@
+<section class="records-center" aria-labelledby="records-center-heading">
+  <p class="meta-label">{{ copy().kicker }}</p>
+  <h3 id="records-center-heading">{{ copy().title }}</h3>
+
+  <div class="records-center-grid">
+    @for (guide of copy().guides; track guide.id) {
+      <article class="records-guide-card" [attr.id]="guide.id">
+        <p class="meta-label">{{ guide.kicker }}</p>
+        <h4>{{ guide.title }}</h4>
+        <p>{{ guide.detail }}</p>
+        <a class="records-guide-link" [attr.href]="guide.href">{{ guide.cta }}</a>
+      </article>
+    }
+  </div>
+</section>

@@ -3,43 +3,61 @@
     <p class="assistant-kicker">{{ copy().kicker }}</p>
     <h3 id="assistant-heading">{{ copy().title }}</h3>
     <p class="assistant-copy">{{ copy().intro }}</p>
-    <p class="assistant-status" [class.is-offline]="!isConfigured">
-      {{ isConfigured ? copy().onlineStatus : copy().offlineStatus }}
+    <p class="assistant-status" [class.is-offline]="!isConfigured && !isEmbedConfigured">
+      {{ statusText() }}
     </p>
   </div>
 
-  <div class="assistant-form">
-    <label class="assistant-label" for="assistant-question">{{ copy().questionLabel }}</label>
-    <p class="assistant-helper">{{ copy().helper }}</p>
-    <div class="assistant-entry-row">
-      <input
-        id="assistant-question"
-        class="assistant-input"
-        type="text"
-        [value]="draft()"
-        (input)="updateDraft($any($event.target).value)"
-        (keydown.enter)="sendMessage()"
-        [attr.placeholder]="copy().placeholder"
-        autocomplete="off"
-        [disabled]="isSending()"
-      />
-      <button type="button" class="assistant-send" (click)="sendMessage()" [disabled]="isSending()">
-        {{ isSending() ? copy().sending : copy().send }}
-      </button>
-    </div>
-  </div>
-
-  <div class="assistant-window">
-    <div class="assistant-prompts-shell">
-      <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
-      <div class="assistant-prompts" [attr.aria-label]="copy().promptsAriaLabel">
-        @for (prompt of starterPrompts(); track prompt) {
-          <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
-            {{ prompt }}
-          </button>
-        }
+  @if (isConfigured) {
+    <div class="assistant-form">
+      <label class="assistant-label" for="assistant-question">{{ copy().questionLabel }}</label>
+      <p class="assistant-helper">{{ copy().helper }}</p>
+      <div class="assistant-entry-row">
+        <input
+          id="assistant-question"
+          class="assistant-input"
+          type="text"
+          [value]="draft()"
+          (input)="updateDraft($any($event.target).value)"
+          (keydown.enter)="sendMessage()"
+          [attr.placeholder]="copy().placeholder"
+          autocomplete="off"
+          [disabled]="isSending()"
+        />
+        <button type="button" class="assistant-send" (click)="sendMessage()" [disabled]="isSending()">
+          {{ isSending() ? copy().sending : copy().send }}
+        </button>
       </div>
     </div>
+  } @else if (isEmbedConfigured) {
+    <div class="assistant-launch-panel">
+      <p class="assistant-helper">{{ copy().embedHelper }}</p>
+      @if (hasDirectChatLink) {
+        <a
+          class="assistant-launch-link"
+          [attr.href]="directChatUrl"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {{ copy().openDirectChatLink }}
+        </a>
+      }
+    </div>
+  }
+
+  <div class="assistant-window">
+    @if (isConfigured) {
+      <div class="assistant-prompts-shell">
+        <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
+        <div class="assistant-prompts" [attr.aria-label]="copy().promptsAriaLabel">
+          @for (prompt of starterPrompts(); track prompt) {
+            <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
+              {{ prompt }}
+            </button>
+          }
+        </div>
+      </div>
+    }
 
     <div class="assistant-thread">
       <div class="assistant-thread-header">

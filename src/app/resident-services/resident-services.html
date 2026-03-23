@@ -1,0 +1,200 @@
+<section class="resident-services panel" aria-labelledby="resident-services-heading">
+  <p class="section-kicker">{{ copy().sectionKicker }}</p>
+  <div class="resident-services-header">
+    <div>
+      <h2 id="resident-services-heading">{{ copy().sectionTitle }}</h2>
+      <p class="resident-services-copy">{{ copy().sectionBody }}</p>
+    </div>
+  </div>
+
+  <div class="resident-services-grid">
+    <article class="resident-service-card" id="payment-help">
+      <p class="meta-label">{{ copy().paymentMeta }}</p>
+      <h3>{{ copy().paymentTitle }}</h3>
+      <p>{{ copy().paymentBody }}</p>
+
+      <div class="resident-contact-row">
+        @if (townHallPhoneHref()) {
+          <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
+            {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+          </a>
+        }
+        @if (clerkEmailHref()) {
+          <a class="resident-contact-link" [attr.href]="clerkEmailHref()">
+            {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
+          </a>
+        }
+      </div>
+
+      <form class="resident-form" [formGroup]="paymentForm">
+        <div class="resident-form-grid">
+          <label class="resident-field">
+            <span>{{ copy().paymentNameLabel }}</span>
+            <input type="text" formControlName="name" autocomplete="name" />
+          </label>
+          <label class="resident-field">
+            <span>{{ copy().paymentContactLabel }}</span>
+            <input type="text" formControlName="preferredContact" autocomplete="email" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().paymentAddressLabel }}</span>
+            <input type="text" formControlName="serviceAddress" autocomplete="street-address" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().paymentQuestionLabel }}</span>
+            <textarea rows="3" formControlName="accountQuestion"></textarea>
+          </label>
+        </div>
+
+        <div class="resident-action-row">
+          @if (paymentPortalAvailable) {
+            <a
+              class="resident-action resident-action--primary payment-direct-action"
+              [attr.href]="paymentPortalHref"
+              (click)="openPaystarPortal($event)"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {{ copy().paymentPortalActionLabel }}
+            </a>
+          }
+          <a
+            class="resident-action resident-action--secondary"
+            [class.is-disabled]="!paymentMailtoHref()"
+            [attr.href]="paymentMailtoHref()"
+            (click)="openPaymentMailto($event)"
+          >
+            {{ copy().paymentActionLabel }}
+          </a>
+          @if (paymentStatus(); as paymentStatus) {
+            <p class="resident-status" aria-live="polite">{{ paymentStatus }}</p>
+          }
+        </div>
+      </form>
+    </article>
+
+    <article class="resident-service-card" id="issue-report">
+      <p class="meta-label">{{ copy().issueMeta }}</p>
+      <h3>{{ copy().issueTitle }}</h3>
+      <p>{{ copy().issueBody }}</p>
+
+      <div class="resident-contact-row">
+        @if (townHallPhoneHref()) {
+          <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
+            {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+          </a>
+        }
+        @if (superintendentEmailHref()) {
+          <a class="resident-contact-link" [attr.href]="superintendentEmailHref()">
+            {{ copy().emailFallbackLabel }} · {{ superintendentEmailLabel() }}
+          </a>
+        }
+      </div>
+
+      <form class="resident-form" [formGroup]="issueForm">
+        <div class="resident-form-grid">
+          <label class="resident-field">
+            <span>{{ copy().issueCategoryLabel }}</span>
+            <select formControlName="category">
+              @for (category of copy().issueCategories; track category.value) {
+                <option [value]="category.value">{{ category.label }}</option>
+              }
+            </select>
+          </label>
+          <label class="resident-field">
+            <span>{{ copy().issueNameLabel }}</span>
+            <input type="text" formControlName="name" autocomplete="name" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().issueLocationLabel }}</span>
+            <input type="text" formControlName="location" autocomplete="street-address" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().issueContactLabel }}</span>
+            <input type="text" formControlName="preferredContact" autocomplete="email" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().issueDetailsLabel }}</span>
+            <textarea rows="4" formControlName="details"></textarea>
+          </label>
+        </div>
+
+        <div class="resident-action-row">
+          <a
+            class="resident-action"
+            [class.is-disabled]="!issueMailtoHref()"
+            [attr.href]="issueMailtoHref()"
+            (click)="openIssueMailto($event)"
+          >
+            {{ copy().issueActionLabel }}
+          </a>
+          @if (issueStatus(); as issueStatus) {
+            <p class="resident-status" aria-live="polite">{{ issueStatus }}</p>
+          }
+        </div>
+      </form>
+    </article>
+
+    <article class="resident-service-card" id="records-request">
+      <p class="meta-label">{{ copy().recordsMeta }}</p>
+      <h3>{{ copy().recordsTitle }}</h3>
+      <p>{{ copy().recordsBody }}</p>
+
+      <div class="resident-contact-row">
+        @if (townHallPhoneHref()) {
+          <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
+            {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+          </a>
+        }
+        @if (clerkEmailHref()) {
+          <a class="resident-contact-link" [attr.href]="clerkEmailHref()">
+            {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
+          </a>
+        }
+      </div>
+
+      <form class="resident-form" [formGroup]="recordsForm">
+        <div class="resident-form-grid">
+          <label class="resident-field">
+            <span>{{ copy().recordsTypeLabel }}</span>
+            <select formControlName="requestType">
+              @for (requestType of copy().requestTypes; track requestType.value) {
+                <option [value]="requestType.value">{{ requestType.label }}</option>
+              }
+            </select>
+          </label>
+          <label class="resident-field">
+            <span>{{ copy().recordsNameLabel }}</span>
+            <input type="text" formControlName="name" autocomplete="name" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().recordsContactLabel }}</span>
+            <input type="text" formControlName="preferredContact" autocomplete="email" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().recordsDeadlineLabel }}</span>
+            <input type="text" formControlName="deadline" />
+          </label>
+          <label class="resident-field resident-field--wide">
+            <span>{{ copy().recordsDetailsLabel }}</span>
+            <textarea rows="4" formControlName="details"></textarea>
+          </label>
+        </div>
+
+        <div class="resident-action-row">
+          <a
+            class="resident-action"
+            [class.is-disabled]="!recordsMailtoHref()"
+            [attr.href]="recordsMailtoHref()"
+            (click)="openRecordsMailto($event)"
+          >
+            {{ copy().recordsActionLabel }}
+          </a>
+          @if (recordsStatus(); as recordsStatus) {
+            <p class="resident-status" aria-live="polite">{{ recordsStatus }}</p>
+          }
+        </div>
+      </form>
+    </article>
+  </div>
+</section>

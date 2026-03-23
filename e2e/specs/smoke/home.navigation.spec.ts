@@ -52,11 +52,11 @@ test.describe('homepage navigation', () => {
 
     await homePage.searchFor('pay water bill');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.payments);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#services');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#payment-help');
 
     await homePage.searchFor('street outage');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.issues);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#services');
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#issue-report');
 
     await homePage.searchFor('next town meeting');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.meetings);
@@ -69,6 +69,16 @@ test.describe('homepage navigation', () => {
     await homePage.searchFor('city council 2nd monday');
     await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.council);
     await expect(homePage.searchResults.first()).toHaveAttribute('href', '#calendar');
+
+    await homePage.searchFor('meeting packet');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.packets);
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#records-guide-packets');
+
+    await homePage.searchFor('screen reader issue');
+    await expect(homePage.searchResults.first()).toContainText(
+      siteContent.searchMatches.accessibility,
+    );
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '#barrier-report');
 
     await homePage.searchFor('snowmobile permit banana');
     await expect(homePage.searchResults).toHaveCount(0);

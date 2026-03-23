@@ -90,3 +90,15 @@ type OfficialContact
   linkLabel: String
   displayOrder: Int
 }
+
+type EmailAlias
+  @model
+  @auth(rules: [{ allow: private, provider: userPools, operations: [read, create, update, delete] }]) {
+  id: ID!
+  aliasAddress: AWSEmail! @index(name: "byAliasAddress", queryField: "emailAliasByAddress")
+  destinationAddress: AWSEmail!
+  displayName: String
+  roleLabel: String
+  active: Boolean!
+  notes: String
+}
