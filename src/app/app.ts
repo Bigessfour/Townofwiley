@@ -1,12 +1,12 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    computed,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -16,15 +16,15 @@ import { CmsAdmin } from './cms-admin/cms-admin';
 import { RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    LocalizedCmsContentStore,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
+  HomepageWeatherAlert,
+  LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -1090,7 +1090,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       },
       {
         title: 'Abrir reuniones y fechas de agenda',
-        detail: 'Vaya directamente al calendario publico y a los detalles de reuniones recurrentes.',
+        detail:
+          'Vaya directamente al calendario publico y a los detalles de reuniones recurrentes.',
         href: '#calendar',
       },
       {
@@ -1356,7 +1357,8 @@ export class App {
   protected readonly isAdminMode =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/admin';
   protected readonly isClerkSetupMode =
-    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/clerk-setup';
+    typeof window !== 'undefined' &&
+    window.location.pathname.replace(/\/+$/, '') === '/clerk-setup';
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
   protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
@@ -1417,7 +1419,9 @@ export class App {
       return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
     }
 
-    return this.appCopy().calendarSeeds.map((seed, index) => this.createCalendarItem(seed, index === 0));
+    return this.appCopy().calendarSeeds.map((seed, index) =>
+      this.createCalendarItem(seed, index === 0),
+    );
   });
   protected readonly calendarOverview = computed<CalendarOverview>(() => {
     const copy = this.appCopy();
@@ -1450,7 +1454,9 @@ export class App {
   });
   protected readonly serviceCards = computed(() => this.appCopy().serviceCards);
   protected readonly transparencyItems = computed(() => this.appCopy().transparencyItems);
-  protected readonly transparencyActionsLabel = computed(() => this.appCopy().transparencyActionsLabel);
+  protected readonly transparencyActionsLabel = computed(
+    () => this.appCopy().transparencyActionsLabel,
+  );
   protected readonly transparencyActions = computed(() => this.appCopy().transparencyActions);
   protected readonly accessibilityItems = computed(() => this.appCopy().accessibilityItems);
   protected readonly leadershipGroups = computed(() => this.appCopy().leadershipGroups);
@@ -1744,11 +1750,17 @@ export class App {
   }
 
   private formatGoogleCalendarDate(value: Date): string {
-    return value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    return value
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace(/\.\d{3}Z$/, 'Z');
   }
 
   private formatUtcIcsDate(value: Date): string {
-    return value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    return value
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace(/\.\d{3}Z$/, 'Z');
   }
 
   private createUtcTimestamp(): string {

@@ -232,10 +232,10 @@
 .assistant-links a:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.6);
   outline-offset: 3px;
-.assistant-launch-link:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.6);
-  outline-offset: 3px;
-}
+  .assistant-launch-link:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 3px;
+  }
 }
 
 @media (max-width: 720px) {

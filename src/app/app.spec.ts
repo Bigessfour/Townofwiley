@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-    HttpTestingController,
-    TestRequest,
-    provideHttpClientTesting,
+  HttpTestingController,
+  TestRequest,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
@@ -77,15 +77,15 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Official Town Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    expect(
-      compiled.querySelector('.task-card[href="#payment-help"]')?.textContent,
-    ).toContain('Pay utility bill');
-    expect(
-      compiled.querySelector('.task-card[href="#issue-report"]')?.textContent,
-    ).toContain('Report a street or utility issue');
-    expect(
-      compiled.querySelector('.task-card[href="#records-request"]')?.textContent,
-    ).toContain('Request records, permits, or clerk help');
+    expect(compiled.querySelector('.task-card[href="#payment-help"]')?.textContent).toContain(
+      'Pay utility bill',
+    );
+    expect(compiled.querySelector('.task-card[href="#issue-report"]')?.textContent).toContain(
+      'Report a street or utility issue',
+    );
+    expect(compiled.querySelector('.task-card[href="#records-request"]')?.textContent).toContain(
+      'Request records, permits, or clerk help',
+    );
     expect(compiled.querySelector('#weather-heading')?.textContent).toContain(
       'National Weather Service forecast',
     );
@@ -245,7 +245,8 @@ describe('App', () => {
             {
               id: 'spring-cleanup-day',
               title: 'Spring Cleanup Day',
-              description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
+              description:
+                'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
               start: '2026-04-25T10:00:00-06:00',
               end: '2026-04-25T13:00:00-06:00',
@@ -283,7 +284,9 @@ describe('App', () => {
     expect(compiled.querySelector('#calendar .calendar-card h3')?.textContent).toContain(
       'Spring Cleanup Day',
     );
-    expect(compiled.querySelector('.calendar-overview')?.textContent).toContain('1 evento publicado');
+    expect(compiled.querySelector('.calendar-overview')?.textContent).toContain(
+      '1 evento publicado',
+    );
     expect(compiled.querySelector('#calendar .calendar-location')?.textContent).toContain(
       'Wiley Community Park',
     );

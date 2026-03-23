@@ -128,11 +128,15 @@ export class AccessibilitySupport {
 
   protected readonly townInfoContact = computed(() => this.findContact('town-information'));
   protected readonly clerkContact = computed(() => this.findContact('city-clerk'));
-  protected readonly townHallPhoneHref = computed(() => this.getContactHref(this.townInfoContact(), 'tel:'));
+  protected readonly townHallPhoneHref = computed(() =>
+    this.getContactHref(this.townInfoContact(), 'tel:'),
+  );
   protected readonly townHallPhoneLabel = computed(
     () => this.townInfoContact()?.value ?? 'Town Hall',
   );
-  protected readonly clerkEmailHref = computed(() => this.getContactHref(this.clerkContact(), 'mailto:'));
+  protected readonly clerkEmailHref = computed(() =>
+    this.getContactHref(this.clerkContact(), 'mailto:'),
+  );
   protected readonly clerkEmailLabel = computed(
     () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'Town Clerk',
   );
@@ -177,7 +181,8 @@ export class AccessibilitySupport {
     }
 
     const values = this.reportFormValue();
-    const recipient = this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+    const recipient =
+      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
 
     if (!recipient) {
       return null;

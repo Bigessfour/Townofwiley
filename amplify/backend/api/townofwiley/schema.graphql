@@ -93,7 +93,9 @@ type OfficialContact
 
 type EmailAlias
   @model
-  @auth(rules: [{ allow: private, provider: userPools, operations: [read, create, update, delete] }]) {
+  @auth(
+    rules: [{ allow: private, provider: userPools, operations: [read, create, update, delete] }]
+  ) {
   id: ID!
   aliasAddress: AWSEmail! @index(name: "byAliasAddress", queryField: "emailAliasByAddress")
   destinationAddress: AWSEmail!

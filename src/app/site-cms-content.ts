@@ -562,7 +562,9 @@ export class LocalizedCmsContentStore {
         ),
       );
       this.eventRecordsState.set(
-        (response.data?.listEvents?.items ?? []).filter((item): item is EventRecord => Boolean(item)),
+        (response.data?.listEvents?.items ?? []).filter((item): item is EventRecord =>
+          Boolean(item),
+        ),
       );
       this.contactRecordsState.set(
         (response.data?.listOfficialContacts?.items ?? []).filter(
@@ -804,7 +806,10 @@ export class LocalizedCmsContentStore {
         start: this.cleanText(record.start) ?? '',
         end: this.cleanText(record.end) ?? null,
       }))
-      .filter((record) => record.id && record.title && record.start && !Number.isNaN(Date.parse(record.start)))
+      .filter(
+        (record) =>
+          record.id && record.title && record.start && !Number.isNaN(Date.parse(record.start)),
+      )
       .sort((left, right) => Date.parse(left.start) - Date.parse(right.start));
   }
 

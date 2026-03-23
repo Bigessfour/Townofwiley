@@ -334,7 +334,9 @@
                 <p class="meta-label">{{ item.category }}</p>
                 <div class="calendar-pill-group">
                   @if (item.isFeatured) {
-                    <span class="calendar-pill is-featured">{{ appCopy().calendarFeaturedBadge }}</span>
+                    <span class="calendar-pill is-featured">{{
+                      appCopy().calendarFeaturedBadge
+                    }}</span>
                   }
                   <span class="calendar-pill">{{ item.recurrence }}</span>
                 </div>

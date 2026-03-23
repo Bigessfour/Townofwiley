@@ -27,18 +27,21 @@ This document converts the attached audit into Markdown and updates it against t
 Status: Complete on the homepage as guided intake
 
 Evidence:
+
 - [src/app/resident-services/resident-services.ts](../src/app/resident-services/resident-services.ts)
 - [src/app/app.ts](../src/app/app.ts)
 
 What is complete:
+
 - Residents can now start three structured workflows directly from the homepage:
-	- utility payment help
-	- street or utility issue reporting
-	- records, permits, or clerk help
+  - utility payment help
+  - street or utility issue reporting
+  - records, permits, or clerk help
 - The top-task links no longer point to the generic `#services` section. They now route directly to the relevant intake cards.
 - These forms are bilingual and build structured messages instead of leaving residents with a blank email.
 
 What is still missing:
+
 - No live Paystar production configuration or RVS posting confirmation in the resident-facing site yet
 - No backend case tracking or request status timeline
 - No file uploads for permits or licensing workflows
@@ -48,16 +51,19 @@ What is still missing:
 Status: Complete on the homepage as a public-facing workflow
 
 Evidence:
+
 - [src/app/accessibility-support/accessibility-support.ts](../src/app/accessibility-support/accessibility-support.ts)
 - [src/app/app.ts](../src/app/app.ts)
 
 What is complete:
+
 - A published accessibility statement now exists on the homepage.
 - Residents can prepare an accessibility barrier report from a dedicated form.
 - The barrier-report flow includes direct Town Hall and clerk contact paths.
 - The search experience now includes accessibility and barrier-report discovery.
 
 What is still missing:
+
 - No documented quarterly audit log in the repo
 - No formal media alt-text and caption operations checklist yet
 
@@ -66,18 +72,21 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [src/app/records-center/records-center.ts](../src/app/records-center/records-center.ts)
 - [src/app/app.ts](../src/app/app.ts)
 
 What is complete:
+
 - The records area now has real guidance cards for:
-	- public records and FOIA
-	- meeting packets and approved minutes
-	- budget summaries and annual reports
-	- ordinances, zoning, and permit references
+  - public records and FOIA
+  - meeting packets and approved minutes
+  - budget summaries and annual reports
+  - ordinances, zoning, and permit references
 - Transparency quick actions now link residents into the records form, calendar, and contact sections.
 
 What is still missing:
+
 - No live archive of agenda packets, minutes, budgets, annual reports, or ordinances
 - No true records portal or document repository
 - The current experience is routing and guidance, not a hosted records library
@@ -87,9 +96,11 @@ What is still missing:
 Status: Complete
 
 Evidence:
+
 - [src/app/app.ts](../src/app/app.ts)
 
 What is complete:
+
 - `Pay utility bill` now links to `#payment-help`.
 - `Report a street or utility issue` now links to `#issue-report`.
 - `Request records, permits, or clerk help` now links to `#records-request`.
@@ -100,18 +111,21 @@ What is complete:
 Status: Complete for current homepage scope
 
 Evidence:
+
 - [src/app/app.ts](../src/app/app.ts)
 - [src/app/app.html](../src/app/app.html)
 - [src/app/app.scss](../src/app/app.scss)
 - [src/app/cms-admin/cms-admin.ts](../src/app/cms-admin/cms-admin.ts)
 
 What is complete:
+
 - The homepage calendar now clearly tells residents whether they are seeing staff-managed live events or the bundled fallback schedule.
 - The next event is visually featured instead of rendering as an undifferentiated card list.
 - Live AppSync `Event` records now drive the homepage calendar presentation when they exist.
 - The `/admin` operations guide now includes the `Event` model in both the publishing flow and the model coverage summary.
 
 What is still missing:
+
 - The `Event` records still do not carry richer categories, attached agenda URLs, or document destinations.
 - The calendar still needs document-level publishing behind agenda, packet, minutes, and ordinance links.
 
@@ -120,13 +134,16 @@ What is still missing:
 Status: Complete for current homepage scope
 
 Evidence:
+
 - [e2e/specs/responsive/home.responsive.spec.ts](../e2e/specs/responsive/home.responsive.spec.ts)
 
 What is complete:
+
 - Mobile-specific Playwright coverage exists.
 - The spec verifies no horizontal overflow and confirms the key resident-service and accessibility actions remain reachable on mobile.
 
 Validation:
+
 - `npx playwright test e2e/specs/responsive --project=mobile-chromium` passed.
 
 ### Smoke coverage for the current homepage
@@ -134,20 +151,24 @@ Validation:
 Status: Complete for current homepage scope
 
 Evidence:
+
 - [e2e/specs/smoke/home.smoke.spec.ts](../e2e/specs/smoke/home.smoke.spec.ts)
 - [smoke-report.json](../smoke-report.json)
 
 What is complete:
+
 - Smoke tests now cover the resident-service cards, records-center cards, and accessibility barrier reporting.
 - Navigation smoke coverage passed in both desktop and mobile Chromium.
 - Weather smoke coverage passed in both desktop and mobile Chromium, including alert signup flows.
 - Chat smoke coverage passed in both desktop and mobile Chromium.
 
 Validation:
+
 - `npx playwright test e2e/specs/smoke/home.smoke.spec.ts --project=desktop-chromium --project=mobile-chromium` passed with 4 tests passed.
 - The earlier records-center assertion drift was corrected in source, and the homepage scaffold smoke test now passes again.
 
 What is still missing:
+
 - The broader smoke suite should still be rerun whenever additional homepage sections change substantially.
 
 ### CMS admin route and publishing guidance
@@ -155,19 +176,22 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [src/app/cms-admin/cms-admin.ts](../src/app/cms-admin/cms-admin.ts)
 
 What is complete:
+
 - `/admin` is now a read-only operations guide rather than a local browser editor.
 - The admin guide documents the Amplify Studio publishing flow.
 - The page explicitly maps homepage areas to the relevant Studio models:
-	- `SiteSettings`
-	- `AlertBanner`
-	- `Announcement`
-	- `Event`
-	- `OfficialContact`
+  - `SiteSettings`
+  - `AlertBanner`
+  - `Announcement`
+  - `Event`
+  - `OfficialContact`
 
 What is still missing:
+
 - This repo does not itself prove that those models are visible and correctly exposed in Amplify Studio for staff on the deployed environment.
 - Version history, rollback, staging, and review workflow documentation still need to be added.
 
@@ -178,13 +202,16 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [src/app/app.ts](../src/app/app.ts)
 
 What has improved since the original audit:
+
 - Search is no longer limited to a tiny set of older entries.
 - The search index now includes records guides, accessibility reporting, calendar access, contact routing, and resident-service flows.
 
 What is still missing:
+
 - Search is still hardcoded in the client.
 - No CMS-driven indexing
 - No document crawling or hosted records search
@@ -195,12 +222,14 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [src/app/site-language.ts](../src/app/site-language.ts)
 - [src/app/app.spec.ts](../src/app/app.spec.ts)
 - [src/app/resident-services/resident-services.ts](../src/app/resident-services/resident-services.ts)
 - [src/app/accessibility-support/accessibility-support.ts](../src/app/accessibility-support/accessibility-support.ts)
 
 What is complete:
+
 - English is now the default homepage language when no saved preference exists.
 - Residents can still switch languages and keep that selection through the existing local-storage preference.
 - Homepage copy is localized.
@@ -208,6 +237,7 @@ What is complete:
 - The accessibility-support flow is localized.
 
 What is still missing:
+
 - Translation of future subpages and external workflows
 - Translation operations inside Amplify Studio content publishing
 - Translation of clerk documents, budget files, records attachments, and permit instructions outside the homepage UI
@@ -217,15 +247,18 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [src/app/weather-panel](../src/app/weather-panel)
 - [infrastructure/severe-weather-signup/app.py](../infrastructure/severe-weather-signup/app.py)
 
 What is complete:
+
 - Frontend signup exists.
 - Backend code exists.
 - Playwright smoke coverage includes signup behavior.
 
 What is still missing:
+
 - End-to-end delivery verification for real email and SMS channels
 - Unsubscribe-token handling
 - Explicit double-opt-in confirmation journey validation in production
@@ -235,14 +268,17 @@ What is still missing:
 Status: Partially complete
 
 Evidence:
+
 - [scripts/generate-runtime-config.mjs](../scripts/generate-runtime-config.mjs)
 - [public/status.html](../public/status.html)
 
 What is complete:
+
 - Runtime config generation is in place for chatbot, weather, signup, and CMS settings.
 - A lightweight status page exists at `public/status.html`.
 
 What is still missing:
+
 - Build timestamp and Git SHA in runtime config
 - Feature flags for staged rollout
 - A richer health/status surface that confirms external dependencies instead of serving a static `ok` page
@@ -252,6 +288,7 @@ What is still missing:
 Status: SES sending is live in Ohio, the inbound router path is live, and the first Steve alias record is active; bucket hardening and end-to-end mailbox validation are still open
 
 Evidence:
+
 - [amplify/backend/api/townofwiley/schema.graphql](../amplify/backend/api/townofwiley/schema.graphql)
 - [src/app/cms-admin/cms-admin.ts](../src/app/cms-admin/cms-admin.ts)
 - [infrastructure/email-alias-router/app.py](../infrastructure/email-alias-router/app.py)
@@ -260,12 +297,14 @@ Evidence:
 - [README.md](../README.md)
 
 What is confirmed:
+
 - The Town needs an AWS-managed way to keep public `townofwiley.gov` addresses stable while forwarding them to each staff member's current inbox.
 - The cleanest fit for this repo is a private `EmailAlias` CMS model in Amplify Studio plus an AWS forwarder, not public exposure of destination inboxes through the website.
 - `OfficialContact` remains the public contact model for the homepage, while `EmailAlias` is private-only and intended for operational routing.
 - The selected AWS method is SES inbound mail handling with S3-backed raw message storage and a Lambda forwarder that looks up the current destination from `EmailAlias` records.
 
 What is complete now:
+
 - A private-only `EmailAlias` model is now scaffolded in the AppSync schema for Studio management.
 - The `EmailAlias` backend model is now deployed on the live AppSync API in the `main` environment.
 - The `/admin` CMS operations guide now documents `EmailAlias` as part of the Town's CMS-managed operations surface.
@@ -285,17 +324,20 @@ What is complete now:
 - The first live `EmailAlias` record is now active for `steve.mckitrick@townofwiley.gov -> bigessfour@gmail.com` without changing the public address residents use.
 
 Implementation implications:
+
 - This should be treated as inbound forwarding first.
 - Public alias addresses should remain on the contact cards, but private destination inboxes must stay off the public AppSync read path.
 - SES receiving may need to be deployed in a mail-ingress region that supports inbound email even if the rest of the Town stack stays in `us-east-2`.
 - If staff later need to send as `townofwiley.gov` from Gmail or another client, that should be handled separately with SES SMTP or Amazon WorkMail after forwarding is stable.
 
 Recommended implementation path:
+
 1. Apply S3 public-access-block settings on `townofwiley-email-alias-570912405222-us-east-1` with a principal that has the missing permission.
 2. Create the remaining `EmailAlias` records in Amplify Studio for each Town mailbox alias and current destination inbox.
 3. Send live tests for each alias before staff treats the route as production-ready.
 
 What is still missing:
+
 - The missing `s3:PutBucketPublicAccessBlock` step on `townofwiley-email-alias-570912405222-us-east-1`.
 - Production test confirmation that each alias forwards to the intended current inbox.
 
@@ -304,6 +346,7 @@ What is still missing:
 Status: Paystar is selected and scaffolded, but live integration is still open
 
 Evidence:
+
 - [RVS Software home](https://www.rvssoftware.com/)
 - [RVS online payment integrations](https://www.rvssoftware.com/onlinepay.php)
 - [src/app/payments/paystar-config.ts](../src/app/payments/paystar-config.ts)
@@ -313,50 +356,55 @@ Evidence:
 - [README.md](../README.md)
 
 What is confirmed:
+
 - The current utility billing system is compatible with an AWS-fronted modernization approach without replacing the clerk's core desktop workflow.
 - RVS Mosaics is an on-premise Windows desktop product for municipalities and utility districts, with local data storage rather than a public cloud-native database or public SaaS API.
 - RVS publicly lists supported payment integrations, so processor evaluation no longer depends on waiting for a private sales reply.
 - Paystar is the selected first processor to implement because its public utility guidance explicitly supports adding a payment link from an existing website, which matches the Town's current Amplify-hosted rollout needs.
 - RVS's published payment processor partners are:
-	- NexBillPay
-	- Paystar
-	- PayClix
-	- Transaction Warehouse
-	- Payment Service Network (PSN)
-	- The Payment Group (TPG)
-	- Heartland
-	- JetPay
+  - NexBillPay
+  - Paystar
+  - PayClix
+  - Transaction Warehouse
+  - Payment Service Network (PSN)
+  - The Payment Group (TPG)
+  - Heartland
+  - JetPay
 - RVS also states publicly that it offers custom payment integration development for processors outside that default list, which keeps a PayTrace or RetrieverDirect-style path plausible if the Town wants to preserve its current processor.
 - No public developer API for RVS Mosaics is published. The feasible integration posture is file-based synchronization plus processor-side APIs or RVS-built payment bridges.
 
 What is complete now:
+
 - The homepage payment card now has a Paystar runtime-config scaffold that can expose a direct secure payment action when runtime settings are present.
 - A town-managed Paystar proxy scaffold now exists so the frontend can keep a stable launch contract while the live processor setup is finalized.
 - The repo runtime-config and secrets workflows now include Paystar-specific settings for hosted mode or future API mode.
 
 Implementation implications:
+
 - The payment work should be planned as an RVS-compatible modernization, not as a rip-and-replace billing replacement.
 - The fastest path is likely to keep RVS Mosaics as the billing source of truth and add a modern resident payment layer on top.
 - Two viable implementation tracks now exist:
-	- Use Paystar as the hosted portal provider first because it has the clearest existing-website onboarding path.
-	- Keep the current processor and request a custom RVS integration if RVS confirms timeline and cost are acceptable.
+  - Use Paystar as the hosted portal provider first because it has the clearest existing-website onboarding path.
+  - Keep the current processor and request a custom RVS integration if RVS confirms timeline and cost are acceptable.
 - Bill presentment and balance visibility should assume periodic export or sync from RVS into AWS-managed storage unless RVS or the chosen processor provides a stronger direct interface.
 
 Recommended implementation path:
+
 1. Confirm with the Town how often balances can be exported from RVS today and whether the current workflow is daily, weekly, or on-demand.
 2. Set the Town's live Paystar portal URL in runtime config and deploy hosted mode first so residents can leave the payment-help-only state.
 3. Call RVS and Paystar to confirm real-time posting, reconciliation behavior, and any implementation-specific setup for the Town's Mosaics environment.
 4. Build the resident payment experience as an AWS-hosted portal layer:
-	- Amplify Hosting for the public portal
-	- Cognito for resident sign-in if account-based history is needed later
-	- S3 for secure bill export intake and public receipts or document storage
-	- Lambda plus Step Functions for imports, receipt generation, and workflow orchestration
-	- DynamoDB for balances, transactions, and portal-facing status data
-	- SES for receipts and payment confirmations
-	- QuickSight for finance and operational reporting
+   - Amplify Hosting for the public portal
+   - Cognito for resident sign-in if account-based history is needed later
+   - S3 for secure bill export intake and public receipts or document storage
+   - Lambda plus Step Functions for imports, receipt generation, and workflow orchestration
+   - DynamoDB for balances, transactions, and portal-facing status data
+   - SES for receipts and payment confirmations
+   - QuickSight for finance and operational reporting
 5. Keep the clerk's day-to-day billing work in RVS Mosaics while the Town website becomes the resident-facing portal and document surface.
 
 What is still missing:
+
 - The live `PAYSTAR_PORTAL_URL` and production deployment switch for the Town's public site.
 - Confirmation from RVS and Paystar on real-time versus file-import posting behavior for the Town's specific setup.
 - A defined bill-export cadence and secure import workflow into AWS.
@@ -436,4 +484,3 @@ The following claims in the attached audit were no longer accurate by the time t
 3. Production chat deployment
 4. Dynamic search and document indexing
 5. CMS operations hardening and publishing governance
-

@@ -21,7 +21,9 @@ test.describe('homepage responsive coverage', () => {
     await expect(homePage.page.locator('#barrier-report')).toBeVisible();
   });
 
-  test('keeps key mobile actions reachable without horizontal scrolling', async ({ homePage }, testInfo) => {
+  test('keeps key mobile actions reachable without horizontal scrolling', async ({
+    homePage,
+  }, testInfo) => {
     test.skip(
       testInfo.project.name !== 'mobile-chromium',
       'This spec is focused on the dedicated mobile viewport project.',

@@ -109,10 +109,10 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     aliasKicker: 'Town Email Aliases',
     aliasTitle: 'Use the EmailAlias model for private forwarding rules',
     aliasBody:
-      'EmailAlias records stay private in Amplify Studio. They map a public townofwiley.gov address such as steve.mckitrick@townofwiley.gov to the staff member\'s current destination inbox without exposing that forwarding target on the public site.',
+      "EmailAlias records stay private in Amplify Studio. They map a public townofwiley.gov address such as steve.mckitrick@townofwiley.gov to the staff member's current destination inbox without exposing that forwarding target on the public site.",
     aliasChecklist: [
       'Add or update the EmailAlias record in Amplify Studio Data Manager.',
-      'Set aliasAddress to the public townofwiley.gov mailbox and destinationAddress to the staff member\'s current inbox.',
+      "Set aliasAddress to the public townofwiley.gov mailbox and destinationAddress to the staff member's current inbox.",
       'Keep public contact cards in OfficialContact and keep forwarding targets only in EmailAlias.',
       'After saving, verify the SES alias forwarder with a live test message.',
     ],

@@ -225,7 +225,9 @@ export class ResidentServices {
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly paystarRuntimeConfig = this.paystarConnection.getRuntimeConfig();
 
-  protected readonly copy = computed(() => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage()]);
+  protected readonly copy = computed(
+    () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage()],
+  );
   protected readonly paymentStatus = signal<string | null>(null);
   protected readonly issueStatus = signal<string | null>(null);
   protected readonly recordsStatus = signal<string | null>(null);
@@ -280,15 +282,23 @@ export class ResidentServices {
 
   protected readonly townInfoContact = computed(() => this.findContact('town-information'));
   protected readonly clerkContact = computed(() => this.findContact('city-clerk'));
-  protected readonly superintendentContact = computed(() => this.findContact('town-superintendent'));
-  protected readonly townHallPhoneHref = computed(() => this.getContactHref(this.townInfoContact(), 'tel:'));
-  protected readonly townHallPhoneLabel = computed(() => this.townInfoContact()?.value ?? 'Town Hall');
-  protected readonly clerkEmailHref = computed(() => this.getContactHref(this.clerkContact(), 'mailto:'));
+  protected readonly superintendentContact = computed(() =>
+    this.findContact('town-superintendent'),
+  );
+  protected readonly townHallPhoneHref = computed(() =>
+    this.getContactHref(this.townInfoContact(), 'tel:'),
+  );
+  protected readonly townHallPhoneLabel = computed(
+    () => this.townInfoContact()?.value ?? 'Town Hall',
+  );
+  protected readonly clerkEmailHref = computed(() =>
+    this.getContactHref(this.clerkContact(), 'mailto:'),
+  );
   protected readonly clerkEmailLabel = computed(
     () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'Town Clerk',
   );
-  protected readonly superintendentEmailHref = computed(
-    () => this.getContactHref(this.superintendentContact(), 'mailto:'),
+  protected readonly superintendentEmailHref = computed(() =>
+    this.getContactHref(this.superintendentContact(), 'mailto:'),
   );
   protected readonly superintendentEmailLabel = computed(
     () =>
@@ -408,7 +418,8 @@ export class ResidentServices {
     }
 
     const values = this.paymentFormValue();
-    const recipient = this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+    const recipient =
+      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
 
     return this.buildMailtoHref(recipient, this.copy().paymentSubject, [
       `${this.copy().paymentNameLabel}: ${values.name}`,
@@ -428,7 +439,8 @@ export class ResidentServices {
       this.copy().issueCategories.find((category) => category.value === values.category)?.label ??
       values.category;
     const recipient =
-      this.getEmailAddress(this.superintendentContact()) || this.getEmailAddress(this.townInfoContact());
+      this.getEmailAddress(this.superintendentContact()) ||
+      this.getEmailAddress(this.townInfoContact());
 
     return this.buildMailtoHref(recipient, `${this.copy().issueSubject} | ${categoryLabel}`, [
       `${this.copy().issueCategoryLabel}: ${categoryLabel}`,
@@ -446,9 +458,10 @@ export class ResidentServices {
 
     const values = this.recordsFormValue();
     const requestTypeLabel =
-      this.copy().requestTypes.find((requestType) => requestType.value === values.requestType)?.label ??
-      values.requestType;
-    const recipient = this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+      this.copy().requestTypes.find((requestType) => requestType.value === values.requestType)
+        ?.label ?? values.requestType;
+    const recipient =
+      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
 
     return this.buildMailtoHref(recipient, `${this.copy().recordsSubject} | ${requestTypeLabel}`, [
       `${this.copy().recordsTypeLabel}: ${requestTypeLabel}`,
