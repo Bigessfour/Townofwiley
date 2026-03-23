@@ -162,6 +162,11 @@ def ensure_role(role_name: str, subscriptions_arn: str, deliveries_arn: str) -> 
         'Action': ['sns:Publish'],
         'Resource': '*',
       },
+      {
+        'Effect': 'Allow',
+        'Action': ['translate:TranslateText'],
+        'Resource': '*',
+      },
     ],
   }
 

@@ -167,6 +167,7 @@ test.describe('homepage weather', () => {
 
     await expect(homePage.weatherSignupShell).toBeVisible();
     await expect(homePage.weatherSignupZipCode).toHaveValue('81092');
+    await expect(homePage.weatherSignupLanguage).toHaveValue('en');
 
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident');
 
@@ -178,6 +179,45 @@ test.describe('homepage weather', () => {
     expect(signupRequests).toEqual([
       {
         channel: 'email',
+        preferredLanguage: 'en',
+        destination: 'resident@example.com',
+        fullName: 'Jordan Resident',
+        zipCode: '81092',
+      },
+    ]);
+  });
+
+  test('submits Spanish severe weather signups when a resident chooses Spanish alerts', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    const signupRequests: Array<Record<string, unknown>> = [];
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      signupRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message:
+            'Gracias. Revise su correo o telefono para completar la confirmacion antes de que comiencen las alertas.',
+        }),
+      });
+    });
+
+    await homePage.goto();
+
+    await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident', 'es');
+
+    await expect(homePage.weatherSignupStatus).toContainText('Gracias');
+    expect(signupRequests).toEqual([
+      {
+        channel: 'email',
+        preferredLanguage: 'es',
         destination: 'resident@example.com',
         fullName: 'Jordan Resident',
         zipCode: '81092',

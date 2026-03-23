@@ -32,7 +32,17 @@ def build_backend(alerts: list[dict] | None = None) -> APP.SevereWeatherBackend:
     delivery_store=APP.MemoryDeliveryStore(),
     notification_gateway=APP.MemoryNotificationGateway(),
     nws_client=APP.StaticNwsClient(alerts or []),
+    translation_gateway=APP.MemoryTranslationGateway(),
   )
+
+
+class RecordingTranslationGateway:
+  def __init__(self) -> None:
+    self.requests: list[tuple[str, str, str]] = []
+
+  def translate_text(self, text: str, source_language: str, target_language: str) -> str:
+    self.requests.append((text, source_language, target_language))
+    return f'[{target_language}] {text}'
 
 
 class FailingNotificationGateway:
@@ -111,6 +121,7 @@ class SevereWeatherBackendTests(unittest.TestCase):
         'Email address is not verified. The following identities failed the check in region US-EAST-2: resident@example.com'
       ),
       nws_client=APP.StaticNwsClient([]),
+      translation_gateway=APP.MemoryTranslationGateway(),
     )
 
     response = backend.handle(
@@ -133,6 +144,117 @@ class SevereWeatherBackendTests(unittest.TestCase):
     self.assertIsNone(
       subscription_store.find_existing_subscription('email', 'resident@example.com'),
     )
+
+  def test_creates_spanish_subscription_and_translates_confirmation(self) -> None:
+    translation_gateway = RecordingTranslationGateway()
+    backend = APP.SevereWeatherBackend(
+      config=APP.AppConfig(
+        subscriptions_table='subscriptions',
+        deliveries_table='deliveries',
+        sender_email='alerts@townofwiley.gov',
+        notification_sender_name='Town of Wiley Alerts',
+        allowed_zip_code='81092',
+        alert_zone_code='COZ098',
+        public_api_base_url='https://alerts.example.com',
+        nws_user_agent='TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)',
+        nws_api_key='',
+      ),
+      subscription_store=APP.MemorySubscriptionStore(),
+      delivery_store=APP.MemoryDeliveryStore(),
+      notification_gateway=APP.MemoryNotificationGateway(),
+      nws_client=APP.StaticNwsClient([]),
+      translation_gateway=translation_gateway,
+    )
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps(
+          {
+            'channel': 'email',
+            'destination': 'resident@example.com',
+            'preferredLanguage': 'es',
+            'zipCode': '81092',
+          },
+        ),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 202)
+    self.assertIn('[es]', backend._notification_gateway.confirmation_messages[0]['message'])
+    self.assertEqual(translation_gateway.requests[0][1:], ('en', 'es'))
+
+  def test_scheduled_event_translates_spanish_alert_messages_once(self) -> None:
+    translation_gateway = RecordingTranslationGateway()
+    backend = APP.SevereWeatherBackend(
+      config=APP.AppConfig(
+        subscriptions_table='subscriptions',
+        deliveries_table='deliveries',
+        sender_email='alerts@townofwiley.gov',
+        notification_sender_name='Town of Wiley Alerts',
+        allowed_zip_code='81092',
+        alert_zone_code='COZ098',
+        public_api_base_url='https://alerts.example.com',
+        nws_user_agent='TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)',
+        nws_api_key='',
+      ),
+      subscription_store=APP.MemorySubscriptionStore(),
+      delivery_store=APP.MemoryDeliveryStore(),
+      notification_gateway=APP.MemoryNotificationGateway(),
+      nws_client=APP.StaticNwsClient(
+        [
+          {
+            'id': 'alert-1',
+            'event': 'High Wind Warning',
+            'headline': 'High winds expected in Wiley.',
+            'severity': 'Severe',
+            'urgency': 'Immediate',
+            'expires': '2026-03-22T23:00:00+00:00',
+            'instruction': 'Secure loose outdoor items.',
+            'areaDesc': 'Wiley and surrounding area',
+          },
+        ],
+      ),
+      translation_gateway=translation_gateway,
+    )
+
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps(
+          {
+            'channel': 'sms',
+            'destination': '(719) 555-0102',
+            'preferredLanguage': 'es',
+            'zipCode': '81092',
+          },
+        ),
+      },
+    )
+    token = (
+      backend._notification_gateway.confirmation_messages[0]['message']
+      .split('Confirm alerts: ')[1]
+      .split('\n')[0]
+      .split('token=')[1]
+    )
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {'token': token},
+      },
+    )
+
+    response = backend.handle({'source': 'aws.events', 'detail-type': 'Scheduled Event'})
+
+    self.assertEqual(json.loads(response['body'])['messagesSent'], 1)
+    self.assertIn('[es]', backend._notification_gateway.alert_messages[0]['subject'])
+    self.assertIn('[es]', backend._notification_gateway.alert_messages[0]['message'])
+    self.assertGreaterEqual(len(translation_gateway.requests), 3)
 
   def test_confirms_subscription_and_renders_html(self) -> None:
     backend = build_backend()

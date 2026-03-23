@@ -18,18 +18,22 @@ from urllib.request import Request, urlopen
 
 EMAIL_CHANNEL = 'email'
 SMS_CHANNEL = 'sms'
+LANGUAGE_EN = 'en'
+LANGUAGE_ES = 'es'
 PENDING_STATUS = 'pending'
 ACTIVE_STATUS = 'active'
 UNSUBSCRIBED_STATUS = 'unsubscribed'
 DEFAULT_ALLOWED_ZIP_CODE = '81092'
 DEFAULT_ALERT_ZONE_CODE = 'COZ098'
 DEFAULT_NOTIFICATION_NAME = 'Town of Wiley Alerts'
+SUPPORTED_ALERT_LANGUAGES = {LANGUAGE_EN, LANGUAGE_ES}
 DEFAULT_CORS_HEADERS = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET,POST,OPTIONS',
   'access-control-allow-headers': 'content-type',
 }
 PHONE_DIGIT_PATTERN = re.compile(r'\D+')
+TRANSLATION_URL_PATTERN = re.compile(r'https?://\S+')
 
 
 @dataclass(frozen=True)
@@ -67,6 +71,10 @@ class NotificationGateway(Protocol):
   def send_confirmation(self, channel: str, destination: str, subject: str, message: str) -> None: ...
 
   def send_alert(self, channel: str, destination: str, subject: str, message: str) -> None: ...
+
+
+class TranslationGateway(Protocol):
+  def translate_text(self, text: str, source_language: str, target_language: str) -> str: ...
 
 
 class NwsClient(Protocol):
@@ -162,6 +170,12 @@ class StaticNwsClient:
   def fetch_active_alerts(self, zone_code: str, user_agent: str, api_key: str) -> list[dict[str, Any]]:
     del zone_code, user_agent, api_key
     return [dict(alert) for alert in self._alerts]
+
+
+class MemoryTranslationGateway:
+  def translate_text(self, text: str, source_language: str, target_language: str) -> str:
+    del source_language, target_language
+    return text
 
 
 class DynamoSubscriptionStore:
@@ -291,6 +305,27 @@ class AwsNotificationGateway:
     raise ValueError(f'Unsupported notification channel: {channel}')
 
 
+class AwsTranslationGateway:
+  def __init__(self, translate_client: Any) -> None:
+    self._translate_client = translate_client
+
+  def translate_text(self, text: str, source_language: str, target_language: str) -> str:
+    if not text.strip() or source_language == target_language:
+      return text
+
+    response = self._translate_client.translate_text(
+      Text=text,
+      SourceLanguageCode=source_language,
+      TargetLanguageCode=target_language,
+      Settings={
+        'Formality': 'FORMAL',
+      },
+    )
+
+    translated_text = str(response.get('TranslatedText', '')).strip()
+    return translated_text or text
+
+
 class WeatherGovNwsClient:
   def fetch_active_alerts(self, zone_code: str, user_agent: str, api_key: str) -> list[dict[str, Any]]:
     headers = {
@@ -347,12 +382,14 @@ class SevereWeatherBackend:
     delivery_store: DeliveryStore,
     notification_gateway: NotificationGateway,
     nws_client: NwsClient,
+    translation_gateway: TranslationGateway,
   ) -> None:
     self._config = config
     self._subscription_store = subscription_store
     self._delivery_store = delivery_store
     self._notification_gateway = notification_gateway
     self._nws_client = nws_client
+    self._translation_gateway = translation_gateway
 
   def handle(self, event: dict[str, Any]) -> dict[str, Any]:
     if is_scheduled_event(event):
@@ -379,6 +416,7 @@ class SevereWeatherBackend:
           'allowedZipCode': self._config.allowed_zip_code,
           'alertZoneCode': self._config.alert_zone_code,
           'signupChannels': [EMAIL_CHANNEL, SMS_CHANNEL],
+          'signupLanguages': sorted(SUPPORTED_ALERT_LANGUAGES),
         },
       )
 
@@ -402,6 +440,10 @@ class SevereWeatherBackend:
     channel = str(payload.get('channel', '')).strip().lower()
     destination = str(payload.get('destination', '')).strip()
     full_name = normalize_whitespace(str(payload.get('fullName', '')).strip())
+    try:
+      preferred_language = normalize_alert_language(payload.get('preferredLanguage', LANGUAGE_EN))
+    except ValueError as error:
+      return json_response(400, {'error': str(error)})
     zip_code = str(payload.get('zipCode', self._config.allowed_zip_code)).strip()
 
     if zip_code != self._config.allowed_zip_code:
@@ -421,6 +463,10 @@ class SevereWeatherBackend:
     request_base_url = build_request_base_url(event, self._config.public_api_base_url)
 
     if existing:
+      existing['fullName'] = full_name or existing.get('fullName', '')
+      existing['preferredLanguage'] = preferred_language
+      existing['updatedAt'] = utc_now_iso()
+      self._subscription_store.save_subscription(existing)
       confirm_url = build_token_url(request_base_url, '/confirm', existing['confirmationToken'])
       unsubscribe_url = build_token_url(request_base_url, '/unsubscribe', existing['unsubscribeToken'])
 
@@ -428,7 +474,10 @@ class SevereWeatherBackend:
         return json_response(
           200,
           {
-            'message': 'This destination is already subscribed to Town of Wiley severe weather alerts.',
+            'message': self._localize_message(
+              'This destination is already subscribed to Town of Wiley severe weather alerts.',
+              preferred_language,
+            ),
             'unsubscribeUrl': unsubscribe_url,
           },
         )
@@ -439,6 +488,7 @@ class SevereWeatherBackend:
           normalized_destination,
           confirm_url,
           unsubscribe_url,
+          preferred_language,
         )
       except RuntimeError as error:
         return json_response(502, {'error': str(error)})
@@ -460,6 +510,7 @@ class SevereWeatherBackend:
       'destination': normalized_destination,
       'subscriberKey': subscriber_key,
       'fullName': full_name,
+      'preferredLanguage': preferred_language,
       'zipCode': zip_code,
       'zoneCode': self._config.alert_zone_code,
       'status': PENDING_STATUS,
@@ -477,6 +528,7 @@ class SevereWeatherBackend:
         normalized_destination,
         confirm_url,
         unsubscribe_url,
+        preferred_language,
       )
     except RuntimeError as error:
       return json_response(502, {'error': str(error)})
@@ -486,7 +538,10 @@ class SevereWeatherBackend:
     return json_response(
       202,
       {
-        'message': 'Subscription created. Confirm the link that was sent before alerts start flowing.',
+        'message': self._localize_message(
+          'Subscription created. Confirm the link that was sent before alerts start flowing.',
+          preferred_language,
+        ),
       },
     )
 
@@ -507,8 +562,11 @@ class SevereWeatherBackend:
     return html_response(
       200,
       render_status_page(
-        'Alerts confirmed',
-        f"{escape(item['destination'])} is now active for Town of Wiley severe weather alerts for ZIP {escape(item['zipCode'])}.",
+        self._localize_message('Alerts confirmed', item.get('preferredLanguage', LANGUAGE_EN)),
+        self._localize_message(
+          f"{item['destination']} is now active for Town of Wiley severe weather alerts for ZIP {item['zipCode']}.",
+          item.get('preferredLanguage', LANGUAGE_EN),
+        ),
       ),
     )
 
@@ -528,8 +586,11 @@ class SevereWeatherBackend:
     return html_response(
       200,
       render_status_page(
-        'Alerts stopped',
-        f"{escape(item['destination'])} has been unsubscribed from Town of Wiley severe weather alerts.",
+        self._localize_message('Alerts stopped', item.get('preferredLanguage', LANGUAGE_EN)),
+        self._localize_message(
+          f"{item['destination']} has been unsubscribed from Town of Wiley severe weather alerts.",
+          item.get('preferredLanguage', LANGUAGE_EN),
+        ),
       ),
     )
 
@@ -552,7 +613,7 @@ class SevereWeatherBackend:
         self._notification_gateway.send_alert(
           subscription['channel'],
           subscription['destination'],
-          f"Town of Wiley alert: {alert['event']}",
+          self._build_alert_subject(subscription, alert),
           self._build_alert_message(subscription, alert),
         )
         self._delivery_store.mark_delivered(delivery_id, subscription['subscriptionId'], alert['id'])
@@ -584,13 +645,17 @@ class SevereWeatherBackend:
     destination: str,
     confirm_url: str,
     unsubscribe_url: str,
+    preferred_language: str,
   ) -> None:
     try:
       self._notification_gateway.send_confirmation(
         channel,
         destination,
-        'Confirm Town of Wiley severe weather alerts',
-        self._build_confirmation_message(confirm_url, unsubscribe_url),
+        self._localize_message('Confirm Town of Wiley severe weather alerts', preferred_language),
+        self._localize_message(
+          self._build_confirmation_message(confirm_url, unsubscribe_url),
+          preferred_language,
+        ),
       )
     except Exception as error:
       raise RuntimeError(self._build_confirmation_delivery_error(channel, error)) from error
@@ -640,7 +705,34 @@ class SevereWeatherBackend:
       )
       lines.extend(['', f'Unsubscribe: {unsubscribe_url}'])
 
-    return '\n'.join(lines)
+    return self._localize_message(
+      '\n'.join(lines),
+      subscription.get('preferredLanguage', LANGUAGE_EN),
+    )
+
+  def _build_alert_subject(self, subscription: dict[str, Any], alert: dict[str, Any]) -> str:
+    return self._localize_message(
+      f"Town of Wiley alert: {alert['event']}",
+      subscription.get('preferredLanguage', LANGUAGE_EN),
+    )
+
+  def _localize_message(self, message: str, preferred_language: str) -> str:
+    try:
+      language = normalize_alert_language(preferred_language)
+    except ValueError:
+      language = LANGUAGE_EN
+
+    if language == LANGUAGE_EN or not message.strip():
+      return message
+
+    masked_message, placeholder_map = mask_urls_for_translation(message)
+
+    try:
+      translated = self._translation_gateway.translate_text(masked_message, LANGUAGE_EN, language)
+    except Exception:
+      return message
+
+    return restore_translated_urls(translated, placeholder_map)
 
 
 def request_method(event: dict[str, Any]) -> str:
@@ -691,6 +783,15 @@ def normalize_destination(channel: str, destination: str) -> tuple[str, str]:
   raise ValueError('Channel must be either "email" or "sms".')
 
 
+def normalize_alert_language(value: Any) -> str:
+  normalized = str(value or LANGUAGE_EN).strip().lower()
+
+  if normalized not in SUPPORTED_ALERT_LANGUAGES:
+    raise ValueError('Preferred language must be either "en" or "es".')
+
+  return normalized
+
+
 def normalize_email(destination: str) -> tuple[str, str]:
   _, parsed_address = parseaddr(destination)
   normalized = parsed_address.strip().lower()
@@ -716,6 +817,26 @@ def normalize_phone(destination: str) -> tuple[str, str]:
 
 def normalize_whitespace(value: str) -> str:
   return ' '.join(value.split())
+
+
+def mask_urls_for_translation(value: str) -> tuple[str, dict[str, str]]:
+  placeholder_map: dict[str, str] = {}
+
+  def replace(match: re.Match[str]) -> str:
+    placeholder = f'TOWNWILEYURLTOKEN{len(placeholder_map)}'
+    placeholder_map[placeholder] = match.group(0)
+    return placeholder
+
+  return TRANSLATION_URL_PATTERN.sub(replace, value), placeholder_map
+
+
+def restore_translated_urls(value: str, placeholder_map: dict[str, str]) -> str:
+  restored = value
+
+  for placeholder, url in placeholder_map.items():
+    restored = restored.replace(placeholder, url)
+
+  return restored
 
 
 def first_nonempty_line(value: str) -> str:
@@ -825,6 +946,7 @@ def build_runtime_backend() -> SevereWeatherBackend:
   dynamodb = boto3.resource('dynamodb', region_name=region_name)
   ses_client = boto3.client('sesv2', region_name=region_name)
   sns_client = boto3.client('sns', region_name=region_name)
+  translate_client = boto3.client('translate', region_name=region_name)
 
   return SevereWeatherBackend(
     config=config,
@@ -832,6 +954,7 @@ def build_runtime_backend() -> SevereWeatherBackend:
     delivery_store=DynamoDeliveryStore(dynamodb.Table(config.deliveries_table)),
     notification_gateway=AwsNotificationGateway(config.sender_email, config.notification_sender_name, ses_client, sns_client),
     nws_client=WeatherGovNwsClient(),
+    translation_gateway=AwsTranslationGateway(translate_client),
   )
 
 

@@ -9,7 +9,9 @@ const NWS_FORECAST_MAPS_URL = 'https://www.weather.gov/forecastmaps';
 const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
 const EMAIL_DESTINATION_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SMS_DESTINATION_PATTERN = /^1?\d{10}$/;
+const DEFAULT_ALERT_LANGUAGE = 'en';
 
+type AlertLanguage = 'en' | 'es';
 type AlertSignupChannel = 'email' | 'sms';
 type AlertSignupFeedbackTone = 'success' | 'error';
 
@@ -142,6 +144,7 @@ export class WeatherPanel {
   protected readonly weatherPeriods = signal<WeatherPeriod[]>([]);
   protected readonly weatherAlerts = signal<WeatherAlert[]>([]);
   protected readonly alertSignupChannel = signal<AlertSignupChannel>('email');
+  protected readonly alertSignupLanguage = signal<AlertLanguage>(DEFAULT_ALERT_LANGUAGE);
   protected readonly alertSignupDestination = signal('');
   protected readonly alertSignupFullName = signal('');
   protected readonly alertSignupFeedback = signal<string | null>(null);
@@ -171,6 +174,9 @@ export class WeatherPanel {
   protected readonly alertSignupDestinationType = computed(() => {
     return this.alertSignupChannel() === 'sms' ? 'tel' : 'email';
   });
+  protected readonly alertSignupLanguageLabel = computed(() => {
+    return this.alertSignupLanguage() === 'es' ? 'Spanish' : 'English';
+  });
   protected readonly isAlertSignupDestinationValid = computed(() => {
     const destination = this.alertSignupDestination().trim();
 
@@ -195,6 +201,11 @@ export class WeatherPanel {
   protected updateAlertSignupChannel(value: string): void {
     this.alertSignupChannel.set(value === 'sms' ? 'sms' : 'email');
     this.alertSignupDestination.set('');
+    this.alertSignupFeedback.set(null);
+  }
+
+  protected updateAlertSignupLanguage(value: string): void {
+    this.alertSignupLanguage.set(value === 'es' ? 'es' : DEFAULT_ALERT_LANGUAGE);
     this.alertSignupFeedback.set(null);
   }
 
@@ -235,6 +246,7 @@ export class WeatherPanel {
       const response = await firstValueFrom(
         this.http.post<AlertSignupResponse>(this.buildAlertSignupUrl('/subscriptions'), {
           channel: this.alertSignupChannel(),
+          preferredLanguage: this.alertSignupLanguage(),
           destination,
           fullName,
           zipCode: ALLOWED_ALERT_SIGNUP_ZIP_CODE,
@@ -245,7 +257,7 @@ export class WeatherPanel {
       this.alertSignupFeedback.set(
         this.normalizeWhitespace(
           response.message?.trim() ||
-            'Request received. Confirm the link that was sent before alerts start flowing.',
+            `Request received. Confirm the ${this.alertSignupLanguageLabel().toLowerCase()} alert link that was sent before alerts start flowing.`,
         ),
       );
       this.alertSignupDestination.set('');

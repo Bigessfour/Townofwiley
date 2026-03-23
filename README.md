@@ -339,6 +339,7 @@ Service contract:
 - Allowed resident ZIP code: `81092`
 - NWS alert zone: `COZ098`
 - Supported notification channels: `email` and `sms`
+- Supported alert languages: `en` and `es`
 - Public routes:
   - `POST /subscriptions`
   - `GET /confirm`
@@ -353,7 +354,7 @@ Required AWS resources created by the deploy script:
 - DynamoDB subscriptions table
 - DynamoDB delivery deduplication table
 - EventBridge schedule for repeated alert polling
-- IAM role with Lambda basic execution, DynamoDB access, SNS publish, and SES send permissions
+- IAM role with Lambda basic execution, DynamoDB access, SNS publish, SES send permissions, and Amazon Translate `TranslateText`
 
 Live backend identifiers at last successful deployment:
 
@@ -418,6 +419,7 @@ python scripts/deploy-severe-weather-backend.py --branch-name main
 Operational notes:
 
 - The deploy script reads AWS credentials and default metadata from `secrets/local/user-secrets.json` when environment variables are not already set.
+- The weather signup form now lets residents choose English or Spanish alerts. The backend stores that preference and uses Amazon Translate `translate_text` for Spanish confirmation and alert delivery, while preserving confirmation and unsubscribe URLs.
 - The script updates Amplify `main` branch environment values to keep the Angular runtime config aligned with the live backend URL.
 - Email confirmation and alert delivery will remain blocked until the configured SES sender identity is verified.
 - SMS sending uses SNS directly, so destination-country and spend-limit policies still apply in the AWS account.

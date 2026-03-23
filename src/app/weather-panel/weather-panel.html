@@ -169,6 +169,19 @@
                   />
                 </label>
 
+                <label class="weather-signup-field" for="weather-alert-signup-language">
+                  <span>Alert language</span>
+                  <select
+                    id="weather-alert-signup-language"
+                    [value]="alertSignupLanguage()"
+                    (change)="updateAlertSignupLanguage($any($event.target).value)"
+                    [disabled]="isAlertSignupSubmitting()"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                  </select>
+                </label>
+
                 <label class="weather-signup-field" for="weather-alert-signup-full-name">
                   <span>Full name (optional)</span>
                   <input

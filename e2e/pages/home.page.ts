@@ -21,6 +21,7 @@ export class HomePage {
   readonly weatherSignupShell: Locator;
   readonly weatherSignupChannel: Locator;
   readonly weatherSignupDestination: Locator;
+  readonly weatherSignupLanguage: Locator;
   readonly weatherSignupFullName: Locator;
   readonly weatherSignupZipCode: Locator;
   readonly weatherSignupSubmitButton: Locator;
@@ -63,6 +64,7 @@ export class HomePage {
     this.weatherSignupShell = page.locator('.weather-signup-shell');
     this.weatherSignupChannel = page.locator('#weather-alert-signup-channel');
     this.weatherSignupDestination = page.locator('#weather-alert-signup-destination');
+    this.weatherSignupLanguage = page.locator('#weather-alert-signup-language');
     this.weatherSignupFullName = page.locator('#weather-alert-signup-full-name');
     this.weatherSignupZipCode = page.locator('#weather-alert-signup-zip-code');
     this.weatherSignupSubmitButton = page.locator('.weather-signup-submit');
@@ -221,8 +223,16 @@ export class HomePage {
     await expect(this.searchInput).toHaveValue(query);
   }
 
-  async submitWeatherAlertSignup(destination: string, fullName?: string): Promise<void> {
+  async submitWeatherAlertSignup(
+    destination: string,
+    fullName?: string,
+    preferredLanguage?: 'en' | 'es',
+  ): Promise<void> {
     await this.weatherSignupDestination.fill(destination);
+
+    if (preferredLanguage) {
+      await this.weatherSignupLanguage.selectOption(preferredLanguage);
+    }
 
     if (fullName) {
       await this.weatherSignupFullName.fill(fullName);

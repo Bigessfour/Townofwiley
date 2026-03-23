@@ -240,16 +240,26 @@ describe('App', () => {
     });
 
     fixture.detectChanges();
+    await Promise.resolve();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const component = fixture.componentInstance as WeatherPanel & {
       isAlertSignupEnabled: () => boolean;
       alertSignupSubmitLabel: () => string;
+      alertSignupLanguageLabel: () => string;
+      updateAlertSignupLanguage: (value: string) => void;
     };
 
     expect(component.isAlertSignupEnabled()).toBe(true);
     expect(component.alertSignupSubmitLabel()).toBe('Sign up for alerts');
+    expect(component.alertSignupLanguageLabel()).toBe('English');
+
+    component.updateAlertSignupLanguage('es');
+    fixture.detectChanges();
+
+    expect(component.alertSignupLanguageLabel()).toBe('Spanish');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Alert language');
   });
 
   it('should render the clerk editor on the admin path', async () => {
