@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { TOW_CMS_STORAGE_KEY } from './cms-content';
 import { WeatherPanel } from './weather-panel/weather-panel';
 
 describe('App', () => {
@@ -20,7 +19,6 @@ describe('App', () => {
   afterEach(() => {
     delete (window as any).__TOW_RUNTIME_CONFIG__;
     delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
-    window.localStorage.removeItem(TOW_CMS_STORAGE_KEY);
     window.history.replaceState({}, '', '/');
     httpTesting.verify();
   });
@@ -71,53 +69,86 @@ describe('App', () => {
     );
   });
 
-  it('should render clerk-managed homepage content from browser CMS storage', async () => {
-    window.localStorage.setItem(
-      TOW_CMS_STORAGE_KEY,
-      JSON.stringify({
-        hero: {
-          eyebrow: 'Town Website',
-          status: 'Open for Residents',
-          title: 'Wiley Community Updates',
-          message: 'Find the latest notices, meeting updates, and town information in one place.',
-          subtext: 'This version highlights emergency notices and resident-facing updates first.',
-          welcomeLabel: 'Welcome Photo',
-          welcomeHeading: 'A fresh homepage for Wiley residents',
-          welcomeBody:
-            'The welcome area now explains what residents can do on the site right away.',
-          welcomeCaption: 'Updated caption for the Wiley homepage photo.',
+  it('should render homepage content from Amplify Studio CMS when AppSync runtime config is present', async () => {
+    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
         },
-        alertBanner: {
-          enabled: true,
-          label: 'Emergency Notice',
-          title: 'Main Street closed tonight',
-          detail: 'Crews will close Main Street from 8 PM until midnight for utility repairs.',
-          linkLabel: 'Call Town Hall',
-          linkHref: 'tel:+17198294974',
-        },
-        notices: [
-          {
-            id: 'water-outage',
-            title: 'Water outage on Main Street',
-            date: 'Tonight',
-            detail: 'Crews will repair a broken main from 10 PM until approximately 2 AM.',
-          },
-        ],
-        contacts: [
-          {
-            id: 'clerk-desk',
-            label: 'Clerk Desk',
-            value: 'Deb Dillon',
-            detail: 'Call or email for meeting packets and town records requests.',
-            href: 'mailto:deb.dillon@townofwiley.gov',
-            linkLabel: 'deb.dillon@townofwiley.gov',
-          },
-        ],
-      }),
-    );
+      },
+    };
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
+
+    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    expect(cmsRequest.request.method).toBe('POST');
+    expect(cmsRequest.request.headers.get('x-api-key')).toBe('test-public-api-key');
+    cmsRequest.flush({
+      data: {
+        listSiteSettings: {
+          items: [
+            {
+              townName: 'Town of Wiley',
+              heroEyebrow: 'Town Website',
+              heroStatus: 'Open for Residents',
+              heroTitle: 'Wiley Community Updates',
+              heroMessage:
+                'Find the latest notices, meeting updates, and town information in one place.',
+              heroSubtext:
+                'This version highlights emergency notices and resident-facing updates first.',
+              welcomeLabel: 'Welcome Photo',
+              welcomeHeading: 'A fresh homepage for Wiley residents',
+              welcomeBody:
+                'The welcome area now explains what residents can do on the site right away.',
+              welcomeCaption: 'Updated caption for the Wiley homepage photo.',
+            },
+          ],
+        },
+        listAlertBanners: {
+          items: [
+            {
+              id: 'alert-1',
+              enabled: true,
+              label: 'Emergency Notice',
+              title: 'Main Street closed tonight',
+              detail: 'Crews will close Main Street from 8 PM until midnight for utility repairs.',
+              linkLabel: 'Call Town Hall',
+              linkHref: 'tel:+17198294974',
+              updatedAt: '2026-03-22T18:00:00Z',
+            },
+          ],
+        },
+        listAnnouncements: {
+          items: [
+            {
+              id: 'water-outage',
+              title: 'Water outage on Main Street',
+              date: '2026-03-22',
+              detail: 'Crews will repair a broken main from 10 PM until approximately 2 AM.',
+              priority: 1,
+              active: true,
+            },
+          ],
+        },
+        listOfficialContacts: {
+          items: [
+            {
+              id: 'clerk-desk',
+              label: 'Clerk Desk',
+              value: 'Deb Dillon',
+              detail: 'Call or email for meeting packets and town records requests.',
+              href: 'mailto:deb.dillon@townofwiley.gov',
+              linkLabel: 'deb.dillon@townofwiley.gov',
+              displayOrder: 1,
+            },
+          ],
+        },
+      },
+    });
+
     await flushWeatherRequests();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -230,12 +261,12 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Update Wiley homepage content',
+      'Amplify Studio is the only CMS',
     );
+    expect(compiled.textContent).toContain('Browser-local editing has been disabled');
     expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Save homepage notices',
+      'Open Amplify Console',
     );
-    expect(compiled.querySelector('.cms-section-link')?.textContent).toContain('Homepage text');
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {

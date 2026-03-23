@@ -60,6 +60,13 @@ const templateSecrets = {
       senderEmail: '',
     },
   },
+  cms: {
+    appSync: {
+      region: 'us-east-2',
+      apiEndpoint: '',
+      apiKey: '',
+    },
+  },
 };
 
 const envMappings = [
@@ -97,6 +104,9 @@ const envMappings = [
     env: 'SEVERE_WEATHER_SIGNUP_SENDER_EMAIL',
     path: ['weather', 'alertSignup', 'senderEmail'],
   },
+  { env: 'APPSYNC_CMS_REGION', path: ['cms', 'appSync', 'region'] },
+  { env: 'APPSYNC_CMS_ENDPOINT', path: ['cms', 'appSync', 'apiEndpoint'] },
+  { env: 'APPSYNC_CMS_API_KEY', path: ['cms', 'appSync', 'apiKey'] },
 ];
 
 function ensureStructure() {

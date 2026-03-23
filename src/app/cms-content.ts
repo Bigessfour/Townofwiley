@@ -1,4 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 export interface CmsNotice {
   id: string;
@@ -43,8 +45,6 @@ export interface CmsPortalContent {
   notices: CmsNotice[];
   contacts: CmsContact[];
 }
-
-export const TOW_CMS_STORAGE_KEY = 'tow-cms-content-v1';
 
 export const DEFAULT_CMS_HERO: CmsHeroContent = {
   eyebrow: 'Town of Wiley, Colorado',
@@ -130,249 +130,393 @@ export const DEFAULT_CMS_CONTACTS: CmsContact[] = [
   },
 ];
 
-interface StoredCmsContent {
-  hero: CmsHeroContent;
-  alertBanner: CmsAlertBanner;
-  notices: CmsNotice[];
-  contacts: CmsContact[];
+interface RuntimeCmsConfig {
+  region: string;
+  apiEndpoint: string;
+  apiKey: string;
 }
 
-export function cloneCmsNotice(notice: CmsNotice): CmsNotice {
-  return { ...notice };
+interface CmsGraphqlList<T> {
+  items?: Array<T | null> | null;
 }
 
-export function cloneCmsNotices(notices: CmsNotice[]): CmsNotice[] {
-  return notices.map((notice) => cloneCmsNotice(notice));
+interface SiteSettingsRecord {
+  townName: string;
+  pageTitle?: string | null;
+  heroEyebrow?: string | null;
+  heroStatus?: string | null;
+  heroTitle?: string | null;
+  heroMessage?: string | null;
+  heroSubtext?: string | null;
+  welcomeLabel?: string | null;
+  welcomeHeading?: string | null;
+  welcomeBody?: string | null;
+  welcomeCaption?: string | null;
 }
 
-export function cloneCmsHeroContent(content: CmsHeroContent): CmsHeroContent {
-  return { ...content };
+interface AlertBannerRecord {
+  id: string;
+  enabled: boolean;
+  label: string;
+  title: string;
+  detail: string;
+  linkLabel?: string | null;
+  linkHref?: string | null;
+  updatedAt?: string | null;
 }
 
-export function cloneCmsAlertBanner(content: CmsAlertBanner): CmsAlertBanner {
-  return { ...content };
+interface AnnouncementRecord {
+  id: string;
+  title: string;
+  date?: string | null;
+  detail: string;
+  priority?: number | null;
+  active: boolean;
 }
 
-export function cloneCmsContact(contact: CmsContact): CmsContact {
-  return { ...contact };
+interface OfficialContactRecord {
+  id: string;
+  label: string;
+  value: string;
+  detail: string;
+  href?: string | null;
+  linkLabel?: string | null;
+  displayOrder?: number | null;
 }
 
-export function cloneCmsContacts(contacts: CmsContact[]): CmsContact[] {
-  return contacts.map((contact) => cloneCmsContact(contact));
+interface CmsGraphqlResponse {
+  data?: {
+    listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
+    listAlertBanners?: CmsGraphqlList<AlertBannerRecord>;
+    listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
+    listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
+  };
+  errors?: Array<{
+    message?: string;
+  }>;
 }
 
-export function createCmsNoticeId(): string {
-  return `notice-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-}
-
-export function createCmsContactId(): string {
-  return `contact-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-}
+const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
+  listSiteSettings(limit: 1) {
+    items {
+      townName
+      pageTitle
+      heroEyebrow
+      heroStatus
+      heroTitle
+      heroMessage
+      heroSubtext
+      welcomeLabel
+      welcomeHeading
+      welcomeBody
+      welcomeCaption
+    }
+  }
+  listAlertBanners(limit: 20) {
+    items {
+      id
+      enabled
+      label
+      title
+      detail
+      linkLabel
+      linkHref
+      updatedAt
+    }
+  }
+  listAnnouncements(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      title
+      date
+      detail
+      priority
+      active
+    }
+  }
+  listOfficialContacts(limit: 50) {
+    items {
+      id
+      label
+      value
+      detail
+      href
+      linkLabel
+      displayOrder
+    }
+  }
+}`;
 
 @Injectable({
   providedIn: 'root',
 })
 export class CmsContentStore {
-  private readonly heroState = signal<CmsHeroContent>(cloneCmsHeroContent(DEFAULT_CMS_HERO));
-  private readonly alertBannerState = signal<CmsAlertBanner>(
-    cloneCmsAlertBanner(DEFAULT_CMS_ALERT_BANNER),
+  private readonly http = inject(HttpClient);
+  private readonly cmsConfig = this.getCmsRuntimeConfig();
+  private readonly dateFormatter = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  private readonly heroState = signal<CmsHeroContent>({ ...DEFAULT_CMS_HERO });
+  private readonly alertBannerState = signal<CmsAlertBanner>({ ...DEFAULT_CMS_ALERT_BANNER });
+  private readonly noticesState = signal<CmsNotice[]>(DEFAULT_CMS_NOTICES.map((notice) => ({ ...notice })));
+  private readonly contactsState = signal<CmsContact[]>(
+    DEFAULT_CMS_CONTACTS.map((contact) => ({ ...contact })),
   );
-  private readonly noticesState = signal<CmsNotice[]>(cloneCmsNotices(DEFAULT_CMS_NOTICES));
-  private readonly contactsState = signal<CmsContact[]>(cloneCmsContacts(DEFAULT_CMS_CONTACTS));
-  private readonly persistenceModeState = signal<'seed' | 'local'>('seed');
+  private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
+    this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
+  );
+  private readonly loadErrorState = signal<string | null>(null);
 
   readonly hero = computed(() => this.heroState());
   readonly alertBanner = computed(() => this.alertBannerState());
   readonly notices = computed(() => this.noticesState());
   readonly contacts = computed(() => this.contactsState());
-  readonly persistenceSummary = computed(() =>
-    this.persistenceModeState() === 'local'
-      ? 'Saved in this browser. Clerk edits stay live on this device until the shared AWS content API is wired.'
-      : 'Showing the starter homepage content bundled with the site. Save from the clerk editor to replace it in this browser.',
-  );
+  readonly isLoading = computed(() => this.loadState() === 'loading');
+  readonly loadError = computed(() => this.loadErrorState());
+  readonly persistenceSummary = computed(() => {
+    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+      return 'Amplify Studio CMS runtime config is missing. The site is showing bundled fallback content until AppSync settings are injected at build or deploy time.';
+    }
+
+    switch (this.loadState()) {
+      case 'loading':
+        return 'Loading homepage content from Amplify Studio.';
+      case 'studio':
+        return 'Homepage content is coming from Amplify Studio through AppSync. Browser-based CMS editing is disabled.';
+      case 'error':
+        return 'Amplify Studio content could not be loaded. The site fell back to bundled homepage content.';
+      default:
+        return 'Showing bundled fallback homepage content.';
+    }
+  });
 
   constructor() {
-    this.hydrate();
-  }
-
-  getDraftContent(): CmsPortalContent {
-    return {
-      hero: cloneCmsHeroContent(this.heroState()),
-      alertBanner: cloneCmsAlertBanner(this.alertBannerState()),
-      notices: cloneCmsNotices(this.noticesState()),
-      contacts: cloneCmsContacts(this.contactsState()),
-    };
-  }
-
-  async saveContent(content: CmsPortalContent): Promise<void> {
-    this.heroState.set(this.normalizeHero(content.hero));
-    this.alertBannerState.set(this.normalizeAlertBanner(content.alertBanner));
-    this.noticesState.set(this.normalizeNotices(content.notices));
-    this.contactsState.set(this.normalizeContacts(content.contacts));
-    this.persistenceModeState.set('local');
-    this.writeToStorage(this.createSnapshot());
-  }
-
-  resetToDefaults(): void {
-    this.heroState.set(cloneCmsHeroContent(DEFAULT_CMS_HERO));
-    this.alertBannerState.set(cloneCmsAlertBanner(DEFAULT_CMS_ALERT_BANNER));
-    this.noticesState.set(cloneCmsNotices(DEFAULT_CMS_NOTICES));
-    this.contactsState.set(cloneCmsContacts(DEFAULT_CMS_CONTACTS));
-    this.persistenceModeState.set('seed');
-
-    if (typeof window === 'undefined') {
-      return;
+    if (this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey) {
+      void this.loadContent();
     }
-
-    window.localStorage.removeItem(TOW_CMS_STORAGE_KEY);
   }
 
-  private hydrate(): void {
-    const stored = this.readFromStorage();
-
-    if (!stored) {
-      return;
-    }
-
-    this.heroState.set(cloneCmsHeroContent(stored.hero));
-    this.alertBannerState.set(cloneCmsAlertBanner(stored.alertBanner));
-    this.noticesState.set(cloneCmsNotices(stored.notices));
-    this.contactsState.set(cloneCmsContacts(stored.contacts));
-    this.persistenceModeState.set('local');
-  }
-
-  private readFromStorage(): StoredCmsContent | null {
-    if (typeof window === 'undefined') {
-      return null;
-    }
+  private async loadContent(): Promise<void> {
+    this.loadState.set('loading');
+    this.loadErrorState.set(null);
 
     try {
-      const rawValue = window.localStorage.getItem(TOW_CMS_STORAGE_KEY);
+      const response = await firstValueFrom(
+        this.http.post<CmsGraphqlResponse>(
+          this.cmsConfig.apiEndpoint,
+          {
+            query: PUBLIC_CMS_QUERY,
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+              'x-api-key': this.cmsConfig.apiKey,
+            },
+          },
+        ),
+      );
 
-      if (!rawValue) {
-        return null;
+      if (response.errors?.length) {
+        throw new Error(
+          response.errors
+            .map((error) => error.message?.trim())
+            .filter((message): message is string => Boolean(message))
+            .join(' '),
+        );
       }
 
-      const parsedValue = JSON.parse(rawValue) as Partial<StoredCmsContent>;
-
-      return {
-        hero: this.normalizeHero(parsedValue.hero),
-        alertBanner: this.normalizeAlertBanner(parsedValue.alertBanner),
-        notices: this.normalizeNotices(parsedValue.notices),
-        contacts: this.normalizeContacts(parsedValue.contacts),
-      };
-    } catch {
-      return null;
+      const content = this.mapPortalContent(response.data);
+      this.heroState.set(content.hero);
+      this.alertBannerState.set(content.alertBanner);
+      this.noticesState.set(content.notices);
+      this.contactsState.set(content.contacts);
+      this.loadState.set('studio');
+    } catch (error) {
+      this.applyFallbackContent();
+      this.loadState.set('error');
+      this.loadErrorState.set(this.readLoadError(error));
     }
   }
 
-  private createSnapshot(): StoredCmsContent {
+  private mapPortalContent(data: CmsGraphqlResponse['data']): CmsPortalContent {
+    const siteSettings = data?.listSiteSettings?.items?.find(
+      (item): item is SiteSettingsRecord => Boolean(item),
+    );
+    const alertBanner = this.pickAlertBanner(data?.listAlertBanners?.items ?? []);
+
     return {
-      hero: cloneCmsHeroContent(this.heroState()),
-      alertBanner: cloneCmsAlertBanner(this.alertBannerState()),
-      notices: cloneCmsNotices(this.noticesState()),
-      contacts: cloneCmsContacts(this.contactsState()),
+      hero: this.normalizeHero(siteSettings),
+      alertBanner: this.normalizeAlertBanner(alertBanner),
+      notices: this.normalizeAnnouncements(data?.listAnnouncements?.items ?? []),
+      contacts: this.normalizeContacts(data?.listOfficialContacts?.items ?? []),
     };
   }
 
-  private normalizeHero(hero: Partial<CmsHeroContent> | undefined): CmsHeroContent {
+  private applyFallbackContent(): void {
+    this.heroState.set({ ...DEFAULT_CMS_HERO });
+    this.alertBannerState.set({ ...DEFAULT_CMS_ALERT_BANNER });
+    this.noticesState.set(DEFAULT_CMS_NOTICES.map((notice) => ({ ...notice })));
+    this.contactsState.set(DEFAULT_CMS_CONTACTS.map((contact) => ({ ...contact })));
+  }
+
+  private normalizeHero(siteSettings: SiteSettingsRecord | undefined): CmsHeroContent {
     return {
-      eyebrow:
-        typeof hero?.eyebrow === 'string' && hero.eyebrow.trim()
-          ? hero.eyebrow.trim()
-          : DEFAULT_CMS_HERO.eyebrow,
-      status:
-        typeof hero?.status === 'string' && hero.status.trim()
-          ? hero.status.trim()
-          : DEFAULT_CMS_HERO.status,
-      title:
-        typeof hero?.title === 'string' && hero.title.trim()
-          ? hero.title.trim()
-          : DEFAULT_CMS_HERO.title,
-      message:
-        typeof hero?.message === 'string' && hero.message.trim()
-          ? hero.message.trim()
-          : DEFAULT_CMS_HERO.message,
-      subtext:
-        typeof hero?.subtext === 'string' && hero.subtext.trim()
-          ? hero.subtext.trim()
-          : DEFAULT_CMS_HERO.subtext,
-      welcomeLabel:
-        typeof hero?.welcomeLabel === 'string' && hero.welcomeLabel.trim()
-          ? hero.welcomeLabel.trim()
-          : DEFAULT_CMS_HERO.welcomeLabel,
-      welcomeHeading:
-        typeof hero?.welcomeHeading === 'string' && hero.welcomeHeading.trim()
-          ? hero.welcomeHeading.trim()
-          : DEFAULT_CMS_HERO.welcomeHeading,
-      welcomeBody:
-        typeof hero?.welcomeBody === 'string' && hero.welcomeBody.trim()
-          ? hero.welcomeBody.trim()
-          : DEFAULT_CMS_HERO.welcomeBody,
-      welcomeCaption:
-        typeof hero?.welcomeCaption === 'string' && hero.welcomeCaption.trim()
-          ? hero.welcomeCaption.trim()
-          : DEFAULT_CMS_HERO.welcomeCaption,
+      eyebrow: this.pickText(siteSettings?.heroEyebrow, DEFAULT_CMS_HERO.eyebrow),
+      status: this.pickText(siteSettings?.heroStatus, DEFAULT_CMS_HERO.status),
+      title: this.pickText(
+        siteSettings?.heroTitle ?? siteSettings?.pageTitle ?? siteSettings?.townName,
+        DEFAULT_CMS_HERO.title,
+      ),
+      message: this.pickText(siteSettings?.heroMessage, DEFAULT_CMS_HERO.message),
+      subtext: this.pickText(siteSettings?.heroSubtext, DEFAULT_CMS_HERO.subtext),
+      welcomeLabel: this.pickText(siteSettings?.welcomeLabel, DEFAULT_CMS_HERO.welcomeLabel),
+      welcomeHeading: this.pickText(
+        siteSettings?.welcomeHeading,
+        DEFAULT_CMS_HERO.welcomeHeading,
+      ),
+      welcomeBody: this.pickText(siteSettings?.welcomeBody, DEFAULT_CMS_HERO.welcomeBody),
+      welcomeCaption: this.pickText(
+        siteSettings?.welcomeCaption,
+        DEFAULT_CMS_HERO.welcomeCaption,
+      ),
     };
   }
 
-  private normalizeAlertBanner(alertBanner: Partial<CmsAlertBanner> | undefined): CmsAlertBanner {
+  private normalizeAlertBanner(alertBanner: AlertBannerRecord | undefined): CmsAlertBanner {
     return {
       enabled: Boolean(alertBanner?.enabled),
-      label:
-        typeof alertBanner?.label === 'string' && alertBanner.label.trim()
-          ? alertBanner.label.trim()
-          : DEFAULT_CMS_ALERT_BANNER.label,
-      title:
-        typeof alertBanner?.title === 'string' && alertBanner.title.trim()
-          ? alertBanner.title.trim()
-          : DEFAULT_CMS_ALERT_BANNER.title,
-      detail:
-        typeof alertBanner?.detail === 'string' && alertBanner.detail.trim()
-          ? alertBanner.detail.trim()
-          : DEFAULT_CMS_ALERT_BANNER.detail,
-      linkLabel: typeof alertBanner?.linkLabel === 'string' ? alertBanner.linkLabel.trim() : '',
-      linkHref: typeof alertBanner?.linkHref === 'string' ? alertBanner.linkHref.trim() : '',
+      label: this.pickText(alertBanner?.label, DEFAULT_CMS_ALERT_BANNER.label),
+      title: this.pickText(alertBanner?.title, DEFAULT_CMS_ALERT_BANNER.title),
+      detail: this.pickText(alertBanner?.detail, DEFAULT_CMS_ALERT_BANNER.detail),
+      linkLabel: this.cleanText(alertBanner?.linkLabel) ?? '',
+      linkHref: this.cleanText(alertBanner?.linkHref) ?? '',
     };
   }
 
-  private normalizeNotices(notices: CmsNotice[] | undefined): CmsNotice[] {
-    const normalizedNotices = Array.isArray(notices)
-      ? notices
-          .map((notice) => ({
-            id: notice?.id?.trim() || createCmsNoticeId(),
-            title: typeof notice?.title === 'string' ? notice.title.trim() : '',
-            date: typeof notice?.date === 'string' ? notice.date.trim() : '',
-            detail: typeof notice?.detail === 'string' ? notice.detail.trim() : '',
-          }))
-          .filter((notice) => notice.title && notice.date && notice.detail)
-      : [];
+  private normalizeAnnouncements(records: Array<AnnouncementRecord | null>): CmsNotice[] {
+    const notices = records
+      .filter((record): record is AnnouncementRecord => Boolean(record?.active))
+      .map((record) => ({
+        id: record.id.trim(),
+        title: this.cleanText(record.title) ?? '',
+        date: this.formatDateLabel(record.date),
+        detail: this.cleanText(record.detail) ?? '',
+        priority: typeof record.priority === 'number' ? record.priority : Number.MAX_SAFE_INTEGER,
+      }))
+      .filter((notice) => notice.id && notice.title && notice.detail)
+      .sort((left, right) => left.priority - right.priority)
+      .map(({ priority: _priority, ...notice }) => notice);
 
-    return normalizedNotices.length ? normalizedNotices : cloneCmsNotices(DEFAULT_CMS_NOTICES);
+    return notices.length ? notices : DEFAULT_CMS_NOTICES.map((notice) => ({ ...notice }));
   }
 
-  private normalizeContacts(contacts: CmsContact[] | undefined): CmsContact[] {
-    const normalizedContacts = Array.isArray(contacts)
-      ? contacts
-          .map((contact) => ({
-            id: contact?.id?.trim() || createCmsContactId(),
-            label: typeof contact?.label === 'string' ? contact.label.trim() : '',
-            value: typeof contact?.value === 'string' ? contact.value.trim() : '',
-            detail: typeof contact?.detail === 'string' ? contact.detail.trim() : '',
-            href: typeof contact?.href === 'string' ? contact.href.trim() : '',
-            linkLabel: typeof contact?.linkLabel === 'string' ? contact.linkLabel.trim() : '',
-          }))
-          .filter((contact) => contact.label && contact.value && contact.detail)
-      : [];
+  private normalizeContacts(records: Array<OfficialContactRecord | null>): CmsContact[] {
+    const contacts = records
+      .filter((record): record is OfficialContactRecord => Boolean(record))
+      .map((record) => ({
+        id: record.id.trim(),
+        label: this.cleanText(record.label) ?? '',
+        value: this.cleanText(record.value) ?? '',
+        detail: this.cleanText(record.detail) ?? '',
+        href: this.cleanText(record.href),
+        linkLabel: this.cleanText(record.linkLabel),
+        displayOrder:
+          typeof record.displayOrder === 'number' ? record.displayOrder : Number.MAX_SAFE_INTEGER,
+      }))
+      .filter((contact) => contact.id && contact.label && contact.value && contact.detail)
+      .sort((left, right) => left.displayOrder - right.displayOrder)
+      .map(({ displayOrder: _displayOrder, ...contact }) => contact);
 
-    return normalizedContacts.length ? normalizedContacts : cloneCmsContacts(DEFAULT_CMS_CONTACTS);
+    return contacts.length ? contacts : DEFAULT_CMS_CONTACTS.map((contact) => ({ ...contact }));
   }
 
-  private writeToStorage(content: StoredCmsContent): void {
-    if (typeof window === 'undefined') {
-      return;
+  private pickAlertBanner(records: Array<AlertBannerRecord | null>): AlertBannerRecord | undefined {
+    return records
+      .filter((record): record is AlertBannerRecord => Boolean(record))
+      .sort((left, right) => {
+        if (left.enabled !== right.enabled) {
+          return left.enabled ? -1 : 1;
+        }
+
+        return (right.updatedAt ?? '').localeCompare(left.updatedAt ?? '');
+      })[0];
+  }
+
+  private formatDateLabel(value: string | null | undefined): string {
+    const trimmedValue = this.cleanText(value);
+
+    if (!trimmedValue) {
+      return 'Town update';
     }
 
-    window.localStorage.setItem(TOW_CMS_STORAGE_KEY, JSON.stringify(content));
+    const parsedDate = new Date(trimmedValue);
+
+    return Number.isNaN(parsedDate.getTime())
+      ? trimmedValue
+      : this.dateFormatter.format(parsedDate);
+  }
+
+  private pickText(value: string | null | undefined, fallback: string): string {
+    return this.cleanText(value) ?? fallback;
+  }
+
+  private cleanText(value: string | null | undefined): string | undefined {
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  }
+
+  private readLoadError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return error.error.trim();
+      }
+
+      if (typeof error.message === 'string' && error.message.trim()) {
+        return error.message.trim();
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message.trim();
+    }
+
+    return 'Unable to load Amplify Studio content right now.';
+  }
+
+  private getCmsRuntimeConfig(): RuntimeCmsConfig {
+    const runtimeWindow =
+      typeof window === 'undefined'
+        ? undefined
+        : (window as Window & {
+            __TOW_RUNTIME_CONFIG__?: {
+              cms?: {
+                appSync?: {
+                  region?: string;
+                  apiEndpoint?: string;
+                  apiKey?: string;
+                };
+              };
+            };
+            __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+              cms?: {
+                appSync?: {
+                  region?: string;
+                  apiEndpoint?: string;
+                  apiKey?: string;
+                };
+              };
+            };
+          });
+    const appSyncConfig = {
+      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG__?.cms?.appSync ?? {}),
+      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms?.appSync ?? {}),
+    };
+
+    return {
+      region: typeof appSyncConfig.region === 'string' ? appSyncConfig.region : '',
+      apiEndpoint: typeof appSyncConfig.apiEndpoint === 'string' ? appSyncConfig.apiEndpoint : '',
+      apiKey: typeof appSyncConfig.apiKey === 'string' ? appSyncConfig.apiKey : '',
+    };
   }
 }

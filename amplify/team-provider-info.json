@@ -1,0 +1,23 @@
+{
+  "main": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-townofwiley-main-d1245-authRole",
+      "UnauthRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-townofwiley-main-d1245-deployment",
+      "UnauthRoleName": "amplify-townofwiley-main-d1245-unauthRole",
+      "StackName": "amplify-townofwiley-main-d1245",
+      "StackId": "arn:aws:cloudformation:us-east-2:570912405222:stack/amplify-townofwiley-main-d1245/307b4230-2641-11f1-9639-0a3b84592b65",
+      "AmplifyAppId": "d331voxr1fhoir"
+    },
+    "categories": {
+      "auth": {
+        "Townofwiley": {}
+      },
+      "api": {
+        "townofwiley": {}
+      }
+    }
+  }
+}

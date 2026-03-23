@@ -187,32 +187,33 @@ Amplify setup:
 
 If no chatbot URL is configured, the site renders normally and no Easy-Peasy script is injected.
 
-## Clerk CMS Starter
+## Amplify Studio CMS
 
-The site now includes a starter clerk-facing content editor at `/admin`.
+Homepage publishing now relies on Amplify Studio and AppSync. The old browser-local CMS workflow has been disabled.
 
 Plain-language staff guide:
 
-- See [CLERK-CMS-GUIDE.md](CLERK-CMS-GUIDE.md) for a non-technical walkthrough written for town staff.
+- See [CLERK-CMS-GUIDE.md](CLERK-CMS-GUIDE.md) for the current staff workflow.
 
 Current scope:
 
-- Purpose: edit homepage text, emergency banner content, notice cards, and public contact cards without touching code
-- Current persistence: browser-local storage only
-- Current audience: prototype and workflow validation for the future clerk CMS
-- Current limitation: there is no authentication or shared AWS-backed content API yet
+- Publishing surface: Amplify Studio Data Manager
+- Public read path: AppSync GraphQL API with a runtime-injected read key
+- Homepage models in use: `SiteSettings`, `AlertBanner`, `Announcement`, `OfficialContact`
+- `/admin` route: read-only operations page that points maintainers to Amplify Studio
 
-What this starter proves:
+Runtime configuration sources for the public CMS read path:
 
-- A non-technical editor can manage the most important homepage content from a plain-language screen
-- The homepage can already read banner, notice, contact, and headline content from a runtime content store instead of hardcoded arrays and strings
-- The next AWS step can focus on Cognito plus a shared Lambda and DynamoDB content API without changing the public editing workflow much
+- `APPSYNC_CMS_REGION`
+- `APPSYNC_CMS_ENDPOINT`
+- `APPSYNC_CMS_API_KEY`
+- `secrets/local/user-secrets.json -> cms.appSync`
 
-Operational note:
+Operational notes:
 
-- Treat `/admin` as a local prototype route until authentication is added
-- Do not rely on browser-local storage for official production publishing across devices
-- The next implementation step is to move this content store behind an authenticated AWS API so clerk changes publish for all residents, not just one browser session
+- Homepage content should be changed in Amplify Studio, not in the browser.
+- The site falls back to bundled homepage content if AppSync runtime config is missing or the CMS request fails.
+- The repo secrets workflow now carries the AppSync endpoint and public read key in the encrypted lockbox for future maintainers.
 
 ## NWS Weather Proxy
 

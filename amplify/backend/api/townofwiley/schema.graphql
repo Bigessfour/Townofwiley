@@ -1,0 +1,92 @@
+type SiteSettings
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  townName: String!
+  officeHours: String
+  address: String
+  phone: AWSPhone
+  email: AWSEmail
+  pageTitle: String
+  heroEyebrow: String
+  heroStatus: String
+  heroTitle: String
+  heroMessage: String
+  heroSubtext: String
+  welcomeLabel: String
+  welcomeHeading: String
+  welcomeBody: String
+  welcomeCaption: String
+}
+
+type AlertBanner
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  enabled: Boolean!
+  label: String!
+  title: String!
+  detail: String!
+  linkLabel: String
+  linkHref: AWSURL
+}
+
+type Announcement
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  date: AWSDate
+  detail: String!
+  priority: Int
+  active: Boolean!
+}
+
+type Event
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  description: String
+  location: String
+  start: AWSDateTime!
+  end: AWSDateTime
+  active: Boolean!
+}
+
+type OfficialContact
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  label: String!
+  value: String!
+  detail: String!
+  href: String
+  linkLabel: String
+  displayOrder: Int
+}

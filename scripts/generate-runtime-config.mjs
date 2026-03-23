@@ -32,6 +32,15 @@ const severeWeatherSignupApiEndpoint =
   process.env.SEVERE_WEATHER_SIGNUP_API_ENDPOINT?.trim() ||
   localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
   '';
+const cmsApiEndpoint =
+  process.env.APPSYNC_CMS_ENDPOINT?.trim() || localSecrets.cms?.appSync?.apiEndpoint?.trim() || '';
+const cmsApiKey =
+  process.env.APPSYNC_CMS_API_KEY?.trim() || localSecrets.cms?.appSync?.apiKey?.trim() || '';
+const cmsRegion =
+  process.env.APPSYNC_CMS_REGION?.trim() ||
+  localSecrets.cms?.appSync?.region?.trim() ||
+  localSecrets.aws?.region?.trim() ||
+  '';
 const severeWeatherSignupEnabled =
   process.env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'
     ? false
@@ -67,6 +76,14 @@ const runtimeConfig = {
     alertSignup: {
       enabled: severeWeatherSignupEnabled,
       apiEndpoint: severeWeatherSignupApiEndpoint,
+    },
+  },
+  cms: {
+    provider: 'appsync',
+    appSync: {
+      region: cmsRegion,
+      apiEndpoint: cmsApiEndpoint,
+      apiKey: cmsApiKey,
     },
   },
 };
