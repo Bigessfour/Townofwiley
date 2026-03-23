@@ -3,12 +3,20 @@
     "angular.ng-template",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
     "nrwl.angular-console",
+    "ms-vscode.vscode-typescript-next",
     "usernamehw.errorlens",
     "ryanluker.vscode-coverage-gutters",
     "eamodio.gitlens",
-    "ms-playwright.playwright",
     "github.copilot",
     "github.copilot-chat"
+  ],
+  "unwantedRecommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-mssql.sql",
+    "mtxr.sqltools",
+    "ms-vscode.PowerShell"
   ]
 }

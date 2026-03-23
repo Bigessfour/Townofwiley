@@ -1,12 +1,12 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    computed,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
@@ -14,8 +14,8 @@ import { CmsAdmin } from './cms-admin/cms-admin';
 import { CmsAlertBanner, CmsContact, LocalizedCmsContentStore } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
+  HomepageWeatherAlert,
+  LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -1110,10 +1110,16 @@ export class App {
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
   protected readonly primaryContact = computed<CmsContact | null>(() => {
-    return this.contacts().find((contact) => contact.id === 'town-information') ?? this.contacts()[0] ?? null;
+    return (
+      this.contacts().find((contact) => contact.id === 'town-information') ??
+      this.contacts()[0] ??
+      null
+    );
   });
   protected readonly clerkContact = computed<CmsContact | null>(() => {
-    return this.contacts().find((contact) => contact.id === 'city-clerk') ?? this.contacts()[1] ?? null;
+    return (
+      this.contacts().find((contact) => contact.id === 'city-clerk') ?? this.contacts()[1] ?? null
+    );
   });
   protected readonly alertBanner = computed<CmsAlertBanner>(() => {
     const weatherAlert = this.homepageWeatherAlert();
@@ -1229,8 +1235,9 @@ export class App {
       return;
     }
 
-    const target = document.querySelector<HTMLElement>(fragment)
-      ?? (fallbackFragment ? document.querySelector<HTMLElement>(fallbackFragment) : null);
+    const target =
+      document.querySelector<HTMLElement>(fragment) ??
+      (fallbackFragment ? document.querySelector<HTMLElement>(fallbackFragment) : null);
 
     if (!target) {
       return;
