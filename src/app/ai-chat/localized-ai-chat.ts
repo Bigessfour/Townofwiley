@@ -255,11 +255,7 @@ export class LocalizedAiChat {
         this.mapSourceLinks(response.sources),
       );
     } catch {
-      this.appendAssistantMessage(
-        this.copy().retryMessage,
-        this.buildUnavailableLinks(),
-        true,
-      );
+      this.appendAssistantMessage(this.copy().retryMessage, this.buildUnavailableLinks(), true);
     } finally {
       this.isSending.set(false);
     }
