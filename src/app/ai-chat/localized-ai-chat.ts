@@ -24,11 +24,11 @@ interface BotHistoryMessage {
 interface BotChatResponse {
   response: string;
   error?: string;
-  sources?: Array<{
+  sources?: {
     title?: string;
     url?: string;
     href?: string;
-  }>;
+  }[];
 }
 
 interface AiChatCopy {

@@ -63,9 +63,9 @@ interface NwsForecastPeriod {
 }
 
 interface NwsAlertResponse {
-  features: Array<{
+  features: {
     properties: NwsAlertProperties;
-  }>;
+  }[];
 }
 
 interface NwsAlertProperties {

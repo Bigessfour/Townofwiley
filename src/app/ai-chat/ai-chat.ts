@@ -8,13 +8,6 @@ interface AssistantLink {
   href: string;
 }
 
-interface AssistantEntry {
-  title: string;
-  summary: string;
-  keywords: string[];
-  links: AssistantLink[];
-}
-
 interface ChatMessage {
   role: 'assistant' | 'user';
   content: string;
@@ -30,11 +23,11 @@ interface BotHistoryMessage {
 interface BotChatResponse {
   response: string;
   error?: string;
-  sources?: Array<{
+  sources?: {
     title?: string;
     url?: string;
     href?: string;
-  }>;
+  }[];
 }
 
 @Component({

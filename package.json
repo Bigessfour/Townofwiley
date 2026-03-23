@@ -28,7 +28,8 @@
     "secrets:lock:prune": "node scripts/user-secrets.mjs lock --prune-local",
     "secrets:prune-local": "node scripts/user-secrets.mjs prune-local",
     "secrets:import-env": "node scripts/user-secrets.mjs import-env --lock",
-    "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py"
+    "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",
+    "lint": "ng lint"
   },
   "prettier": {
     "printWidth": 100,
@@ -68,11 +69,15 @@
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
     "@axe-core/playwright": "^4.11.1",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@vitest/browser-playwright": "^4.1.0",
+    "angular-eslint": "21.3.1",
+    "eslint": "^10.0.3",
     "jsdom": "^27.1.0",
     "playwright": "^1.58.2",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.56.1",
     "vitest": "^4.0.8"
   },
   "overrides": {

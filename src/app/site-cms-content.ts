@@ -297,7 +297,7 @@ interface RuntimeCmsConfig {
 }
 
 interface CmsGraphqlList<T> {
-  items?: Array<T | null> | null;
+  items?: (T | null)[] | null;
 }
 
 interface SiteSettingsRecord {
@@ -351,9 +351,9 @@ interface CmsGraphqlResponse {
     listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
     listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
   };
-  errors?: Array<{
+  errors?: {
     message?: string;
-  }>;
+  }[];
 }
 
 const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {

@@ -1,11 +1,37 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  TestRequest,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
+interface TestRuntimeConfig {
+  cms?: {
+    appSync?: {
+      region?: string;
+      apiEndpoint?: string;
+      apiKey?: string;
+    };
+  };
+  weather?: {
+    apiEndpoint?: string;
+    allowBrowserFallback?: boolean;
+    alertSignup?: {
+      enabled?: boolean;
+      apiEndpoint?: string;
+    };
+  };
+}
+
 describe('App', () => {
   let httpTesting: HttpTestingController;
+  const runtimeWindow = window as Window & {
+    __TOW_RUNTIME_CONFIG__?: TestRuntimeConfig;
+    __TOW_RUNTIME_CONFIG_OVERRIDE__?: TestRuntimeConfig;
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,8 +43,8 @@ describe('App', () => {
   });
 
   afterEach(() => {
-    delete (window as any).__TOW_RUNTIME_CONFIG__;
-    delete (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
+    delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
     window.history.replaceState({}, '', '/');
     httpTesting.verify();
@@ -89,7 +115,7 @@ describe('App', () => {
   });
 
   it('should render homepage content from Amplify Studio CMS when AppSync runtime config is present', async () => {
-    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
           region: 'us-east-2',
@@ -182,7 +208,7 @@ describe('App', () => {
   });
 
   it('should use the configured weather proxy when available', async () => {
-    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       weather: {
         apiEndpoint: '/api/weather/nws',
         allowBrowserFallback: false,
@@ -221,7 +247,7 @@ describe('App', () => {
   });
 
   it('should render the severe weather signup form when signup runtime config is enabled', async () => {
-    (window as any).__TOW_RUNTIME_CONFIG__ = {
+    runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       weather: {
         apiEndpoint: '/api/weather/nws',
         allowBrowserFallback: false,
@@ -304,7 +330,7 @@ describe('App', () => {
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {
-    (window as any).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       weather: {
         apiEndpoint: '/api/weather/nws',
         allowBrowserFallback: true,
@@ -431,7 +457,7 @@ describe('App', () => {
     await Promise.resolve();
   }
 
-  async function waitForRequest(url: string) {
+  async function waitForRequest(url: string): Promise<TestRequest> {
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const matches = httpTesting.match(url);
 
