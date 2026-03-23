@@ -1,5 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -105,6 +112,16 @@ interface WeatherAlert {
   urgency: string;
   instruction?: string;
   expiresLabel?: string;
+}
+
+export interface HomepageWeatherAlert {
+  total: number;
+  event: string;
+  headline: string;
+  instruction?: string;
+  severity?: string;
+  urgency?: string;
+  forecastUrl: string;
 }
 
 interface AlertSignupResponse {
@@ -327,6 +344,7 @@ export class LocalizedWeatherPanel {
 
   protected readonly weatherGovUrl = WILEY_FORECAST_PAGE_URL;
   protected readonly forecastMapsUrl = NWS_FORECAST_MAPS_URL;
+  readonly activeAlertChange = output<HomepageWeatherAlert | null>();
   protected readonly copy = computed(
     () => WEATHER_COPY[this.siteLanguageService.currentLanguage()],
   );
@@ -548,6 +566,7 @@ export class LocalizedWeatherPanel {
     this.forecastPeriodsState.set(response.periods);
     this.alertRecordsState.set(response.alerts ?? []);
     this.updatedAtState.set(response.updatedAt ?? null);
+    this.emitHomepageWeatherAlert();
   }
 
   private async loadWeatherFromBrowser(): Promise<void> {
@@ -569,6 +588,31 @@ export class LocalizedWeatherPanel {
     this.forecastPeriodsState.set(forecastResponse.properties.periods);
     this.alertRecordsState.set(alertResponse.features.map((feature) => feature.properties));
     this.updatedAtState.set(forecastResponse.properties.updatedAt ?? null);
+    this.emitHomepageWeatherAlert();
+  }
+
+  private emitHomepageWeatherAlert(): void {
+    const activeAlerts = this.alertRecordsState();
+    const primaryAlert = activeAlerts[0];
+
+    if (!primaryAlert) {
+      this.activeAlertChange.emit(null);
+      return;
+    }
+
+    this.activeAlertChange.emit({
+      total: activeAlerts.length,
+      event: primaryAlert.event,
+      headline: this.normalizeWhitespace(
+        primaryAlert.headline ?? primaryAlert.description ?? primaryAlert.event,
+      ),
+      instruction: primaryAlert.instruction
+        ? this.normalizeWhitespace(primaryAlert.instruction)
+        : undefined,
+      severity: primaryAlert.severity,
+      urgency: primaryAlert.urgency,
+      forecastUrl: this.weatherGovUrl,
+    });
   }
 
   private extractZoneCode(zoneUrl: string): string {

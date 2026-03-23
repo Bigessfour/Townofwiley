@@ -1,19 +1,22 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
-import { CmsAdmin } from './cms-admin/cms-admin';
-import { getChatbotRuntimeConfig } from './chatbot-config';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
-import { LocalizedCmsContentStore } from './site-cms-content';
+import { getChatbotRuntimeConfig } from './chatbot-config';
+import { CmsAdmin } from './cms-admin/cms-admin';
+import { CmsAlertBanner, CmsContact, LocalizedCmsContentStore } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
-import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
+import {
+    HomepageWeatherAlert,
+    LocalizedWeatherPanel,
+} from './weather-panel/localized-weather-panel';
 
 interface NavLink {
   label: string;
@@ -114,6 +117,12 @@ interface AppCopy {
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
   siteAlertAriaLabel: string;
+  alertHeadline: string;
+  alertActionLabel: string;
+  nwsAlertLabel: string;
+  nwsAlertLinkLabel: string;
+  nwsAlertSummarySingle: string;
+  nwsAlertSummaryPluralSuffix: string;
   homepageSectionsAriaLabel: string;
   communityFactsAriaLabel: string;
   leadershipAriaLabel: string;
@@ -123,6 +132,8 @@ interface AppCopy {
   searchKicker: string;
   searchHeading: string;
   searchLabel: string;
+  searchPlaceholder: string;
+  searchActionLabel: string;
   searchNote: string;
   searchEmptyState: string;
   noticesKicker: string;
@@ -170,23 +181,31 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       es: 'Espanol',
     },
     siteAlertAriaLabel: 'Town alert banner',
+    alertHeadline: 'Severe weather and service alerts for Wiley, 81092',
+    alertActionLabel: 'Sign up for text or email alerts',
+    nwsAlertLabel: 'National Weather Service Alert',
+    nwsAlertLinkLabel: 'Open NWS forecast',
+    nwsAlertSummarySingle: '1 active NWS alert for Wiley.',
+    nwsAlertSummaryPluralSuffix: 'active NWS alerts for Wiley.',
     homepageSectionsAriaLabel: 'Homepage sections',
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
     heroImageAlt:
-      'Family walking down a country road between irrigated fields outside Wiley, Colorado.',
-    topTasksKicker: 'Resident Priorities',
-    topTasksHeading:
-      'Top tasks should be visible before residents start hunting through departments',
-    searchKicker: 'Plain-Language Search',
-    searchHeading: 'Search the site the way residents ask questions',
-    searchLabel: 'Try phrases like "pay water bill," "report pothole," or "next town meeting."',
+      'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    topTasksKicker: 'Quick Tasks',
+    topTasksHeading: 'How do I...',
+    searchKicker: 'Wiley Search',
+    searchHeading: 'Search Wiley services',
+    searchLabel:
+      'Find permits, taxes, meetings, utilities, records, and issue reporting in one place.',
+    searchPlaceholder: 'Search Wiley services... permits, taxes, meetings',
+    searchActionLabel: 'Search',
     searchNote:
-      'Guided keyword matching stays in place for on-page shortcuts, and the in-page AI assistant can switch between embed and programmatic modes from deployment config.',
+      'Use the search bar to jump to the best match, then browse the suggested shortcuts below for related resident tasks.',
     searchEmptyState:
-      'No matching shortcut yet. Expand the search index as pages, documents, and services go live.',
-    noticesKicker: 'Public Notices',
-    noticesHeading: 'Current notices and alert space',
+      'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
+    noticesKicker: 'Latest Updates',
+    noticesHeading: 'News & Announcements',
     meetingsKicker: 'Meetings and Calendar',
     meetingsHeading: 'Meeting access and community timing belong on the homepage',
     openCalendarLabel: 'Open the full town calendar',
@@ -625,24 +644,31 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       es: 'Espanol',
     },
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
+    alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
+    alertActionLabel: 'Inscribirse para alertas por texto o correo',
+    nwsAlertLabel: 'Alerta del Servicio Nacional de Meteorologia',
+    nwsAlertLinkLabel: 'Abrir pronostico del NWS',
+    nwsAlertSummarySingle: '1 alerta activa del NWS para Wiley.',
+    nwsAlertSummaryPluralSuffix: 'alertas activas del NWS para Wiley.',
     homepageSectionsAriaLabel: 'Secciones de la pagina principal',
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroImageAlt:
-      'Familia caminando por un camino rural entre campos irrigados cerca de Wiley, Colorado.',
-    topTasksKicker: 'Prioridades de residentes',
-    topTasksHeading:
-      'Las tareas principales deben verse antes de que los residentes empiecen a buscar entre departamentos',
-    searchKicker: 'Busqueda en lenguaje sencillo',
-    searchHeading: 'Busque en el sitio como lo haria un residente',
+      'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
+    topTasksKicker: 'Tareas rapidas',
+    topTasksHeading: 'Como puedo...',
+    searchKicker: 'Busqueda de Wiley',
+    searchHeading: 'Busque servicios de Wiley',
     searchLabel:
-      'Pruebe frases como "pagar recibo del agua", "reportar un bache" o "proxima reunion del pueblo".',
+      'Encuentre permisos, impuestos, reuniones, servicios, registros y reportes en un solo lugar.',
+    searchPlaceholder: 'Busque servicios de Wiley... permisos, impuestos, reuniones',
+    searchActionLabel: 'Buscar',
     searchNote:
-      'La coincidencia guiada por palabras clave sigue activa para accesos rapidos en la pagina, y el asistente con IA puede cambiar entre modos incrustado y programatico desde la configuracion de despliegue.',
+      'Use la barra de busqueda para ir al mejor resultado y luego revise los accesos directos sugeridos para tareas de residentes.',
     searchEmptyState:
-      'Todavia no hay un acceso directo que coincida. Amplie el indice de busqueda a medida que entren en linea mas paginas, documentos y servicios.',
-    noticesKicker: 'Avisos publicos',
-    noticesHeading: 'Avisos actuales y espacio para alertas',
+      'Todavia no hay coincidencia directa. Pruebe permisos, impuestos, reuniones, servicios, registros, clima o calles.',
+    noticesKicker: 'Novedades',
+    noticesHeading: 'Noticias y anuncios',
     meetingsKicker: 'Reuniones y calendario',
     meetingsHeading:
       'El acceso a reuniones y al calendario comunitario debe estar en la pagina principal',
@@ -1070,18 +1096,51 @@ export class App {
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
 
   protected readonly searchQuery = signal('');
+  protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/admin';
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
   protected readonly heroContent = this.cmsStore.hero;
-  protected readonly alertBanner = this.cmsStore.alertBanner;
+  protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);
   protected readonly notices = this.cmsStore.notices;
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly primaryContact = computed<CmsContact | null>(() => {
+    return this.contacts().find((contact) => contact.id === 'town-information') ?? this.contacts()[0] ?? null;
+  });
+  protected readonly clerkContact = computed<CmsContact | null>(() => {
+    return this.contacts().find((contact) => contact.id === 'city-clerk') ?? this.contacts()[1] ?? null;
+  });
+  protected readonly alertBanner = computed<CmsAlertBanner>(() => {
+    const weatherAlert = this.homepageWeatherAlert();
+
+    if (weatherAlert) {
+      return {
+        enabled: true,
+        label:
+          weatherAlert.total === 1
+            ? this.appCopy().nwsAlertLabel
+            : `${this.appCopy().nwsAlertLabel} · ${weatherAlert.total} ${this.appCopy().nwsAlertSummaryPluralSuffix}`,
+        title: weatherAlert.event,
+        detail: [
+          weatherAlert.headline,
+          weatherAlert.total === 1
+            ? this.appCopy().nwsAlertSummarySingle
+            : `${weatherAlert.total} ${this.appCopy().nwsAlertSummaryPluralSuffix}`,
+        ]
+          .filter(Boolean)
+          .join(' '),
+        linkLabel: this.appCopy().nwsAlertLinkLabel,
+        linkHref: weatherAlert.forecastUrl,
+      };
+    }
+
+    return this.cmsAlertBanner();
+  });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
@@ -1122,8 +1181,76 @@ export class App {
     this.searchQuery.set(query);
   }
 
+  protected performSearch(event?: Event): void {
+    event?.preventDefault();
+
+    if (!this.searchQuery().trim()) {
+      this.scrollToFragment('#search-panel');
+      return;
+    }
+
+    const firstResult = this.searchResults()[0];
+
+    if (!firstResult) {
+      this.scrollToFragment('#search-panel');
+      return;
+    }
+
+    this.navigateToHref(firstResult.href);
+  }
+
+  protected openSignup(): void {
+    this.scrollToFragment('#weather-signup-heading', '#weather');
+  }
+
+  protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {
+    this.homepageWeatherAlert.set(alert);
+  }
+
   protected updateSiteLanguage(value: string): void {
     this.siteLanguageService.setLanguage(value);
+  }
+
+  private navigateToHref(href: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (href.startsWith('#')) {
+      this.scrollToFragment(href);
+      return;
+    }
+
+    window.location.assign(href);
+  }
+
+  private scrollToFragment(fragment: string, fallbackFragment?: string): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const target = document.querySelector<HTMLElement>(fragment)
+      ?? (fallbackFragment ? document.querySelector<HTMLElement>(fallbackFragment) : null);
+
+    if (!target) {
+      return;
+    }
+
+    const targetId = target.getAttribute('id');
+
+    if (typeof window !== 'undefined' && targetId) {
+      window.history.replaceState(window.history.state, '', `#${targetId}`);
+    }
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    if (!target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+    }
+
+    queueMicrotask(() => {
+      target.focus({ preventScroll: true });
+    });
   }
 
   private createCalendarItem(seed: CalendarEventSeed): CalendarItem {

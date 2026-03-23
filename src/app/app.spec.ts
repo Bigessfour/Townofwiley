@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-  HttpTestingController,
-  TestRequest,
-  provideHttpClientTesting,
+    HttpTestingController,
+    TestRequest,
+    provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
@@ -69,11 +69,10 @@ describe('App', () => {
 
     expect(compiled.querySelector('h1')?.textContent).toContain('Pueblo de Wiley');
     expect(compiled.querySelector('.status')?.textContent).toContain('Sitio web oficial');
-    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain(
-      'Las tareas principales',
-    );
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('Como puedo');
     expect(compiled.querySelector('#weather-heading')?.textContent).toContain('Pronostico');
     expect(compiled.querySelector('#site-search')).toBeTruthy();
+    expect(compiled.querySelector('.search-submit')?.textContent).toContain('Buscar');
     expect(compiled.querySelector('#calendar h2')?.textContent).toContain('calendario');
     expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain('concejo');
     expect(compiled.querySelector('.meeting-location')?.textContent).toContain('304 Main Street');
@@ -109,6 +108,8 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
+    expect(compiled.querySelector('.search-submit')?.textContent).toContain('Search');
     expect(compiled.querySelector('.footer-links')?.textContent).toContain(
       'Accessibility statement',
     );
@@ -200,6 +201,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Actualizaciones comunitarias');
+    expect(compiled.querySelector('.site-alert-button')?.textContent).toContain('alertas');
     expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
       'Main Street cerrada',
     );
@@ -312,6 +314,38 @@ describe('App', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Idioma de la alerta');
   });
 
+  it('should elevate active NWS alerts into the homepage banner', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    await flushWeatherRequests([
+      {
+        properties: {
+          event: 'Severe Thunderstorm Warning',
+          headline: 'Severe Thunderstorm Warning issued March 22 at 7:15 PM MDT.',
+          severity: 'Severe',
+          urgency: 'Immediate',
+          instruction: 'Move indoors and stay away from windows until the storm passes.',
+          expires: '2026-03-22T20:00:00-06:00',
+        },
+      },
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.site-alert-label')?.textContent).toContain(
+      'Servicio Nacional',
+    );
+    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
+      'Severe Thunderstorm Warning',
+    );
+    expect(compiled.querySelector('.site-alert-detail')?.textContent).toContain(
+      'Severe Thunderstorm Warning issued',
+    );
+  });
+
   it('should render the clerk editor on the admin path', async () => {
     window.history.pushState({}, '', '/admin');
 
@@ -355,7 +389,19 @@ describe('App', () => {
     expect(compiled.textContent).toContain('volvio al canal publico del Servicio Nacional');
   });
 
-  async function flushWeatherRequests(): Promise<void> {
+  async function flushWeatherRequests(
+    alertFeatures: {
+      properties: {
+        event: string;
+        headline?: string;
+        severity?: string;
+        urgency?: string;
+        description?: string;
+        instruction?: string;
+        expires?: string;
+      };
+    }[] = [],
+  ): Promise<void> {
     const pointRequest = await waitForRequest('https://api.weather.gov/points/38.154,-102.72');
 
     pointRequest.flush({
@@ -451,7 +497,7 @@ describe('App', () => {
 
     const alertsRequest = await waitForRequest('https://api.weather.gov/alerts/active?zone=COZ098');
     alertsRequest.flush({
-      features: [],
+      features: alertFeatures,
     });
 
     await Promise.resolve();
