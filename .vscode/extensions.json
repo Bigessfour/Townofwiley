@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "angular.ng-template",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "nrwl.angular-console",
+    "usernamehw.errorlens",
+    "ryanluker.vscode-coverage-gutters",
+    "eamodio.gitlens",
+    "ms-playwright.playwright",
+    "github.copilot",
+    "github.copilot-chat"
+  ]
+}
