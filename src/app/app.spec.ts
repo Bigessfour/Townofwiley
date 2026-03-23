@@ -271,6 +271,13 @@ describe('App', () => {
     expect(component.isAlertSignupEnabled()).toBe(true);
     expect(component.alertSignupSubmitLabel()).toBe('Suscribirse a alertas');
     expect(component.alertSignupLanguageLabel()).toBe('English');
+    expect(
+      (
+        (fixture.nativeElement as HTMLElement).querySelector(
+          '#weather-alert-signup-channel',
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe('sms');
 
     component.updateAlertSignupLanguage('es');
     fixture.detectChanges();

@@ -113,6 +113,11 @@ interface AlertSignupResponse {
   error?: string;
 }
 
+interface AlertSignupErrorDetails {
+  message: string;
+  emailTemporarilyUnavailable: boolean;
+}
+
 interface WeatherCopy {
   sectionKicker: string;
   headingPrefix: string;
@@ -204,7 +209,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     residentAlertsKicker: 'Resident alerts',
     residentAlertsHeading: 'Sign up for severe weather alerts',
     residentAlertsBody:
-      'Residents in ZIP code 81092 can request confirmation-based email or SMS weather alerts for the Wiley service area.',
+      'Residents in ZIP code 81092 can request confirmation-based SMS or email weather alerts for the Wiley service area. SMS is the fastest signup path while email confirmations finish AWS approval.',
     notificationMethod: 'Notification method',
     email: 'Email',
     sms: 'SMS text',
@@ -266,7 +271,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     residentAlertsKicker: 'Alertas para residentes',
     residentAlertsHeading: 'Suscribirse a alertas de clima severo',
     residentAlertsBody:
-      'Los residentes del codigo postal 81092 pueden solicitar alertas del clima para el area de servicio de Wiley por correo electronico o SMS con confirmacion previa.',
+      'Los residentes del codigo postal 81092 pueden solicitar alertas del clima para el area de servicio de Wiley por SMS o correo electronico con confirmacion previa. El SMS es la ruta mas rapida mientras AWS termina la aprobacion del correo.',
     notificationMethod: 'Metodo de notificacion',
     email: 'Correo electronico',
     sms: 'Mensaje SMS',
@@ -335,7 +340,7 @@ export class LocalizedWeatherPanel {
   protected readonly loadError = signal<string | null>(null);
   protected readonly forecastPeriodsState = signal<NwsForecastPeriod[]>([]);
   protected readonly alertRecordsState = signal<NwsAlertProperties[]>([]);
-  protected readonly alertSignupChannel = signal<AlertSignupChannel>('email');
+  protected readonly alertSignupChannel = signal<AlertSignupChannel>('sms');
   protected readonly alertSignupLanguage = signal<AlertLanguage>(DEFAULT_ALERT_LANGUAGE);
   protected readonly alertSignupDestination = signal('');
   protected readonly alertSignupFullName = signal('');
@@ -475,8 +480,15 @@ export class LocalizedWeatherPanel {
       this.alertSignupDestination.set('');
       this.alertSignupFullName.set('');
     } catch (error) {
+      const signupError = this.readAlertSignupError(error);
+
+      if (signupError.emailTemporarilyUnavailable && this.alertSignupChannel() === 'email') {
+        this.alertSignupChannel.set('sms');
+        this.alertSignupDestination.set('');
+      }
+
       this.alertSignupFeedbackTone.set('error');
-      this.alertSignupFeedback.set(this.readAlertSignupError(error));
+      this.alertSignupFeedback.set(signupError.message);
     } finally {
       this.isAlertSignupSubmitting.set(false);
     }
@@ -620,28 +632,42 @@ export class LocalizedWeatherPanel {
     ).toString();
   }
 
-  private readAlertSignupError(error: unknown): string {
+  private readAlertSignupError(error: unknown): AlertSignupErrorDetails {
     if (error instanceof HttpErrorResponse) {
       if (this.isRecord(error.error)) {
         const apiError = error.error['error'];
 
         if (typeof apiError === 'string' && apiError.trim()) {
-          return this.normalizeWhitespace(apiError.trim());
+          return this.describeAlertSignupError(apiError);
         }
 
         const apiMessage = error.error['message'];
 
         if (typeof apiMessage === 'string' && apiMessage.trim()) {
-          return this.normalizeWhitespace(apiMessage.trim());
+          return this.describeAlertSignupError(apiMessage);
         }
       }
 
       if (typeof error.error === 'string' && error.error.trim()) {
-        return this.normalizeWhitespace(error.error.trim());
+        return this.describeAlertSignupError(error.error);
       }
     }
 
-    return this.copy().signupError;
+    return {
+      message: this.copy().signupError,
+      emailTemporarilyUnavailable: false,
+    };
+  }
+
+  private describeAlertSignupError(message: string): AlertSignupErrorDetails {
+    const normalizedMessage = this.normalizeWhitespace(message);
+
+    return {
+      message: normalizedMessage,
+      emailTemporarilyUnavailable: /email confirmations are temporarily unavailable/i.test(
+        normalizedMessage,
+      ),
+    };
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

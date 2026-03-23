@@ -58,6 +58,7 @@ interface AiChatCopy {
   malformedMessage: string;
   emptyResponseMessage: string;
   townContactLink: string;
+  openDirectChatLink: string;
   sourceLabel: string;
   calendarLink: string;
   contactLink: string;
@@ -104,6 +105,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     emptyResponseMessage:
       'The assistant did not return any text. Please try rephrasing your question.',
     townContactLink: 'Contact Town Hall',
+    openDirectChatLink: 'Open the assistant directly',
     sourceLabel: 'Source',
     calendarLink: 'Calendar',
     contactLink: 'Contact',
@@ -147,6 +149,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     malformedMessage: 'La respuesta del chatbot llego con un formato no valido.',
     emptyResponseMessage: 'El asistente no devolvio texto. Intente reformular su pregunta.',
     townContactLink: 'Contactar al ayuntamiento',
+    openDirectChatLink: 'Abrir el asistente directamente',
     sourceLabel: 'Fuente',
     calendarLink: 'Calendario',
     contactLink: 'Contacto',
@@ -254,7 +257,7 @@ export class LocalizedAiChat {
     } catch {
       this.appendAssistantMessage(
         this.copy().retryMessage,
-        [{ label: this.copy().townContactLink, href: '#contact' }],
+        this.buildUnavailableLinks(),
         true,
       );
     } finally {
@@ -301,6 +304,19 @@ export class LocalizedAiChat {
       ];
     });
     this.scrollMessagesToLatest();
+  }
+
+  private buildUnavailableLinks(): AssistantLink[] {
+    const links: AssistantLink[] = [{ label: this.copy().townContactLink, href: '#contact' }];
+
+    if (this.chatbotConfig.chatUrl.trim()) {
+      links.unshift({
+        label: this.copy().openDirectChatLink,
+        href: this.chatbotConfig.chatUrl.trim(),
+      });
+    }
+
+    return links;
   }
 
   private buildHistory(): BotHistoryMessage[] {
