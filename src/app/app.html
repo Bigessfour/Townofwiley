@@ -59,7 +59,7 @@
           </a>
         }
 
-        <a class="utility-link" href="/meetings">
+        <a class="utility-link" routerLink="/meetings">
           <strong>{{ appCopy().meetingsKicker }}</strong>
           <span>{{ appCopy().openCalendarLabel }}</span>
         </a>
@@ -132,7 +132,7 @@
               [attr.href]="isFeaturePageMode ? '/#top-tasks' : '#top-tasks'"
               >{{ appCopy().topTasksKicker }}</a
             >
-            <a class="hero-action secondary button-cta button-cta--ghost" href="/meetings">{{
+            <a class="hero-action secondary button-cta button-cta--ghost" routerLink="/meetings">{{
               appCopy().openCalendarLabel
             }}</a>
             <button
@@ -180,7 +180,7 @@
     @if (isFeaturePageMode) {
       @if (currentFeaturePage(); as currentFeaturePage) {
         <section class="feature-page-shell">
-          <a class="detail-back-link" href="/">{{ appCopy().backHomeLabel }}</a>
+          <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
 
           <section class="panel detail-hero" aria-labelledby="detail-page-heading">
             <p class="section-kicker">{{ currentFeaturePage.kicker }}</p>
@@ -244,7 +244,9 @@
                   <div class="calendar-header-copy">
                     <h2 id="calendar-heading">{{ appCopy().calendarHeading }}</h2>
                     <p class="calendar-copy">{{ appCopy().calendarCopy }}</p>
-                    <a class="text-link" href="/notices">{{ appCopy().calendarBridgeLabel }}</a>
+                    <a class="text-link" routerLink="/notices">{{
+                      appCopy().calendarBridgeLabel
+                    }}</a>
                   </div>
                   <aside
                     class="calendar-overview"

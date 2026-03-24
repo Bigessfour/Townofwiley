@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
@@ -1010,6 +1011,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   selector: 'app-root',
   imports: [
     NgOptimizedImage,
+    RouterLink,
     AccessibilitySupport,
     LocalizedAiChat,
     LocalizedWeatherPanel,
@@ -1027,33 +1029,40 @@ export class App {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly chatbotConfig = getChatbotRuntimeConfig();
+  private readonly router = inject(Router);
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
-  private readonly currentPath =
-    typeof window !== 'undefined' ? normalizePath(window.location.pathname) : '/';
+  private readonly currentPath = computed(() => normalizePath(this.router.url));
 
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly currentYear = new Date().getFullYear();
-  protected readonly isAdminMode = this.currentPath === '/admin';
-  protected readonly isClerkSetupMode = this.currentPath === '/clerk-setup';
-  protected readonly isDocumentHubMode = this.currentPath === '/documents';
-  protected readonly isWeatherMode = this.currentPath === '/weather';
-  protected readonly isNoticesMode = this.currentPath === '/notices';
-  protected readonly isMeetingsMode = this.currentPath === '/meetings';
-  protected readonly isServicesMode = this.currentPath === '/services';
-  protected readonly isRecordsMode = this.currentPath === '/records';
-  protected readonly isContactMode = this.currentPath === '/contact';
-  protected readonly isAccessibilityMode = this.currentPath === '/accessibility';
-  protected readonly isFeaturePageMode =
-    this.isWeatherMode ||
-    this.isNoticesMode ||
-    this.isMeetingsMode ||
-    this.isServicesMode ||
-    this.isRecordsMode ||
-    this.isContactMode ||
-    this.isAccessibilityMode;
-  protected readonly shouldPrimeWeatherAlerts =
-    !this.isAdminMode && !this.isClerkSetupMode && !this.isDocumentHubMode && !this.isWeatherMode;
+  protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
+  protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
+  protected readonly isDocumentHubMode = computed(() => this.currentPath() === '/documents');
+  protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');
+  protected readonly isNoticesMode = computed(() => this.currentPath() === '/notices');
+  protected readonly isMeetingsMode = computed(() => this.currentPath() === '/meetings');
+  protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
+  protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
+  protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
+  protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
+  protected readonly isFeaturePageMode = computed(
+    () =>
+      this.isWeatherMode() ||
+      this.isNoticesMode() ||
+      this.isMeetingsMode() ||
+      this.isServicesMode() ||
+      this.isRecordsMode() ||
+      this.isContactMode() ||
+      this.isAccessibilityMode(),
+  );
+  protected readonly shouldPrimeWeatherAlerts = computed(
+    () =>
+      !this.isAdminMode() &&
+      !this.isClerkSetupMode() &&
+      !this.isDocumentHubMode() &&
+      !this.isWeatherMode(),
+  );
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
   protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
@@ -1188,7 +1197,7 @@ export class App {
     this.featurePages().filter((page) => page.showOnHomepage),
   );
   protected readonly currentFeaturePage = computed<FeaturePage | null>(() => {
-    return this.featurePages().find((page) => page.href === this.currentPath) ?? null;
+    return this.featurePages().find((page) => page.href === this.currentPath()) ?? null;
   });
   protected readonly meetings = computed(() => this.appCopy().meetings);
   protected readonly calendarItems = computed(() => {
@@ -1408,7 +1417,7 @@ export class App {
   }
 
   protected openSignup(): void {
-    if (this.isWeatherMode) {
+    if (this.isWeatherMode()) {
       this.scrollToFragment('#weather-signup-heading', '#weather');
       return;
     }
