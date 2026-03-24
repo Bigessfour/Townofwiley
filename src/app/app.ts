@@ -8,7 +8,6 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TableModule } from 'primeng/table';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
@@ -1011,7 +1010,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   selector: 'app-root',
   imports: [
     NgOptimizedImage,
-    TableModule,
     AccessibilitySupport,
     LocalizedAiChat,
     LocalizedWeatherPanel,
