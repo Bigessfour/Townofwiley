@@ -1,15 +1,15 @@
-@if (isDocumentHubMode) {
+@if (isDocumentHubMode()) {
   <app-document-hub />
-} @else if (isClerkSetupMode) {
+} @else if (isClerkSetupMode()) {
   <app-clerk-setup />
-} @else if (isAdminMode) {
+} @else if (isAdminMode()) {
   <app-cms-admin />
 } @else {
   <a class="skip-link" href="#main-content" (click)="focusMainContent()">
     {{ appCopy().skipLinkLabel }}
   </a>
 
-  @if (shouldPrimeWeatherAlerts) {
+  @if (shouldPrimeWeatherAlerts()) {
     <app-weather-panel
       class="weather-alert-loader"
       aria-hidden="true"
@@ -129,7 +129,7 @@
           <div class="hero-actions">
             <a
               class="hero-action primary button-cta button-cta--solid"
-              [attr.href]="isFeaturePageMode ? '/#top-tasks' : '#top-tasks'"
+              [attr.href]="isFeaturePageMode() ? '/#top-tasks' : '#top-tasks'"
               >{{ appCopy().topTasksKicker }}</a
             >
             <a class="hero-action secondary button-cta button-cta--ghost" routerLink="/meetings">{{
@@ -177,7 +177,7 @@
   </header>
 
   <main class="page-shell" id="main-content" #mainContent tabindex="-1">
-    @if (isFeaturePageMode) {
+    @if (isFeaturePageMode()) {
       @if (currentFeaturePage(); as currentFeaturePage) {
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
@@ -188,11 +188,11 @@
             <p class="detail-hero-copy">{{ currentFeaturePage.summary }}</p>
           </section>
 
-          @if (isWeatherMode) {
+          @if (isWeatherMode()) {
             <section class="feature-detail-stack" id="weather">
               <app-weather-panel (activeAlertChange)="updateHomepageWeatherAlert($event)" />
             </section>
-          } @else if (isNoticesMode) {
+          } @else if (isNoticesMode()) {
             <section class="feature-detail-stack">
               <section class="panel" id="alerts">
                 <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
@@ -208,7 +208,7 @@
                 </div>
               </section>
             </section>
-          } @else if (isMeetingsMode) {
+          } @else if (isMeetingsMode()) {
             <section class="feature-detail-stack">
               <section class="panel" aria-labelledby="meetings-heading">
                 <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
@@ -316,7 +316,7 @@
                 </div>
               </section>
             </section>
-          } @else if (isServicesMode) {
+          } @else if (isServicesMode()) {
             <section class="feature-detail-stack">
               <section class="panel service-panel" id="services">
                 <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
@@ -340,7 +340,7 @@
 
               <app-resident-services id="resident-services" [contacts]="contacts()" />
             </section>
-          } @else if (isRecordsMode) {
+          } @else if (isRecordsMode()) {
             <section class="feature-detail-stack">
               <section class="panel" id="records">
                 <p class="section-kicker">{{ appCopy().transparencyKicker }}</p>
@@ -364,7 +364,7 @@
                 <app-records-center />
               </section>
             </section>
-          } @else if (isAccessibilityMode) {
+          } @else if (isAccessibilityMode()) {
             <section class="feature-detail-stack">
               <section class="panel" id="accessibility">
                 <p class="section-kicker">{{ appCopy().accessibilityKicker }}</p>
@@ -381,7 +381,7 @@
                 <app-accessibility-support [contacts]="contacts()" />
               </section>
             </section>
-          } @else if (isContactMode) {
+          } @else if (isContactMode()) {
             <section class="feature-detail-stack">
               <section class="panel contact-panel" id="contact">
                 <p class="section-kicker">{{ appCopy().contactKicker }}</p>
