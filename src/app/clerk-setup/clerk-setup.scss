@@ -46,6 +46,15 @@
   line-height: 1.6;
 }
 
+.setup-note--strong {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(23, 52, 77, 0.08);
+  border: 1px solid rgba(23, 52, 77, 0.12);
+  color: #17344d;
+  font-weight: 700;
+}
+
 .setup-actions {
   display: flex;
   flex-wrap: wrap;

@@ -203,6 +203,13 @@ If no chatbot URL is configured, the site renders normally and no Easy-Peasy scr
 
 Homepage publishing now relies on Amplify Studio and AppSync. The old browser-local CMS workflow has been disabled.
 
+Plain-language source of truth for staff:
+
+- Daily editing path: Amplify Studio Data Manager
+- Clerk handoff page: `/clerk-setup`
+- `/admin` route: read-only guide and status page only
+- Non-technical instructions: `CLERK-CMS-GUIDE.md`
+
 ## Site language
 
 The public site now defaults to English and exposes a runtime language switch so residents can move between Spanish and English without a rebuild.
