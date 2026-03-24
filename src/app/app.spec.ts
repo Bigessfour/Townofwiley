@@ -1,11 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-  HttpTestingController,
-  TestRequest,
-  provideHttpClientTesting,
+    HttpTestingController,
+    TestRequest,
+    provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { routes } from './app.routes';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
 interface TestRuntimeConfig {
@@ -43,7 +45,7 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter(routes)],
     }).compileComponents();
 
     httpTesting = TestBed.inject(HttpTestingController);
@@ -54,6 +56,7 @@ describe('App', () => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
     window.history.replaceState({}, '', '/');
+    vi.restoreAllMocks();
     httpTesting.verify();
   });
 
@@ -101,6 +104,48 @@ describe('App', () => {
     expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
       'Accessibility statement',
     );
+  });
+
+  it('should send the top calendar actions to the meetings calendar section', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('.utility-link[href="/meetings#calendar"]')?.textContent).toContain(
+      'Open the full town calendar',
+    );
+    expect(
+      compiled.querySelector('.hero-action.secondary[href="/meetings#calendar"]')?.textContent,
+    ).toContain('Open the full town calendar');
+  });
+
+  it('should scroll to the calendar section when the top calendar action is used on the meetings page', async () => {
+    window.history.pushState({}, '', '/meetings');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const calendarPanel = compiled.querySelector('#calendar') as HTMLElement;
+    const scrollIntoViewSpy = vi.spyOn(calendarPanel, 'scrollIntoView');
+    const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
+    const topCalendarLink = compiled.querySelector(
+      '.hero-action.secondary[href="/meetings#calendar"]',
+    ) as HTMLAnchorElement;
+
+    topCalendarLink.click();
+    await Promise.resolve();
+
+    expect(scrollIntoViewSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    expect(replaceStateSpy).toHaveBeenCalledWith(window.history.state, '', '/meetings#calendar');
+    expect(document.activeElement).toBe(calendarPanel);
   });
 
   it('should route document-related search queries into the public document hub', async () => {
@@ -475,12 +520,12 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Amplify Studio es el unico CMS',
+      'Un solo lugar para actualizar el sitio del pueblo',
     );
     expect(compiled.textContent).toContain('Event');
     expect(compiled.textContent).toContain('EmailAlias');
-    expect(compiled.textContent).toContain('La edicion local en el navegador fue deshabilitada');
-    expect(compiled.textContent).toContain('Abrir pagina de acceso del personal');
+    expect(compiled.textContent).toContain('Esta pagina solo es una guia y una verificacion de estado');
+    expect(compiled.textContent).toContain('Abrir guia de contenido');
     expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
       'Abrir Studio Home',
     );
@@ -494,7 +539,10 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.setup-card h1')?.textContent).toContain('Deb Dillon');
+    expect(compiled.querySelector('.setup-card h1')?.textContent).toContain(
+      'One place to manage Town website content',
+    );
+    expect(compiled.textContent).toContain('Welcome, Deb Dillon.');
     expect(compiled.textContent).toContain('Town website content guide');
     expect(compiled.textContent).toContain('Open Studio Home');
     expect(compiled.textContent).toContain('Open Data Manager');

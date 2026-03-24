@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -1034,6 +1035,10 @@ export class App {
     typeof window !== 'undefined'
       ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
       : normalizePath(this.router.url);
+  private readonly initialFragment =
+    typeof window !== 'undefined'
+      ? window.location.hash.replace(/^#/, '')
+      : this.router.parseUrl(this.router.url).fragment ?? '';
   private readonly currentPath = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -1042,6 +1047,23 @@ export class App {
     ),
     { initialValue: this.initialPath },
   );
+  private readonly currentFragment = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => this.router.parseUrl(this.router.url).fragment ?? ''),
+      startWith(this.initialFragment),
+    ),
+    { initialValue: this.initialFragment },
+  );
+  private readonly routedFragmentScrollEffect = effect(() => {
+    const fragment = this.currentFragment();
+
+    if (!fragment) {
+      return;
+    }
+
+    this.scheduleFragmentScroll(`#${fragment}`);
+  });
 
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
@@ -1435,6 +1457,22 @@ export class App {
     this.navigateToHref('/weather');
   }
 
+  protected openCalendar(event?: Event): void {
+    event?.preventDefault();
+
+    if (this.isMeetingsMode()) {
+      this.scrollToFragment('#calendar');
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.location.assign('/meetings#calendar');
+      return;
+    }
+
+    this.navigateToHref('/meetings#calendar');
+  }
+
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {
     this.homepageWeatherAlert.set(alert);
   }
@@ -1484,14 +1522,34 @@ export class App {
     }
 
     const [path, fragment] = href.split('#', 2);
+
+    if (fragment && normalizePath(path || this.router.url) === this.currentPath()) {
+      this.scrollToFragment(`#${fragment}`);
+      return;
+    }
+
     try {
       const urlTree = this.router.parseUrl(path || this.router.url);
       urlTree.fragment = fragment || null;
 
-      void this.router.navigateByUrl(urlTree);
+      void this.router.navigateByUrl(urlTree).then((didNavigate) => {
+        if (didNavigate && fragment) {
+          this.scheduleFragmentScroll(`#${fragment}`);
+        }
+      });
     } catch {
       window.location.assign(href);
     }
+  }
+
+  private scheduleFragmentScroll(fragment: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.setTimeout(() => {
+      this.scrollToFragment(fragment);
+    }, 0);
   }
 
   private scrollToFragment(fragment: string, fallbackFragment?: string): void {
@@ -1510,7 +1568,8 @@ export class App {
     const targetId = target.getAttribute('id');
 
     if (typeof window !== 'undefined' && targetId) {
-      window.history.replaceState(window.history.state, '', `#${targetId}`);
+      const nextUrl = `${window.location.pathname}${window.location.search}#${targetId}`;
+      window.history.replaceState(window.history.state, '', nextUrl);
     }
 
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });

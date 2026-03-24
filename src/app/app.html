@@ -59,7 +59,7 @@
           </a>
         }
 
-        <a class="utility-link" routerLink="/meetings">
+        <a class="utility-link" href="/meetings#calendar" (click)="openCalendar($event)">
           <strong>{{ appCopy().meetingsKicker }}</strong>
           <span>{{ appCopy().openCalendarLabel }}</span>
         </a>
@@ -132,9 +132,12 @@
               [attr.href]="isFeaturePageMode() ? '/#top-tasks' : '#top-tasks'"
               >{{ appCopy().topTasksKicker }}</a
             >
-            <a class="hero-action secondary button-cta button-cta--ghost" routerLink="/meetings">{{
-              appCopy().openCalendarLabel
-            }}</a>
+            <a
+              class="hero-action secondary button-cta button-cta--ghost"
+              href="/meetings#calendar"
+              (click)="openCalendar($event)"
+              >{{ appCopy().openCalendarLabel }}</a
+            >
             <button
               type="button"
               class="hero-action tertiary button-cta button-cta--ghost"
