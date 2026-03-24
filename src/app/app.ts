@@ -355,26 +355,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
-    communityFacts: [
-      {
-        label: 'Town profile',
-        value: 'Wiley is a small statutory town in Prowers County',
-        detail:
-          'With a 2020 population of about 437 residents, the homepage should stay direct, practical, and easy to scan on phones.',
-      },
-      {
-        label: 'Location',
-        value: 'Eastern Colorado plains, ZIP code 81092',
-        detail:
-          'The site should prioritize weather-sensitive notices, utility updates, road information, and core local services over large-city portal complexity.',
-      },
-      {
-        label: 'Regional access',
-        value: 'Near US 287 and centered on local civic life',
-        detail:
-          'Residents need fast access to meetings, Town Hall contacts, school and community event notices, and everyday service tasks.',
-      },
-    ],
+    communityFacts: [],
     navLinks: [
       { label: 'Top Tasks', href: '#top-tasks' },
       { label: 'Weather', href: '/weather' },
@@ -414,34 +395,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Use the request form to send structured records, permit, and clerk questions.',
       },
     ],
-    meetings: [
-      {
-        title: 'City Council Regular Meeting',
-        schedule: 'Every 2nd Monday of each month, starts promptly at 6:00 PM',
-        format:
-          'Agenda packets, approved minutes, livestream or recording links, and ADA-accessible documents should all publish through this meeting record.',
-        location: 'Wiley Town Hall, 304 Main Street',
-        agendaNote:
-          'Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they wish time on the agenda.',
-        cta: 'Add the recurring council meeting to your calendar',
-        href: DOCUMENT_HUB_LINKS.meetings,
-      },
-      {
-        title: 'Planning and zoning review',
-        schedule: 'First Thursday of each month, 5:30 PM',
-        format:
-          'Use this slot for hearing notices, staff reports, application deadlines, and map links.',
-        location: 'Wiley Town Hall, 304 Main Street',
-      },
-      {
-        title: 'Community calendar and school-centered events',
-        schedule: 'Resident events, closures, and deadlines',
-        format:
-          'Calendar filters should separate meetings, alerts, school events, recreation, and facility reservations.',
-        cta: 'Browse the calendar section',
-        href: DOCUMENT_HUB_LINKS.meetings,
-      },
-    ],
+    meetings: [],
     calendarSeeds: [
       {
         title: 'City Council Regular Meeting',
@@ -609,27 +563,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Publish an accessibility statement, provide a barrier-report form, and schedule recurring audits instead of treating accessibility as a one-time project.',
       },
     ],
-    leadershipGroups: [
-      {
-        title: 'Mayor and Council',
-        detail:
-          'Elected leadership should be visible near meetings and contact paths so residents can quickly identify who represents them.',
-        members: [
-          'Mayor: Steve McKitrick',
-          'Councilman: Julie Esgar',
-          'Councilman: Dale Specht',
-          'Councilman: Dale Stewart',
-          'Councilman: Alan Campbell',
-          'Councilman: Sandy Coen',
-        ],
-      },
-      {
-        title: 'Town Administration',
-        detail:
-          'Administrative leaders should stay visible because small-town residents often need direct, role-based contacts rather than department directories.',
-        members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
-      },
-    ],
+    leadershipGroups: [],
   },
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
@@ -731,26 +665,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
-    communityFacts: [
-      {
-        label: 'Perfil del pueblo',
-        value: 'Wiley es un pequeno pueblo estatutario del condado de Prowers',
-        detail:
-          'Con una poblacion de alrededor de 437 residentes en 2020, la pagina principal debe ser directa, practica y facil de revisar desde el telefono.',
-      },
-      {
-        label: 'Ubicacion',
-        value: 'Llanuras del este de Colorado, codigo postal 81092',
-        detail:
-          'El sitio debe priorizar avisos sensibles al clima, actualizaciones de servicios publicos, informacion vial y servicios locales esenciales por encima de la complejidad de un portal de gran ciudad.',
-      },
-      {
-        label: 'Acceso regional',
-        value: 'Cerca de la US 287 y centrado en la vida civica local',
-        detail:
-          'Los residentes necesitan acceso rapido a reuniones, contactos del ayuntamiento, avisos escolares y comunitarios y tareas de servicio diario.',
-      },
-    ],
+    communityFacts: [],
     navLinks: [
       { label: 'Tareas clave', href: '#top-tasks' },
       { label: 'Clima', href: '/weather' },
@@ -790,34 +705,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Use el formulario de solicitud para enviar preguntas estructuradas sobre registros, permisos y secretaria.',
       },
     ],
-    meetings: [
-      {
-        title: 'Reunion ordinaria del concejo municipal',
-        schedule: 'Cada segundo lunes del mes, inicia puntualmente a las 6:00 PM',
-        format:
-          'Las agendas, minutas aprobadas, enlaces de transmision o grabacion y documentos accesibles por ADA deben publicarse desde este registro de reunion.',
-        location: 'Ayuntamiento de Wiley, 304 Main Street',
-        agendaNote:
-          'Los residentes deben llamar al ayuntamiento al (719) 829-4974 o escribir a Deb Dillon a deb.dillon@townofwiley.gov si desean tiempo en la agenda.',
-        cta: 'Agregar la reunion recurrente del concejo a su calendario',
-        href: DOCUMENT_HUB_LINKS.meetings,
-      },
-      {
-        title: 'Revision de planeacion y zonificacion',
-        schedule: 'Primer jueves de cada mes, 5:30 PM',
-        format:
-          'Use este espacio para avisos de audiencia, reportes del personal, fechas limite de solicitudes y enlaces a mapas.',
-        location: 'Ayuntamiento de Wiley, 304 Main Street',
-      },
-      {
-        title: 'Calendario comunitario y eventos centrados en la escuela',
-        schedule: 'Eventos para residentes, cierres y fechas limite',
-        format:
-          'Los filtros del calendario deben separar reuniones, alertas, eventos escolares, recreacion y reservaciones de instalaciones.',
-        cta: 'Ver la seccion del calendario',
-        href: DOCUMENT_HUB_LINKS.meetings,
-      },
-    ],
+    meetings: [],
     calendarSeeds: [
       {
         title: 'Reunion ordinaria del concejo municipal',
@@ -985,27 +873,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Publique una declaracion de accesibilidad, ofrezca un formulario para reportar barreras y programe auditorias recurrentes en lugar de tratar la accesibilidad como un proyecto unico.',
       },
     ],
-    leadershipGroups: [
-      {
-        title: 'Alcalde y concejo',
-        detail:
-          'El liderazgo electo debe verse cerca de reuniones y rutas de contacto para que los residentes identifiquen rapidamente quien los representa.',
-        members: [
-          'Alcalde: Steve McKitrick',
-          'Concejal: Julie Esgar',
-          'Concejal: Dale Specht',
-          'Concejal: Dale Stewart',
-          'Concejal: Alan Campbell',
-          'Concejal: Sandy Coen',
-        ],
-      },
-      {
-        title: 'Administracion del pueblo',
-        detail:
-          'Los lideres administrativos deben seguir visibles porque los residentes de pueblos pequenos suelen necesitar contactos directos por funcion y no directorios por departamento.',
-        members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
-      },
-    ],
+    leadershipGroups: [],
   },
 };
 
@@ -1251,13 +1119,7 @@ export class App {
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
 
-    if (liveEvents.length) {
-      return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
-    }
-
-    return this.appCopy().calendarSeeds.map((seed, index) =>
-      this.createCalendarItem(seed, index === 0),
-    );
+    return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
   });
   protected readonly calendarOverview = computed<CalendarOverview>(() => {
     const copy = this.appCopy();
@@ -1285,7 +1147,7 @@ export class App {
       summary: copy.calendarStatusFallbackSummary,
       detail: copy.calendarStatusFallbackDetail,
       nextEventLabel: copy.calendarStatusFallbackNextLabel,
-      nextEventValue: copy.calendarSeeds[0]?.dateLabel ?? copy.openCalendarLabel,
+      nextEventValue: copy.openCalendarLabel,
     };
   });
   protected readonly serviceCards = computed(() => this.appCopy().serviceCards);
