@@ -10,9 +10,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: process.env.CI
-    ? [['html', { open: 'never' }], ['github'], ['list']]
-    : [['list'], ['html', { open: 'never' }]],
+  reporter: [['html'], ['list'], ['json']],
   expect: {
     timeout: 10_000,
   },
@@ -22,6 +20,12 @@ export default defineConfig({
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,
+    headless: true,
+    viewport: { width: 1280, height: 720 },
+    locale: 'en-US',
+    timezoneId: 'America/Denver',
+    actionTimeout: 10_000,
+    navigationTimeout: 15_000,
   },
   webServer: useRemoteBaseUrl
     ? undefined
