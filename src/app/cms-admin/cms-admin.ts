@@ -88,7 +88,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Use Data Manager for everyday edits.',
       'If access is denied, AWS account permissions must be fixed first.',
       'Use only one model at a time so changes stay clear and easy to verify.',
-      'After every save, refresh the public website and confirm the change.'
+      'After every save, refresh the public website and confirm the change.',
     ],
     loadingStatus: 'Refreshing the current homepage snapshot from Amplify Studio.',
     heroKicker: 'Hero',
@@ -114,7 +114,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Set aliasAddress to the public Town email address.',
       'Set destinationAddress to the private inbox that should receive the mail.',
       'Keep public contact cards in OfficialContact.',
-      'Send a real test email after saving.'
+      'Send a real test email after saving.',
     ],
     publishingKicker: 'Publishing Flow',
     publishingTitle: 'Daily website update checklist',
@@ -122,7 +122,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Open Data Manager.',
       'Open the correct model for the change you want to make.',
       'Edit the record and save it.',
-      'Refresh the public site and confirm the update.'
+      'Refresh the public site and confirm the update.',
     ],
     modelMapKicker: 'Model Map',
     modelMapTitle: 'If you want to change this, open this model',
@@ -132,7 +132,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement: notice cards',
       'Event: meetings and calendar items',
       'OfficialContact: public contact cards',
-      'EmailAlias: private email forwarding only'
+      'EmailAlias: private email forwarding only',
     ],
     routeKicker: 'Read-only Admin Route',
     routeTitle: 'Do not edit the website on this page',
@@ -142,7 +142,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     snapshotChecklist: [
       'Refresh this page after editing in Data Manager.',
       'If the public site does not change, check that the record saved correctly.',
-      'Use the public homepage as the final resident-facing check.'
+      'Use the public homepage as the final resident-facing check.',
     ],
     verificationKicker: 'Verification',
     verificationTitle: 'Current CMS wiring on this deployment',
@@ -182,7 +182,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Use Data Manager para las ediciones diarias.',
       'Si aparece acceso denegado, primero deben corregirse los permisos de AWS.',
       'Use un solo modelo a la vez para mantener cambios claros y faciles de revisar.',
-      'Despues de cada guardado, actualice el sitio publico y confirme el cambio.'
+      'Despues de cada guardado, actualice el sitio publico y confirme el cambio.',
     ],
     loadingStatus: 'Actualizando la captura actual de la pagina principal desde Amplify Studio.',
     heroKicker: 'Hero',
@@ -209,7 +209,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Configure aliasAddress con el correo publico del pueblo.',
       'Configure destinationAddress con la bandeja privada que debe recibir el mensaje.',
       'Mantenga las tarjetas publicas en OfficialContact.',
-      'Envie un correo real de prueba despues de guardar.'
+      'Envie un correo real de prueba despues de guardar.',
     ],
     publishingKicker: 'Flujo de publicacion',
     publishingTitle: 'Lista diaria para actualizar el sitio',
@@ -217,7 +217,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Abra Data Manager.',
       'Abra el modelo correcto para el cambio que desea hacer.',
       'Edite el registro y guardelo.',
-      'Actualice el sitio publico y confirme el cambio.'
+      'Actualice el sitio publico y confirme el cambio.',
     ],
     modelMapKicker: 'Mapa de modelos',
     modelMapTitle: 'Si quiere cambiar esto, abra este modelo',
@@ -227,7 +227,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement: tarjetas de avisos',
       'Event: reuniones y elementos del calendario',
       'OfficialContact: tarjetas de contacto publico',
-      'EmailAlias: solo reenvio privado de correo'
+      'EmailAlias: solo reenvio privado de correo',
     ],
     routeKicker: 'Ruta administrativa de solo lectura',
     routeTitle: 'No edite el sitio en esta pagina',
@@ -237,7 +237,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     snapshotChecklist: [
       'Actualice esta pagina despues de editar en Data Manager.',
       'Si el sitio publico no cambia, revise que el registro se haya guardado bien.',
-      'Use la pagina principal publica como revision final para residentes.'
+      'Use la pagina principal publica como revision final para residentes.',
     ],
     verificationKicker: 'Verificacion',
     verificationTitle: 'Conexion actual del CMS en este despliegue',

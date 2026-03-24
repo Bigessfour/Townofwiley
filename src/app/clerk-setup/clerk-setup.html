@@ -20,7 +20,12 @@
       >
         Open Data Manager
       </a>
-      <a class="setup-button secondary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+      <a
+        class="setup-button secondary"
+        [href]="studioUrl"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
         Open Studio Home
       </a>
     </div>
@@ -39,7 +44,9 @@
         <h2>If you want to change this</h2>
         <ul>
           @for (item of taskMap; track item.action) {
-            <li><strong>{{ item.action }}:</strong> {{ item.model }}</li>
+            <li>
+              <strong>{{ item.action }}:</strong> {{ item.model }}
+            </li>
           }
         </ul>
       </article>

@@ -6,7 +6,6 @@ This guide is written for a non-technical Town clerk.
 
 There is only one place to change the website each day:
 
-
 Do not use these to edit live website content:
 
 - the `/admin` page
@@ -33,14 +32,14 @@ Daily rule:
 
 If you want to change this site area, open this model in Data Manager:
 
-| If you want to change... | Open this model |
-| --- | --- |
-| Homepage title or welcome text | `SiteSettings` |
-| Emergency banner at the top of the homepage | `AlertBanner` |
-| Notice cards or announcements | `Announcement` |
-| Meeting or calendar items | `Event` |
-| Public phone numbers, emails, or contact cards | `OfficialContact` |
-| Private forwarding from a Town email address to a staff inbox | `EmailAlias` |
+| If you want to change...                                      | Open this model   |
+| ------------------------------------------------------------- | ----------------- |
+| Homepage title or welcome text                                | `SiteSettings`    |
+| Emergency banner at the top of the homepage                   | `AlertBanner`     |
+| Notice cards or announcements                                 | `Announcement`    |
+| Meeting or calendar items                                     | `Event`           |
+| Public phone numbers, emails, or contact cards                | `OfficialContact` |
+| Private forwarding from a Town email address to a staff inbox | `EmailAlias`      |
 
 ## Daily Website Tasks
 

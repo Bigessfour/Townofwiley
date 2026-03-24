@@ -22,7 +22,7 @@ export class ClerkSetup {
     'Open the correct model.',
     'Make the change.',
     'Save the record.',
-    'Refresh the public website and confirm the update.'
+    'Refresh the public website and confirm the update.',
   ];
   protected readonly taskMap: ClerkSetupTask[] = [
     { action: 'Homepage title or welcome text', model: 'SiteSettings' },
@@ -30,16 +30,16 @@ export class ClerkSetup {
     { action: 'Notice cards and announcements', model: 'Announcement' },
     { action: 'Meetings and calendar items', model: 'Event' },
     { action: 'Public phone numbers, emails, and contact cards', model: 'OfficialContact' },
-    { action: 'Private Town email forwarding rules', model: 'EmailAlias' }
+    { action: 'Private Town email forwarding rules', model: 'EmailAlias' },
   ];
   protected readonly doNotUse = [
     'Do not use the public homepage to edit content.',
     'Do not use the /admin page as if it were the editor.',
-    'Do not edit local code files to change daily website content.'
+    'Do not edit local code files to change daily website content.',
   ];
   protected readonly publishCheck = [
     'Read the updated page like a resident would.',
     'Check spelling, dates, times, phone numbers, and email links.',
-    'Turn off emergency banners when they are no longer needed.'
+    'Turn off emergency banners when they are no longer needed.',
   ];
 }
