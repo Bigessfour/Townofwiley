@@ -21,6 +21,15 @@ export const appConfig: ApplicationConfig = {
         preset: Aura,
         options: { prefix: 'p' },
       },
+      ripple: true,
+      inputStyle: 'outlined',
+      inputVariant: 'outlined',
+      zIndex: {
+        modal: 1100,
+        overlay: 1000,
+        menu: 1000,
+        tooltip: 1100,
+      },
     }),
   ],
 };
