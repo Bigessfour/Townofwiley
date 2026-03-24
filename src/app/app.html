@@ -265,6 +265,8 @@
                   </aside>
                 </div>
 
+                <full-calendar [options]="calendarOptions()"></full-calendar>
+
                 <div class="calendar-grid">
                   @for (item of calendarItems(); track item.id) {
                     <article

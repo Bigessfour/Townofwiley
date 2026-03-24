@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -1012,6 +1014,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   imports: [
     NgOptimizedImage,
     RouterLink,
+    FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,
     LocalizedWeatherPanel,
@@ -1064,6 +1067,19 @@ export class App {
 
     this.scheduleFragmentScroll(`#${fragment}`);
   });
+
+  protected readonly calendarOptions = computed(() => ({
+    plugins: [dayGridPlugin],
+    initialView: 'dayGridMonth',
+    events: this.calendarItems().map(item => ({
+      title: item.title,
+      start: item.date,
+      extendedProps: { item }
+    })),
+    eventClick: (info: any) => {
+      // handle click
+    }
+  }));
 
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
