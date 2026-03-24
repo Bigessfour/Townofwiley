@@ -47,6 +47,12 @@ scripts/__pycache__/
 *.pyc
 .vitest-attachments/
 *-access-logs.csv
+.tmp-*.log
+changed-smoke-report.json
+smoke-report.json
+severe-weather-invoke-check.json
+sns-sms-policy.json
+sns-sms-trust.json
 
 # System files
 .DS_Store

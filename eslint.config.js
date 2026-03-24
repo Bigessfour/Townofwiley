@@ -6,6 +6,9 @@ const angular = require('angular-eslint');
 
 module.exports = defineConfig([
   {
+    ignores: ['amplify-codegen-temp/models/models'],
+  },
+  {
     files: ['**/*.ts'],
     extends: [
       eslint.configs.recommended,

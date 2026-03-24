@@ -16,6 +16,7 @@ This document converts the attached audit into Markdown and updates it against t
   - `/contact`
   - `/accessibility`
 - The records/document area now includes a resident-facing `/documents` hub that gives meeting documents, finance records, code references, and records requests stable public destinations instead of guidance-only dead ends.
+- The document hub now publishes a first-pass downloadable archive with stable public files under `/documents/archive`, so residents can open or download real reference documents instead of seeing guidance-only cards.
 - English is now the default homepage language when no saved preference exists, while resident-selected language still persists through local storage.
 - Several audit items are still open, but they are now mostly backend and operational gaps rather than missing public-facing information architecture.
 - The current repo state is now validated by lint, production build, unit tests, infrastructure tests, and the full Playwright suite.
@@ -140,12 +141,14 @@ What is complete:
   - meeting documents
   - financial documents
   - code references
+- The `/documents` page now includes a first-pass downloadable archive of real public reference files with stable URLs under `/documents/archive`.
+- A repo publishing workflow now exists so maintainers can add new public files by placing them under `public/documents/archive` and registering them in the central manifest.
 - Transparency quick actions now link residents into document-hub destinations instead of generic section anchors.
 - Search entries and meeting-related actions now route residents into the new public document destinations where appropriate.
 
 What is still missing:
 
-- No downloadable archive of agenda packets, minutes, budgets, annual reports, or ordinances yet
+- Official agenda packets, approved minutes, budget files, annual reports, and ordinance documents themselves are still not posted yet through the new archive workflow
 - No CMS-managed document upload workflow or versioned public records library yet
 - No true records portal or document repository yet
 
@@ -516,7 +519,7 @@ What is still missing:
 
 Selected item:
 
-1. High priority #1: Turn the new `/documents` destinations into a downloadable archive with real published files and a clerk-friendly publishing workflow.
+1. High priority #1 remains in progress: keep filling the new `/documents/archive` workflow with official packets, minutes, budget files, annual reports, and ordinance documents as those files are prepared for public posting.
 
 Why this is the next best visually confirmable task:
 

@@ -19,6 +19,34 @@ test.describe('homepage smoke', () => {
     await expect(homePage.page.locator('#accessibility')).toHaveCount(0);
   });
 
+  test('keeps the hero quick actions wired to resident tasks', async ({ homePage }) => {
+    await homePage.goto();
+
+    const heroActions = homePage.page.locator('.hero-actions .button-cta');
+    const heroActionGroup = homePage.page.locator('.hero-actions');
+
+    await expect(heroActions).toHaveCount(3);
+    await expect(
+      heroActionGroup.getByRole('link', {
+        name: siteContent.heroActionLabels.topTasks,
+        exact: true,
+      }),
+    ).toHaveAttribute('href', '#top-tasks');
+    await expect(
+      heroActionGroup.getByRole('link', {
+        name: siteContent.heroActionLabels.calendar,
+        exact: true,
+      }),
+    ).toHaveAttribute('href', '/meetings');
+
+    await heroActionGroup
+      .getByRole('button', { name: siteContent.heroActionLabels.alerts, exact: true })
+      .click();
+
+    await expect(homePage.page).toHaveURL(/\/weather$/);
+    await expect(homePage.weatherSignupShell).toBeVisible();
+  });
+
   test('opens the remaining public feature pages from the homepage', async ({ homePage }) => {
     await homePage.goto();
 
@@ -76,6 +104,18 @@ test.describe('homepage smoke', () => {
     await expect(homePage.page).toHaveURL(/\/documents#meeting-documents$/);
     await expect(homePage.page.locator('.document-hub-title')).toContainText(
       'Stable public destinations for meetings, finance records, and code references',
+    );
+
+    await homePage.page
+      .locator('a[href="/documents/archive/city-council-meeting-access-guide.html"]')
+      .first()
+      .click();
+
+    await expect(homePage.page).toHaveURL(
+      /\/documents\/archive\/city-council-meeting-access-guide\.html$/,
+    );
+    await expect(homePage.page.getByRole('heading', { level: 1 })).toContainText(
+      'City Council Meeting Access Guide',
     );
   });
 

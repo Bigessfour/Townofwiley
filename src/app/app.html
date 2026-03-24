@@ -28,12 +28,19 @@
 
       <div class="site-alert-actions">
         @if (alertBanner().linkLabel && alertBanner().linkHref) {
-          <a class="site-alert-link" [attr.href]="alertBanner().linkHref">
+          <a
+            class="site-alert-link button-cta button-cta--ghost"
+            [attr.href]="alertBanner().linkHref"
+          >
             {{ alertBanner().linkLabel }}
           </a>
         }
 
-        <button type="button" class="site-alert-link site-alert-button" (click)="openSignup()">
+        <button
+          type="button"
+          class="site-alert-link site-alert-button button-cta button-cta--ghost"
+          (click)="openSignup()"
+        >
           {{ appCopy().alertActionLabel }}
         </button>
       </div>
@@ -121,12 +128,18 @@
 
           <div class="hero-actions">
             <a
-              class="hero-action primary"
+              class="hero-action primary button-cta button-cta--solid"
               [attr.href]="isFeaturePageMode ? '/#top-tasks' : '#top-tasks'"
               >{{ appCopy().topTasksKicker }}</a
             >
-            <a class="hero-action secondary" href="/meetings">{{ appCopy().openCalendarLabel }}</a>
-            <button type="button" class="hero-action tertiary" (click)="openSignup()">
+            <a class="hero-action secondary button-cta button-cta--ghost" href="/meetings">{{
+              appCopy().openCalendarLabel
+            }}</a>
+            <button
+              type="button"
+              class="hero-action tertiary button-cta button-cta--ghost"
+              (click)="openSignup()"
+            >
               {{ appCopy().alertActionLabel }}
             </button>
           </div>

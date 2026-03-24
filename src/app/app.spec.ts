@@ -123,6 +123,17 @@ describe('App', () => {
     );
 
     expect(financeResult?.textContent).toContain('budget');
+
+    searchInput.value = 'public records checklist';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const archiveResult = compiled.querySelector(
+      '.search-result[href="/documents/archive/public-records-request-checklist.html"]',
+    );
+
+    expect(archiveResult?.textContent).toContain('Public Records Request Checklist');
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
@@ -502,6 +513,9 @@ describe('App', () => {
     );
     expect(compiled.querySelector('#meeting-documents')?.textContent).toContain(
       'City Council packets and approved minutes',
+    );
+    expect(compiled.querySelector('#records-requests')?.textContent).toContain(
+      'Public Records Request Checklist',
     );
     expect(compiled.querySelector('.document-hub-button.primary')?.getAttribute('href')).toBe(
       '/services#records-request',

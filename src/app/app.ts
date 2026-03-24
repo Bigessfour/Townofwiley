@@ -8,14 +8,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { TableModule } from 'primeng/table';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
+import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DocumentHub } from './document-hub/document-hub';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
-import { RecordsCenter, RECORDS_CENTER_COPY } from './records-center/records-center';
+import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
   CmsAlertBanner,
@@ -1009,6 +1011,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   selector: 'app-root',
   imports: [
     NgOptimizedImage,
+    TableModule,
     AccessibilitySupport,
     LocalizedAiChat,
     LocalizedWeatherPanel,
@@ -1308,6 +1311,17 @@ export class App {
         category: recordsCopy.kicker,
         href: guide.href,
         keywords: this.buildSearchKeywords(guide.kicker, guide.cta),
+      })),
+      ...DOCUMENT_ARCHIVE[this.siteLanguage()].map((document) => ({
+        title: document.title,
+        summary: document.summary,
+        category: recordsCopy.kicker,
+        href: document.href,
+        keywords: this.buildSearchKeywords(
+          document.updatedAt,
+          document.format,
+          ...document.keywords,
+        ),
       })),
       ...this.serviceCards().map((service) => ({
         title: service.title,

@@ -21,6 +21,6 @@
 
 ## Terminal Policy
 
-- This workspace explicitly allows read-only HTTP diagnostics through `curl.exe` and `Invoke-WebRequest` when checking live site, AWS, or health endpoints.
+- This workspace allows `curl.exe` and `Invoke-WebRequest` for HTTP operations, including diagnostics, API calls, and data retrieval from live sites, AWS, or health endpoints.
 - HTTP commands that send a body or use mutating methods such as `POST`, `PUT`, `PATCH`, or `DELETE` should still require confirmation.
 - When direct shell web utilities are blocked by host policy, prefer Python `urllib` or .NET `HttpClient` as the fallback for the same diagnostic purpose.

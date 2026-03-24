@@ -1,6 +1,11 @@
 export const siteContent = {
   documentTitle: 'Town of Wiley | Official Website',
   heading: 'Town of Wiley',
+  heroActionLabels: {
+    topTasks: 'Quick Tasks',
+    calendar: 'Open the full town calendar',
+    alerts: 'Sign up for text or email alerts',
+  },
   topTaskHeadings: [
     'Pay utility bill',
     'Report a street or utility issue',

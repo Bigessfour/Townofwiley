@@ -63,7 +63,8 @@
 }
 
 .document-hub-actions,
-.document-card-actions {
+.document-card-actions,
+.document-file-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -128,6 +129,76 @@
   margin-top: 1rem;
 }
 
+.document-archive {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(23, 52, 77, 0.04);
+  border: 1px solid rgba(23, 52, 77, 0.08);
+}
+
+.document-archive-header,
+.document-file-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.document-archive-header h3,
+.document-file-title {
+  margin: 0;
+  color: #17344d;
+}
+
+.document-file-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.document-file-card {
+  min-height: 100%;
+  padding: 1rem 1.1rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 239, 231, 0.94));
+  border: 1px solid rgba(13, 44, 84, 0.08);
+  box-shadow: 0 14px 30px rgba(20, 30, 42, 0.06);
+}
+
+.document-file-top,
+.document-file-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.document-file-meta {
+  font-size: 0.88rem;
+  color: #4d5f73;
+}
+
+.document-file-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: #17344d;
+  border: 1px solid #17344d;
+  color: #fffdf8;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.document-file-link.secondary {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(23, 52, 77, 0.12);
+  color: #17344d;
+}
+
 .document-card {
   display: grid;
   gap: 0.9rem;
@@ -172,6 +243,10 @@
 
 @media (max-width: 760px) {
   .document-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .document-file-grid {
     grid-template-columns: 1fr;
   }
 }

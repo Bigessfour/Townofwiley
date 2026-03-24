@@ -2,6 +2,18 @@
 
 TownOfWiley Website
 
+## Git Workflow
+
+- Production deploys come from `main` through Amplify.
+- Use short-lived feature branches and merge into `main` only when the change is build-safe.
+- Keep deployable app changes in `src/`, `public/`, `package*.json`, `angular.json`, `tsconfig*`, `amplify.yml`, and `scripts/generate-runtime-config.mjs`.
+- Keep maintainer-facing docs and runbooks tracked in the repo under `docs/`, `README.md`, `CLERK-CMS-GUIDE.md`, `bot-training/`, and related operational paths.
+- Do not commit local reports, temp logs, or machine-specific artifacts.
+- GitHub Actions validates deployable paths; Amplify handles the production deployment after `main` updates.
+- GitHub Actions uses targeted caches for npm, Playwright browsers, and Angular CLI build artifacts; Amplify keeps its own build cache through `amplify.yml`.
+
+Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
+
 ## Runtime Baseline
 
 - Supported production Node lines: `24.x` preferred, `22.x` acceptable
@@ -238,13 +250,18 @@ Current implementation status:
   - meeting documents
   - financial documents
   - code references
-- This is a first-pass public destination layer, not yet a downloadable file archive or CMS-managed document library.
+- The `/documents` page now includes a first-pass downloadable archive with stable public files under `/documents/archive`.
+- Archive publishing is now driven by a central manifest in `src/app/document-hub/document-archive.ts` plus static public files under `public/documents/archive`.
+- Maintainers now have a repo guide for the publishing workflow in `docs/town-document-publishing-guide.md`.
+- This is still not a CMS-managed document library yet. Official packets, budgets, ordinances, and reports still need to be posted through the new workflow as those files become available.
 
 Traceability:
 
 - `src/app/document-hub/document-links.ts`
+- `src/app/document-hub/document-archive.ts`
 - `src/app/document-hub/document-hub.ts`
 - `src/app/records-center/records-center.ts`
+- `docs/town-document-publishing-guide.md`
 - `src/app/app.ts`
 - `docs/town-website-audit-status-2026-03-23.md`
 

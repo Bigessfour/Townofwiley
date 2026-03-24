@@ -1,4 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  DOCUMENT_ARCHIVE,
+  type DocumentArchiveSectionId,
+  type PublishedDocument,
+} from './document-archive';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface DocumentAction {
@@ -15,11 +20,15 @@ interface DocumentItem {
 }
 
 interface DocumentSection {
-  id: string;
+  id: DocumentArchiveSectionId;
   kicker: string;
   title: string;
   intro: string;
   items: DocumentItem[];
+}
+
+interface DocumentSectionView extends DocumentSection {
+  publishedDocuments: PublishedDocument[];
 }
 
 interface DocumentHubCopy {
@@ -29,6 +38,13 @@ interface DocumentHubCopy {
   returnHome: string;
   openRecordsForm: string;
   sectionNavLabel: string;
+  publishedArchiveKicker: string;
+  publishedArchiveHeading: string;
+  publishedArchiveIntro: string;
+  openDocumentLabel: string;
+  downloadDocumentLabel: string;
+  updatedLabel: string;
+  formatLabel: string;
   sections: DocumentSection[];
 }
 
@@ -41,6 +57,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     returnHome: 'Return to homepage',
     openRecordsForm: 'Open records request form',
     sectionNavLabel: 'Document hub sections',
+    publishedArchiveKicker: 'Published now',
+    publishedArchiveHeading: 'Downloadable public files available now',
+    publishedArchiveIntro:
+      'This first-pass archive publishes real public reference files with stable URLs. Future packets, reports, and code documents can be added to the same public path without changing the resident workflow.',
+    openDocumentLabel: 'Open document',
+    downloadDocumentLabel: 'Download file',
+    updatedLabel: 'Updated',
+    formatLabel: 'Format',
     sections: [
       {
         id: 'records-requests',
@@ -159,6 +183,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     returnHome: 'Volver a la pagina principal',
     openRecordsForm: 'Abrir formulario de registros',
     sectionNavLabel: 'Secciones del centro de documentos',
+    publishedArchiveKicker: 'Publicado ahora',
+    publishedArchiveHeading: 'Archivos publicos descargables disponibles ahora',
+    publishedArchiveIntro:
+      'Este primer archivo publica documentos reales de referencia con rutas estables. Los futuros paquetes, informes y referencias de codigo pueden agregarse a la misma ruta publica sin cambiar el flujo para residentes.',
+    openDocumentLabel: 'Abrir documento',
+    downloadDocumentLabel: 'Descargar archivo',
+    updatedLabel: 'Actualizado',
+    formatLabel: 'Formato',
     sections: [
       {
         id: 'records-requests',
@@ -289,4 +321,13 @@ export class DocumentHub {
   protected readonly copy = computed(
     () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage()],
   );
+  protected readonly sections = computed<DocumentSectionView[]>(() => {
+    const language = this.siteLanguageService.currentLanguage();
+    const archive = DOCUMENT_ARCHIVE[language];
+
+    return DOCUMENT_HUB_COPY[language].sections.map((section) => ({
+      ...section,
+      publishedDocuments: archive.filter((document) => document.sectionId === section.id),
+    }));
+  });
 }

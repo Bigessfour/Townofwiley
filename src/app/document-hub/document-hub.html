@@ -13,17 +13,63 @@
   </section>
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
-    @for (section of copy().sections; track section.id) {
+    @for (section of sections(); track section.id) {
       <a class="document-hub-nav-link" [attr.href]="'#' + section.id">{{ section.title }}</a>
     }
   </nav>
 
   <section class="document-hub-sections">
-    @for (section of copy().sections; track section.id) {
+    @for (section of sections(); track section.id) {
       <article class="document-section" [attr.id]="section.id">
         <p class="document-hub-kicker">{{ section.kicker }}</p>
         <h2>{{ section.title }}</h2>
         <p class="document-section-intro">{{ section.intro }}</p>
+
+        @if (section.publishedDocuments.length) {
+          <section
+            class="document-archive"
+            [attr.aria-labelledby]="section.id + '-archive-heading'"
+          >
+            <div class="document-archive-header">
+              <p class="document-hub-kicker">{{ copy().publishedArchiveKicker }}</p>
+              <h3 [attr.id]="section.id + '-archive-heading'">
+                {{ copy().publishedArchiveHeading }}
+              </h3>
+              <p class="document-section-intro">{{ copy().publishedArchiveIntro }}</p>
+            </div>
+
+            <div class="document-file-grid">
+              @for (document of section.publishedDocuments; track document.id) {
+                <article class="document-file-card">
+                  <div class="document-file-top">
+                    <h4 class="document-file-title">{{ document.title }}</h4>
+                    <span class="document-status">{{ document.status }}</span>
+                  </div>
+
+                  <p>{{ document.summary }}</p>
+
+                  <div class="document-file-meta">
+                    <span>{{ copy().updatedLabel }}: {{ document.updatedAt }}</span>
+                    <span>{{ copy().formatLabel }}: {{ document.format }}</span>
+                  </div>
+
+                  <div class="document-file-actions">
+                    <a class="document-file-link" [attr.href]="document.href">
+                      {{ copy().openDocumentLabel }}
+                    </a>
+                    <a
+                      class="document-file-link secondary"
+                      [attr.href]="document.href"
+                      [attr.download]="document.downloadFileName"
+                    >
+                      {{ copy().downloadDocumentLabel }}
+                    </a>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
 
         <div class="document-card-grid">
           @for (item of section.items; track item.title) {
