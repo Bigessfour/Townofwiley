@@ -20,6 +20,7 @@ test.describe('homepage smoke', () => {
   });
 
   test('keeps the hero quick actions wired to resident tasks', async ({ homePage }) => {
+    await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
     const heroActions = homePage.page.locator('.hero-actions .button-cta');
@@ -86,6 +87,7 @@ test.describe('homepage smoke', () => {
   });
 
   test('opens the local weather feature page from the homepage', async ({ homePage }) => {
+    await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
     await homePage.page.locator('.feature-card[href="/weather"]').click();
