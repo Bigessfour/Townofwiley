@@ -37,7 +37,8 @@ npm run test:e2e:ui
 
 ## Local vs Remote Runs
 
-- Local default: starts `ng serve` automatically at `http://127.0.0.1:4200`.
+- Local default: starts `ng serve` automatically at `http://127.0.0.1:4300`.
+- Override the local port with `E2E_PORT` if you need a different isolated test port.
 - Remote deployment: set `E2E_BASE_URL` and run against Amplify.
 
 PowerShell example:

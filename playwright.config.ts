@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4200';
+const e2ePort = process.env.E2E_PORT ?? '4300';
+const baseURL = process.env.E2E_BASE_URL ?? `http://127.0.0.1:${e2ePort}`;
 const useRemoteBaseUrl = Boolean(process.env.E2E_BASE_URL);
 
 export default defineConfig({
@@ -25,7 +26,7 @@ export default defineConfig({
   webServer: useRemoteBaseUrl
     ? undefined
     : {
-        command: 'npm run start -- --host 127.0.0.1 --port 4200',
+        command: `npm run start -- --host 127.0.0.1 --port ${e2ePort}`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
