@@ -1445,7 +1445,8 @@ export class App {
       return;
     }
 
-    this.navigateToHref(firstResult.href);
+    const [path, fragment] = firstResult.href.split('#');
+    this.router.navigate([path], { fragment: fragment || undefined });
   }
 
   protected openSignup(): void {
@@ -1454,7 +1455,7 @@ export class App {
       return;
     }
 
-    this.navigateToHref('/weather');
+    this.router.navigate(['/weather']);
   }
 
   protected openCalendar(event?: Event): void {
@@ -1465,12 +1466,7 @@ export class App {
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      window.location.assign('/meetings#calendar');
-      return;
-    }
-
-    this.navigateToHref('/meetings#calendar');
+    this.router.navigate(['/meetings'], { fragment: 'calendar' });
   }
 
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {

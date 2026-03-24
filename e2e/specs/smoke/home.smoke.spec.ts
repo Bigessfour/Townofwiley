@@ -38,7 +38,7 @@ test.describe('homepage smoke', () => {
         name: siteContent.heroActionLabels.calendar,
         exact: true,
       }),
-    ).toHaveAttribute('href', '/meetings');
+    ).toHaveAttribute('href', '/meetings#calendar');
 
     await heroActionGroup
       .getByRole('button', { name: siteContent.heroActionLabels.alerts, exact: true })
@@ -46,6 +46,13 @@ test.describe('homepage smoke', () => {
 
     await expect(homePage.page).toHaveURL(/\/weather$/);
     await expect(homePage.weatherSignupShell).toBeVisible();
+
+    await heroActionGroup
+      .getByRole('link', { name: siteContent.heroActionLabels.calendar, exact: true })
+      .click();
+
+    await expect(homePage.page).toHaveURL(/\/meetings#calendar$/);
+    await expect(homePage.page.locator('#calendar')).toBeVisible();
   });
 
   test('opens the remaining public feature pages from the homepage', async ({ homePage }) => {

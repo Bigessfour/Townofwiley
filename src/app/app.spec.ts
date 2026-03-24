@@ -1,11 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-    HttpTestingController,
-    TestRequest,
-    provideHttpClientTesting,
+  HttpTestingController,
+  TestRequest,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
@@ -146,6 +146,26 @@ describe('App', () => {
     expect(scrollIntoViewSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
     expect(replaceStateSpy).toHaveBeenCalledWith(window.history.state, '', '/meetings#calendar');
     expect(document.activeElement).toBe(calendarPanel);
+  });
+
+  it('should navigate to meetings with calendar fragment when calendar action is used not on meetings page', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const topCalendarLink = compiled.querySelector(
+      '.hero-action.secondary[href="/meetings#calendar"]',
+    ) as HTMLAnchorElement;
+
+    topCalendarLink.click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/meetings'], { fragment: 'calendar' });
   });
 
   it('should route document-related search queries into the public document hub', async () => {
