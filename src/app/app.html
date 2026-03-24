@@ -329,9 +329,6 @@
                       <p>{{ service.description }}</p>
                       <a class="text-link service-link" [attr.href]="service.href">
                         <span>{{ service.cta }}</span>
-                        @if (service.isComingSoon) {
-                          <span class="service-link-pill">{{ appCopy().comingSoonLabel }}</span>
-                        }
                       </a>
                     </article>
                   }

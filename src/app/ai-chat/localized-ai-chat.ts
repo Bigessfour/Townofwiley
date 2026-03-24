@@ -76,7 +76,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
       'This assistant uses the Town of Wiley Easy-Peasy bot through a secure proxy, so the API key stays off the public site.',
     onlineStatus: 'Programmatic chat is online.',
     embedStatus: 'The Easy-Peasy assistant is live on this page.',
-    offlineStatus: 'Programmatic chat is offline in this environment.',
+    offlineStatus: 'Ask Wiley is temporarily unavailable.',
     questionLabel: 'Type a question for Ask Wiley',
     helper:
       'Enter a question below or tap one of the example prompts. The reply appears directly underneath in the conversation panel.',
@@ -104,9 +104,9 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     embedWelcome:
       'Ask Wiley is available through the embedded Easy-Peasy assistant on this page. Use the floating button or open the direct assistant link if you want a larger chat window.',
     offlineWelcome:
-      'Programmatic chat is currently offline in this environment. Deploy the Easy-Peasy proxy and set EASYPEASY_API_ENDPOINT to turn it on.',
+      'Ask Wiley is temporarily unavailable. Please use the Town Hall contact links below if you need help right away.',
     missingProgrammaticMessage:
-      'Programmatic chat is not connected yet. Set EASYPEASY_API_ENDPOINT in deployment config after the proxy is deployed.',
+      'Ask Wiley is temporarily unavailable right now. Please try again later or contact Town Hall directly.',
     retryMessage:
       'The assistant is temporarily unavailable. Please try again in a moment or contact Town Hall directly.',
     malformedMessage: 'Malformed chatbot response.',
@@ -126,7 +126,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
       'Este asistente usa el bot Easy-Peasy del Pueblo de Wiley mediante un proxy seguro, por lo que la clave de API no vive en el sitio publico.',
     onlineStatus: 'El chat programatico esta en linea.',
     embedStatus: 'El asistente Easy-Peasy esta activo en esta pagina.',
-    offlineStatus: 'El chat programatico esta fuera de linea en este entorno.',
+    offlineStatus: 'Pregunta a Wiley esta temporalmente fuera de servicio.',
     questionLabel: 'Escriba una pregunta para Pregunta a Wiley',
     helper:
       'Escriba una pregunta abajo o toque uno de los ejemplos. La respuesta aparece directamente debajo en el panel de conversacion.',
@@ -154,9 +154,9 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     embedWelcome:
       'Pregunta a Wiley esta disponible mediante el asistente Easy-Peasy integrado en esta pagina. Use el boton flotante o abra el enlace directo del asistente si desea una ventana de chat mas amplia.',
     offlineWelcome:
-      'El chat programatico esta fuera de linea en este entorno. Despliegue el proxy de Easy-Peasy y configure EASYPEASY_API_ENDPOINT para activarlo.',
+      'Pregunta a Wiley esta temporalmente fuera de servicio. Use los enlaces de contacto del ayuntamiento si necesita ayuda de inmediato.',
     missingProgrammaticMessage:
-      'El chat programatico todavia no esta conectado. Configure EASYPEASY_API_ENDPOINT en la configuracion de despliegue despues de publicar el proxy.',
+      'Pregunta a Wiley no esta disponible en este momento. Intente de nuevo mas tarde o contacte directamente al ayuntamiento.',
     retryMessage:
       'El asistente no esta disponible temporalmente. Intente de nuevo en un momento o contacte directamente al ayuntamiento.',
     malformedMessage: 'La respuesta del chatbot llego con un formato no valido.',

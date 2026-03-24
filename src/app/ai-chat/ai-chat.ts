@@ -87,7 +87,7 @@ export class AiChat {
 
     if (!this.isConfigured) {
       this.appendAssistantMessage(
-        'Programmatic chat is not connected yet. Set EASYPEASY_API_ENDPOINT in deployment config after the proxy is deployed.',
+        'Ask Wiley is temporarily unavailable right now. Please try again later or contact Town Hall directly.',
         [{ label: 'Contact Town Hall', href: '/contact' }],
         true,
       );
@@ -147,7 +147,7 @@ export class AiChat {
     return {
       role: 'assistant',
       content:
-        'Programmatic chat is currently offline in this environment. Deploy the Easy-Peasy proxy and set EASYPEASY_API_ENDPOINT to turn it on.',
+        'Ask Wiley is temporarily unavailable. Please use the Town Hall contact links if you need help right away.',
       links: [{ label: 'Contact Town Hall', href: '/contact' }],
       omitFromHistory: true,
     };

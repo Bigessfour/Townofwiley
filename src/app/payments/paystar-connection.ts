@@ -40,7 +40,7 @@ export class PaystarConnectionService {
     }
 
     if (runtimeConfig.mode !== 'api' || !runtimeConfig.apiEndpoint) {
-      throw new Error('Paystar is not configured in this environment.');
+      throw new Error('Online payment is not available right now.');
     }
 
     return firstValueFrom(

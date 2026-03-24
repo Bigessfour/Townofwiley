@@ -215,9 +215,9 @@ export class HomePage {
   }
 
   async tapWeatherRefresh(): Promise<void> {
-    await this.weatherRefreshButton.scrollIntoViewIfNeeded();
-    await this.weatherRefreshButton.focus();
-    await this.weatherRefreshButton.press('Enter');
+    await expect(this.weatherRefreshButton).toBeVisible();
+    await expect(this.weatherRefreshButton).toBeEnabled();
+    await this.weatherRefreshButton.click();
   }
 
   async searchFor(query: string): Promise<void> {

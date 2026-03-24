@@ -76,7 +76,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     intro:
       'Use Amplify Studio Data Manager for daily website updates. This page is a guide and status check only. It does not publish live website changes.',
     returnHome: 'Return to homepage',
-    openSetupPage: 'Open Clerk Start Page',
+    openSetupPage: 'Open content guide',
     openAmplify: 'Open Studio Home',
     openDataManager: 'Open Data Manager',
     statusAriaLabel: 'CMS status',
@@ -170,7 +170,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     intro:
       'Use Amplify Studio Data Manager para los cambios diarios del sitio. Esta pagina solo es una guia y una verificacion de estado. No publica cambios en vivo.',
     returnHome: 'Volver a la pagina principal',
-    openSetupPage: 'Abrir pagina inicial de secretaria',
+    openSetupPage: 'Abrir guia de contenido',
     openAmplify: 'Abrir Studio Home',
     openDataManager: 'Abrir Data Manager',
     statusAriaLabel: 'Estado del CMS',

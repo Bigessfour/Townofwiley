@@ -495,7 +495,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.setup-card h1')?.textContent).toContain('Deb Dillon');
-    expect(compiled.textContent).toContain('Town Clerk Setup');
+    expect(compiled.textContent).toContain('Town website content guide');
     expect(compiled.textContent).toContain('Open Studio Home');
     expect(compiled.textContent).toContain('Open Data Manager');
   });

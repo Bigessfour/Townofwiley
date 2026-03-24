@@ -64,7 +64,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionKicker: 'Resident Services',
     sectionTitle: 'Start the town tasks that still need a human follow-through',
     sectionBody:
-      'Until Wiley adds full payment and workflow backends, these guided forms prepare the right email for the clerk or town operations so residents do not have to guess who to contact.',
+      'These guided forms prepare the right email for the clerk or town operations so residents do not have to guess who to contact.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
@@ -82,9 +82,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     paymentPortalActionLabel: 'Open secure Paystar payment portal',
     paymentPortalLaunchMessage: 'Opening the secure Paystar payment portal.',
     paymentPortalErrorMessage:
-      'Paystar is scaffolded, but this environment is missing the live payment endpoint. Use the billing help email until the runtime settings are deployed.',
+      'Secure online payment is unavailable right now. Use the billing help email and Town Hall staff will help you complete your payment.',
     paymentPortalUnavailableMessage:
-      'Paystar has been selected for utility payments, but the secure launch path is not configured in this environment yet.',
+      'Online utility payment is temporarily unavailable. Use the billing help email for account help and payment instructions.',
     paymentActionLabel: 'Open billing help email',
     issueMeta: 'Issue reporting',
     issueTitle: 'Report a street or utility issue',
@@ -127,7 +127,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionKicker: 'Servicios para residentes',
     sectionTitle: 'Inicie los tramites del pueblo que todavia requieren seguimiento humano',
     sectionBody:
-      'Mientras Wiley agrega sistemas completos para pagos y tramites, estos formularios preparan el correo correcto para la secretaria o para operaciones del pueblo para que los residentes no tengan que adivinar a quien escribir.',
+      'Estos formularios preparan el correo correcto para la secretaria o para operaciones del pueblo para que los residentes no tengan que adivinar a quien escribir.',
     validationMessage:
       'Complete los campos obligatorios para que el sitio pueda preparar el mensaje con los detalles correctos.',
     mailClientMessage:
@@ -145,9 +145,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     paymentPortalActionLabel: 'Abrir portal seguro de pago Paystar',
     paymentPortalLaunchMessage: 'Abriendo el portal seguro de pago de Paystar.',
     paymentPortalErrorMessage:
-      'Paystar ya esta preparado, pero este entorno no tiene el endpoint de pago en vivo. Use el correo de ayuda de facturacion hasta que se desplieguen los ajustes.',
+      'El pago seguro en linea no esta disponible en este momento. Use el correo de ayuda de facturacion y el personal del ayuntamiento le ayudara a completar su pago.',
     paymentPortalUnavailableMessage:
-      'Paystar fue seleccionado para pagos de servicios, pero la ruta segura de lanzamiento todavia no esta configurada en este entorno.',
+      'El pago en linea de servicios esta temporalmente no disponible. Use el correo de ayuda de facturacion para recibir instrucciones y apoyo con su cuenta.',
     paymentActionLabel: 'Abrir correo de ayuda de facturacion',
     issueMeta: 'Reporte de problemas',
     issueTitle: 'Reportar un problema de calle o servicio',

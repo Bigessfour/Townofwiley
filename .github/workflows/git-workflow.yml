@@ -18,6 +18,7 @@ permissions:
 
 env:
   NODE_VERSION: '24'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
   NG_CLI_ANALYTICS: 'false'
 

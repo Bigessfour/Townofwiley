@@ -8,7 +8,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
@@ -104,7 +106,6 @@ interface ServiceCard {
   description: string;
   href: string;
   cta: string;
-  isComingSoon?: boolean;
 }
 
 interface TransparencyItem {
@@ -231,7 +232,6 @@ interface AppCopy {
   contactHeading: string;
   backHomeLabel: string;
   featureTitles: FeatureTitles;
-  comingSoonLabel: string;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];
   navLinks: NavLink[];
@@ -247,7 +247,8 @@ interface AppCopy {
 }
 
 function normalizePath(pathname: string): string {
-  const trimmedPath = pathname.replace(/\/+$/, '');
+  const pathWithoutHashOrQuery = pathname.split(/[?#]/, 1)[0] ?? pathname;
+  const trimmedPath = pathWithoutHashOrQuery.replace(/\/+$/, '');
 
   return trimmedPath || '/';
 }
@@ -301,19 +302,19 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarBridgeLabel: 'Tie alerts back to notices and agendas',
     calendarStatusAriaLabel: 'Calendar publishing status',
     calendarStatusKicker: 'Publishing status',
-    calendarStatusLiveSummarySingular: 'published event',
-    calendarStatusLiveSummaryPlural: 'published events',
+    calendarStatusLiveSummarySingular: 'upcoming event',
+    calendarStatusLiveSummaryPlural: 'upcoming events',
     calendarStatusLiveDetail:
-      'These calendar cards are currently coming from staff-managed event records instead of the bundled fallback schedule.',
-    calendarStatusFallbackSummary: 'Seeded schedule fallback',
+      'These calendar cards reflect the latest meeting and community event information available for Wiley.',
+    calendarStatusFallbackSummary: 'Recurring town schedule',
     calendarStatusFallbackDetail:
-      'The site is still showing the bundled recurring schedule until staff publish live calendar events.',
-    calendarStatusNextLabel: 'Next published event',
-    calendarStatusFallbackNextLabel: 'Default meeting anchor',
-    calendarManagedBadge: 'Staff managed',
-    calendarFallbackBadge: 'Seeded schedule',
+      'The calendar below lists Wiley\'s regular meeting schedule and key community timing.',
+    calendarStatusNextLabel: 'Next upcoming event',
+    calendarStatusFallbackNextLabel: 'Next scheduled meeting',
+    calendarManagedBadge: 'Updated event',
+    calendarFallbackBadge: 'Regular schedule',
     calendarFeaturedBadge: 'Next up',
-    calendarPublishedEventCategory: 'Published event',
+    calendarPublishedEventCategory: 'Upcoming event',
     calendarGoogleActionLabel: 'Add to Google Calendar',
     calendarDownloadActionLabel: 'Download ICS',
     calendarAgendaActionLabel: 'Agenda details',
@@ -321,7 +322,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarLiveEventCategory: 'Community calendar',
     calendarScheduledEventLabel: 'Scheduled event',
     calendarEventFallbackDetail:
-      'Community calendar details will appear here as staff publish live event information.',
+      'Meeting details and community event information will appear here.',
     calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Digital Services',
     servicesHeading: 'Self-service tools should reduce office calls, not add more friction',
@@ -345,7 +346,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       contact: 'Contact Town Hall',
       accessibility: 'Accessibility statement',
     },
-    comingSoonLabel: 'Coming Soon',
     footerLinks: [
       { label: 'Accessibility statement', href: '/accessibility' },
       { label: 'Public records and FOIA', href: '/records' },
@@ -677,19 +677,19 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
     calendarStatusAriaLabel: 'Estado de publicacion del calendario',
     calendarStatusKicker: 'Estado de publicacion',
-    calendarStatusLiveSummarySingular: 'evento publicado',
-    calendarStatusLiveSummaryPlural: 'eventos publicados',
+    calendarStatusLiveSummarySingular: 'proximo evento',
+    calendarStatusLiveSummaryPlural: 'proximos eventos',
     calendarStatusLiveDetail:
-      'Estas tarjetas del calendario ahora provienen de registros de eventos administrados por el personal en lugar del horario incluido en la aplicacion.',
-    calendarStatusFallbackSummary: 'Horario incluido como respaldo',
+      'Estas tarjetas del calendario muestran la informacion mas reciente disponible sobre reuniones y eventos comunitarios de Wiley.',
+    calendarStatusFallbackSummary: 'Horario recurrente del pueblo',
     calendarStatusFallbackDetail:
-      'El sitio todavia muestra el horario recurrente incluido hasta que el personal publique eventos del calendario en vivo.',
-    calendarStatusNextLabel: 'Proximo evento publicado',
-    calendarStatusFallbackNextLabel: 'Reunion predeterminada destacada',
-    calendarManagedBadge: 'Administrado por personal',
-    calendarFallbackBadge: 'Horario incluido',
+      'El calendario a continuacion muestra el horario regular de reuniones del pueblo y las fechas comunitarias clave.',
+    calendarStatusNextLabel: 'Proximo evento',
+    calendarStatusFallbackNextLabel: 'Proxima reunion programada',
+    calendarManagedBadge: 'Evento actualizado',
+    calendarFallbackBadge: 'Horario regular',
     calendarFeaturedBadge: 'Sigue',
-    calendarPublishedEventCategory: 'Evento publicado',
+    calendarPublishedEventCategory: 'Proximo evento',
     calendarGoogleActionLabel: 'Agregar a Google Calendar',
     calendarDownloadActionLabel: 'Descargar ICS',
     calendarAgendaActionLabel: 'Detalles de la agenda',
@@ -697,7 +697,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarLiveEventCategory: 'Calendario comunitario',
     calendarScheduledEventLabel: 'Evento programado',
     calendarEventFallbackDetail:
-      'Los detalles del calendario comunitario apareceran aqui cuando el personal publique eventos en vivo.',
+      'Los detalles de reuniones y eventos comunitarios apareceran aqui.',
     calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Servicios digitales',
     servicesHeading:
@@ -722,7 +722,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       contact: 'Contactar al ayuntamiento',
       accessibility: 'Declaracion de accesibilidad',
     },
-    comingSoonLabel: 'Proximamente',
     footerLinks: [
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
       { label: 'Registros publicos y FOIA', href: '/records' },
@@ -1031,7 +1030,18 @@ export class App {
   private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly router = inject(Router);
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
-  private readonly currentPath = computed(() => normalizePath(this.router.url));
+  private readonly initialPath =
+    typeof window !== 'undefined'
+      ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
+      : normalizePath(this.router.url);
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => normalizePath(this.router.url)),
+      startWith(this.initialPath),
+    ),
+    { initialValue: this.initialPath },
+  );
 
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
@@ -1453,7 +1463,7 @@ export class App {
   }
 
   private navigateToHref(href: string): void {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !href) {
       return;
     }
 
@@ -1462,7 +1472,26 @@ export class App {
       return;
     }
 
-    window.location.assign(href);
+    if (
+      href.startsWith('http://') ||
+      href.startsWith('https://') ||
+      href.startsWith('mailto:') ||
+      href.startsWith('tel:') ||
+      href.startsWith('/documents/archive/')
+    ) {
+      window.location.assign(href);
+      return;
+    }
+
+    const [path, fragment] = href.split('#', 2);
+    try {
+      const urlTree = this.router.parseUrl(path || this.router.url);
+      urlTree.fragment = fragment || null;
+
+      void this.router.navigateByUrl(urlTree);
+    } catch {
+      window.location.assign(href);
+    }
   }
 
   private scrollToFragment(fragment: string, fallbackFragment?: string): void {
