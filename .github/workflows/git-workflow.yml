@@ -63,7 +63,7 @@ jobs:
             [[ -z "$FILE" ]] && continue
 
             case "$FILE" in
-              src/*|public/*|package.json|package-lock.json|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs)
+              src/*|public/*|package.json|package-lock.json|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|static-routes.txt)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
