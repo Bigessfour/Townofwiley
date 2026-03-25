@@ -246,7 +246,6 @@
                 <div class="calendar-header">
                   <div class="calendar-header-copy">
                     <h2 id="calendar-heading">{{ appCopy().calendarHeading }}</h2>
-                    <p class="calendar-copy">{{ appCopy().calendarCopy }}</p>
                     <a class="text-link" routerLink="/notices">{{
                       appCopy().calendarBridgeLabel
                     }}</a>
@@ -265,60 +264,181 @@
                   </aside>
                 </div>
 
-                <full-calendar [options]="calendarOptions()"></full-calendar>
+                <div class="calendar-tools">
+                  <div class="calendar-tool">
+                    <label class="calendar-tool-label" for="calendar-jump-month">
+                      {{ appCopy().calendarJumpLabel }}
+                    </label>
+                    <p-datepicker
+                      inputId="calendar-jump-month"
+                      [ngModel]="calendarJumpMonth()"
+                      (ngModelChange)="updateCalendarJumpMonth($event)"
+                      view="month"
+                      dateFormat="mm/yy"
+                      [showIcon]="true"
+                      [showButtonBar]="true"
+                      [readonlyInput]="true"
+                      [placeholder]="appCopy().calendarJumpPlaceholder"
+                    />
+                    @if (calendarJumpMonth(); as selectedMonth) {
+                      <p class="calendar-jump-note">
+                        {{ appCopy().calendarJumpCurrentLabel }}
+                        {{ formatCalendarMonth(selectedMonth) }}
+                      </p>
+                    }
+                  </div>
 
-                <div class="calendar-grid">
-                  @for (item of calendarItems(); track item.id) {
-                    <article
-                      class="calendar-card"
-                      [class.is-featured]="item.isFeatured"
-                      [class.is-live]="item.source === 'live'"
-                    >
-                      <div class="calendar-card-top">
-                        <div class="calendar-meta-row">
-                          <p class="meta-label">{{ item.category }}</p>
-                          <div class="calendar-pill-group">
-                            @if (item.isFeatured) {
-                              <span class="calendar-pill is-featured">{{
-                                appCopy().calendarFeaturedBadge
-                              }}</span>
-                            }
-                            <span class="calendar-pill">{{ item.recurrence }}</span>
-                          </div>
-                        </div>
-                        <span
-                          class="calendar-source-badge"
-                          [class.is-live]="item.source === 'live'"
-                        >
-                          {{ item.sourceLabel }}
-                        </span>
-                      </div>
-                      <h3>{{ item.title }}</h3>
-                      <strong>{{ item.date }}</strong>
-                      <p class="calendar-location">{{ item.location }}</p>
-                      <p>{{ item.detail }}</p>
-                      @if (item.agendaNote) {
-                        <p class="calendar-agenda-note">{{ item.agendaNote }}</p>
-                      }
-                      <div
-                        class="calendar-actions"
-                        [attr.aria-label]="appCopy().calendarActionsAriaLabel"
-                      >
-                        @for (action of item.actions; track action.label) {
-                          <a
-                            class="calendar-action"
-                            [attr.href]="action.href"
-                            [attr.download]="action.downloadFileName ?? null"
-                            [attr.target]="action.external ? '_blank' : null"
-                            [attr.rel]="action.external ? 'noreferrer noopener' : null"
-                          >
-                            {{ action.label }}
-                          </a>
-                        }
-                      </div>
-                    </article>
-                  }
+                  <p-button
+                    type="button"
+                    [label]="appCopy().calendarHelpButtonLabel"
+                    icon="pi pi-question-circle"
+                    severity="secondary"
+                    (onClick)="openCalendarHelp()"
+                  />
                 </div>
+
+                <p-tabs value="month">
+                  <p-tablist>
+                    <p-tab value="month">{{ appCopy().calendarMonthTabLabel }}</p-tab>
+                    <p-tab value="list">{{ appCopy().calendarListTabLabel }}</p-tab>
+                  </p-tablist>
+                  <p-tabpanels>
+                    <p-tabpanel value="month">
+                      <full-calendar [options]="calendarOptions()"></full-calendar>
+                    </p-tabpanel>
+                    <p-tabpanel value="list">
+                      <p-table
+                        class="calendar-table"
+                        [value]="calendarItems()"
+                        dataKey="id"
+                        [loading]="cmsContentLoading()"
+                        [paginator]="true"
+                        [rows]="5"
+                        [rowsPerPageOptions]="[5, 10]"
+                        [scrollable]="true"
+                        scrollHeight="28rem"
+                        [tableStyle]="{ 'min-width': '72rem' }"
+                        stripedRows
+                        showGridlines
+                      >
+                        <ng-template #header>
+                          <tr>
+                            <th pSortableColumn="title">
+                              <div class="calendar-table-header-cell">
+                                <span>{{ appCopy().calendarPublishedEventCategory }}</span>
+                                <p-sortIcon field="title" />
+                              </div>
+                            </th>
+                            <th pSortableColumn="date">
+                              <div class="calendar-table-header-cell">
+                                <span>{{ appCopy().calendarStatusNextLabel }}</span>
+                                <p-sortIcon field="date" />
+                              </div>
+                            </th>
+                            <th pSortableColumn="category">
+                              <div class="calendar-table-header-cell">
+                                <span>{{ appCopy().calendarKicker }}</span>
+                                <p-sortIcon field="category" />
+                              </div>
+                            </th>
+                            <th pSortableColumn="location">
+                              <div class="calendar-table-header-cell">
+                                <span>Location</span>
+                                <p-sortIcon field="location" />
+                              </div>
+                            </th>
+                            <th pSortableColumn="recurrence">
+                              <div class="calendar-table-header-cell">
+                                <span>Recurrence</span>
+                                <p-sortIcon field="recurrence" />
+                              </div>
+                            </th>
+                            <th>{{ appCopy().calendarActionsAriaLabel }}</th>
+                          </tr>
+                        </ng-template>
+
+                        <ng-template #body let-item>
+                          <tr [class.is-featured]="item.isFeatured" [class.is-live]="item.source === 'live'">
+                            <td>
+                              <div class="calendar-table-title">
+                                <strong>{{ item.title }}</strong>
+                                <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
+                                  {{ item.sourceLabel }}
+                                </span>
+                                @if (item.agendaNote) {
+                                  <span class="calendar-table-note">{{ item.agendaNote }}</span>
+                                }
+                              </div>
+                            </td>
+                            <td>{{ item.date }}</td>
+                            <td>
+                              <div class="calendar-table-meta">
+                                <span class="calendar-pill">{{ item.category }}</span>
+                                @if (item.isFeatured) {
+                                  <span class="calendar-pill is-featured">
+                                    {{ appCopy().calendarFeaturedBadge }}
+                                  </span>
+                                }
+                              </div>
+                            </td>
+                            <td>{{ item.location }}</td>
+                            <td>{{ item.recurrence }}</td>
+                            <td>
+                              <div class="calendar-table-actions">
+                                @for (action of item.actions; track action.label) {
+                                  <a
+                                    class="calendar-action"
+                                    [attr.href]="action.href"
+                                    [attr.download]="action.downloadFileName ?? null"
+                                    [attr.target]="action.external ? '_blank' : null"
+                                    [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                                  >
+                                    {{ action.label }}
+                                  </a>
+                                }
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-template>
+
+                        <ng-template #loadingbody>
+                          <tr>
+                            <td><p-skeleton width="14rem" height="1rem" /></td>
+                            <td><p-skeleton width="9rem" height="1rem" /></td>
+                            <td><p-skeleton width="8rem" height="1rem" /></td>
+                            <td><p-skeleton width="10rem" height="1rem" /></td>
+                            <td><p-skeleton width="8rem" height="1rem" /></td>
+                            <td><p-skeleton width="12rem" height="1rem" /></td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </p-tabpanel>
+                  </p-tabpanels>
+                </p-tabs>
+
+                <p-dialog
+                  [header]="appCopy().calendarHelpTitle"
+                  [modal]="true"
+                  [visible]="calendarHelpVisible()"
+                  (visibleChange)="calendarHelpVisible.set($event)"
+                  [style]="{ width: '36rem' }"
+                >
+                  <p class="calendar-help-copy">{{ appCopy().calendarHelpBody }}</p>
+                  <ul class="calendar-help-list">
+                    <li>{{ appCopy().calendarHelpPointOne }}</li>
+                    <li>{{ appCopy().calendarHelpPointTwo }}</li>
+                    <li>{{ appCopy().calendarHelpPointThree }}</li>
+                  </ul>
+
+                  <ng-template #footer>
+                    <p-button
+                      type="button"
+                      [label]="appCopy().calendarHelpCloseLabel"
+                      severity="secondary"
+                      (onClick)="closeCalendarHelp()"
+                    />
+                  </ng-template>
+                </p-dialog>
               </section>
             </section>
           } @else if (isServicesMode()) {

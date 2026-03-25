@@ -10,9 +10,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
+import { SkeletonModule } from 'primeng/skeleton';
+import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -203,6 +210,18 @@ interface AppCopy {
   calendarHeading: string;
   calendarCopy: string;
   calendarBridgeLabel: string;
+  calendarJumpLabel: string;
+  calendarJumpPlaceholder: string;
+  calendarJumpCurrentLabel: string;
+  calendarHelpButtonLabel: string;
+  calendarHelpTitle: string;
+  calendarHelpBody: string;
+  calendarHelpPointOne: string;
+  calendarHelpPointTwo: string;
+  calendarHelpPointThree: string;
+  calendarHelpCloseLabel: string;
+  calendarMonthTabLabel: string;
+  calendarListTabLabel: string;
   calendarStatusAriaLabel: string;
   calendarStatusKicker: string;
   calendarStatusLiveSummarySingular: string;
@@ -298,11 +317,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     meetingsHeading: 'Meeting access and community timing belong on the homepage',
     openCalendarLabel: 'Open the full town calendar',
     calendarKicker: 'Calendar',
-    calendarHeading:
-      'A calendar app should combine meetings, hearings, deadlines, and community events',
-    calendarCopy:
-      'Start with a single public calendar feed for board meetings, planning hearings, clerk deadlines, school-centered events, and service interruptions. Later, this can grow into filters, ICS exports, and department-managed entries.',
+    calendarHeading: 'Public calendar',
+    calendarCopy: '',
     calendarBridgeLabel: 'Tie alerts back to notices and agendas',
+    calendarJumpLabel: 'Jump to a month',
+    calendarJumpPlaceholder: 'Choose a month',
+    calendarJumpCurrentLabel: 'Selected month:',
+    calendarHelpButtonLabel: 'Calendar help',
+    calendarHelpTitle: 'How to use the calendar tools',
+    calendarHelpBody:
+      'The month picker moves the schedule view to the month you want. The calendar cards below still show the live event feed and related actions.',
+    calendarHelpPointOne: 'Pick a month to move the full calendar view.',
+    calendarHelpPointTwo: 'Use the event cards for agendas, downloads, and links.',
+    calendarHelpPointThree: 'Open notices when you need agenda-linked alerts.',
+    calendarHelpCloseLabel: 'Close help',
+    calendarMonthTabLabel: 'Month view',
+    calendarListTabLabel: 'Event list',
     calendarStatusAriaLabel: 'Calendar publishing status',
     calendarStatusKicker: 'Publishing status',
     calendarStatusLiveSummarySingular: 'upcoming event',
@@ -607,11 +637,22 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'El acceso a reuniones y al calendario comunitario debe estar en la pagina principal',
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
-    calendarHeading:
-      'Una aplicacion de calendario debe reunir reuniones, audiencias, fechas limite y eventos comunitarios',
-    calendarCopy:
-      'Empiece con un solo calendario publico para reuniones de juntas, audiencias de planeacion, fechas limite de la oficina del secretario, eventos escolares e interrupciones del servicio. Despues puede crecer con filtros, exportaciones ICS y entradas administradas por departamentos.',
+    calendarHeading: 'Calendario publico',
+    calendarCopy: '',
     calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
+    calendarJumpLabel: 'Ir a un mes',
+    calendarJumpPlaceholder: 'Elija un mes',
+    calendarJumpCurrentLabel: 'Mes seleccionado:',
+    calendarHelpButtonLabel: 'Ayuda del calendario',
+    calendarHelpTitle: 'Como usar las herramientas del calendario',
+    calendarHelpBody:
+      'El selector de mes mueve la vista del calendario al mes que quiera. Las tarjetas del calendario siguen mostrando el flujo de eventos y las acciones relacionadas.',
+    calendarHelpPointOne: 'Elija un mes para mover la vista del calendario completo.',
+    calendarHelpPointTwo: 'Use las tarjetas de eventos para agendas, descargas y enlaces.',
+    calendarHelpPointThree: 'Abra avisos cuando necesite alertas vinculadas a agendas.',
+    calendarHelpCloseLabel: 'Cerrar ayuda',
+    calendarMonthTabLabel: 'Vista mensual',
+    calendarListTabLabel: 'Lista de eventos',
     calendarStatusAriaLabel: 'Estado de publicacion del calendario',
     calendarStatusKicker: 'Estado de publicacion',
     calendarStatusLiveSummarySingular: 'proximo evento',
@@ -882,6 +923,13 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   imports: [
     NgOptimizedImage,
     RouterLink,
+    FormsModule,
+    ButtonModule,
+    DatePickerModule,
+    DialogModule,
+    SkeletonModule,
+    TableModule,
+    TabsModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,
@@ -926,6 +974,9 @@ export class App {
     ),
     { initialValue: this.initialFragment },
   );
+  protected readonly calendarJumpMonth = signal<Date | null>(null);
+  protected readonly calendarHelpVisible = signal(false);
+  protected readonly cmsContentLoading = this.cmsStore.isLoading;
   private readonly routedFragmentScrollEffect = effect(() => {
     const fragment = this.currentFragment();
 
@@ -939,14 +990,12 @@ export class App {
   protected readonly calendarOptions = computed(() => ({
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
+    initialDate: this.calendarJumpMonth() ?? undefined,
     events: this.calendarItems().map(item => ({
       title: item.title,
       start: item.date,
       extendedProps: { item }
-    })),
-    eventClick: (info: any) => {
-      // handle click
-    }
+    }))
   }));
 
   protected readonly searchQuery = signal('');
@@ -1347,6 +1396,18 @@ export class App {
     this.router.navigate(['/meetings'], { fragment: 'calendar' });
   }
 
+  protected updateCalendarJumpMonth(value: Date | null): void {
+    this.calendarJumpMonth.set(value);
+  }
+
+  protected openCalendarHelp(): void {
+    this.calendarHelpVisible.set(true);
+  }
+
+  protected closeCalendarHelp(): void {
+    this.calendarHelpVisible.set(false);
+  }
+
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {
     this.homepageWeatherAlert.set(alert);
   }
@@ -1642,6 +1703,15 @@ export class App {
         : new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
 
     return `${formatter.format(start)} - ${endFormatter.format(end)}`;
+  }
+
+  protected formatCalendarMonth(value: Date): string {
+    const formatter =
+      this.siteLanguage() === 'es'
+        ? new Intl.DateTimeFormat('es-US', { month: 'long', year: 'numeric' })
+        : new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
+
+    return formatter.format(value);
   }
 
   private formatGoogleCalendarDate(value: Date): string {

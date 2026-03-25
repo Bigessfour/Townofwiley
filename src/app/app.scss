@@ -840,6 +840,99 @@ h3 {
   gap: 0.85rem;
 }
 
+.calendar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0 1.15rem;
+}
+
+.calendar-tool {
+  display: grid;
+  gap: 0.5rem;
+  min-width: min(100%, 20rem);
+  flex: 1 1 20rem;
+}
+
+.calendar-tool p-datepicker {
+  width: 100%;
+}
+
+.calendar-tool-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+.calendar-jump-note {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--ink-700);
+}
+
+.calendar-help-copy {
+  margin: 0 0 0.9rem;
+  line-height: 1.65;
+  color: var(--ink-800);
+}
+
+.calendar-help-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.65rem;
+  color: var(--ink-700);
+  line-height: 1.6;
+}
+
+.calendar-table {
+  display: block;
+  margin-top: 1rem;
+}
+
+.calendar-table-header-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.calendar-table-title {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.calendar-table-title strong {
+  font-size: 1rem;
+}
+
+.calendar-table-note {
+  color: var(--ink-700);
+  line-height: 1.45;
+}
+
+.calendar-table-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.calendar-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.calendar-tabs {
+  display: block;
+  margin-top: 1rem;
+}
+
 .calendar-meta-row {
   display: flex;
   justify-content: space-between;
