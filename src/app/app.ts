@@ -425,7 +425,38 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Use the request form to send structured records, permit, and clerk questions.',
       },
     ],
-    meetings: [],
+    meetings: [
+      {
+        title: 'Town council regular meeting',
+        schedule: 'Every second Monday at 6:00 PM',
+        format: 'In person at Wiley Town Hall with agenda materials posted ahead of time.',
+        location: 'Wiley Town Hall, 304 Main Street',
+        agendaNote:
+          'Residents can call Town Hall at (719) 829-4974 or email the clerk before the meeting if they want to be placed on the agenda.',
+        cta: 'Open calendar',
+        href: '/meetings#calendar',
+      },
+      {
+        title: 'Planning and zoning review',
+        schedule: 'First Thursday at 5:30 PM',
+        format: 'Public hearing for planning, zoning, and land use items.',
+        location: 'Wiley Town Hall, 304 Main Street',
+        agendaNote:
+          'Agenda packets, hearing notices, and filing deadlines should stay linked from the calendar entry.',
+        cta: 'View meeting details',
+        href: '/meetings#calendar',
+      },
+      {
+        title: 'Community deadlines and service updates',
+        schedule: 'Seasonal notices and recurring town reminders',
+        format: 'A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.',
+        location: 'Town-wide notices and service locations',
+        agendaNote:
+          'Use this slot for community timing that is easier to understand when presented as a calendar item.',
+        cta: 'Browse notices',
+        href: '/notices',
+      },
+    ],
     calendarSeeds: [
       {
         title: 'City Council Regular Meeting',
@@ -746,7 +777,38 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Use el formulario de solicitud para enviar preguntas estructuradas sobre registros, permisos y secretaria.',
       },
     ],
-    meetings: [],
+    meetings: [
+      {
+        title: 'Reunion ordinaria del concejo municipal',
+        schedule: 'Cada segundo lunes a las 6:00 PM',
+        format: 'Presencial en el ayuntamiento de Wiley con materiales de agenda publicados antes de la reunion.',
+        location: 'Ayuntamiento de Wiley, 304 Main Street',
+        agendaNote:
+          'Los residentes pueden llamar al ayuntamiento al (719) 829-4974 o escribir al secretario antes de la reunion si desean ser agregados a la agenda.',
+        cta: 'Abrir calendario',
+        href: '/meetings#calendar',
+      },
+      {
+        title: 'Revision de planeacion y zonificacion',
+        schedule: 'Primer jueves a las 5:30 PM',
+        format: 'Audiencia publica para asuntos de planeacion, zonificacion y uso de suelo.',
+        location: 'Ayuntamiento de Wiley, 304 Main Street',
+        agendaNote:
+          'Los paquetes de agenda, avisos de audiencia y fechas limite deben permanecer vinculados desde el evento del calendario.',
+        cta: 'Ver detalles de la reunion',
+        href: '/meetings#calendar',
+      },
+      {
+        title: 'Fechas limite comunitarias y actualizaciones de servicio',
+        schedule: 'Avisos estacionales y recordatorios recurrentes del pueblo',
+        format: 'Un resumen continuo para dias de limpieza, cierres, interrupciones de servicios y otras actualizaciones de tiempo.',
+        location: 'Avisos de todo el pueblo y ubicaciones de servicio',
+        agendaNote:
+          'Use este espacio para el tiempo comunitario que se entiende mejor cuando se presenta como un elemento del calendario.',
+        cta: 'Ver avisos',
+        href: '/notices',
+      },
+    ],
     calendarSeeds: [
       {
         title: 'Reunion ordinaria del concejo municipal',
@@ -1168,7 +1230,9 @@ export class App {
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
 
-    return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
+    return liveEvents.length
+      ? liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0))
+      : this.appCopy().calendarSeeds.map((seed, index) => this.createCalendarItem(seed, index === 0));
   });
   protected readonly calendarOverview = computed<CalendarOverview>(() => {
     const copy = this.appCopy();
@@ -1268,7 +1332,7 @@ export class App {
           item.location,
           item.recurrence,
           item.agendaNote,
-          ...item.actions.map((action) => action.label),
+          ...item.actions.map((action: CalendarAction) => action.label),
         ),
       })),
       ...recordsCopy.guides.map((guide) => ({
