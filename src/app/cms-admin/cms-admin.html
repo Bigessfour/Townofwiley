@@ -11,16 +11,16 @@
       <a class="cms-button secondary" [href]="clerkSetupUrl">
         {{ copy().openSetupPage }}
       </a>
-      <a class="cms-button primary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
-        {{ copy().openAmplify }}
-      </a>
       <a
-        class="cms-button secondary"
+        class="cms-button primary"
         [href]="dataManagerUrl"
         target="_blank"
         rel="noreferrer noopener"
       >
         {{ copy().openDataManager }}
+      </a>
+      <a class="cms-button secondary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+        {{ copy().openAmplify }}
       </a>
     </div>
   </header>
@@ -68,11 +68,11 @@
       <h2>{{ copy().accessTitle }}</h2>
       <p>{{ copy().accessBody }}</p>
       <div class="cms-access-links">
-        <a class="cms-link" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
-          {{ copy().openAmplify }}
-        </a>
         <a class="cms-link" [href]="dataManagerUrl" target="_blank" rel="noreferrer noopener">
           {{ copy().openDataManager }}
+        </a>
+        <a class="cms-link" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+          {{ copy().openAmplify }}
         </a>
       </div>
       <ul class="cms-help-list simple">
@@ -83,8 +83,19 @@
     </div>
 
     <div class="cms-help-card">
+      <p class="cms-help-kicker">{{ copy().quickReferenceKicker }}</p>
+      <h2 id="cms-help-heading">{{ copy().quickReferenceTitle }}</h2>
+      <p>{{ copy().quickReferenceBody }}</p>
+      <ol class="cms-help-list">
+        @for (item of copy().quickReferenceSteps; track item) {
+          <li>{{ item }}</li>
+        }
+      </ol>
+    </div>
+
+    <div class="cms-help-card">
       <p class="cms-help-kicker">{{ copy().publishingKicker }}</p>
-      <h2 id="cms-help-heading">{{ copy().publishingTitle }}</h2>
+      <h2>{{ copy().publishingTitle }}</h2>
       <ol class="cms-help-list">
         @for (step of copy().publishingSteps; track step) {
           <li>{{ step }}</li>

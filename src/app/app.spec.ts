@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-  HttpTestingController,
-  TestRequest,
-  provideHttpClientTesting,
+    HttpTestingController,
+    TestRequest,
+    provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
@@ -545,9 +545,11 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Event');
     expect(compiled.textContent).toContain('EmailAlias');
     expect(compiled.textContent).toContain('Esta pagina solo es una guia y una verificacion de estado');
-    expect(compiled.textContent).toContain('Abrir guia de contenido');
+    expect(compiled.textContent).toContain('Abrir instrucciones del personal');
+    expect(compiled.textContent).toContain('Referencia rapida');
+    expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
     expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Abrir Studio Home',
+      'Abrir CMS Data Manager',
     );
   });
 

@@ -19,6 +19,10 @@ interface CmsAdminCopy {
   openSetupPage: string;
   openAmplify: string;
   openDataManager: string;
+  quickReferenceKicker: string;
+  quickReferenceTitle: string;
+  quickReferenceBody: string;
+  quickReferenceSteps: string[];
   statusAriaLabel: string;
   accessKicker: string;
   accessTitle: string;
@@ -76,9 +80,19 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     intro:
       'Use Amplify Studio Data Manager for daily website updates. This page is a guide and status check only. It does not publish live website changes.',
     returnHome: 'Return to homepage',
-    openSetupPage: 'Open content guide',
+    openSetupPage: 'Open clerk instructions',
     openAmplify: 'Open Studio Home',
-    openDataManager: 'Open Data Manager',
+    openDataManager: 'Open CMS Data Manager',
+    quickReferenceKicker: 'Quick reference',
+    quickReferenceTitle: 'Copy of the clerk instructions',
+    quickReferenceBody:
+      'Use this short checklist when you only need a reminder. The direct CMS link opens Amplify Studio Data Manager.',
+    quickReferenceSteps: [
+      'Open Data Manager.',
+      'Open the correct model for the change you want to make.',
+      'Edit the record and save it.',
+      'Refresh the public site and confirm the change.',
+    ],
     statusAriaLabel: 'CMS status',
     accessKicker: 'Clerk Access',
     accessTitle: 'Start here every day',
@@ -170,9 +184,19 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     intro:
       'Use Amplify Studio Data Manager para los cambios diarios del sitio. Esta pagina solo es una guia y una verificacion de estado. No publica cambios en vivo.',
     returnHome: 'Volver a la pagina principal',
-    openSetupPage: 'Abrir guia de contenido',
+    openSetupPage: 'Abrir instrucciones del personal',
     openAmplify: 'Abrir Studio Home',
-    openDataManager: 'Abrir Data Manager',
+    openDataManager: 'Abrir CMS Data Manager',
+    quickReferenceKicker: 'Referencia rapida',
+    quickReferenceTitle: 'Copia de las instrucciones de la secretaria',
+    quickReferenceBody:
+      'Use esta lista corta cuando solo necesite un recordatorio. El enlace directo del CMS abre Amplify Studio Data Manager.',
+    quickReferenceSteps: [
+      'Abra Data Manager.',
+      'Abra el modelo correcto para el cambio que desea hacer.',
+      'Edite el registro y guardelo.',
+      'Actualice el sitio publico y confirme el cambio.',
+    ],
     statusAriaLabel: 'Estado del CMS',
     accessKicker: 'Acceso del personal',
     accessTitle: 'Empiece aqui cada dia',

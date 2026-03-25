@@ -210,6 +210,26 @@ Plain-language source of truth for staff:
 - `/admin` route: read-only guide and status page only
 - Non-technical instructions: `CLERK-CMS-GUIDE.md`
 
+The `/admin` page now includes a direct Amplify Studio Data Manager link plus a quick-reference copy of the clerk instructions, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
+
+## Developer Notifications
+
+The repo now includes a scheduled site monitor that emails `bigessfour@gmail.com` when the public site or CMS API stops behaving normally.
+
+What it checks:
+
+- `https://townofwiley.gov/`
+- `https://townofwiley.gov/admin`
+- `https://townofwiley.gov/clerk-setup`
+- the AppSync CMS endpoint from `src/amplifyconfiguration.json`
+
+Deployment and test scripts:
+
+```bash
+npm run test:infra:monitor
+npm run deploy:site-monitor
+```
+
 ## Site language
 
 The public site now defaults to English and exposes a runtime language switch so residents can move between Spanish and English without a rebuild.
