@@ -1,10 +1,9 @@
 <main class="setup-shell">
   <section class="setup-card" aria-labelledby="clerk-setup-heading">
     <p class="setup-kicker">Town website content guide</p>
-    <h1 id="clerk-setup-heading">One place to manage Town website content</h1>
+    <h1 id="clerk-setup-heading">{{ setupType }}</h1>
     <p class="setup-copy">
-      Welcome, {{ clerkName }}. Use Amplify Studio Data Manager for all daily website changes. This
-      page is only a guide that takes you to the live CMS.
+      Welcome, {{ clerkName }}. {{ setupSummary }}
     </p>
 
     <p class="setup-note setup-note--strong">
@@ -29,6 +28,20 @@
         Open Studio Home
       </a>
     </div>
+
+    <article class="setup-panel full-width">
+      <h2>Prepopulated Town account details</h2>
+      <ul>
+        @for (item of setupDetails; track item.label) {
+          <li>
+            <strong>{{ item.label }}:</strong> {{ item.value }}
+          </li>
+        }
+      </ul>
+      <p class="setup-note">
+        Use these values to confirm you are in the correct AWS account before editing anything.
+      </p>
+    </article>
 
     <div class="setup-grid">
       <article class="setup-panel">

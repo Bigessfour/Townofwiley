@@ -561,11 +561,11 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.setup-card h1')?.textContent).toContain(
-      'One place to manage Town website content',
-    );
+    expect(compiled.querySelector('.setup-card h1')?.textContent).toContain('One-time IAM setup');
     expect(compiled.textContent).toContain('Welcome, Deb Dillon.');
-    expect(compiled.textContent).toContain('Town website content guide');
+    expect(compiled.textContent).toContain('Prepopulated Town account details');
+    expect(compiled.textContent).toContain('AWS account: 570912405222');
+    expect(compiled.textContent).toContain('Amplify app: d331voxr1fhoir');
     expect(compiled.textContent).toContain('Open Studio Home');
     expect(compiled.textContent).toContain('Open Data Manager');
   });

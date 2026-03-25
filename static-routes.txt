@@ -7,3 +7,5 @@
 /contact
 /accessibility
 /documents
+/admin
+/clerk-setup
