@@ -385,7 +385,23 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
-    communityFacts: [],
+    communityFacts: [
+      {
+        label: 'Incorporated',
+        value: '1910',
+        detail: 'Prowers County, Colorado',
+      },
+      {
+        label: 'Elevation',
+        value: '3,688 ft',
+        detail: 'High Plains community',
+      },
+      {
+        label: 'Town Hall',
+        value: '304 Main St',
+        detail: '(719) 829-4974',
+      },
+    ],
     navLinks: [
       { label: 'Top Tasks', href: '#top-tasks' },
       { label: 'Weather', href: '/weather' },
@@ -425,7 +441,34 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Use the request form to send structured records, permit, and clerk questions.',
       },
     ],
-    meetings: [],
+    meetings: [
+      {
+        title: 'City Council Regular Meeting',
+        schedule: 'Every 2nd Monday, 6:00 PM',
+        format: 'In-person with public comment',
+        location: 'Wiley Town Hall, 304 Main Street',
+        agendaNote:
+          'Residents who wish to be placed on the agenda should call Town Hall at (719) 829-4974 or email the Clerk before the meeting opens.',
+        cta: 'View meeting documents',
+        href: '/documents#meeting-documents',
+      },
+      {
+        title: 'Planning and zoning review',
+        schedule: 'First Thursday, 5:30 PM',
+        format: 'Public hearing',
+        location: 'Wiley Town Hall, 304 Main Street',
+        cta: 'View planning documents',
+        href: '/documents#meeting-documents',
+      },
+      {
+        title: 'Board of adjustments and appeals',
+        schedule: 'As needed – check notices for scheduled dates',
+        format: 'Public hearing',
+        location: 'Wiley Town Hall, 304 Main Street',
+        cta: 'View current notices',
+        href: '/notices',
+      },
+    ],
     calendarSeeds: [
       {
         title: 'City Council Regular Meeting',
@@ -466,7 +509,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         slug: 'planning-zoning-review',
       },
       {
-        title: 'Community deadlines and service updates',
+        title: 'Community calendar and school-centered events',
         dateLabel: 'Seasonal deadlines, closures, and town reminders',
         category: 'Community calendar',
         detail:
@@ -593,7 +636,18 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Publish an accessibility statement, provide a barrier-report form, and schedule recurring audits instead of treating accessibility as a one-time project.',
       },
     ],
-    leadershipGroups: [],
+    leadershipGroups: [
+      {
+        title: 'Town Council',
+        detail: 'Elected representatives serving Wiley residents',
+        members: ['Stephen McKitrick – Mayor', 'Town Council Members'],
+      },
+      {
+        title: 'Town Staff',
+        detail: 'Staff serving day-to-day town operations',
+        members: ['Deb Dillon – City Clerk', 'Town Superintendent'],
+      },
+    ],
   },
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
@@ -1168,7 +1222,13 @@ export class App {
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
 
-    return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
+    if (liveEvents.length) {
+      return liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0));
+    }
+
+    return this.appCopy().calendarSeeds.map((seed, index) =>
+      this.createCalendarItem(seed, index === 0),
+    );
   });
   protected readonly calendarOverview = computed<CalendarOverview>(() => {
     const copy = this.appCopy();
