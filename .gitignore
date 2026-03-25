@@ -29,6 +29,11 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
+/.scorer-source/
+/.web-codegen-scorer/
+/web-codegen-scorer-out*/
+/*.log
+/ULqrE.jpg
 /.angular/cache
 .sass-cache/
 /connect.lock
