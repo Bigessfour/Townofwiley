@@ -1,0 +1,45 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "scorer eval town",
+			"type": "shell",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "scorer eval town retry",
+			"type": "shell",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-2",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "scorer eval town third",
+			"type": "shell",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-3",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "scorer eval town fourth",
+			"type": "shell",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-4",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "scorer eval town fifth",
+			"type": "shell",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-5",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

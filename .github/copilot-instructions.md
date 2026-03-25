@@ -1,5 +1,16 @@
 # Copilot Instructions
 
+## Angular Best Practices Are Mandatory
+
+- For any Angular-specific task in this repository, follow [.vscode/angular-best-practices.md](../.vscode/angular-best-practices.md).
+- Treat that file as the source of truth for Angular, TypeScript, accessibility, component, state, template, and service guidance.
+- If another instruction conflicts with that file for Angular code, prefer the Angular best-practices file.
+
+## Angular Reference Bundle
+
+- For every Angular-specific prompt in this repository, consult `.vscode/llms.txt` and use `.github/skills/angular-reference/SKILL.md`.
+- Keep the reference material informational; keep code changes aligned with [.vscode/angular-best-practices.md](../.vscode/angular-best-practices.md).
+
 ## Angular MCP Required
 
 - For any Angular-specific task in this repository, use the Angular CLI MCP server before falling back to generic web knowledge or ad-hoc Angular guidance.
