@@ -264,6 +264,35 @@
                   </aside>
                 </div>
 
+                <div class="calendar-card-grid">
+                  @for (item of calendarItems(); track item.id) {
+                    <article class="calendar-card" [class.is-featured]="item.isFeatured">
+                      <div class="calendar-card-top">
+                        <strong>{{ item.title }}</strong>
+                        <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
+                          {{ item.sourceLabel }}
+                        </span>
+                        @if (item.agendaNote) {
+                          <p class="calendar-agenda-note">{{ item.agendaNote }}</p>
+                        }
+                      </div>
+                      <p class="calendar-location">{{ item.location }}</p>
+                      <p>{{ item.date }}</p>
+                      <div class="calendar-actions">
+                        @for (action of item.actions; track action.label) {
+                          <a
+                            class="calendar-action"
+                            [attr.href]="action.href"
+                            [attr.download]="action.downloadFileName ?? null"
+                            [attr.target]="action.external ? '_blank' : null"
+                            [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                          >{{ action.label }}</a>
+                        }
+                      </div>
+                    </article>
+                  }
+                </div>
+
                 <div class="calendar-tools">
                   <div class="calendar-tool">
                     <label class="calendar-tool-label" for="calendar-jump-month">

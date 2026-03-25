@@ -1021,6 +1021,13 @@ h3 {
   align-items: start;
 }
 
+.calendar-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
 .calendar-card {
   display: grid;
   gap: 0.7rem;
