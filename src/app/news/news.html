@@ -1,0 +1,48 @@
+<div class="news-page">
+  <h1 class="text-4xl font-bold text-center my-8 text-[var(--civic-blue)]">{{ title }}</h1>
+  <p class="text-center text-lg max-w-2xl mx-auto mb-12 text-surface-600">Stay informed with the latest news, announcements, and updates from the Town of Wiley.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (item of newsItems(); track item.id) {
+      <p-card class="h-full">
+        <ng-template pTemplate="header">
+          <div class="p-4 border-b border-surface-200">
+            <h3 class="text-xl font-semibold m-0">{{ item.title }}</h3>
+            <span class="text-sm text-surface-500">{{ item.date }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="p-4">
+            <p class="text-surface-600">{{ item.detail }}</p>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-4 pt-0">
+            <p-button label="Learn More" [link]="true"></p-button>
+          </div>
+        </ng-template>
+      </p-card>
+    }
+  </div>
+
+  <h2 class="text-3xl font-bold mt-12 mb-6 text-[var(--civic-blue)]">From Other Sources</h2>
+  <p class="text-center text-lg max-w-2xl mx-auto mb-8 text-surface-600">Recent external news mentioning Wiley or Prowers County (auto-filtered for items less than 1 month old).</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (item of recentExternal(); track item.url) {
+      <p-card class="h-full">
+        <ng-template pTemplate="header">
+          <div class="p-4 border-b border-surface-200">
+            <h3 class="text-xl font-semibold m-0">{{ item.title }}</h3>
+            <span class="text-sm text-surface-500">{{ item.date }} • {{ item.source }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-4 pt-0">
+            <a [href]="item.url" target="_blank" class="p-button p-button-link p-button-sm">Read Article <i class="pi pi-external-link"></i></a>
+          </div>
+        </ng-template>
+      </p-card>
+    }
+  </div>
+</div>

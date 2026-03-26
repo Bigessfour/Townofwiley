@@ -100,6 +100,16 @@ Steps:
 9. Save.
 10. Refresh the public site and confirm the event appears.
 
+### Manage external news links (From Other Sources on /news page)
+
+External news is curated manually for now (auto-crawler best practice is a scheduled AWS Lambda that populates a new `ExternalNewsLink` model via AppSync mutation, with `publishedDate` for stale filtering >1 month).
+
+1. Open `Announcement` (or new `ExternalNewsLink` model if added in Studio).
+2. Create record with title, detail (or url), date.
+3. For external, include the source and full URL in detail or a dedicated field.
+4. Save.
+5. Refresh /news page and confirm it appears in 'From Other Sources' (stale items >1 month are filtered automatically).
+
 ### Update public contact information
 
 1. Open `OfficialContact`.

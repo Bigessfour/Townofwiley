@@ -397,6 +397,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Services', href: '/services' },
       { label: 'Records', href: '/records' },
       { label: 'Businesses', href: '/businesses' },
+      { label: 'News', href: '/news' },
       { label: 'Contact', href: '/contact' },
     ],
     topTasks: [
@@ -750,6 +751,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Servicios', href: '/services' },
       { label: 'Registros', href: '/records' },
       { label: 'Negocios', href: '/businesses' },
+      { label: 'Noticias', href: '/news' },
       { label: 'Contacto', href: '/contact' },
     ],
     topTasks: [

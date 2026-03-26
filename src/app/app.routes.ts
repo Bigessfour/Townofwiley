@@ -5,6 +5,7 @@ import { BusinessDirectory } from './business-directory/business-directory';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
 import { DocumentHub } from './document-hub/document-hub';
+import { News } from './news/news';
 import { RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'services', component: ResidentServices },
   { path: 'records', component: RecordsCenter },
   { path: 'businesses', component: BusinessDirectory },
+  { path: 'news', component: News },
   { path: 'contact', component: App },
   { path: 'accessibility', component: AccessibilitySupport },
   { path: '', component: App, pathMatch: 'full' },
