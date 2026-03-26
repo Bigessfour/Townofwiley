@@ -18,7 +18,7 @@
         </ng-template>
         <ng-template pTemplate="footer">
           <div class="p-4 pt-0">
-            <p-button label="Learn More" [link]="true"></p-button>
+            <p-button label="Learn More" [link]="true" (onClick)="logging.buttonClick('news-learn-more', item.title)"></p-button>
           </div>
         </ng-template>
       </p-card>

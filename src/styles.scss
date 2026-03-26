@@ -151,12 +151,14 @@ li {
 
 .site-language-switcher .p-button {
   min-width: 3.5rem;
+  color: var(--text-on-bg) !important;
 }
 
+.site-language-switcher .p-button.is-active,
 .site-language-switcher .is-active {
-  background-color: var(--civic-blue, #003087);
-  color: #fffdf8;
-  border-color: var(--civic-blue, #003087);
+  background-color: var(--civic-blue, #133b63) !important;
+  color: #fffdf8 !important;
+  border-color: var(--civic-blue, #133b63) !important;
 }
 
 .site-header .p-menubar [pt] {

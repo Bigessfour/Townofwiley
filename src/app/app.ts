@@ -26,12 +26,15 @@ import { TabsModule } from 'primeng/tabs';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
+import { BusinessDirectory } from './business-directory/business-directory';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DocumentHub } from './document-hub/document-hub';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
+import { LoggingService } from './logging.service';
+import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
@@ -164,7 +167,9 @@ type FeaturePageId =
   | 'services'
   | 'records'
   | 'contact'
-  | 'accessibility';
+  | 'accessibility'
+  | 'businesses'
+  | 'news';
 
 type FeatureTitles = Record<FeaturePageId, string>;
 
@@ -381,6 +386,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       records: 'Records and documents',
       contact: 'Contact Town Hall',
       accessibility: 'Accessibility statement',
+      businesses: 'Business directory',
+      news: 'Town news',
     },
     footerLinks: [
       { label: 'Accessibility statement', href: '/accessibility' },
@@ -735,6 +742,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       records: 'Registros y documentos',
       contact: 'Contactar al ayuntamiento',
       accessibility: 'Declaracion de accesibilidad',
+      businesses: 'Directorio de negocios',
+      news: 'Noticias del pueblo',
     },
     footerLinks: [
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
@@ -1010,6 +1019,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     DocumentHub,
     RecordsCenter,
     ResidentServices,
+    BusinessDirectory,
+    News,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -1082,6 +1093,8 @@ export class App {
   protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
+  protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
+  protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
   protected readonly isFeaturePageMode = computed(
     () =>
       this.isWeatherMode() ||
@@ -1090,7 +1103,9 @@ export class App {
       this.isServicesMode() ||
       this.isRecordsMode() ||
       this.isContactMode() ||
-      this.isAccessibilityMode(),
+      this.isAccessibilityMode() ||
+      this.isBusinessesMode() ||
+      this.isNewsMode(),
   );
   protected readonly shouldPrimeWeatherAlerts = computed(
     () =>
@@ -1156,6 +1171,8 @@ export class App {
       routerLink: link.href.startsWith('/') ? link.href : `/${link.href}`,
     }))
   );
+
+  private readonly logging = inject(LoggingService);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
@@ -1231,6 +1248,22 @@ export class App {
         title: copy.featureTitles.accessibility,
         summary: copy.complianceNote,
         href: '/accessibility',
+        showOnHomepage: false,
+      },
+      {
+        id: 'businesses',
+        kicker: 'Business Directory',
+        title: 'Wiley Community Business Directory',
+        summary: 'Discover and support local businesses in Wiley with contact info and websites.',
+        href: '/businesses',
+        showOnHomepage: false,
+      },
+      {
+        id: 'news',
+        kicker: 'News',
+        title: 'Town News and Announcements',
+        summary: 'Latest announcements, notices, and external news about Wiley.',
+        href: '/news',
         showOnHomepage: false,
       },
     ];
@@ -1456,6 +1489,7 @@ export class App {
   }
 
   protected openSignup(): void {
+    this.logging.buttonClick('alert-signup');
     if (this.isWeatherMode()) {
       this.scrollToFragment('#weather-signup-heading', '#weather');
       return;
@@ -1465,6 +1499,7 @@ export class App {
   }
 
   protected openCalendar(event?: Event): void {
+    this.logging.buttonClick('calendar-open');
     event?.preventDefault();
 
     if (this.isMeetingsMode()) {
@@ -1492,6 +1527,7 @@ export class App {
   }
 
   protected updateSiteLanguage(value: string): void {
+    this.logging.buttonClick(`language-${value}`);
     this.siteLanguageService.setLanguage(value);
   }
 

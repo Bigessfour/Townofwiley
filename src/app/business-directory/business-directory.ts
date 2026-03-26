@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { LoggingService } from '../logging.service';
 
 interface Business {
   name: string;
@@ -20,6 +21,8 @@ interface Business {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BusinessDirectory {
+  protected readonly logging = inject(LoggingService);
+
   protected readonly businesses = signal<Business[]>([
     {
       name: 'Tempel Grain',

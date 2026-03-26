@@ -14,13 +14,13 @@
         <ng-template pTemplate="content">
           <div class="p-4">
             @if (business.image) {
-              <a [href]="business.website" target="_blank" class="block mb-4">
+              <a [href]="business.website" target="_blank" class="block mb-4" (click)="logging.buttonClick('business-logo', business.name)">
                 <img [src]="business.image" [alt]="business.name" class="w-20 h-20 object-contain mx-auto rounded shadow-sm hover:scale-105 transition-transform">
               </a>
             }
             <div class="mb-3">
               <span class="font-medium">Phone: </span>
-              <a [href]="'tel:' + business.phone" class="text-blue-600 hover:underline">{{ business.phone }}</a>
+              <a [href]="'tel:' + business.phone" class="text-blue-600 hover:underline" (click)="logging.buttonClick('business-phone', business.name)">{{ business.phone }}</a>
             </div>
             <div class="mb-4">
               <span class="font-medium">Address: </span>

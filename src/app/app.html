@@ -545,6 +545,14 @@
                 </div>
               </section>
             </section>
+          } @else if (isBusinessesMode()) {
+            <section class="feature-detail-stack">
+              <app-business-directory></app-business-directory>
+            </section>
+          } @else if (isNewsMode()) {
+            <section class="feature-detail-stack">
+              <app-news></app-news>
+            </section>
           }
         </section>
       }

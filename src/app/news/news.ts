@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { SiteCmsContent } from '../site-cms-content';
+import { LoggingService } from '../logging.service';
+import { LocalizedCmsContentStore } from '../site-cms-content';
 
 interface ExternalLink {
   title: string;
@@ -19,7 +20,8 @@ interface ExternalLink {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class News {
-  private readonly cms = inject(SiteCmsContent);
+  private readonly cms = inject(LocalizedCmsContentStore);
+  protected readonly logging = inject(LoggingService);
 
   protected readonly newsItems = this.cms.notices;
 

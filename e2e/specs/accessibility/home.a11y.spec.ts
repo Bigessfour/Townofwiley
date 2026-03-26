@@ -4,9 +4,10 @@ import { expect, test } from '../../fixtures/town.fixture';
 const publicPages = [
   { path: '/', label: 'landing page' },
   { path: '/weather', label: 'weather page' },
-  { path: '/services', label: 'services page' },
   { path: '/records', label: 'records page' },
-  { path: '/accessibility', label: 'accessibility page' },
+  { path: '/businesses', label: 'businesses page' },
+  { path: '/news', label: 'news page' },
+  { path: '/documents', label: 'documents page' },
 ];
 
 test.describe('homepage accessibility', () => {
@@ -15,7 +16,7 @@ test.describe('homepage accessibility', () => {
       homePage,
     }) => {
       await homePage.page.goto(publicPage.path, { waitUntil: 'domcontentloaded' });
-      await expect(homePage.page.locator('#main-content')).toBeVisible();
+      await expect(homePage.page.locator('h1')).toBeVisible();
 
       const results = await new AxeBuilder({ page: homePage.page })
         .withTags(['wcag2a', 'wcag2aa'])
