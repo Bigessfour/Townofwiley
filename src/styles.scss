@@ -126,8 +126,8 @@ li {
 }
 
 .button-cta--ghost {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.45);
   color: #fffdf8;
   backdrop-filter: blur(10px);
 }
@@ -137,6 +137,30 @@ li {
   border-color: rgba(19, 59, 99, 0.12);
   color: var(--text-on-bg);
   box-shadow: 0 14px 28px rgba(17, 36, 61, 0.1);
+}
+
+/* Header navigation visibility and contrast fixes */
+.site-header .p-menubar,
+.site-header .p-menubar .p-menuitem-link {
+  color: var(--text-color, #162746);
+}
+
+.site-header p-button {
+  color: var(--text-on-bg);
+}
+
+.site-language-switcher .p-button {
+  min-width: 3.5rem;
+}
+
+.site-language-switcher .is-active {
+  background-color: var(--civic-blue, #003087);
+  color: #fffdf8;
+  border-color: var(--civic-blue, #003087);
+}
+
+.site-header .p-menubar [pt] {
+  color: var(--text-color, #162746);
 }
 
 .hero-landing {
