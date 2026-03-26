@@ -4,11 +4,12 @@
 
   <div class="records-center-grid">
     @for (guide of copy().guides; track guide.id) {
-      <article class="records-guide-card" [attr.id]="guide.id">
+      <article class="records-guide-card" [attr.id]="guide.id" role="region" aria-labelledby="guide-{{ guide.id }}">
+        <i [class]="guide.icon" aria-hidden="true"></i>
         <p class="meta-label">{{ guide.kicker }}</p>
-        <h4>{{ guide.title }}</h4>
+        <h4 id="guide-{{ guide.id }}">{{ guide.title }}</h4>
         <p>{{ guide.detail }}</p>
-        <a class="records-guide-link" [attr.href]="guide.href">{{ guide.cta }}</a>
+        <a class="records-guide-link" [attr.href]="guide.href" role="button">{{ guide.cta }}</a>
       </article>
     }
   </div>

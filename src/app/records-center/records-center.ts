@@ -9,6 +9,7 @@ interface RecordsGuide {
   detail: string;
   cta: string;
   href: string;
+  icon: string;
 }
 
 interface RecordsCenterCopy {
@@ -30,6 +31,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Use the public document hub for records-request instructions, accessible-copy follow-up, and the clerk route for files that are not posted yet.',
         cta: 'Open records request destination',
         href: DOCUMENT_HUB_LINKS.requests,
+        icon: 'pi pi-folder-open',
       },
       {
         id: 'records-guide-packets',
@@ -39,6 +41,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Open the meeting-documents destination for council packets, approved minutes, agenda timing, and recurring calendar access in one public place.',
         cta: 'Open meeting documents destination',
         href: DOCUMENT_HUB_LINKS.meetings,
+        icon: 'pi pi-calendar',
       },
       {
         id: 'records-guide-budgets',
@@ -48,6 +51,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Open the finance-document destination for budget summaries, annual reports, and the clerk follow-up path for files that are still being posted.',
         cta: 'Open finance documents destination',
         href: DOCUMENT_HUB_LINKS.finance,
+        icon: 'pi pi-wallet',
       },
       {
         id: 'records-guide-ordinances',
@@ -57,6 +61,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Open the ordinance and code destination for municipal-code lookups, zoning references, and permit-support follow-up instead of falling back to email-only guidance.',
         cta: 'Open ordinance and code destination',
         href: DOCUMENT_HUB_LINKS.code,
+        icon: 'pi pi-book',
       },
     ],
   },
@@ -72,6 +77,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Use el centro publico de documentos para instrucciones de solicitud, copias accesibles y la ruta de secretaria para archivos que todavia no estan publicados.',
         cta: 'Abrir destino de solicitud de registros',
         href: DOCUMENT_HUB_LINKS.requests,
+        icon: 'pi pi-folder-open',
       },
       {
         id: 'records-guide-packets',
@@ -81,6 +87,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Abra el destino de documentos de reuniones para paquetes del concejo, minutas aprobadas, tiempos de agenda y acceso recurrente al calendario en un solo lugar publico.',
         cta: 'Abrir destino de documentos de reuniones',
         href: DOCUMENT_HUB_LINKS.meetings,
+        icon: 'pi pi-calendar',
       },
       {
         id: 'records-guide-budgets',
@@ -90,6 +97,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Abra el destino de documentos financieros para resumenes de presupuesto, informes anuales y la ruta de secretaria para archivos que todavia se estan publicando.',
         cta: 'Abrir destino de documentos financieros',
         href: DOCUMENT_HUB_LINKS.finance,
+        icon: 'pi pi-wallet',
       },
       {
         id: 'records-guide-ordinances',
@@ -99,6 +107,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
           'Abra el destino de ordenanzas y codigo para busquedas de codigo municipal, referencias de zonificacion y apoyo para permisos sin depender solo del correo electronico.',
         cta: 'Abrir destino de ordenanzas y codigo',
         href: DOCUMENT_HUB_LINKS.code,
+        icon: 'pi pi-book',
       },
     ],
   },

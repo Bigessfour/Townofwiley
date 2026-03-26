@@ -23,10 +23,24 @@
 .records-guide-card {
   display: grid;
   gap: 0.75rem;
-  padding: 1.1rem;
+  padding: 1.4rem;
   border: 1px solid rgba(13, 44, 84, 0.1);
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.9));
+  transition: all 160ms ease;
+  box-shadow: var(--surface-shadow-soft);
+}
+
+.records-guide-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--surface-shadow-lift);
+  border-color: var(--civic-blue);
+}
+
+.records-guide-card i {
+  font-size: 2rem;
+  color: var(--civic-gold);
+  margin-bottom: 0.25rem;
 }
 
 .records-guide-card p {
@@ -38,23 +52,25 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  color: #0d2c54;
+  color: var(--civic-blue);
   font-weight: 700;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-  transition: transform 160ms ease;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--civic-blue);
+  transition: all 160ms ease;
 }
 
 .records-guide-link:hover,
 .records-guide-link:focus-visible {
+  background: var(--civic-blue);
+  color: #fff;
   transform: translateY(-1px);
 }
 
 .records-guide-link:focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.24);
   outline-offset: 3px;
-  border-radius: 8px;
 }
 
 @media (max-width: 720px) {
