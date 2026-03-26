@@ -47,56 +47,58 @@
     </section>
   }
 
-  <header class="site-header">
-    <div class="utility-strip">
-      <div class="utility-strip-links">
-        <span class="utility-pill">{{ heroContent().status }}</span>
-
-        @if (primaryContact(); as primaryContact) {
-          <a class="utility-link" [attr.href]="primaryContact.href ?? '/contact'">
-            <strong>{{ primaryContact.label }}</strong>
-            <span>{{ primaryContact.value }}</span>
+  <header class="site-header" role="banner">
+    <p-menubar [model]="menuItems()" styleClass="surface-0 shadow-1" [pt]="{ root: { class: 'border-none' } }">
+      <ng-template pTemplate="start">
+        <span class="utility-pill font-semibold">{{ heroContent().status }}</span>
+      </ng-template>
+      <ng-template pTemplate="item" let-item>
+        <a [routerLink]="item.routerLink" class="p-menubar-item-link">{{ item.label }}</a>
+      </ng-template>
+      <ng-template pTemplate="end">
+        <div class="flex align-items-center gap-3">
+          @if (primaryContact(); as primaryContact) {
+            <a [attr.href]="primaryContact.href ?? '/contact'" class="no-underline">
+              <strong class="text-sm">{{ primaryContact.label }}</strong>
+              <span class="text-sm">{{ primaryContact.value }}</span>
+            </a>
+          }
+          <a href="/meetings#calendar" (click)="openCalendar($event)" class="no-underline">
+            <strong class="text-sm">{{ appCopy().meetingsKicker }}</strong>
           </a>
-        }
-
-        <a class="utility-link" href="/meetings#calendar" (click)="openCalendar($event)">
-          <strong>{{ appCopy().meetingsKicker }}</strong>
-          <span>{{ appCopy().openCalendarLabel }}</span>
-        </a>
-
-        <p-button
-          label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
-          (onClick)="openSignup()"
-          severity="secondary"
-          outlined="true"
-          size="small"
-        />
-      </div>
-
-      <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
-        <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-        <div class="site-language-buttons" role="group" [attr.aria-label]="appCopy().languageLabel">
           <p-button
-            id="site-language-es"
-            label="{{ appCopy().languageOptions.es }}"
-            [class.is-active]="siteLanguage() === 'es'"
-            [attr.aria-pressed]="siteLanguage() === 'es'"
-            (onClick)="updateSiteLanguage('es')"
+            label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
+            (onClick)="openSignup()"
+            severity="secondary"
+            outlined="true"
             size="small"
-            [outlined]="siteLanguage() !== 'es'"
           />
-          <p-button
-            id="site-language-en"
-            label="{{ appCopy().languageOptions.en }}"
-            [class.is-active]="siteLanguage() === 'en'"
-            [attr.aria-pressed]="siteLanguage() === 'en'"
-            (onClick)="updateSiteLanguage('en')"
-            size="small"
-            [outlined]="siteLanguage() !== 'en'"
-          />
+          <div class="site-language-switcher flex align-items-center gap-2" [attr.aria-label]="appCopy().languageLabel">
+            <span class="text-sm font-medium">{{ appCopy().languageLabel }}</span>
+            <div class="flex gap-1" role="group" [attr.aria-label]="appCopy().languageLabel">
+              <p-button
+                id="site-language-es"
+                label="{{ appCopy().languageOptions.es }}"
+                [class.is-active]="siteLanguage() === 'es'"
+                [attr.aria-pressed]="siteLanguage() === 'es'"
+                (onClick)="updateSiteLanguage('es')"
+                size="small"
+                [outlined]="siteLanguage() !== 'es'"
+              />
+              <p-button
+                id="site-language-en"
+                label="{{ appCopy().languageOptions.en }}"
+                [class.is-active]="siteLanguage() === 'en'"
+                [attr.aria-pressed]="siteLanguage() === 'en'"
+                (onClick)="updateSiteLanguage('en')"
+                size="small"
+                [outlined]="siteLanguage() !== 'en'"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </ng-template>
+    </p-menubar>
 
     <section class="hero-landing" aria-labelledby="site-hero-title">
       <div class="hero-landing-media">

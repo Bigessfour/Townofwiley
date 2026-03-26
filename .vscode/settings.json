@@ -35,9 +35,13 @@
     "source.fixAll.eslint": "explicit"
   },
   "angular.enable-strict-mode": true,
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
+  "js/ts.updateImportsOnFileMove.enabled": "always",
   "files.associations": {
     "*.component.html": "html"
-  }
+  },
+  "github.copilot.chat.useInstructionFiles": true,
+  "chat.agent.enabled": true,
+  "github.copilot.chat.tools.memory.enabled": true,
+  "chat.useAgentsMdFile": true,
+  "github.copilot.chat.agent.thinkingTool": true
 }

@@ -1,26 +1,28 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    computed,
-    effect,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
+import { MenubarModule } from 'primeng/menubar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { CardModule } from 'primeng/card';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -33,15 +35,15 @@ import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    LocalizedCmsContentStore,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
+  HomepageWeatherAlert,
+  LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -994,6 +996,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     TableModule,
     TabsModule,
     CardModule,
+    MenubarModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,
@@ -1143,6 +1146,12 @@ export class App {
   });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
+  protected readonly menuItems = computed<MenuItem[]>(() =>
+    this.navLinks().map((link) => ({
+      label: link.label,
+      routerLink: link.href.startsWith('/') ? link.href : `/${link.href}`,
+    }))
+  );
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
