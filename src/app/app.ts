@@ -52,6 +52,7 @@ import {
 interface NavLink {
   label: string;
   href: string;
+  icon?: string;
 }
 
 interface TopTask {
@@ -397,15 +398,15 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     communityFacts: [],
     navLinks: [
-      { label: 'Top Tasks', href: '#top-tasks' },
-      { label: 'Weather', href: '/weather' },
-      { label: 'Notices', href: '/notices' },
-      { label: 'Meetings', href: '/meetings' },
-      { label: 'Services', href: '/services' },
-      { label: 'Records', href: '/records' },
-      { label: 'Businesses', href: '/businesses' },
-      { label: 'News', href: '/news' },
-      { label: 'Contact', href: '/contact' },
+      { label: 'Top Tasks', href: '#top-tasks', icon: 'pi pi-list' },
+      { label: 'Weather', href: '/weather', icon: 'pi pi-cloud' },
+      { label: 'Notices', href: '/notices', icon: 'pi pi-bell' },
+      { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
+      { label: 'Services', href: '/services', icon: 'pi pi-briefcase' },
+      { label: 'Records', href: '/records', icon: 'pi pi-file' },
+      { label: 'Businesses', href: '/businesses', icon: 'pi pi-building' },
+      { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
+      { label: 'Contact', href: '/contact', icon: 'pi pi-envelope' },
     ],
     topTasks: [
       {

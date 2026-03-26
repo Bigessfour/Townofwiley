@@ -76,6 +76,7 @@
 
     <p-card class="resident-service-card" id="issue-report">
       <p class="meta-label">{{ copy().issueMeta }}</p>
+      <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
       <h3>{{ copy().issueTitle }}</h3>
       <p>{{ copy().issueBody }}</p>
 
@@ -138,6 +139,7 @@
 
     <p-card class="resident-service-card" id="records-request">
       <p class="meta-label">{{ copy().recordsMeta }}</p>
+      <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
       <h3>{{ copy().recordsTitle }}</h3>
       <p>{{ copy().recordsBody }}</p>
 

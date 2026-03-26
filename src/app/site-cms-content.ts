@@ -53,30 +53,24 @@ const DEFAULT_CMS_HERO: CmsHeroContent = {
   eyebrow: 'Town of Wiley, Colorado',
   status: 'Official Town Website',
   title: 'Town of Wiley',
-  message:
-    'Find town notices, meeting details, weather updates, and essential resident services in one place.',
-  subtext:
-    'For a town of about 437 residents in eastern Colorado, the homepage should stay practical: fast notices, visible contact details, meeting access, utility help, and weather-sensitive service updates.',
-  welcomeLabel: 'Main Welcome Image',
+  message: 'Town notices, meetings, weather, and services.',
+  subtext: 'Practical homepage for Wiley residents with fast access to key information.',
+  welcomeLabel: '',
   welcomeHeading: 'Welcome to the Town of Wiley online home',
-  welcomeBody:
-    'Use this homepage to reach the most important town information quickly, including meetings, notices, contact paths, and weather-sensitive updates.',
-  welcomeCaption: 'Town of Wiley welcome image.',
+  welcomeBody: '',
+  welcomeCaption: '',
 };
 
 const DEFAULT_CMS_HERO_ES: CmsHeroContent = {
   eyebrow: 'Pueblo de Wiley, Colorado',
   status: 'Sitio web oficial del pueblo',
   title: 'Pueblo de Wiley',
-  message:
-    'Encuentre avisos del pueblo, detalles de reuniones, actualizaciones del clima y servicios esenciales para residentes en un solo lugar.',
-  subtext:
-    'Para un pueblo de alrededor de 437 residentes en el este de Colorado, la pagina principal debe seguir siendo practica: avisos rapidos, contactos visibles, acceso a reuniones, ayuda con servicios y actualizaciones sensibles al clima.',
-  welcomeLabel: 'Imagen principal de bienvenida',
+  message: 'Avisos, reuniones, clima y servicios del pueblo.',
+  subtext: 'Página práctica para residentes de Wiley con acceso rápido a información clave.',
+  welcomeLabel: '',
   welcomeHeading: 'Bienvenidos al sitio en linea del Pueblo de Wiley',
-  welcomeBody:
-    'Use esta pagina principal para llegar rapidamente a la informacion mas importante del pueblo, incluidas reuniones, avisos, rutas de contacto y actualizaciones sensibles al clima.',
-  welcomeCaption: 'Imagen de bienvenida del Pueblo de Wiley.',
+  welcomeBody: '',
+  welcomeCaption: '',
 };
 
 const DEFAULT_CMS_ALERT_BANNER: CmsAlertBanner = {

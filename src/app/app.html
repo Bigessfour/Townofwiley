@@ -66,6 +66,17 @@
           <a href="#top-tasks" class="no-underline">
             <strong class="text-sm">{{ appCopy().topTasksKicker }}</strong>
           </a>
+          <div class="header-search-wrapper">
+            <input
+              type="search"
+              class="header-search"
+              [value]="searchQuery()"
+              [attr.placeholder]="appCopy().searchPlaceholder"
+              (input)="updateSearch($any($event.target).value)"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
           <p-button
             label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
             (onClick)="openSignup()"
@@ -78,7 +89,7 @@
             <div class="flex gap-1" role="group" [attr.aria-label]="appCopy().languageLabel">
               <p-button
                 id="site-language-es"
-                label="{{ appCopy().languageOptions.es }}"
+                label="ES"
                 [class.is-active]="siteLanguage() === 'es'"
                 [attr.aria-pressed]="siteLanguage() === 'es'"
                 (onClick)="updateSiteLanguage('es')"
@@ -87,7 +98,7 @@
               />
               <p-button
                 id="site-language-en"
-                label="{{ appCopy().languageOptions.en }}"
+                label="EN"
                 [class.is-active]="siteLanguage() === 'en'"
                 [attr.aria-pressed]="siteLanguage() === 'en'"
                 (onClick)="updateSiteLanguage('en')"
@@ -131,9 +142,7 @@
         </div>
 
         <p-card class="hero-sidecard" aria-labelledby="welcome-hero-heading">
-          <p class="hero-label">{{ heroContent().welcomeLabel }}</p>
           <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
-          <p>{{ heroContent().welcomeBody }}</p>
 
           @if (primaryContact(); as primaryContact) {
             <a class="hero-contact-link" [attr.href]="primaryContact.href ?? '/contact'">
@@ -148,15 +157,13 @@
               <strong>{{ clerkContact.linkLabel ?? clerkContact.value }}</strong>
             </a>
           }
-
-          <p class="hero-caption">{{ heroContent().welcomeCaption }}</p>
         </p-card>
       </div>
     </section>
 
     <nav class="section-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
       @for (link of navLinks(); track link.label) {
-        <a [attr.href]="link.href">{{ link.label }}</a>
+        <a [attr.href]="link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
       }
     </nav>
   </header>
@@ -622,46 +629,9 @@
           </div>
         </section>
 
-        <aside class="search-panel panel" id="search-panel" aria-labelledby="search-heading">
-          <p class="section-kicker">{{ appCopy().searchKicker }}</p>
-          <h2 id="search-heading">{{ appCopy().searchHeading }}</h2>
-          <form class="search-form" (submit)="performSearch($event)">
-            <label class="search-label" for="site-search">
-              {{ appCopy().searchLabel }}
-            </label>
-            <div class="search-control-row">
-              <input
-                id="site-search"
-                class="search-input"
-                type="search"
-                [value]="searchQuery()"
-                [attr.placeholder]="appCopy().searchPlaceholder"
-                (input)="updateSearch($any($event.target).value)"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <button type="submit" class="search-submit">
-                {{ appCopy().searchActionLabel }}
-              </button>
-            </div>
-          </form>
-          <p class="search-note">
-            {{ appCopy().searchNote }}
-          </p>
-
-          <div class="search-results" aria-live="polite">
-            @if (searchResults().length) {
-              @for (result of searchResults(); track result.href + result.title) {
-                <a class="search-result" [attr.href]="result.href">
-                  <strong>{{ result.title }}</strong>
-                  <span>{{ result.summary }}</span>
-                  <small>{{ result.category }}</small>
-                </a>
-              }
-            } @else {
-              <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
-            }
-          </div>
+        <aside class="chatbot-panel panel" id="chatbot-panel" aria-labelledby="chatbot-heading">
+          <p class="section-kicker">Chat with Wiley</p>
+          <h2 id="chatbot-heading">Town Assistant</h2>
 
           @if (isAssistantEnabled) {
             <app-ai-chat />

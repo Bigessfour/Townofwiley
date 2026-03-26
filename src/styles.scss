@@ -320,12 +320,12 @@ li {
 
 .hero-sidecard {
   display: grid;
-  gap: calc(var(--spacing-unit) * 0.9);
-  width: min(100%, 34rem);
-  max-width: 34rem;
+  gap: calc(var(--spacing-unit) * 0.75);
+  width: min(100%, 32rem);
+  max-width: 32rem;
   margin: 0;
-  padding: calc(var(--spacing-unit) * 1.65);
-  border-radius: 32px;
+  padding: calc(var(--spacing-unit) * 1.25);
+  border-radius: 28px;
   background: rgba(247, 241, 231, 0.9);
   box-shadow: var(--surface-shadow-hero);
   backdrop-filter: blur(10px);
@@ -386,8 +386,15 @@ li {
   }
 
   .hero-sidecard {
-    width: min(100%, 36rem);
+    width: 100%;
     max-width: none;
+    padding: calc(var(--spacing-unit) * 1.1);
+    gap: calc(var(--spacing-unit) * 0.8);
+  }
+
+  .hero-contact-link {
+    min-height: 52px;
+    padding: 0.85rem 1.15rem;
   }
 
   .hero-landing-media img {
