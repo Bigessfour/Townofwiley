@@ -407,8 +407,9 @@ li {
 
   .site-alert {
     flex-direction: column;
-    gap: 1rem;
+    gap: calc(var(--spacing-unit) * 1.2);
     text-align: center;
+    padding: calc(var(--spacing-unit) * 1.4);
   }
 
   .card, .p-card {
