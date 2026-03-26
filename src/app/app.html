@@ -63,6 +63,9 @@
           <a href="/meetings#calendar" (click)="openCalendar($event)" class="no-underline">
             <strong class="text-sm">{{ appCopy().meetingsKicker }}</strong>
           </a>
+          <a href="#top-tasks" class="no-underline">
+            <strong class="text-sm">{{ appCopy().topTasksKicker }}</strong>
+          </a>
           <p-button
             label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
             (onClick)="openSignup()"
@@ -125,28 +128,6 @@
           <h1 id="site-hero-title">{{ pageTitle() }}</h1>
           <p class="message">{{ heroContent().message }}</p>
           <p class="subtext">{{ heroContent().subtext }}</p>
-
-          <div class="hero-actions">
-            <a
-              class="hero-action primary button-cta button-cta--solid"
-              [attr.href]="isFeaturePageMode() ? '/#top-tasks' : '#top-tasks'"
-              >{{ appCopy().topTasksKicker }}</a
-            >
-            <a
-              class="hero-action secondary button-cta button-cta--ghost"
-              href="/meetings#calendar"
-              (click)="openCalendar($event)"
-              >{{ appCopy().openCalendarLabel }}</a
-            >
-            <p-button
-              label="{{ appCopy().alertActionLabel }}"
-              (onClick)="openSignup()"
-              severity="secondary"
-              outlined="true"
-              size="small"
-              class="hero-action tertiary"
-            />
-          </div>
         </div>
 
         <p-card class="hero-sidecard" aria-labelledby="welcome-hero-heading">
