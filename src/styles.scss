@@ -26,6 +26,9 @@
   --surface-shadow-soft: 0 20px 44px rgba(17, 36, 61, 0.1);
   --surface-shadow-lift: 0 28px 64px rgba(17, 36, 61, 0.14);
   --surface-shadow-hero: 0 36px 82px rgba(7, 20, 37, 0.24);
+  --hero-text: #ffffff;
+  --hero-scrim-dark: rgba(7, 20, 37, 0.78);
+  --hero-shadow: rgba(0, 0, 0, 0.35);
   line-height: var(--line-height-body);
 }
 
@@ -165,12 +168,12 @@ li {
     radial-gradient(circle at 50% 18%, rgba(248, 207, 146, 0.14), transparent 28%),
     linear-gradient(
       110deg,
-      rgba(7, 20, 37, 0.92) 0%,
-      rgba(7, 20, 37, 0.72) 38%,
-      rgba(7, 20, 37, 0.36) 68%,
-      rgba(7, 20, 37, 0.2) 100%
+      var(--hero-scrim-dark) 0%,
+      rgba(7, 20, 37, 0.68) 38%,
+      rgba(7, 20, 37, 0.32) 68%,
+      rgba(7, 20, 37, 0.18) 100%
     ),
-    linear-gradient(180deg, rgba(7, 20, 37, 0.34), rgba(7, 20, 37, 0.74));
+    linear-gradient(180deg, rgba(7, 20, 37, 0.28), var(--hero-scrim-dark));
 }
 
 .hero-landing-inner {
@@ -231,8 +234,8 @@ li {
 .hero-landing h1,
 .hero-landing .message,
 .hero-landing .subtext {
-  color: #fff8ef;
-  text-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
+  color: var(--hero-text);
+  text-shadow: 0 14px 40px var(--hero-shadow);
 }
 
 .hero-landing .eyebrow {
@@ -241,26 +244,26 @@ li {
 
 .hero-landing .status {
   margin: 0;
-  color: rgba(255, 244, 227, 0.96);
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .hero-landing h1 {
   margin-top: 1rem;
-  color: #fffdf7;
+  color: var(--hero-text);
   line-height: 0.98;
-  text-shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
+  text-shadow: 0 18px 52px var(--hero-shadow);
 }
 
 .hero-landing .message {
   max-width: 48rem;
   line-height: 1.72;
-  color: rgba(255, 250, 242, 0.98);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .hero-landing .subtext {
   max-width: 46rem;
   line-height: 1.78;
-  color: rgba(248, 238, 221, 0.9);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .hero-actions {
