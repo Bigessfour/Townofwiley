@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { App } from './app';
+import { BusinessDirectory } from './business-directory/business-directory';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
 import { DocumentHub } from './document-hub/document-hub';
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'weather', component: LocalizedWeatherPanel },
   { path: 'services', component: ResidentServices },
   { path: 'records', component: RecordsCenter },
+  { path: 'businesses', component: BusinessDirectory },
   { path: 'contact', component: App },
   { path: 'accessibility', component: AccessibilitySupport },
   { path: '', component: App, pathMatch: 'full' },

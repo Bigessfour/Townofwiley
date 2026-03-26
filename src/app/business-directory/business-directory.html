@@ -1,0 +1,46 @@
+<div class="business-directory">
+  <h1 class="text-4xl font-bold text-center my-8 text-[var(--civic-blue)]">{{ title }}</h1>
+  <p class="text-center text-lg max-w-2xl mx-auto mb-12 text-surface-600">Discover and support local businesses in Wiley. Each listing includes contact information and links where available.</p>
+  <p class="text-center text-sm mb-8 text-surface-500">Support our local businesses by clicking their logos or website links below.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (business of businesses(); track business.name) {
+      <p-card class="h-full">
+        <ng-template pTemplate="header">
+          <div class="p-4 border-b border-surface-200">
+            <h3 class="text-xl font-semibold m-0">{{ business.name }}</h3>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="p-4">
+            @if (business.image) {
+              <a [href]="business.website" target="_blank" class="block mb-4">
+                <img [src]="business.image" [alt]="business.name" class="w-20 h-20 object-contain mx-auto rounded shadow-sm hover:scale-105 transition-transform">
+              </a>
+            }
+            <div class="mb-3">
+              <span class="font-medium">Phone: </span>
+              <a [href]="'tel:' + business.phone" class="text-blue-600 hover:underline">{{ business.phone }}</a>
+            </div>
+            <div class="mb-4">
+              <span class="font-medium">Address: </span>
+              <span class="block">{{ business.address }}</span>
+            </div>
+            @if (business.description) {
+              <p class="text-surface-600 text-sm">{{ business.description }}</p>
+            }
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          @if (business.website) {
+            <div class="p-4 pt-0">
+              <a [href]="business.website" target="_blank" class="p-button p-button-link p-button-sm flex items-center gap-2 no-underline">
+              Visit Website <i class="pi pi-external-link"></i>
+            </a>
+            </div>
+          }
+        </ng-template>
+      </p-card>
+    }
+  </div>
+</div>

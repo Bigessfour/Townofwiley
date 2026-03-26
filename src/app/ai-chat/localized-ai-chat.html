@@ -14,6 +14,7 @@
       <p class="assistant-helper">{{ copy().helper }}</p>
       <div class="assistant-entry-row">
         <input
+          pInputText
           id="assistant-question"
           class="assistant-input"
           type="text"
@@ -21,17 +22,15 @@
           (input)="updateDraft($any($event.target).value)"
           (keydown.enter)="sendMessage()"
           [attr.placeholder]="copy().placeholder"
-          autocomplete="off"
           [disabled]="isSending()"
         />
-        <button
+        <p-button
           type="button"
-          class="assistant-send"
-          (click)="sendMessage()"
+          [label]="isSending() ? copy().sending : copy().send"
+          (onClick)="sendMessage()"
           [disabled]="isSending()"
-        >
-          {{ isSending() ? copy().sending : copy().send }}
-        </button>
+          styleClass="assistant-send"
+        />
       </div>
     </div>
   } @else if (isEmbedConfigured) {
@@ -56,9 +55,11 @@
         <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
         <div class="assistant-prompts" [attr.aria-label]="copy().promptsAriaLabel">
           @for (prompt of starterPrompts(); track prompt) {
-            <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
-              {{ prompt }}
-            </button>
+            <p-chip
+              [label]="prompt"
+              (click)="askPrompt(prompt)"
+              styleClass="assistant-chip"
+            />
           }
         </div>
       </div>
@@ -75,7 +76,7 @@
         </p>
       </div>
 
-      <div class="assistant-messages" aria-live="polite" #messagesContainer>
+      <p-scrollPanel #messagesContainer styleClass="assistant-messages" [style.height]="'300px'">
         @for (message of messages(); track $index) {
           <article class="assistant-message" [class.is-user]="message.role === 'user'">
             <span class="assistant-role">{{
@@ -92,7 +93,7 @@
             }
           </article>
         }
-      </div>
+      </p-scrollPanel>
     </div>
   </div>
 </section>

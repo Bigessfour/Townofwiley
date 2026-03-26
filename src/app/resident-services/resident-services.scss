@@ -34,11 +34,18 @@
 .resident-service-card {
   display: grid;
   gap: 0.9rem;
-  padding: 1.2rem;
+  padding: 1.5rem;
   border-radius: 24px;
   border: 1px solid rgba(13, 44, 84, 0.12);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 234, 0.9));
   box-shadow: 0 18px 34px rgba(13, 44, 84, 0.08);
+}
+
+.resident-service-card i {
+  font-size: 2rem;
+  color: #0d2c54;
+  opacity: 0.85;
+  margin-bottom: 0.5rem;
 }
 
 .resident-contact-row {

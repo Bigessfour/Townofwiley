@@ -29,6 +29,7 @@ interface ResidentServicesCopy {
   paymentMeta: string;
   paymentTitle: string;
   paymentBody: string;
+  paymentIcon: string;
   paymentNameLabel: string;
   paymentAddressLabel: string;
   paymentQuestionLabel: string;
@@ -77,6 +78,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     emailFallbackLabel: 'Email contact',
     paymentMeta: 'Billing help desk',
     paymentTitle: 'Pay utility bill',
+    paymentIcon: 'pi pi-credit-card',
     paymentBody:
       'Use the secure Paystar payment path when it is configured below. If you need account help or the payment path is unavailable, send a prepared billing request to Wiley staff.',
     paymentNameLabel: 'Resident name',
@@ -140,6 +142,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     emailFallbackLabel: 'Enviar correo',
     paymentMeta: 'Mesa de ayuda de facturacion',
     paymentTitle: 'Pagar recibo de servicios',
+    paymentIcon: 'pi pi-credit-card',
     paymentBody:
       'Use la ruta segura de Paystar cuando este configurada abajo. Si necesita ayuda con su cuenta o la ruta de pago no esta disponible, envie una solicitud preparada al personal de Wiley.',
     paymentNameLabel: 'Nombre del residente',

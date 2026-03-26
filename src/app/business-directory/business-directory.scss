@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.business-directory {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+h1 {
+  color: var(--civic-blue, #003087);
+}
+
+p-card {
+  height: 100%;
+  box-shadow: var(--surface-shadow-1, 0 1px 3px rgba(0,0,0,0.1));
+}
+
+p-card .p-card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--surface-200, #e5e7eb);
+}
+
+p-card .p-card-content {
+  padding: 1.5rem;
+}
+
+p-card .p-card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--surface-200, #e5e7eb);
+}

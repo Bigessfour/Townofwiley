@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { InputTextModule } from 'primeng/inputtext';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import {
-    DOCUMENT_ARCHIVE,
-    type DocumentArchiveSectionId,
-    type PublishedDocument,
+  DOCUMENT_ARCHIVE,
+  type DocumentArchiveSectionId,
+  type PublishedDocument,
 } from './document-archive';
 
 interface DocumentAction {
@@ -311,6 +312,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 
 @Component({
   selector: 'app-document-hub',
+  imports: [InputTextModule],
   templateUrl: './document-hub.html',
   styleUrl: './document-hub.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -330,4 +332,25 @@ export class DocumentHub {
       publishedDocuments: archive.filter((document) => document.sectionId === section.id),
     }));
   });
+
+  protected readonly searchTerm = signal('');
+
+  protected readonly filteredDocuments = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) {
+      return this.sections().flatMap((s) => s.publishedDocuments);
+    }
+    return this.sections().flatMap((s) => s.publishedDocuments).filter((d) =>
+      d.title.toLowerCase().includes(term) ||
+      d.summary.toLowerCase().includes(term) ||
+      d.keywords.some((k) => k.toLowerCase().includes(term))
+    );
+  });
+
+  protected readonly upcomingMeeting = {
+    title: 'Next City Council Meeting - April 13, 2026',
+    date: 'April 13, 2026 at 6:00 PM',
+    summary: 'Agenda packet for the second-Monday regular meeting. Includes consent agenda, staff reports, and public comment guidance.',
+    href: '/documents/archive/city-council-meeting-access-guide.html',
+  };
 }

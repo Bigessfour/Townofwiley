@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { ChipModule } from 'primeng/chip';
+import { InputTextModule } from 'primeng/inputtext';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -172,7 +176,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
 
 @Component({
   selector: 'app-ai-chat',
-  imports: [],
+  imports: [ButtonModule, ChipModule, InputTextModule, ScrollPanelModule],
   templateUrl: './localized-ai-chat.html',
   styleUrl: './ai-chat.scss',
 })

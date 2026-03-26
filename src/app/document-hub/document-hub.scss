@@ -98,6 +98,31 @@
 .document-hub-nav-link,
 .document-card-link {
   background: rgba(255, 255, 255, 0.82);
+}
+
+.featured-meeting {
+  max-width: 1100px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 252, 246, 0.95);
+  border: 1px solid rgba(13, 44, 84, 0.1);
+  box-shadow: 0 18px 40px rgba(20, 30, 42, 0.08);
+}
+
+.searchable-archive {
+  max-width: 1100px;
+  margin: 1.5rem auto;
+}
+
+.archive-header h3 {
+  margin: 0.5rem 0 1rem;
+}
+
+.archive-search {
+  width: 100%;
+  max-width: 420px;
+}
   color: #17344d;
   border: 1px solid rgba(23, 52, 77, 0.12);
 }
