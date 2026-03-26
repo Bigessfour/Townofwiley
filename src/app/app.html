@@ -53,18 +53,20 @@
         <span class="utility-pill font-semibold">{{ heroContent().status }}</span>
       </ng-template>
       <ng-template pTemplate="end">
-        <div class="flex align-items-center gap-3">
+        <div class="header-utility-links flex align-items-center gap-3">
           @if (primaryContact(); as primaryContact) {
-            <a [attr.href]="primaryContact.href ?? '/contact'" class="no-underline">
-              <strong class="text-sm">{{ primaryContact.label }}</strong>
-              <span class="text-sm">{{ primaryContact.value }}</span>
+            <a [attr.href]="primaryContact.href ?? '/contact'" class="header-meta-link">
+              <strong>{{ primaryContact.label }}</strong>
+              <span>{{ primaryContact.value }}</span>
             </a>
           }
-          <a href="/meetings#calendar" (click)="openCalendar($event)" class="no-underline">
-            <strong class="text-sm">{{ appCopy().meetingsKicker }}</strong>
+          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link">
+            <strong>{{ appCopy().meetingsKicker }}</strong>
+            <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
-          <a href="#top-tasks" class="no-underline">
-            <strong class="text-sm">{{ appCopy().topTasksKicker }}</strong>
+          <a routerLink="/" fragment="top-tasks" class="header-meta-link">
+            <strong>{{ appCopy().topTasksKicker }}</strong>
+            <span>{{ appCopy().topTasksHeading }}</span>
           </a>
           <div class="header-search-wrapper">
             <input
@@ -141,29 +143,45 @@
           <p class="subtext">{{ heroContent().subtext }}</p>
         </div>
 
-        <p-card class="hero-sidecard" aria-labelledby="welcome-hero-heading">
+        <section class="hero-utility-card" aria-labelledby="welcome-hero-heading">
+          <p class="section-kicker">{{ appCopy().contactKicker }}</p>
           <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
 
-          @if (primaryContact(); as primaryContact) {
-            <a class="hero-contact-link" [attr.href]="primaryContact.href ?? '/contact'">
-              <span>{{ primaryContact.label }}</span>
-              <strong>{{ primaryContact.value }}</strong>
-            </a>
-          }
+          <div class="hero-utility-links">
+            @if (primaryContact(); as primaryContact) {
+              <a class="hero-contact-link" [attr.href]="primaryContact.href ?? '/contact'">
+                <span>{{ primaryContact.label }}</span>
+                <strong>{{ primaryContact.value }}</strong>
+              </a>
+            }
 
-          @if (clerkContact(); as clerkContact) {
-            <a class="hero-contact-link" [attr.href]="clerkContact.href ?? '/contact'">
-              <span>{{ clerkContact.label }}</span>
-              <strong>{{ clerkContact.linkLabel ?? clerkContact.value }}</strong>
+            @if (clerkContact(); as clerkContact) {
+              <a class="hero-contact-link" [attr.href]="clerkContact.href ?? '/contact'">
+                <span>{{ clerkContact.label }}</span>
+                <strong>{{ clerkContact.linkLabel ?? clerkContact.value }}</strong>
+              </a>
+            }
+          </div>
+
+          <div class="hero-utility-actions">
+            <a class="button-cta button-cta--light" routerLink="/meetings" fragment="calendar">
+              {{ appCopy().openCalendarLabel }}
             </a>
-          }
-        </p-card>
+            <button class="button-cta button-cta--solid hero-alert-button" type="button" (click)="openSignup()">
+              {{ appCopy().alertActionLabel }}
+            </button>
+          </div>
+        </section>
       </div>
     </section>
 
     <nav class="section-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
       @for (link of navLinks(); track link.label) {
-        <a [attr.href]="link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
+        @if (link.href.startsWith('#')) {
+          <a routerLink="/" [fragment]="link.href.slice(1)"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
+        } @else {
+          <a [routerLink]="link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
+        }
       }
     </nav>
   </header>
@@ -545,41 +563,18 @@
         </section>
       }
     } @else {
-      <section class="community-strip" [attr.aria-label]="appCopy().communityFactsAriaLabel">
-        @for (fact of communityFacts(); track fact.label) {
-          <article class="fact-card">
-            <p class="meta-label">{{ fact.label }}</p>
-            <strong>{{ fact.value }}</strong>
-            <span>{{ fact.detail }}</span>
-          </article>
-        }
-      </section>
-
-      <section class="feature-hub panel" aria-labelledby="feature-hub-heading">
-        <div class="feature-hub-header">
+      <section class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
+        <div class="landing-section-header">
           <div>
-            <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
-            <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
+            <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
+            <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
           </div>
-          <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
+          <p class="feature-hub-copy">
+            Start with the resident tasks people expect to find immediately: payments, meetings, records, and issue reporting.
+          </p>
         </div>
 
-        <div class="feature-grid">
-          @for (feature of homepageFeaturePages(); track feature.id) {
-            <a class="feature-card" [attr.href]="feature.href">
-              <p class="meta-label">{{ feature.kicker }}</p>
-              <strong>{{ feature.title }}</strong>
-              <span>{{ feature.summary }}</span>
-            </a>
-          }
-        </div>
-      </section>
-
-      <section class="hero-grid homepage-support-grid">
-        <section class="hero-card" id="top-tasks" aria-labelledby="top-tasks-heading">
-          <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
-          <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
-          <div class="task-grid">
+        <div class="task-grid landing-task-grid">
             @for (task of topTasks(); track task.title; let taskIndex = $index) {
               <a class="task-card" [attr.href]="task.href">
                 <span class="task-card-icon" aria-hidden="true">
@@ -626,6 +621,102 @@
                 </div>
               </a>
             }
+        </div>
+      </section>
+
+      <section class="content-grid landing-civic-grid">
+        <section class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
+          <div class="landing-section-header">
+            <div>
+              <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
+              <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
+            </div>
+            <a class="text-link" routerLink="/meetings" fragment="calendar">{{ appCopy().openCalendarLabel }}</a>
+          </div>
+
+          <div class="stack-list">
+            @for (meeting of meetings(); track meeting.title) {
+              <article class="info-row meeting-card">
+                <strong>{{ meeting.title }}</strong>
+                <span>{{ meeting.schedule }}</span>
+                @if (meeting.location) {
+                  <p class="meeting-location">{{ meeting.location }}</p>
+                }
+                <small>{{ meeting.format }}</small>
+                @if (meeting.agendaNote) {
+                  <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
+                }
+                @if (meeting.cta && meeting.href) {
+                  <a class="text-link" [attr.href]="meeting.href">{{ meeting.cta }}</a>
+                }
+              </article>
+            }
+          </div>
+        </section>
+
+        <section class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
+          <div class="landing-section-header">
+            <div>
+              <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
+              <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
+            </div>
+            <a class="text-link" routerLink="/notices">View all notices</a>
+          </div>
+
+          <div class="notice-grid landing-notice-grid">
+            @for (notice of notices(); track notice.id) {
+              <article class="notice-card">
+                <p class="meta-label">{{ notice.date }}</p>
+                <strong>{{ notice.title }}</strong>
+                <span>{{ notice.detail }}</span>
+              </article>
+            }
+          </div>
+        </section>
+      </section>
+
+      <section class="feature-hub panel" aria-labelledby="feature-hub-heading">
+        <div class="feature-hub-header">
+          <div>
+            <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
+            <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
+          </div>
+          <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
+        </div>
+
+        <div class="feature-grid">
+          @for (feature of homepageFeaturePages(); track feature.id) {
+            <a class="feature-card" [attr.href]="feature.href">
+              <p class="meta-label">{{ feature.kicker }}</p>
+              <strong>{{ feature.title }}</strong>
+              <span>{{ feature.summary }}</span>
+            </a>
+          }
+        </div>
+      </section>
+
+      <section class="support-strip">
+        <section class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
+          <p class="section-kicker">Stay Informed</p>
+          <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
+          <p class="feature-hub-copy">
+            Keep emergency alerts, meeting access, and Town Hall response paths one click away for residents under time pressure.
+          </p>
+
+          <div class="support-link-grid">
+            @if (primaryContact(); as primaryContact) {
+              <a class="feature-card support-link-card" [attr.href]="primaryContact.href ?? '/contact'">
+                <p class="meta-label">{{ primaryContact.label }}</p>
+                <strong>{{ primaryContact.value }}</strong>
+                <span>{{ appCopy().contactHeading }}</span>
+              </a>
+            }
+
+            <a class="feature-card support-link-card" routerLink="/weather">
+              <p class="meta-label">{{ appCopy().nwsAlertLabel }}</p>
+              <strong>{{ appCopy().alertActionLabel }}</strong>
+              <span>Open forecast details and sign up for weather-sensitive updates.</span>
+            </a>
           </div>
         </section>
 

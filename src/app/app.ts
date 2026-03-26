@@ -1167,10 +1167,20 @@ export class App {
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
   protected readonly menuItems = computed<MenuItem[]>(() =>
-    this.navLinks().map((link) => ({
-      label: link.label,
-      routerLink: link.href.startsWith('/') ? link.href : `/${link.href}`,
-    }))
+    this.navLinks().map((link) =>
+      link.href.startsWith('#')
+        ? {
+            label: link.label,
+            icon: link.icon,
+            routerLink: '/',
+            fragment: link.href.slice(1),
+          }
+        : {
+            label: link.label,
+            icon: link.icon,
+            routerLink: link.href,
+          }
+    )
   );
 
   private readonly logging = inject(LoggingService);
