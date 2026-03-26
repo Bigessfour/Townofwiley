@@ -349,6 +349,33 @@ h3 {
   color: var(--ink-800);
 }
 
+/* Menubar styled to site palette (light beige tones, civic blue accents, no black) */
+.p-menubar {
+  background: #fbfaf7;
+  border: none;
+  box-shadow: 0 1px 3px rgba(28, 59, 102, 0.1);
+}
+
+.p-menubar .p-menubar-root-list > li > a {
+  color: var(--ink-900);
+  font-weight: 500;
+}
+
+.p-menubar .p-menubar-root-list > li:hover > a,
+.p-menubar .p-menubar-root-list > li:focus-within > a {
+  color: var(--civic-blue);
+  background: rgba(28, 59, 102, 0.05);
+}
+
+.utility-pill {
+  background: var(--civic-blue);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .subtext {
   max-width: 46rem;
   margin: calc(var(--spacing-unit) * 0.95) 0 0;
