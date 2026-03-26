@@ -1,11 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  output,
-  signal,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    output,
+    signal,
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -346,7 +346,7 @@ export class LocalizedWeatherPanel {
   protected readonly forecastMapsUrl = NWS_FORECAST_MAPS_URL;
   readonly activeAlertChange = output<HomepageWeatherAlert | null>();
   protected readonly copy = computed(
-    () => WEATHER_COPY[this.siteLanguageService.currentLanguage()],
+    () => WEATHER_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
   protected readonly weatherSourceLabel = computed(() => {
     return this.weatherConfig.apiEndpoint ? this.copy().sourceProxy : this.copy().sourceDirect;

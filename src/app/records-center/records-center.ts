@@ -114,6 +114,6 @@ export class RecordsCenter {
   private readonly siteLanguageService = inject(SiteLanguageService);
 
   protected readonly copy = computed(
-    () => RECORDS_CENTER_COPY[this.siteLanguageService.currentLanguage()],
+    () => RECORDS_CENTER_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
 }

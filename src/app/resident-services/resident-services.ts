@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { startWith } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { startWith } from 'rxjs';
 import { PaystarConnectionService } from '../payments/paystar-connection';
 import { CmsContact } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -230,7 +230,7 @@ export class ResidentServices {
   private readonly paystarRuntimeConfig = this.paystarConnection.getRuntimeConfig();
 
   protected readonly copy = computed(
-    () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage()],
+    () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
   protected readonly paymentStatus = signal<string | null>(null);
   protected readonly issueStatus = signal<string | null>(null);

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import {
-  DOCUMENT_ARCHIVE,
-  type DocumentArchiveSectionId,
-  type PublishedDocument,
-} from './document-archive';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import {
+    DOCUMENT_ARCHIVE,
+    type DocumentArchiveSectionId,
+    type PublishedDocument,
+} from './document-archive';
 
 interface DocumentAction {
   label: string;
@@ -319,7 +319,7 @@ export class DocumentHub {
   private readonly siteLanguageService = inject(SiteLanguageService);
 
   protected readonly copy = computed(
-    () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage()],
+    () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
   protected readonly sections = computed<DocumentSectionView[]>(() => {
     const language = this.siteLanguageService.currentLanguage();
