@@ -52,9 +52,6 @@
       <ng-template pTemplate="start">
         <span class="utility-pill font-semibold">{{ heroContent().status }}</span>
       </ng-template>
-      <ng-template pTemplate="item" let-item>
-        <a [routerLink]="item.routerLink" class="p-menubar-item-link">{{ item.label }}</a>
-      </ng-template>
       <ng-template pTemplate="end">
         <div class="flex align-items-center gap-3">
           @if (primaryContact(); as primaryContact) {
