@@ -11,7 +11,17 @@ export class LoggingService {
       page: window.location.pathname,
     };
     console[level](entry);
-    // TODO: For live/production remote logging, post to a backend endpoint, AppSync mutation, or AWS CloudWatch via Lambda proxy
+
+    // Non-blocking remote logging for prod (CloudFront/Amplify compatible)
+    const config = (window as any).__TOW_RUNTIME_CONFIG__;
+    if (config?.logging?.endpoint && typeof navigator?.sendBeacon === 'function') {
+      try {
+        const blob = new Blob([JSON.stringify(entry)], { type: 'application/json' });
+        navigator.sendBeacon(config.logging.endpoint, blob);
+      } catch {
+        // Silent fallback
+      }
+    }
   }
 
   buttonClick(button: string, action: string = 'clicked') {

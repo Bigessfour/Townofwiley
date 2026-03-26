@@ -1,7 +1,7 @@
+import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
@@ -70,6 +70,9 @@ const buttonPosition =
   process.env.EASYPEASY_BUTTON_POSITION?.trim() ||
   localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
   'bottom-right';
+const logEndpoint =
+  process.env.LOG_ENDPOINT?.trim() ||
+  localSecrets.logging?.endpoint?.trim() || '';
 const paystarMode =
   explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
     ? explicitPaystarMode
@@ -124,6 +127,9 @@ const runtimeConfig = {
       apiEndpoint: cmsApiEndpoint,
       apiKey: cmsApiKey,
     },
+  },
+  logging: {
+    endpoint: logEndpoint || undefined,
   },
 };
 

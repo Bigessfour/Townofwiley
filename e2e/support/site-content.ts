@@ -31,6 +31,8 @@ export const siteContent = {
     council: 'Deb Dillon',
     accessibility: 'Keyboard and screen-reader support',
     clerk: 'City Clerk',
+    businesses: 'Business Directory',
+    news: 'Town News',
   },
   emptySearchMessage:
     'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',

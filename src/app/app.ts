@@ -1436,6 +1436,14 @@ export class App {
         href: '/accessibility',
         keywords: this.buildSearchKeywords(item.detail),
       })),
+      // Include dedicated feature pages (businesses, news, etc.) in site search for better discoverability
+      ...this.featurePages().map((page) => ({
+        title: page.title,
+        summary: page.summary,
+        category: page.kicker || 'Features',
+        href: page.href,
+        keywords: this.buildSearchKeywords(page.title, page.summary, page.kicker || ''),
+      })),
     ];
 
     return this.dedupeSearchItems(items);

@@ -36,7 +36,8 @@ test.describe('homepage navigation', () => {
 
     await homePage.page.goto('/news');
     await expect(homePage.page.locator('h1')).toContainText('Town News and Announcements');
-    await expect(homePage.page.locator('p-card')).toHaveCount.greaterThan(0);
+    const newsCardCountInNavTest = await homePage.page.locator('p-card').count();
+    expect(newsCardCountInNavTest).toBeGreaterThan(0);
   });
 
   test('supports keyboard skip-link navigation to main content', async ({ homePage }, testInfo) => {
@@ -89,6 +90,14 @@ test.describe('homepage navigation', () => {
       'mailto:deb.dillon@townofwiley.gov',
     );
 
+    await homePage.searchFor('business directory');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.businesses);
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/businesses');
+
+    await homePage.searchFor('town news');
+    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.news);
+    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/news');
+
     await homePage.searchFor('snowmobile permit banana');
     await expect(homePage.searchResults).toHaveCount(0);
     await expect(homePage.emptySearchState).toContainText(siteContent.emptySearchMessage);
@@ -112,9 +121,10 @@ test.describe('homepage navigation', () => {
     expect(headingFont).toContain('Fraunces');
 
     const civicBlue = await homePage.page.evaluate(() => {
-      return getComputedStyle(document.documentElement).getPropertyValue('--civic-blue').trim();
+      const el = document.querySelector('h1');
+      return el ? getComputedStyle(el).color : '';
     });
-    expect(civicBlue).toBe('#133b63');
+    expect(civicBlue).toBe(siteContent.expectedStyles.civicBlue);
 
     // Test language buttons trigger logging
     const initialLogCount = logs.length;
@@ -130,5 +140,21 @@ test.describe('homepage navigation', () => {
 
     await homePage.page.goto('/news');
     await expect(homePage.page.locator('h1')).toContainText(siteContent.cmsHeadings.news);
+
+    const newsCardCount = await homePage.page.locator('p-card').count();
+    expect(newsCardCount).toBeGreaterThan(3);
+
+    // Verify design consistency (colors, fonts) on news page too
+    const newsHeadingFont = await homePage.page.evaluate(() => {
+      const el = document.querySelector('h1');
+      return el ? getComputedStyle(el).fontFamily : '';
+    });
+    expect(newsHeadingFont).toContain('Fraunces');
+
+    const newsCivicBlue = await homePage.page.evaluate(() => {
+      const el = document.querySelector('h1');
+      return el ? getComputedStyle(el).color : '';
+    });
+    expect(newsCivicBlue).toBe(siteContent.expectedStyles.civicBlue);
   });
 });

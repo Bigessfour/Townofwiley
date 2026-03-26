@@ -221,8 +221,10 @@ export class HomePage {
   }
 
   async searchFor(query: string): Promise<void> {
+    await this.searchInput.scrollIntoViewIfNeeded();
     await this.searchInput.fill(query);
     await expect(this.searchInput).toHaveValue(query);
+    await this.page.waitForSelector('.search-result, .empty-state', { timeout: 5000 });
   }
 
   async submitWeatherAlertSignup(

@@ -7,8 +7,8 @@ window.__TOW_RUNTIME_CONFIG__ = {
     "apiEndpoint": ""
   },
   "build": {
-    "timestamp": "2026-03-26T20:24:57.937Z",
-    "gitSha": "965b652"
+    "timestamp": "2026-03-26T21:15:44.840Z",
+    "gitSha": "fd16da9"
   },
   "weather": {
     "provider": "nws",
@@ -34,5 +34,8 @@ window.__TOW_RUNTIME_CONFIG__ = {
       "apiEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
       "apiKey": "da2-dtpfsmrmtfbqxfwspnp3ep3fcq"
     }
+  },
+  "logging": {
+    "endpoint": "https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws/log"
   }
 };
