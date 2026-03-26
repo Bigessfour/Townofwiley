@@ -1,13 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +20,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { CardModule } from 'primeng/card';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -32,15 +33,15 @@ import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-  CmsAlertBanner,
-  CmsCalendarEvent,
-  CmsContact,
-  LocalizedCmsContentStore,
+    CmsAlertBanner,
+    CmsCalendarEvent,
+    CmsContact,
+    LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-  HomepageWeatherAlert,
-  LocalizedWeatherPanel,
+    HomepageWeatherAlert,
+    LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -318,7 +319,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     openCalendarLabel: 'Open the full town calendar',
     calendarKicker: 'Calendar',
     calendarHeading: 'Public calendar',
-    calendarCopy: '',
+    calendarCopy: 'View the latest town meetings, agendas, and community events for Wiley.',
     calendarBridgeLabel: 'Tie alerts back to notices and agendas',
     calendarJumpLabel: 'Jump to a month',
     calendarJumpPlaceholder: 'Choose a month',
@@ -669,7 +670,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
     calendarHeading: 'Calendario publico',
-    calendarCopy: '',
+    calendarCopy: 'Vea las últimas reuniones del pueblo, agendas y eventos comunitarios para Wiley.',
     calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
     calendarJumpLabel: 'Ir a un mes',
     calendarJumpPlaceholder: 'Elija un mes',
@@ -992,6 +993,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     SkeletonModule,
     TableModule,
     TabsModule,
+    CardModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,

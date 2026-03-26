@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { SiteLanguageService } from '../site-language';
 
 const WILEY_POINT_URL = 'https://api.weather.gov/points/38.154,-102.72';
 const WILEY_FORECAST_PAGE_URL =
@@ -121,6 +122,7 @@ interface AlertSignupResponse {
 })
 export class WeatherPanel {
   private readonly http = inject(HttpClient);
+  private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly weatherConfig = this.getWeatherRuntimeConfig();
   private readonly dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -150,6 +152,7 @@ export class WeatherPanel {
   protected readonly alertSignupFeedback = signal<string | null>(null);
   protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
   protected readonly isAlertSignupSubmitting = signal(false);
+  protected readonly alertSignupUnsubscribeUrl = signal<string | null>(null);
 
   protected readonly currentPeriod = computed(() => this.weatherPeriods()[0] ?? null);
   protected readonly upcomingPeriods = computed(() => this.weatherPeriods().slice(1, 5));
@@ -195,6 +198,9 @@ export class WeatherPanel {
   });
 
   constructor() {
+    effect(() => {
+      this.alertSignupLanguage.set(this.siteLanguageService.currentLanguage() as AlertLanguage);
+    });
     void this.loadWeather();
   }
 
@@ -221,6 +227,8 @@ export class WeatherPanel {
 
   protected async submitAlertSignup(event?: Event): Promise<void> {
     event?.preventDefault();
+
+    this.alertSignupUnsubscribeUrl.set(null);
 
     const destination = this.alertSignupDestination().trim();
     const fullName = this.alertSignupFullName().trim();
@@ -260,6 +268,7 @@ export class WeatherPanel {
             `Request received. Confirm the ${this.alertSignupLanguageLabel().toLowerCase()} alert link that was sent before alerts start flowing.`,
         ),
       );
+      this.alertSignupUnsubscribeUrl.set(response.unsubscribeUrl || null);
       this.alertSignupDestination.set('');
       this.alertSignupFullName.set('');
     } catch (error) {

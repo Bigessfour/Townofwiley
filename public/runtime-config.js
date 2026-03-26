@@ -6,6 +6,10 @@ window.__TOW_RUNTIME_CONFIG__ = {
     "buttonPosition": "bottom-right",
     "apiEndpoint": ""
   },
+  "build": {
+    "timestamp": "2026-03-26T16:09:31.257Z",
+    "gitSha": "d6fab03"
+  },
   "weather": {
     "provider": "nws",
     "apiEndpoint": "",

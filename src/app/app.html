@@ -36,13 +36,13 @@
           </a>
         }
 
-        <button
-          type="button"
-          class="site-alert-link site-alert-button button-cta button-cta--ghost"
-          (click)="openSignup()"
-        >
-          {{ appCopy().alertActionLabel }}
-        </button>
+        <p-button
+          label="{{ appCopy().alertActionLabel }}"
+          (onClick)="openSignup()"
+          severity="secondary"
+          outlined="true"
+          size="small"
+        />
       </div>
     </section>
   }
@@ -64,35 +64,36 @@
           <span>{{ appCopy().openCalendarLabel }}</span>
         </a>
 
-        <button type="button" class="utility-link utility-button" (click)="openSignup()">
-          <strong>{{ appCopy().nwsAlertLabel }}</strong>
-          <span>{{ appCopy().alertActionLabel }}</span>
-        </button>
+        <p-button
+          label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
+          (onClick)="openSignup()"
+          severity="secondary"
+          outlined="true"
+          size="small"
+        />
       </div>
 
       <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
         <span class="site-language-label">{{ appCopy().languageLabel }}</span>
         <div class="site-language-buttons" role="group" [attr.aria-label]="appCopy().languageLabel">
-          <button
+          <p-button
             id="site-language-es"
-            type="button"
-            class="site-language-button"
+            label="{{ appCopy().languageOptions.es }}"
             [class.is-active]="siteLanguage() === 'es'"
             [attr.aria-pressed]="siteLanguage() === 'es'"
-            (click)="updateSiteLanguage('es')"
-          >
-            {{ appCopy().languageOptions.es }}
-          </button>
-          <button
+            (onClick)="updateSiteLanguage('es')"
+            size="small"
+            [outlined]="siteLanguage() !== 'es'"
+          />
+          <p-button
             id="site-language-en"
-            type="button"
-            class="site-language-button"
+            label="{{ appCopy().languageOptions.en }}"
             [class.is-active]="siteLanguage() === 'en'"
             [attr.aria-pressed]="siteLanguage() === 'en'"
-            (click)="updateSiteLanguage('en')"
-          >
-            {{ appCopy().languageOptions.en }}
-          </button>
+            (onClick)="updateSiteLanguage('en')"
+            size="small"
+            [outlined]="siteLanguage() !== 'en'"
+          />
         </div>
       </div>
     </div>
@@ -138,17 +139,18 @@
               (click)="openCalendar($event)"
               >{{ appCopy().openCalendarLabel }}</a
             >
-            <button
-              type="button"
-              class="hero-action tertiary button-cta button-cta--ghost"
-              (click)="openSignup()"
-            >
-              {{ appCopy().alertActionLabel }}
-            </button>
+            <p-button
+              label="{{ appCopy().alertActionLabel }}"
+              (onClick)="openSignup()"
+              severity="secondary"
+              outlined="true"
+              size="small"
+              class="hero-action tertiary"
+            />
           </div>
         </div>
 
-        <aside class="hero-sidecard" aria-labelledby="welcome-hero-heading">
+        <p-card class="hero-sidecard" aria-labelledby="welcome-hero-heading">
           <p class="hero-label">{{ heroContent().welcomeLabel }}</p>
           <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
           <p>{{ heroContent().welcomeBody }}</p>
@@ -168,7 +170,7 @@
           }
 
           <p class="hero-caption">{{ heroContent().welcomeCaption }}</p>
-        </aside>
+        </p-card>
       </div>
     </section>
 

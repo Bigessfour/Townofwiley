@@ -8,7 +8,7 @@
   </div>
 
   <div class="resident-services-grid">
-    <article class="resident-service-card" id="payment-help">
+    <p-card class="resident-service-card" id="payment-help">
       <p class="meta-label">{{ copy().paymentMeta }}</p>
       <h3>{{ copy().paymentTitle }}</h3>
       <p>{{ copy().paymentBody }}</p>
@@ -28,21 +28,21 @@
 
       <form class="resident-form" [formGroup]="paymentForm">
         <div class="resident-form-grid">
-          <label class="resident-field">
+          <label for="payment-name" class="resident-field">
             <span>{{ copy().paymentNameLabel }}</span>
-            <input type="text" formControlName="name" autocomplete="name" />
+            <p-inputtext id="payment-name" formControlName="name" autocomplete="name" />
           </label>
-          <label class="resident-field">
+          <label for="payment-contact" class="resident-field">
             <span>{{ copy().paymentContactLabel }}</span>
-            <input type="text" formControlName="preferredContact" autocomplete="email" />
+            <p-inputtext id="payment-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="payment-address" class="resident-field resident-field--wide">
             <span>{{ copy().paymentAddressLabel }}</span>
-            <input type="text" formControlName="serviceAddress" autocomplete="street-address" />
+            <p-inputtext id="payment-address" formControlName="serviceAddress" autocomplete="street-address" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="payment-question" class="resident-field resident-field--wide">
             <span>{{ copy().paymentQuestionLabel }}</span>
-            <textarea rows="3" formControlName="accountQuestion"></textarea>
+            <p-textarea id="payment-question" rows="3" formControlName="accountQuestion" />
           </label>
         </div>
 
@@ -71,9 +71,9 @@
           }
         </div>
       </form>
-    </article>
+    </p-card>
 
-    <article class="resident-service-card" id="issue-report">
+    <p-card class="resident-service-card" id="issue-report">
       <p class="meta-label">{{ copy().issueMeta }}</p>
       <h3>{{ copy().issueTitle }}</h3>
       <p>{{ copy().issueBody }}</p>
@@ -93,29 +93,29 @@
 
       <form class="resident-form" [formGroup]="issueForm">
         <div class="resident-form-grid">
-          <label class="resident-field">
+          <label for="issue-category" class="resident-field">
             <span>{{ copy().issueCategoryLabel }}</span>
-            <select formControlName="category">
+            <select id="issue-category" formControlName="category">
               @for (category of copy().issueCategories; track category.value) {
                 <option [value]="category.value">{{ category.label }}</option>
               }
             </select>
           </label>
-          <label class="resident-field">
+          <label for="issue-name" class="resident-field">
             <span>{{ copy().issueNameLabel }}</span>
-            <input type="text" formControlName="name" autocomplete="name" />
+            <p-inputtext id="issue-name" formControlName="name" autocomplete="name" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="issue-location" class="resident-field resident-field--wide">
             <span>{{ copy().issueLocationLabel }}</span>
-            <input type="text" formControlName="location" autocomplete="street-address" />
+            <p-inputtext id="issue-location" formControlName="location" autocomplete="street-address" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="issue-contact" class="resident-field resident-field--wide">
             <span>{{ copy().issueContactLabel }}</span>
-            <input type="text" formControlName="preferredContact" autocomplete="email" />
+            <p-inputtext id="issue-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="issue-details" class="resident-field resident-field--wide">
             <span>{{ copy().issueDetailsLabel }}</span>
-            <textarea rows="4" formControlName="details"></textarea>
+            <p-textarea id="issue-details" rows="4" formControlName="details" />
           </label>
         </div>
 
@@ -133,9 +133,9 @@
           }
         </div>
       </form>
-    </article>
+    </p-card>
 
-    <article class="resident-service-card" id="records-request">
+    <p-card class="resident-service-card" id="records-request">
       <p class="meta-label">{{ copy().recordsMeta }}</p>
       <h3>{{ copy().recordsTitle }}</h3>
       <p>{{ copy().recordsBody }}</p>
@@ -155,29 +155,29 @@
 
       <form class="resident-form" [formGroup]="recordsForm">
         <div class="resident-form-grid">
-          <label class="resident-field">
+          <label for="records-type" class="resident-field">
             <span>{{ copy().recordsTypeLabel }}</span>
-            <select formControlName="requestType">
+            <select id="records-type" formControlName="requestType">
               @for (requestType of copy().requestTypes; track requestType.value) {
                 <option [value]="requestType.value">{{ requestType.label }}</option>
               }
             </select>
           </label>
-          <label class="resident-field">
+          <label for="records-name" class="resident-field">
             <span>{{ copy().recordsNameLabel }}</span>
-            <input type="text" formControlName="name" autocomplete="name" />
+            <p-inputtext id="records-name" formControlName="name" autocomplete="name" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="records-contact" class="resident-field resident-field--wide">
             <span>{{ copy().recordsContactLabel }}</span>
-            <input type="text" formControlName="preferredContact" autocomplete="email" />
+            <p-inputtext id="records-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="records-deadline" class="resident-field resident-field--wide">
             <span>{{ copy().recordsDeadlineLabel }}</span>
-            <input type="text" formControlName="deadline" />
+            <p-inputtext id="records-deadline" formControlName="deadline" />
           </label>
-          <label class="resident-field resident-field--wide">
+          <label for="records-details" class="resident-field resident-field--wide">
             <span>{{ copy().recordsDetailsLabel }}</span>
-            <textarea rows="4" formControlName="details"></textarea>
+            <p-textarea id="records-details" rows="4" formControlName="details" />
           </label>
         </div>
 
@@ -195,6 +195,6 @@
           }
         </div>
       </form>
-    </article>
+    </p-card>
   </div>
 </section>

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
@@ -79,6 +80,14 @@ const paystarMode =
         : 'none';
 const mode = apiEndpoint ? 'api' : chatUrl ? 'embed' : 'none';
 
+const buildTimestamp = new Date().toISOString();
+let gitSha = 'unknown';
+try {
+  gitSha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+} catch (e) {
+  console.warn('Could not determine git SHA (not a git repo or git unavailable)');
+}
+
 const runtimeConfig = {
   chatbot: {
     provider: 'easyPeasy',
@@ -86,6 +95,10 @@ const runtimeConfig = {
     chatUrl,
     buttonPosition,
     apiEndpoint,
+  },
+  build: {
+    timestamp: buildTimestamp,
+    gitSha,
   },
   weather: {
     provider: 'nws',

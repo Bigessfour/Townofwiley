@@ -2,6 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { startWith } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { PaystarConnectionService } from '../payments/paystar-connection';
 import { CmsContact } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -213,7 +217,7 @@ type RecordsFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, TextareaModule],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

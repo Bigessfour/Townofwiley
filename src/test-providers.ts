@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Provider } from '@angular/core';
+import { EnvironmentProviders, Provider } from '@angular/core';
 
-const testProviders: Provider[] = [provideHttpClient(), provideHttpClientTesting()];
+const testProviders: (Provider | EnvironmentProviders)[] = [provideHttpClient(), provideHttpClientTesting()];
 
 export default testProviders;

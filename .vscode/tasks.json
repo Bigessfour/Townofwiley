@@ -4,7 +4,7 @@
 		{
 			"label": "scorer eval town",
 			"type": "shell",
-			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out",
+			"command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4-1-fast --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out",
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
