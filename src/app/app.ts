@@ -410,6 +410,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Services', href: '/services', icon: 'pi pi-briefcase' },
       { label: 'Records', href: '/records', icon: 'pi pi-file' },
+      { label: 'Documents', href: '/documents', icon: 'pi pi-book' },
+      { label: 'Accessibility', href: '/accessibility', icon: 'pi pi-eye' },
       { label: 'Businesses', href: '/businesses', icon: 'pi pi-building' },
       { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contact', href: '/contact', icon: 'pi pi-envelope' },

@@ -7,8 +7,8 @@ window.__TOW_RUNTIME_CONFIG__ = {
     "apiEndpoint": ""
   },
   "build": {
-    "timestamp": "2026-03-27T15:41:58.112Z",
-    "gitSha": "9fd601c"
+    "timestamp": "2026-03-27T17:31:02.256Z",
+    "gitSha": "beb5088"
   },
   "weather": {
     "provider": "nws",
