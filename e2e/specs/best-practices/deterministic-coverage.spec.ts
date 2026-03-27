@@ -40,8 +40,8 @@ test.describe('deterministic regression coverage', () => {
 
     await expect(homePage.page.getByRole('group', { name: 'Site language' })).toMatchAriaSnapshot(`
       - group "Site language":
-        - button "ES"
-        - button "EN"
+        - 'button "Site language: ES"': ES
+        - 'button "Site language: EN" [pressed]': EN
     `);
   });
 

@@ -476,6 +476,7 @@ export class ResidentServices {
     }
 
     statusSignal.set(this.copy().mailClientMessage);
+    window.location.assign(href);
   }
 
   private findContact(id: string): CmsContact | null {

@@ -1,0 +1,20 @@
+              "line": 452,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-27T21:23:36.576Z",
+    "duration": 619160.578,
+    "expected": 68,
+    "skipped": 0,
+    "unexpected": 10,
+    "flaky": 0
+  }
+}
+
+[36m  Serving HTML report at http://localhost:54758. Press Ctrl+C to quit.[39m

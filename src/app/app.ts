@@ -1,13 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    computed,
-    effect,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +15,6 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -43,15 +42,15 @@ import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    LocalizedCmsContentStore,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
+  HomepageWeatherAlert,
+  LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -89,6 +88,7 @@ interface CalendarItem {
   source: 'live' | 'seed';
   sourceLabel: string;
   isFeatured: boolean;
+  sortDate: number;
   title: string;
   date: string;
   category: string;
@@ -120,6 +120,15 @@ interface CalendarOverview {
   detail: string;
   nextEventLabel: string;
   nextEventValue: string;
+}
+
+type CalendarTableSortField = 'title' | 'date' | 'category' | 'location' | 'recurrence';
+
+interface CalendarTableState {
+  first: number;
+  rows: number;
+  sortField: CalendarTableSortField | null;
+  sortOrder: 1 | -1 | null;
 }
 
 interface ServiceCard {
@@ -1079,6 +1088,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
 })
 export class App {
   private static readonly DEFAULT_SITE_TITLE = 'Town of Wiley';
+  private static readonly SEARCH_DEBOUNCE_MS = 120;
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
@@ -1111,7 +1121,14 @@ export class App {
     { initialValue: this.initialFragment },
   );
   protected readonly calendarJumpMonth = signal<Date | null>(null);
+  protected readonly meetingsTab = signal<'month' | 'list'>('month');
   protected readonly calendarHelpVisible = signal(false);
+  private readonly calendarTableState = signal<CalendarTableState>({
+    first: 0,
+    rows: 5,
+    sortField: null,
+    sortOrder: null,
+  });
   protected readonly cmsContentLoading = this.cmsStore.isLoading;
   private readonly routedFragmentScrollEffect = effect(() => {
     const fragment = this.currentFragment();
@@ -1144,6 +1161,7 @@ export class App {
     }))
   }));
 
+  protected readonly searchDraftQuery = signal('');
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly currentYear = new Date().getFullYear();
@@ -1243,21 +1261,6 @@ export class App {
   });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   protected readonly navLinks = computed(() => this.appCopy().navLinks);
-  protected readonly menuItems = computed<MenuItem[]>(() =>
-    this.navLinks().map((link) =>
-      link.href.startsWith('#')
-        ? {
-            label: link.label,
-            icon: link.icon,
-            url: `/${link.href}`,
-          }
-        : {
-            label: link.label,
-            icon: link.icon,
-            url: link.href,
-          }
-    )
-  );
 
   private readonly logging = inject(LoggingService);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
@@ -1379,6 +1382,34 @@ export class App {
       ? liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0))
       : this.appCopy().calendarSeeds.map((seed, index) => this.createCalendarItem(seed, index === 0));
   });
+  protected readonly calendarTableTotalRecords = computed(() => this.calendarItems().length);
+  protected readonly calendarTableFirst = computed(() => {
+    const totalRecords = this.calendarTableTotalRecords();
+    const { first, rows } = this.calendarTableState();
+
+    if (totalRecords <= 0) {
+      return 0;
+    }
+
+    const safeRows = Math.max(rows, 1);
+    const maxFirst = Math.max(totalRecords - safeRows, 0);
+
+    return Math.min(first, maxFirst);
+  });
+  protected readonly calendarTableRows = computed(() => this.calendarTableState().rows);
+  protected readonly calendarTableSortField = computed(() => this.calendarTableState().sortField ?? undefined);
+  protected readonly calendarTableSortOrder = computed(() => this.calendarTableState().sortOrder ?? 1);
+  protected readonly calendarTableItems = computed(() => {
+    const state = this.calendarTableState();
+    const items = this.sortCalendarItems(
+      this.calendarItems(),
+      state.sortField,
+      state.sortOrder,
+    );
+    const first = this.calendarTableFirst();
+
+    return items.slice(first, first + state.rows);
+  });
   protected readonly calendarOverview = computed<CalendarOverview>(() => {
     const copy = this.appCopy();
     const liveEvents = this.liveCalendarEvents();
@@ -1416,25 +1447,26 @@ export class App {
   protected readonly transparencyActions = computed(() => this.appCopy().transparencyActions);
   protected readonly accessibilityItems = computed(() => this.appCopy().accessibilityItems);
   protected readonly leadershipGroups = computed(() => this.appCopy().leadershipGroups);
-  protected readonly searchIndex = computed<SearchItem[]>(() => {
+  private readonly recordsCenterCopy = computed(() => RECORDS_CENTER_COPY[this.siteLanguage()]);
+  private readonly weatherSearchKeywords = computed<string[]>(() =>
+    this.siteLanguage() === 'en'
+      ? ['weather', 'forecast', 'alerts', 'warning', 'watch', 'advisory', 'wind', 'snow']
+      : [
+          'clima',
+          'pronostico',
+          'alertas',
+          'advertencia',
+          'vigilancia',
+          'aviso',
+          'viento',
+          'nieve',
+        ],
+  );
+  private readonly weatherSearchItems = computed<SearchItem[]>(() => {
     const copy = this.appCopy();
-    const recordsCopy = RECORDS_CENTER_COPY[this.siteLanguage()];
     const alertBanner = this.alertBanner();
-    const weatherKeywords =
-      this.siteLanguage() === 'en'
-        ? ['weather', 'forecast', 'alerts', 'warning', 'watch', 'advisory', 'wind', 'snow']
-        : [
-            'clima',
-            'pronostico',
-            'alertas',
-            'advertencia',
-            'vigilancia',
-            'aviso',
-            'viento',
-            'nieve',
-          ];
 
-    const items: SearchItem[] = [
+    return [
       {
         title: alertBanner.title || copy.alertHeadline,
         summary: alertBanner.detail || this.heroContent().message,
@@ -1444,42 +1476,61 @@ export class App {
           copy.alertHeadline,
           copy.alertActionLabel,
           copy.nwsAlertLinkLabel,
-          ...weatherKeywords,
+          ...this.weatherSearchKeywords(),
         ),
       },
-      ...this.topTasks().map((task) => ({
-        title: task.title,
-        summary: task.description,
-        category: copy.topTasksKicker,
-        href: task.href,
-        keywords: this.buildSearchKeywords(task.description, task.note),
-      })),
-      ...this.meetings().map((meeting) => ({
-        title: meeting.title,
-        summary: meeting.format,
-        category: copy.meetingsKicker,
-        href: '/meetings',
-        keywords: this.buildSearchKeywords(
-          meeting.schedule,
-          meeting.location,
-          meeting.agendaNote,
-          meeting.cta,
-        ),
-      })),
-      ...this.calendarItems().map((item) => ({
-        title: item.title,
-        summary: item.detail,
-        category: copy.calendarKicker,
-        href: '/meetings',
-        keywords: this.buildSearchKeywords(
-          item.date,
-          item.category,
-          item.location,
-          item.recurrence,
-          item.agendaNote,
-          ...item.actions.map((action: CalendarAction) => action.label),
-        ),
-      })),
+    ];
+  });
+  private readonly topTaskSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.topTasks().map((task) => ({
+      title: task.title,
+      summary: task.description,
+      category: copy.topTasksKicker,
+      href: task.href,
+      keywords: this.buildSearchKeywords(task.description, task.note),
+    }));
+  });
+  private readonly meetingSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.meetings().map((meeting) => ({
+      title: meeting.title,
+      summary: meeting.format,
+      category: copy.meetingsKicker,
+      href: '/meetings',
+      keywords: this.buildSearchKeywords(
+        meeting.schedule,
+        meeting.location,
+        meeting.agendaNote,
+        meeting.cta,
+      ),
+    }));
+  });
+  private readonly calendarSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.calendarItems().map((item) => ({
+      title: item.title,
+      summary: item.detail,
+      category: copy.calendarKicker,
+      href: '/meetings',
+      keywords: this.buildSearchKeywords(
+        item.date,
+        item.category,
+        item.location,
+        item.recurrence,
+        item.agendaNote,
+        ...item.actions.map((action) => action.label),
+      ),
+    }));
+  });
+  private readonly recordsSearchItems = computed<SearchItem[]>(() => {
+    const recordsCopy = this.recordsCenterCopy();
+    const archive = DOCUMENT_ARCHIVE[this.siteLanguage()];
+
+    return [
       ...recordsCopy.guides.map((guide) => ({
         title: guide.title,
         summary: guide.detail,
@@ -1487,7 +1538,7 @@ export class App {
         href: guide.href,
         keywords: this.buildSearchKeywords(guide.kicker, guide.cta),
       })),
-      ...DOCUMENT_ARCHIVE[this.siteLanguage()].map((document) => ({
+      ...archive.map((document) => ({
         title: document.title,
         summary: document.summary,
         category: recordsCopy.kicker,
@@ -1498,53 +1549,95 @@ export class App {
           ...document.keywords,
         ),
       })),
-      ...this.serviceCards().map((service) => ({
-        title: service.title,
-        summary: service.description,
-        category: copy.servicesKicker,
-        href: service.href,
-        keywords: this.buildSearchKeywords(service.availability, service.cta),
-      })),
-      ...this.transparencyActions().map((action) => ({
-        title: action.title,
-        summary: action.detail,
-        category: copy.transparencyKicker,
-        href: action.href,
-        keywords: this.buildSearchKeywords(action.detail),
-      })),
-      ...this.notices().map((notice) => ({
-        title: notice.title,
-        summary: notice.detail,
-        category: copy.noticesKicker,
-        href: '/notices',
-        keywords: this.buildSearchKeywords(notice.date),
-      })),
-      ...this.contacts().map((contact) => ({
-        title: contact.value ? `${contact.label}: ${contact.value}` : contact.label,
-        summary: contact.detail,
-        category: copy.contactKicker,
-        href: contact.href ?? '/contact',
-        keywords: this.buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
-      })),
-      ...this.accessibilityItems().map((item) => ({
-        title: item.title,
-        summary: item.detail,
-        category: copy.accessibilityKicker,
-        href: '/accessibility',
-        keywords: this.buildSearchKeywords(item.detail),
-      })),
-      // Include dedicated feature pages (businesses, news, etc.) in site search for better discoverability
-      ...this.featurePages().map((page) => ({
-        title: page.title,
-        summary: page.summary,
-        category: page.kicker || 'Features',
-        href: page.href,
-        keywords: this.buildSearchKeywords(page.title, page.summary, page.kicker || ''),
-      })),
     ];
-
-    return this.dedupeSearchItems(items);
   });
+  private readonly serviceSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.serviceCards().map((service) => ({
+      title: service.title,
+      summary: service.description,
+      category: copy.servicesKicker,
+      href: service.href,
+      keywords: this.buildSearchKeywords(service.availability, service.cta),
+    }));
+  });
+  private readonly transparencySearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.transparencyActions().map((action) => ({
+      title: action.title,
+      summary: action.detail,
+      category: copy.transparencyKicker,
+      href: action.href,
+      keywords: this.buildSearchKeywords(action.detail),
+    }));
+  });
+  private readonly noticeSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.notices().map((notice) => ({
+      title: notice.title,
+      summary: notice.detail,
+      category: copy.noticesKicker,
+      href: '/notices',
+      keywords: this.buildSearchKeywords(notice.date),
+    }));
+  });
+  private readonly contactSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.contacts().map((contact) => ({
+      title: contact.value ? `${contact.label}: ${contact.value}` : contact.label,
+      summary: contact.detail,
+      category: copy.contactKicker,
+      href: contact.href ?? '/contact',
+      keywords: this.buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
+    }));
+  });
+  private readonly accessibilitySearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
+
+    return this.accessibilityItems().map((item) => ({
+      title: item.title,
+      summary: item.detail,
+      category: copy.accessibilityKicker,
+      href: '/accessibility',
+      keywords: this.buildSearchKeywords(item.detail),
+    }));
+  });
+  private readonly featurePageSearchItems = computed<SearchItem[]>(() => {
+    return this.featurePages().map((page) => ({
+      title: page.title,
+      summary: page.summary,
+      category: page.kicker || 'Features',
+      href: page.href,
+      keywords: this.buildSearchKeywords(page.title, page.summary, page.kicker || ''),
+    }));
+  });
+  protected readonly searchIndex = computed<SearchItem[]>(() => {
+    return this.dedupeSearchItems([
+      ...this.weatherSearchItems(),
+      ...this.topTaskSearchItems(),
+      ...this.meetingSearchItems(),
+      ...this.calendarSearchItems(),
+      ...this.recordsSearchItems(),
+      ...this.serviceSearchItems(),
+      ...this.transparencySearchItems(),
+      ...this.noticeSearchItems(),
+      ...this.contactSearchItems(),
+      ...this.accessibilitySearchItems(),
+      ...this.featurePageSearchItems(),
+    ]);
+  });
+  private readonly normalizedSearchQuery = computed(() => this.searchQuery().trim().toLowerCase());
+  protected readonly isSearchPending = computed(
+    () => this.searchDraftQuery().trim().toLowerCase() !== this.normalizedSearchQuery(),
+  );
+  private readonly searchTerms = computed(() =>
+    this.normalizedSearchQuery().split(/\s+/).filter(Boolean),
+  );
+  private searchDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
   protected focusMainContent(): void {
     queueMicrotask(() => {
@@ -1552,14 +1645,14 @@ export class App {
     });
   }
   protected readonly searchResults = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
+    const query = this.normalizedSearchQuery();
     const searchIndex = this.searchIndex();
 
     if (!query) {
       return searchIndex.slice(0, 5);
     }
 
-    const terms: string[] = query.split(/\s+/).filter(Boolean);
+    const terms = this.searchTerms();
 
     return searchIndex
       .map((item) => ({
@@ -1571,8 +1664,25 @@ export class App {
       .map(({ item }) => item);
   });
 
+  protected readonly trackCalendarRow = (_index: number, item: CalendarItem): string => item.id;
+
   protected updateSearch(query: string): void {
-    this.searchQuery.set(query);
+    this.searchDraftQuery.set(query);
+
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+      this.searchDebounceHandle = null;
+    }
+
+    if (!query.trim()) {
+      this.searchQuery.set('');
+      return;
+    }
+
+    this.searchDebounceHandle = setTimeout(() => {
+      this.searchQuery.set(query);
+      this.searchDebounceHandle = null;
+    }, App.SEARCH_DEBOUNCE_MS);
   }
 
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {
@@ -1582,7 +1692,16 @@ export class App {
   protected performSearch(event?: Event): void {
     event?.preventDefault();
 
-    if (!this.searchQuery().trim()) {
+    const query = this.searchDraftQuery().trim();
+
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+      this.searchDebounceHandle = null;
+    }
+
+    this.searchQuery.set(query);
+
+    if (!query) {
       this.scrollToFragment('#search-panel');
       return;
     }
@@ -1698,6 +1817,28 @@ export class App {
 
   protected updateCalendarJumpMonth(value: Date | null): void {
     this.calendarJumpMonth.set(value);
+  }
+
+  protected updateCalendarTable(event: {
+    first?: number | null;
+    rows?: number | null;
+    sortField?: string | string[] | null;
+    sortOrder?: number | null;
+  }): void {
+    const currentState = this.calendarTableState();
+    const sortField = this.toCalendarTableSortField(event.sortField);
+    const sortOrder = event.sortOrder === -1 || event.sortOrder === 1 ? event.sortOrder : null;
+
+    this.calendarTableState.set({
+      first: Math.max(event.first ?? currentState.first, 0),
+      rows: Math.max(event.rows ?? currentState.rows, 1),
+      sortField,
+      sortOrder: sortField ? sortOrder : null,
+    });
+  }
+
+  protected updateMeetingsTab(value: string | number | null | undefined): void {
+    this.meetingsTab.set(value === 'list' ? 'list' : 'month');
   }
 
   protected openCalendarHelp(): void {
@@ -1827,6 +1968,7 @@ export class App {
       source: 'seed',
       sourceLabel: copy.calendarFallbackBadge,
       isFeatured,
+      sortDate: this.parseCalendarSeedTimestamp(seed.startLocal),
       title: seed.title,
       date: seed.dateLabel,
       category: seed.category,
@@ -1864,6 +2006,7 @@ export class App {
       source: 'live',
       sourceLabel: copy.calendarManagedBadge,
       isFeatured,
+      sortDate: start.getTime(),
       title: event.title,
       date: this.formatCalendarEventDate(start, end),
       category: copy.calendarPublishedEventCategory,
@@ -1976,6 +2119,84 @@ export class App {
     defaultEnd.setHours(defaultEnd.getHours() + 1);
 
     return defaultEnd;
+  }
+
+  private sortCalendarItems(
+    items: CalendarItem[],
+    sortField: CalendarTableSortField | null,
+    sortOrder: 1 | -1 | null,
+  ): CalendarItem[] {
+    if (!sortField || !sortOrder) {
+      return items;
+    }
+
+    const direction = sortOrder === -1 ? -1 : 1;
+
+    return [...items].sort((left, right) => {
+      const leftValue = this.getCalendarSortValue(left, sortField);
+      const rightValue = this.getCalendarSortValue(right, sortField);
+
+      if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+        return (leftValue - rightValue) * direction;
+      }
+
+      return String(leftValue).localeCompare(String(rightValue), undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }) * direction;
+    });
+  }
+
+  private getCalendarSortValue(
+    item: CalendarItem,
+    sortField: CalendarTableSortField,
+  ): number | string {
+    switch (sortField) {
+      case 'date':
+        return item.sortDate;
+      case 'title':
+        return item.title;
+      case 'category':
+        return item.category;
+      case 'location':
+        return item.location;
+      case 'recurrence':
+        return item.recurrence;
+    }
+  }
+
+  private toCalendarTableSortField(
+    value: string | string[] | null | undefined,
+  ): CalendarTableSortField | null {
+    switch (value) {
+      case 'title':
+      case 'date':
+      case 'category':
+      case 'location':
+      case 'recurrence':
+        return value;
+      default:
+        return null;
+    }
+  }
+
+  private parseCalendarSeedTimestamp(value: string): number {
+    const match = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(value);
+
+    if (!match) {
+      return 0;
+    }
+
+    const [, year, month, day, hour, minute, second] = match;
+
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second),
+    ).getTime();
   }
 
   private formatCalendarEventDate(start: Date, end: Date): string {

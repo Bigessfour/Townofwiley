@@ -49,137 +49,92 @@
   }
 
   <header class="site-header" role="banner">
-    <p-menubar [model]="menuItems()" styleClass="bg-white shadow-sm" [pt]="{ root: { class: 'border-none bg-white' } }">
-      <ng-template pTemplate="start">
-        <span class="utility-pill font-semibold">{{ heroContent().status }}</span>
-      </ng-template>
-      <ng-template pTemplate="end">
-        <div class="header-utility-links flex flex-wrap items-center justify-end gap-3">
+    <div class="header-top">
+      <a class="town-logo" routerLink="/" aria-label="Town of Wiley home">
+        <div class="official-badge" aria-hidden="true">
+          <strong>OFFICIAL</strong><br />
+          TOWN<br />
+          WEBSITE
+        </div>
+      </a>
+
+      <nav
+        class="section-nav main-nav"
+        [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
+        data-testid="homepage-section-nav"
+      >
+        @for (link of navLinks(); track link.label) {
+          <a [attr.href]="link.href.startsWith('#') ? '/' + link.href : link.href">
+            <i [attr.class]="link.icon"></i>
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+
+      <div class="header-right">
+        <div class="info-buttons">
           @if (primaryContact(); as primaryContact) {
-            @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryContactLink) {
-              @if (primaryContactLink.isInternal) {
-                <a [attr.href]="primaryContactLink.href" class="header-meta-link button-cta button-cta--light">
-                  <strong>{{ primaryContact.label }}</strong>
-                  <span>{{ primaryContact.value }}</span>
-                </a>
-              } @else {
-                <a [attr.href]="primaryContactLink.href" class="header-meta-link button-cta button-cta--light">
-                  <strong>{{ primaryContact.label }}</strong>
-                  <span>{{ primaryContact.value }}</span>
-                </a>
-              }
-            }
+            <a
+              class="header-meta-link button-cta button-cta--light"
+              [attr.href]="primaryContact.href ?? '/contact'"
+            >
+              <strong>{{ primaryContact.label }}</strong>
+              <span>{{ primaryContact.value }}</span>
+            </a>
           }
+
           <a href="/meetings#calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().meetingsKicker }}</strong>
             <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
+
           <a href="/#top-tasks" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().topTasksKicker }}</strong>
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
-          <div class="header-search-wrapper">
-            <p-inputgroup class="header-search-group">
-              <input
-                pInputText
-                name="header-site-search"
-                class="header-search"
-                [ngModel]="searchQuery()"
-                (ngModelChange)="updateSearch($event)"
-                [ngModelOptions]="{ standalone: true }"
-                [attr.aria-label]="appCopy().searchLabel"
-                [attr.placeholder]="appCopy().searchPlaceholder"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <p-button
-                type="button"
-                [label]="appCopy().searchActionLabel"
-                severity="secondary"
-                outlined="true"
-                size="small"
-                styleClass="search-submit header-search-submit"
-                (onClick)="performSearch($event)"
-              />
-            </p-inputgroup>
-          </div>
-          <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
-            <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-            <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
-              @for (choice of languageChoices(); track choice.value) {
-                <button
-                  type="button"
-                  class="site-language-button"
-                  [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
-                  [class.is-active]="siteLanguage() === choice.value"
-                  [attr.aria-pressed]="siteLanguage() === choice.value"
-                  (click)="updateSiteLanguage(choice.value)"
-                >
-                  {{ choice.label }}
-                </button>
-              }
-            </div>
-          </div>
         </div>
-      </ng-template>
-    </p-menubar>
 
-    <section class="hero-landing" aria-labelledby="site-hero-title" data-testid="homepage-hero">
-      <figure class="hero-landing-media">
-        <img
-          ngSrc="/hero-wiley.jpg"
-          [attr.alt]="appCopy().heroImageAlt"
-          fill
-          priority
-          sizes="100vw"
-        />
-      </figure>
-      <div class="hero-landing-scrim"></div>
-
-      <article class="hero-landing-inner">
-        <section class="hero-landing-copy grid gap-4">
-          <header class="hero-lockup grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-1">
-            <span class="hero-seal-shell" aria-hidden="true">
-              <img class="hero-seal" ngSrc="/favicon.svg" alt="" width="56" height="56" />
-            </span>
-
-            <p class="eyebrow">{{ heroContent().eyebrow }}</p>
-            <p class="status">{{ heroContent().status }}</p>
-          </header>
-
-          <h1 id="site-hero-title">{{ pageTitle() }}</h1>
-          <p class="message">{{ heroContent().message }}</p>
-        </section>
-
-        <p-card class="hero-search-card" aria-labelledby="site-search-heading">
-          <header class="hero-search-header">
-            <p class="section-kicker">{{ appCopy().searchKicker }}</p>
-            <h2 id="site-search-heading">{{ appCopy().searchHeading }}</h2>
-          </header>
-
-          <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
-          <form class="search-form grid gap-4" id="search-panel" (submit)="performSearch($event)">
-            <p-inputgroup class="search-control-row flex gap-3">
+        <div class="header-search-shell">
+          <form
+            class="header-search-form"
+            id="search-panel"
+            role="search"
+            [attr.aria-label]="appCopy().searchHeading"
+            [attr.title]="appCopy().searchHeading"
+            (submit)="performSearch($event)"
+          >
+            <p-inputgroup class="search-control-row header-search-row flex gap-3">
               <input
                 pInputText
                 id="site-search"
                 name="site-search"
-                class="search-input"
-                [ngModel]="searchQuery()"
+                class="header-search search-input"
+                [ngModel]="searchDraftQuery()"
                 (ngModelChange)="updateSearch($event)"
                 [ngModelOptions]="{ standalone: true }"
                 [attr.aria-label]="appCopy().searchLabel"
                 [attr.placeholder]="appCopy().searchPlaceholder"
+                [attr.title]="appCopy().searchPlaceholder"
                 autocomplete="off"
                 spellcheck="false"
               />
-              <p-button type="submit" [label]="appCopy().searchActionLabel" severity="secondary" styleClass="search-submit" />
+              <p-button
+                type="submit"
+                [label]="appCopy().searchActionLabel"
+                [ariaLabel]="appCopy().searchActionLabel"
+                severity="secondary"
+                styleClass="search-submit header-search-submit"
+                [attr.title]="appCopy().searchActionLabel"
+              />
             </p-inputgroup>
 
-            <p class="search-note">{{ appCopy().searchNote }}</p>
-
-            @if (searchQuery().trim()) {
-              @if (searchResults().length) {
+            @if (searchDraftQuery().trim()) {
+              @if (isSearchPending()) {
+                <div class="search-results grid gap-3" aria-live="polite" aria-busy="true">
+                  <p-skeleton width="100%" height="4.5rem" />
+                  <p-skeleton width="100%" height="4.5rem" />
+                </div>
+              } @else if (searchResults().length) {
                 <div class="search-results grid gap-3">
                   @for (result of searchResults(); track result.href + result.title) {
                     @if (resolveAppLink(result.href); as searchResultLink) {
@@ -208,17 +163,46 @@
               }
             }
           </form>
-        </p-card>
+        </div>
+
+        <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
+          <span class="site-language-label">{{ appCopy().languageLabel }}</span>
+          <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
+            @for (choice of languageChoices(); track choice.value) {
+              <button
+                type="button"
+                class="site-language-button"
+                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                [class.is-active]="siteLanguage() === choice.value"
+                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                [attr.aria-pressed]="siteLanguage() === choice.value"
+                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                (click)="updateSiteLanguage(choice.value)"
+              >
+                {{ choice.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
+      <figure class="hero-landing-media">
+        <img
+          ngSrc="/hero-wiley.jpg"
+          [attr.alt]="appCopy().heroImageAlt"
+          fill
+          priority
+          sizes="100vw"
+        />
+      </figure>
+      <div class="hero-landing-scrim"></div>
+
+      <article class="hero-landing-inner hero-content">
+        <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
       </article>
     </section>
-
-    <nav class="section-nav mx-auto flex max-w-[1240px] flex-wrap gap-3 px-4 pb-4" [attr.aria-label]="appCopy().homepageSectionsAriaLabel" data-testid="homepage-section-nav">
-      @for (link of navLinks(); track link.label) {
-        <a [attr.href]="link.href.startsWith('#') ? '/' + link.href : link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
-      }
-    </nav>
-
-    <p-divider styleClass="page-divider" />
   </header>
 
   <main class="page-shell" id="main-content" #mainContent tabindex="-1">
@@ -345,7 +329,7 @@
                   />
                 </section>
 
-                <p-tabs value="month">
+                <p-tabs [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
                   <p-tablist>
                     <p-tab value="month">{{ appCopy().calendarMonthTabLabel }}</p-tab>
                     <p-tab value="list">{{ appCopy().calendarListTabLabel }}</p-tab>
@@ -355,124 +339,152 @@
                       <full-calendar [options]="calendarOptions()"></full-calendar>
                     </p-tabpanel>
                     <p-tabpanel value="list">
-                      <p-table
-                        class="calendar-table"
-                        [value]="calendarItems()"
-                        dataKey="id"
-                        [loading]="cmsContentLoading()"
-                        [paginator]="true"
-                        [rows]="5"
-                        [rowsPerPageOptions]="[5, 10]"
-                        [scrollable]="true"
-                        scrollHeight="28rem"
-                        [tableStyle]="{ 'min-width': '72rem' }"
-                        stripedRows
-                        showGridlines
-                      >
-                        <ng-template #header>
-                          <tr>
-                            <th pSortableColumn="title">
-                              <div class="calendar-table-header-cell">
-                                <span>{{ appCopy().calendarPublishedEventCategory }}</span>
-                                <p-sortIcon field="title" />
-                              </div>
-                            </th>
-                            <th pSortableColumn="date">
-                              <div class="calendar-table-header-cell">
-                                <span>{{ appCopy().calendarStatusNextLabel }}</span>
-                                <p-sortIcon field="date" />
-                              </div>
-                            </th>
-                            <th pSortableColumn="category">
-                              <div class="calendar-table-header-cell">
-                                <span>{{ appCopy().calendarKicker }}</span>
-                                <p-sortIcon field="category" />
-                              </div>
-                            </th>
-                            <th pSortableColumn="location">
-                              <div class="calendar-table-header-cell">
-                                <span>Location</span>
-                                <p-sortIcon field="location" />
-                              </div>
-                            </th>
-                            <th pSortableColumn="recurrence">
-                              <div class="calendar-table-header-cell">
-                                <span>Recurrence</span>
-                                <p-sortIcon field="recurrence" />
-                              </div>
-                            </th>
-                            <th>{{ appCopy().calendarActionsAriaLabel }}</th>
-                          </tr>
-                        </ng-template>
+                      @defer (when meetingsTab() === 'list') {
+                        <p-table
+                          class="calendar-table"
+                          [value]="calendarTableItems()"
+                          dataKey="id"
+                          [rowTrackBy]="trackCalendarRow"
+                          [loading]="cmsContentLoading()"
+                          [lazy]="true"
+                          [lazyLoadOnInit]="false"
+                          [first]="calendarTableFirst()"
+                          [paginator]="true"
+                          [rows]="calendarTableRows()"
+                          [rowsPerPageOptions]="[5, 10]"
+                          [sortField]="calendarTableSortField()"
+                          [sortOrder]="calendarTableSortOrder()"
+                          [totalRecords]="calendarTableTotalRecords()"
+                          [scrollable]="true"
+                          scrollHeight="28rem"
+                          [tableStyle]="{ 'min-width': '72rem' }"
+                          (onLazyLoad)="updateCalendarTable($event)"
+                          stripedRows
+                          showGridlines
+                        >
+                          <ng-template #header>
+                            <tr>
+                              <th pSortableColumn="title">
+                                <div class="calendar-table-header-cell">
+                                  <span>{{ appCopy().calendarPublishedEventCategory }}</span>
+                                  <p-sortIcon field="title" />
+                                </div>
+                              </th>
+                              <th pSortableColumn="date">
+                                <div class="calendar-table-header-cell">
+                                  <span>{{ appCopy().calendarStatusNextLabel }}</span>
+                                  <p-sortIcon field="date" />
+                                </div>
+                              </th>
+                              <th pSortableColumn="category">
+                                <div class="calendar-table-header-cell">
+                                  <span>{{ appCopy().calendarKicker }}</span>
+                                  <p-sortIcon field="category" />
+                                </div>
+                              </th>
+                              <th pSortableColumn="location">
+                                <div class="calendar-table-header-cell">
+                                  <span>Location</span>
+                                  <p-sortIcon field="location" />
+                                </div>
+                              </th>
+                              <th pSortableColumn="recurrence">
+                                <div class="calendar-table-header-cell">
+                                  <span>Recurrence</span>
+                                  <p-sortIcon field="recurrence" />
+                                </div>
+                              </th>
+                              <th>{{ appCopy().calendarActionsAriaLabel }}</th>
+                            </tr>
+                          </ng-template>
 
-                        <ng-template #body let-item>
-                          <tr [class.is-featured]="item.isFeatured" [class.is-live]="item.source === 'live'">
-                            <td>
-                              <div class="calendar-table-title">
-                                <strong>{{ item.title }}</strong>
-                                <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
-                                  {{ item.sourceLabel }}
-                                </span>
-                                @if (item.agendaNote) {
-                                  <span class="calendar-table-note">{{ item.agendaNote }}</span>
-                                }
-                              </div>
-                            </td>
-                            <td>{{ item.date }}</td>
-                            <td>
-                              <div class="calendar-table-meta">
-                                <span class="calendar-pill">{{ item.category }}</span>
-                                @if (item.isFeatured) {
-                                  <span class="calendar-pill is-featured">
-                                    {{ appCopy().calendarFeaturedBadge }}
+                          <ng-template #body let-item>
+                            <tr [class.is-featured]="item.isFeatured" [class.is-live]="item.source === 'live'">
+                              <td>
+                                <div class="calendar-table-title">
+                                  <strong>{{ item.title }}</strong>
+                                  <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
+                                    {{ item.sourceLabel }}
                                   </span>
-                                }
-                              </div>
-                            </td>
-                            <td>{{ item.location }}</td>
-                            <td>{{ item.recurrence }}</td>
-                            <td>
-                              <div class="calendar-table-actions">
-                                @for (action of item.actions; track action.label) {
-                                  @if (resolveAppLink(action.href); as actionLink) {
-                                    @if (actionLink.isInternal) {
-                                      <a
-                                        class="calendar-action"
-                                        [routerLink]="actionLink.path"
-                                        [fragment]="actionLink.fragment"
-                                        [attr.download]="action.downloadFileName ?? null"
-                                      >
-                                        {{ action.label }}
-                                      </a>
-                                    } @else {
-                                      <a
-                                        class="calendar-action"
-                                        [attr.href]="actionLink.href"
-                                        [attr.download]="action.downloadFileName ?? null"
-                                        [attr.target]="action.external ? '_blank' : null"
-                                        [attr.rel]="action.external ? 'noreferrer noopener' : null"
-                                      >
-                                        {{ action.label }}
-                                      </a>
+                                  @if (item.agendaNote) {
+                                    <span class="calendar-table-note">{{ item.agendaNote }}</span>
+                                  }
+                                </div>
+                              </td>
+                              <td>{{ item.date }}</td>
+                              <td>
+                                <div class="calendar-table-meta">
+                                  <span class="calendar-pill">{{ item.category }}</span>
+                                  @if (item.isFeatured) {
+                                    <span class="calendar-pill is-featured">
+                                      {{ appCopy().calendarFeaturedBadge }}
+                                    </span>
+                                  }
+                                </div>
+                              </td>
+                              <td>{{ item.location }}</td>
+                              <td>{{ item.recurrence }}</td>
+                              <td>
+                                <div class="calendar-table-actions">
+                                  @for (action of item.actions; track action.label) {
+                                    @if (resolveAppLink(action.href); as actionLink) {
+                                      @if (actionLink.isInternal) {
+                                        <a
+                                          class="calendar-action"
+                                          [routerLink]="actionLink.path"
+                                          [fragment]="actionLink.fragment"
+                                          [attr.download]="action.downloadFileName ?? null"
+                                        >
+                                          {{ action.label }}
+                                        </a>
+                                      } @else {
+                                        <a
+                                          class="calendar-action"
+                                          [attr.href]="actionLink.href"
+                                          [attr.download]="action.downloadFileName ?? null"
+                                          [attr.target]="action.external ? '_blank' : null"
+                                          [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                                        >
+                                          {{ action.label }}
+                                        </a>
+                                      }
                                     }
                                   }
-                                }
-                              </div>
-                            </td>
-                          </tr>
-                        </ng-template>
+                                </div>
+                              </td>
+                            </tr>
+                          </ng-template>
 
-                        <ng-template #loadingbody>
-                          <tr>
-                            <td><p-skeleton width="14rem" height="1rem" /></td>
-                            <td><p-skeleton width="9rem" height="1rem" /></td>
-                            <td><p-skeleton width="8rem" height="1rem" /></td>
-                            <td><p-skeleton width="10rem" height="1rem" /></td>
-                            <td><p-skeleton width="8rem" height="1rem" /></td>
-                            <td><p-skeleton width="12rem" height="1rem" /></td>
-                          </tr>
-                        </ng-template>
-                      </p-table>
+                          <ng-template #loadingbody>
+                            <tr>
+                              <td><p-skeleton width="14rem" height="1rem" /></td>
+                              <td><p-skeleton width="9rem" height="1rem" /></td>
+                              <td><p-skeleton width="8rem" height="1rem" /></td>
+                              <td><p-skeleton width="10rem" height="1rem" /></td>
+                              <td><p-skeleton width="8rem" height="1rem" /></td>
+                              <td><p-skeleton width="12rem" height="1rem" /></td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      } @placeholder {
+                        <div class="calendar-table-placeholder" aria-hidden="true">
+                          <p-skeleton width="12rem" height="1rem" />
+                          <div class="calendar-table-placeholder-row">
+                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton width="100%" height="3rem" />
+                          </div>
+                        </div>
+                      } @loading (minimum 150ms) {
+                        <div class="calendar-table-placeholder" aria-live="polite">
+                          <p-skeleton width="12rem" height="1rem" />
+                          <div class="calendar-table-placeholder-row">
+                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton width="100%" height="3rem" />
+                          </div>
+                        </div>
+                      }
                     </p-tabpanel>
                   </p-tabpanels>
                 </p-tabs>
@@ -655,7 +667,7 @@
                     <span class="task-card-icon" aria-hidden="true">
                       @switch (taskIndex) {
                         @case (0) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M4 7.5h16" />
                             <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
                             <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
@@ -663,14 +675,14 @@
                           </svg>
                         }
                         @case (1) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M12 20v-7" />
                             <path d="M8 17l4 3 4-3" />
                             <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
                           </svg>
                         }
                         @case (2) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <rect x="4" y="5" width="16" height="15" rx="2" />
                             <path d="M8 3v4" />
                             <path d="M16 3v4" />
@@ -679,7 +691,7 @@
                           </svg>
                         }
                         @default {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M7 4h8l4 4v12H7z" />
                             <path d="M15 4v4h4" />
                             <path d="M10 13h6" />
@@ -700,7 +712,7 @@
                     <span class="task-card-icon" aria-hidden="true">
                       @switch (taskIndex) {
                         @case (0) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M4 7.5h16" />
                             <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
                             <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
@@ -708,14 +720,14 @@
                           </svg>
                         }
                         @case (1) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M12 20v-7" />
                             <path d="M8 17l4 3 4-3" />
                             <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
                           </svg>
                         }
                         @case (2) {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <rect x="4" y="5" width="16" height="15" rx="2" />
                             <path d="M8 3v4" />
                             <path d="M16 3v4" />
@@ -724,7 +736,7 @@
                           </svg>
                         }
                         @default {
-                          <svg viewBox="0 0 24 24" focusable="false">
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M7 4h8l4 4v12H7z" />
                             <path d="M15 4v4h4" />
                             <path d="M10 13h6" />

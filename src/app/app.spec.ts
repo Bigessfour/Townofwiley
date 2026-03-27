@@ -119,7 +119,7 @@ describe('App', () => {
       'Open the full town calendar',
     );
     expect(
-      compiled.querySelector('.hero-action.secondary[href="/meetings#calendar"]')?.textContent,
+      compiled.querySelector('.header-meta-link[href="/meetings#calendar"]')?.textContent,
     ).toContain('Open the full town calendar');
   });
 
@@ -137,7 +137,7 @@ describe('App', () => {
     const scrollIntoViewSpy = vi.spyOn(calendarPanel, 'scrollIntoView');
     const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
     const topCalendarLink = compiled.querySelector(
-      '.hero-action.secondary[href="/meetings#calendar"]',
+      '.header-meta-link[href="/meetings#calendar"]',
     ) as HTMLAnchorElement;
 
     topCalendarLink.click();
@@ -160,7 +160,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const topCalendarLink = compiled.querySelector(
-      '.hero-action.secondary[href="/meetings#calendar"]',
+      '.header-meta-link[href="/meetings#calendar"]',
     ) as HTMLAnchorElement;
 
     topCalendarLink.click();

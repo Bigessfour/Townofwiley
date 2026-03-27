@@ -99,9 +99,12 @@
 }
 
 .resident-action {
+  appearance: none;
   border: 1px solid transparent;
   background: #0d2c54;
   color: #fff;
+  cursor: pointer;
+  font: inherit;
 }
 
 .resident-action--primary {
@@ -122,7 +125,6 @@
 }
 
 .resident-action.is-disabled {
-  pointer-events: auto;
   background: #4a607b;
   color: #fff;
 }

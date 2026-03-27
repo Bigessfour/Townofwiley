@@ -79,14 +79,14 @@
               {{ copy().paymentPortalActionLabel }}
             </a>
           }
-          <a
+          <button
+            type="button"
             class="resident-action resident-action--secondary"
             [class.is-disabled]="!paymentMailtoHref()"
-            [attr.href]="paymentMailtoHref()"
             (click)="openPaymentMailto($event)"
           >
             {{ copy().paymentActionLabel }}
-          </a>
+          </button>
           @if (paymentStatus(); as paymentStatus) {
             <p class="resident-status" aria-live="polite">{{ paymentStatus }}</p>
           }
@@ -145,14 +145,14 @@
         </section>
 
         <footer class="resident-action-row grid gap-3">
-          <a
+          <button
+            type="button"
             class="resident-action"
             [class.is-disabled]="!issueMailtoHref()"
-            [attr.href]="issueMailtoHref()"
             (click)="openIssueMailto($event)"
           >
             {{ copy().issueActionLabel }}
-          </a>
+          </button>
           @if (issueStatus(); as issueStatus) {
             <p class="resident-status" aria-live="polite">{{ issueStatus }}</p>
           }
@@ -211,14 +211,14 @@
         </section>
 
         <footer class="resident-action-row grid gap-3">
-          <a
+          <button
+            type="button"
             class="resident-action"
             [class.is-disabled]="!recordsMailtoHref()"
-            [attr.href]="recordsMailtoHref()"
             (click)="openRecordsMailto($event)"
           >
             {{ copy().recordsActionLabel }}
-          </a>
+          </button>
           @if (recordsStatus(); as recordsStatus) {
             <p class="resident-status" aria-live="polite">{{ recordsStatus }}</p>
           }

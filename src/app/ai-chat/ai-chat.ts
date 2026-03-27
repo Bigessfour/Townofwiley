@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
 
@@ -35,6 +35,7 @@ interface BotChatResponse {
   imports: [],
   templateUrl: './ai-chat.html',
   styleUrl: './ai-chat.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AiChat {
   private readonly http = inject(HttpClient);

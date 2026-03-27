@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -181,6 +181,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
   imports: [ButtonModule, ChipModule, InputTextModule, RouterLink, ScrollPanelModule],
   templateUrl: './localized-ai-chat.html',
   styleUrl: './ai-chat.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocalizedAiChat {
   private readonly http = inject(HttpClient);
