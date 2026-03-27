@@ -18,27 +18,26 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
-import { DatePickerModule } from 'primeng/datepicker';
-import { DialogModule } from 'primeng/dialog';
 import { MenubarModule } from 'primeng/menubar';
 import { SkeletonModule } from 'primeng/skeleton';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { BusinessDirectory } from './business-directory/business-directory';
-import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DocumentHub } from './document-hub/document-hub';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
+import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { LoggingService } from './logging.service';
 import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
@@ -1022,7 +1021,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     TabsModule,
     CardModule,
     MenubarModule,
-    SelectButtonModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,

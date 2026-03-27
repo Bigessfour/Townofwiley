@@ -80,10 +80,13 @@
           </a>
           <div class="header-search-wrapper">
             <p-inputgroup class="header-search-group">
-              <p-inputtext
+              <input
+                pInputText
+                name="header-site-search"
                 class="header-search"
                 [ngModel]="searchQuery()"
                 (ngModelChange)="updateSearch($event)"
+                [ngModelOptions]="{ standalone: true }"
                 [attr.aria-label]="appCopy().searchLabel"
                 [attr.placeholder]="appCopy().searchPlaceholder"
                 autocomplete="off"
@@ -102,15 +105,20 @@
           </div>
           <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
             <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-            <p-selectbutton
-              class="site-language-toggle"
-              [ngModel]="siteLanguage()"
-              (ngModelChange)="updateSiteLanguage($event)"
-              [options]="languageChoices()"
-              optionLabel="label"
-              optionValue="value"
-              [allowEmpty]="false"
-            />
+            <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
+              @for (choice of languageChoices(); track choice.value) {
+                <button
+                  type="button"
+                  class="site-language-button"
+                  [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                  [class.is-active]="siteLanguage() === choice.value"
+                  [attr.aria-pressed]="siteLanguage() === choice.value"
+                  (click)="updateSiteLanguage(choice.value)"
+                >
+                  {{ choice.label }}
+                </button>
+              }
+            </div>
           </div>
         </div>
       </ng-template>
@@ -198,11 +206,14 @@
           <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
           <form class="search-form grid gap-4" id="search-panel" (submit)="performSearch($event)">
             <p-inputgroup class="search-control-row flex gap-3">
-              <p-inputtext
+              <input
+                pInputText
                 id="site-search"
+                name="site-search"
                 class="search-input"
                 [ngModel]="searchQuery()"
                 (ngModelChange)="updateSearch($event)"
+                [ngModelOptions]="{ standalone: true }"
                 [attr.aria-label]="appCopy().searchLabel"
                 [attr.placeholder]="appCopy().searchPlaceholder"
                 autocomplete="off"

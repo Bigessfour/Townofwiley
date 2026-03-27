@@ -20,6 +20,8 @@ test.describe('homepage navigation', () => {
       '/meetings',
       '/services',
       '/records',
+      '/documents',
+      '/accessibility',
       '/businesses',
       '/news',
       '/contact',
