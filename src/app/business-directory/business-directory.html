@@ -1,46 +1,84 @@
-<div class="business-directory">
-  <h1 class="text-4xl font-bold text-center my-8 text-[var(--civic-blue)]">{{ title }}</h1>
-  <p class="text-center text-lg max-w-2xl mx-auto mb-12 text-surface-600">Discover and support local businesses in Wiley. Each listing includes contact information and links where available.</p>
-  <p class="text-center text-sm mb-8 text-surface-500">Support our local businesses by clicking their logos or website links below.</p>
+<section class="public-page business-directory-page" aria-labelledby="business-directory-heading">
+  <header class="public-page-header">
+    <p class="section-kicker">Local Directory</p>
+    <h1 id="business-directory-heading">{{ title }}</h1>
+    <p class="public-page-copy">
+      Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.
+    </p>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (business of businesses(); track business.name) {
-      <p-card class="h-full">
-        <ng-template pTemplate="header">
-          <div class="p-4 border-b border-surface-200">
-            <h3 class="text-xl font-semibold m-0">{{ business.name }}</h3>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="p-4">
-            @if (business.image) {
-              <a [href]="business.website" target="_blank" class="block mb-4" (click)="logging.buttonClick('business-logo', business.name)">
-                <img [src]="business.image" [alt]="business.name" class="w-20 h-20 object-contain mx-auto rounded shadow-sm hover:scale-105 transition-transform">
+    <label class="public-search-field">
+      <span>Search local businesses</span>
+      <p-iconfield class="public-search-input">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="search"
+          [value]="directoryQuery()"
+          (input)="updateDirectoryQuery($any($event.target).value)"
+          placeholder="Search by business name, service, address, or phone"
+          autocomplete="off"
+        />
+      </p-iconfield>
+    </label>
+  </header>
+
+  @if (filteredBusinesses().length) {
+    <div class="public-card-grid directory-card-grid">
+      @for (business of filteredBusinesses(); track business.name) {
+        <article class="public-card public-directory-card">
+          <div class="public-card-header">
+            <div>
+              <p class="meta-label">Wiley business</p>
+              <h2>{{ business.name }}</h2>
+            </div>
+
+            @if (business.image && business.website) {
+              <a
+                class="directory-logo-link"
+                [href]="business.website"
+                target="_blank"
+                rel="noreferrer noopener"
+                (click)="logging.buttonClick('business-logo', business.name)"
+              >
+                <img [src]="business.image" [alt]="business.name" loading="lazy" decoding="async" />
               </a>
             }
-            <div class="mb-3">
-              <span class="font-medium">Phone: </span>
-              <a [href]="'tel:' + business.phone" class="text-blue-600 hover:underline" (click)="logging.buttonClick('business-phone', business.name)">{{ business.phone }}</a>
-            </div>
-            <div class="mb-4">
-              <span class="font-medium">Address: </span>
-              <span class="block">{{ business.address }}</span>
-            </div>
-            @if (business.description) {
-              <p class="text-surface-600 text-sm">{{ business.description }}</p>
+          </div>
+
+          <div class="public-card-body">
+            <p class="public-card-copy">{{ business.description || 'Local Wiley business listing.' }}</p>
+            <dl class="directory-details">
+              <div>
+                <dt>Phone</dt>
+                <dd>
+                  <a [href]="'tel:' + business.phone" (click)="logging.buttonClick('business-phone', business.name)">
+                    {{ business.phone }}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>Address</dt>
+                <dd>{{ business.address }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="public-card-actions">
+            @if (business.website) {
+              <a
+                class="button-cta button-cta--light"
+                [href]="business.website"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Visit website
+              </a>
             }
           </div>
-        </ng-template>
-        <ng-template pTemplate="footer">
-          @if (business.website) {
-            <div class="p-4 pt-0">
-              <a [href]="business.website" target="_blank" class="p-button p-button-link p-button-sm flex items-center gap-2 no-underline">
-              Visit Website <i class="pi pi-external-link"></i>
-            </a>
-            </div>
-          }
-        </ng-template>
-      </p-card>
-    }
-  </div>
-</div>
+        </article>
+      }
+    </div>
+  } @else {
+    <p class="public-empty-state">No local businesses match that search yet. Try a broader term or clear the search.</p>
+  }
+</section>

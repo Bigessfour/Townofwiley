@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 import { LoggingService } from '../logging.service';
 
 interface Business {
@@ -14,14 +15,14 @@ interface Business {
 
 @Component({
   selector: 'app-business-directory',
-  standalone: true,
-  imports: [CardModule, ButtonModule],
+  imports: [IconFieldModule, InputIconModule, InputTextModule],
   templateUrl: './business-directory.html',
   styleUrl: './business-directory.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BusinessDirectory {
   protected readonly logging = inject(LoggingService);
+  protected readonly directoryQuery = signal('');
 
   protected readonly businesses = signal<Business[]>([
     {
@@ -97,6 +98,24 @@ export class BusinessDirectory {
       description: 'Full-service pharmacy with friendly staff and quick prescription filling.',
     },
   ]);
+  protected readonly filteredBusinesses = computed(() => {
+    const query = this.directoryQuery().trim().toLowerCase();
+
+    if (!query) {
+      return this.businesses();
+    }
+
+    return this.businesses().filter((business) =>
+      [business.name, business.address, business.description ?? '', business.phone, business.website ?? '']
+        .join(' ')
+        .toLowerCase()
+        .includes(query),
+    );
+  });
 
   protected readonly title = 'Wiley Community Business Directory';
+
+  protected updateDirectoryQuery(value: string): void {
+    this.directoryQuery.set(value);
+  }
 }

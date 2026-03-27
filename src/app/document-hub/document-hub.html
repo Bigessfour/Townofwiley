@@ -5,8 +5,8 @@
     <p class="document-hub-intro">{{ copy().intro }}</p>
 
     <div class="document-hub-actions">
-      <a class="document-hub-button secondary" href="/">{{ copy().returnHome }}</a>
-      <a class="document-hub-button primary" href="/services#records-request">{{
+      <a class="document-hub-button secondary" routerLink="/">{{ copy().returnHome }}</a>
+      <a class="document-hub-button primary" routerLink="/services" fragment="records-request">{{
         copy().openRecordsForm
       }}</a>
     </div>
@@ -23,7 +23,7 @@
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
     @for (section of sections(); track section.id) {
-      <a class="document-hub-nav-link" [attr.href]="'#' + section.id">{{ section.title }}</a>
+      <a class="document-hub-nav-link" routerLink="/documents" [fragment]="section.id">{{ section.title }}</a>
     }
   </nav>
 
@@ -89,14 +89,26 @@
               <p>{{ item.detail }}</p>
               <div class="document-card-actions">
                 @for (action of item.actions; track action.label) {
-                  <a
-                    class="document-card-link"
-                    [attr.href]="action.href"
-                    [attr.target]="action.external ? '_blank' : null"
-                    [attr.rel]="action.external ? 'noreferrer noopener' : null"
-                  >
-                    {{ action.label }}
-                  </a>
+                  @if (resolveAppLink(action.href); as actionLink) {
+                    @if (actionLink.isInternal) {
+                      <a
+                        class="document-card-link"
+                        [routerLink]="actionLink.path"
+                        [fragment]="actionLink.fragment"
+                      >
+                        {{ action.label }}
+                      </a>
+                    } @else {
+                      <a
+                        class="document-card-link"
+                        [attr.href]="actionLink.href"
+                        [attr.target]="action.external ? '_blank' : null"
+                        [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                      >
+                        {{ action.label }}
+                      </a>
+                    }
+                  }
                 }
               </div>
             </article>

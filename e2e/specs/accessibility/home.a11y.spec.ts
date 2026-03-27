@@ -3,30 +3,47 @@ import { expect, test } from '../../fixtures/town.fixture';
 
 const publicPages = [
   { path: '/', label: 'landing page' },
+  { path: '/notices', label: 'notices page' },
+  { path: '/meetings', label: 'meetings page' },
   { path: '/weather', label: 'weather page' },
+  { path: '/services', label: 'services page' },
   { path: '/records', label: 'records page' },
   { path: '/businesses', label: 'businesses page' },
   { path: '/news', label: 'news page' },
+  { path: '/contact', label: 'contact page' },
+  { path: '/accessibility', label: 'accessibility page' },
   { path: '/documents', label: 'documents page' },
 ];
 
 test.describe('homepage accessibility', () => {
+  test.describe.configure({ mode: 'serial' });
+
   for (const publicPage of publicPages) {
     test(`has no critical or serious axe violations on the ${publicPage.label}`, async ({
       homePage,
     }) => {
-      await homePage.page.goto(publicPage.path, { waitUntil: 'domcontentloaded' });
-      await expect(homePage.page.locator('h1')).toBeVisible();
+      test.setTimeout(90000);
+
+      await homePage.page.goto(publicPage.path, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+      await expect(homePage.page.locator('#main-content')).toBeVisible();
 
       const results = await new AxeBuilder({ page: homePage.page })
-        .withTags(['wcag2a', 'wcag2aa'])
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
         .analyze();
 
       const impactfulViolations = results.violations.filter((violation) => {
         return violation.impact === 'critical' || violation.impact === 'serious';
       });
 
-      expect(impactfulViolations).toEqual([]);
+      expect(
+        impactfulViolations,
+        impactfulViolations
+          .map((violation) => `${violation.id}: ${violation.help}`)
+          .join('\n\n'),
+      ).toEqual([]);
     });
   }
 });

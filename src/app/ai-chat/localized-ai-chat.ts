@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
 import { InputTextModule } from 'primeng/inputtext';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
+import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface AssistantLink {
@@ -176,7 +178,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
 
 @Component({
   selector: 'app-ai-chat',
-  imports: [ButtonModule, ChipModule, InputTextModule, ScrollPanelModule],
+  imports: [ButtonModule, ChipModule, InputTextModule, RouterLink, ScrollPanelModule],
   templateUrl: './localized-ai-chat.html',
   styleUrl: './ai-chat.scss',
 })
@@ -425,6 +427,10 @@ export class LocalizedAiChat {
     }
 
     return [...links.values()].slice(0, 3);
+  }
+
+  protected resolveAppLink(href: string | null | undefined): AppRouteLink {
+    return getAppRouteLink(href);
   }
 
   private parseBotResponse(rawResponse: string): BotChatResponse {

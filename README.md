@@ -219,6 +219,16 @@ The repo now includes a scheduled site monitor that emails `bigessfour@gmail.com
 What it checks:
 
 - `https://townofwiley.gov/`
+- `https://townofwiley.gov/weather`
+- `https://townofwiley.gov/notices`
+- `https://townofwiley.gov/meetings`
+- `https://townofwiley.gov/services`
+- `https://townofwiley.gov/records`
+- `https://townofwiley.gov/businesses`
+- `https://townofwiley.gov/news`
+- `https://townofwiley.gov/contact`
+- `https://townofwiley.gov/accessibility`
+- `https://townofwiley.gov/documents`
 - `https://townofwiley.gov/admin`
 - `https://townofwiley.gov/clerk-setup`
 - the AppSync CMS endpoint from `src/amplifyconfiguration.json`
@@ -229,6 +239,12 @@ Deployment and test scripts:
 npm run test:infra:monitor
 npm run deploy:site-monitor
 ```
+
+Operational logging note:
+
+- CloudFront access logs are useful for edge-level request patterns, scanner traffic, and status-code spikes, but they do not prove that the correct resident-facing page content rendered.
+- The frontend logger reads `LOG_ENDPOINT` into `public/runtime-config.js`, but that value must point to a dedicated log-ingest service. Do not point it at the severe-weather signup API unless that backend explicitly implements a `/log` route.
+- The site monitor is the primary route-level guardrail for catching real public-page regressions.
 
 ## Site language
 
@@ -290,7 +306,7 @@ Traceability:
 - `src/app/records-center/records-center.ts`
 - `docs/town-document-publishing-guide.md`
 - `src/app/app.ts`
-- `docs/town-website-audit-status-2026-03-23.md`
+- `docs/incomplete-items-reference.md`
 
 ## Utility Payments
 
@@ -309,7 +325,7 @@ Traceability:
 - `src/app/payments/paystar-connection.ts`
 - `src/app/resident-services/resident-services.ts`
 - `infrastructure/paystar-proxy/index.mjs`
-- `docs/town-website-audit-status-2026-03-23.md`
+- `docs/incomplete-items-reference.md`
 
 Runtime configuration sources:
 
@@ -403,7 +419,7 @@ Traceability:
 - `infrastructure/email-alias-router/tests/test_app.py`
 - `scripts/deploy-email-alias-router.py`
 - `docs/town-email-alias-forwarding-runbook.md`
-- `docs/town-website-audit-status-2026-03-23.md`
+- `docs/incomplete-items-reference.md`
 
 Recommended deployment shape:
 

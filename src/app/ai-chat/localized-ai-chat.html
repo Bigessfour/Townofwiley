@@ -87,7 +87,13 @@
             @if (message.links?.length) {
               <div class="assistant-links">
                 @for (link of message.links; track link.href) {
-                  <a [attr.href]="link.href">{{ link.label }}</a>
+                  @if (resolveAppLink(link.href); as assistantLink) {
+                    @if (assistantLink.isInternal) {
+                      <a [routerLink]="assistantLink.path" [fragment]="assistantLink.fragment">{{ link.label }}</a>
+                    } @else {
+                      <a [attr.href]="assistantLink.href">{{ link.label }}</a>
+                    }
+                  }
                 }
               </div>
             }

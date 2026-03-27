@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
+import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import {
   DOCUMENT_ARCHIVE,
@@ -312,7 +314,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 
 @Component({
   selector: 'app-document-hub',
-  imports: [InputTextModule],
+  imports: [InputTextModule, RouterLink],
   templateUrl: './document-hub.html',
   styleUrl: './document-hub.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -353,4 +355,8 @@ export class DocumentHub {
     summary: 'Agenda packet for the second-Monday regular meeting. Includes consent agenda, staff reports, and public comment guidance.',
     href: '/documents/archive/city-council-meeting-access-guide.html',
   };
+
+  protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
+    return getAppRouteLink(href, defaultPath);
+  }
 }

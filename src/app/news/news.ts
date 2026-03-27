@@ -1,6 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { LoggingService } from '../logging.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 
@@ -13,8 +11,6 @@ interface ExternalLink {
 
 @Component({
   selector: 'app-news',
-  standalone: true,
-  imports: [CardModule, ButtonModule],
   templateUrl: './news.html',
   styleUrl: './news.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,8 +39,10 @@ export class News {
   protected readonly recentExternal = computed(() => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    return this.externalLinks().filter(item => new Date(item.date) > oneMonthAgo);
+    return this.externalLinks().filter((item) => new Date(item.date) > oneMonthAgo);
   });
+  protected readonly featuredNotice = computed(() => this.newsItems()[0] ?? null);
+  protected readonly remainingNotices = computed(() => this.newsItems().slice(1));
 
   protected readonly title = 'Town News and Announcements';
 }

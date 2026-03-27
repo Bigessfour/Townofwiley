@@ -1,48 +1,66 @@
-<div class="news-page">
-  <h1 class="text-4xl font-bold text-center my-8 text-[var(--civic-blue)]">{{ title }}</h1>
-  <p class="text-center text-lg max-w-2xl mx-auto mb-12 text-surface-600">Stay informed with the latest news, announcements, and updates from the Town of Wiley.</p>
+<section class="public-page news-page-shell" aria-labelledby="news-page-heading">
+  <header class="public-page-header">
+    <p class="section-kicker">News & Notices</p>
+    <h1 id="news-page-heading">{{ title }}</h1>
+    <p class="public-page-copy">
+      Review the latest Wiley notices first, then browse outside coverage that mentions Wiley or the surrounding county.
+    </p>
+  </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (item of newsItems(); track item.id) {
-      <p-card class="h-full">
-        <ng-template pTemplate="header">
-          <div class="p-4 border-b border-surface-200">
-            <h3 class="text-xl font-semibold m-0">{{ item.title }}</h3>
-            <span class="text-sm text-surface-500">{{ item.date }}</span>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="p-4">
-            <p class="text-surface-600">{{ item.detail }}</p>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="footer">
-          <div class="p-4 pt-0">
-            <p-button label="Learn More" [link]="true" (onClick)="logging.buttonClick('news-learn-more', item.title)"></p-button>
-          </div>
-        </ng-template>
-      </p-card>
-    }
-  </div>
+  @if (featuredNotice(); as featuredNotice) {
+    <article class="featured-news-card">
+      <div class="featured-news-copy">
+        <p class="meta-label">Featured town notice</p>
+        <h2>{{ featuredNotice.title }}</h2>
+        <p class="featured-news-date">{{ featuredNotice.date }}</p>
+        <p>{{ featuredNotice.detail }}</p>
+      </div>
+    </article>
+  }
 
-  <h2 class="text-3xl font-bold mt-12 mb-6 text-[var(--civic-blue)]">From Other Sources</h2>
-  <p class="text-center text-lg max-w-2xl mx-auto mb-8 text-surface-600">Recent external news mentioning Wiley or Prowers County (auto-filtered for items less than 1 month old).</p>
+  @if (remainingNotices().length) {
+    <section class="news-section" aria-labelledby="recent-town-notices-heading">
+      <div class="news-section-header">
+        <div>
+          <p class="section-kicker">Recent town notices</p>
+          <h2 id="recent-town-notices-heading">Current Wiley updates</h2>
+        </div>
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (item of recentExternal(); track item.url) {
-      <p-card class="h-full">
-        <ng-template pTemplate="header">
-          <div class="p-4 border-b border-surface-200">
-            <h3 class="text-xl font-semibold m-0">{{ item.title }}</h3>
-            <span class="text-sm text-surface-500">{{ item.date }} • {{ item.source }}</span>
+      <div class="public-card-grid news-card-grid">
+        @for (item of remainingNotices(); track item.id) {
+          <article class="public-card news-card">
+            <p class="meta-label">{{ item.date }}</p>
+            <h3>{{ item.title }}</h3>
+            <p class="public-card-copy">{{ item.detail }}</p>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="news-section" aria-labelledby="external-news-heading">
+    <div class="news-section-header">
+      <div>
+        <p class="section-kicker">Regional coverage</p>
+        <h2 id="external-news-heading">From other sources</h2>
+      </div>
+      <p class="public-page-copy">Recent external coverage mentioning Wiley or Prowers County from the last month.</p>
+    </div>
+
+    <div class="public-card-grid news-card-grid">
+      @for (item of recentExternal(); track item.url) {
+        <article class="public-card news-card news-card--external">
+          <p class="meta-label">{{ item.source }}</p>
+          <h3>{{ item.title }}</h3>
+          <p class="featured-news-date">{{ item.date }}</p>
+          <div class="public-card-actions">
+            <a [href]="item.url" target="_blank" rel="noreferrer noopener" class="button-cta button-cta--light">
+              Read article
+            </a>
           </div>
-        </ng-template>
-        <ng-template pTemplate="footer">
-          <div class="p-4 pt-0">
-            <a [href]="item.url" target="_blank" class="p-button p-button-link p-button-sm">Read Article <i class="pi pi-external-link"></i></a>
-          </div>
-        </ng-template>
-      </p-card>
-    }
-  </div>
-</div>
+        </article>
+      }
+    </div>
+  </section>
+</section>

@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
+import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface RecordsGuide {
@@ -115,6 +117,7 @@ export const RECORDS_CENTER_COPY: Record<SiteLanguage, RecordsCenterCopy> = {
 
 @Component({
   selector: 'app-records-center',
+  imports: [RouterLink],
   templateUrl: './records-center.html',
   styleUrl: './records-center.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -125,4 +128,8 @@ export class RecordsCenter {
   protected readonly copy = computed(
     () => RECORDS_CENTER_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
+
+  protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
+    return getAppRouteLink(href, defaultPath);
+  }
 }

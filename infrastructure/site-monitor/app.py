@@ -13,19 +13,42 @@ from urllib.request import Request, urlopen
 DEFAULT_SITE_URL = 'https://townofwiley.gov'
 DEFAULT_ADMIN_PATH = '/admin'
 DEFAULT_CLERK_SETUP_PATH = '/clerk-setup'
+DEFAULT_PUBLIC_PAGE_MARKERS = {
+  'homepage': ('Town of Wiley',),
+  'weather': ('National Weather Service forecast for', 'Active watches, warnings, and advisories'),
+  'notices': ('Town notices', 'News & Announcements'),
+  'meetings': ('Meetings and calendar', 'Public calendar'),
+  'services': ('Resident services', 'Pay utility bill'),
+  'records': ('Records and documents', 'Public Document Hub'),
+  'businesses': ('Wiley Community Business Directory', 'Search local businesses'),
+  'news': ('Town News and Announcements', 'Regional coverage'),
+  'contact': ('Contact Town Hall', 'Residents should always know where to go next'),
+  'accessibility': ('Accessibility statement', 'Report an accessibility barrier'),
+  'documents': ('Public Document Hub', 'Stable public destinations for meetings, finance records, and code references'),
+  'admin': ('Open CMS Data Manager', 'Amplify Studio'),
+  'clerk-setup': ('One place to manage Town website content',),
+}
+DEFAULT_PUBLIC_PAGE_PATHS = {
+  'homepage': '/',
+  'weather': '/weather',
+  'notices': '/notices',
+  'meetings': '/meetings',
+  'services': '/services',
+  'records': '/records',
+  'businesses': '/businesses',
+  'news': '/news',
+  'contact': '/contact',
+  'accessibility': '/accessibility',
+  'documents': '/documents',
+  'admin': DEFAULT_ADMIN_PATH,
+  'clerk-setup': DEFAULT_CLERK_SETUP_PATH,
+}
 DEFAULT_CMS_QUERY = 'query TownWebsiteHealth { listSiteSettings(limit: 1) { items { id } } }'
 DEFAULT_RECIPIENT_EMAIL = 'bigessfour@gmail.com'
 DEFAULT_SENDER_EMAIL = 'alerts@townofwiley.gov'
 DEFAULT_SENDER_NAME = 'Town of Wiley Alerts'
 DEFAULT_MONITOR_NAME = 'TownOfWileySiteMonitor'
 DEFAULT_USER_AGENT = 'TownOfWileySiteMonitor/1.0 (contact: bigessfour@gmail.com)'
-DEFAULT_REQUIRED_MARKERS = {
-  'homepage': ('Town of Wiley',),
-  'admin': ('Open CMS Data Manager', 'Amplify Studio'),
-  'clerk-setup': ('One place to manage Town website content',),
-}
-
-
 @dataclass(frozen=True)
 class AppConfig:
   site_url: str
@@ -197,13 +220,8 @@ class TownSiteMonitor:
   def run_checks(self) -> list[ProbeResult]:
     site_url = self._config.site_url.rstrip('/')
     checks = [
-      self._probe_html('homepage', site_url + '/', DEFAULT_REQUIRED_MARKERS['homepage']),
-      self._probe_html('admin', self._config.admin_url, DEFAULT_REQUIRED_MARKERS['admin']),
-      self._probe_html(
-        'clerk-setup',
-        self._config.clerk_setup_url,
-        DEFAULT_REQUIRED_MARKERS['clerk-setup'],
-      ),
+      self._probe_html(name, site_url + path, DEFAULT_PUBLIC_PAGE_MARKERS[name])
+      for name, path in DEFAULT_PUBLIC_PAGE_PATHS.items()
     ]
 
     if self._config.cms_endpoint and self._config.cms_api_key:
@@ -369,8 +387,7 @@ def build_alert_message(
     '',
     f'Checked at: {checked_at}',
     f'Site: {config.site_url}',
-    f'Admin: {config.admin_url}',
-    f'Clerk setup: {config.clerk_setup_url}',
+    f'Public route coverage: {", ".join(DEFAULT_PUBLIC_PAGE_PATHS.keys())}',
     f'CMS endpoint: {config.cms_endpoint or "not configured"}',
     '',
     'Failures:',
@@ -420,8 +437,7 @@ def build_recovery_message(
     '',
     f'Checked at: {checked_at}',
     f'Site: {config.site_url}',
-    f'Admin: {config.admin_url}',
-    f'Clerk setup: {config.clerk_setup_url}',
+    f'Public route coverage: {", ".join(DEFAULT_PUBLIC_PAGE_PATHS.keys())}',
     '',
     'Healthy checks:',
   ]

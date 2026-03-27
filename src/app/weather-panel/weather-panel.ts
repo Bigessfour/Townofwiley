@@ -1,5 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguageService } from '../site-language';
 
@@ -15,6 +20,11 @@ const DEFAULT_ALERT_LANGUAGE = 'en';
 type AlertLanguage = 'en' | 'es';
 type AlertSignupChannel = 'email' | 'sms';
 type AlertSignupFeedbackTone = 'success' | 'error';
+
+interface SelectOption<TValue extends string> {
+  label: string;
+  value: TValue;
+}
 
 interface RuntimeAlertSignupConfig {
   enabled: boolean;
@@ -115,7 +125,7 @@ interface AlertSignupResponse {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [],
+  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule],
   templateUrl: './weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -133,6 +143,14 @@ export class WeatherPanel {
 
   protected readonly weatherGovUrl = WILEY_FORECAST_PAGE_URL;
   protected readonly forecastMapsUrl = NWS_FORECAST_MAPS_URL;
+  protected readonly alertSignupChannelOptions: SelectOption<AlertSignupChannel>[] = [
+    { label: 'Email', value: 'email' },
+    { label: 'SMS text', value: 'sms' },
+  ];
+  protected readonly alertSignupLanguageOptions: SelectOption<AlertLanguage>[] = [
+    { label: 'English', value: 'en' },
+    { label: 'Spanish', value: 'es' },
+  ];
   protected readonly weatherSourceLabel = computed(() => {
     return this.weatherConfig.apiEndpoint
       ? 'Source: weather.gov via Town of Wiley AWS weather service'

@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
 import { CmsContact } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+
+type AccessibilityStatusTone = 'error' | 'info';
 
 interface AccessibilitySupportCopy {
   statementKicker: string;
@@ -91,7 +96,7 @@ type AccessibilityReportFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-accessibility-support',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, InputTextModule, MessageModule, TextareaModule],
   templateUrl: './accessibility-support.html',
   styleUrl: './accessibility-support.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,6 +110,7 @@ export class AccessibilitySupport {
     () => ACCESSIBILITY_SUPPORT_COPY[this.siteLanguageService.currentLanguage()],
   );
   protected readonly status = signal<string | null>(null);
+  protected readonly statusTone = signal<AccessibilityStatusTone>('info');
   protected readonly reportForm: AccessibilityReportFormGroup = new FormGroup({
     name: new FormControl('', { nonNullable: true }),
     preferredContact: new FormControl('', {
@@ -145,6 +151,7 @@ export class AccessibilitySupport {
   constructor() {
     this.reportForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.status.set(null);
+      this.statusTone.set('info');
     });
   }
 
@@ -152,10 +159,12 @@ export class AccessibilitySupport {
     if (!this.accessibilityMailtoHref()) {
       event.preventDefault();
       this.reportForm.markAllAsTouched();
+      this.statusTone.set('error');
       this.status.set(this.copy().validationMessage);
       return;
     }
 
+    this.statusTone.set('info');
     this.status.set(this.copy().mailClientMessage);
   }
 

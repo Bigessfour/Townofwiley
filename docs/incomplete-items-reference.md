@@ -1,7 +1,7 @@
 # Town of Wiley - Incomplete Items Reference
 
 **Generated:** March 26, 2026  
-**Source:** `docs/town-website-audit-status-2026-03-23.md`, codebase analysis, `src/app/app.ts`, validation reports, and repository memories.  
+**Source:** codebase analysis, `src/app/app.ts`, validation reports, `README.md`, and repository memories.  
 **Purpose:** Living checklist for final polish (no new features). Iterate by updating checkboxes, adding evidence, or marking "done + validation command used". Re-run `npm run lint`, `npm run build`, and `npm run test:e2e -- --workers=1` after changes.
 
 Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) for any Angular edits (standalone components, signals, native control flow `@if`/`@for`, `input()`/`output()`, `OnPush`, `inject()`, no `ngClass`/`ngStyle`, WCAG AA).
@@ -77,6 +77,6 @@ Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) fo
 - Mark `[x]` when complete + add evidence (e.g., "Validated with `npm run build` on 2026-03-27").
 - Update this file via targeted edits only.
 - Run full validation suite before committing.
-- Reference: `docs/town-website-audit-status-2026-03-23.md`, repo memories on homepage structure/search/CMS, GitHub workflow.
+- Reference: repo memories on homepage structure/search/CMS, GitHub workflow, and `README.md`.
 
 This reference consolidates findings for easy iteration. Update as items are polished.

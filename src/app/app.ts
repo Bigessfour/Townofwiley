@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -27,6 +28,7 @@ import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { BusinessDirectory } from './business-directory/business-directory';
+import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { ClerkSetup } from './clerk-setup/clerk-setup';
 import { CmsAdmin } from './cms-admin/cms-admin';
@@ -1028,10 +1030,13 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
+  private static readonly DEFAULT_SITE_TITLE = 'Town of Wiley';
+
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly router = inject(Router);
+  private readonly title = inject(Title);
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
   private readonly initialPath =
     typeof window !== 'undefined'
@@ -1074,6 +1079,16 @@ export class App {
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
     initialDate: this.calendarJumpMonth() ?? undefined,
+    buttonIcons: false as const,
+    buttonText: {
+      today: 'Today',
+      month: 'Month',
+      week: 'Week',
+      day: 'Day',
+      list: 'List',
+      prev: 'Previous',
+      next: 'Next',
+    },
     events: this.calendarItems().map(item => ({
       title: item.title,
       start: item.date,
@@ -1121,6 +1136,16 @@ export class App {
   protected readonly heroContent = this.cmsStore.hero;
   protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);
+  protected readonly browserTitle = computed(() => {
+    const siteTitle = this.pageTitle()?.trim() || App.DEFAULT_SITE_TITLE;
+    const featureTitle = this.currentFeaturePage()?.title?.trim();
+
+    if (!featureTitle || featureTitle === siteTitle) {
+      return `${siteTitle} | Official Website`;
+    }
+
+    return `${featureTitle} | ${siteTitle}`;
+  });
   protected readonly notices = this.cmsStore.notices;
   protected readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly contacts = this.cmsStore.contacts;
@@ -1284,6 +1309,16 @@ export class App {
   );
   protected readonly currentFeaturePage = computed<FeaturePage | null>(() => {
     return this.featurePages().find((page) => page.href === this.currentPath()) ?? null;
+  });
+  private readonly pageViewLoggingEffect = effect(() => {
+    const path = this.currentPath();
+    const fragment = this.currentFragment();
+    const title = this.currentFeaturePage()?.title || this.pageTitle();
+
+    this.logging.pageView(path, fragment, title);
+  });
+  private readonly browserTitleEffect = effect(() => {
+    this.title.setTitle(this.browserTitle());
   });
   protected readonly meetings = computed(() => this.appCopy().meetings);
   protected readonly calendarItems = computed(() => {
@@ -1486,6 +1521,10 @@ export class App {
 
   protected updateSearch(query: string): void {
     this.searchQuery.set(query);
+  }
+
+  protected resolveAppLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {
+    return getAppRouteLink(href, defaultPath);
   }
 
   protected performSearch(event?: Event): void {

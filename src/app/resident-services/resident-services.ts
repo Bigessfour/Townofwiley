@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
 import { PaystarConnectionService } from '../payments/paystar-connection';
@@ -12,16 +14,28 @@ import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 type RequestType = 'records' | 'permit' | 'license' | 'clerk';
+type ServicePanelId = 'payment' | 'issue' | 'records';
 
 interface SelectOption<TValue extends string> {
   value: TValue;
   label: string;
 }
 
+interface ServicePanelOption {
+  id: ServicePanelId;
+  anchor: string;
+  meta: string;
+  title: string;
+  summary: string;
+  icon: string;
+}
+
 interface ResidentServicesCopy {
   sectionKicker: string;
   sectionTitle: string;
   sectionBody: string;
+  taskPickerLabel: string;
+  taskPickerHelp: string;
   validationMessage: string;
   mailClientMessage: string;
   phoneFallbackLabel: string;
@@ -72,6 +86,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionTitle: 'Start the town tasks that still need a human follow-through',
     sectionBody:
       'These guided forms prepare the right email for the clerk or town operations so residents do not have to guess who to contact.',
+    taskPickerLabel: 'Choose a resident task',
+    taskPickerHelp:
+      'Pick the task you need first, then complete only that workflow instead of scanning through every town form.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
@@ -138,6 +155,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionTitle: 'Inicie los tramites del pueblo que todavia requieren seguimiento humano',
     sectionBody:
       'Estos formularios preparan el correo correcto para la secretaria o para operaciones del pueblo para que los residentes no tengan que adivinar a quien escribir.',
+    taskPickerLabel: 'Elija un tramite para residentes',
+    taskPickerHelp:
+      'Primero elija el tramite que necesita y luego complete solo ese flujo en lugar de revisar todos los formularios del pueblo.',
     validationMessage:
       'Complete los campos obligatorios para que el sitio pueda preparar el mensaje con los detalles correctos.',
     mailClientMessage:
@@ -226,7 +246,7 @@ type RecordsFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, TextareaModule],
+  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, SelectModule, TextareaModule],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -234,16 +254,49 @@ type RecordsFormGroup = FormGroup<{
 export class ResidentServices {
   readonly contacts = input<CmsContact[]>([]);
 
+  private readonly route = inject(ActivatedRoute);
   private readonly paystarConnection = inject(PaystarConnectionService);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly paystarRuntimeConfig = this.paystarConnection.getRuntimeConfig();
+  private readonly routeFragment = toSignal(this.route.fragment, { initialValue: null });
 
   protected readonly copy = computed(
     () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
+  protected readonly activeServicePanel = signal<ServicePanelId>('payment');
   protected readonly paymentStatus = signal<string | null>(null);
   protected readonly issueStatus = signal<string | null>(null);
   protected readonly recordsStatus = signal<string | null>(null);
+  protected readonly servicePanels = computed<ServicePanelOption[]>(() => {
+    const copy = this.copy();
+
+    return [
+      {
+        id: 'payment',
+        anchor: 'payment-help',
+        meta: copy.paymentMeta,
+        title: copy.paymentTitle,
+        summary: copy.paymentBody,
+        icon: copy.paymentIcon,
+      },
+      {
+        id: 'issue',
+        anchor: 'issue-report',
+        meta: copy.issueMeta,
+        title: copy.issueTitle,
+        summary: copy.issueBody,
+        icon: copy.issueIcon,
+      },
+      {
+        id: 'records',
+        anchor: 'records-request',
+        meta: copy.recordsMeta,
+        title: copy.recordsTitle,
+        summary: copy.recordsBody,
+        icon: copy.recordsIcon,
+      },
+    ];
+  });
 
   protected readonly paymentForm: PaymentFormGroup = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -331,6 +384,18 @@ export class ResidentServices {
   protected readonly recordsMailtoHref = computed(() => this.buildRecordsMailtoHref());
 
   constructor() {
+    effect(() => {
+      const fragment = this.routeFragment();
+
+      if (fragment === 'issue-report') {
+        this.activeServicePanel.set('issue');
+      } else if (fragment === 'records-request') {
+        this.activeServicePanel.set('records');
+      } else if (fragment === 'payment-help') {
+        this.activeServicePanel.set('payment');
+      }
+    });
+
     this.paymentForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.paymentStatus.set(null);
     });
@@ -342,6 +407,10 @@ export class ResidentServices {
     this.recordsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.recordsStatus.set(null);
     });
+  }
+
+  protected selectServicePanel(panelId: ServicePanelId): void {
+    this.activeServicePanel.set(panelId);
   }
 
   protected openPaymentMailto(event: Event): void {

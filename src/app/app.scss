@@ -913,6 +913,32 @@ h3 {
   margin-top: 1rem;
 }
 
+.calendar-panel .p-tablist {
+  gap: 0.45rem;
+  padding: 0.35rem;
+  border: 1px solid rgba(19, 59, 99, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.calendar-panel .p-tab {
+  border-radius: 999px;
+  color: var(--ink-900);
+  font-weight: 700;
+}
+
+.calendar-panel .p-tab:hover,
+.calendar-panel .p-tab:focus-visible {
+  background: rgba(19, 59, 99, 0.08);
+  color: var(--ink-900);
+}
+
+.calendar-panel .p-tab[data-p-active='true'] {
+  background: linear-gradient(135deg, rgba(19, 59, 99, 0.98), rgba(41, 66, 95, 0.94));
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
+}
+
 .calendar-header {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(19rem, 0.95fr);

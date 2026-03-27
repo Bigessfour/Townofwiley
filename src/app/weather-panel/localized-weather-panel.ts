@@ -7,6 +7,11 @@ import {
     output,
     signal,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -22,6 +27,11 @@ const DEFAULT_ALERT_LANGUAGE = 'en';
 type AlertLanguage = 'en' | 'es';
 type AlertSignupChannel = 'email' | 'sms';
 type AlertSignupFeedbackTone = 'success' | 'error';
+
+interface SelectOption<TValue extends string> {
+  label: string;
+  value: TValue;
+}
 
 interface RuntimeAlertSignupConfig {
   enabled: boolean;
@@ -320,7 +330,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [],
+  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -351,6 +361,14 @@ export class LocalizedWeatherPanel {
   protected readonly weatherSourceLabel = computed(() => {
     return this.weatherConfig.apiEndpoint ? this.copy().sourceProxy : this.copy().sourceDirect;
   });
+  protected readonly alertSignupChannelOptions = computed<SelectOption<AlertSignupChannel>[]>(() => [
+    { label: this.copy().sms, value: 'sms' },
+    { label: this.copy().email, value: 'email' },
+  ]);
+  protected readonly alertSignupLanguageOptions = computed<SelectOption<AlertLanguage>[]>(() => [
+    { label: this.copy().optionEnglish, value: 'en' },
+    { label: this.copy().optionSpanish, value: 'es' },
+  ]);
   protected readonly locationLabel = signal('Wiley, CO');
   protected readonly updatedAtState = signal<string | null>(null);
   protected readonly isLoading = signal(true);

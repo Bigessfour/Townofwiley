@@ -7,9 +7,9 @@
   display: grid;
   gap: 0.9rem;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(12, 31, 56, 0.96), rgba(21, 48, 82, 0.94));
 }
 .assistant-launch-panel {
   display: grid;
@@ -17,7 +17,7 @@
   padding: 0.95rem;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
 }
 .assistant-launch-link {
   display: inline-flex;
@@ -142,7 +142,7 @@
   padding: 0.95rem;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .assistant-thread-header {
@@ -184,7 +184,7 @@
   gap: 0.55rem;
   padding: 0.9rem 1rem;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .assistant-message.is-user {
@@ -203,7 +203,7 @@
   padding: 0.95rem;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .assistant-entry-row {
@@ -232,10 +232,11 @@
 .assistant-links a:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.6);
   outline-offset: 3px;
-  .assistant-launch-link:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.6);
-    outline-offset: 3px;
-  }
+}
+
+.assistant-launch-link:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 3px;
 }
 
 @media (max-width: 720px) {

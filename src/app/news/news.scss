@@ -2,31 +2,85 @@
   display: block;
 }
 
-.news-page {
-  max-width: 1200px;
+.public-page {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1rem 3rem;
 }
 
-h1 {
-  color: var(--civic-blue, #003087);
+.public-page-header,
+.news-section,
+.news-section-header,
+.featured-news-card,
+.featured-news-copy {
+  display: grid;
+  gap: 0.9rem;
 }
 
-p-card {
-  height: 100%;
-  box-shadow: var(--surface-shadow-1, 0 1px 3px rgba(0,0,0,0.1));
+.public-page-header {
+  max-width: 56rem;
 }
 
-p-card .p-card-header {
+.public-page-header h1,
+.featured-news-card h2,
+.news-card h3 {
+  margin: 0;
+  color: var(--ink-900);
+}
+
+.public-page-copy,
+.featured-news-copy p,
+.public-card-copy,
+.featured-news-date {
+  margin: 0;
+  line-height: 1.65;
+  color: var(--ink-700);
+}
+
+.featured-news-card {
   padding: 1.5rem;
-  border-bottom: 1px solid var(--surface-200, #e5e7eb);
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 241, 231, 0.94));
+  box-shadow: var(--surface-shadow-lift);
 }
 
-p-card .p-card-content {
-  padding: 1.5rem;
+.news-section-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
 }
 
-p-card .p-card-footer {
-  padding: 1.5rem;
-  border-top: 1px solid var(--surface-200, #e5e7eb);
+.public-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.public-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(13, 44, 84, 0.1);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
+  box-shadow: var(--surface-shadow-soft);
+}
+
+.news-card--external {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(238, 244, 251, 0.92));
+}
+
+.public-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .public-card-grid,
+  .news-section-header {
+    grid-template-columns: 1fr;
+  }
 }

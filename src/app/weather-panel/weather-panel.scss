@@ -286,6 +286,12 @@
   background: rgba(13, 44, 84, 0.05);
 }
 
+.weather-signup-field p-select,
+.weather-signup-status-message,
+.weather-signup-submit {
+  width: 100%;
+}
+
 .weather-signup-status {
   padding: 0.85rem 0.95rem;
   border-radius: 16px;
@@ -377,13 +383,24 @@
   outline-offset: 3px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1240px) {
   .weather-grid {
     flex-direction: column;
   }
 
   .weather-period-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .weather-period-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weather-header,
+  .weather-alerts-header {
+    flex-direction: column;
   }
 }
 

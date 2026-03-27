@@ -32,19 +32,35 @@
       <div class="accessibility-report-grid">
         <label class="accessibility-field">
           <span>{{ copy().nameLabel }}</span>
-          <input type="text" formControlName="name" autocomplete="name" />
+          <input pInputText type="text" formControlName="name" autocomplete="name" />
         </label>
         <label class="accessibility-field">
           <span>{{ copy().contactLabel }}</span>
-          <input type="text" formControlName="preferredContact" autocomplete="email" />
+          <input
+            pInputText
+            type="text"
+            formControlName="preferredContact"
+            autocomplete="email"
+            [invalid]="reportForm.controls.preferredContact.invalid && reportForm.controls.preferredContact.touched"
+          />
         </label>
         <label class="accessibility-field accessibility-field--wide">
           <span>{{ copy().pageLabel }}</span>
-          <input type="text" formControlName="pageOrDocument" />
+          <input
+            pInputText
+            type="text"
+            formControlName="pageOrDocument"
+            [invalid]="reportForm.controls.pageOrDocument.invalid && reportForm.controls.pageOrDocument.touched"
+          />
         </label>
         <label class="accessibility-field accessibility-field--wide">
           <span>{{ copy().detailsLabel }}</span>
-          <textarea rows="4" formControlName="details"></textarea>
+          <textarea
+            pTextarea
+            rows="4"
+            formControlName="details"
+            [invalid]="reportForm.controls.details.invalid && reportForm.controls.details.touched"
+          ></textarea>
         </label>
       </div>
 
@@ -58,7 +74,11 @@
           {{ copy().actionLabel }}
         </a>
         @if (status(); as status) {
-          <p class="accessibility-status" aria-live="polite">{{ status }}</p>
+          <p-message
+            class="accessibility-status-message"
+            [severity]="statusTone()"
+            [text]="status"
+          />
         }
       </div>
     </form>

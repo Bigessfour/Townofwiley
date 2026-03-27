@@ -7,8 +7,30 @@
     </div>
   </div>
 
-  <div class="resident-services-grid">
-    <p-card class="resident-service-card" id="payment-help">
+  <section class="resident-service-picker" [attr.aria-label]="copy().taskPickerLabel">
+    <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
+    <div class="resident-service-toggle-grid">
+      @for (panel of servicePanels(); track panel.id) {
+        <button
+          type="button"
+          class="resident-service-toggle"
+          [class.is-active]="activeServicePanel() === panel.id"
+          [attr.aria-pressed]="activeServicePanel() === panel.id"
+          (click)="selectServicePanel(panel.id)"
+        >
+          <i [class]="'pi ' + panel.icon" aria-hidden="true"></i>
+          <span class="resident-service-toggle-copy">
+            <strong>{{ panel.title }}</strong>
+            <small>{{ panel.meta }}</small>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <div class="resident-services-stage">
+    @if (activeServicePanel() === 'payment') {
+    <p-card class="resident-service-card resident-service-card--active" id="payment-help">
       <p class="meta-label">{{ copy().paymentMeta }}</p>
       <i [class]="'pi ' + copy().paymentIcon" aria-hidden="true"></i>
       <h3>{{ copy().paymentTitle }}</h3>
@@ -73,8 +95,8 @@
         </div>
       </form>
     </p-card>
-
-    <p-card class="resident-service-card" id="issue-report">
+    } @else if (activeServicePanel() === 'issue') {
+    <p-card class="resident-service-card resident-service-card--active" id="issue-report">
       <p class="meta-label">{{ copy().issueMeta }}</p>
       <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
       <h3>{{ copy().issueTitle }}</h3>
@@ -97,11 +119,14 @@
         <div class="resident-form-grid">
           <label for="issue-category" class="resident-field">
             <span>{{ copy().issueCategoryLabel }}</span>
-            <select id="issue-category" formControlName="category">
-              @for (category of copy().issueCategories; track category.value) {
-                <option [value]="category.value">{{ category.label }}</option>
-              }
-            </select>
+            <p-select
+              inputId="issue-category"
+              formControlName="category"
+              [options]="copy().issueCategories"
+              optionLabel="label"
+              optionValue="value"
+              fluid
+            />
           </label>
           <label for="issue-name" class="resident-field">
             <span>{{ copy().issueNameLabel }}</span>
@@ -136,8 +161,8 @@
         </div>
       </form>
     </p-card>
-
-    <p-card class="resident-service-card" id="records-request">
+    } @else {
+    <p-card class="resident-service-card resident-service-card--active" id="records-request">
       <p class="meta-label">{{ copy().recordsMeta }}</p>
       <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
       <h3>{{ copy().recordsTitle }}</h3>
@@ -160,11 +185,14 @@
         <div class="resident-form-grid">
           <label for="records-type" class="resident-field">
             <span>{{ copy().recordsTypeLabel }}</span>
-            <select id="records-type" formControlName="requestType">
-              @for (requestType of copy().requestTypes; track requestType.value) {
-                <option [value]="requestType.value">{{ requestType.label }}</option>
-              }
-            </select>
+            <p-select
+              inputId="records-type"
+              formControlName="requestType"
+              [options]="copy().requestTypes"
+              optionLabel="label"
+              optionValue="value"
+              fluid
+            />
           </label>
           <label for="records-name" class="resident-field">
             <span>{{ copy().recordsNameLabel }}</span>
@@ -199,5 +227,6 @@
         </div>
       </form>
     </p-card>
+    }
   </div>
 </section>

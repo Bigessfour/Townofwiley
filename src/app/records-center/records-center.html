@@ -9,7 +9,13 @@
         <p class="meta-label">{{ guide.kicker }}</p>
         <h4 id="guide-{{ guide.id }}">{{ guide.title }}</h4>
         <p>{{ guide.detail }}</p>
-        <a class="records-guide-link" [attr.href]="guide.href" role="button">{{ guide.cta }}</a>
+        @if (resolveAppLink(guide.href); as guideLink) {
+          @if (guideLink.isInternal) {
+            <a class="records-guide-link" [routerLink]="guideLink.path" [fragment]="guideLink.fragment">{{ guide.cta }}</a>
+          } @else {
+            <a class="records-guide-link" [attr.href]="guideLink.href">{{ guide.cta }}</a>
+          }
+        }
       </article>
     }
   </div>
