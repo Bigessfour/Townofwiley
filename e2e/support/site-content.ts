@@ -54,8 +54,8 @@ export const siteContent = {
     alerts: 'Sign up for text or email alerts',
     calendar: 'Open the full town calendar',
     topTasks: 'Quick Tasks',
-    languageEs: 'Español',
-    languageEn: 'English',
+    languageEs: 'ES',
+    languageEn: 'EN',
     visitWebsite: 'Visit Website',
   },
   expectedStyles: {

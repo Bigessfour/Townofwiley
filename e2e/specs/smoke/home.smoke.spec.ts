@@ -7,7 +7,7 @@ test.describe('homepage smoke', () => {
 
     await expect(homePage.page).toHaveTitle(siteContent.documentTitle);
     await expect(homePage.heroHeading).toContainText(siteContent.heading);
-    await expect(homePage.page.locator('.hero-utility-card')).toBeVisible();
+    await expect(homePage.searchInput).toBeVisible();
     await expect(homePage.featureCards).toHaveCount(6);
     await expect(homePage.topTaskCards).toHaveCount(4);
     await expect(homePage.page.locator('.feature-grid .feature-card[href="/weather"]')).toContainText(
@@ -62,6 +62,7 @@ test.describe('homepage smoke', () => {
     await homePage.page.locator('.feature-grid .feature-card[href="/meetings"]').click();
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.meetingCards).toHaveCount(3);
+    await homePage.page.getByRole('tab', { name: 'Event list' }).click();
     await expect(homePage.page.locator('.calendar-table')).toBeVisible();
 
     await homePage.goto();
@@ -138,7 +139,7 @@ test.describe('homepage smoke', () => {
     await homePage.goto();
 
     await homePage.page.locator('#site-search').fill('budget summaries');
-    await homePage.page.locator('.search-submit').click();
+    await homePage.page.locator('#search-panel .search-submit').click();
 
     await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
     await expect(homePage.page.locator('#financial-documents')).toContainText(

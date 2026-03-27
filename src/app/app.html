@@ -58,7 +58,7 @@
           @if (primaryContact(); as primaryContact) {
             @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryContactLink) {
               @if (primaryContactLink.isInternal) {
-                <a [routerLink]="primaryContactLink.path" [fragment]="primaryContactLink.fragment" class="header-meta-link button-cta button-cta--light">
+                <a [attr.href]="primaryContactLink.href" class="header-meta-link button-cta button-cta--light">
                   <strong>{{ primaryContact.label }}</strong>
                   <span>{{ primaryContact.value }}</span>
                 </a>
@@ -70,11 +70,11 @@
               }
             }
           }
-          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
+          <a href="/meetings#calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().meetingsKicker }}</strong>
             <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
-          <a routerLink="/" fragment="top-tasks" class="header-meta-link button-cta button-cta--light">
+          <a href="/#top-tasks" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().topTasksKicker }}</strong>
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
@@ -149,59 +149,13 @@
 
           <h1 id="site-hero-title">{{ pageTitle() }}</h1>
           <p class="message">{{ heroContent().message }}</p>
-          <p class="subtext">{{ heroContent().subtext }}</p>
         </section>
 
-        <p-card class="hero-utility-card" aria-labelledby="welcome-hero-heading">
-          <header class="hero-utility-header">
-            <p class="section-kicker">{{ appCopy().contactKicker }}</p>
-            <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
+        <p-card class="hero-search-card" aria-labelledby="site-search-heading">
+          <header class="hero-search-header">
+            <p class="section-kicker">{{ appCopy().searchKicker }}</p>
+            <h2 id="site-search-heading">{{ appCopy().searchHeading }}</h2>
           </header>
-
-          <div class="hero-utility-links grid gap-4">
-            @if (primaryContact(); as primaryContact) {
-              @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryHeroContactLink) {
-                @if (primaryHeroContactLink.isInternal) {
-                  <a class="hero-contact-link" [routerLink]="primaryHeroContactLink.path" [fragment]="primaryHeroContactLink.fragment">
-                    <span>{{ primaryContact.label }}</span>
-                    <strong>{{ primaryContact.value }}</strong>
-                  </a>
-                } @else {
-                  <a class="hero-contact-link" [attr.href]="primaryHeroContactLink.href">
-                    <span>{{ primaryContact.label }}</span>
-                    <strong>{{ primaryContact.value }}</strong>
-                  </a>
-                }
-              }
-            }
-
-            @if (clerkContact(); as clerkContact) {
-              @if (resolveAppLink(clerkContact.href ?? '/contact'); as clerkHeroContactLink) {
-                @if (clerkHeroContactLink.isInternal) {
-                  <a class="hero-contact-link" [routerLink]="clerkHeroContactLink.path" [fragment]="clerkHeroContactLink.fragment">
-                    <span>{{ clerkContact.label }}</span>
-                    <strong>{{ clerkContact.linkLabel ?? clerkContact.value }}</strong>
-                  </a>
-                } @else {
-                  <a class="hero-contact-link" [attr.href]="clerkHeroContactLink.href">
-                    <span>{{ clerkContact.label }}</span>
-                    <strong>{{ clerkContact.linkLabel ?? clerkContact.value }}</strong>
-                  </a>
-                }
-              }
-            }
-          </div>
-
-          <footer class="hero-utility-actions flex flex-wrap items-center gap-3">
-            <a class="button-cta button-cta--light" routerLink="/meetings" fragment="calendar">
-              {{ appCopy().openCalendarLabel }}
-            </a>
-            <button class="button-cta button-cta--solid hero-alert-button" type="button" (click)="openSignup()">
-              {{ appCopy().alertActionLabel }}
-            </button>
-          </footer>
-
-          <p-divider styleClass="hero-utility-divider" />
 
           <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
           <form class="search-form grid gap-4" id="search-panel" (submit)="performSearch($event)">
@@ -260,11 +214,7 @@
 
     <nav class="section-nav mx-auto flex max-w-[1240px] flex-wrap gap-3 px-4 pb-4" [attr.aria-label]="appCopy().homepageSectionsAriaLabel" data-testid="homepage-section-nav">
       @for (link of navLinks(); track link.label) {
-        @if (link.href.startsWith('#')) {
-          <a routerLink="/" [fragment]="link.href.slice(1)"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
-        } @else {
-          <a [routerLink]="link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
-        }
+        <a [attr.href]="link.href.startsWith('#') ? '/' + link.href : link.href"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
       }
     </nav>
 
@@ -868,19 +818,11 @@
         <section class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Town feature pages">
           @for (feature of homepageFeaturePages(); track feature.id) {
             @if (resolveAppLink(feature.href); as featureLink) {
-              @if (featureLink.isInternal) {
-                <a class="feature-card" [routerLink]="featureLink.path" [fragment]="featureLink.fragment">
-                  <p class="meta-label">{{ feature.kicker }}</p>
-                  <strong>{{ feature.title }}</strong>
-                  <span>{{ feature.summary }}</span>
-                </a>
-              } @else {
-                <a class="feature-card" [attr.href]="featureLink.href">
-                  <p class="meta-label">{{ feature.kicker }}</p>
-                  <strong>{{ feature.title }}</strong>
-                  <span>{{ feature.summary }}</span>
-                </a>
-              }
+              <a class="feature-card" [attr.href]="featureLink.href">
+                <p class="meta-label">{{ feature.kicker }}</p>
+                <strong>{{ feature.title }}</strong>
+                <span>{{ feature.summary }}</span>
+              </a>
             }
           }
         </section>
@@ -897,23 +839,15 @@
           <section class="support-link-grid grid gap-4 md:grid-cols-2" aria-label="Quick resident links">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
-                @if (supportContactLink.isInternal) {
-                  <a class="feature-card support-link-card" [routerLink]="supportContactLink.path" [fragment]="supportContactLink.fragment">
-                    <p class="meta-label">{{ primaryContact.label }}</p>
-                    <strong>{{ primaryContact.value }}</strong>
-                    <span>{{ appCopy().contactHeading }}</span>
-                  </a>
-                } @else {
-                  <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
-                    <p class="meta-label">{{ primaryContact.label }}</p>
-                    <strong>{{ primaryContact.value }}</strong>
-                    <span>{{ appCopy().contactHeading }}</span>
-                  </a>
-                }
+                <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
+                  <p class="meta-label">{{ primaryContact.label }}</p>
+                  <strong>{{ primaryContact.value }}</strong>
+                  <span>{{ appCopy().contactHeading }}</span>
+                </a>
               }
             }
 
-            <a class="feature-card support-link-card" routerLink="/weather">
+            <a class="feature-card support-link-card" href="/weather">
               <p class="meta-label">{{ appCopy().nwsAlertLabel }}</p>
               <strong>{{ appCopy().alertActionLabel }}</strong>
               <span>Open forecast details and sign up for weather-sensitive updates.</span>
@@ -936,11 +870,7 @@
       <div class="footer-links">
         @for (link of appCopy().footerLinks; track link.label) {
           @if (resolveAppLink(link.href); as footerLink) {
-            @if (footerLink.isInternal) {
-              <a [routerLink]="footerLink.path" [fragment]="footerLink.fragment">{{ link.label }}</a>
-            } @else {
-              <a [attr.href]="footerLink.href">{{ link.label }}</a>
-            }
+            <a [attr.href]="footerLink.href">{{ link.label }}</a>
           }
         }
       </div>

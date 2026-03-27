@@ -43,5 +43,6 @@
   "chat.agent.enabled": true,
   "github.copilot.chat.tools.memory.enabled": true,
   "chat.useAgentsMdFile": true,
-  "github.copilot.chat.agent.thinkingTool": true
+  "github.copilot.chat.agent.thinkingTool": true,
+  "github.copilot.chat.agentDebugLog.fileLogging.enabled": true
 }

@@ -4,6 +4,7 @@ import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 test.describe('homepage weather', () => {
   test('elevates active Wiley alerts into the homepage warning banner', async ({ homePage }) => {
     await homePage.enableWeatherProxy('/mock-homepage-weather');
+    await homePage.enableAlertSignup('/mock-alert-signup');
 
     await mockWeatherProxyRoute(homePage.page, '/mock-homepage-weather', {
       locationLabel: 'Wiley, CO',

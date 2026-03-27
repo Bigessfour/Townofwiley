@@ -1,13 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -43,15 +43,15 @@ import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-  CmsAlertBanner,
-  CmsCalendarEvent,
-  CmsContact,
-  LocalizedCmsContentStore,
+    CmsAlertBanner,
+    CmsCalendarEvent,
+    CmsContact,
+    LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-  HomepageWeatherAlert,
-  LocalizedWeatherPanel,
+    HomepageWeatherAlert,
+    LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -294,8 +294,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     skipLinkLabel: 'Skip to main content',
     languageLabel: 'Site language',
     languageOptions: {
-      en: 'English',
-      es: 'Espanol',
+      en: 'EN',
+      es: 'ES',
     },
     siteAlertAriaLabel: 'Town alert banner',
     alertHeadline: 'Severe weather and service alerts for Wiley, 81092',
@@ -644,14 +644,34 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Publish an accessibility statement, provide a barrier-report form, and schedule recurring audits instead of treating accessibility as a one-time project.',
       },
     ],
-    leadershipGroups: [],
+    leadershipGroups: [
+      {
+        title: 'Mayor and Council',
+        detail:
+          'Elected leadership should be visible near meetings and contact paths so residents can quickly identify who represents them.',
+        members: [
+          'Mayor: Steve McKitrick',
+          'Councilman: Julie Esgar',
+          'Councilman: Dale Specht',
+          'Councilman: Dale Stewart',
+          'Councilman: Alan Campbell',
+          'Councilman: Sandy Coen',
+        ],
+      },
+      {
+        title: 'Town Administration',
+        detail:
+          'Administrative leaders should stay visible because small-town residents often need direct, role-based contacts rather than department directories.',
+        members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
+      },
+    ],
   },
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
     languageLabel: 'Idioma del sitio',
     languageOptions: {
-      en: 'English',
-      es: 'Espanol',
+      en: 'EN',
+      es: 'ES',
     },
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
     alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
@@ -1000,7 +1020,27 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Publique una declaracion de accesibilidad, ofrezca un formulario para reportar barreras y programe auditorias recurrentes en lugar de tratar la accesibilidad como un proyecto unico.',
       },
     ],
-    leadershipGroups: [],
+    leadershipGroups: [
+      {
+        title: 'Alcalde y concejo',
+        detail:
+          'El liderazgo electo debe verse cerca de reuniones y rutas de contacto para que los residentes identifiquen rapidamente quien los representa.',
+        members: [
+          'Alcalde: Steve McKitrick',
+          'Concejal: Julie Esgar',
+          'Concejal: Dale Specht',
+          'Concejal: Dale Stewart',
+          'Concejal: Alan Campbell',
+          'Concejal: Sandy Coen',
+        ],
+      },
+      {
+        title: 'Administracion del pueblo',
+        detail:
+          'Los lideres administrativos deben seguir visibles porque los residentes de pueblos pequenos suelen necesitar contactos directos por funcion y no directorios por departamento.',
+        members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
+      },
+    ],
   },
 };
 
@@ -1209,13 +1249,12 @@ export class App {
         ? {
             label: link.label,
             icon: link.icon,
-            routerLink: '/',
-            fragment: link.href.slice(1),
+            url: `/${link.href}`,
           }
         : {
             label: link.label,
             icon: link.icon,
-            routerLink: link.href,
+            url: link.href,
           }
     )
   );
