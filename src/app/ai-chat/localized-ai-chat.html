@@ -1,5 +1,5 @@
-<section class="assistant-shell" aria-labelledby="assistant-heading">
-  <div class="assistant-intro">
+<section class="assistant-shell grid gap-4 p-4" aria-labelledby="assistant-heading">
+  <div class="assistant-intro grid gap-2">
     <p class="assistant-kicker">{{ copy().kicker }}</p>
     <h3 id="assistant-heading">{{ copy().title }}</h3>
     <p class="assistant-copy">{{ copy().intro }}</p>
@@ -9,10 +9,10 @@
   </div>
 
   @if (isConfigured) {
-    <div class="assistant-form">
+    <div class="assistant-form grid gap-2 rounded-[20px] p-[0.95rem]">
       <label class="assistant-label" for="assistant-question">{{ copy().questionLabel }}</label>
       <p class="assistant-helper">{{ copy().helper }}</p>
-      <div class="assistant-entry-row">
+      <div class="assistant-entry-row grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <input
           pInputText
           id="assistant-question"
@@ -34,7 +34,7 @@
       </div>
     </div>
   } @else if (isEmbedConfigured) {
-    <div class="assistant-launch-panel">
+    <div class="assistant-launch-panel grid gap-3 rounded-[20px] p-[0.95rem]">
       <p class="assistant-helper">{{ copy().embedHelper }}</p>
       @if (hasDirectChatLink) {
         <a
@@ -49,11 +49,11 @@
     </div>
   }
 
-  <div class="assistant-window">
+  <div class="assistant-window grid gap-4">
     @if (isConfigured) {
-      <div class="assistant-prompts-shell">
+      <div class="assistant-prompts-shell grid gap-3 rounded-[20px] p-[0.95rem]">
         <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
-        <div class="assistant-prompts" [attr.aria-label]="copy().promptsAriaLabel">
+        <div class="assistant-prompts flex flex-wrap gap-2" [attr.aria-label]="copy().promptsAriaLabel">
           @for (prompt of starterPrompts(); track prompt) {
             <p-chip
               [label]="prompt"
@@ -65,8 +65,8 @@
       </div>
     }
 
-    <div class="assistant-thread">
-      <div class="assistant-thread-header">
+    <div class="assistant-thread grid gap-3 rounded-[20px] p-[0.95rem]">
+      <div class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="assistant-thread-kicker">{{ copy().conversationKicker }}</p>
           <h4 class="assistant-thread-title">{{ copy().conversationTitle }}</h4>
@@ -76,16 +76,16 @@
         </p>
       </div>
 
-      <p-scrollPanel #messagesContainer styleClass="assistant-messages" [style.height]="'300px'">
+      <p-scrollPanel #messagesContainer styleClass="assistant-messages grid gap-3 overflow-y-auto pr-1" [style.height]="'300px'">
         @for (message of messages(); track $index) {
-          <article class="assistant-message" [class.is-user]="message.role === 'user'">
+          <article class="assistant-message grid gap-2 rounded-[20px] p-[0.9rem_1rem]" [class.is-user]="message.role === 'user'">
             <span class="assistant-role">{{
               message.role === 'user' ? copy().userRole : copy().assistantRole
             }}</span>
             <p>{{ message.content }}</p>
 
             @if (message.links?.length) {
-              <div class="assistant-links">
+              <div class="assistant-links flex flex-wrap gap-2">
                 @for (link of message.links; track link.href) {
                   @if (resolveAppLink(link.href); as assistantLink) {
                     @if (assistantLink.isInternal) {

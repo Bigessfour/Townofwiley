@@ -1,21 +1,21 @@
-<section class="accessibility-support-grid">
-  <article class="accessibility-statement-card">
+<section class="accessibility-support-grid grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+  <article class="accessibility-statement-card grid gap-4 p-5 rounded-2xl">
     <p class="meta-label">{{ copy().statementKicker }}</p>
     <h3>{{ copy().statementTitle }}</h3>
     <p>{{ copy().statementBody }}</p>
-    <ul class="accessibility-support-list">
+    <ul class="accessibility-support-list grid gap-2.5 pl-5">
       @for (commitment of copy().statementCommitments; track commitment) {
         <li>{{ commitment }}</li>
       }
     </ul>
   </article>
 
-  <article class="accessibility-report-card" id="barrier-report">
+  <article class="accessibility-report-card grid gap-4 p-5 rounded-2xl" id="barrier-report">
     <p class="meta-label">{{ copy().reportKicker }}</p>
     <h3>{{ copy().reportTitle }}</h3>
     <p>{{ copy().reportBody }}</p>
 
-    <section class="accessibility-contact-row">
+    <section class="accessibility-contact-row flex flex-wrap gap-2">
       @if (townHallPhoneHref()) {
         <a class="accessibility-contact-link" [attr.href]="townHallPhoneHref()">
           {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
@@ -28,9 +28,9 @@
       }
     </section>
 
-    <form class="accessibility-report-form" [formGroup]="reportForm">
-      <section class="accessibility-report-grid">
-        <label class="accessibility-field">
+    <form class="accessibility-report-form grid gap-4" [formGroup]="reportForm">
+      <section class="accessibility-report-grid grid gap-3 lg:grid-cols-2">
+        <label class="accessibility-field grid gap-1">
           <span>{{ copy().nameLabel }}</span>
           <input pInputText type="text" formControlName="name" autocomplete="name" />
         </label>
@@ -44,7 +44,7 @@
             [invalid]="reportForm.controls.preferredContact.invalid && reportForm.controls.preferredContact.touched"
           />
         </label>
-        <label class="accessibility-field accessibility-field--wide">
+        <label class="accessibility-field accessibility-field--wide grid gap-1">
           <span>{{ copy().pageLabel }}</span>
           <input
             pInputText
@@ -53,7 +53,7 @@
             [invalid]="reportForm.controls.pageOrDocument.invalid && reportForm.controls.pageOrDocument.touched"
           />
         </label>
-        <label class="accessibility-field accessibility-field--wide">
+        <label class="accessibility-field accessibility-field--wide grid gap-1">
           <span>{{ copy().detailsLabel }}</span>
           <textarea
             pTextarea
@@ -64,7 +64,7 @@
         </label>
       </section>
 
-      <footer class="accessibility-action-row">
+      <footer class="accessibility-action-row grid gap-3">
         <a
           class="accessibility-action"
           [class.is-disabled]="!accessibilityMailtoHref()"

@@ -1,17 +1,17 @@
-<section class="weather-panel panel" aria-labelledby="weather-heading">
-  <header class="weather-header">
-    <section class="weather-header-copy">
+<section class="weather-panel panel grid gap-6" aria-labelledby="weather-heading">
+  <header class="weather-header flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+    <section class="weather-header-copy grid gap-3">
       <p class="section-kicker">{{ copy().sectionKicker }}</p>
       <h2 id="weather-heading">{{ copy().headingPrefix }} {{ locationLabel() }}</h2>
       <p class="weather-copy">{{ copy().intro }}</p>
     </section>
 
-    <section class="weather-header-actions">
+    <section class="weather-header-actions grid gap-3">
       <p class="weather-source">{{ weatherSourceLabel() }}</p>
       @if (updatedLabel()) {
         <p class="weather-updated">{{ copy().updatedPrefix }} {{ updatedLabel() }}</p>
       }
-      <section class="weather-action-row">
+      <section class="weather-action-row flex flex-wrap gap-3">
         <button
           type="button"
           class="weather-action"
@@ -39,11 +39,11 @@
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
     }
 
-    <section class="weather-grid">
-      <section class="weather-forecast" aria-labelledby="weather-current-heading">
+    <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
+      <section class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]" aria-labelledby="weather-current-heading">
         @if (currentPeriod(); as period) {
-          <article class="weather-current-card" [class.is-night]="!period.isDaytime" data-testid="weather-current-card">
-            <header class="weather-current-topline">
+          <article class="weather-current-card grid gap-4" [class.is-night]="!period.isDaytime" data-testid="weather-current-card">
+            <header class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <section>
                 <p class="meta-label">{{ period.name }}</p>
                 <h3 id="weather-current-heading">{{ period.shortForecast }}</h3>
@@ -57,7 +57,7 @@
 
             <p class="weather-detail">{{ period.detailedForecast }}</p>
 
-            <dl class="weather-metrics">
+            <dl class="weather-metrics flex flex-wrap gap-3">
               <div>
                 <dt>{{ copy().windLabel }}</dt>
                 <dd>{{ period.windLabel }}</dd>
@@ -70,10 +70,10 @@
           </article>
         }
 
-        <div class="weather-period-grid">
+        <div class="weather-period-grid grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           @for (period of upcomingPeriods(); track period.name) {
-            <article class="weather-period-card" [class.is-night]="!period.isDaytime">
-              <header class="weather-period-heading">
+            <article class="weather-period-card grid gap-2" [class.is-night]="!period.isDaytime">
+              <header class="weather-period-heading flex items-center justify-between gap-3">
                 <p class="meta-label">{{ period.name }}</p>
                 <strong>{{ period.temperatureLabel }}</strong>
               </header>
@@ -85,8 +85,8 @@
         </div>
       </section>
 
-      <aside class="weather-alerts" aria-labelledby="weather-alerts-heading">
-        <header class="weather-alerts-header">
+      <aside class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]" aria-labelledby="weather-alerts-heading">
+        <header class="weather-alerts-header flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <section>
             <p class="meta-label">{{ copy().alertsKicker }}</p>
             <h3 id="weather-alerts-heading">{{ copy().alertsHeading }}</h3>
@@ -97,10 +97,10 @@
         </header>
 
         @if (hasAlerts()) {
-          <section class="weather-alert-list">
+          <section class="weather-alert-list grid gap-3">
             @for (alert of weatherAlerts(); track alert.event + alert.headline) {
-              <article class="weather-alert-card">
-                <header class="weather-alert-meta">
+              <article class="weather-alert-card grid gap-2">
+                <header class="weather-alert-meta flex flex-wrap items-baseline justify-between gap-3">
                   <strong>{{ alert.event }}</strong>
                   <span>{{ alert.severity }} · {{ alert.urgency }}</span>
                 </header>
@@ -123,15 +123,15 @@
 
         @if (isAlertSignupEnabled()) {
           <section class="weather-signup-shell" aria-labelledby="weather-signup-heading" data-testid="weather-signup-shell">
-            <header class="weather-signup-copy">
+            <header class="weather-signup-copy grid gap-2">
               <p class="meta-label">{{ copy().residentAlertsKicker }}</p>
               <h4 id="weather-signup-heading">{{ copy().residentAlertsHeading }}</h4>
               <p>{{ copy().residentAlertsBody }}</p>
             </header>
 
-            <form class="weather-signup-form" (submit)="submitAlertSignup($event)">
-              <section class="weather-signup-grid">
-                <label class="weather-signup-field" for="weather-alert-signup-channel">
+            <form class="weather-signup-form grid gap-4" (submit)="submitAlertSignup($event)">
+              <section class="weather-signup-grid grid gap-3 sm:grid-cols-2">
+                <label class="weather-signup-field grid gap-1" for="weather-alert-signup-channel">
                   <span>{{ copy().notificationMethod }}</span>
                   <p-select
                     inputId="weather-alert-signup-channel"
@@ -146,7 +146,7 @@
                   />
                 </label>
 
-                <label class="weather-signup-field" for="weather-alert-signup-destination">
+                <label class="weather-signup-field grid gap-1" for="weather-alert-signup-destination">
                   <span>{{ alertSignupDestinationLabel() }}</span>
                   <input
                     pInputText
@@ -163,7 +163,7 @@
                   />
                 </label>
 
-                <label class="weather-signup-field" for="weather-alert-signup-language">
+                <label class="weather-signup-field grid gap-1" for="weather-alert-signup-language">
                   <span>{{ copy().alertLanguage }}</span>
                   <p-select
                     inputId="weather-alert-signup-language"
@@ -178,7 +178,7 @@
                   />
                 </label>
 
-                <label class="weather-signup-field" for="weather-alert-signup-full-name">
+                <label class="weather-signup-field grid gap-1" for="weather-alert-signup-full-name">
                   <span>{{ copy().fullName }}</span>
                   <input
                     pInputText
@@ -192,7 +192,7 @@
                   />
                 </label>
 
-                <label class="weather-signup-field" for="weather-alert-signup-zip-code">
+                <label class="weather-signup-field grid gap-1" for="weather-alert-signup-zip-code">
                   <span>{{ copy().zipCode }}</span>
                   <input
                     pInputText
@@ -233,7 +233,7 @@
           </section>
         }
 
-        <footer class="weather-link-row">
+        <footer class="weather-link-row flex justify-start">
           <a
             class="text-link"
             [attr.href]="forecastMapsUrl"

@@ -54,7 +54,7 @@
         <span class="utility-pill font-semibold">{{ heroContent().status }}</span>
       </ng-template>
       <ng-template pTemplate="end">
-        <div class="header-utility-links flex align-items-center gap-3">
+        <div class="header-utility-links flex flex-wrap items-center justify-end gap-3">
           @if (primaryContact(); as primaryContact) {
             @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryContactLink) {
               @if (primaryContactLink.isInternal) {
@@ -107,7 +107,7 @@
             outlined="true"
             size="small"
           />
-          <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
+          <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
             <span class="site-language-label">{{ appCopy().languageLabel }}</span>
             <p-selectbutton
               class="site-language-toggle"
@@ -136,8 +136,8 @@
       <div class="hero-landing-scrim"></div>
 
       <article class="hero-landing-inner">
-        <section class="hero-landing-copy">
-          <header class="hero-lockup">
+        <section class="hero-landing-copy grid gap-4">
+          <header class="hero-lockup grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-1">
             <span class="hero-seal-shell" aria-hidden="true">
               <img class="hero-seal" ngSrc="/favicon.svg" alt="" width="56" height="56" />
             </span>
@@ -157,7 +157,7 @@
             <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
           </header>
 
-          <div class="hero-utility-links">
+          <div class="hero-utility-links grid gap-4">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryHeroContactLink) {
                 @if (primaryHeroContactLink.isInternal) {
@@ -191,7 +191,7 @@
             }
           </div>
 
-          <footer class="hero-utility-actions">
+          <footer class="hero-utility-actions flex flex-wrap items-center gap-3">
             <a class="button-cta button-cta--light" routerLink="/meetings" fragment="calendar">
               {{ appCopy().openCalendarLabel }}
             </a>
@@ -203,8 +203,8 @@
           <p-divider styleClass="hero-utility-divider" />
 
           <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
-          <form class="search-form" id="search-panel" (submit)="performSearch($event)">
-            <p-inputgroup class="search-control-row">
+          <form class="search-form grid gap-4" id="search-panel" (submit)="performSearch($event)">
+            <p-inputgroup class="search-control-row flex gap-3">
               <p-inputtext
                 id="site-search"
                 class="search-input"
@@ -222,7 +222,7 @@
 
             @if (searchQuery().trim()) {
               @if (searchResults().length) {
-                <div class="search-results">
+                <div class="search-results grid gap-3">
                   @for (result of searchResults(); track result.href + result.title) {
                     @if (resolveAppLink(result.href); as searchResultLink) {
                       @if (searchResultLink.isInternal) {
@@ -254,7 +254,7 @@
       </article>
     </section>
 
-    <nav class="section-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel" data-testid="homepage-section-nav">
+    <nav class="section-nav mx-auto flex max-w-[1240px] flex-wrap gap-3 px-4 pb-4" [attr.aria-label]="appCopy().homepageSectionsAriaLabel" data-testid="homepage-section-nav">
       @for (link of navLinks(); track link.label) {
         @if (link.href.startsWith('#')) {
           <a routerLink="/" [fragment]="link.href.slice(1)"><i class="pi {{ link.icon }}"></i> {{ link.label }}</a>
@@ -680,8 +680,8 @@
         </section>
       }
     } @else {
-      <section class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
-        <header class="landing-section-header">
+      <section class="landing-shortcuts panel mx-auto grid gap-6" id="top-tasks" aria-labelledby="top-tasks-heading">
+        <header class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end">
           <div>
             <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
             <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
@@ -693,7 +693,7 @@
 
         <p-divider styleClass="section-divider" />
 
-        <section class="task-grid landing-task-grid" aria-label="Resident shortcuts">
+        <section class="task-grid landing-task-grid mt-0 grid gap-4 lg:grid-cols-2" aria-label="Resident shortcuts">
             @for (task of topTasks(); track task.title; let taskIndex = $index) {
               @if (resolveAppLink(task.href); as taskLink) {
                 @if (taskLink.isInternal) {
@@ -793,9 +793,9 @@
 
       </section>
 
-      <section class="content-grid landing-civic-grid">
+      <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">
         <p-card class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
-          <header class="landing-section-header">
+          <header class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end">
             <div>
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
               <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
@@ -803,7 +803,7 @@
             <a class="text-link" routerLink="/meetings" fragment="calendar">{{ appCopy().openCalendarLabel }}</a>
           </header>
 
-          <div class="stack-list">
+          <div class="stack-list grid gap-3">
             @for (meeting of meetings(); track meeting.title) {
               <article class="info-row meeting-card">
                 <strong>{{ meeting.title }}</strong>
@@ -830,7 +830,7 @@
         </p-card>
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
-          <header class="landing-section-header">
+          <header class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end">
             <div>
               <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
               <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
@@ -838,7 +838,7 @@
             <a class="text-link" routerLink="/notices">View all notices</a>
           </header>
 
-          <div class="notice-grid landing-notice-grid">
+          <div class="notice-grid landing-notice-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @for (notice of notices(); track notice.id) {
               <article class="notice-card">
                 <p class="meta-label">{{ notice.date }}</p>
@@ -850,8 +850,8 @@
         </p-card>
       </section>
 
-      <section class="feature-hub panel" aria-labelledby="feature-hub-heading">
-        <header class="feature-hub-header">
+      <section class="feature-hub panel grid gap-6" aria-labelledby="feature-hub-heading">
+        <header class="feature-hub-header grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end">
           <div>
             <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
             <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
@@ -861,7 +861,7 @@
 
         <p-divider styleClass="section-divider" />
 
-        <section class="feature-grid" aria-label="Town feature pages">
+        <section class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Town feature pages">
           @for (feature of homepageFeaturePages(); track feature.id) {
             @if (resolveAppLink(feature.href); as featureLink) {
               @if (featureLink.isInternal) {
@@ -882,7 +882,7 @@
         </section>
       </section>
 
-      <section class="support-strip">
+      <section class="support-strip grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]">
         <p-card class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
@@ -890,7 +890,7 @@
             Keep emergency alerts, meeting access, and Town Hall response paths one click away for residents under time pressure.
           </p>
 
-          <section class="support-link-grid" aria-label="Quick resident links">
+          <section class="support-link-grid grid gap-4 md:grid-cols-2" aria-label="Quick resident links">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
                 @if (supportContactLink.isInternal) {

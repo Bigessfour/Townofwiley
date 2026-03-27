@@ -1,5 +1,5 @@
-<section class="assistant-shell" aria-labelledby="assistant-heading">
-  <div class="assistant-intro">
+<section class="assistant-shell grid gap-4 p-4" aria-labelledby="assistant-heading">
+  <div class="assistant-intro grid gap-2">
     <p class="assistant-kicker">Scoped Site Assistant</p>
     <h3 id="assistant-heading">Ask Wiley</h3>
     <p class="assistant-copy">
@@ -15,13 +15,13 @@
     </p>
   </div>
 
-  <div class="assistant-form">
+  <div class="assistant-form grid gap-2 rounded-[20px] p-[0.95rem]">
     <label class="assistant-label" for="assistant-question">Type a question for Ask Wiley</label>
     <p class="assistant-helper">
       Enter a question below or tap one of the example prompts. The reply appears directly
       underneath in the conversation panel.
     </p>
-    <div class="assistant-entry-row">
+    <div class="assistant-entry-row grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
       <input
         id="assistant-question"
         class="assistant-input"
@@ -39,10 +39,10 @@
     </div>
   </div>
 
-  <div class="assistant-window">
-    <div class="assistant-prompts-shell">
+  <div class="assistant-window grid gap-4">
+    <div class="assistant-prompts-shell grid gap-3 rounded-[20px] p-[0.95rem]">
       <p class="assistant-prompt-label">Try one of these questions</p>
-      <div class="assistant-prompts" aria-label="Suggested questions">
+      <div class="assistant-prompts flex flex-wrap gap-2" aria-label="Suggested questions">
         @for (prompt of starterPrompts; track prompt) {
           <button type="button" class="assistant-chip" (click)="askPrompt(prompt)">
             {{ prompt }}
@@ -51,8 +51,8 @@
       </div>
     </div>
 
-    <div class="assistant-thread">
-      <div class="assistant-thread-header">
+    <div class="assistant-thread grid gap-3 rounded-[20px] p-[0.95rem]">
+      <div class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="assistant-thread-kicker">Conversation</p>
           <h4 class="assistant-thread-title">Latest response</h4>
@@ -62,16 +62,16 @@
         </p>
       </div>
 
-      <div class="assistant-messages" aria-live="polite" #messagesContainer>
+      <div class="assistant-messages grid gap-3 max-h-[20rem] min-h-[11rem] overflow-y-auto pr-1" aria-live="polite" #messagesContainer>
         @for (message of messages(); track $index) {
-          <article class="assistant-message" [class.is-user]="message.role === 'user'">
+          <article class="assistant-message grid gap-2 rounded-[20px] p-[0.9rem_1rem]" [class.is-user]="message.role === 'user'">
             <span class="assistant-role">{{
               message.role === 'user' ? 'You' : 'Wiley assistant'
             }}</span>
             <p>{{ message.content }}</p>
 
             @if (message.links?.length) {
-              <div class="assistant-links">
+              <div class="assistant-links flex flex-wrap gap-2">
                 @for (link of message.links; track link.href) {
                   <a [attr.href]="link.href">{{ link.label }}</a>
                 }

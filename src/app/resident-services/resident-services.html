@@ -1,23 +1,23 @@
-<section class="resident-services panel" aria-labelledby="resident-services-heading">
+<section class="resident-services panel grid gap-5" aria-labelledby="resident-services-heading">
   <p class="section-kicker">{{ copy().sectionKicker }}</p>
-  <header class="resident-services-header">
+  <header class="resident-services-header grid gap-3">
     <h2 id="resident-services-heading">{{ copy().sectionTitle }}</h2>
     <p class="resident-services-copy">{{ copy().sectionBody }}</p>
   </header>
 
-  <section class="resident-service-picker" [attr.aria-label]="copy().taskPickerLabel">
+  <section class="resident-service-picker grid gap-4" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
-    <div class="resident-service-toggle-grid">
+    <div class="resident-service-toggle-grid grid gap-4 lg:grid-cols-3">
       @for (panel of servicePanels(); track panel.id) {
         <button
           type="button"
-          class="resident-service-toggle"
+          class="resident-service-toggle grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 p-4 rounded-2xl"
           [class.is-active]="activeServicePanel() === panel.id"
           [attr.aria-pressed]="activeServicePanel() === panel.id"
           (click)="selectServicePanel(panel.id)"
         >
           <i [class]="'pi ' + panel.icon" aria-hidden="true"></i>
-          <span class="resident-service-toggle-copy">
+          <span class="resident-service-toggle-copy grid gap-1">
             <strong>{{ panel.title }}</strong>
             <small>{{ panel.meta }}</small>
           </span>
@@ -26,15 +26,15 @@
     </div>
   </section>
 
-  <section class="resident-services-stage">
+  <section class="resident-services-stage grid gap-4">
     @if (activeServicePanel() === 'payment') {
-    <p-card class="resident-service-card resident-service-card--active" id="payment-help">
+    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="payment-help">
       <p class="meta-label">{{ copy().paymentMeta }}</p>
       <i [class]="'pi ' + copy().paymentIcon" aria-hidden="true"></i>
       <h3>{{ copy().paymentTitle }}</h3>
       <p>{{ copy().paymentBody }}</p>
 
-      <div class="resident-contact-row">
+      <div class="resident-contact-row flex flex-wrap gap-2">
         @if (townHallPhoneHref()) {
           <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
             {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
@@ -47,27 +47,27 @@
         }
       </div>
 
-      <form class="resident-form" [formGroup]="paymentForm">
-        <section class="resident-form-grid">
-          <label for="payment-name" class="resident-field">
+      <form class="resident-form grid gap-4" [formGroup]="paymentForm">
+        <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+          <label for="payment-name" class="resident-field grid gap-1">
             <span>{{ copy().paymentNameLabel }}</span>
             <p-inputtext id="payment-name" formControlName="name" autocomplete="name" />
           </label>
-          <label for="payment-contact" class="resident-field">
+          <label for="payment-contact" class="resident-field grid gap-1">
             <span>{{ copy().paymentContactLabel }}</span>
             <p-inputtext id="payment-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label for="payment-address" class="resident-field resident-field--wide">
+          <label for="payment-address" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentAddressLabel }}</span>
             <p-inputtext id="payment-address" formControlName="serviceAddress" autocomplete="street-address" />
           </label>
-          <label for="payment-question" class="resident-field resident-field--wide">
+          <label for="payment-question" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentQuestionLabel }}</span>
             <p-textarea id="payment-question" rows="3" formControlName="accountQuestion" />
           </label>
         </section>
 
-        <footer class="resident-action-row">
+        <footer class="resident-action-row grid gap-3">
           @if (paymentPortalAvailable) {
             <a
               class="resident-action resident-action--primary payment-direct-action"
@@ -94,13 +94,13 @@
       </form>
     </p-card>
     } @else if (activeServicePanel() === 'issue') {
-    <p-card class="resident-service-card resident-service-card--active" id="issue-report">
+    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="issue-report">
       <p class="meta-label">{{ copy().issueMeta }}</p>
       <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
       <h3>{{ copy().issueTitle }}</h3>
       <p>{{ copy().issueBody }}</p>
 
-      <div class="resident-contact-row">
+      <div class="resident-contact-row flex flex-wrap gap-2">
         @if (townHallPhoneHref()) {
           <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
             {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
@@ -113,9 +113,9 @@
         }
       </div>
 
-      <form class="resident-form" [formGroup]="issueForm">
-        <section class="resident-form-grid">
-          <label for="issue-category" class="resident-field">
+      <form class="resident-form grid gap-4" [formGroup]="issueForm">
+        <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+          <label for="issue-category" class="resident-field grid gap-1">
             <span>{{ copy().issueCategoryLabel }}</span>
             <p-select
               inputId="issue-category"
@@ -126,25 +126,25 @@
               fluid
             />
           </label>
-          <label for="issue-name" class="resident-field">
+          <label for="issue-name" class="resident-field grid gap-1">
             <span>{{ copy().issueNameLabel }}</span>
             <p-inputtext id="issue-name" formControlName="name" autocomplete="name" />
           </label>
-          <label for="issue-location" class="resident-field resident-field--wide">
+          <label for="issue-location" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueLocationLabel }}</span>
             <p-inputtext id="issue-location" formControlName="location" autocomplete="street-address" />
           </label>
-          <label for="issue-contact" class="resident-field resident-field--wide">
+          <label for="issue-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueContactLabel }}</span>
             <p-inputtext id="issue-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label for="issue-details" class="resident-field resident-field--wide">
+          <label for="issue-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueDetailsLabel }}</span>
             <p-textarea id="issue-details" rows="4" formControlName="details" />
           </label>
         </section>
 
-        <footer class="resident-action-row">
+        <footer class="resident-action-row grid gap-3">
           <a
             class="resident-action"
             [class.is-disabled]="!issueMailtoHref()"
@@ -160,13 +160,13 @@
       </form>
     </p-card>
     } @else {
-    <p-card class="resident-service-card resident-service-card--active" id="records-request">
+    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="records-request">
       <p class="meta-label">{{ copy().recordsMeta }}</p>
       <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
       <h3>{{ copy().recordsTitle }}</h3>
       <p>{{ copy().recordsBody }}</p>
 
-      <div class="resident-contact-row">
+      <div class="resident-contact-row flex flex-wrap gap-2">
         @if (townHallPhoneHref()) {
           <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
             {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
@@ -179,9 +179,9 @@
         }
       </div>
 
-      <form class="resident-form" [formGroup]="recordsForm">
-        <section class="resident-form-grid">
-          <label for="records-type" class="resident-field">
+      <form class="resident-form grid gap-4" [formGroup]="recordsForm">
+        <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+          <label for="records-type" class="resident-field grid gap-1">
             <span>{{ copy().recordsTypeLabel }}</span>
             <p-select
               inputId="records-type"
@@ -192,25 +192,25 @@
               fluid
             />
           </label>
-          <label for="records-name" class="resident-field">
+          <label for="records-name" class="resident-field grid gap-1">
             <span>{{ copy().recordsNameLabel }}</span>
             <p-inputtext id="records-name" formControlName="name" autocomplete="name" />
           </label>
-          <label for="records-contact" class="resident-field resident-field--wide">
+          <label for="records-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsContactLabel }}</span>
             <p-inputtext id="records-contact" formControlName="preferredContact" autocomplete="email" />
           </label>
-          <label for="records-deadline" class="resident-field resident-field--wide">
+          <label for="records-deadline" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDeadlineLabel }}</span>
             <p-inputtext id="records-deadline" formControlName="deadline" />
           </label>
-          <label for="records-details" class="resident-field resident-field--wide">
+          <label for="records-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDetailsLabel }}</span>
             <p-textarea id="records-details" rows="4" formControlName="details" />
           </label>
         </section>
 
-        <footer class="resident-action-row">
+        <footer class="resident-action-row grid gap-3">
           <a
             class="resident-action"
             [class.is-disabled]="!recordsMailtoHref()"

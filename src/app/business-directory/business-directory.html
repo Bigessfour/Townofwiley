@@ -1,12 +1,12 @@
-<section class="public-page business-directory-page" aria-labelledby="business-directory-heading">
-  <header class="public-page-header">
+<section class="public-page business-directory-page grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="business-directory-heading">
+  <header class="public-page-header grid gap-4 max-w-[56rem]">
     <p class="section-kicker">Local Directory</p>
     <h1 id="business-directory-heading">{{ title }}</h1>
     <p class="public-page-copy">
       Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.
     </p>
 
-    <label class="public-search-field">
+    <label class="public-search-field grid gap-2 max-w-[28rem]">
       <span>Search local businesses</span>
       <p-iconfield class="public-search-input">
         <p-inputicon class="pi pi-search" />
@@ -23,10 +23,10 @@
   </header>
 
   @if (filteredBusinesses().length) {
-    <div class="public-card-grid directory-card-grid">
+    <div class="public-card-grid directory-card-grid grid gap-4 grid-cols-[repeat(3,minmax(0,1fr))] md:grid-cols-[repeat(2,minmax(0,1fr))] sm:grid-cols-1">
       @for (business of filteredBusinesses(); track business.name) {
-        <article class="public-card public-directory-card">
-          <div class="public-card-header">
+        <article class="public-card public-directory-card grid gap-4 p-5 rounded-2xl">
+          <div class="public-card-header grid gap-3 grid-cols-[minmax(0,1fr)_auto] items-start sm:grid-cols-1">
             <div>
               <p class="meta-label">Wiley business</p>
               <h2>{{ business.name }}</h2>
@@ -45,7 +45,7 @@
             }
           </div>
 
-          <div class="public-card-body">
+          <div class="public-card-body grid gap-3">
             <p class="public-card-copy">{{ business.description || 'Local Wiley business listing.' }}</p>
             <dl class="directory-details">
               <div>
@@ -63,7 +63,7 @@
             </dl>
           </div>
 
-          <div class="public-card-actions">
+          <div class="public-card-actions flex flex-wrap gap-3">
             @if (business.website) {
               <a
                 class="button-cta button-cta--light"

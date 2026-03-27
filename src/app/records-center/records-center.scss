@@ -4,8 +4,6 @@
 }
 
 .records-center {
-  display: grid;
-  gap: 1rem;
 }
 
 .records-center h3,
@@ -15,17 +13,10 @@
 }
 
 .records-center-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .records-guide-card {
-  display: grid;
-  gap: 0.75rem;
-  padding: 1.4rem;
   border: 1px solid rgba(13, 44, 84, 0.1);
-  border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.9));
   transition: all 160ms ease;
   box-shadow: var(--surface-shadow-soft);
@@ -71,10 +62,4 @@
 .records-guide-link:focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.24);
   outline-offset: 3px;
-}
-
-@media (max-width: 900px) {
-  .records-center-grid {
-    grid-template-columns: 1fr;
-  }
 }

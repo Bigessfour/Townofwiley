@@ -2,22 +2,6 @@
   display: block;
 }
 
-.resident-services {
-  display: grid;
-  gap: 1.25rem;
-}
-
-.resident-service-picker,
-.resident-services-stage {
-  display: grid;
-  gap: 1rem;
-}
-
-.resident-services-header {
-  display: grid;
-  gap: 0.75rem;
-}
-
 .resident-services-header h2,
 .resident-service-card h3 {
   margin: 0;
@@ -36,20 +20,8 @@
   color: rgba(20, 30, 42, 0.82);
 }
 
-.resident-service-toggle-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .resident-service-toggle {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.85rem;
-  align-items: center;
-  padding: 1rem 1.1rem;
   border: 1px solid rgba(13, 44, 84, 0.12);
-  border-radius: 24px;
   background: rgba(255, 255, 255, 0.84);
   color: #0d2c54;
   text-align: left;
@@ -63,11 +35,6 @@
 
 .resident-service-toggle i {
   font-size: 1.4rem;
-}
-
-.resident-service-toggle-copy {
-  display: grid;
-  gap: 0.2rem;
 }
 
 .resident-service-toggle-copy strong {
@@ -94,10 +61,6 @@
 }
 
 .resident-service-card {
-  display: grid;
-  gap: 0.9rem;
-  padding: 1.5rem;
-  border-radius: 24px;
   border: 1px solid rgba(13, 44, 84, 0.12);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 234, 0.9));
   box-shadow: 0 18px 34px rgba(13, 44, 84, 0.08);
@@ -112,12 +75,6 @@
 
 .resident-service-card--active {
   min-height: 100%;
-}
-
-.resident-contact-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
 }
 
 .resident-contact-link,
@@ -170,22 +127,6 @@
   color: #fff;
 }
 
-.resident-form {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.resident-form-grid {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.resident-field {
-  display: grid;
-  gap: 0.35rem;
-}
-
 .resident-field--wide {
   grid-column: 1 / -1;
 }
@@ -220,25 +161,8 @@
   outline-offset: 3px;
 }
 
-.resident-action-row {
-  display: grid;
-  gap: 0.75rem;
-}
-
 .resident-status {
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.45;
-}
-
-@media (max-width: 1080px) {
-  .resident-service-toggle-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 720px) {
-  .resident-form-grid {
-    grid-template-columns: 1fr;
-  }
 }

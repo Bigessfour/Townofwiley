@@ -1,5 +1,5 @@
 <main class="setup-shell">
-  <section class="setup-card" aria-labelledby="clerk-setup-heading">
+  <section class="setup-card mx-auto grid max-w-[980px] gap-4 p-[clamp(1.25rem,2vw,2rem)]" aria-labelledby="clerk-setup-heading">
     <p class="setup-kicker">Town website content guide</p>
     <h1 id="clerk-setup-heading">{{ setupType }}</h1>
     <p class="setup-copy">
@@ -10,7 +10,7 @@
       The only place to edit live website content is Amplify Studio Data Manager.
     </p>
 
-    <div class="setup-actions">
+    <div class="setup-actions flex flex-wrap gap-3">
       <a
         class="setup-button primary"
         [href]="dataManagerUrl"
@@ -29,9 +29,9 @@
       </a>
     </div>
 
-    <article class="setup-panel full-width">
+    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
       <h2>Prepopulated Town account details</h2>
-      <ul>
+      <ul class="grid gap-2">
         @for (item of setupDetails; track item.label) {
           <li>
             <strong>{{ item.label }}:</strong> {{ item.value }}
@@ -43,19 +43,19 @@
       </p>
     </article>
 
-    <div class="setup-grid">
-      <article class="setup-panel">
+    <div class="setup-grid grid gap-4 lg:grid-cols-2">
+      <article class="setup-panel grid gap-3 p-4 rounded-[1.25rem]">
         <h2>Do this every time</h2>
-        <ol>
+        <ol class="grid gap-2">
           @for (item of dailyChecklist; track item) {
             <li>{{ item }}</li>
           }
         </ol>
       </article>
 
-      <article class="setup-panel">
+      <article class="setup-panel grid gap-3 p-4 rounded-[1.25rem]">
         <h2>If you want to change this</h2>
-        <ul>
+        <ul class="grid gap-2">
           @for (item of taskMap; track item.action) {
             <li>
               <strong>{{ item.action }}:</strong> {{ item.model }}
@@ -65,18 +65,18 @@
       </article>
     </div>
 
-    <article class="setup-panel full-width">
+    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
       <h2>Do not use these to edit the website</h2>
-      <ul>
+      <ul class="grid gap-2">
         @for (item of doNotUse; track item) {
           <li>{{ item }}</li>
         }
       </ul>
     </article>
 
-    <article class="setup-panel full-width">
+    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
       <h2>Before you finish for the day</h2>
-      <ul>
+      <ul class="grid gap-2">
         @for (item of publishCheck; track item) {
           <li>{{ item }}</li>
         }

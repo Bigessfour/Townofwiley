@@ -1,5 +1,5 @@
-<section class="public-page news-page-shell" aria-labelledby="news-page-heading">
-  <header class="public-page-header">
+<section class="public-page news-page-shell grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="news-page-heading">
+  <header class="public-page-header grid gap-4 max-w-[56rem]">
     <p class="section-kicker">News & Notices</p>
     <h1 id="news-page-heading">{{ title }}</h1>
     <p class="public-page-copy">
@@ -8,8 +8,8 @@
   </header>
 
   @if (featuredNotice(); as featuredNotice) {
-    <article class="featured-news-card">
-      <div class="featured-news-copy">
+    <article class="featured-news-card grid gap-4 p-6 rounded-[28px]">
+      <div class="featured-news-copy grid gap-4">
         <p class="meta-label">Featured town notice</p>
         <h2>{{ featuredNotice.title }}</h2>
         <p class="featured-news-date">{{ featuredNotice.date }}</p>
@@ -19,17 +19,17 @@
   }
 
   @if (remainingNotices().length) {
-    <section class="news-section" aria-labelledby="recent-town-notices-heading">
-      <div class="news-section-header">
+    <section class="news-section grid gap-4" aria-labelledby="recent-town-notices-heading">
+      <div class="news-section-header grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <p class="section-kicker">Recent town notices</p>
           <h2 id="recent-town-notices-heading">Current Wiley updates</h2>
         </div>
       </div>
 
-      <div class="public-card-grid news-card-grid">
+      <div class="public-card-grid news-card-grid grid gap-4 grid-cols-[repeat(3,minmax(0,1fr))] md:grid-cols-[repeat(2,minmax(0,1fr))] sm:grid-cols-1">
         @for (item of remainingNotices(); track item.id) {
-          <article class="public-card news-card">
+          <article class="public-card news-card grid gap-3 p-5 rounded-2xl">
             <p class="meta-label">{{ item.date }}</p>
             <h3>{{ item.title }}</h3>
             <p class="public-card-copy">{{ item.detail }}</p>
@@ -39,8 +39,8 @@
     </section>
   }
 
-  <section class="news-section" aria-labelledby="external-news-heading">
-    <div class="news-section-header">
+  <section class="news-section grid gap-4" aria-labelledby="external-news-heading">
+    <div class="news-section-header grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       <div>
         <p class="section-kicker">Regional coverage</p>
         <h2 id="external-news-heading">From other sources</h2>
@@ -48,13 +48,13 @@
       <p class="public-page-copy">Recent external coverage mentioning Wiley or Prowers County from the last month.</p>
     </div>
 
-    <div class="public-card-grid news-card-grid">
+    <div class="public-card-grid news-card-grid grid gap-4 grid-cols-[repeat(3,minmax(0,1fr))] md:grid-cols-[repeat(2,minmax(0,1fr))] sm:grid-cols-1">
       @for (item of recentExternal(); track item.url) {
-        <article class="public-card news-card news-card--external">
+        <article class="public-card news-card news-card--external grid gap-3 p-5 rounded-2xl">
           <p class="meta-label">{{ item.source }}</p>
           <h3>{{ item.title }}</h3>
           <p class="featured-news-date">{{ item.date }}</p>
-          <div class="public-card-actions">
+          <div class="public-card-actions flex flex-wrap gap-3">
             <a [href]="item.url" target="_blank" rel="noreferrer noopener" class="button-cta button-cta--light">
               Read article
             </a>

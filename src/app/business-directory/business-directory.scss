@@ -1,19 +1,8 @@
 :host {
   display: block;
 }
-
-.public-page {
-  display: grid;
-  gap: 1.5rem;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 2rem 1rem 3rem;
-}
-
-.public-page-header {
-  display: grid;
-  gap: 0.9rem;
-  max-width: 56rem;
+:host {
+  display: block;
 }
 
 .public-page-header h1,
@@ -29,12 +18,6 @@
   margin: 0;
   line-height: 1.65;
   color: var(--ink-700);
-}
-
-.public-search-field {
-  display: grid;
-  gap: 0.4rem;
-  max-width: 28rem;
 }
 
 .public-search-field span,
@@ -60,33 +43,10 @@
   color: var(--ink-900);
 }
 
-.public-card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
 .public-card {
-  display: grid;
-  gap: 1rem;
-  padding: 1.35rem;
   border: 1px solid rgba(13, 44, 84, 0.1);
-  border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
   box-shadow: var(--surface-shadow-soft);
-}
-
-.public-card-header,
-.public-card-body,
-.public-card-actions,
-.directory-details {
-  display: grid;
-  gap: 0.8rem;
-}
-
-.public-card-header {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
 }
 
 .directory-logo-link {
@@ -111,11 +71,6 @@
   margin: 0;
 }
 
-.directory-details div {
-  display: grid;
-  gap: 0.2rem;
-}
-
 .directory-details dd {
   margin: 0;
 }
@@ -124,17 +79,4 @@
   color: var(--civic-blue);
   text-decoration: none;
   font-weight: 700;
-}
-
-@media (max-width: 960px) {
-  .public-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .public-card-grid,
-  .public-card-header {
-    grid-template-columns: 1fr;
-  }
 }

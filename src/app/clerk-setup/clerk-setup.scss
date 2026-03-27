@@ -8,11 +8,6 @@
 }
 
 .setup-card {
-  max-width: 980px;
-  margin: 0 auto;
-  display: grid;
-  gap: 1rem;
-  padding: clamp(1.25rem, 2vw, 2rem);
   border-radius: 1.5rem;
   background: rgba(255, 252, 244, 0.88);
   border: 1px solid rgba(23, 52, 77, 0.12);
@@ -55,12 +50,6 @@
   font-weight: 700;
 }
 
-.setup-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
 .setup-button {
   display: inline-flex;
   align-items: center;
@@ -82,16 +71,7 @@
   border: 1px solid rgba(23, 52, 77, 0.12);
 }
 
-.setup-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
 .setup-panel {
-  display: grid;
-  gap: 0.75rem;
-  padding: 1rem 1.15rem;
   border-radius: 1.25rem;
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(23, 52, 77, 0.08);
@@ -101,16 +81,4 @@
 .setup-panel ol {
   margin: 0;
   padding-left: 1.25rem;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.setup-panel.full-width {
-  grid-column: 1 / -1;
-}
-
-@media (max-width: 720px) {
-  .setup-grid {
-    grid-template-columns: 1fr;
-  }
 }
