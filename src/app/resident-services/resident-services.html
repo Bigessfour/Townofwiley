@@ -1,11 +1,9 @@
 <section class="resident-services panel" aria-labelledby="resident-services-heading">
   <p class="section-kicker">{{ copy().sectionKicker }}</p>
-  <div class="resident-services-header">
-    <div>
-      <h2 id="resident-services-heading">{{ copy().sectionTitle }}</h2>
-      <p class="resident-services-copy">{{ copy().sectionBody }}</p>
-    </div>
-  </div>
+  <header class="resident-services-header">
+    <h2 id="resident-services-heading">{{ copy().sectionTitle }}</h2>
+    <p class="resident-services-copy">{{ copy().sectionBody }}</p>
+  </header>
 
   <section class="resident-service-picker" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
@@ -28,7 +26,7 @@
     </div>
   </section>
 
-  <div class="resident-services-stage">
+  <section class="resident-services-stage">
     @if (activeServicePanel() === 'payment') {
     <p-card class="resident-service-card resident-service-card--active" id="payment-help">
       <p class="meta-label">{{ copy().paymentMeta }}</p>
@@ -50,7 +48,7 @@
       </div>
 
       <form class="resident-form" [formGroup]="paymentForm">
-        <div class="resident-form-grid">
+        <section class="resident-form-grid">
           <label for="payment-name" class="resident-field">
             <span>{{ copy().paymentNameLabel }}</span>
             <p-inputtext id="payment-name" formControlName="name" autocomplete="name" />
@@ -67,9 +65,9 @@
             <span>{{ copy().paymentQuestionLabel }}</span>
             <p-textarea id="payment-question" rows="3" formControlName="accountQuestion" />
           </label>
-        </div>
+        </section>
 
-        <div class="resident-action-row">
+        <footer class="resident-action-row">
           @if (paymentPortalAvailable) {
             <a
               class="resident-action resident-action--primary payment-direct-action"
@@ -92,7 +90,7 @@
           @if (paymentStatus(); as paymentStatus) {
             <p class="resident-status" aria-live="polite">{{ paymentStatus }}</p>
           }
-        </div>
+        </footer>
       </form>
     </p-card>
     } @else if (activeServicePanel() === 'issue') {
@@ -116,7 +114,7 @@
       </div>
 
       <form class="resident-form" [formGroup]="issueForm">
-        <div class="resident-form-grid">
+        <section class="resident-form-grid">
           <label for="issue-category" class="resident-field">
             <span>{{ copy().issueCategoryLabel }}</span>
             <p-select
@@ -144,9 +142,9 @@
             <span>{{ copy().issueDetailsLabel }}</span>
             <p-textarea id="issue-details" rows="4" formControlName="details" />
           </label>
-        </div>
+        </section>
 
-        <div class="resident-action-row">
+        <footer class="resident-action-row">
           <a
             class="resident-action"
             [class.is-disabled]="!issueMailtoHref()"
@@ -158,7 +156,7 @@
           @if (issueStatus(); as issueStatus) {
             <p class="resident-status" aria-live="polite">{{ issueStatus }}</p>
           }
-        </div>
+        </footer>
       </form>
     </p-card>
     } @else {
@@ -182,7 +180,7 @@
       </div>
 
       <form class="resident-form" [formGroup]="recordsForm">
-        <div class="resident-form-grid">
+        <section class="resident-form-grid">
           <label for="records-type" class="resident-field">
             <span>{{ copy().recordsTypeLabel }}</span>
             <p-select
@@ -210,9 +208,9 @@
             <span>{{ copy().recordsDetailsLabel }}</span>
             <p-textarea id="records-details" rows="4" formControlName="details" />
           </label>
-        </div>
+        </section>
 
-        <div class="resident-action-row">
+        <footer class="resident-action-row">
           <a
             class="resident-action"
             [class.is-disabled]="!recordsMailtoHref()"
@@ -224,9 +222,9 @@
           @if (recordsStatus(); as recordsStatus) {
             <p class="resident-status" aria-live="polite">{{ recordsStatus }}</p>
           }
-        </div>
+        </footer>
       </form>
     </p-card>
     }
-  </div>
+  </section>
 </section>

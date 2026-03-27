@@ -487,9 +487,6 @@ h3 {
 }
 
 .hero-utility-card :where(.p-card-body),
-.landing-shortcuts :where(.p-card-body),
-.feature-hub :where(.p-card-body),
-.support-strip :where(.p-card-body),
 .detail-hero :where(.p-card-body),
 .panel :where(.p-card-body) {
   display: grid;
@@ -497,11 +494,14 @@ h3 {
   padding: calc(var(--spacing-unit) * 1.7);
 }
 
-.content-grid :where(.p-card-body),
 .support-strip :where(.p-card-body) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: calc(var(--spacing-unit) * 2);
+}
+
+.section-divider {
+  margin: 0.2rem 0;
 }
 
 .search-panel {

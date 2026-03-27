@@ -124,7 +124,7 @@
     </p-menubar>
 
     <section class="hero-landing" aria-labelledby="site-hero-title" data-testid="homepage-hero">
-      <div class="hero-landing-media">
+      <figure class="hero-landing-media">
         <img
           ngSrc="/hero-wiley.jpg"
           [attr.alt]="appCopy().heroImageAlt"
@@ -132,30 +132,30 @@
           priority
           sizes="100vw"
         />
-      </div>
+      </figure>
       <div class="hero-landing-scrim"></div>
 
-      <div class="hero-landing-inner">
-        <div class="hero-main">
-          <div class="hero-lockup">
+      <article class="hero-landing-inner">
+        <section class="hero-landing-copy">
+          <header class="hero-lockup">
             <span class="hero-seal-shell" aria-hidden="true">
               <img class="hero-seal" ngSrc="/favicon.svg" alt="" width="56" height="56" />
             </span>
 
-            <div class="hero-lockup-copy">
-              <p class="eyebrow">{{ heroContent().eyebrow }}</p>
-              <p class="status">{{ heroContent().status }}</p>
-            </div>
-          </div>
+            <p class="eyebrow">{{ heroContent().eyebrow }}</p>
+            <p class="status">{{ heroContent().status }}</p>
+          </header>
 
           <h1 id="site-hero-title">{{ pageTitle() }}</h1>
           <p class="message">{{ heroContent().message }}</p>
           <p class="subtext">{{ heroContent().subtext }}</p>
-        </div>
+        </section>
 
         <p-card class="hero-utility-card" aria-labelledby="welcome-hero-heading">
-          <p class="section-kicker">{{ appCopy().contactKicker }}</p>
-          <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
+          <header class="hero-utility-header">
+            <p class="section-kicker">{{ appCopy().contactKicker }}</p>
+            <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
+          </header>
 
           <div class="hero-utility-links">
             @if (primaryContact(); as primaryContact) {
@@ -191,14 +191,16 @@
             }
           </div>
 
-          <div class="hero-utility-actions">
+          <footer class="hero-utility-actions">
             <a class="button-cta button-cta--light" routerLink="/meetings" fragment="calendar">
               {{ appCopy().openCalendarLabel }}
             </a>
             <button class="button-cta button-cta--solid hero-alert-button" type="button" (click)="openSignup()">
               {{ appCopy().alertActionLabel }}
             </button>
-          </div>
+          </footer>
+
+          <p-divider styleClass="hero-utility-divider" />
 
           <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
           <form class="search-form" id="search-panel" (submit)="performSearch($event)">
@@ -249,7 +251,7 @@
             }
           </form>
         </p-card>
-      </div>
+      </article>
     </section>
 
     <nav class="section-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel" data-testid="homepage-section-nav">
@@ -286,7 +288,7 @@
               <p-card class="panel" id="alerts">
                 <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
                 <h2>{{ appCopy().noticesHeading }}</h2>
-                <div class="notice-grid">
+                <section class="notice-grid">
                   @for (notice of notices(); track notice.id) {
                     <article class="notice-card">
                       <p class="meta-label">{{ notice.date }}</p>
@@ -294,7 +296,7 @@
                       <span>{{ notice.detail }}</span>
                     </article>
                   }
-                </div>
+                </section>
               </p-card>
             </section>
           } @else if (isMeetingsMode()) {
@@ -302,7 +304,7 @@
               <p-card class="panel" aria-labelledby="meetings-heading">
                 <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
                 <h2 id="meetings-heading">{{ appCopy().meetingsHeading }}</h2>
-                <div class="stack-list">
+                <section class="stack-list">
                   @for (meeting of meetings(); track meeting.title) {
                     <article class="info-row meeting-card">
                       <strong>{{ meeting.title }}</strong>
@@ -325,7 +327,7 @@
                       }
                     </article>
                   }
-                </div>
+                </section>
                 <a class="text-link" href="#calendar">{{ appCopy().openCalendarLabel }}</a>
               </p-card>
 
@@ -335,13 +337,13 @@
                 aria-labelledby="calendar-heading"
               >
                 <p class="section-kicker">{{ appCopy().calendarKicker }}</p>
-                <div class="calendar-header">
-                  <div class="calendar-header-copy">
+                <header class="calendar-header">
+                  <section class="calendar-header-copy">
                     <h2 id="calendar-heading">{{ appCopy().calendarHeading }}</h2>
                     <a class="text-link" routerLink="/notices">{{
                       appCopy().calendarBridgeLabel
                     }}</a>
-                  </div>
+                  </section>
                   <aside
                     class="calendar-overview"
                     [attr.aria-label]="appCopy().calendarStatusAriaLabel"
@@ -354,10 +356,10 @@
                       <strong>{{ calendarOverview().nextEventValue }}</strong>
                     </div>
                   </aside>
-                </div>
+                </header>
 
-                <div class="calendar-tools">
-                  <div class="calendar-tool">
+                <section class="calendar-tools" aria-label="Calendar controls">
+                  <section class="calendar-tool">
                     <label class="calendar-tool-label" for="calendar-jump-month">
                       {{ appCopy().calendarJumpLabel }}
                     </label>
@@ -378,7 +380,7 @@
                         {{ formatCalendarMonth(selectedMonth) }}
                       </p>
                     }
-                  </div>
+                  </section>
 
                   <p-button
                     type="button"
@@ -387,7 +389,7 @@
                     severity="secondary"
                     (onClick)="openCalendarHelp()"
                   />
-                </div>
+                </section>
 
                 <p-tabs value="month">
                   <p-tablist>
@@ -551,7 +553,7 @@
               <p-card class="panel service-panel" id="services">
                 <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
                 <h2>{{ appCopy().servicesHeading }}</h2>
-                <div class="service-grid">
+                <section class="service-grid">
                   @for (service of serviceCards(); track service.title) {
                     <article class="service-card">
                       <p class="meta-label">{{ service.availability }}</p>
@@ -570,7 +572,7 @@
                       }
                     </article>
                   }
-                </div>
+                </section>
               </p-card>
 
               <app-resident-services id="resident-services" [contacts]="contacts()" />
@@ -630,7 +632,7 @@
               <p-card class="panel contact-panel" id="contact">
                 <p class="section-kicker">{{ appCopy().contactKicker }}</p>
                 <h2>{{ appCopy().contactHeading }}</h2>
-                <div class="contact-grid">
+                <section class="contact-grid" aria-label="Town contacts">
                   @for (contact of contacts(); track contact.id) {
                     <article class="contact-card">
                       <span>{{ contact.label }}</span>
@@ -649,7 +651,7 @@
                       <p>{{ contact.detail }}</p>
                     </article>
                   }
-                </div>
+                </section>
 
                 <div class="leadership-grid" role="list" [attr.aria-label]="appCopy().leadershipAriaLabel">
                   @for (group of leadershipGroups(); track group.title) {
@@ -678,8 +680,8 @@
         </section>
       }
     } @else {
-      <p-card class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
-        <div class="landing-section-header">
+      <section class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
+        <header class="landing-section-header">
           <div>
             <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
             <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
@@ -687,9 +689,11 @@
           <p class="feature-hub-copy">
             Start with the resident tasks people expect to find immediately: payments, meetings, records, and issue reporting.
           </p>
-        </div>
+        </header>
 
-        <div class="task-grid landing-task-grid">
+        <p-divider styleClass="section-divider" />
+
+        <section class="task-grid landing-task-grid" aria-label="Resident shortcuts">
             @for (task of topTasks(); track task.title; let taskIndex = $index) {
               @if (resolveAppLink(task.href); as taskLink) {
                 @if (taskLink.isInternal) {
@@ -785,18 +789,19 @@
                 }
               }
             }
-        </div>
-      </p-card>
+        </section>
 
-      <p-card class="content-grid landing-civic-grid">
+      </section>
+
+      <section class="content-grid landing-civic-grid">
         <p-card class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
-          <div class="landing-section-header">
+          <header class="landing-section-header">
             <div>
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
               <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
             </div>
             <a class="text-link" routerLink="/meetings" fragment="calendar">{{ appCopy().openCalendarLabel }}</a>
-          </div>
+          </header>
 
           <div class="stack-list">
             @for (meeting of meetings(); track meeting.title) {
@@ -825,13 +830,13 @@
         </p-card>
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
-          <div class="landing-section-header">
+          <header class="landing-section-header">
             <div>
               <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
               <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
             </div>
             <a class="text-link" routerLink="/notices">View all notices</a>
-          </div>
+          </header>
 
           <div class="notice-grid landing-notice-grid">
             @for (notice of notices(); track notice.id) {
@@ -843,18 +848,20 @@
             }
           </div>
         </p-card>
-      </p-card>
+      </section>
 
-      <p-card class="feature-hub panel" aria-labelledby="feature-hub-heading">
-        <div class="feature-hub-header">
+      <section class="feature-hub panel" aria-labelledby="feature-hub-heading">
+        <header class="feature-hub-header">
           <div>
             <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
             <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
           </div>
           <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
-        </div>
+        </header>
 
-        <div class="feature-grid">
+        <p-divider styleClass="section-divider" />
+
+        <section class="feature-grid" aria-label="Town feature pages">
           @for (feature of homepageFeaturePages(); track feature.id) {
             @if (resolveAppLink(feature.href); as featureLink) {
               @if (featureLink.isInternal) {
@@ -872,10 +879,10 @@
               }
             }
           }
-        </div>
-      </p-card>
+        </section>
+      </section>
 
-      <p-card class="support-strip">
+      <section class="support-strip">
         <p-card class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
@@ -883,7 +890,7 @@
             Keep emergency alerts, meeting access, and Town Hall response paths one click away for residents under time pressure.
           </p>
 
-          <div class="support-link-grid">
+          <section class="support-link-grid" aria-label="Quick resident links">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
                 @if (supportContactLink.isInternal) {
@@ -907,7 +914,7 @@
               <strong>{{ appCopy().alertActionLabel }}</strong>
               <span>Open forecast details and sign up for weather-sensitive updates.</span>
             </a>
-          </div>
+          </section>
         </p-card>
 
         <p-card class="chatbot-panel panel" id="chatbot-panel" aria-labelledby="chatbot-heading">
@@ -918,7 +925,7 @@
             <app-ai-chat />
           }
         </p-card>
-      </p-card>
+      </section>
     }
 
     <footer class="site-footer">

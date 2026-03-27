@@ -1,4 +1,4 @@
-<div class="accessibility-support-grid">
+<section class="accessibility-support-grid">
   <article class="accessibility-statement-card">
     <p class="meta-label">{{ copy().statementKicker }}</p>
     <h3>{{ copy().statementTitle }}</h3>
@@ -15,7 +15,7 @@
     <h3>{{ copy().reportTitle }}</h3>
     <p>{{ copy().reportBody }}</p>
 
-    <div class="accessibility-contact-row">
+    <section class="accessibility-contact-row">
       @if (townHallPhoneHref()) {
         <a class="accessibility-contact-link" [attr.href]="townHallPhoneHref()">
           {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
@@ -26,10 +26,10 @@
           {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
         </a>
       }
-    </div>
+    </section>
 
     <form class="accessibility-report-form" [formGroup]="reportForm">
-      <div class="accessibility-report-grid">
+      <section class="accessibility-report-grid">
         <label class="accessibility-field">
           <span>{{ copy().nameLabel }}</span>
           <input pInputText type="text" formControlName="name" autocomplete="name" />
@@ -62,9 +62,9 @@
             [invalid]="reportForm.controls.details.invalid && reportForm.controls.details.touched"
           ></textarea>
         </label>
-      </div>
+      </section>
 
-      <div class="accessibility-action-row">
+      <footer class="accessibility-action-row">
         <a
           class="accessibility-action"
           [class.is-disabled]="!accessibilityMailtoHref()"
@@ -80,7 +80,7 @@
             [text]="status"
           />
         }
-      </div>
+      </footer>
     </form>
   </article>
-</div>
+</section>

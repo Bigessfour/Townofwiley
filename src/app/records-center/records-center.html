@@ -2,7 +2,7 @@
   <p class="meta-label">{{ copy().kicker }}</p>
   <h3 id="records-center-heading">{{ copy().title }}</h3>
 
-  <div class="records-center-grid">
+  <section class="records-center-grid" aria-label="Records destinations">
     @for (guide of copy().guides; track guide.id) {
       <article class="records-guide-card" [attr.id]="guide.id" role="region" aria-labelledby="guide-{{ guide.id }}">
         <i [class]="guide.icon" aria-hidden="true"></i>
@@ -18,5 +18,5 @@
         }
       </article>
     }
-  </div>
+  </section>
 </section>

@@ -1,17 +1,17 @@
 <section class="weather-panel panel" aria-labelledby="weather-heading">
-  <div class="weather-header">
-    <div class="weather-header-copy">
+  <header class="weather-header">
+    <section class="weather-header-copy">
       <p class="section-kicker">{{ copy().sectionKicker }}</p>
       <h2 id="weather-heading">{{ copy().headingPrefix }} {{ locationLabel() }}</h2>
       <p class="weather-copy">{{ copy().intro }}</p>
-    </div>
+    </section>
 
-    <div class="weather-header-actions">
+    <section class="weather-header-actions">
       <p class="weather-source">{{ weatherSourceLabel() }}</p>
       @if (updatedLabel()) {
         <p class="weather-updated">{{ copy().updatedPrefix }} {{ updatedLabel() }}</p>
       }
-      <div class="weather-action-row">
+      <section class="weather-action-row">
         <button
           type="button"
           class="weather-action"
@@ -28,9 +28,9 @@
         >
           {{ copy().openForecast }}
         </a>
-      </div>
-    </div>
-  </div>
+      </section>
+    </section>
+  </header>
 
   @if (isLoading()) {
     <p class="weather-status" aria-live="polite">{{ copy().loading }}</p>
@@ -39,21 +39,21 @@
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
     }
 
-    <div class="weather-grid">
+    <section class="weather-grid">
       <section class="weather-forecast" aria-labelledby="weather-current-heading">
         @if (currentPeriod(); as period) {
           <article class="weather-current-card" [class.is-night]="!period.isDaytime" data-testid="weather-current-card">
-            <div class="weather-current-topline">
-              <div>
+            <header class="weather-current-topline">
+              <section>
                 <p class="meta-label">{{ period.name }}</p>
                 <h3 id="weather-current-heading">{{ period.shortForecast }}</h3>
                 <p class="weather-temperature">{{ period.temperatureLabel }}</p>
-              </div>
+              </section>
 
               @if (period.iconUrl) {
                 <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
               }
-            </div>
+            </header>
 
             <p class="weather-detail">{{ period.detailedForecast }}</p>
 
@@ -70,13 +70,13 @@
           </article>
         }
 
-        <div class="weather-period-grid" aria-label="Upcoming forecast periods">
+        <div class="weather-period-grid">
           @for (period of upcomingPeriods(); track period.name) {
             <article class="weather-period-card" [class.is-night]="!period.isDaytime">
-              <div class="weather-period-heading">
+              <header class="weather-period-heading">
                 <p class="meta-label">{{ period.name }}</p>
                 <strong>{{ period.temperatureLabel }}</strong>
-              </div>
+              </header>
               <p class="weather-period-summary">{{ period.shortForecast }}</p>
               <p>{{ period.windLabel }}</p>
               <span>{{ period.precipitationLabel }}</span>
@@ -86,24 +86,24 @@
       </section>
 
       <aside class="weather-alerts" aria-labelledby="weather-alerts-heading">
-        <div class="weather-alerts-header">
-          <div>
+        <header class="weather-alerts-header">
+          <section>
             <p class="meta-label">{{ copy().alertsKicker }}</p>
             <h3 id="weather-alerts-heading">{{ copy().alertsHeading }}</h3>
-          </div>
+          </section>
           <span class="weather-alert-pill" [class.is-clear]="!hasAlerts()">
             {{ hasAlerts() ? alertSummary() : copy().noActiveAlerts }}
           </span>
-        </div>
+        </header>
 
         @if (hasAlerts()) {
-          <div class="weather-alert-list">
+          <section class="weather-alert-list">
             @for (alert of weatherAlerts(); track alert.event + alert.headline) {
               <article class="weather-alert-card">
-                <div class="weather-alert-meta">
+                <header class="weather-alert-meta">
                   <strong>{{ alert.event }}</strong>
                   <span>{{ alert.severity }} · {{ alert.urgency }}</span>
-                </div>
+                </header>
                 <p>{{ alert.headline }}</p>
                 @if (alert.instruction) {
                   <p class="weather-alert-instruction">{{ alert.instruction }}</p>
@@ -113,7 +113,7 @@
                 }
               </article>
             }
-          </div>
+          </section>
         } @else {
           <article class="weather-alert-card is-clear">
             <strong>{{ copy().noAlertsTitle }}</strong>
@@ -123,14 +123,14 @@
 
         @if (isAlertSignupEnabled()) {
           <section class="weather-signup-shell" aria-labelledby="weather-signup-heading" data-testid="weather-signup-shell">
-            <div class="weather-signup-copy">
+            <header class="weather-signup-copy">
               <p class="meta-label">{{ copy().residentAlertsKicker }}</p>
               <h4 id="weather-signup-heading">{{ copy().residentAlertsHeading }}</h4>
               <p>{{ copy().residentAlertsBody }}</p>
-            </div>
+            </header>
 
             <form class="weather-signup-form" (submit)="submitAlertSignup($event)">
-              <div class="weather-signup-grid">
+              <section class="weather-signup-grid">
                 <label class="weather-signup-field" for="weather-alert-signup-channel">
                   <span>{{ copy().notificationMethod }}</span>
                   <p-select
@@ -203,7 +203,7 @@
                     aria-readonly="true"
                   />
                 </label>
-              </div>
+              </section>
 
               <p class="weather-signup-note">{{ copy().confirmationNote }}</p>
 
@@ -233,7 +233,7 @@
           </section>
         }
 
-        <div class="weather-link-row">
+        <footer class="weather-link-row">
           <a
             class="text-link"
             [attr.href]="forecastMapsUrl"
@@ -242,8 +242,8 @@
           >
             {{ copy().forecastMaps }}
           </a>
-        </div>
+        </footer>
       </aside>
-    </div>
+    </section>
   }
 </section>
