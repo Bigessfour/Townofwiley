@@ -58,23 +58,23 @@
           @if (primaryContact(); as primaryContact) {
             @if (resolveAppLink(primaryContact.href ?? '/contact'); as primaryContactLink) {
               @if (primaryContactLink.isInternal) {
-                <a [routerLink]="primaryContactLink.path" [fragment]="primaryContactLink.fragment" class="header-meta-link">
+                <a [routerLink]="primaryContactLink.path" [fragment]="primaryContactLink.fragment" class="header-meta-link button-cta button-cta--light">
                   <strong>{{ primaryContact.label }}</strong>
                   <span>{{ primaryContact.value }}</span>
                 </a>
               } @else {
-                <a [attr.href]="primaryContactLink.href" class="header-meta-link">
+                <a [attr.href]="primaryContactLink.href" class="header-meta-link button-cta button-cta--light">
                   <strong>{{ primaryContact.label }}</strong>
                   <span>{{ primaryContact.value }}</span>
                 </a>
               }
             }
           }
-          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link">
+          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().meetingsKicker }}</strong>
             <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
-          <a routerLink="/" fragment="top-tasks" class="header-meta-link">
+          <a routerLink="/" fragment="top-tasks" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().topTasksKicker }}</strong>
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
@@ -100,13 +100,6 @@
               />
             </p-inputgroup>
           </div>
-          <p-button
-            label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
-            (onClick)="openSignup()"
-            severity="secondary"
-            outlined="true"
-            size="small"
-          />
           <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
             <span class="site-language-label">{{ appCopy().languageLabel }}</span>
             <p-selectbutton

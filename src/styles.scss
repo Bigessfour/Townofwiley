@@ -169,10 +169,15 @@ li {
 }
 
 .site-header .p-menubar .p-menuitem-link {
+  display: inline-flex;
+  min-height: 3rem;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.75rem 0.95rem;
+  padding: 0.75rem 1rem;
   border-radius: 999px;
+  border: 1px solid rgba(19, 59, 99, 0.12);
+  background: rgba(255, 252, 246, 0.95);
+  box-shadow: 0 12px 24px rgba(17, 36, 61, 0.08);
   color: var(--ink-900) !important;
   font-weight: 700;
   text-decoration: none;
@@ -181,6 +186,7 @@ li {
 .site-header .p-menubar .p-menuitem-link:hover,
 .site-header .p-menubar .p-menuitem-link:focus-visible {
   background: rgba(19, 59, 99, 0.08);
+  box-shadow: 0 14px 28px rgba(17, 36, 61, 0.1);
 }
 
 .site-header .p-menubar .p-menuitem-text,
