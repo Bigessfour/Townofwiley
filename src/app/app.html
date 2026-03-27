@@ -18,7 +18,7 @@
   }
 
   @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
-    <section class="site-alert" [attr.aria-label]="appCopy().siteAlertAriaLabel">
+    <p-card class="site-alert" [attr.aria-label]="appCopy().siteAlertAriaLabel">
       <div class="site-alert-copy">
         <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
         <p class="site-alert-label">{{ alertBanner().label }}</p>
@@ -37,14 +37,15 @@
         }
 
         <p-button
-          label="{{ appCopy().alertActionLabel }}"
+          [label]="appCopy().alertActionLabel"
           (onClick)="openSignup()"
           severity="secondary"
           outlined="true"
           size="small"
+          styleClass="site-alert-button"
         />
       </div>
-    </section>
+    </p-card>
   }
 
   <header class="site-header" role="banner">
@@ -78,16 +79,26 @@
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
           <div class="header-search-wrapper">
-            <input
-              type="search"
-              class="header-search"
-              [value]="searchQuery()"
-              [attr.aria-label]="appCopy().searchLabel"
-              [attr.placeholder]="appCopy().searchPlaceholder"
-              (input)="updateSearch($any($event.target).value)"
-              autocomplete="off"
-              spellcheck="false"
-            />
+            <p-inputgroup class="header-search-group">
+              <p-inputtext
+                class="header-search"
+                [ngModel]="searchQuery()"
+                (ngModelChange)="updateSearch($event)"
+                [attr.aria-label]="appCopy().searchLabel"
+                [attr.placeholder]="appCopy().searchPlaceholder"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <p-button
+                type="button"
+                [label]="appCopy().searchActionLabel"
+                severity="secondary"
+                outlined="true"
+                size="small"
+                styleClass="search-submit header-search-submit"
+                (onClick)="performSearch($event)"
+              />
+            </p-inputgroup>
           </div>
           <p-button
             label="{{ appCopy().nwsAlertLabel }} {{ appCopy().alertActionLabel }}"
@@ -98,28 +109,15 @@
           />
           <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
             <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-            <div class="site-language-buttons" role="group" [attr.aria-label]="appCopy().languageLabel">
-              <button
-                id="site-language-es"
-                type="button"
-                class="site-language-button"
-                [class.is-active]="siteLanguage() === 'es'"
-                [attr.aria-pressed]="siteLanguage() === 'es'"
-                (click)="updateSiteLanguage('es')"
-              >
-                ES
-              </button>
-              <button
-                id="site-language-en"
-                type="button"
-                class="site-language-button"
-                [class.is-active]="siteLanguage() === 'en'"
-                [attr.aria-pressed]="siteLanguage() === 'en'"
-                (click)="updateSiteLanguage('en')"
-              >
-                EN
-              </button>
-            </div>
+            <p-selectbutton
+              class="site-language-toggle"
+              [ngModel]="siteLanguage()"
+              (ngModelChange)="updateSiteLanguage($event)"
+              [options]="languageChoices()"
+              optionLabel="label"
+              optionValue="value"
+              [allowEmpty]="false"
+            />
           </div>
         </div>
       </ng-template>
@@ -155,7 +153,7 @@
           <p class="subtext">{{ heroContent().subtext }}</p>
         </div>
 
-        <section class="hero-utility-card" aria-labelledby="welcome-hero-heading">
+        <p-card class="hero-utility-card" aria-labelledby="welcome-hero-heading">
           <p class="section-kicker">{{ appCopy().contactKicker }}</p>
           <h2 id="welcome-hero-heading">{{ heroContent().welcomeHeading }}</h2>
 
@@ -201,7 +199,56 @@
               {{ appCopy().alertActionLabel }}
             </button>
           </div>
-        </section>
+
+          <label class="search-label" for="site-search">{{ appCopy().searchLabel }}</label>
+          <form class="search-form" id="search-panel" (submit)="performSearch($event)">
+            <p-inputgroup class="search-control-row">
+              <p-inputtext
+                id="site-search"
+                class="search-input"
+                [ngModel]="searchQuery()"
+                (ngModelChange)="updateSearch($event)"
+                [attr.aria-label]="appCopy().searchLabel"
+                [attr.placeholder]="appCopy().searchPlaceholder"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <p-button type="submit" [label]="appCopy().searchActionLabel" severity="secondary" styleClass="search-submit" />
+            </p-inputgroup>
+
+            <p class="search-note">{{ appCopy().searchNote }}</p>
+
+            @if (searchQuery().trim()) {
+              @if (searchResults().length) {
+                <div class="search-results">
+                  @for (result of searchResults(); track result.href + result.title) {
+                    @if (resolveAppLink(result.href); as searchResultLink) {
+                      @if (searchResultLink.isInternal) {
+                        <a
+                          class="search-result"
+                          [routerLink]="searchResultLink.path"
+                          [fragment]="searchResultLink.fragment"
+                        >
+                          <strong>{{ result.title }}</strong>
+                          <span>{{ result.summary }}</span>
+                          <small>{{ result.category }}</small>
+                        </a>
+                      } @else {
+                        <a class="search-result" [attr.href]="searchResultLink.href">
+                          <strong>{{ result.title }}</strong>
+                          <span>{{ result.summary }}</span>
+                          <small>{{ result.category }}</small>
+                        </a>
+                      }
+                    }
+                  }
+                </div>
+              } @else {
+                <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
+              }
+            }
+          </form>
+        </p-card>
       </div>
     </section>
 
@@ -214,6 +261,8 @@
         }
       }
     </nav>
+
+    <p-divider styleClass="page-divider" />
   </header>
 
   <main class="page-shell" id="main-content" #mainContent tabindex="-1">
@@ -222,11 +271,11 @@
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
 
-          <section class="panel detail-hero" aria-labelledby="detail-page-heading">
+          <p-card class="panel detail-hero" aria-labelledby="detail-page-heading">
             <p class="section-kicker">{{ currentFeaturePage.kicker }}</p>
             <h2 id="detail-page-heading">{{ currentFeaturePage.title }}</h2>
             <p class="detail-hero-copy">{{ currentFeaturePage.summary }}</p>
-          </section>
+          </p-card>
 
           @if (isWeatherMode()) {
             <section class="feature-detail-stack" id="weather">
@@ -234,7 +283,7 @@
             </section>
           } @else if (isNoticesMode()) {
             <section class="feature-detail-stack">
-              <section class="panel" id="alerts">
+              <p-card class="panel" id="alerts">
                 <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
                 <h2>{{ appCopy().noticesHeading }}</h2>
                 <div class="notice-grid">
@@ -246,11 +295,11 @@
                     </article>
                   }
                 </div>
-              </section>
+              </p-card>
             </section>
           } @else if (isMeetingsMode()) {
             <section class="feature-detail-stack">
-              <section class="panel" aria-labelledby="meetings-heading">
+              <p-card class="panel" aria-labelledby="meetings-heading">
                 <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
                 <h2 id="meetings-heading">{{ appCopy().meetingsHeading }}</h2>
                 <div class="stack-list">
@@ -278,9 +327,9 @@
                   }
                 </div>
                 <a class="text-link" href="#calendar">{{ appCopy().openCalendarLabel }}</a>
-              </section>
+              </p-card>
 
-              <section
+              <p-card
                 class="panel calendar-panel"
                 id="calendar"
                 aria-labelledby="calendar-heading"
@@ -495,11 +544,11 @@
                     />
                   </ng-template>
                 </p-dialog>
-              </section>
+              </p-card>
             </section>
           } @else if (isServicesMode()) {
             <section class="feature-detail-stack">
-              <section class="panel service-panel" id="services">
+              <p-card class="panel service-panel" id="services">
                 <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
                 <h2>{{ appCopy().servicesHeading }}</h2>
                 <div class="service-grid">
@@ -522,13 +571,13 @@
                     </article>
                   }
                 </div>
-              </section>
+              </p-card>
 
               <app-resident-services id="resident-services" [contacts]="contacts()" />
             </section>
           } @else if (isRecordsMode()) {
             <section class="feature-detail-stack">
-              <section class="panel" id="records">
+              <p-card class="panel" id="records">
                 <p class="section-kicker">{{ appCopy().transparencyKicker }}</p>
                 <h2>{{ appCopy().transparencyHeading }}</h2>
                 <div class="stack-list">
@@ -557,11 +606,11 @@
                   }
                 </div>
                 <app-records-center />
-              </section>
+              </p-card>
             </section>
           } @else if (isAccessibilityMode()) {
             <section class="feature-detail-stack">
-              <section class="panel" id="accessibility">
+              <p-card class="panel" id="accessibility">
                 <p class="section-kicker">{{ appCopy().accessibilityKicker }}</p>
                 <h2>{{ appCopy().accessibilityHeading }}</h2>
                 <div class="stack-list">
@@ -574,11 +623,11 @@
                 </div>
                 <p class="compliance-note">{{ appCopy().complianceNote }}</p>
                 <app-accessibility-support [contacts]="contacts()" />
-              </section>
+              </p-card>
             </section>
           } @else if (isContactMode()) {
             <section class="feature-detail-stack">
-              <section class="panel contact-panel" id="contact">
+              <p-card class="panel contact-panel" id="contact">
                 <p class="section-kicker">{{ appCopy().contactKicker }}</p>
                 <h2>{{ appCopy().contactHeading }}</h2>
                 <div class="contact-grid">
@@ -615,7 +664,7 @@
                     </article>
                   }
                 </div>
-              </section>
+              </p-card>
             </section>
           } @else if (isBusinessesMode()) {
             <section class="feature-detail-stack">
@@ -629,7 +678,7 @@
         </section>
       }
     } @else {
-      <section class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
+      <p-card class="landing-shortcuts panel" id="top-tasks" aria-labelledby="top-tasks-heading">
         <div class="landing-section-header">
           <div>
             <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
@@ -737,10 +786,10 @@
               }
             }
         </div>
-      </section>
+      </p-card>
 
-      <section class="content-grid landing-civic-grid">
-        <section class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
+      <p-card class="content-grid landing-civic-grid">
+        <p-card class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
           <div class="landing-section-header">
             <div>
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
@@ -773,9 +822,9 @@
               </article>
             }
           </div>
-        </section>
+        </p-card>
 
-        <section class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
+        <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
           <div class="landing-section-header">
             <div>
               <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
@@ -793,10 +842,10 @@
               </article>
             }
           </div>
-        </section>
-      </section>
+        </p-card>
+      </p-card>
 
-      <section class="feature-hub panel" aria-labelledby="feature-hub-heading">
+      <p-card class="feature-hub panel" aria-labelledby="feature-hub-heading">
         <div class="feature-hub-header">
           <div>
             <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
@@ -824,10 +873,10 @@
             }
           }
         </div>
-      </section>
+      </p-card>
 
-      <section class="support-strip">
-        <section class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
+      <p-card class="support-strip">
+        <p-card class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
           <p class="feature-hub-copy">
@@ -859,17 +908,17 @@
               <span>Open forecast details and sign up for weather-sensitive updates.</span>
             </a>
           </div>
-        </section>
+        </p-card>
 
-        <aside class="chatbot-panel panel" id="chatbot-panel" aria-labelledby="chatbot-heading">
+        <p-card class="chatbot-panel panel" id="chatbot-panel" aria-labelledby="chatbot-heading">
           <p class="section-kicker">Chat with Wiley</p>
           <h2 id="chatbot-heading">Town Assistant</h2>
 
           @if (isAssistantEnabled) {
             <app-ai-chat />
           }
-        </aside>
-      </section>
+        </p-card>
+      </p-card>
     }
 
     <footer class="site-footer">

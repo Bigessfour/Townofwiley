@@ -215,6 +215,14 @@
                 />
               }
 
+              @if (alertSignupUnsubscribeUrl(); as unsubscribeUrl) {
+                <p class="weather-signup-unsubscribe">
+                  <a [attr.href]="unsubscribeUrl" target="_blank" rel="noreferrer noopener">
+                    {{ copy().manageAlerts }}
+                  </a>
+                </p>
+              }
+
               <p-button
                 type="submit"
                 styleClass="weather-action weather-signup-submit"

@@ -2,6 +2,51 @@ import { expect, test } from '../../fixtures/town.fixture';
 import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 test.describe('homepage weather', () => {
+  test('elevates active Wiley alerts into the homepage warning banner', async ({ homePage }) => {
+    await homePage.enableWeatherProxy('/mock-homepage-weather');
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-homepage-weather', {
+      locationLabel: 'Wiley, CO',
+      updatedAt: '2026-03-22T12:57:10+00:00',
+      periods: [
+        {
+          name: 'Today',
+          startTime: '2026-03-22T09:00:00-06:00',
+          isDaytime: true,
+          temperature: 67,
+          temperatureUnit: 'F',
+          probabilityOfPrecipitation: { value: 1 },
+          windSpeed: '15 to 20 mph',
+          windDirection: 'NE',
+          icon: null,
+          shortForecast: 'Partly Sunny',
+          detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+        },
+      ],
+      alerts: [
+        {
+          event: 'Severe Thunderstorm Warning',
+          headline: 'Severe Thunderstorm Warning issued for Wiley.',
+          severity: 'Severe',
+          urgency: 'Immediate',
+          instruction: 'Move indoors and stay away from windows.',
+          expires: '2026-03-22T20:00:00-06:00',
+        },
+      ],
+    });
+
+    await homePage.goto();
+
+    await expect(homePage.siteAlert).toBeVisible();
+    await expect(homePage.siteAlertTitle).toContainText('Severe Thunderstorm Warning');
+    await expect(homePage.siteAlertDetail).toContainText('Severe Thunderstorm Warning issued');
+    await expect(homePage.siteAlertLink).toHaveAttribute('href', /forecast\.weather\.gov/);
+
+    await homePage.siteAlertButton.click();
+    await expect(homePage.page).toHaveURL(/\/weather$/);
+    await expect(homePage.weatherSignupShell).toBeVisible();
+  });
+
   test('renders the weather panel from the AWS proxy configuration', async ({ homePage }) => {
     await homePage.enableWeatherProxy();
 
@@ -64,7 +109,7 @@ test.describe('homepage weather', () => {
     await homePage.enableWeatherProxy('/mock-weather-refresh');
 
     let requestCount = 0;
-    let releaseRefreshResponse = () => {};
+    let releaseRefreshResponse: (() => void) | undefined;
     const refreshResponseGate = new Promise<void>((resolve) => {
       releaseRefreshResponse = resolve;
     });
@@ -133,7 +178,7 @@ test.describe('homepage weather', () => {
     await homePage.tapWeatherRefresh();
     await expect(homePage.weatherRefreshButton).toBeDisabled();
     await expect(homePage.weatherRefreshButton).toContainText('Refreshing...');
-    releaseRefreshResponse();
+    releaseRefreshResponse?.();
     await expect(homePage.weatherCurrentCard).toContainText('Mostly Sunny');
     await expect(homePage.weatherCurrentCard).toContainText('70°F');
     await expect(homePage.weatherCurrentCard).toContainText('E 10 to 15 mph');
@@ -147,7 +192,7 @@ test.describe('homepage weather', () => {
     await homePage.enableWeatherProxy();
     await homePage.enableAlertSignup('/mock-alert-signup');
 
-    const signupRequests: Array<Record<string, unknown>> = [];
+    const signupRequests: Record<string, unknown>[] = [];
 
     await mockWeatherProxyRoute(homePage.page, '/mock-weather');
     await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
@@ -166,11 +211,11 @@ test.describe('homepage weather', () => {
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.weatherSignupShell).toBeVisible();
-    await expect(homePage.weatherSignupChannel).toHaveValue('sms');
+    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'SMS text');
     await expect(homePage.weatherSignupZipCode).toHaveValue('81092');
-    await expect(homePage.weatherSignupLanguage).toHaveValue('en');
+    await expect(homePage.weatherSignupLanguage).toHaveAttribute('aria-label', 'English');
 
-    await homePage.weatherSignupChannel.selectOption('email');
+    await homePage.chooseWeatherSignupChannel('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident');
 
     await expect(homePage.weatherSignupStatus).toContainText(
@@ -195,7 +240,7 @@ test.describe('homepage weather', () => {
     await homePage.enableWeatherProxy();
     await homePage.enableAlertSignup('/mock-alert-signup');
 
-    const signupRequests: Array<Record<string, unknown>> = [];
+    const signupRequests: Record<string, unknown>[] = [];
 
     await mockWeatherProxyRoute(homePage.page, '/mock-weather');
     await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
@@ -213,7 +258,7 @@ test.describe('homepage weather', () => {
 
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
-    await homePage.weatherSignupChannel.selectOption('email');
+    await homePage.chooseWeatherSignupChannel('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident', 'es');
 
     await expect(homePage.weatherSignupStatus).toContainText('Gracias');
@@ -226,5 +271,65 @@ test.describe('homepage weather', () => {
         zipCode: '81092',
       },
     ]);
+  });
+
+  test('shows a manage alerts link when the email destination is already subscribed', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'This destination is already subscribed to Town of Wiley severe weather alerts.',
+          unsubscribeUrl: 'https://alerts.example.com/unsubscribe?token=existing-token',
+        }),
+      });
+    });
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+    await homePage.chooseWeatherSignupChannel('email');
+    await homePage.submitWeatherAlertSignup('resident@example.com');
+
+    await expect(homePage.weatherSignupStatus).toContainText('already subscribed');
+    await expect(homePage.weatherSignupManageLink).toHaveAttribute(
+      'href',
+      'https://alerts.example.com/unsubscribe?token=existing-token',
+    );
+  });
+
+  test('falls back to SMS when SES email confirmations are temporarily unavailable', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      await route.fulfill({
+        status: 502,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error:
+            'Email confirmations are temporarily unavailable. Try SMS text alerts instead or contact Town Hall.',
+        }),
+      });
+    });
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+      await homePage.chooseWeatherSignupChannel('email');
+    await homePage.submitWeatherAlertSignup('resident@example.com');
+
+    await expect(homePage.weatherSignupStatus).toContainText(
+      'Email confirmations are temporarily unavailable',
+    );
+    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'SMS text');
+    await expect(homePage.weatherSignupDestination).toHaveValue('');
   });
 });

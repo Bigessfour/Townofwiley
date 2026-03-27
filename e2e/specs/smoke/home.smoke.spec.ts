@@ -7,15 +7,16 @@ test.describe('homepage smoke', () => {
 
     await expect(homePage.page).toHaveTitle(siteContent.documentTitle);
     await expect(homePage.heroHeading).toContainText(siteContent.heading);
-    await expect(homePage.communityFacts).toHaveCount(3);
+    await expect(homePage.page.locator('.hero-utility-card')).toBeVisible();
     await expect(homePage.featureCards).toHaveCount(6);
     await expect(homePage.topTaskCards).toHaveCount(4);
-    await expect(homePage.page.locator('.feature-card[href="/weather"]')).toContainText(
+    await expect(homePage.page.locator('.feature-grid .feature-card[href="/weather"]')).toContainText(
       'Local weather',
     );
-    await expect(homePage.page.locator('.feature-card[href="/records"]')).toContainText(
+    await expect(homePage.page.locator('.feature-grid .feature-card[href="/records"]')).toContainText(
       'Records and documents',
     );
+    await expect(homePage.page.locator('.support-strip')).toBeVisible();
     await expect(homePage.page.locator('#accessibility')).toHaveCount(0);
   });
 
@@ -23,16 +24,10 @@ test.describe('homepage smoke', () => {
     await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
-    const heroActions = homePage.page.locator('.hero-actions .button-cta');
-    const heroActionGroup = homePage.page.locator('.hero-actions');
+    const heroActions = homePage.page.locator('.hero-utility-actions .button-cta');
+    const heroActionGroup = homePage.page.locator('.hero-utility-actions');
 
-    await expect(heroActions).toHaveCount(3);
-    await expect(
-      heroActionGroup.getByRole('link', {
-        name: siteContent.heroActionLabels.topTasks,
-        exact: true,
-      }),
-    ).toHaveAttribute('href', '#top-tasks');
+    await expect(heroActions).toHaveCount(2);
     await expect(
       heroActionGroup.getByRole('link', {
         name: siteContent.heroActionLabels.calendar,
@@ -58,27 +53,27 @@ test.describe('homepage smoke', () => {
   test('opens the remaining public feature pages from the homepage', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/notices"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/notices"]').click();
     await expect(homePage.page).toHaveURL(/\/notices$/);
     await expect(homePage.noticeCards).toHaveCount(3);
 
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/meetings"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/meetings"]').click();
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.meetingCards).toHaveCount(3);
-    await expect(homePage.page.locator('.calendar-card')).toHaveCount(3);
+    await expect(homePage.page.locator('.calendar-table')).toBeVisible();
 
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/services"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/services"]').click();
     await expect(homePage.page).toHaveURL(/\/services$/);
     await expect(homePage.serviceCards).toHaveCount(siteContent.serviceLabels.length);
     await expect(homePage.page.locator('#resident-services')).toBeVisible();
 
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/contact"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/contact"]').click();
     await expect(homePage.page).toHaveURL(/\/contact$/);
     await expect(homePage.contactCards.first()).toBeVisible();
     await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
@@ -97,7 +92,7 @@ test.describe('homepage smoke', () => {
     await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/weather"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/weather"]').click();
 
     await expect(homePage.page).toHaveURL(/\/weather$/);
     await expect(homePage.weatherHeading).toContainText('National Weather Service forecast');
@@ -107,7 +102,7 @@ test.describe('homepage smoke', () => {
   test('opens the public document hub from the records feature page', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.locator('.feature-card[href="/records"]').click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/records"]').click();
     await homePage.page.locator('#records-guide-packets .records-guide-link').click();
 
     await expect(homePage.page).toHaveURL(/\/documents#meeting-documents$/);

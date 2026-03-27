@@ -47,7 +47,7 @@ export const siteContent = {
     visitWebsite: 'Visit Website',
   },
   expectedStyles: {
-    civicBlue: 'rgb(19, 59, 99)',
+    civicBlue: 'rgb(19, 36, 62)',
     heroText: 'rgb(255, 255, 255)',
     headingFont: '"Fraunces", Georgia, serif',
     bodyFont: '"Source Sans 3", "Segoe UI", sans-serif',

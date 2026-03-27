@@ -34,17 +34,20 @@
 }
 
 .site-alert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(var(--spacing-unit) * 1.1);
   margin-top: calc(var(--spacing-unit) * 1.1);
-  padding-top: calc(var(--spacing-unit) * 1.1);
-  padding-bottom: calc(var(--spacing-unit) * 1.1);
   border-radius: 28px;
   background: linear-gradient(135deg, rgba(122, 46, 46, 0.96), rgba(166, 70, 39, 0.92));
   color: #fff8f1;
   box-shadow: 0 22px 54px rgba(74, 23, 23, 0.2);
+  overflow: hidden;
+}
+
+.site-alert :where(.p-card-body) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing-unit) * 1.1);
+  padding: calc(var(--spacing-unit) * 1.1);
 }
 
 .site-alert-copy {
@@ -132,7 +135,7 @@
   font: inherit;
 }
 
-.site-language-buttons {
+.site-language-toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -143,7 +146,7 @@
   box-shadow: 0 16px 34px rgba(17, 36, 61, 0.08);
 }
 
-.site-language-button {
+.site-language-toggle :where(.p-button) {
   min-width: 6.75rem;
   padding: 0.72rem 1rem;
   border: 0;
@@ -162,17 +165,18 @@
     transform 160ms ease;
 }
 
-.site-language-button:hover {
+.site-language-toggle :where(.p-button):hover {
   transform: translateY(-1px);
 }
 
-.site-language-button.is-active {
+.site-language-toggle :where(.p-button.p-highlight),
+.site-language-toggle :where(.p-button)[aria-pressed='true'] {
   background: linear-gradient(135deg, rgba(13, 44, 84, 0.96), rgba(28, 59, 102, 0.92));
   color: #fff;
   box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
 }
 
-.site-language-button:focus-visible {
+.site-language-toggle :where(.p-button):focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.24);
   outline-offset: 3px;
 }
@@ -258,6 +262,13 @@
   display: grid;
   gap: calc(var(--spacing-unit) * 2.1);
   padding-bottom: calc(var(--spacing-unit) * 4);
+}
+
+.page-divider {
+  max-width: 1240px;
+  margin: 0.6rem auto 0;
+  padding-left: calc(var(--spacing-unit) * 1.05);
+  padding-right: calc(var(--spacing-unit) * 1.05);
 }
 
 .landing-shortcuts,
@@ -447,6 +458,11 @@ h3 {
 }
 
 .hero-card,
+.hero-utility-card,
+.landing-shortcuts,
+.feature-hub,
+.support-strip,
+.detail-hero,
 .panel {
   position: relative;
   padding: calc(var(--spacing-unit) * 1.7);
@@ -461,8 +477,31 @@ h3 {
 }
 
 .hero-card::before,
+.hero-utility-card::before,
+.landing-shortcuts::before,
+.feature-hub::before,
+.support-strip::before,
+.detail-hero::before,
 .panel::before {
   display: none;
+}
+
+.hero-utility-card :where(.p-card-body),
+.landing-shortcuts :where(.p-card-body),
+.feature-hub :where(.p-card-body),
+.support-strip :where(.p-card-body),
+.detail-hero :where(.p-card-body),
+.panel :where(.p-card-body) {
+  display: grid;
+  gap: 1.25rem;
+  padding: calc(var(--spacing-unit) * 1.7);
+}
+
+.content-grid :where(.p-card-body),
+.support-strip :where(.p-card-body) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--spacing-unit) * 2);
 }
 
 .search-panel {
@@ -744,19 +783,21 @@ h3 {
 }
 
 .search-control-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: stretch;
+  margin-top: 0.1rem;
 }
 
-.search-input {
+.header-search-group,
+.search-control-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.header-search-group .header-search,
+.search-control-row .search-input {
+  flex: 1 1 auto;
+  min-width: 0;
   width: 100%;
-  padding: 0.95rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
 }
 
 .search-submit {
@@ -781,10 +822,6 @@ h3 {
 .search-submit:focus-visible {
   transform: translateY(-1px);
   box-shadow: 0 14px 30px rgba(17, 36, 61, 0.2);
-}
-
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.75);
 }
 
 .search-note {
@@ -1410,6 +1447,17 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .site-alert :where(.p-card-body) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .content-grid :where(.p-card-body),
+  .landing-civic-grid :where(.p-card-body),
+  .support-strip :where(.p-card-body) {
+    grid-template-columns: 1fr;
+  }
+
   .calendar-card.is-featured {
     grid-column: span 1;
   }
@@ -1430,7 +1478,7 @@ input:focus-visible {
 
   .site-alert-actions,
   .search-control-row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   .search-submit {
@@ -1439,11 +1487,11 @@ input:focus-visible {
 }
 
 @media (max-width: 720px) {
-  .site-language-buttons {
+  .site-language-toggle {
     width: 100%;
   }
 
-  .site-language-button {
+  .site-language-toggle :where(.p-button) {
     flex: 1 1 0;
     min-width: 0;
   }

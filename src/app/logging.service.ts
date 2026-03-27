@@ -91,7 +91,7 @@ export class LoggingService {
     });
   }
 
-  buttonClick(button: string, action: string = 'clicked') {
+  buttonClick(button: string, action = 'clicked') {
     this.log('info', `Button ${action}`, {
       eventType: 'button_click',
       button,

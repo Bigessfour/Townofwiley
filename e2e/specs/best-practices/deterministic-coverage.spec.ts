@@ -7,6 +7,8 @@ async function waitForFonts(page: Parameters<typeof test>[0]['page']): Promise<v
   });
 }
 
+const supportsVisualSnapshots = process.platform === 'win32';
+
 test.describe('deterministic regression coverage', () => {
   // eslint-disable-next-line no-empty-pattern
   test.beforeEach(async ({}, testInfo) => {
@@ -44,6 +46,8 @@ test.describe('deterministic regression coverage', () => {
   });
 
   test('keeps the homepage hero visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
     await homePage.goto();
     await waitForFonts(homePage.page);
 
@@ -57,6 +61,8 @@ test.describe('deterministic regression coverage', () => {
   });
 
   test('keeps the weather summary card visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
     await homePage.enableWeatherProxy('/mock-weather-visual');
     await homePage.enableAlertSignup('/mock-alert-signup');
     await mockWeatherProxyRoute(homePage.page, '/mock-weather-visual', {

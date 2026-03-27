@@ -18,10 +18,14 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { MenubarModule } from 'primeng/menubar';
 import { SkeletonModule } from 'primeng/skeleton';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { filter, map, startWith } from 'rxjs';
@@ -1006,13 +1010,17 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     RouterLink,
     FormsModule,
     ButtonModule,
+    DividerModule,
     DatePickerModule,
     DialogModule,
+    InputGroupModule,
+    InputTextModule,
     SkeletonModule,
     TableModule,
     TabsModule,
     CardModule,
     MenubarModule,
+    SelectButtonModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,
@@ -1151,6 +1159,10 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly languageChoices = computed(() => [
+    { label: this.appCopy().languageOptions.es, value: 'es' as SiteLanguage },
+    { label: this.appCopy().languageOptions.en, value: 'en' as SiteLanguage },
+  ]);
   protected readonly primaryContact = computed<CmsContact | null>(() => {
     return (
       this.contacts().find((contact) => contact.id === 'town-information') ??
@@ -1510,13 +1522,14 @@ export class App {
 
     const terms: string[] = query.split(/\s+/).filter(Boolean);
 
-    return searchIndex.filter((item) => {
-      const haystack = [item.title, item.summary, item.category, ...item.keywords]
-        .join(' ')
-        .toLowerCase();
-
-      return terms.every((term) => haystack.includes(term));
-    });
+    return searchIndex
+      .map((item) => ({
+        item,
+        score: this.scoreSearchItem(item, terms, query),
+      }))
+      .filter(({ score }) => score > 0)
+      .sort((left, right) => right.score - left.score)
+      .map(({ item }) => item);
   });
 
   protected updateSearch(query: string): void {
@@ -1544,6 +1557,82 @@ export class App {
 
     const [path, fragment] = firstResult.href.split('#');
     this.router.navigate([path], { fragment: fragment || undefined });
+  }
+
+  private scoreSearchItem(item: SearchItem, terms: string[], normalizedQuery: string): number {
+    const title = item.title.toLowerCase();
+    const summary = item.summary.toLowerCase();
+    const category = item.category.toLowerCase();
+    const href = item.href.toLowerCase();
+    const keywords = item.keywords.map((keyword) => keyword.toLowerCase());
+    const haystack = [title, summary, category, ...keywords].join(' ');
+    const hasMeetingIntent = terms.some((term) =>
+      ['meeting', 'meetings', 'calendar', 'agenda', 'council'].includes(term),
+    );
+    const hasContactIntent = terms.some((term) =>
+      ['contact', 'clerk', 'email', 'phone', 'call'].includes(term),
+    );
+    const hasDocumentIntent = terms.some((term) =>
+      ['document', 'documents', 'record', 'records', 'minutes', 'packet', 'form', 'pdf', 'archive', 'guide'].includes(term),
+    );
+
+    if (!terms.every((term) => haystack.includes(term))) {
+      return 0;
+    }
+
+    let score = 0;
+
+    if (title.includes(normalizedQuery)) {
+      score += 40;
+    }
+
+    if (category.includes(normalizedQuery)) {
+      score += 20;
+    }
+
+    if (summary.includes(normalizedQuery)) {
+      score += 10;
+    }
+
+    if (keywords.some((keyword) => keyword.includes(normalizedQuery))) {
+      score += 16;
+    }
+
+    if ((href === '/meetings' || href.startsWith('/meetings#')) && hasMeetingIntent) {
+      score += 30;
+    }
+
+    if ((href === '/contact' || href.startsWith('mailto:') || href.startsWith('tel:')) && hasContactIntent) {
+      score += 24;
+    }
+
+    if (href.startsWith('/documents') && !hasDocumentIntent) {
+      score -= 12;
+    }
+
+    for (const term of terms) {
+      if (title.includes(term)) {
+        score += 8;
+      }
+
+      if (category.includes(term)) {
+        score += 6;
+      }
+
+      if (keywords.some((keyword) => keyword.includes(term))) {
+        score += 4;
+      }
+
+      if (summary.includes(term)) {
+        score += 2;
+      }
+
+      if (href.includes(term)) {
+        score += 1;
+      }
+    }
+
+    return score;
   }
 
   protected openSignup(): void {
@@ -1584,7 +1673,7 @@ export class App {
     this.homepageWeatherAlert.set(alert);
   }
 
-  protected updateSiteLanguage(value: string): void {
+  protected updateSiteLanguage(value: SiteLanguage): void {
     this.logging.buttonClick(`language-${value}`);
     this.siteLanguageService.setLanguage(value);
   }

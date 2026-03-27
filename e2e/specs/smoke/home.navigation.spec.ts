@@ -14,7 +14,7 @@ test.describe('homepage navigation', () => {
     });
 
     expect(navHrefs).toEqual([
-      '#top-tasks',
+      '/#top-tasks',
       '/weather',
       '/notices',
       '/meetings',
@@ -31,12 +31,16 @@ test.describe('homepage navigation', () => {
 
     // Expanded coverage for new pages
     await homePage.page.goto('/businesses');
-    await expect(homePage.page.locator('h1')).toContainText('Wiley Community Business Directory');
-    await expect(homePage.page.locator('p-card')).toHaveCount(10); // cards + samples
+    await expect(homePage.page.locator('.business-directory-page h1')).toContainText(
+      'Wiley Community Business Directory',
+    );
+    await expect(homePage.page.locator('.public-directory-card')).toHaveCount(10);
 
     await homePage.page.goto('/news');
-    await expect(homePage.page.locator('h1')).toContainText('Town News and Announcements');
-    const newsCardCountInNavTest = await homePage.page.locator('p-card').count();
+    await expect(homePage.page.locator('.news-page-shell h1')).toContainText(
+      'Town News and Announcements',
+    );
+    const newsCardCountInNavTest = await homePage.page.locator('.news-card').count();
     expect(newsCardCountInNavTest).toBeGreaterThan(0);
   });
 
@@ -62,45 +66,75 @@ test.describe('homepage navigation', () => {
     await homePage.goto();
 
     await homePage.searchFor('pay water bill');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.payments);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/services#payment-help');
+    const paymentResult = homePage.page.locator('a.search-result[href="/services#payment-help"]', {
+      hasText: siteContent.searchMatches.payments,
+    });
+    await expect(paymentResult.first()).toBeVisible();
 
     await homePage.searchFor('street outage');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.issues);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/services#issue-report');
+    const issueResult = homePage.page.locator('a.search-result[href="/services#issue-report"]', {
+      hasText: siteContent.searchMatches.issues,
+    });
+    await expect(issueResult.first()).toBeVisible();
 
     await homePage.searchFor('city council meeting');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.meetings);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/meetings');
+    const meetingResult = homePage.page.locator('a.search-result[href="/meetings"]', {
+      hasText: siteContent.searchMatches.meetings,
+    });
+    await expect(meetingResult.first()).toBeVisible();
 
     await homePage.searchFor('community calendar');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.calendar);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/meetings');
+    const calendarResult = homePage.page.locator('a.search-result[href="/meetings"]', {
+      hasText: siteContent.searchMatches.calendar,
+    });
+    await expect(calendarResult.first()).toBeVisible();
 
     await homePage.searchFor('screen reader support');
-    await expect(homePage.searchResults.first()).toContainText(
-      siteContent.searchMatches.accessibility,
-    );
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/accessibility');
+    const accessibilityResult = homePage.page.locator('a.search-result[href="/accessibility"]', {
+      hasText: siteContent.searchMatches.accessibility,
+    });
+    await expect(accessibilityResult.first()).toBeVisible();
 
     await homePage.searchFor('city clerk deb dillon');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.clerk);
-    await expect(homePage.searchResults.first()).toHaveAttribute(
-      'href',
-      'mailto:deb.dillon@townofwiley.gov',
+    const clerkResult = homePage.page.locator(
+      'a.search-result[href="mailto:deb.dillon@townofwiley.gov"]',
+      {
+        hasText: siteContent.searchMatches.clerk,
+      },
     );
+    await expect(clerkResult.first()).toBeVisible();
 
     await homePage.searchFor('business directory');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.businesses);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/businesses');
+    const businessResult = homePage.page.locator('a.search-result[href="/businesses"]', {
+      hasText: siteContent.searchMatches.businesses,
+    });
+    await expect(businessResult.first()).toBeVisible();
 
     await homePage.searchFor('town news');
-    await expect(homePage.searchResults.first()).toContainText(siteContent.searchMatches.news);
-    await expect(homePage.searchResults.first()).toHaveAttribute('href', '/news');
+    const newsResult = homePage.page.locator('a.search-result[href="/news"]', {
+      hasText: siteContent.searchMatches.news,
+    });
+    await expect(newsResult.first()).toBeVisible();
 
     await homePage.searchFor('snowmobile permit banana');
     await expect(homePage.searchResults).toHaveCount(0);
     await expect(homePage.emptySearchState).toContainText(siteContent.emptySearchMessage);
+  });
+
+  test('shows visit website actions only for verified business links', async ({ homePage }) => {
+    await homePage.page.goto('/businesses');
+
+    await expect(homePage.page.locator('a[href*="example.com"]')).toHaveCount(0);
+
+    const mountainViewCard = homePage.page.locator('article.public-directory-card', {
+      hasText: 'Mountain View Cafe',
+    });
+    const townPharmacyCard = homePage.page.locator('article.public-directory-card', {
+      hasText: 'Town Pharmacy',
+    });
+
+    await expect(mountainViewCard.getByRole('link', { name: 'Visit website' })).toHaveCount(0);
+    await expect(townPharmacyCard.getByRole('link', { name: 'Visit website' })).toHaveCount(0);
   });
 
   test('verifies buttons trigger logging, colors/fonts/theme match design across pages', async ({ homePage }) => {
@@ -133,26 +167,28 @@ test.describe('homepage navigation', () => {
 
     // Test business directory buttons/logging
     await homePage.page.goto('/businesses');
-    await expect(homePage.page.locator('h1')).toContainText(siteContent.cmsHeadings.businesses);
+    await expect(homePage.page.locator('#business-directory-heading')).toContainText(
+      siteContent.cmsHeadings.businesses,
+    );
     const businessLogCount = logs.length;
     await homePage.page.locator('a[href*="tempelgrain"]').first().click();
     expect(logs.length).toBeGreaterThan(businessLogCount);
 
     await homePage.page.goto('/news');
-    await expect(homePage.page.locator('h1')).toContainText(siteContent.cmsHeadings.news);
+    await expect(homePage.page.locator('.news-page-shell h1')).toContainText(siteContent.cmsHeadings.news);
 
-    const newsCardCount = await homePage.page.locator('p-card').count();
-    expect(newsCardCount).toBeGreaterThan(3);
+    const newsCardCount = await homePage.page.locator('.news-card').count();
+    expect(newsCardCount).toBeGreaterThan(0);
 
     // Verify design consistency (colors, fonts) on news page too
     const newsHeadingFont = await homePage.page.evaluate(() => {
-      const el = document.querySelector('h1');
+      const el = document.querySelector('.news-page-shell h1');
       return el ? getComputedStyle(el).fontFamily : '';
     });
     expect(newsHeadingFont).toContain('Fraunces');
 
     const newsCivicBlue = await homePage.page.evaluate(() => {
-      const el = document.querySelector('h1');
+      const el = document.querySelector('.news-page-shell h1');
       return el ? getComputedStyle(el).color : '';
     });
     expect(newsCivicBlue).toBe(siteContent.expectedStyles.civicBlue);

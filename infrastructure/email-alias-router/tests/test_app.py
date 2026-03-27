@@ -49,6 +49,14 @@ class RecordingForwarder:
     )
 
 
+class RecordingSesClient:
+  def __init__(self) -> None:
+    self.calls: list[dict[str, object]] = []
+
+  def send_raw_email(self, **kwargs) -> None:
+    self.calls.append(kwargs)
+
+
 def build_router(raw_message: bytes, aliases: list[APP.EmailAliasRecord]) -> tuple[APP.EmailAliasRouter, RecordingForwarder]:
   forwarder = RecordingForwarder()
   router = APP.EmailAliasRouter(
@@ -168,6 +176,31 @@ class EmailAliasRouterTests(unittest.TestCase):
     self.assertEqual(forward_message['Reply-To'], 'resident.reply@example.com')
     self.assertEqual(forward_message['X-Town-Alias'], 'steve.mckitrick@townofwiley.gov')
     self.assertIn('Fwd: Test subject', forward_message['Subject'])
+
+  def test_ses_mail_forwarder_sends_raw_message_with_alias_metadata(self) -> None:
+    raw_message = (
+      b'From: Resident <resident@example.com>\n'
+      b'To: Mayor <steve.mckitrick@townofwiley.gov>\n'
+      b'Subject: Test subject\n\n'
+      b'Original message body.'
+    )
+    parsed_message = APP.BytesParser(policy=APP.policy.default).parsebytes(raw_message)
+    alias = APP.EmailAliasRecord(
+      alias_address='steve.mckitrick@townofwiley.gov',
+      destination_address='bigessfour@gmail.com',
+      active=True,
+      display_name='Town of Wiley Mail',
+      role_label='Mayor',
+    )
+    ses_client = RecordingSesClient()
+    forwarder = APP.SesMailForwarder('mailer@townofwiley.gov', ses_client)
+
+    forwarder.forward(alias, raw_message, parsed_message)
+
+    self.assertEqual(len(ses_client.calls), 1)
+    self.assertEqual(ses_client.calls[0]['Source'], 'mailer@townofwiley.gov')
+    self.assertEqual(ses_client.calls[0]['Destinations'], ['bigessfour@gmail.com'])
+    self.assertIn(b'X-Town-Alias: steve.mckitrick@townofwiley.gov', ses_client.calls[0]['RawMessage']['Data'])
 
   def test_health_endpoint_reports_service_status(self) -> None:
     router, _forwarder = build_router(b'', [])

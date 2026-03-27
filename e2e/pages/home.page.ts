@@ -27,6 +27,12 @@ export class HomePage {
   readonly weatherSignupZipCode: Locator;
   readonly weatherSignupSubmitButton: Locator;
   readonly weatherSignupStatus: Locator;
+  readonly weatherSignupManageLink: Locator;
+  readonly siteAlert: Locator;
+  readonly siteAlertTitle: Locator;
+  readonly siteAlertDetail: Locator;
+  readonly siteAlertLink: Locator;
+  readonly siteAlertButton: Locator;
   readonly noticeCards: Locator;
   readonly meetingCards: Locator;
   readonly serviceCards: Locator;
@@ -51,7 +57,7 @@ export class HomePage {
     this.mainContent = page.locator('#main-content');
     this.heroHeading = page.getByRole('heading', { level: 1, name: 'Town of Wiley' });
     this.communityFacts = page.locator('.fact-card');
-    this.featureCards = page.locator('.feature-card');
+    this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
     this.sectionNavLinks = page.locator('.section-nav a');
     this.searchInput = page.locator('#site-search');
@@ -70,7 +76,13 @@ export class HomePage {
     this.weatherSignupFullName = page.locator('#weather-alert-signup-full-name');
     this.weatherSignupZipCode = page.locator('#weather-alert-signup-zip-code');
     this.weatherSignupSubmitButton = page.locator('.weather-signup-submit');
-    this.weatherSignupStatus = page.locator('.weather-signup-status');
+    this.weatherSignupStatus = page.locator('.weather-signup-status-message');
+    this.weatherSignupManageLink = page.locator('.weather-signup-unsubscribe a');
+    this.siteAlert = page.locator('.site-alert');
+    this.siteAlertTitle = page.locator('.site-alert-title');
+    this.siteAlertDetail = page.locator('.site-alert-detail');
+    this.siteAlertLink = page.locator('.site-alert-link');
+    this.siteAlertButton = page.locator('.site-alert-button');
     this.noticeCards = page.locator('.notice-card');
     this.meetingCards = page.locator('.meeting-card');
     this.serviceCards = page.locator('.service-card');
@@ -235,7 +247,7 @@ export class HomePage {
     await this.weatherSignupDestination.fill(destination);
 
     if (preferredLanguage) {
-      await this.weatherSignupLanguage.selectOption(preferredLanguage);
+      await this.chooseWeatherSignupLanguage(preferredLanguage);
     }
 
     if (fullName) {
@@ -243,7 +255,25 @@ export class HomePage {
     }
 
     await this.weatherSignupSubmitButton.scrollIntoViewIfNeeded();
-    await this.weatherSignupSubmitButton.focus();
-    await this.weatherSignupSubmitButton.press('Enter');
+    await this.weatherSignupSubmitButton.click();
+  }
+
+  async chooseWeatherSignupChannel(channel: 'email' | 'sms'): Promise<void> {
+    await this.selectPrimeSelectOption(
+      this.weatherSignupChannel,
+      channel === 'email' ? 'Email' : 'SMS text',
+    );
+  }
+
+  async chooseWeatherSignupLanguage(language: 'en' | 'es'): Promise<void> {
+    await this.selectPrimeSelectOption(
+      this.weatherSignupLanguage,
+      language === 'es' ? 'Spanish' : 'English',
+    );
+  }
+
+  private async selectPrimeSelectOption(combobox: Locator, optionLabel: string): Promise<void> {
+    await combobox.click();
+    await this.page.getByRole('option', { name: optionLabel, exact: true }).click();
   }
 }

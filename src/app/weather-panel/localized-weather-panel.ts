@@ -192,6 +192,7 @@ interface WeatherCopy {
   confirmationNote: string;
   submit: string;
   submitting: string;
+  manageAlerts: string;
   invalidEmail: string;
   invalidSms: string;
   signupSuccess: string;
@@ -254,6 +255,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
       'We send a confirmation first. Alerts do not start until the resident finishes the confirmation step.',
     submit: 'Sign up for alerts',
     submitting: 'Sending confirmation...',
+    manageAlerts: 'Manage your alerts or unsubscribe',
     invalidEmail: 'Enter a valid email address before signing up for severe weather alerts.',
     invalidSms: 'Enter a valid mobile number with area code before signing up for text alerts.',
     signupSuccess:
@@ -316,6 +318,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
       'Primero enviamos una confirmacion. Las alertas no comienzan hasta que la persona complete ese paso.',
     submit: 'Suscribirse a alertas',
     submitting: 'Enviando confirmacion...',
+    manageAlerts: 'Administrar alertas o cancelar la suscripcion',
     invalidEmail:
       'Ingrese un correo electronico valido antes de suscribirse a alertas de clima severo.',
     invalidSms:
@@ -383,6 +386,7 @@ export class LocalizedWeatherPanel {
   protected readonly alertSignupFeedback = signal<string | null>(null);
   protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
   protected readonly isAlertSignupSubmitting = signal(false);
+  protected readonly alertSignupUnsubscribeUrl = signal<string | null>(null);
 
   protected readonly updatedLabel = computed(() => {
     const updatedAt = this.updatedAtState();
@@ -474,6 +478,8 @@ export class LocalizedWeatherPanel {
   protected async submitAlertSignup(event?: Event): Promise<void> {
     event?.preventDefault();
 
+    this.alertSignupUnsubscribeUrl.set(null);
+
     const destination = this.alertSignupDestination().trim();
     const fullName = this.alertSignupFullName().trim();
 
@@ -513,6 +519,7 @@ export class LocalizedWeatherPanel {
             ),
         ),
       );
+      this.alertSignupUnsubscribeUrl.set(response.unsubscribeUrl?.trim() || null);
       this.alertSignupDestination.set('');
       this.alertSignupFullName.set('');
     } catch (error) {
