@@ -50,28 +50,43 @@
 
   <header class="site-header" role="banner">
     <div class="header-top">
-      <a class="town-logo" routerLink="/" aria-label="Town of Wiley home">
+      <a class="town-logo" routerLink="/" href="/" aria-label="Town of Wiley home">
         <div class="official-badge" aria-hidden="true">
-          <strong>OFFICIAL</strong><br />
-          TOWN<br />
+          <strong>WELCOME TO</strong><br />
+          TOWN OF WILEY<br />
           WEBSITE
         </div>
       </a>
 
-      <nav
-        class="section-nav main-nav"
+      <p-menubar
+        class="main-nav-menubar"
+        [model]="mainMenuItems()"
         [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
         data-testid="homepage-section-nav"
       >
-        @for (link of navLinks(); track link.label) {
-          <a [attr.href]="link.href.startsWith('#') ? '/' + link.href : link.href">
-            <i [attr.class]="link.icon"></i>
-            {{ link.label }}
-          </a>
-        }
-      </nav>
+      </p-menubar>
 
       <div class="header-right">
+        <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
+          <span class="site-language-label">{{ appCopy().languageLabel }}</span>
+          <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
+            @for (choice of languageChoices(); track choice.value) {
+              <button
+                type="button"
+                class="site-language-button"
+                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                [class.is-active]="siteLanguage() === choice.value"
+                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                [attr.aria-pressed]="siteLanguage() === choice.value"
+                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                (click)="updateSiteLanguage(choice.value)"
+              >
+                {{ choice.label }}
+              </button>
+            }
+          </div>
+        </div>
+
         <div class="info-buttons">
           @if (primaryContact(); as primaryContact) {
             <a
@@ -163,26 +178,6 @@
               }
             }
           </form>
-        </div>
-
-        <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
-          <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-          <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
-            @for (choice of languageChoices(); track choice.value) {
-              <button
-                type="button"
-                class="site-language-button"
-                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
-                [class.is-active]="siteLanguage() === choice.value"
-                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
-                [attr.aria-pressed]="siteLanguage() === choice.value"
-                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
-                (click)="updateSiteLanguage(choice.value)"
-              >
-                {{ choice.label }}
-              </button>
-            }
-          </div>
         </div>
       </div>
     </div>

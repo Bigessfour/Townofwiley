@@ -15,6 +15,7 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import type { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -1260,7 +1261,24 @@ export class App {
     return this.cmsAlertBanner();
   });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
-  protected readonly navLinks = computed(() => this.appCopy().navLinks);
+  protected readonly mainMenuItems = computed<MenuItem[]>(() => {
+    return this.appCopy().navLinks.map((link) => {
+      const routeLink = this.resolveAppLink(link.href, '/');
+
+      return routeLink.isInternal
+        ? {
+            label: link.label,
+            icon: link.icon,
+            routerLink: routeLink.path ?? '/',
+            fragment: routeLink.fragment,
+          }
+        : {
+            label: link.label,
+            icon: link.icon,
+            url: routeLink.href,
+          };
+    });
+  });
 
   private readonly logging = inject(LoggingService);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);

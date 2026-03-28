@@ -82,10 +82,11 @@
           <button
             type="button"
             class="resident-action resident-action--secondary"
+            aria-label="Open billing help email"
             [class.is-disabled]="!paymentMailtoHref()"
             (click)="openPaymentMailto($event)"
           >
-            {{ copy().paymentActionLabel }}
+            {{ copy().paymentActionLabel || 'Open billing help email' }}
           </button>
           @if (paymentStatus(); as paymentStatus) {
             <p class="resident-status" aria-live="polite">{{ paymentStatus }}</p>
@@ -148,6 +149,7 @@
           <button
             type="button"
             class="resident-action"
+            [attr.aria-label]="copy().issueActionLabel"
             [class.is-disabled]="!issueMailtoHref()"
             (click)="openIssueMailto($event)"
           >
@@ -214,6 +216,7 @@
           <button
             type="button"
             class="resident-action"
+            [attr.aria-label]="copy().recordsActionLabel"
             [class.is-disabled]="!recordsMailtoHref()"
             (click)="openRecordsMailto($event)"
           >
