@@ -98,12 +98,12 @@
             </a>
           }
 
-          <a href="/meetings#calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
+          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().meetingsKicker }}</strong>
             <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
 
-          <a href="/#top-tasks" class="header-meta-link button-cta button-cta--light">
+          <a routerLink="/" fragment="top-tasks" class="header-meta-link button-cta button-cta--light">
             <strong>{{ appCopy().topTasksKicker }}</strong>
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
