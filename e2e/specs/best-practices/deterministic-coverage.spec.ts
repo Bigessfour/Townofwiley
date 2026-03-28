@@ -23,15 +23,17 @@ test.describe('deterministic regression coverage', () => {
 
     await expect(homePage.page.getByTestId('homepage-section-nav')).toMatchAriaSnapshot(`
       - navigation "Homepage sections":
-        - link " Top Tasks"
-        - link " Weather"
-        - link " Notices"
-        - link " Meetings"
-        - link " Services"
-        - link " Records"
-        - link " Businesses"
-        - link "News"
-        - link " Contact"
+        - link /Top Tasks/
+        - link /Weather/
+        - link /Notices/
+        - link /Meetings/
+        - link /Services/
+        - link /Records/
+        - link /Documents/
+        - link /Accessibility/
+        - link /Businesses/
+        - link /News/
+        - link /Contact/
     `);
   });
 
