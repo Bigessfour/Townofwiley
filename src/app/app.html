@@ -825,11 +825,19 @@
         <section class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Town feature pages">
           @for (feature of homepageFeaturePages(); track feature.id) {
             @if (resolveAppLink(feature.href); as featureLink) {
-              <a class="feature-card" [attr.href]="featureLink.href">
-                <p class="meta-label">{{ feature.kicker }}</p>
-                <strong>{{ feature.title }}</strong>
-                <span>{{ feature.summary }}</span>
-              </a>
+              @if (featureLink.isInternal) {
+                <a class="feature-card" [routerLink]="featureLink.path" [fragment]="featureLink.fragment">
+                  <p class="meta-label">{{ feature.kicker }}</p>
+                  <strong>{{ feature.title }}</strong>
+                  <span>{{ feature.summary }}</span>
+                </a>
+              } @else {
+                <a class="feature-card" [attr.href]="featureLink.href">
+                  <p class="meta-label">{{ feature.kicker }}</p>
+                  <strong>{{ feature.title }}</strong>
+                  <span>{{ feature.summary }}</span>
+                </a>
+              }
             }
           }
         </section>
@@ -846,15 +854,23 @@
           <section class="support-link-grid grid gap-4 md:grid-cols-2" aria-label="Quick resident links">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
-                <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
-                  <p class="meta-label">{{ primaryContact.label }}</p>
-                  <strong>{{ primaryContact.value }}</strong>
-                  <span>{{ appCopy().contactHeading }}</span>
-                </a>
+                @if (supportContactLink.isInternal) {
+                  <a class="feature-card support-link-card" [routerLink]="supportContactLink.path" [fragment]="supportContactLink.fragment">
+                    <p class="meta-label">{{ primaryContact.label }}</p>
+                    <strong>{{ primaryContact.value }}</strong>
+                    <span>{{ appCopy().contactHeading }}</span>
+                  </a>
+                } @else {
+                  <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
+                    <p class="meta-label">{{ primaryContact.label }}</p>
+                    <strong>{{ primaryContact.value }}</strong>
+                    <span>{{ appCopy().contactHeading }}</span>
+                  </a>
+                }
               }
             }
 
-            <a class="feature-card support-link-card" href="/weather" data-testid="support-weather">
+            <a class="feature-card support-link-card" routerLink="/weather" data-testid="support-weather">
               <p class="meta-label">{{ appCopy().nwsAlertLabel }}</p>
               <strong>{{ appCopy().alertActionLabel }}</strong>
               <span>Open forecast details and sign up for weather-sensitive updates.</span>
@@ -877,7 +893,11 @@
       <div class="footer-links">
         @for (link of appCopy().footerLinks; track link.label) {
           @if (resolveAppLink(link.href); as footerLink) {
-            <a [attr.href]="footerLink.href">{{ link.label }}</a>
+            @if (footerLink.isInternal) {
+              <a [routerLink]="footerLink.path" [fragment]="footerLink.fragment">{{ link.label }}</a>
+            } @else {
+              <a [attr.href]="footerLink.href">{{ link.label }}</a>
+            }
           }
         }
       </div>
