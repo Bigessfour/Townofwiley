@@ -34,6 +34,12 @@ export const siteContent = {
     'Language access for critical services',
     'Search and document discovery',
   ],
+  homepageCounts: {
+    noticeCards: 3,
+    meetingCards: 3,
+    serviceCards: 6,
+    headerShortcuts: 3,
+  },
   searchMatches: {
     payments: 'Pay utility bill',
     issues: 'Report a street or utility issue',
@@ -68,5 +74,6 @@ export const siteContent = {
   cmsHeadings: {
     news: 'Town News and Announcements',
     businesses: 'Wiley Community Business Directory',
+    documentsHub: 'Stable public destinations for meetings, finance records, and code references',
   },
 };

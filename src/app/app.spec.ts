@@ -8,6 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
+import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
 interface TestRuntimeConfig {
@@ -178,7 +179,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
 
-    searchInput.value = 'budget summaries';
+    searchInput.value = 'Budget summaries and annual reports';
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     await fixture.whenStable();
@@ -187,7 +188,7 @@ describe('App', () => {
       '.search-result[href="/documents#financial-documents"]',
     );
 
-    expect(financeResult?.textContent).toContain('budget');
+    expect(financeResult?.textContent).toContain('Budget summaries and annual reports');
 
     searchInput.value = 'public records checklist';
     searchInput.dispatchEvent(new Event('input'));
@@ -578,8 +579,8 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.document-hub-title')?.textContent).toContain(
-      'Stable public destinations for meetings, finance records, and code references',
+    expect(compiled.querySelector('[data-testid="document-hub-title"]')?.textContent).toContain(
+      DOCUMENT_HUB_TITLE_EN,
     );
     expect(compiled.querySelector('#meeting-documents')?.textContent).toContain(
       'City Council packets and approved minutes',

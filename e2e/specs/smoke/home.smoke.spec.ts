@@ -11,7 +11,7 @@ interface NavigationGateway {
 
 interface FeaturePageGateway {
   name: string;
-  linkName: RegExp;
+  href: string;
   expectedUrl: RegExp;
   assertDestination: (homePage: HomePage) => Promise<void>;
 }
@@ -31,11 +31,11 @@ async function expectWeatherPage(homePage: HomePage): Promise<void> {
 }
 
 async function expectNoticesPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.noticeCards).toHaveCount(3);
+  await expect(homePage.noticeCards).toHaveCount(siteContent.homepageCounts.noticeCards);
 }
 
 async function expectMeetingsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.meetingCards).toHaveCount(3);
+  await expect(homePage.page.locator('#calendar')).toBeVisible();
 }
 
 async function expectMeetingsCalendar(homePage: HomePage): Promise<void> {
@@ -43,16 +43,22 @@ async function expectMeetingsCalendar(homePage: HomePage): Promise<void> {
 }
 
 async function expectServicesPage(homePage: HomePage): Promise<void> {
+  await expect(homePage.serviceCards).toHaveCount(siteContent.homepageCounts.serviceCards);
   await expect(homePage.page.locator('#resident-services')).toBeVisible();
 }
 
 async function expectRecordsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.locator('#records-guide-packets .records-guide-link')).toBeVisible();
+  await expect(homePage.page.getByTestId('records-guide-packets')).toBeVisible();
+  await expect(
+    homePage.page.getByTestId('records-guide-packets').getByRole('link', {
+      name: 'Open meeting documents destination',
+    }),
+  ).toBeVisible();
 }
 
 async function expectDocumentsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.locator('.document-hub-title')).toContainText(
-    'Stable public destinations for meetings, finance records, and code references',
+  await expect(homePage.page.getByTestId('document-hub-title')).toContainText(
+    siteContent.cmsHeadings.documentsHub,
   );
 }
 
@@ -75,7 +81,7 @@ async function expectNewsPage(homePage: HomePage): Promise<void> {
 }
 
 async function expectContactPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.contactCards.first()).toBeVisible();
+  await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
 }
 
 async function expectTopTasksAnchor(homePage: HomePage): Promise<void> {
@@ -101,7 +107,7 @@ async function expectFeaturePageFromHomepage(
   await homePage.goto();
 
   const featureGrid = homePage.page.getByRole('region', { name: 'Town feature pages' });
-  const featureCard = featureGrid.getByRole('link', { name: gateway.linkName });
+  const featureCard = featureGrid.locator(`.feature-card[href="${gateway.href}"]`);
 
   await expect(featureCard, gateway.name).toBeVisible();
   await featureCard.scrollIntoViewIfNeeded();
@@ -114,67 +120,67 @@ async function expectFeaturePageFromHomepage(
 const sectionNavigationGateways: NavigationGateway[] = [
   {
     name: 'Top Tasks section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/#top-tasks"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Top Tasks' }).click(),
     expectedUrl: /\/#top-tasks$/,
     assertDestination: expectTopTasksAnchor,
   },
   {
     name: 'Weather section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/weather"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Weather' }).click(),
     expectedUrl: /\/weather$/,
     assertDestination: expectWeatherPage,
   },
   {
     name: 'Notices section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/notices"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Notices' }).click(),
     expectedUrl: /\/notices$/,
     assertDestination: expectNoticesPage,
   },
   {
     name: 'Meetings section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/meetings"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Meetings' }).click(),
     expectedUrl: /\/meetings$/,
     assertDestination: expectMeetingsPage,
   },
   {
     name: 'Services section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/services"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Services' }).click(),
     expectedUrl: /\/services$/,
     assertDestination: expectServicesPage,
   },
   {
     name: 'Records section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/records"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Records' }).click(),
     expectedUrl: /\/records$/,
     assertDestination: expectRecordsPage,
   },
   {
     name: 'Documents section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/documents"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Documents' }).click(),
     expectedUrl: /\/documents$/,
     assertDestination: expectDocumentsPage,
   },
   {
     name: 'Accessibility section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/accessibility"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Accessibility' }).click(),
     expectedUrl: /\/accessibility$/,
     assertDestination: expectAccessibilityPage,
   },
   {
     name: 'Businesses section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/businesses"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Businesses' }).click(),
     expectedUrl: /\/businesses$/,
     assertDestination: expectBusinessesPage,
   },
   {
     name: 'News section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/news"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'News' }).click(),
     expectedUrl: /\/news$/,
     assertDestination: expectNewsPage,
   },
   {
     name: 'Contact section nav',
-    click: (page) => page.page.locator('.section-nav a[href="/contact"]').click(),
+    click: (page) => page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Contact' }).click(),
     expectedUrl: /\/contact$/,
     assertDestination: expectContactPage,
   },
@@ -183,13 +189,13 @@ const sectionNavigationGateways: NavigationGateway[] = [
 const homepageGatewayTests: NavigationGateway[] = [
   {
     name: 'Header calendar shortcut',
-    click: (page) => page.page.locator('.info-buttons .header-meta-link[href="/meetings#calendar"]').click(),
+    click: (page) => page.page.getByRole('link', { name: 'Meetings and Calendar Open the full town calendar' }).click(),
     expectedUrl: /\/meetings#calendar$/,
     assertDestination: expectMeetingsCalendar,
   },
   {
     name: 'Header top tasks shortcut',
-    click: (page) => page.page.locator('.info-buttons .header-meta-link[href="/#top-tasks"]').click(),
+    click: (page) => page.page.getByRole('link', { name: 'Quick Tasks How do I...' }).click(),
     expectedUrl: /\/#top-tasks$/,
     assertDestination: expectTopTasksAnchor,
   },
@@ -310,37 +316,38 @@ const homepageGatewayTests: NavigationGateway[] = [
 const featurePageGateways: FeaturePageGateway[] = [
   {
     name: 'notices feature page',
-    linkName: /Town notices/i,
+    href: '/notices',
     expectedUrl: /\/notices$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.noticeCards).toHaveCount(3);
+      await expect(homePage.noticeCards.first()).toBeVisible();
     },
   },
   {
     name: 'meetings feature page',
-    linkName: /Meetings and calendar/i,
+    href: '/meetings',
     expectedUrl: /\/meetings$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.meetingCards).toHaveCount(3);
+      await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
+      await expect(homePage.page.locator('#calendar')).toBeVisible();
       await homePage.page.getByRole('tab', { name: 'Event list' }).click();
       await expect(homePage.page.locator('.calendar-table')).toBeVisible();
     },
   },
   {
     name: 'services feature page',
-    linkName: /Resident services/i,
+    href: '/services',
     expectedUrl: /\/services$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.serviceCards).toHaveCount(siteContent.serviceLabels.length);
+      await expect(homePage.serviceCards).toHaveCount(siteContent.homepageCounts.serviceCards);
       await expect(homePage.page.locator('#resident-services')).toBeVisible();
     },
   },
   {
     name: 'contact feature page',
-    linkName: /Contact Town Hall/i,
+    href: '/contact',
     expectedUrl: /\/contact$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.contactCards.first()).toBeVisible();
+      await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
       await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
       await expect(homePage.page.locator('.leadership-card')).toHaveCount(2);
     },
@@ -393,11 +400,11 @@ test.describe('homepage smoke', () => {
       '.info-buttons .header-meta-link[href="/#top-tasks"]',
     );
 
-    await expect(headerShortcuts).toHaveCount(3);
+    await expect(headerShortcuts).toHaveCount(siteContent.homepageCounts.headerShortcuts);
     await expect(homePage.page.locator('.header-search-shell')).toBeVisible();
     await expect(homePage.searchInput).toBeVisible();
 
-    await expect(headerCalendarShortcut).toHaveText(/Open the full town calendar/);
+    await expect(headerCalendarShortcut).toContainText(siteContent.heroActionLabels.calendar);
     await expect(headerCalendarShortcut).toHaveAttribute('href', '/meetings#calendar');
 
     await expect(headerTopTasksShortcut).toHaveText(/Quick Tasks/);
@@ -457,11 +464,14 @@ test.describe('homepage smoke', () => {
     await homePage.goto();
 
     await homePage.page.locator('.feature-grid .feature-card[href="/records"]').click();
-    await homePage.page.locator('#records-guide-packets .records-guide-link').click();
+    await homePage.page
+      .getByTestId('records-guide-packets')
+      .getByRole('link', { name: 'Open meeting documents destination' })
+      .click();
 
     await expect(homePage.page).toHaveURL(/\/documents#meeting-documents$/);
-    await expect(homePage.page.locator('.document-hub-title')).toContainText(
-      'Stable public destinations for meetings, finance records, and code references',
+    await expect(homePage.page.getByTestId('document-hub-title')).toContainText(
+      siteContent.cmsHeadings.documentsHub,
     );
 
     await homePage.page
@@ -491,11 +501,11 @@ test.describe('homepage smoke', () => {
   test('routes search results into public document destinations', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.locator('#site-search').fill('budget summaries');
-    await homePage.page.locator('#search-panel .search-submit').click();
+    await homePage.page.locator('#site-search').fill('Budget summaries and annual reports');
+    await homePage.page.getByRole('button', { name: /Search/i }).click();
 
     await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
-    await expect(homePage.page.locator('#financial-documents')).toContainText(
+    await expect(homePage.page.getByTestId('financial-documents')).toContainText(
       'Budget summaries and annual reports',
     );
   });

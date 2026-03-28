@@ -4,9 +4,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import {
-  DOCUMENT_ARCHIVE,
-  type DocumentArchiveSectionId,
-  type PublishedDocument,
+    DOCUMENT_ARCHIVE,
+    type DocumentArchiveSectionId,
+    type PublishedDocument,
 } from './document-archive';
 
 interface DocumentAction {
@@ -51,10 +51,12 @@ interface DocumentHubCopy {
   sections: DocumentSection[];
 }
 
+export const DOCUMENT_HUB_TITLE_EN = 'Stable public destinations for meetings, finance records, and code references';
+
 const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   en: {
     kicker: 'Public Document Hub',
-    title: 'Stable public destinations for meetings, finance records, and code references',
+    title: DOCUMENT_HUB_TITLE_EN,
     intro:
       'Use this page when you need meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, or a structured records request path. Even when a file is not posted yet, the destination stays public and tells residents exactly where the follow-up belongs.',
     returnHome: 'Return to homepage',

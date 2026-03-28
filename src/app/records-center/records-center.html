@@ -4,7 +4,7 @@
 
   <section class="records-center-grid grid gap-4 grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-1" aria-label="Records destinations">
     @for (guide of copy().guides; track guide.id) {
-      <article class="records-guide-card grid gap-3 p-6 rounded-[22px]" [attr.id]="guide.id" role="region" aria-labelledby="guide-{{ guide.id }}">
+      <article class="records-guide-card grid gap-3 p-6 rounded-[22px]" [attr.id]="guide.id" [attr.data-testid]="guide.id" role="region" aria-labelledby="guide-{{ guide.id }}">
         <i [class]="guide.icon" aria-hidden="true"></i>
         <p class="meta-label">{{ guide.kicker }}</p>
         <h4 id="guide-{{ guide.id }}">{{ guide.title }}</h4>
