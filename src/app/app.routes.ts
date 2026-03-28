@@ -1,27 +1,18 @@
 import { Routes } from '@angular/router';
-import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { App } from './app';
-import { BusinessDirectory } from './business-directory/business-directory';
-import { ClerkSetup } from './clerk-setup/clerk-setup';
-import { CmsAdmin } from './cms-admin/cms-admin';
-import { DocumentHub } from './document-hub/document-hub';
-import { News } from './news/news';
-import { RecordsCenter } from './records-center/records-center';
-import { ResidentServices } from './resident-services/resident-services';
-import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
 export const routes: Routes = [
-  { path: 'admin', component: CmsAdmin },
-  { path: 'clerk-setup', component: ClerkSetup },
-  { path: 'documents', component: DocumentHub },
+  { path: 'admin', component: App },
+  { path: 'clerk-setup', component: App },
+  { path: 'documents', component: App },
   { path: 'notices', component: App },
   { path: 'meetings', component: App },
-  { path: 'weather', component: LocalizedWeatherPanel },
-  { path: 'services', component: ResidentServices },
-  { path: 'records', component: RecordsCenter },
-  { path: 'businesses', component: BusinessDirectory },
-  { path: 'news', component: News },
+  { path: 'weather', component: App },
+  { path: 'services', component: App },
+  { path: 'records', component: App },
+  { path: 'businesses', component: App },
+  { path: 'news', component: App },
   { path: 'contact', component: App },
-  { path: 'accessibility', component: AccessibilitySupport },
+  { path: 'accessibility', component: App },
   { path: '', component: App, pathMatch: 'full' },
 ];

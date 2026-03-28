@@ -1265,18 +1265,21 @@ export class App {
     return this.appCopy().navLinks.map((link) => {
       const routeLink = this.resolveAppLink(link.href, '/');
 
-      return routeLink.isInternal
-        ? {
-            label: link.label,
-            icon: link.icon,
-            routerLink: routeLink.path ?? '/',
-            fragment: routeLink.fragment,
-          }
-        : {
-            label: link.label,
-            icon: link.icon,
-            url: routeLink.href,
-          };
+      if (!routeLink.isInternal) {
+        return { label: link.label, icon: link.icon, url: routeLink.href };
+      }
+
+      const item: MenuItem = {
+        label: link.label,
+        icon: link.icon,
+        routerLink: routeLink.path ?? '/',
+      };
+
+      if (routeLink.fragment) {
+        item.fragment = routeLink.fragment;
+      }
+
+      return item;
     });
   });
 
