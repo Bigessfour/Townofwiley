@@ -6,7 +6,9 @@ test.describe('homepage navigation', () => {
     await homePage.goto();
 
     await expect(homePage.skipLink).toHaveAttribute('href', '#main-content');
-    await expect(homePage.sectionNavLinks.first()).toBeVisible();
+    await expect(homePage.page.locator('[data-testid="homepage-section-nav"]')).toBeVisible();
+    await expect(homePage.sectionNavLinks).toHaveCount(siteContent.navLabels.length);
+    await expect(homePage.sectionNavLinks.first()).toBeAttached();
     await expect(homePage.sectionNavLinks).toHaveText(siteContent.navLabels);
 
     const navHrefs = await homePage.sectionNavLinks.evaluateAll((links) => {
@@ -28,7 +30,7 @@ test.describe('homepage navigation', () => {
     ]);
 
     for (const label of siteContent.navLabels) {
-      await expect(homePage.sectionNavLinks.filter({ hasText: label }).first()).toBeVisible();
+      await expect(homePage.sectionNavLinks.filter({ hasText: label }).first()).toBeAttached();
     }
 
     // Expanded coverage for new pages
@@ -156,11 +158,11 @@ test.describe('homepage navigation', () => {
     });
     expect(headingFont).toContain('Fraunces');
 
-    const civicBlue = await homePage.page.evaluate(() => {
+    const heroH1Color = await homePage.page.evaluate(() => {
       const el = document.querySelector('h1');
       return el ? getComputedStyle(el).color : '';
     });
-    expect([siteContent.expectedStyles.civicBlue, 'rgb(19, 36, 62)']).toContain(civicBlue);
+    expect(heroH1Color).toBe(siteContent.expectedStyles.heroText);
 
     // Test language buttons trigger logging
     const initialLogCount = logs.length;
@@ -189,10 +191,10 @@ test.describe('homepage navigation', () => {
     });
     expect(newsHeadingFont).toContain('Fraunces');
 
-    const newsCivicBlue = await homePage.page.evaluate(() => {
+    const newsH1Color = await homePage.page.evaluate(() => {
       const el = document.querySelector('.news-page-shell h1');
       return el ? getComputedStyle(el).color : '';
     });
-    expect([siteContent.expectedStyles.civicBlue, 'rgb(19, 36, 62)']).toContain(newsCivicBlue);
+    expect(newsH1Color).toBe(siteContent.expectedStyles.civicBlue);
   });
 });
