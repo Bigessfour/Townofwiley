@@ -32,7 +32,39 @@ test.describe('homepage navigation', () => {
     for (const label of siteContent.navLabels) {
       await expect(homePage.sectionNavLinks.filter({ hasText: label }).first()).toBeAttached();
     }
+  });
 
+  test('clicks all menubar items to verify PrimeNG router bindings work completely', async ({ homePage }) => {
+    test.setTimeout(90000);
+    // We iteratively click each main menu item directly rather than just checking their href properties.
+    // This catches regressions where PrimeNG DOM structure intercepts clicks (e.g., padding on a wrapper div
+    // instead of the anchor) without firing navigation.
+
+    for (const label of siteContent.navLabels) {
+      await homePage.goto();
+
+      const menubarBtn = homePage.page.locator('.p-menubar-button');
+      if (await menubarBtn.isVisible()) {
+        await menubarBtn.click();
+      }
+
+      const menuItemBox = homePage.page.locator('.p-menubar-item-link', { hasText: label });
+
+      // Click at the far left edge of the link box to guarantee we are clicking the padding
+      await menuItemBox.click({ position: { x: 5, y: 5 } });
+
+      // Confirm the URL successfully updated to something associated with the menu text
+      // We know Top Tasks uses 'top-tasks', Weather uses 'weather', etc.
+      if (label === 'Top Tasks') {
+        await expect(homePage.page).toHaveURL(/.*#top-tasks/);
+      } else {
+        const expectedPath = label.toLowerCase();
+        await expect(homePage.page).toHaveURL(new RegExp(`.*\\/${expectedPath}`));
+      }
+    }
+  });
+
+  test('keeps section navigation and skip link usable for features', async ({ homePage }) => {
     // Expanded coverage for new pages
     await homePage.page.goto('/businesses');
     await expect(homePage.page.locator('.business-directory-page h1')).toContainText(

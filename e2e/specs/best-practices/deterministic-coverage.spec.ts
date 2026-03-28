@@ -22,18 +22,29 @@ test.describe('deterministic regression coverage', () => {
     await homePage.goto();
 
     await expect(homePage.page.getByTestId('homepage-section-nav')).toMatchAriaSnapshot(`
-      - navigation "Homepage sections":
-        - link /Top Tasks/
-        - link /Weather/
-        - link /Notices/
-        - link /Meetings/
-        - link /Services/
-        - link /Records/
-        - link /Documents/
-        - link /Accessibility/
-        - link /Businesses/
-        - link /News/
-        - link /Contact/
+      - menubar "Homepage sections":
+        - menuitem /Top Tasks/:
+          - link /Top Tasks/
+        - menuitem /Weather/:
+          - link /Weather/
+        - menuitem /Notices/:
+          - link /Notices/
+        - menuitem /Meetings/:
+          - link /Meetings/
+        - menuitem /Services/:
+          - link /Services/
+        - menuitem /Records/:
+          - link /Records/
+        - menuitem /Documents/:
+          - link /Documents/
+        - menuitem /Accessibility/:
+          - link /Accessibility/
+        - menuitem /Businesses/:
+          - link /Businesses/
+        - menuitem /News/:
+          - link /News/
+        - menuitem /Contact/:
+          - link /Contact/
     `);
   });
 
@@ -133,4 +144,20 @@ test.describe('deterministic regression coverage', () => {
     await expect(externalNewsCards.first()).toContainText('Lamar Ledger');
     await expect(homePage.page.getByText('Prowers County Community Event')).toHaveCount(0);
   });
+
+  test('business directory snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Snapshots are bound to Windows CI baseline.');
+    await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-business-directory')).toHaveScreenshot(
+      'business-directory.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
 });
+

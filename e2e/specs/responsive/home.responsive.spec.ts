@@ -37,12 +37,12 @@ test.describe('homepage responsive coverage', () => {
     await expect(homePage.weatherSignupSubmitButton).toBeVisible();
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-
     await expect(homePage.page.locator('#payment-help .resident-action')).toBeVisible();
+
+    await homePage.page.goto('/services#records-request', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#records-request .resident-action')).toBeVisible();
-
+    
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
-
     await expect(homePage.page.locator('#barrier-report .accessibility-action')).toBeVisible();
   });
 });

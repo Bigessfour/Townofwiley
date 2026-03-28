@@ -17,6 +17,7 @@
     "test:infra:mail": "python -m unittest discover infrastructure/email-alias-router/tests",
     "test:infra:monitor": "python -m unittest discover infrastructure/site-monitor/tests",
     "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:smoke",
+    "pretest:e2e": "npx --yes kill-port 4200 4300",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",

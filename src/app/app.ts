@@ -1,13 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -43,15 +43,15 @@ import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-  CmsAlertBanner,
-  CmsCalendarEvent,
-  CmsContact,
-  LocalizedCmsContentStore,
+    CmsAlertBanner,
+    CmsCalendarEvent,
+    CmsContact,
+    LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-  HomepageWeatherAlert,
-  LocalizedWeatherPanel,
+    HomepageWeatherAlert,
+    LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -1273,6 +1273,11 @@ export class App {
         label: link.label,
         icon: link.icon,
         routerLink: routeLink.path ?? '/',
+        command: () => {
+          this.router.navigate([routeLink.path ?? '/'], {
+            fragment: routeLink.fragment,
+          });
+        },
       };
 
       if (routeLink.fragment) {

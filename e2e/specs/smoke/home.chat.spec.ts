@@ -2,10 +2,10 @@ import { expect, test } from '../../fixtures/town.fixture';
 
 interface ChatRequestPayload {
   message?: string;
-  history?: Array<{
+  history?: {
     role?: string;
     text?: string;
-  }>;
+  }[];
 }
 
 test.describe('homepage chat', () => {
@@ -13,7 +13,7 @@ test.describe('homepage chat', () => {
     await homePage.enableProgrammaticChat();
 
     const requestBodies: ChatRequestPayload[] = [];
-    let releaseFirstResponse = () => {};
+    let releaseFirstResponse = () => { /* intentional noop initially */ };
     const firstResponseGate = new Promise<void>((resolve) => {
       releaseFirstResponse = resolve;
     });
@@ -25,7 +25,7 @@ test.describe('homepage chat', () => {
 
       const responseByMessage: Record<
         string,
-        { response: string; sources?: Array<{ title: string; url: string }> }
+        { response: string; sources?: { title: string; url: string }[] }
       > = {
         'When is the next City Council meeting?': {
           response:

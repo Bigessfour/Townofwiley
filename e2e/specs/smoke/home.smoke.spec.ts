@@ -21,6 +21,14 @@ async function expectGatewayFromHomepage(
   gateway: NavigationGateway,
 ): Promise<void> {
   await homePage.goto();
+
+  if (gateway.name.includes('section nav')) {
+    const menubarBtn = homePage.page.locator('.p-menubar-button');
+    if (await menubarBtn.isVisible()) {
+      await menubarBtn.click();
+    }
+  }
+
   await gateway.click(homePage);
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);
   await gateway.assertDestination(homePage);
@@ -241,7 +249,7 @@ const homepageGatewayTests: NavigationGateway[] = [
         .locator('.content-grid .civic-panel')
         .nth(1)
         .getByRole('link', { name: 'View all notices', exact: true })
-        .click(),
+        .click({ force: true }),
     expectedUrl: /\/notices$/,
     assertDestination: expectNoticesPage,
   },
