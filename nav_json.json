@@ -1,0 +1,378 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\biges\\Desktop\\Town Website\\playwright.config.ts",
+    "rootDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 6
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "desktop-chromium",
+        "name": "desktop-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 6,
+    "webServer": {
+      "command": "npm run start -- --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "smoke\\home.navigation.spec.ts",
+      "file": "smoke/home.navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "homepage navigation",
+          "file": "smoke/home.navigation.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps section navigation and skip link usable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 15059,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.314Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-dd651a5a19ebe5e40654",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "clicks all menubar items to verify PrimeNG router bindings work completely",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 34498,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.p-menubar-item-link').filter({ hasText: 'News' })\u001b[22m\n\n\n  51 |\n  52 |       // Click at the far left edge of the link box to guarantee we are clicking the padding\n> 53 |       await menuItemBox.click({ position: { x: 5, y: 5 } });\n     |                         ^\n  54 |\n  55 |       // Confirm the URL successfully updated to something associated with the menu text\n  56 |       // We know Top Tasks uses 'top-tasks', Weather uses 'weather', etc.\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts:53:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.538Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-d500331219a66b0b0ef8",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "keeps section navigation and skip link usable for features",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 17690,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.313Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-1774d879662e0de8dd75",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "supports keyboard skip-link navigation to main content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 13667,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.391Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-0bbc544df5c16e72e2a9",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "returns useful results from plain-language search prompts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 18851,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.397Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-34aa4d2d82ec7448668b",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 100,
+              "column": 7
+            },
+            {
+              "title": "shows visit website actions only for verified business links",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 17682,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:14.304Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-3672a156f7d318caedb6",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 159,
+              "column": 7
+            },
+            {
+              "title": "verifies buttons trigger logging, colors/fonts/theme match design across pages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 14314,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T20:02:28.925Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-63ab9959cfc9c1d717c1",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 175,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-28T20:02:03.214Z",
+    "duration": 49350.076,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,192 @@
+
+Running 2 tests using 2 workers
+
+  Γ£ô  2 [mobile-chromium] ΓÇ║ e2e\specs\accessibility\home.a11y.spec.ts:22:9 ΓÇ║ homepage accessibility ΓÇ║ has no critical or serious axe violations on the news page (5.0s)
+  Γ£ô  1 [desktop-chromium] ΓÇ║ e2e\specs\accessibility\home.a11y.spec.ts:22:9 ΓÇ║ homepage accessibility ΓÇ║ has no critical or serious axe violations on the news page (5.7s)
+
+  2 passed (17.8s)
+{
+  "config": {
+    "configFile": "C:\\Users\\biges\\Desktop\\Town Website\\playwright.config.ts",
+    "rootDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "desktop-chromium",
+        "name": "desktop-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 6,
+    "webServer": {
+      "command": "npm run start -- --host 127.0.0.1 --port 4301",
+      "url": "http://127.0.0.1:4301",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "accessibility\\home.a11y.spec.ts",
+      "file": "accessibility/home.a11y.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "homepage accessibility",
+          "file": "accessibility/home.a11y.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "has no critical or serious axe violations on the news page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5719,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T19:01:05.968Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "075cc7639bb7e4a8957b-2e5be7c00aafda26c58c",
+              "file": "accessibility/home.a11y.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "has no critical or serious axe violations on the news page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chromium",
+                  "projectName": "mobile-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5019,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T19:01:05.983Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "075cc7639bb7e4a8957b-091b0c925df7efdb2275",
+              "file": "accessibility/home.a11y.spec.ts",
+              "line": 22,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-28T19:00:54.567Z",
+    "duration": 17834.347,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m

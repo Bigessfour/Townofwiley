@@ -1,0 +1,1102 @@
+
+Running 12 tests using 6 workers
+
+  Γ£ÿ   1 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:137:7 ΓÇ║ deterministic regression coverage ΓÇ║ business directory snapshot (20.7s)
+  Γ£ÿ   3 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:40:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the site-language accessibility group (21.4s)
+  Γ£ÿ   4 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:50:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the homepage hero visually stable (21.8s)
+  Γ£ÿ   5 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:21:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the homepage section navigation accessibility tree (21.8s)
+  Γ£ÿ   2 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:65:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the weather summary card visually stable (22.5s)
+  Γ£ÿ   6 [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:125:7 ΓÇ║ deterministic regression coverage ΓÇ║ filters external news coverage against a fixed clock (21.9s)
+  Γ£ô   9 [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:33:7 ΓÇ║ Feature Pages Details ΓÇ║ document downloads handling (16.9s)
+  Γ£ô  12 [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:59:7 ΓÇ║ Feature Pages Details ΓÇ║ slow network simulation on homepage (16.5s)
+  Γ£ô  10 [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:46:7 ΓÇ║ Feature Pages Details ΓÇ║ contact form error boundary (500 mock) (17.2s)
+  Γ£ô  11 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.language.spec.ts:4:7 ΓÇ║ Language Switching ΓÇ║ switches site language and keeps navigation and structure working (17.9s)
+  Γ£ô   7 [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:4:7 ΓÇ║ Feature Pages Details ΓÇ║ business directory filter works (19.8s)
+  Γ£ÿ   8 [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:18:7 ΓÇ║ Feature Pages Details ΓÇ║ meetings calendar tab interaction (31.2s)
+
+
+  1) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:21:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the homepage section navigation accessibility tree 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/", waiting until "domcontentloaded"[22m
+
+
+       at ..\pages\home.page.ts:105
+
+      103 |
+      104 |   async goto(): Promise<void> {
+    > 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+          |                     ^
+      106 |     await expect(this.heroHeading).toBeVisible();
+      107 |   }
+      108 |
+        at HomePage.goto (C:\Users\biges\Desktop\Town Website\e2e\pages\home.page.ts:105:21)
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:22:20
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  2) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:40:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the site-language accessibility group 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/", waiting until "domcontentloaded"[22m
+
+
+       at ..\pages\home.page.ts:105
+
+      103 |
+      104 |   async goto(): Promise<void> {
+    > 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+          |                     ^
+      106 |     await expect(this.heroHeading).toBeVisible();
+      107 |   }
+      108 |
+        at HomePage.goto (C:\Users\biges\Desktop\Town Website\e2e\pages\home.page.ts:105:21)
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:41:20
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  3) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:50:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the homepage hero visually stable 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/", waiting until "domcontentloaded"[22m
+
+
+       at ..\pages\home.page.ts:105
+
+      103 |
+      104 |   async goto(): Promise<void> {
+    > 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+          |                     ^
+      106 |     await expect(this.heroHeading).toBeVisible();
+      107 |   }
+      108 |
+        at HomePage.goto (C:\Users\biges\Desktop\Town Website\e2e\pages\home.page.ts:105:21)
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:53:20
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  4) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:65:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the weather summary card visually stable 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/weather", waiting until "domcontentloaded"[22m
+
+
+      111 |     });
+      112 |
+    > 113 |     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+          |                         ^
+      114 |     await waitForFonts(homePage.page);
+      115 |
+      116 |     await expect(homePage.page.getByTestId('weather-current-card')).toHaveScreenshot(
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:113:25
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  5) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:125:7 ΓÇ║ deterministic regression coverage ΓÇ║ filters external news coverage against a fixed clock 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/news", waiting until "domcontentloaded"[22m
+
+
+      125 |   test('filters external news coverage against a fixed clock', async ({ homePage }) => {
+      126 |     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    > 127 |     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+          |                         ^
+      128 |
+      129 |     const externalNewsCards = homePage.page.locator('.news-card--external');
+      130 |
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:127:25
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  6) [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:137:7 ΓÇ║ deterministic regression coverage ΓÇ║ business directory snapshot 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/businesses", waiting until "domcontentloaded"[22m
+
+
+      137 |   test('business directory snapshot', async ({ homePage }) => {
+      138 |     test.skip(!supportsVisualSnapshots, 'Snapshots are bound to Windows CI baseline.');
+    > 139 |     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
+          |                         ^
+      140 |     await waitForFonts(homePage.page);
+      141 |
+      142 |     await expect(homePage.page.locator('app-business-directory')).toHaveScreenshot(
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\best-practices\deterministic-coverage.spec.ts:139:25
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  7) [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:18:7 ΓÇ║ Feature Pages Details ΓÇ║ meetings calendar tab interaction 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('app-meeting-list')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for locator('app-meeting-list')[22m
+
+
+      28 |       await eventListTab.click();
+      29 |     }
+    > 30 |     await expect(homePage.page.locator('app-meeting-list')).toBeVisible();
+         |                                                             ^
+      31 |   });
+      32 |
+      33 |   test('document downloads handling', async ({ homePage }) => {
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\smoke\feature-pages.spec.ts:30:61
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error Context: test-results\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  7 failed
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:21:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the homepage section navigation accessibility tree 
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:40:7 ΓÇ║ deterministic regression coverage ΓÇ║ captures the site-language accessibility group 
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:50:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the homepage hero visually stable 
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:65:7 ΓÇ║ deterministic regression coverage ΓÇ║ keeps the weather summary card visually stable 
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:125:7 ΓÇ║ deterministic regression coverage ΓÇ║ filters external news coverage against a fixed clock 
+    [desktop-chromium] ΓÇ║ e2e\specs\best-practices\deterministic-coverage.spec.ts:137:7 ΓÇ║ deterministic regression coverage ΓÇ║ business directory snapshot 
+    [desktop-chromium] ΓÇ║ e2e\specs\smoke\feature-pages.spec.ts:18:7 ΓÇ║ Feature Pages Details ΓÇ║ meetings calendar tab interaction 
+  5 passed (1.2m)
+{
+  "config": {
+    "configFile": "C:\\Users\\biges\\Desktop\\Town Website\\playwright.config.ts",
+    "rootDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 6
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "desktop-chromium",
+        "name": "desktop-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 6,
+    "webServer": {
+      "command": "npm run start -- --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "best-practices\\deterministic-coverage.spec.ts",
+      "file": "best-practices/deterministic-coverage.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "deterministic regression coverage",
+          "file": "best-practices/deterministic-coverage.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "captures the homepage section navigation accessibility tree",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 21772,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:22:20",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                          "column": 21,
+                          "line": 105
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39m..\\pages\\home.page.ts:105\n\n\u001b[0m \u001b[90m 103 |\u001b[39m\n \u001b[90m 104 |\u001b[39m   \u001b[36masync\u001b[39m goto()\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[36mvoid\u001b[39m\u001b[33m>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mheroHeading)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m   }\n \u001b[90m 108 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                            "column": 21,
+                            "line": 105
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n   at ..\\pages\\home.page.ts:105\n\n  103 |\n  104 |   async goto(): Promise<void> {\n> 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });\n      |                     ^\n  106 |     await expect(this.heroHeading).toBeVisible();\n  107 |   }\n  108 |\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:22:20"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.613Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-9e199-vigation-accessibility-tree-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                        "column": 21,
+                        "line": 105
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-64c4f3887133c83f1dfe",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "captures the site-language accessibility group",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 21359,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:41:20",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                          "column": 21,
+                          "line": 105
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39m..\\pages\\home.page.ts:105\n\n\u001b[0m \u001b[90m 103 |\u001b[39m\n \u001b[90m 104 |\u001b[39m   \u001b[36masync\u001b[39m goto()\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[36mvoid\u001b[39m\u001b[33m>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mheroHeading)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m   }\n \u001b[90m 108 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                            "column": 21,
+                            "line": 105
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n   at ..\\pages\\home.page.ts:105\n\n  103 |\n  104 |   async goto(): Promise<void> {\n> 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });\n      |                     ^\n  106 |     await expect(this.heroHeading).toBeVisible();\n  107 |   }\n  108 |\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:41:20"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.487Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-0e6a3-anguage-accessibility-group-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                        "column": 21,
+                        "line": 105
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-93a6befd80be328b493f",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "keeps the homepage hero visually stable",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 21751,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:53:20",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                          "column": 21,
+                          "line": 105
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39m..\\pages\\home.page.ts:105\n\n\u001b[0m \u001b[90m 103 |\u001b[39m\n \u001b[90m 104 |\u001b[39m   \u001b[36masync\u001b[39m goto()\u001b[33m:\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m<\u001b[39m\u001b[36mvoid\u001b[39m\u001b[33m>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 105 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 106 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mheroHeading)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m   }\n \u001b[90m 108 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                            "column": 21,
+                            "line": 105
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n   at ..\\pages\\home.page.ts:105\n\n  103 |\n  104 |   async goto(): Promise<void> {\n> 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });\n      |                     ^\n  106 |     await expect(this.heroHeading).toBeVisible();\n  107 |   }\n  108 |\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:53:20"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.534Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-3f355-mepage-hero-visually-stable-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                        "column": 21,
+                        "line": 105
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-8d1b51dd10dbd6023618",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 50,
+              "column": 7
+            },
+            {
+              "title": "keeps the weather summary card visually stable",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 22497,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/weather\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/weather\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:113:25",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                          "column": 25,
+                          "line": 113
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 111 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 112 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 113 |\u001b[39m     \u001b[36mawait\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/weather'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 114 |\u001b[39m     \u001b[36mawait\u001b[39m waitForFonts(homePage\u001b[33m.\u001b[39mpage)\u001b[33m;\u001b[39m\n \u001b[90m 115 |\u001b[39m\n \u001b[90m 116 |\u001b[39m     \u001b[36mawait\u001b[39m expect(homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'weather-current-card'\u001b[39m))\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                            "column": 25,
+                            "line": 113
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/weather\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  111 |     });\n  112 |\n> 113 |     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });\n      |                         ^\n  114 |     await waitForFonts(homePage.page);\n  115 |\n  116 |     await expect(homePage.page.getByTestId('weather-current-card')).toHaveScreenshot(\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:113:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.421Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-13df0-ummary-card-visually-stable-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                        "column": 25,
+                        "line": 113
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-669c751c4e58308236e0",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 65,
+              "column": 7
+            },
+            {
+              "title": "filters external news coverage against a fixed clock",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 21871,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/news\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/news\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:127:25",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                          "column": 25,
+                          "line": 127
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 125 |\u001b[39m   test(\u001b[32m'filters external news coverage against a fixed clock'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ homePage }) \u001b[33m=>\u001b[39m {\n \u001b[90m 126 |\u001b[39m     \u001b[36mawait\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mclock\u001b[33m.\u001b[39msetFixedTime(\u001b[36mnew\u001b[39m \u001b[33mDate\u001b[39m(\u001b[32m'2026-04-12T12:00:00-06:00'\u001b[39m))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m     \u001b[36mawait\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/news'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m\n \u001b[90m 129 |\u001b[39m     \u001b[36mconst\u001b[39m externalNewsCards \u001b[33m=\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'.news-card--external'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 130 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                            "column": 25,
+                            "line": 127
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/news\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  125 |   test('filters external news coverage against a fixed clock', async ({ homePage }) => {\n  126 |     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));\n> 127 |     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });\n      |                         ^\n  128 |\n  129 |     const externalNewsCards = homePage.page.locator('.news-card--external');\n  130 |\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:127:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.702Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-f56ca-erage-against-a-fixed-clock-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                        "column": 25,
+                        "line": 127
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-97b427036295a7deac3c",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 125,
+              "column": 7
+            },
+            {
+              "title": "business directory snapshot",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "failed",
+                      "duration": 20651,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:139:25",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                          "column": 25,
+                          "line": 139
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 137 |\u001b[39m   test(\u001b[32m'business directory snapshot'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ homePage }) \u001b[33m=>\u001b[39m {\n \u001b[90m 138 |\u001b[39m     test\u001b[33m.\u001b[39mskip(\u001b[33m!\u001b[39msupportsVisualSnapshots\u001b[33m,\u001b[39m \u001b[32m'Snapshots are bound to Windows CI baseline.'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 139 |\u001b[39m     \u001b[36mawait\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/businesses'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 140 |\u001b[39m     \u001b[36mawait\u001b[39m waitForFonts(homePage\u001b[33m.\u001b[39mpage)\u001b[33m;\u001b[39m\n \u001b[90m 141 |\u001b[39m\n \u001b[90m 142 |\u001b[39m     \u001b[36mawait\u001b[39m expect(homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'app-business-directory'\u001b[39m))\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                            "column": 25,
+                            "line": 139
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  137 |   test('business directory snapshot', async ({ homePage }) => {\n  138 |     test.skip(!supportsVisualSnapshots, 'Snapshots are bound to Windows CI baseline.');\n> 139 |     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });\n      |                         ^\n  140 |     await waitForFonts(homePage.page);\n  141 |\n  142 |     await expect(homePage.page.locator('app-business-directory')).toHaveScreenshot(\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts:139:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:14:46.398Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\best-practices-determinist-fc344-business-directory-snapshot-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\best-practices\\deterministic-coverage.spec.ts",
+                        "column": 25,
+                        "line": 139
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "95ad05b2cff64a1050bd-6a34b25ae1f572b8d991",
+              "file": "best-practices/deterministic-coverage.spec.ts",
+              "line": 137,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "smoke\\feature-pages.spec.ts",
+      "file": "smoke/feature-pages.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Feature Pages Details",
+          "file": "smoke/feature-pages.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "business directory filter works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 19758,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:13.919Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b83ac078f90a8009c9e9-a90a77fb458cc63e90d4",
+              "file": "smoke/feature-pages.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "meetings calendar tab interaction",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 31174,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\feature-pages.spec.ts",
+                            "column": 61,
+                            "line": 30
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('app-meeting-list')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('app-meeting-list')\u001b[22m\n\n\n  28 |       await eventListTab.click();\n  29 |     }\n> 30 |     await expect(homePage.page.locator('app-meeting-list')).toBeVisible();\n     |                                                             ^\n  31 |   });\n  32 |\n  33 |   test('document downloads handling', async ({ homePage }) => {\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\feature-pages.spec.ts:30:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:14.861Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-feature-pages-Featur-4abf9-gs-calendar-tab-interaction-desktop-chromium\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b83ac078f90a8009c9e9-11e908138d35b72db0df",
+              "file": "smoke/feature-pages.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "document downloads handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 16899,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:16.083Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b83ac078f90a8009c9e9-0b2e046b6c92de48948f",
+              "file": "smoke/feature-pages.spec.ts",
+              "line": 33,
+              "column": 7
+            },
+            {
+              "title": "contact form error boundary (500 mock)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:16.253Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b83ac078f90a8009c9e9-ee2bd5df0cbc4456c781",
+              "file": "smoke/feature-pages.spec.ts",
+              "line": 46,
+              "column": 7
+            },
+            {
+              "title": "slow network simulation on homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 16517,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:16.559Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b83ac078f90a8009c9e9-18dfb589a993d047af37",
+              "file": "smoke/feature-pages.spec.ts",
+              "line": 59,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "smoke\\home.language.spec.ts",
+      "file": "smoke/home.language.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Language Switching",
+          "file": "smoke/home.language.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "switches site language and keeps navigation and structure working",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 17874,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T18:15:16.327Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8b2f18ece01c57e6ef1d-bc66cb2a75a64b87d1a0",
+              "file": "smoke/home.language.spec.ts",
+              "line": 4,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-28T18:14:33.868Z",
+    "duration": 73680.594,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

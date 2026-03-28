@@ -64,6 +64,14 @@
         [ariaLabel]="appCopy().homepageSectionsAriaLabel"
         data-testid="homepage-section-nav"
       >
+        <ng-template pTemplate="item" let-item>
+          <a [href]="item.url" class="p-menubar-item-link" style="display: flex; align-items: center; text-decoration: none; color: inherit; width: 100%; height: 100%;">
+            @if (item.icon) {
+              <span [class]="item.icon" style="margin-right: 0.5rem;"></span>
+            }
+            <span class="p-menuitem-text">{{ item.label }}</span>
+          </a>
+        </ng-template>
       </p-menubar>
 
       <div class="header-right">

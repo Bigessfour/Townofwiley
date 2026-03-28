@@ -1,0 +1,4 @@
+
+Running 7 tests using 6 workers
+
+  Γ£ô  3 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:82:7 ΓÇ║ homepage navigation ΓÇ║ supports keyboard skip-link navigation to main content (14.0s)

@@ -1,0 +1,500 @@
+
+Running 7 tests using 6 workers
+
+  Γ£ô  1 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:79:7 ΓÇ║ homepage navigation ΓÇ║ supports keyboard skip-link navigation to main content (19.2s)
+  Γ£ô  5 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:156:7 ΓÇ║ homepage navigation ΓÇ║ shows visit website actions only for verified business links (19.7s)
+  Γ£ô  2 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:5:7 ΓÇ║ homepage navigation ΓÇ║ keeps section navigation and skip link usable (25.3s)
+  Γ£ô  6 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:97:7 ΓÇ║ homepage navigation ΓÇ║ returns useful results from plain-language search prompts (30.2s)
+  Γ£ÿ  3 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:63:7 ΓÇ║ homepage navigation ΓÇ║ keeps section navigation and skip link usable for features (39.9s)
+  Γ£ÿ  4 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:37:7 ΓÇ║ homepage navigation ΓÇ║ clicks all menubar items to verify PrimeNG router bindings work completely (39.1s)
+  Γ£ô  7 [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:172:7 ΓÇ║ homepage navigation ΓÇ║ verifies buttons trigger logging, colors/fonts/theme match design across pages (27.4s)
+
+
+  1) [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:37:7 ΓÇ║ homepage navigation ΓÇ║ clicks all menubar items to verify PrimeNG router bindings work completely 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/", waiting until "domcontentloaded"[22m
+
+
+       at ..\pages\home.page.ts:105
+
+      103 |
+      104 |   async goto(): Promise<void> {
+    > 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+          |                     ^
+      106 |     await expect(this.heroHeading).toBeVisible();
+      107 |   }
+      108 |
+        at HomePage.goto (C:\Users\biges\Desktop\Town Website\e2e\pages\home.page.ts:105:21)
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\smoke\home.navigation.spec.ts:43:22
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  2) [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:63:7 ΓÇ║ homepage navigation ΓÇ║ keeps section navigation and skip link usable for features 
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:4300/businesses", waiting until "load"[22m
+
+
+      63 |   test('keeps section navigation and skip link usable for features', async ({ homePage }) => {
+      64 |     // Expanded coverage for new pages
+    > 65 |     await homePage.page.goto('/businesses');
+         |                         ^
+      66 |     await expect(homePage.page.locator('.business-directory-page h1')).toContainText(
+      67 |       'Wiley Community Business Directory',
+      68 |     );
+        at C:\Users\biges\Desktop\Town Website\e2e\specs\smoke\home.navigation.spec.ts:65:25
+
+    attachment #1: video (video/webm) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-home.navigation-home-ff510-ip-link-usable-for-features-desktop-chromium\video.webm
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    attachment #2: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\smoke-home.navigation-home-ff510-ip-link-usable-for-features-desktop-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\smoke-home.navigation-home-ff510-ip-link-usable-for-features-desktop-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  2 failed
+    [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:37:7 ΓÇ║ homepage navigation ΓÇ║ clicks all menubar items to verify PrimeNG router bindings work completely 
+    [desktop-chromium] ΓÇ║ e2e\specs\smoke\home.navigation.spec.ts:63:7 ΓÇ║ homepage navigation ΓÇ║ keeps section navigation and skip link usable for features 
+  5 passed (1.1m)
+{
+  "config": {
+    "configFile": "C:\\Users\\biges\\Desktop\\Town Website\\playwright.config.ts",
+    "rootDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 6
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "desktop-chromium",
+        "name": "desktop-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/biges/Desktop/Town Website/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "C:/Users/biges/Desktop/Town Website/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 6,
+    "webServer": {
+      "command": "npm run start -- --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "smoke\\home.navigation.spec.ts",
+      "file": "smoke/home.navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "homepage navigation",
+          "file": "smoke/home.navigation.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps section navigation and skip link usable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 25289,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.495Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-dd651a5a19ebe5e40654",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "clicks all menubar items to verify PrimeNG router bindings work completely",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 39118,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts",
+                            "column": 21,
+                            "line": 105
+                          },
+                          "message": "Error: page.goto: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n   at ..\\pages\\home.page.ts:105\n\n  103 |\n  104 |   async goto(): Promise<void> {\n> 105 |     await this.page.goto('/', { waitUntil: 'domcontentloaded' });\n      |                     ^\n  106 |     await expect(this.heroHeading).toBeVisible();\n  107 |   }\n  108 |\n    at HomePage.goto (C:\\Users\\biges\\Desktop\\Town Website\\e2e\\pages\\home.page.ts:105:21)\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts:43:22"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.686Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-e6758-er-bindings-work-completely-desktop-chromium\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-d500331219a66b0b0ef8",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "keeps section navigation and skip link usable for features",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 39870,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts:65:25",
+                        "location": {
+                          "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts",
+                          "column": 25,
+                          "line": 65
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 63 |\u001b[39m   test(\u001b[32m'keeps section navigation and skip link usable for features'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ homePage }) \u001b[33m=>\u001b[39m {\n \u001b[90m 64 |\u001b[39m     \u001b[90m// Expanded coverage for new pages\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 65 |\u001b[39m     \u001b[36mawait\u001b[39m homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(\u001b[32m'/businesses'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(homePage\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'.business-directory-page h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\n \u001b[90m 67 |\u001b[39m       \u001b[32m'Wiley Community Business Directory'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 68 |\u001b[39m     )\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts",
+                            "column": 25,
+                            "line": 65
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4300/businesses\", waiting until \"load\"\u001b[22m\n\n\n  63 |   test('keeps section navigation and skip link usable for features', async ({ homePage }) => {\n  64 |     // Expanded coverage for new pages\n> 65 |     await homePage.page.goto('/businesses');\n     |                         ^\n  66 |     await expect(homePage.page.locator('.business-directory-page h1')).toContainText(\n  67 |       'Wiley Community Business Directory',\n  68 |     );\n    at C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts:65:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.532Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-ff510-ip-link-usable-for-features-desktop-chromium\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\biges\\Desktop\\Town Website\\test-results\\smoke-home.navigation-home-ff510-ip-link-usable-for-features-desktop-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\biges\\Desktop\\Town Website\\e2e\\specs\\smoke\\home.navigation.spec.ts",
+                        "column": 25,
+                        "line": 65
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-1774d879662e0de8dd75",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "supports keyboard skip-link navigation to main content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 19155,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.301Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-0bbc544df5c16e72e2a9",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 79,
+              "column": 7
+            },
+            {
+              "title": "returns useful results from plain-language search prompts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 30216,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.803Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-34aa4d2d82ec7448668b",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 97,
+              "column": 7
+            },
+            {
+              "title": "shows visit website actions only for verified business links",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 19709,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:55:50.778Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-3672a156f7d318caedb6",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 156,
+              "column": 7
+            },
+            {
+              "title": "verifies buttons trigger logging, colors/fonts/theme match design across pages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chromium",
+                  "projectName": "desktop-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 27430,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-28T17:56:10.281Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c0430c6ef08a050daf9b-63ab9959cfc9c1d717c1",
+              "file": "smoke/home.navigation.spec.ts",
+              "line": 172,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-28T17:55:31.852Z",
+    "duration": 67090.887,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
