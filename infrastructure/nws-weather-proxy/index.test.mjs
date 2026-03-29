@@ -164,3 +164,62 @@ test('returns 502 when the upstream NWS request fails', async (t) => {
   assert.equal(response.statusCode, 502);
   assert.match(body.error, /Temporary NWS outage/);
 });
+
+test('returns 204 for OPTIONS preflight with CORS headers', async () => {
+  const response = await handler({ requestContext: { http: { method: 'OPTIONS' } } });
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(response.headers['access-control-allow-origin'], '*');
+  assert.match(response.headers['access-control-allow-methods'], /GET/);
+});
+
+test('returns 405 for unsupported methods', async () => {
+  const response = await handler({ requestContext: { http: { method: 'POST' } } });
+  const body = JSON.parse(response.body);
+
+  assert.equal(response.statusCode, 405);
+  assert.match(body.error, /Method not allowed/);
+});
+
+test('omits api-key header when NWS_API_KEY is not set', async (t) => {
+  const originalFetch = global.fetch;
+  const originalUserAgent = process.env.NWS_USER_AGENT;
+  const originalApiKey = process.env.NWS_API_KEY;
+  const fetchCalls = [];
+
+  process.env.NWS_USER_AGENT = 'TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)';
+  delete process.env.NWS_API_KEY;
+
+  global.fetch = async (url, options) => {
+    fetchCalls.push({ url, options });
+    return jsonFetchResponse(200, successPointPayload);
+  };
+
+  t.after(() => {
+    global.fetch = originalFetch;
+
+    if (originalUserAgent) {
+      process.env.NWS_USER_AGENT = originalUserAgent;
+    } else {
+      delete process.env.NWS_USER_AGENT;
+    }
+
+    if (originalApiKey) {
+      process.env.NWS_API_KEY = originalApiKey;
+    } else {
+      delete process.env.NWS_API_KEY;
+    }
+  });
+
+  // First fetch will be the points call — it returns successPointPayload which
+  // lacks a forecast URL, so the handler returns 502 from the guard. That is
+  // fine — we only care that api-key was absent from the headers.
+  await handler({ requestContext: { http: { method: 'GET' } } });
+
+  assert.ok(fetchCalls.length >= 1, 'at least one NWS fetch was made');
+  assert.equal(
+    fetchCalls[0].options.headers['api-key'],
+    undefined,
+    'api-key header must not be sent when NWS_API_KEY is unset',
+  );
+});

@@ -340,6 +340,402 @@ class SevereWeatherBackendTests(unittest.TestCase):
     self.assertEqual(json.loads(second['body'])['messagesSent'], 0)
     self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
 
+  # ---------------------------------------------------------------------------
+  # Input validation: channel / destination / language / body
+  # ---------------------------------------------------------------------------
+
+  def test_creates_pending_sms_subscription_and_sends_confirmation(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps(
+          {
+            'channel': 'sms',
+            'destination': '(719) 555-0101',
+            'zipCode': '81092',
+          },
+        ),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 202)
+    gateway = backend._notification_gateway
+    self.assertEqual(len(gateway.confirmation_messages), 1)
+    self.assertEqual(gateway.confirmation_messages[0]['channel'], 'sms')
+    self.assertEqual(gateway.confirmation_messages[0]['destination'], '+17195550101')
+
+  def test_rejects_invalid_email_address(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'not-an-email', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('valid email', response['body'])
+
+  def test_rejects_invalid_phone_number(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'sms', 'destination': '123', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('valid US phone number', response['body'])
+
+  def test_rejects_unknown_channel(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'push', 'destination': 'token123', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('email', response['body'])
+    self.assertIn('sms', response['body'])
+
+  def test_rejects_unsupported_language(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps(
+          {
+            'channel': 'email',
+            'destination': 'resident@example.com',
+            'zipCode': '81092',
+            'preferredLanguage': 'fr',
+          },
+        ),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('Preferred language', response['body'])
+
+  def test_rejects_missing_body(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('Missing', response['body'])
+
+  def test_rejects_malformed_json_body(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': '[not valid json',
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('valid JSON', response['body'])
+
+  # ---------------------------------------------------------------------------
+  # HTTP routing: OPTIONS, /health, unknown path
+  # ---------------------------------------------------------------------------
+
+  def test_options_returns_204_with_cors_headers(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'OPTIONS'}},
+        'rawPath': '/subscriptions',
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 204)
+    self.assertIn('access-control-allow-origin', response['headers'])
+    self.assertEqual(response['headers']['access-control-allow-origin'], '*')
+
+  def test_health_endpoint_returns_service_info(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/health',
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    body = json.loads(response['body'])
+    self.assertEqual(body['service'], 'townofwiley-severe-weather-signup')
+    self.assertEqual(body['allowedZipCode'], '81092')
+    self.assertIn('email', body['signupChannels'])
+    self.assertIn('sms', body['signupChannels'])
+
+  def test_unknown_route_returns_404(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/does-not-exist',
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 404)
+
+  # ---------------------------------------------------------------------------
+  # Confirm / unsubscribe flows
+  # ---------------------------------------------------------------------------
+
+  def test_confirm_missing_token_returns_400(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+
+  def test_confirm_invalid_token_returns_404(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {'token': 'no-such-token'},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 404)
+
+  def test_confirm_already_active_subscription_returns_200(self) -> None:
+    backend = build_backend()
+    # Sign up and confirm once
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+    token = (
+      backend._notification_gateway.confirmation_messages[0]['message']
+      .split('Confirm alerts: ')[1]
+      .split('\n')[0]
+      .split('token=')[1]
+    )
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {'token': token},
+      },
+    )
+    # Confirm again with the same token — should not blow up
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {'token': token},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    self.assertIn('Alerts confirmed', response['body'])
+
+  def test_unsubscribe_valid_token_removes_subscription(self) -> None:
+    backend = build_backend()
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+    token = (
+      backend._notification_gateway.confirmation_messages[0]['message']
+      .split('Cancel signup: ')[1]
+      .split('\n')[0]
+      .split('token=')[1]
+    )
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/unsubscribe',
+        'queryStringParameters': {'token': token},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    self.assertIn('Alerts stopped', response['body'])
+
+  def test_unsubscribe_missing_token_returns_400(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/unsubscribe',
+        'queryStringParameters': {},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+
+  def test_unsubscribe_invalid_token_returns_404(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/unsubscribe',
+        'queryStringParameters': {'token': 'no-such-token'},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 404)
+
+  # ---------------------------------------------------------------------------
+  # Duplicate subscription handling
+  # ---------------------------------------------------------------------------
+
+  def test_duplicate_active_subscription_returns_200_with_unsubscribe_url(self) -> None:
+    backend = build_backend()
+    # Sign up and confirm
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+    confirm_token = (
+      backend._notification_gateway.confirmation_messages[0]['message']
+      .split('Confirm alerts: ')[1]
+      .split('\n')[0]
+      .split('token=')[1]
+    )
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'GET'}},
+        'rawPath': '/confirm',
+        'queryStringParameters': {'token': confirm_token},
+      },
+    )
+    # Try to sign up again with same address
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    self.assertIn('already subscribed', response['body'])
+    self.assertIn('unsubscribeUrl', response['body'])
+
+  def test_duplicate_pending_subscription_resends_confirmation(self) -> None:
+    backend = build_backend()
+    # First signup
+    backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+    gateway = backend._notification_gateway
+    self.assertEqual(len(gateway.confirmation_messages), 1)
+
+    # Second signup before confirming
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'email', 'destination': 'resident@example.com', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 202)
+    self.assertIn('fresh confirmation', response['body'])
+    self.assertEqual(len(gateway.confirmation_messages), 2)
+
+  # ---------------------------------------------------------------------------
+  # SMS confirmation delivery failure
+  # ---------------------------------------------------------------------------
+
+  def test_returns_actionable_error_when_sms_confirmation_delivery_fails(self) -> None:
+    backend = APP.SevereWeatherBackend(
+      config=APP.AppConfig(
+        subscriptions_table='subscriptions',
+        deliveries_table='deliveries',
+        sender_email='alerts@townofwiley.gov',
+        notification_sender_name='Town of Wiley Alerts',
+        allowed_zip_code='81092',
+        alert_zone_code='COZ098',
+        public_api_base_url='https://alerts.example.com',
+        nws_user_agent='TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)',
+        nws_api_key='',
+      ),
+      subscription_store=APP.MemorySubscriptionStore(),
+      delivery_store=APP.MemoryDeliveryStore(),
+      notification_gateway=FailingNotificationGateway('SNS publish failed: Invalid phone number'),
+      nws_client=APP.StaticNwsClient([]),
+      translation_gateway=APP.MemoryTranslationGateway(),
+    )
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/subscriptions',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'channel': 'sms', 'destination': '(719) 555-0101', 'zipCode': '81092'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 502)
+    self.assertIn('Text alert confirmations', response['body'])
+
+  # ---------------------------------------------------------------------------
+  # Scheduled event: no alerts, no subscribers
+  # ---------------------------------------------------------------------------
+
+  def test_scheduled_event_with_no_alerts_sends_zero_messages(self) -> None:
+    backend = build_backend(alerts=[])
+    response = backend.handle({'source': 'aws.events', 'detail-type': 'Scheduled Event'})
+
+    body = json.loads(response['body'])
+    self.assertEqual(body['messagesSent'], 0)
+    self.assertEqual(body['activeAlerts'], 0)
+
 
 if __name__ == '__main__':
   unittest.main()

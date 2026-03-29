@@ -212,6 +212,92 @@ class EmailAliasRouterTests(unittest.TestCase):
     self.assertTrue(body['ok'])
     self.assertEqual(body['service'], 'town-email-alias-router')
 
+  def test_processes_multiple_s3_records_in_one_event(self) -> None:
+    raw_message_1 = (
+      b'From: Alice <alice@example.com>\n'
+      b'To: Mayor <steve.mckitrick@townofwiley.gov>\n'
+      b'Subject: Question 1\n\n'
+      b'Message one.'
+    )
+    raw_message_2 = (
+      b'From: Bob <bob@example.com>\n'
+      b'To: Clerk <deb.dillon@townofwiley.gov>\n'
+      b'Subject: Question 2\n\n'
+      b'Message two.'
+    )
+    forwarder = RecordingForwarder()
+    router = APP.EmailAliasRouter(
+      config=APP.AppConfig(
+        alias_table='EmailAliasTable',
+        alias_table_region='us-east-2',
+        alias_index_name='byAliasAddress',
+        forwarder_from='mailer@townofwiley.gov',
+        alias_domain='townofwiley.gov',
+        ses_send_region='us-east-2',
+      ),
+      alias_directory=MemoryAliasDirectory(
+        [
+          APP.EmailAliasRecord(
+            alias_address='steve.mckitrick@townofwiley.gov',
+            destination_address='mayor@example.com',
+            active=True,
+          ),
+          APP.EmailAliasRecord(
+            alias_address='deb.dillon@townofwiley.gov',
+            destination_address='clerk@example.com',
+            active=True,
+          ),
+        ],
+      ),
+      object_store=StaticObjectStore(
+        {
+          ('bucket', 'inbox/msg-1.eml'): raw_message_1,
+          ('bucket', 'inbox/msg-2.eml'): raw_message_2,
+        },
+      ),
+      mail_forwarder=forwarder,
+    )
+
+    response = router.handle(
+      {
+        'Records': [
+          {
+            'eventSource': 'aws:s3',
+            's3': {'bucket': {'name': 'bucket'}, 'object': {'key': 'inbox/msg-1.eml'}},
+          },
+          {
+            'eventSource': 'aws:s3',
+            's3': {'bucket': {'name': 'bucket'}, 'object': {'key': 'inbox/msg-2.eml'}},
+          },
+        ],
+      },
+    )
+
+    self.assertEqual(response['processed'], 2)
+    self.assertEqual(response['forwarded'], 2)
+    self.assertEqual(len(forwarder.calls), 2)
+    destinations = {call['destination_address'] for call in forwarder.calls}
+    self.assertEqual(destinations, {'mayor@example.com', 'clerk@example.com'})
+
+  def test_build_forward_email_falls_back_to_from_when_reply_to_absent(self) -> None:
+    raw_message = (
+      b'From: Resident <resident@example.com>\n'
+      b'To: Clerk <deb.dillon@townofwiley.gov>\n'
+      b'Subject: No reply-to header\n\n'
+      b'Body text.'
+    )
+    parsed_message = APP.BytesParser(policy=APP.policy.default).parsebytes(raw_message)
+    alias = APP.EmailAliasRecord(
+      alias_address='deb.dillon@townofwiley.gov',
+      destination_address='clerk@example.com',
+      active=True,
+    )
+
+    forward_message = APP.build_forward_email(alias, raw_message, parsed_message, 'mailer@townofwiley.gov')
+
+    # With no Reply-To header the sender (From) address becomes the reply target
+    self.assertEqual(forward_message['Reply-To'], 'resident@example.com')
+
 
 if __name__ == '__main__':
   unittest.main()

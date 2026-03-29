@@ -30,6 +30,7 @@ jobs:
       e2e_changed: ${{ steps.classify.outputs.e2e_changed }}
       site_proxy_changed: ${{ steps.classify.outputs.site_proxy_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
+      email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
       docs_only: ${{ steps.classify.outputs.docs_only }}
       changed_files: ${{ steps.classify.outputs.changed_files }}
     steps:
@@ -57,6 +58,7 @@ jobs:
           E2E_CHANGED=false
           SITE_PROXY_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
+          EMAIL_ALIAS_CHANGED=false
           DOCS_ONLY=true
 
           for FILE in "${FILES[@]}"; do
@@ -79,7 +81,11 @@ jobs:
                 WEATHER_ALERTS_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              docs/*|README.md|CLERK-CMS-GUIDE.md|bot-training/*|infrastructure/email-alias-router/*|scripts/deploy-email-alias-router.py|scripts/deploy-severe-weather-backend.py|scripts/user-secrets.mjs)
+              infrastructure/email-alias-router/*|scripts/deploy-email-alias-router.py)
+                EMAIL_ALIAS_CHANGED=true
+                DOCS_ONLY=false
+                ;;
+              docs/*|README.md|CLERK-CMS-GUIDE.md|bot-training/*|scripts/deploy-severe-weather-backend.py|scripts/user-secrets.mjs)
                 ;;
               *)
                 DOCS_ONLY=false
@@ -92,6 +98,7 @@ jobs:
             echo "e2e_changed=$E2E_CHANGED"
             echo "site_proxy_changed=$SITE_PROXY_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
+            echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
             echo "docs_only=$DOCS_ONLY"
             echo "changed_files<<EOF"
             printf '%s\n' "${FILES[@]}"
@@ -108,6 +115,7 @@ jobs:
           - End-to-end validation files changed: ${{ steps.classify.outputs.e2e_changed }}
           - Website runtime proxy code changed: ${{ steps.classify.outputs.site_proxy_changed }}
           - Severe weather signup backend changed: ${{ steps.classify.outputs.weather_alerts_changed }}
+          - Email alias router changed: ${{ steps.classify.outputs.email_alias_changed }}
           - Docs or maintainer-only change set: ${{ steps.classify.outputs.docs_only }}
 
           ### Changed Files
@@ -206,10 +214,12 @@ jobs:
       - name: Run public-site proxy tests
         run: npm run test:infra
 
-  weather-alert-backend-tests:
+  backend-python-tests:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.weather_alerts_changed == 'true'
+    if: |
+      needs.detect-changes.outputs.weather_alerts_changed == 'true' ||
+      needs.detect-changes.outputs.email_alias_changed == 'true'
     timeout-minutes: 15
     steps:
       - name: Check out repository
@@ -220,8 +230,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run severe weather backend tests
-        run: npm run test:infra:alerts
+      - name: Install pytest
+        run: python -m pip install --quiet pytest
+
+      - name: Run Python backend tests
+        run: npm run test:infra:backend
 
   maintainer-only-summary:
     runs-on: ubuntu-latest
