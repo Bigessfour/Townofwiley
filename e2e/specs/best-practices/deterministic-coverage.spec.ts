@@ -22,29 +22,30 @@ test.describe('deterministic regression coverage', () => {
     await homePage.goto();
 
     await expect(homePage.page.getByTestId('homepage-section-nav')).toMatchAriaSnapshot(`
-      - menubar "Homepage sections":
-        - menuitem /Top Tasks/:
-          - link /Top Tasks/
-        - menuitem /Weather/:
-          - link /Weather/
-        - menuitem /Notices/:
-          - link /Notices/
-        - menuitem /Meetings/:
-          - link /Meetings/
-        - menuitem /Services/:
-          - link /Services/
-        - menuitem /Records/:
-          - link /Records/
-        - menuitem /Documents/:
-          - link /Documents/
-        - menuitem /Accessibility/:
-          - link /Accessibility/
-        - menuitem /Businesses/:
-          - link /Businesses/
-        - menuitem /News/:
-          - link /News/
-        - menuitem /Contact/:
-          - link /Contact/
+      - navigation "Homepage sections":
+        - list:
+          - listitem:
+            - link /Top Tasks/
+          - listitem:
+            - link /Weather/
+          - listitem:
+            - link /Notices/
+          - listitem:
+            - link /Meetings/
+          - listitem:
+            - link /Services/
+          - listitem:
+            - link /Records/
+          - listitem:
+            - link /Documents/
+          - listitem:
+            - link /Accessibility/
+          - listitem:
+            - link /Businesses/
+          - listitem:
+            - link /News/
+          - listitem:
+            - link /Contact/
     `);
   });
 

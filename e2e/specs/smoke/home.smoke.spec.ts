@@ -22,12 +22,7 @@ async function expectGatewayFromHomepage(
 ): Promise<void> {
   await homePage.goto();
 
-  if (gateway.name.includes('section nav')) {
-    const menubarBtn = homePage.page.locator('.p-menubar-button');
-    if (await menubarBtn.isVisible()) {
-      await menubarBtn.click();
-    }
-  }
+  // No mobile hamburger toggle in the current custom nav; section nav links are always visible.
 
   await gateway.click(homePage);
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);

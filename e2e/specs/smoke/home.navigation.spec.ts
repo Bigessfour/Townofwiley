@@ -34,24 +34,18 @@ test.describe('homepage navigation', () => {
     }
   });
 
-  test('clicks all menubar items to verify PrimeNG router bindings work completely', async ({ homePage }) => {
+  test('clicks all section nav items to verify router bindings work completely', async ({ homePage }) => {
     test.setTimeout(90000);
-    // We iteratively click each main menu item directly rather than just checking their href properties.
-    // This catches regressions where PrimeNG DOM structure intercepts clicks (e.g., padding on a wrapper div
-    // instead of the anchor) without firing navigation.
+    // We iteratively click each main nav item directly rather than just checking their href properties.
+    // This catches regressions where padding or overlapping elements intercept clicks without firing navigation.
 
     for (const label of siteContent.navLabels) {
       await homePage.goto();
 
-      const menubarBtn = homePage.page.locator('.p-menubar-button');
-      if (await menubarBtn.isVisible()) {
-        await menubarBtn.click();
-      }
+      const navLink = homePage.page.locator('[data-testid="homepage-section-nav"] .main-nav-link', { hasText: label });
 
-      const menuItemBox = homePage.page.locator('.p-menubar-item-link', { hasText: label });
-
-      // Click at the far left edge of the link box to guarantee we are clicking the padding
-      await menuItemBox.click({ position: { x: 5, y: 5 } });
+      // Click at the far left edge of the link box to guarantee we are clicking the actual element
+      await navLink.click({ position: { x: 5, y: 5 } });
 
       // Confirm the URL successfully updated to something associated with the menu text
       // We know Top Tasks uses 'top-tasks', Weather uses 'weather', etc.

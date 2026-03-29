@@ -59,7 +59,7 @@ export class HomePage {
     this.communityFacts = page.locator('.fact-card');
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
-    this.sectionNavLinks = page.locator('[data-testid="homepage-section-nav"] .p-menubar-root-list .p-menubar-item-link');
+    this.sectionNavLinks = page.locator('[data-testid="homepage-section-nav"] .main-nav-link');
     this.searchInput = page.locator('#site-search');
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
