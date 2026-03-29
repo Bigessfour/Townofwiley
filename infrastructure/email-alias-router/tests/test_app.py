@@ -63,7 +63,6 @@ def build_router(raw_message: bytes, aliases: list[APP.EmailAliasRecord]) -> tup
     config=APP.AppConfig(
       alias_table='EmailAliasTable',
       alias_table_region='us-east-2',
-      alias_index_name='byAliasAddress',
       forwarder_from='mailer@townofwiley.gov',
       alias_domain='townofwiley.gov',
       ses_send_region='us-east-2',
@@ -230,7 +229,6 @@ class EmailAliasRouterTests(unittest.TestCase):
       config=APP.AppConfig(
         alias_table='EmailAliasTable',
         alias_table_region='us-east-2',
-        alias_index_name='byAliasAddress',
         forwarder_from='mailer@townofwiley.gov',
         alias_domain='townofwiley.gov',
         ses_send_region='us-east-2',

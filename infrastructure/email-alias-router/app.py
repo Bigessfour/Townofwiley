@@ -15,7 +15,6 @@ from urllib.parse import unquote_plus
 class AppConfig:
   alias_table: str
   alias_table_region: str
-  alias_index_name: str
   forwarder_from: str
   alias_domain: str
   ses_send_region: str
@@ -153,28 +152,23 @@ def build_forward_email(
 
 
 class DynamoDbAliasDirectory:
-  def __init__(self, table_name: str, index_name: str, dynamodb_client: Any) -> None:
+  def __init__(self, table_name: str, dynamodb_client: Any) -> None:
     self._table_name = table_name
-    self._index_name = index_name
     self._dynamodb_client = dynamodb_client
 
   def find_first_active_alias(self, candidate_addresses: Iterable[str]) -> EmailAliasRecord | None:
     for candidate_address in candidate_addresses:
-      response = self._dynamodb_client.query(
+      response = self._dynamodb_client.scan(
         TableName=self._table_name,
-        IndexName=self._index_name,
-        KeyConditionExpression='aliasAddress = :aliasAddress',
+        FilterExpression='aliasAddress = :aliasAddress',
         ExpressionAttributeValues={':aliasAddress': {'S': candidate_address}},
-        Limit=1,
       )
       items = response.get('Items') or []
 
-      if not items:
-        continue
-
-      record = self._map_item(items[0])
-      if record.active:
-        return record
+      for item in items:
+        record = self._map_item(item)
+        if record.active:
+          return record
 
     return None
 
@@ -279,7 +273,6 @@ def build_runtime_router() -> EmailAliasRouter:
   config = AppConfig(
     alias_table=read_required_env('EMAIL_ALIAS_TABLE'),
     alias_table_region=os.environ.get('EMAIL_ALIAS_TABLE_REGION', '').strip(),
-    alias_index_name=os.environ.get('EMAIL_ALIAS_INDEX_NAME', 'byAliasAddress').strip() or 'byAliasAddress',
     forwarder_from=read_required_env('FORWARDER_FROM'),
     alias_domain=os.environ.get('ALIAS_DOMAIN', 'townofwiley.gov').strip().lower() or 'townofwiley.gov',
     ses_send_region=os.environ.get('SES_SEND_REGION', '').strip(),
@@ -300,7 +293,6 @@ def build_runtime_router() -> EmailAliasRouter:
     config=config,
     alias_directory=DynamoDbAliasDirectory(
       table_name=config.alias_table,
-      index_name=config.alias_index_name,
       dynamodb_client=boto3.client('dynamodb', **dynamodb_kwargs),
     ),
     object_store=S3MailObjectStore(boto3.client('s3')),

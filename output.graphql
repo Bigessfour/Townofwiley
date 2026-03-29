@@ -1,0 +1,765 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam {
+  createdAt: AWSDateTime!
+  detail: String!
+  enabled: Boolean!
+  id: ID!
+  label: String!
+  linkHref: AWSURL
+  linkLabel: String
+  title: String!
+  updatedAt: AWSDateTime!
+}
+
+type Announcement @aws_api_key @aws_cognito_user_pools @aws_iam {
+  active: Boolean!
+  createdAt: AWSDateTime!
+  date: AWSDate
+  detail: String!
+  id: ID!
+  priority: Int
+  title: String!
+  updatedAt: AWSDateTime!
+}
+
+type EmailAlias @aws_cognito_user_pools @aws_iam {
+  active: Boolean!
+  aliasAddress: AWSEmail!
+  createdAt: AWSDateTime!
+  destinationAddress: AWSEmail!
+  displayName: String
+  id: ID!
+  notes: String
+  roleLabel: String
+  updatedAt: AWSDateTime!
+}
+
+type Event @aws_api_key @aws_cognito_user_pools @aws_iam {
+  active: Boolean!
+  createdAt: AWSDateTime!
+  description: String
+  end: AWSDateTime
+  id: ID!
+  location: String
+  start: AWSDateTime!
+  title: String!
+  updatedAt: AWSDateTime!
+}
+
+type ModelAlertBannerConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
+  items: [AlertBanner]!
+  nextToken: String
+}
+
+type ModelAnnouncementConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
+  items: [Announcement]!
+  nextToken: String
+}
+
+type ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam {
+  items: [EmailAlias]!
+  nextToken: String
+}
+
+type ModelEventConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
+  items: [Event]!
+  nextToken: String
+}
+
+type ModelOfficialContactConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
+  items: [OfficialContact]!
+  nextToken: String
+}
+
+type ModelSiteSettingsConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
+  items: [SiteSettings]!
+  nextToken: String
+}
+
+type Mutation {
+  createAlertBanner(condition: ModelAlertBannerConditionInput, input: CreateAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
+  createAnnouncement(condition: ModelAnnouncementConditionInput, input: CreateAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
+  createEmailAlias(condition: ModelEmailAliasConditionInput, input: CreateEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
+  createEvent(condition: ModelEventConditionInput, input: CreateEventInput!): Event @aws_cognito_user_pools @aws_iam
+  createOfficialContact(condition: ModelOfficialContactConditionInput, input: CreateOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
+  createSiteSettings(condition: ModelSiteSettingsConditionInput, input: CreateSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
+  deleteAlertBanner(condition: ModelAlertBannerConditionInput, input: DeleteAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
+  deleteAnnouncement(condition: ModelAnnouncementConditionInput, input: DeleteAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
+  deleteEmailAlias(condition: ModelEmailAliasConditionInput, input: DeleteEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
+  deleteEvent(condition: ModelEventConditionInput, input: DeleteEventInput!): Event @aws_cognito_user_pools @aws_iam
+  deleteOfficialContact(condition: ModelOfficialContactConditionInput, input: DeleteOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
+  deleteSiteSettings(condition: ModelSiteSettingsConditionInput, input: DeleteSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
+  updateAlertBanner(condition: ModelAlertBannerConditionInput, input: UpdateAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
+  updateAnnouncement(condition: ModelAnnouncementConditionInput, input: UpdateAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
+  updateEmailAlias(condition: ModelEmailAliasConditionInput, input: UpdateEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
+  updateEvent(condition: ModelEventConditionInput, input: UpdateEventInput!): Event @aws_cognito_user_pools @aws_iam
+  updateOfficialContact(condition: ModelOfficialContactConditionInput, input: UpdateOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
+  updateSiteSettings(condition: ModelSiteSettingsConditionInput, input: UpdateSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
+}
+
+type OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam {
+  createdAt: AWSDateTime!
+  detail: String!
+  displayOrder: Int
+  href: String
+  id: ID!
+  label: String!
+  linkLabel: String
+  updatedAt: AWSDateTime!
+  value: String!
+}
+
+type Query {
+  emailAliasByAddress(aliasAddress: AWSEmail!, filter: ModelEmailAliasFilterInput, limit: Int, nextToken: String, sortDirection: ModelSortDirection): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
+  getAlertBanner(id: ID!): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam
+  getAnnouncement(id: ID!): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam
+  getEmailAlias(id: ID!): EmailAlias @aws_cognito_user_pools @aws_iam
+  getEvent(id: ID!): Event @aws_api_key @aws_cognito_user_pools @aws_iam
+  getOfficialContact(id: ID!): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam
+  getSiteSettings(id: ID!): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam
+  listAlertBanners(filter: ModelAlertBannerFilterInput, limit: Int, nextToken: String): ModelAlertBannerConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listAnnouncements(filter: ModelAnnouncementFilterInput, limit: Int, nextToken: String): ModelAnnouncementConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listEmailAliases(filter: ModelEmailAliasFilterInput, limit: Int, nextToken: String): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
+  listEvents(filter: ModelEventFilterInput, limit: Int, nextToken: String): ModelEventConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listOfficialContacts(filter: ModelOfficialContactFilterInput, limit: Int, nextToken: String): ModelOfficialContactConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listSiteSettings(filter: ModelSiteSettingsFilterInput, limit: Int, nextToken: String): ModelSiteSettingsConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+}
+
+type SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam {
+  address: String
+  createdAt: AWSDateTime!
+  email: AWSEmail
+  heroEyebrow: String
+  heroMessage: String
+  heroStatus: String
+  heroSubtext: String
+  heroTitle: String
+  id: ID!
+  officeHours: String
+  pageTitle: String
+  phone: AWSPhone
+  townName: String!
+  updatedAt: AWSDateTime!
+  welcomeBody: String
+  welcomeCaption: String
+  welcomeHeading: String
+  welcomeLabel: String
+}
+
+type Subscription {
+  onCreateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createAlertBanner"])
+  onCreateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createAnnouncement"])
+  onCreateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createEmailAlias"])
+  onCreateEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createEvent"])
+  onCreateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createOfficialContact"])
+  onCreateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createSiteSettings"])
+  onDeleteAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteAlertBanner"])
+  onDeleteAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteAnnouncement"])
+  onDeleteEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteEmailAlias"])
+  onDeleteEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteEvent"])
+  onDeleteOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteOfficialContact"])
+  onDeleteSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteSiteSettings"])
+  onUpdateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateAlertBanner"])
+  onUpdateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateAnnouncement"])
+  onUpdateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateEmailAlias"])
+  onUpdateEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateEvent"])
+  onUpdateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateOfficialContact"])
+  onUpdateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateSiteSettings"])
+}
+
+enum ModelAttributeTypes {
+  _null
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+input CreateAlertBannerInput {
+  detail: String!
+  enabled: Boolean!
+  id: ID
+  label: String!
+  linkHref: AWSURL
+  linkLabel: String
+  title: String!
+}
+
+input CreateAnnouncementInput {
+  active: Boolean!
+  date: AWSDate
+  detail: String!
+  id: ID
+  priority: Int
+  title: String!
+}
+
+input CreateEmailAliasInput {
+  active: Boolean!
+  aliasAddress: AWSEmail!
+  destinationAddress: AWSEmail!
+  displayName: String
+  id: ID
+  notes: String
+  roleLabel: String
+}
+
+input CreateEventInput {
+  active: Boolean!
+  description: String
+  end: AWSDateTime
+  id: ID
+  location: String
+  start: AWSDateTime!
+  title: String!
+}
+
+input CreateOfficialContactInput {
+  detail: String!
+  displayOrder: Int
+  href: String
+  id: ID
+  label: String!
+  linkLabel: String
+  value: String!
+}
+
+input CreateSiteSettingsInput {
+  address: String
+  email: AWSEmail
+  heroEyebrow: String
+  heroMessage: String
+  heroStatus: String
+  heroSubtext: String
+  heroTitle: String
+  id: ID
+  officeHours: String
+  pageTitle: String
+  phone: AWSPhone
+  townName: String!
+  welcomeBody: String
+  welcomeCaption: String
+  welcomeHeading: String
+  welcomeLabel: String
+}
+
+input DeleteAlertBannerInput {
+  id: ID!
+}
+
+input DeleteAnnouncementInput {
+  id: ID!
+}
+
+input DeleteEmailAliasInput {
+  id: ID!
+}
+
+input DeleteEventInput {
+  id: ID!
+}
+
+input DeleteOfficialContactInput {
+  id: ID!
+}
+
+input DeleteSiteSettingsInput {
+  id: ID!
+}
+
+input ModelAlertBannerConditionInput {
+  and: [ModelAlertBannerConditionInput]
+  createdAt: ModelStringInput
+  detail: ModelStringInput
+  enabled: ModelBooleanInput
+  label: ModelStringInput
+  linkHref: ModelStringInput
+  linkLabel: ModelStringInput
+  not: ModelAlertBannerConditionInput
+  or: [ModelAlertBannerConditionInput]
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelAlertBannerFilterInput {
+  and: [ModelAlertBannerFilterInput]
+  createdAt: ModelStringInput
+  detail: ModelStringInput
+  enabled: ModelBooleanInput
+  id: ModelIDInput
+  label: ModelStringInput
+  linkHref: ModelStringInput
+  linkLabel: ModelStringInput
+  not: ModelAlertBannerFilterInput
+  or: [ModelAlertBannerFilterInput]
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelAnnouncementConditionInput {
+  active: ModelBooleanInput
+  and: [ModelAnnouncementConditionInput]
+  createdAt: ModelStringInput
+  date: ModelStringInput
+  detail: ModelStringInput
+  not: ModelAnnouncementConditionInput
+  or: [ModelAnnouncementConditionInput]
+  priority: ModelIntInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelAnnouncementFilterInput {
+  active: ModelBooleanInput
+  and: [ModelAnnouncementFilterInput]
+  createdAt: ModelStringInput
+  date: ModelStringInput
+  detail: ModelStringInput
+  id: ModelIDInput
+  not: ModelAnnouncementFilterInput
+  or: [ModelAnnouncementFilterInput]
+  priority: ModelIntInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelBooleanInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  eq: Boolean
+  ne: Boolean
+}
+
+input ModelEmailAliasConditionInput {
+  active: ModelBooleanInput
+  aliasAddress: ModelStringInput
+  and: [ModelEmailAliasConditionInput]
+  createdAt: ModelStringInput
+  destinationAddress: ModelStringInput
+  displayName: ModelStringInput
+  not: ModelEmailAliasConditionInput
+  notes: ModelStringInput
+  or: [ModelEmailAliasConditionInput]
+  roleLabel: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelEmailAliasFilterInput {
+  active: ModelBooleanInput
+  aliasAddress: ModelStringInput
+  and: [ModelEmailAliasFilterInput]
+  createdAt: ModelStringInput
+  destinationAddress: ModelStringInput
+  displayName: ModelStringInput
+  id: ModelIDInput
+  not: ModelEmailAliasFilterInput
+  notes: ModelStringInput
+  or: [ModelEmailAliasFilterInput]
+  roleLabel: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelEventConditionInput {
+  active: ModelBooleanInput
+  and: [ModelEventConditionInput]
+  createdAt: ModelStringInput
+  description: ModelStringInput
+  end: ModelStringInput
+  location: ModelStringInput
+  not: ModelEventConditionInput
+  or: [ModelEventConditionInput]
+  start: ModelStringInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelEventFilterInput {
+  active: ModelBooleanInput
+  and: [ModelEventFilterInput]
+  createdAt: ModelStringInput
+  description: ModelStringInput
+  end: ModelStringInput
+  id: ModelIDInput
+  location: ModelStringInput
+  not: ModelEventFilterInput
+  or: [ModelEventFilterInput]
+  start: ModelStringInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelFloatInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+}
+
+input ModelIDInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input ModelOfficialContactConditionInput {
+  and: [ModelOfficialContactConditionInput]
+  createdAt: ModelStringInput
+  detail: ModelStringInput
+  displayOrder: ModelIntInput
+  href: ModelStringInput
+  label: ModelStringInput
+  linkLabel: ModelStringInput
+  not: ModelOfficialContactConditionInput
+  or: [ModelOfficialContactConditionInput]
+  updatedAt: ModelStringInput
+  value: ModelStringInput
+}
+
+input ModelOfficialContactFilterInput {
+  and: [ModelOfficialContactFilterInput]
+  createdAt: ModelStringInput
+  detail: ModelStringInput
+  displayOrder: ModelIntInput
+  href: ModelStringInput
+  id: ModelIDInput
+  label: ModelStringInput
+  linkLabel: ModelStringInput
+  not: ModelOfficialContactFilterInput
+  or: [ModelOfficialContactFilterInput]
+  updatedAt: ModelStringInput
+  value: ModelStringInput
+}
+
+input ModelSiteSettingsConditionInput {
+  address: ModelStringInput
+  and: [ModelSiteSettingsConditionInput]
+  createdAt: ModelStringInput
+  email: ModelStringInput
+  heroEyebrow: ModelStringInput
+  heroMessage: ModelStringInput
+  heroStatus: ModelStringInput
+  heroSubtext: ModelStringInput
+  heroTitle: ModelStringInput
+  not: ModelSiteSettingsConditionInput
+  officeHours: ModelStringInput
+  or: [ModelSiteSettingsConditionInput]
+  pageTitle: ModelStringInput
+  phone: ModelStringInput
+  townName: ModelStringInput
+  updatedAt: ModelStringInput
+  welcomeBody: ModelStringInput
+  welcomeCaption: ModelStringInput
+  welcomeHeading: ModelStringInput
+  welcomeLabel: ModelStringInput
+}
+
+input ModelSiteSettingsFilterInput {
+  address: ModelStringInput
+  and: [ModelSiteSettingsFilterInput]
+  createdAt: ModelStringInput
+  email: ModelStringInput
+  heroEyebrow: ModelStringInput
+  heroMessage: ModelStringInput
+  heroStatus: ModelStringInput
+  heroSubtext: ModelStringInput
+  heroTitle: ModelStringInput
+  id: ModelIDInput
+  not: ModelSiteSettingsFilterInput
+  officeHours: ModelStringInput
+  or: [ModelSiteSettingsFilterInput]
+  pageTitle: ModelStringInput
+  phone: ModelStringInput
+  townName: ModelStringInput
+  updatedAt: ModelStringInput
+  welcomeBody: ModelStringInput
+  welcomeCaption: ModelStringInput
+  welcomeHeading: ModelStringInput
+  welcomeLabel: ModelStringInput
+}
+
+input ModelSizeInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input ModelStringInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionAlertBannerFilterInput {
+  and: [ModelSubscriptionAlertBannerFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  detail: ModelSubscriptionStringInput
+  enabled: ModelSubscriptionBooleanInput
+  id: ModelSubscriptionIDInput
+  label: ModelSubscriptionStringInput
+  linkHref: ModelSubscriptionStringInput
+  linkLabel: ModelSubscriptionStringInput
+  or: [ModelSubscriptionAlertBannerFilterInput]
+  title: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionAnnouncementFilterInput {
+  active: ModelSubscriptionBooleanInput
+  and: [ModelSubscriptionAnnouncementFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  date: ModelSubscriptionStringInput
+  detail: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  or: [ModelSubscriptionAnnouncementFilterInput]
+  priority: ModelSubscriptionIntInput
+  title: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionBooleanInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input ModelSubscriptionEmailAliasFilterInput {
+  active: ModelSubscriptionBooleanInput
+  aliasAddress: ModelSubscriptionStringInput
+  and: [ModelSubscriptionEmailAliasFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  destinationAddress: ModelSubscriptionStringInput
+  displayName: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  notes: ModelSubscriptionStringInput
+  or: [ModelSubscriptionEmailAliasFilterInput]
+  roleLabel: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionEventFilterInput {
+  active: ModelSubscriptionBooleanInput
+  and: [ModelSubscriptionEventFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  end: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  location: ModelSubscriptionStringInput
+  or: [ModelSubscriptionEventFilterInput]
+  start: ModelSubscriptionStringInput
+  title: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionFloatInput {
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  in: [Float]
+  le: Float
+  lt: Float
+  ne: Float
+  notIn: [Float]
+}
+
+input ModelSubscriptionIDInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  in: [ID]
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  notIn: [ID]
+}
+
+input ModelSubscriptionIntInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  in: [Int]
+  le: Int
+  lt: Int
+  ne: Int
+  notIn: [Int]
+}
+
+input ModelSubscriptionOfficialContactFilterInput {
+  and: [ModelSubscriptionOfficialContactFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  detail: ModelSubscriptionStringInput
+  displayOrder: ModelSubscriptionIntInput
+  href: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  label: ModelSubscriptionStringInput
+  linkLabel: ModelSubscriptionStringInput
+  or: [ModelSubscriptionOfficialContactFilterInput]
+  updatedAt: ModelSubscriptionStringInput
+  value: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionSiteSettingsFilterInput {
+  address: ModelSubscriptionStringInput
+  and: [ModelSubscriptionSiteSettingsFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  email: ModelSubscriptionStringInput
+  heroEyebrow: ModelSubscriptionStringInput
+  heroMessage: ModelSubscriptionStringInput
+  heroStatus: ModelSubscriptionStringInput
+  heroSubtext: ModelSubscriptionStringInput
+  heroTitle: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  officeHours: ModelSubscriptionStringInput
+  or: [ModelSubscriptionSiteSettingsFilterInput]
+  pageTitle: ModelSubscriptionStringInput
+  phone: ModelSubscriptionStringInput
+  townName: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  welcomeBody: ModelSubscriptionStringInput
+  welcomeCaption: ModelSubscriptionStringInput
+  welcomeHeading: ModelSubscriptionStringInput
+  welcomeLabel: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionStringInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  in: [String]
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  notIn: [String]
+}
+
+input UpdateAlertBannerInput {
+  detail: String
+  enabled: Boolean
+  id: ID!
+  label: String
+  linkHref: AWSURL
+  linkLabel: String
+  title: String
+}
+
+input UpdateAnnouncementInput {
+  active: Boolean
+  date: AWSDate
+  detail: String
+  id: ID!
+  priority: Int
+  title: String
+}
+
+input UpdateEmailAliasInput {
+  active: Boolean
+  aliasAddress: AWSEmail
+  destinationAddress: AWSEmail
+  displayName: String
+  id: ID!
+  notes: String
+  roleLabel: String
+}
+
+input UpdateEventInput {
+  active: Boolean
+  description: String
+  end: AWSDateTime
+  id: ID!
+  location: String
+  start: AWSDateTime
+  title: String
+}
+
+input UpdateOfficialContactInput {
+  detail: String
+  displayOrder: Int
+  href: String
+  id: ID!
+  label: String
+  linkLabel: String
+  value: String
+}
+
+input UpdateSiteSettingsInput {
+  address: String
+  email: AWSEmail
+  heroEyebrow: String
+  heroMessage: String
+  heroStatus: String
+  heroSubtext: String
+  heroTitle: String
+  id: ID!
+  officeHours: String
+  pageTitle: String
+  phone: AWSPhone
+  townName: String
+  welcomeBody: String
+  welcomeCaption: String
+  welcomeHeading: String
+  welcomeLabel: String
+}

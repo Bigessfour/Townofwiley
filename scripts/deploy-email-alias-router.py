@@ -25,7 +25,6 @@ def parse_args() -> argparse.Namespace:
   parser.add_argument('--bucket-name', default='')
   parser.add_argument('--alias-table', default='')
   parser.add_argument('--alias-table-region', default='')
-  parser.add_argument('--alias-index-name', default='byAliasAddress')
   parser.add_argument('--forwarder-from', default='')
   parser.add_argument('--send-region', default='')
   parser.add_argument('--alias-domain', default='townofwiley.gov')
@@ -231,8 +230,8 @@ def ensure_role(role_name: str, bucket_arn: str, alias_table_arn: str) -> str:
       },
       {
         'Effect': 'Allow',
-        'Action': ['dynamodb:Query'],
-        'Resource': [alias_table_arn, f'{alias_table_arn}/index/*'],
+        'Action': ['dynamodb:Scan'],
+        'Resource': [alias_table_arn],
       },
       {
         'Effect': 'Allow',
@@ -540,7 +539,6 @@ def main() -> int:
     environment={
       'EMAIL_ALIAS_TABLE': alias_table,
       'EMAIL_ALIAS_TABLE_REGION': alias_table_region,
-      'EMAIL_ALIAS_INDEX_NAME': args.alias_index_name,
       'FORWARDER_FROM': forwarder_from,
       'ALIAS_DOMAIN': alias_domain,
       'SES_SEND_REGION': send_region,
