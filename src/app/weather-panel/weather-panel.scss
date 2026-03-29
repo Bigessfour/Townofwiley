@@ -1,6 +1,6 @@
 :host {
   display: block;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .weather-panel {
@@ -273,13 +273,22 @@
 }
 
 .weather-signup-field input,
-.weather-signup-field select {
+.weather-signup-field select,
+.weather-signup-field .p-inputtext,
+.weather-signup-field .p-select .p-select-label {
   width: 100%;
-  padding: 0.82rem 0.95rem;
+  min-height: 3.25rem;
+  padding: 0.75rem 0.95rem;
   border: 1px solid rgba(13, 44, 84, 0.14);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
   color: var(--ink-900);
+  line-height: 1.5;
+}
+
+.weather-signup-field .p-select {
+  min-height: 3.25rem;
+  width: 100%;
 }
 
 .weather-signup-field input[readonly] {

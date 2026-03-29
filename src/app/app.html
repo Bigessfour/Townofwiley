@@ -224,16 +224,12 @@
     }
   </header>
 
-  <main class="page-shell" id="main-content" #mainContent tabindex="-1">
+  <main class="page-shell" [class.is-feature-page]="isFeaturePageMode()" id="main-content" #mainContent tabindex="-1">
     @if (isFeaturePageMode()) {
       @if (currentFeaturePage(); as currentFeaturePage) {
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
 
-          <div class="page-label-strip" aria-label="Current page">
-            <span class="page-label-kicker">{{ currentFeaturePage.kicker }}</span>
-            <span class="page-label-title">{{ currentFeaturePage.title }}</span>
-          </div>
 
           @if (isWeatherMode()) {
             <section class="feature-detail-stack" id="weather">
