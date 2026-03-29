@@ -2,89 +2,180 @@
   <section class="setup-card mx-auto grid max-w-[980px] gap-4 p-[clamp(1.25rem,2vw,2rem)]" aria-labelledby="clerk-setup-heading">
     <p class="setup-kicker">Town website content guide</p>
     <h1 id="clerk-setup-heading">{{ setupType }}</h1>
-    <p class="setup-copy">
-      Welcome, {{ clerkName }}. {{ setupSummary }}
-    </p>
+    <p class="setup-copy">Welcome, {{ clerkName }}. {{ setupSummary }}</p>
 
-    <p class="setup-note setup-note--strong">
-      The only place to edit live website content is Amplify Studio Data Manager.
-    </p>
-
-    <div class="setup-actions flex flex-wrap gap-3">
-      <a
-        class="setup-button primary"
-        [href]="dataManagerUrl"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        Open Data Manager
-      </a>
-      <a
-        class="setup-button secondary"
-        [href]="studioUrl"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        Open Studio Home
-      </a>
-    </div>
-
-    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
-      <h2>Prepopulated Town account details</h2>
-      <ul class="grid gap-2">
-        @for (item of setupDetails; track item.label) {
-          <li>
-            <strong>{{ item.label }}:</strong> {{ item.value }}
-          </li>
-        }
-      </ul>
-      <p class="setup-note">
-        Use these values to confirm you are in the correct AWS account before editing anything.
-      </p>
-    </article>
-
-    <div class="setup-grid grid gap-4 lg:grid-cols-2">
-      <article class="setup-panel grid gap-3 p-4 rounded-[1.25rem]">
-        <h2>Do this every time</h2>
-        <ol class="grid gap-2">
-          @for (item of dailyChecklist; track item) {
-            <li>{{ item }}</li>
+    <p-tabs [value]="activeTab()" (valueChange)="activeTab.set($event?.toString() ?? 'setup')">&
+      <p-tablist>
+        <p-tab value="setup">Setup Guide</p-tab>
+        <p-tab value="updates">
+          Contact Updates
+          @if (contactUpdates().length > 0) {
+            <p-tag [value]="contactUpdates().length.toString()" severity="warn" styleClass="ml-2 text-xs" />
           }
-        </ol>
-      </article>
+        </p-tab>
+      </p-tablist>
 
-      <article class="setup-panel grid gap-3 p-4 rounded-[1.25rem]">
-        <h2>If you want to change this</h2>
-        <ul class="grid gap-2">
-          @for (item of taskMap; track item.action) {
-            <li>
-              <strong>{{ item.action }}:</strong> {{ item.model }}
-            </li>
-          }
-        </ul>
-      </article>
-    </div>
+      <p-tabpanels>
+        <!-- ── Setup Guide tab ───────────────────────────────────────────── -->
+        <p-tabpanel value="setup">
+          <div class="grid gap-4 pt-2">
+            <p class="setup-note setup-note--strong">
+              The only place to edit live website content is Amplify Studio Data Manager.
+            </p>
 
-    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
-      <h2>Do not use these to edit the website</h2>
-      <ul class="grid gap-2">
-        @for (item of doNotUse; track item) {
-          <li>{{ item }}</li>
-        }
-      </ul>
-    </article>
+            <div class="setup-actions flex flex-wrap gap-3">
+              <a
+                class="setup-button primary"
+                [href]="dataManagerUrl"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Open Data Manager
+              </a>
+              <a
+                class="setup-button secondary"
+                [href]="studioUrl"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Open Studio Home
+              </a>
+            </div>
 
-    <article class="setup-panel full-width grid gap-3 p-4 rounded-[1.25rem]">
-      <h2>Before you finish for the day</h2>
-      <ul class="grid gap-2">
-        @for (item of publishCheck; track item) {
-          <li>{{ item }}</li>
-        }
-      </ul>
-      <p class="setup-note">
-        If Data Manager does not open or says access is denied, the AWS account permissions need to
-        be fixed before website editing can continue.
-      </p>
-    </article>
+            <p-card styleClass="setup-primeng-card">
+              <ng-template #title>Prepopulated Town account details</ng-template>
+              <ul class="grid gap-2">
+                @for (item of setupDetails; track item.label) {
+                  <li>
+                    <strong>{{ item.label }}:</strong> {{ item.value }}
+                  </li>
+                }
+              </ul>
+              <p class="setup-note mt-3">
+                Use these values to confirm you are in the correct AWS account before editing
+                anything.
+              </p>
+            </p-card>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+              <p-card styleClass="setup-primeng-card">
+                <ng-template #title>Do this every time</ng-template>
+                <ol class="grid gap-2">
+                  @for (item of dailyChecklist; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ol>
+              </p-card>
+
+              <p-card styleClass="setup-primeng-card">
+                <ng-template #title>If you want to change this</ng-template>
+                <ul class="grid gap-2">
+                  @for (item of taskMap; track item.action) {
+                    <li>
+                      <strong>{{ item.action }}:</strong>
+                      <p-tag [value]="item.model" severity="secondary" styleClass="ml-1" />
+                    </li>
+                  }
+                </ul>
+              </p-card>
+            </div>
+
+            <p-card styleClass="setup-primeng-card">
+              <ng-template #title>Do not use these to edit the website</ng-template>
+              <ul class="grid gap-2">
+                @for (item of doNotUse; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </p-card>
+
+            <p-card styleClass="setup-primeng-card">
+              <ng-template #title>Before you finish for the day</ng-template>
+              <ul class="grid gap-2">
+                @for (item of publishCheck; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+              <p class="setup-note mt-3">
+                If Data Manager does not open or says access is denied, the AWS account permissions
+                need to be fixed before website editing can continue.
+              </p>
+            </p-card>
+          </div>
+        </p-tabpanel>
+
+        <!-- ── Contact Updates tab ──────────────────────────────────────── -->
+        <p-tabpanel value="updates">
+          <div class="grid gap-4 pt-2">
+            <header class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl font-semibold m-0">Resident Contact Updates</h2>
+                <p class="setup-note mt-1">
+                  All submissions from the bill-pay contact-update form.
+                </p>
+              </div>
+              <button
+                pButton
+                type="button"
+                label="Download CSV"
+                icon="pi pi-download"
+                [outlined]="true"
+                (click)="downloadCSV()"
+                [disabled]="contactUpdates().length === 0"
+              ></button>
+            </header>
+
+            @if (contactUpdates().length === 0) {
+              <p class="text-center py-12 text-color-secondary">
+                No contact updates received yet.
+              </p>
+            } @else {
+              <p-table
+                [value]="contactUpdates()"
+                [scrollable]="true"
+                scrollHeight="600px"
+                [paginator]="true"
+                [rows]="20"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 20, 50]"
+                sortField="timestamp"
+                [sortOrder]="-1"
+                stripedRows
+                showGridlines
+              >
+                <ng-template #header>
+                  <tr>
+                    <th pSortableColumn="timestamp">
+                      Date <p-sortIcon field="timestamp" />
+                    </th>
+                    <th pSortableColumn="fullName">
+                      Full Name <p-sortIcon field="fullName" />
+                    </th>
+                    <th pSortableColumn="serviceAddress">
+                      Service Address <p-sortIcon field="serviceAddress" />
+                    </th>
+                    <th>PO Box</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Notes</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-update>
+                  <tr>
+                    <td class="whitespace-nowrap">{{ update.timestamp | date: 'medium' }}</td>
+                    <td>{{ update.fullName }}</td>
+                    <td>{{ update.serviceAddress }}</td>
+                    <td>{{ update.poBox || '—' }}</td>
+                    <td class="whitespace-nowrap">{{ update.phone || '—' }}</td>
+                    <td>{{ update.email || '—' }}</td>
+                    <td class="max-w-xs truncate">{{ update.notes || '—' }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            }
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </section>
 </main>

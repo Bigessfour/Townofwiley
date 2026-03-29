@@ -1,19 +1,32 @@
-<section class="records-center grid gap-4 mt-6" aria-labelledby="records-center-heading">
+<section class="records-center grid gap-6" aria-labelledby="records-center-heading">
   <p class="meta-label">{{ copy().kicker }}</p>
   <h3 id="records-center-heading">{{ copy().title }}</h3>
 
-  <section class="records-center-grid grid gap-4 grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-1" aria-label="Records destinations">
+  <section class="records-center-grid" aria-label="Records and document guides">
     @for (guide of copy().guides; track guide.id) {
-      <article class="records-guide-card grid gap-3 p-6 rounded-[22px]" [attr.id]="guide.id" [attr.data-testid]="guide.id" role="region" aria-labelledby="guide-{{ guide.id }}">
+      <article
+        class="records-guide-card"
+        [attr.id]="guide.id"
+        [attr.data-testid]="guide.id"
+        role="region"
+        aria-labelledby="guide-{{ guide.id }}">
+
         <i [class]="guide.icon" aria-hidden="true"></i>
         <p class="meta-label">{{ guide.kicker }}</p>
         <h4 id="guide-{{ guide.id }}">{{ guide.title }}</h4>
         <p>{{ guide.detail }}</p>
+
         @if (resolveAppLink(guide.href); as guideLink) {
           @if (guideLink.isInternal) {
-            <a class="records-guide-link" [routerLink]="guideLink.path" [fragment]="guideLink.fragment">{{ guide.cta }}</a>
+            <a class="records-guide-link"
+               [routerLink]="guideLink.path"
+               [fragment]="guideLink.fragment">
+              {{ guide.cta }}
+            </a>
           } @else {
-            <a class="records-guide-link" [attr.href]="guideLink.href">{{ guide.cta }}</a>
+            <a class="records-guide-link" [attr.href]="guideLink.href">
+              {{ guide.cta }}
+            </a>
           }
         }
       </article>

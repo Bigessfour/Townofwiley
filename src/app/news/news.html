@@ -1,16 +1,14 @@
 <section class="public-page news-page-shell grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="news-page-heading">
   <header class="public-page-header grid gap-4 max-w-[56rem]">
-    <p class="section-kicker">News & Notices</p>
-    <h1 id="news-page-heading">{{ title }}</h1>
-    <p class="public-page-copy">
-      Review the latest Wiley notices first, then browse outside coverage that mentions Wiley or the surrounding county.
-    </p>
+    <p class="section-kicker">{{ copy().pageKicker }}</p>
+    <h1 id="news-page-heading">{{ copy().pageTitle }}</h1>
+    <p class="public-page-copy">{{ copy().pageCopy }}</p>
   </header>
 
   @if (featuredNotice(); as featuredNotice) {
     <article class="featured-news-card grid gap-4 p-6 rounded-[28px]">
       <div class="featured-news-copy grid gap-4">
-        <p class="meta-label">Featured town notice</p>
+        <p class="meta-label">{{ copy().featuredKicker }}</p>
         <h2>{{ featuredNotice.title }}</h2>
         <p class="featured-news-date">{{ featuredNotice.date }}</p>
         <p>{{ featuredNotice.detail }}</p>
@@ -19,17 +17,16 @@
   }
 
   @if (remainingNotices().length) {
-    <section class="news-section grid gap-4" aria-labelledby="recent-town-notices-heading">
-      <div class="news-section-header grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <div>
-          <p class="section-kicker">Recent town notices</p>
-          <h2 id="recent-town-notices-heading">Current Wiley updates</h2>
-        </div>
+    <section class="news-section news-section-local grid gap-6" aria-labelledby="recent-town-notices-heading">
+      <div class="news-section-header grid gap-1">
+        <p class="section-kicker">{{ copy().officialKicker }}</p>
+        <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
+        <p class="public-page-copy">{{ copy().officialCopy }}</p>
       </div>
 
-      <div class="public-card-grid news-card-grid grid gap-4 grid-cols-[repeat(3,minmax(0,1fr))] md:grid-cols-[repeat(2,minmax(0,1fr))] sm:grid-cols-1">
+      <div class="public-card-grid news-card-grid">
         @for (item of remainingNotices(); track item.id) {
-          <article class="public-card news-card grid gap-3 p-5 rounded-2xl">
+          <article class="public-card news-card grid gap-3">
             <p class="meta-label">{{ item.date }}</p>
             <h3>{{ item.title }}</h3>
             <p class="public-card-copy">{{ item.detail }}</p>
@@ -39,24 +36,21 @@
     </section>
   }
 
-  <section class="news-section grid gap-4" aria-labelledby="external-news-heading">
-    <div class="news-section-header grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-      <div>
-        <p class="section-kicker">Regional coverage</p>
-        <h2 id="external-news-heading">From other sources</h2>
-      </div>
-      <p class="public-page-copy">Recent external coverage mentioning Wiley or Prowers County from the last month.</p>
+  <section class="news-section news-section-external grid gap-6" aria-labelledby="external-news-heading">
+    <div class="news-section-header grid gap-1">
+      <p class="section-kicker">{{ copy().regionalKicker }}</p>
+      <h2 id="external-news-heading">{{ copy().regionalHeading }}</h2>
+      <p class="public-page-copy">{{ copy().regionalCopy }}</p>
     </div>
 
-    <div class="public-card-grid news-card-grid grid gap-4 grid-cols-[repeat(3,minmax(0,1fr))] md:grid-cols-[repeat(2,minmax(0,1fr))] sm:grid-cols-1">
-      @for (item of recentExternal(); track item.url) {
-        <article class="public-card news-card news-card--external grid gap-3 p-5 rounded-2xl">
+    <div class="public-card-grid news-card-grid">
+      @for (item of externalLinks; track item.url) {
+        <article class="public-card news-card news-card--external grid gap-3">
           <p class="meta-label">{{ item.source }}</p>
           <h3>{{ item.title }}</h3>
-          <p class="featured-news-date">{{ item.date }}</p>
           <div class="public-card-actions flex flex-wrap gap-3">
             <a [href]="item.url" target="_blank" rel="noreferrer noopener" class="button-cta button-cta--light">
-              Read article
+              {{ copy().readArticleLabel }}
             </a>
           </div>
         </article>

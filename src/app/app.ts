@@ -1,13 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    computed,
-    effect,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -41,15 +41,15 @@ import { News } from './news/news';
 import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
 import { ResidentServices } from './resident-services/resident-services';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    LocalizedCmsContentStore,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
+  HomepageWeatherAlert,
+  LocalizedWeatherPanel,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -409,7 +409,13 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
-    communityFacts: [],
+    communityFacts: [
+      { label: 'Population', value: '~437', detail: 'Estimated residents, 2020 census' },
+      { label: 'County', value: 'Prowers', detail: 'Eastern Colorado' },
+      { label: 'Elevation', value: '3,563 ft', detail: 'Above sea level' },
+      { label: 'Founded', value: '1910', detail: 'Incorporated town' },
+      { label: 'ZIP Code', value: '81092', detail: 'Wiley postal area' },
+    ],
     navLinks: [
       { label: 'Top Tasks', href: '#top-tasks', icon: 'pi pi-list' },
       { label: 'Weather', href: '/weather', icon: 'pi pi-cloud' },
@@ -787,7 +793,13 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
-    communityFacts: [],
+    communityFacts: [
+      { label: 'Poblacion', value: '~437', detail: 'Residentes estimados, censo de 2020' },
+      { label: 'Condado', value: 'Prowers', detail: 'Este de Colorado' },
+      { label: 'Elevacion', value: '3,563 pies', detail: 'Sobre el nivel del mar' },
+      { label: 'Fundado en', value: '1910', detail: 'Pueblo incorporado' },
+      { label: 'Codigo postal', value: '81092', detail: 'Area postal de Wiley' },
+    ],
     navLinks: [
       { label: 'Tareas clave', href: '#top-tasks' },
       { label: 'Clima', href: '/weather' },
@@ -1121,6 +1133,7 @@ export class App {
   protected readonly calendarJumpMonth = signal<Date | null>(null);
   protected readonly meetingsTab = signal<'month' | 'list'>('month');
   protected readonly calendarHelpVisible = signal(false);
+  protected readonly aiChatVisible = signal(false);
   private readonly calendarTableState = signal<CalendarTableState>({
     first: 0,
     rows: 5,
@@ -1843,6 +1856,14 @@ export class App {
 
   protected closeCalendarHelp(): void {
     this.calendarHelpVisible.set(false);
+  }
+
+  protected openAiChat(): void {
+    this.aiChatVisible.set(true);
+  }
+
+  protected closeAiChat(): void {
+    this.aiChatVisible.set(false);
   }
 
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {

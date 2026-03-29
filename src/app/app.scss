@@ -1420,3 +1420,151 @@ input:focus-visible {
   }
 
 }
+
+// ── Hero landing ─────────────────────────────────────────────────────────────
+.hero-landing {
+  position: relative;
+  width: 100vw;
+  min-height: 34rem;
+  margin: 1.25rem 0 2rem;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.hero-landing-media {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-landing-media img {
+  object-fit: cover;
+  object-position: 58% 40%;
+}
+
+.hero-landing-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.55) 100%);
+  z-index: 1;
+}
+
+.hero-landing-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34rem;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.town-title {
+  font-size: clamp(2.8rem, 7.5vw, 5.2rem);
+  line-height: 1.05;
+  color: #fff;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .hero-landing {
+    min-height: 26rem;
+    margin-top: 0.75rem;
+  }
+
+  .hero-landing-inner {
+    min-height: 26rem;
+  }
+}
+
+// ── Floating Ask Wiley chat button ──────────────────────────────────────────
+.floating-chat-button {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 50%;
+  border: none;
+  background: #0d2c54;
+  color: #fff;
+  font-size: 1.5rem;
+  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.28);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.floating-chat-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 40px rgba(13, 44, 84, 0.38);
+}
+
+.floating-chat-button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.floating-chat-label {
+  position: absolute;
+  right: 4.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #0d2c54;
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.floating-chat-button:hover .floating-chat-label {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .floating-chat-button {
+    bottom: 1rem;
+    right: 1rem;
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
+  }
+
+  .floating-chat-label { display: none; }
+}
+
+// ── NWS Severe Weather Alert Banner ─────────────────────────────────────────
+// Overrides the base .site-alert gradient with a high-visibility emergency red.
+.site-alert--nws {
+  background: linear-gradient(135deg, #9f1e2c, #c22a3a) !important;
+  box-shadow: 0 22px 54px rgba(159, 30, 44, 0.35);
+}
+
+.site-alert--nws .site-alert-headline {
+  color: rgba(255, 248, 241, 0.95);
+}
+
+.site-alert--nws .site-alert-link {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.site-alert--nws :where(.p-button) {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.site-alert-instruction {
+  margin-top: 0.25rem;
+  font-style: italic;
+  opacity: 0.88;
+}

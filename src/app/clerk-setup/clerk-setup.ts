@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
+import { TagModule } from 'primeng/tag';
+import {
+    ContactUpdateRecord,
+    ContactUpdateReviewService,
+} from './contact-update-review.service';
 
 interface ClerkSetupTask {
   action: string;
@@ -15,8 +25,27 @@ interface ClerkSetupDetail {
   templateUrl: './clerk-setup.html',
   styleUrl: './clerk-setup.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule],
 })
 export class ClerkSetup {
+  private readonly contactUpdateReview = inject(ContactUpdateReviewService);
+
+  protected readonly activeTab = signal<string>('setup');
+  protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
+
+  constructor() {
+    void this.loadContactUpdates();
+  }
+
+  private async loadContactUpdates(): Promise<void> {
+    const updates = await this.contactUpdateReview.getAllUpdates();
+    this.contactUpdates.set(updates);
+  }
+
+  protected downloadCSV(): void {
+    this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
+  }
+
   protected readonly clerkName = 'Deb Dillon';
   protected readonly setupType = 'One-time IAM setup';
   protected readonly setupSummary =

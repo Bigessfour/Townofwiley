@@ -7,8 +7,8 @@ window.__TOW_RUNTIME_CONFIG__ = {
     "apiEndpoint": ""
   },
   "build": {
-    "timestamp": "2026-03-29T14:19:12.959Z",
-    "gitSha": "2b06013"
+    "timestamp": "2026-03-29T23:24:33.655Z",
+    "gitSha": "3836966"
   },
   "weather": {
     "provider": "nws",
@@ -37,5 +37,8 @@ window.__TOW_RUNTIME_CONFIG__ = {
   },
   "logging": {
     "endpoint": "https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws/log"
+  },
+  "contactUpdate": {
+    "apiEndpoint": ""
   }
 };

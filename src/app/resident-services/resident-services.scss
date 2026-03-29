@@ -1,10 +1,13 @@
 :host {
   display: block;
+  margin-top: 0.5rem;
 }
 
+/* Typography & Colors */
 .resident-services-header h2,
 .resident-service-card h3 {
   margin: 0;
+  color: var(--ink-900);
 }
 
 .resident-services-copy,
@@ -13,6 +16,7 @@
 .resident-status,
 .resident-contact-link {
   color: rgba(20, 30, 42, 0.82);
+  line-height: 1.6;
 }
 
 .resident-service-picker-help {
@@ -20,25 +24,26 @@
   color: rgba(20, 30, 42, 0.82);
 }
 
+/* Service Toggle Buttons */
 .resident-service-toggle {
   border: 1px solid rgba(13, 44, 84, 0.12);
   background: rgba(255, 255, 255, 0.84);
   color: #0d2c54;
   text-align: left;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease;
+  transition: all 180ms ease;
+  border-radius: 20px;
+  padding: 1.25rem;
 }
 
 .resident-service-toggle i {
-  font-size: 1.4rem;
+  font-size: 1.75rem;
+  color: #0d2c54;
 }
 
 .resident-service-toggle-copy strong {
   color: var(--ink-900);
+  font-size: 1.1rem;
 }
 
 .resident-service-toggle-copy small {
@@ -50,85 +55,94 @@
 
 .resident-service-toggle:hover,
 .resident-service-toggle:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(13, 44, 84, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(13, 44, 84, 0.14);
 }
 
 .resident-service-toggle.is-active {
-  border-color: rgba(13, 44, 84, 0.24);
+  border-color: rgba(13, 44, 84, 0.28);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 247, 251, 0.94));
-  box-shadow: 0 18px 34px rgba(13, 44, 84, 0.1);
+  box-shadow: 0 18px 36px rgba(13, 44, 84, 0.12);
 }
 
+/* Service Cards */
 .resident-service-card {
   border: 1px solid rgba(13, 44, 84, 0.12);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 234, 0.9));
-  box-shadow: 0 18px 34px rgba(13, 44, 84, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(13, 44, 84, 0.09);
+  padding: 1.75rem;
 }
 
 .resident-service-card i {
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: #0d2c54;
-  opacity: 0.85;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
-.resident-service-card--active {
-  min-height: 100%;
-}
-
+/* Contact Links & Actions */
 .resident-contact-link,
 .resident-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.35rem;
   border-radius: 999px;
-  text-decoration: none;
   font-weight: 700;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
+  text-decoration: none;
+  transition: all 160ms ease;
 }
 
 .resident-contact-link {
-  border: 1px solid rgba(13, 44, 84, 0.12);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  color: #0d2c54;
 }
 
 .resident-action {
-  appearance: none;
-  border: 1px solid transparent;
+  border: none;
   background: #0d2c54;
   color: #fff;
   cursor: pointer;
-  font: inherit;
 }
 
 .resident-action--primary {
   background: #0d2c54;
-  color: #fff;
 }
 
 .resident-action--secondary {
-  border-color: rgba(13, 44, 84, 0.14);
-  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  background: rgba(255, 255, 255, 0.9);
   color: #0d2c54;
+}
+
+.resident-action--ghost {
+  border: none;
+  background: none;
+  color: rgba(13, 44, 84, 0.55);
+  font-weight: 500;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.resident-action--ghost:hover {
+  color: #0d2c54;
+  transform: none;
+  box-shadow: none;
 }
 
 .resident-contact-link:hover,
 .resident-action:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(13, 44, 84, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13, 44, 84, 0.15);
 }
 
 .resident-action.is-disabled {
   background: #4a607b;
-  color: #fff;
+  cursor: not-allowed;
 }
 
+/* Form Fields - PrimeNG Fix (No Clipping) */
 .resident-field--wide {
   grid-column: 1 / -1;
 }
@@ -139,24 +153,27 @@
 }
 
 .resident-field input,
-.resident-field select,
-.resident-field textarea {
+.resident-field .p-inputtext,
+.resident-field .p-textarea,
+.resident-field .p-select {
   width: 100%;
-  padding: 0.85rem 0.95rem;
+  min-height: 52px !important;
+  padding: 12px 16px !important;
   border: 1px solid rgba(13, 44, 84, 0.16);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.96);
   color: #0f1b2d;
-  font: inherit;
 }
 
 .resident-field textarea {
   resize: vertical;
+  min-height: 120px;
 }
 
 .resident-field input:focus-visible,
-.resident-field select:focus-visible,
-.resident-field textarea:focus-visible,
+.resident-field .p-inputtext:focus-visible,
+.resident-field .p-textarea:focus-visible,
+.resident-field .p-select:focus-visible,
 .resident-contact-link:focus-visible,
 .resident-action:focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.28);
@@ -167,4 +184,37 @@
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.45;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  background: rgba(13, 44, 84, 0.06);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .resident-service-toggle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Contact Update Toggle */
+.resident-contact-update-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0d2c54;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.4rem 0;
+  transition: opacity 120ms ease;
+}
+
+.resident-contact-update-toggle:hover {
+  opacity: 0.75;
+}
+
+.resident-contact-update-toggle:focus-visible {
+  outline: 3px solid rgba(13, 44, 84, 0.28);
+  outline-offset: 3px;
+  border-radius: 4px;
 }

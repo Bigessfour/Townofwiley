@@ -47,6 +47,73 @@
         }
       </div>
 
+      <!-- Optional: Update Contact Info with Clerk -->
+      @if (!hasSubmittedContactUpdate()) {
+      <div class="resident-contact-update-shell grid gap-3 border-t pt-4 mt-1">
+        <button
+          type="button"
+          class="resident-contact-update-toggle flex items-center gap-2 text-left"
+          [attr.aria-expanded]="contactUpdateExpanded()"
+          (click)="toggleContactUpdate()"
+        >
+          <i class="pi pi-id-card" aria-hidden="true"></i>
+          <span>{{ copy().contactUpdateToggleLabel }}</span>
+          <i [class]="contactUpdateExpanded() ? 'pi pi-chevron-up ml-auto' : 'pi pi-chevron-down ml-auto'" aria-hidden="true"></i>
+        </button>
+        @if (contactUpdateExpanded()) {
+          <p class="resident-services-copy text-sm">{{ copy().contactUpdateBody }}</p>
+          <form class="resident-form grid gap-4" [formGroup]="contactUpdateForm">
+            <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+              <label for="cu-full-name" class="resident-field grid gap-1">
+                <span>{{ copy().contactUpdateFullNameLabel }}</span>
+                <p-inputtext id="cu-full-name" formControlName="fullName" autocomplete="name" />
+              </label>
+              <label for="cu-phone" class="resident-field grid gap-1">
+                <span>{{ copy().contactUpdatePhoneLabel }}</span>
+                <p-inputtext id="cu-phone" formControlName="phone" autocomplete="tel" />
+              </label>
+              <label for="cu-service-address" class="resident-field grid gap-1">
+                <span>{{ copy().contactUpdateServiceAddressLabel }}</span>
+                <p-inputtext id="cu-service-address" formControlName="serviceAddress" autocomplete="street-address" />
+              </label>
+              <label for="cu-po-box" class="resident-field grid gap-1">
+                <span>{{ copy().contactUpdatePoBoxLabel }}</span>
+                <p-inputtext id="cu-po-box" formControlName="poBox" />
+              </label>
+              <label for="cu-email" class="resident-field resident-field--wide grid gap-1">
+                <span>{{ copy().contactUpdateEmailLabel }}</span>
+                <p-inputtext id="cu-email" formControlName="email" autocomplete="email" />
+              </label>
+              <label for="cu-notes" class="resident-field resident-field--wide grid gap-1">
+                <span>{{ copy().contactUpdateNotesLabel }}</span>
+                <p-textarea id="cu-notes" rows="2" formControlName="notes" />
+              </label>
+            </section>
+            <footer class="resident-action-row flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="resident-action resident-action--secondary"
+                [class.is-disabled]="!contactUpdateMailtoHref()"
+                (click)="openContactUpdateMailto($event)"
+              >
+                {{ copy().contactUpdateActionLabel }}
+              </button>
+              <button
+                type="button"
+                class="resident-action resident-action--ghost"
+                (click)="dismissContactUpdate()"
+              >
+                {{ copy().contactUpdateDismissLabel }}
+              </button>
+              @if (contactUpdateStatus(); as contactUpdateStatus) {
+                <p class="resident-status" aria-live="polite">{{ contactUpdateStatus }}</p>
+              }
+            </footer>
+          </form>
+        }
+      </div>
+      }
+
       <form class="resident-form grid gap-4" [formGroup]="paymentForm">
         <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
           <label for="payment-name" class="resident-field grid gap-1">

@@ -68,7 +68,13 @@
         }
         @if (forecastGdd() > 0) {
           <div class="atglance-card">
-            <span class="meta-label">{{ copy().gddLabel }}</span>
+            <span class="meta-label gdd-label-row">
+              {{ copy().gddLabel }}
+              <i class="pi pi-info-circle gdd-info-icon"
+                 [pTooltip]="copy().gddTooltip"
+                 tooltipPosition="top"
+                 [attr.aria-label]="copy().gddTooltip"></i>
+            </span>
             <strong>{{ forecastGdd() }}</strong>
             <small class="atglance-unit">{{ copy().gddUnit }}</small>
           </div>
@@ -154,6 +160,7 @@
               <p-tag
                 [value]="hasAlerts() ? alertSummary() : copy().noActiveAlerts"
                 [severity]="hasAlerts() ? 'danger' : 'success'"
+                styleClass="weather-alert-pill"
               />
             </div>
           </ng-template>
@@ -161,18 +168,15 @@
           @if (hasAlerts()) {
             <p-accordion [multiple]="true" styleClass="weather-accordion" [value]="accordionActiveValue()">
               @for (alert of weatherAlerts(); track alert.event + alert.headline; let idx = $index) {
-                <p-accordion-panel [value]="idx">
+                <p-accordion-panel class="weather-alert-card" [value]="idx">
                   <p-accordion-header>
                     <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
-                      <p-tag
-                        [value]="alert.severity"
-                        [severity]="alertSeverityClass(alert.severity)"
-                        styleClass="shrink-0"
-                      />
+                      <span class="weather-alert-pill">{{ alert.severity }}</span>
                       <span>{{ alert.event }}</span>
                     </span>
                   </p-accordion-header>
                   <p-accordion-content>
+                    <p class="meta-label weather-alert-severity">{{ alert.severity }} · {{ alert.urgency }}</p>
                     <p>{{ alert.headline }}</p>
                     @if (alert.instruction) {
                       <p class="weather-alert-instruction">{{ alert.instruction }}</p>
@@ -180,7 +184,6 @@
                     @if (alert.expiresLabel) {
                       <small>{{ alert.expiresLabel }}</small>
                     }
-                    <p class="meta-label">{{ alert.urgency }}</p>
                   </p-accordion-content>
                 </p-accordion-panel>
               }
@@ -305,22 +308,21 @@
           </section>
         }
 
-        <p-panel [toggleable]="true" [collapsed]="true" styleClass="weather-radar-panel">
+        <p-panel [toggleable]="true" [collapsed]="false" styleClass="weather-radar-panel">
           <ng-template pTemplate="header">
             <div class="flex items-center gap-3">
               <span class="meta-label">{{ copy().radarLabel }}</span>
               <small class="weather-radar-note">{{ copy().radarNote }}</small>
             </div>
           </ng-template>
-          <iframe
+          <img
             class="weather-radar-frame"
             [src]="radarUrl"
-            [title]="copy().radarLabel"
+            [alt]="copy().radarLabel + ' for ' + locationLabel()"
             loading="lazy"
             width="600"
             height="550"
-            referrerpolicy="no-referrer"
-          ></iframe>
+          />
         </p-panel>
 
         <footer class="weather-link-row flex justify-start">

@@ -15,10 +15,10 @@
   <!-- Featured upcoming meeting -->
   <section class="featured-meeting" aria-labelledby="upcoming-heading">
     <p class="document-hub-kicker">Upcoming</p>
-    <h2 id="upcoming-heading">{{ upcomingMeeting.title }}</h2>
-    <p>{{ upcomingMeeting.date }}</p>
-    <p>{{ upcomingMeeting.summary }}</p>
-    <a class="document-hub-button primary" [attr.href]="upcomingMeeting.href">View Agenda Packet</a>
+    <h2 id="upcoming-heading">{{ upcomingMeeting().title }}</h2>
+    <p>{{ upcomingMeeting().date }}</p>
+    <p>{{ upcomingMeeting().summary }}</p>
+    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href">View Agenda Packet</a>
   </section>
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
@@ -34,10 +34,10 @@
       <h3>Search previous agendas and minutes</h3>
       <input
         pInputText
+        class="archive-search"
         [placeholder]="'Search agendas, minutes, or keywords...'"
         [value]="searchTerm()"
         (input)="searchTerm.set($any($event.target).value)"
-        styleClass="archive-search"
       />
     </div>
     <div class="document-file-grid">

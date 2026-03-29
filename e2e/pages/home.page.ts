@@ -68,7 +68,7 @@ export class HomePage {
     this.weatherCurrentCard = page.locator('.weather-current-card');
     this.weatherAlertPill = page.locator('.weather-alert-pill');
     this.weatherAlertCards = page.locator('.weather-alert-card');
-    this.weatherRefreshButton = page.locator('.weather-action-row > button.weather-action');
+    this.weatherRefreshButton = page.locator('.weather-action-row button.weather-action');
     this.weatherSignupShell = page.locator('.weather-signup-shell');
     this.weatherSignupChannel = page.locator('#weather-alert-signup-channel');
     this.weatherSignupDestination = page.locator('#weather-alert-signup-destination');
@@ -76,13 +76,13 @@ export class HomePage {
     this.weatherSignupFullName = page.locator('#weather-alert-signup-full-name');
     this.weatherSignupZipCode = page.locator('#weather-alert-signup-zip-code');
     this.weatherSignupSubmitButton = page.locator('.weather-signup-submit');
-    this.weatherSignupStatus = page.locator('.weather-signup-status-message');
+    this.weatherSignupStatus = page.locator('.weather-signup-status');
     this.weatherSignupManageLink = page.locator('.weather-signup-unsubscribe a');
-    this.siteAlert = page.locator('.site-alert');
-    this.siteAlertTitle = page.locator('.site-alert-title');
-    this.siteAlertDetail = page.locator('.site-alert-detail');
-    this.siteAlertLink = page.locator('.site-alert-link');
-    this.siteAlertButton = page.locator('.site-alert-button');
+    this.siteAlert = page.locator('.site-alert--nws');
+    this.siteAlertTitle = page.locator('.site-alert--nws .site-alert-title');
+    this.siteAlertDetail = page.locator('.site-alert--nws .site-alert-detail').first();
+    this.siteAlertLink = page.locator('.site-alert--nws .site-alert-link');
+    this.siteAlertButton = page.locator('.site-alert--nws .site-alert-button');
     this.noticeCards = page.locator('.notice-card');
     this.meetingCards = page.locator('.meeting-card');
     this.serviceCards = page.locator('.service-card');
@@ -259,6 +259,7 @@ export class HomePage {
   }
 
   async chooseWeatherSignupChannel(channel: 'email' | 'sms'): Promise<void> {
+    await expect(this.weatherSignupShell).toBeVisible();
     await this.selectPrimeSelectOption(
       this.weatherSignupChannel,
       channel === 'email' ? 'Email' : 'SMS text',

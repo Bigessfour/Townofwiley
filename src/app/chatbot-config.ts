@@ -4,7 +4,6 @@ export interface RuntimeChatbotConfig {
   provider: 'easyPeasy';
   mode: ChatbotMode;
   chatUrl: string;
-  buttonPosition: string;
   apiEndpoint: string;
 }
 
@@ -23,7 +22,6 @@ const defaultChatbotConfig: RuntimeChatbotConfig = {
   provider: 'easyPeasy',
   mode: 'none',
   chatUrl: '',
-  buttonPosition: 'bottom-right',
   apiEndpoint: '',
 };
 
@@ -41,10 +39,6 @@ export function getChatbotRuntimeConfig(): RuntimeChatbotConfig {
     provider: 'easyPeasy',
     mode: mode === 'api' || mode === 'embed' ? mode : 'none',
     chatUrl: typeof chatbotConfig.chatUrl === 'string' ? chatbotConfig.chatUrl : '',
-    buttonPosition:
-      typeof chatbotConfig.buttonPosition === 'string' && chatbotConfig.buttonPosition.trim()
-        ? chatbotConfig.buttonPosition
-        : defaultChatbotConfig.buttonPosition,
     apiEndpoint: typeof chatbotConfig.apiEndpoint === 'string' ? chatbotConfig.apiEndpoint : '',
   };
 }

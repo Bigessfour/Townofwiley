@@ -82,3 +82,30 @@
   margin: 0;
   padding-left: 1.25rem;
 }
+
+// Blend PrimeNG cards into the page palette
+.setup-primeng-card.p-card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(23, 52, 77, 0.08);
+  border-radius: 1.25rem;
+
+  .p-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2a1f;
+    margin-bottom: 0.75rem;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    line-height: 1.6;
+  }
+}
+
+// Contact Updates tab: ensure table fills the card width
+.p-tabpanel {
+  padding-top: 0.5rem;
+}
+

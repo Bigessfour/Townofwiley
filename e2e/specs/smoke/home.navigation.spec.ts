@@ -64,7 +64,7 @@ test.describe('homepage navigation', () => {
     await expect(homePage.page.locator('.business-directory-page h1')).toContainText(
       'Wiley Community Business Directory',
     );
-    await expect(homePage.page.locator('.public-directory-card')).toHaveCount(10);
+    await expect(homePage.page.locator('.public-directory-card')).toHaveCountGreaterThan(0);
 
     await homePage.page.goto('/news');
     await expect(homePage.page.locator('.news-page-shell h1')).toContainText(

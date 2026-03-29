@@ -96,24 +96,6 @@ export class BusinessDirectory {
       website: getVerifiedWebsite('https://www.facebook.com/prairieplumbing/'),
       description: 'Plumbing services in Wiley, CO.',
     },
-    {
-      name: 'Mountain View Cafe',
-      phone: '(970) 555-0456',
-      address: '456 Elm Avenue, Wiley, CO 81092',
-      description: 'Local diner offering breakfast, lunch, and homemade pies.',
-    },
-    {
-      name: 'Wiley Auto Repair',
-      phone: '(970) 555-0789',
-      address: '789 Oak Lane, Wiley, CO 81092',
-      description: 'Reliable auto repair and maintenance services.',
-    },
-    {
-      name: 'Town Pharmacy',
-      phone: '(970) 555-1112',
-      address: '101 Pine Road, Wiley, CO 81092',
-      description: 'Full-service pharmacy with friendly staff and quick prescription filling.',
-    },
   ]);
   protected readonly filteredBusinesses = computed(() => {
     const query = this.directoryQuery().trim().toLowerCase();

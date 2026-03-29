@@ -32,9 +32,6 @@
     box-shadow 160ms ease;
 }
 
-.assistant-intro {
-}
-
 .assistant-kicker,
 .assistant-copy,
 .assistant-status,
@@ -122,18 +119,12 @@
   box-shadow: none;
 }
 
-.assistant-window {
-}
-
 .assistant-prompts-shell,
 .assistant-thread {
   padding: 0.95rem;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.1);
-}
-
-.assistant-thread-header {
 }
 
 .assistant-thread-title {
@@ -145,13 +136,6 @@
 .assistant-thread-status {
   font-size: 0.9rem;
   text-align: right;
-}
-
-.assistant-prompts,
-.assistant-links {
-}
-
-.assistant-messages {
 }
 
 .assistant-message {
@@ -173,9 +157,6 @@
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.12);
-}
-
-.assistant-entry-row {
 }
 
 .assistant-input {
@@ -202,5 +183,25 @@
 .assistant-launch-link:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.6);
   outline-offset: 3px;
+}
+
+.assistant-input.p-inputtext,
+.assistant-entry-row .p-inputtext {
+  min-height: 3.25rem;
+  padding: 0.85rem 0.95rem;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 999px;
+}
+
+.assistant-entry-row .p-inputtext::placeholder {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+@media (max-width: 640px) {
+  .assistant-shell { padding: 0.85rem; }
+  .assistant-messages { height: 14rem !important; }
+  .assistant-entry-row { grid-template-columns: 1fr; }
 }
 

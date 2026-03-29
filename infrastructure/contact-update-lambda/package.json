@@ -1,0 +1,10 @@
+{
+  "name": "contact-update-lambda",
+  "version": "1.0.0",
+  "description": "Town of Wiley – resident contact-update Lambda (SES + DynamoDB)",
+  "type": "module",
+  "main": "index.mjs",
+  "engines": {
+    "node": ">=20"
+  }
+}

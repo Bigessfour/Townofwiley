@@ -61,13 +61,16 @@ export async function handler(event) {
     });
   }
 
+  // Prefer accountNumber for reference tracking; fall back to serviceAddress.
+  const referenceId =
+    (typeof requestBody?.accountNumber === 'string' && requestBody.accountNumber.trim()) ||
+    (typeof requestBody?.serviceAddress === 'string' && requestBody.serviceAddress.trim()) ||
+    undefined;
+
   return jsonResponse(200, {
     provider: 'paystar',
     mode: 'hosted',
     launchUrl: portalUrl,
-    referenceId:
-      typeof requestBody?.serviceAddress === 'string' && requestBody.serviceAddress.trim()
-        ? requestBody.serviceAddress.trim()
-        : undefined,
+    referenceId: referenceId || undefined,
   });
 }

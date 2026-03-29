@@ -1,11 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    output,
-    signal,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -18,6 +18,7 @@ import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -232,6 +233,7 @@ interface WeatherCopy {
   aqiLabel: string;
   gddLabel: string;
   gddUnit: string;
+  gddTooltip: string;
   hourlyLabel: string;
   sevenDayLabel: string;
   radarLabel: string;
@@ -305,6 +307,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiLabel: 'Air Quality',
     gddLabel: 'Projected GDD',
     gddUnit: 'base 50\u00B0F, next 7 days',
+    gddTooltip: 'Growing Degree Days \u2014 a measure of heat accumulation used to predict when crops and plants will reach key growth stages. Calculated using a 50\u00B0F base temperature over the next 7-day forecast.',
     hourlyLabel: 'Hourly forecast',
     sevenDayLabel: '7-day forecast',
     radarLabel: 'NEXRAD Radar',
@@ -378,6 +381,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiLabel: 'Calidad del aire',
     gddLabel: 'GDD proyectados',
     gddUnit: 'base 50\u00B0F, proximos 7 dias',
+    gddTooltip: 'Grados D\u00EDa de Crecimiento \u2014 una medida de la acumulaci\u00F3n de calor que se usa para predecir cu\u00E1ndo los cultivos y plantas alcanzar\u00E1n etapas clave de desarrollo. Se calcula con una temperatura base de 50\u00B0F durante los pr\u00F3ximos 7 d\u00EDas.',
     hourlyLabel: 'Pronostico por hora',
     sevenDayLabel: 'Pronostico de 7 dias',
     radarLabel: 'Radar NEXRAD',
@@ -387,7 +391,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule, TooltipModule],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

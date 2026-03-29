@@ -476,6 +476,20 @@
   color: var(--ink-500, #777);
 }
 
+.gdd-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.gdd-info-icon {
+  font-size: 0.75rem;
+  color: var(--ink-600, #70849a);
+  cursor: help;
+  flex-shrink: 0;
+}
+
 /* ── Weather section labels ──────────────────────────── */
 
 .weather-section-label {
@@ -555,6 +569,16 @@
   width: 100%;
 }
 
+/* Override PrimeNG default dark surface with site-matching light background */
+.weather-alerts-panel {
+  --p-panel-background: rgba(255, 255, 255, 0.96);
+  --p-panel-header-background: rgba(248, 251, 255, 0.97);
+  --p-panel-content-background: rgba(255, 255, 255, 0.96);
+  --p-panel-header-color: var(--ink-900);
+  --p-panel-content-color: var(--ink-900);
+  --p-panel-border-color: rgba(13, 44, 84, 0.1);
+}
+
 /* ── Accordion header layout ─────────────────────────── */
 
 .weather-accordion-header {
@@ -567,6 +591,11 @@
 .weather-radar-panel {
   border-radius: 0.6rem;
   overflow: hidden;
+  --p-panel-background: rgba(255, 255, 255, 0.96);
+  --p-panel-header-background: rgba(248, 251, 255, 0.97);
+  --p-panel-content-background: rgba(255, 255, 255, 0.96);
+  --p-panel-header-color: var(--ink-900);
+  --p-panel-border-color: rgba(13, 44, 84, 0.1);
 }
 
 .weather-radar-note {

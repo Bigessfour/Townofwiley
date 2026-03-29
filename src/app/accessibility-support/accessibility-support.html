@@ -1,7 +1,7 @@
-<section class="accessibility-support-grid grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-  <article class="accessibility-statement-card grid gap-4 p-5 rounded-2xl">
+<section class="accessibility-support-grid grid gap-6 grid-cols-1 lg:grid-cols-2">
+  <article class="accessibility-statement-card grid gap-4 p-6 rounded-3xl" aria-labelledby="a11y-statement-heading">
     <p class="meta-label">{{ copy().statementKicker }}</p>
-    <h3>{{ copy().statementTitle }}</h3>
+    <h3 id="a11y-statement-heading">{{ copy().statementTitle }}</h3>
     <p>{{ copy().statementBody }}</p>
     <ul class="accessibility-support-list grid gap-2.5 pl-5">
       @for (commitment of copy().statementCommitments; track commitment) {
@@ -10,9 +10,9 @@
     </ul>
   </article>
 
-  <article class="accessibility-report-card grid gap-4 p-5 rounded-2xl" id="barrier-report">
+  <article class="accessibility-report-card grid gap-4 p-6 rounded-3xl" id="barrier-report" aria-labelledby="a11y-report-heading">
     <p class="meta-label">{{ copy().reportKicker }}</p>
-    <h3>{{ copy().reportTitle }}</h3>
+    <h3 id="a11y-report-heading">{{ copy().reportTitle }}</h3>
     <p>{{ copy().reportBody }}</p>
 
     <section class="accessibility-contact-row flex flex-wrap gap-2">
@@ -34,7 +34,7 @@
           <span>{{ copy().nameLabel }}</span>
           <input pInputText type="text" formControlName="name" autocomplete="name" />
         </label>
-        <label class="accessibility-field">
+        <label class="accessibility-field grid gap-1">
           <span>{{ copy().contactLabel }}</span>
           <input
             pInputText

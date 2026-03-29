@@ -141,8 +141,8 @@ test.describe('deterministic regression coverage', () => {
     const externalNewsCards = homePage.page.locator('.news-card--external');
 
     await expect(externalNewsCards).toHaveCount(1);
-    await expect(externalNewsCards.first()).toContainText('Wiley CO News Update');
     await expect(externalNewsCards.first()).toContainText('Lamar Ledger');
+    await expect(externalNewsCards.first()).toContainText('Wiley and Prowers County Coverage');
     await expect(homePage.page.getByText('Prowers County Community Event')).toHaveCount(0);
   });
 

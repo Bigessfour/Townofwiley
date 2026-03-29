@@ -122,9 +122,9 @@
 .archive-search {
   width: 100%;
   max-width: 420px;
-}
-
-.archive-search :global(.p-inputtext) {
+  min-height: 52px;
+  padding: 12px 16px;
+  line-height: 1.5;
   color: #17344d;
   border: 1px solid rgba(23, 52, 77, 0.12);
 }
@@ -151,8 +151,8 @@
 
 .document-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
   margin-top: 1rem;
 }
 
@@ -180,17 +180,19 @@
 
 .document-file-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
 }
 
 .document-file-card {
-  min-height: 100%;
-  padding: 1rem 1.1rem;
-  border-radius: 1.2rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 239, 231, 0.94));
-  border: 1px solid rgba(13, 44, 84, 0.08);
-  box-shadow: 0 14px 30px rgba(20, 30, 42, 0.06);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
+  border: 1px solid rgba(13, 44, 84, 0.1);
+  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.08);
 }
 
 .document-file-top,
@@ -227,12 +229,15 @@
 }
 
 .document-card {
-  display: grid;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   gap: 0.9rem;
-  padding: 1rem 1.1rem;
-  border-radius: 1.25rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 238, 229, 0.92));
-  border: 1px solid rgba(13, 44, 84, 0.08);
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
+  border: 1px solid rgba(13, 44, 84, 0.1);
+  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.08);
 }
 
 .document-card-top {
@@ -261,6 +266,18 @@
   transform: translateY(-1px);
 }
 
+.document-hub-button:hover,
+.document-hub-button:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13, 44, 84, 0.18);
+}
+
+.document-file-link:hover,
+.document-file-link:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13, 44, 84, 0.18);
+}
+
 .document-card-link:focus-visible,
 .document-hub-nav-link:focus-visible,
 .document-hub-button:focus-visible {
@@ -268,12 +285,9 @@
   outline-offset: 3px;
 }
 
-@media (max-width: 760px) {
-  .document-card-grid {
-    grid-template-columns: 1fr;
-  }
-
+@media (min-width: 640px) {
+  .document-card-grid,
   .document-file-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -1,5 +1,6 @@
 :host {
   display: block;
+  margin-top: 0.5rem;
 }
 
 .public-page-header h1,
@@ -26,34 +27,53 @@
   color: var(--civic-rust);
 }
 
+/* PrimeNG input height fix — no clipped text */
 .public-search-input {
   width: 100%;
 }
 
+.public-search-input .p-inputtext,
 .public-search-field input {
   width: 100%;
-  min-height: 3rem;
-  padding: 0.85rem 1rem;
+  min-height: 52px;
+  padding: 12px 16px;
+  line-height: 1.5;
   border: 1px solid rgba(13, 44, 84, 0.14);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.92);
   color: var(--ink-900);
 }
 
+/* Card improvements */
 .public-card {
   border: 1px solid rgba(13, 44, 84, 0.1);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
-  box-shadow: var(--surface-shadow-soft);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.08);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.public-card h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.public-card-copy {
+  font-size: 0.97rem;
+  line-height: 1.6;
 }
 
 .directory-logo-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 5rem;
-  height: 5rem;
-  padding: 0.4rem;
-  border-radius: 18px;
+  width: 4.75rem;
+  height: 4.75rem;
+  padding: 0.5rem;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.86);
   box-shadow: inset 0 0 0 1px rgba(13, 44, 84, 0.08);
 }
@@ -80,4 +100,34 @@
   color: var(--civic-blue);
   text-decoration: none;
   font-weight: 700;
+}
+
+/* CTA button */
+.button-cta {
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 160ms ease;
+}
+
+.button-cta--light {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d2c54;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+}
+
+.button-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13, 44, 84, 0.18);
+}
+
+.text-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--civic-blue);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
 }

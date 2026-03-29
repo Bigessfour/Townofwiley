@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
+import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import {
     DOCUMENT_ARCHIVE,
@@ -323,6 +324,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 })
 export class DocumentHub {
   private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly cms = inject(LocalizedCmsContentStore);
 
   protected readonly copy = computed(
     () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -351,12 +353,49 @@ export class DocumentHub {
     );
   });
 
-  protected readonly upcomingMeeting = {
-    title: 'Next City Council Meeting - April 13, 2026',
-    date: 'April 13, 2026 at 6:00 PM',
-    summary: 'Agenda packet for the second-Monday regular meeting. Includes consent agenda, staff reports, and public comment guidance.',
-    href: '/documents/archive/city-council-meeting-access-guide.html',
-  };
+  protected readonly upcomingMeeting = computed(() => {
+    const language = this.siteLanguageService.currentLanguage();
+    const now = Date.now();
+    const nextEvent = this.cms.events()
+      .filter(e => new Date(e.start).getTime() > now)
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())[0];
+
+    if (nextEvent) {
+      const locale = language === 'es' ? 'es-US' : 'en-US';
+      const datePart = new Intl.DateTimeFormat(locale, {
+        month: 'long', day: 'numeric', year: 'numeric',
+      }).format(new Date(nextEvent.start));
+      const timePart = new Intl.DateTimeFormat(locale, {
+        hour: 'numeric', minute: '2-digit',
+      }).format(new Date(nextEvent.start));
+      const at = language === 'es' ? 'a las' : 'at';
+      return {
+        title: nextEvent.title,
+        date: `${datePart} ${at} ${timePart}`,
+        summary: nextEvent.description ||
+          (language === 'es'
+            ? 'Consulte la agenda completa con la secretaria antes de la reunion.'
+            : 'See the full agenda. Contact the clerk to be placed on the agenda.'),
+        href: '/meetings',
+      };
+    }
+
+    return language === 'es'
+      ? {
+          title: 'Proxima reunion del concejo municipal — segundo lunes',
+          date: 'Consulte el calendario para la fecha y hora exactas',
+          summary:
+            'El concejo se reune el segundo lunes de cada mes a las 6:00 PM en el ayuntamiento de Wiley. La secretaria publica la agenda con anticipacion.',
+          href: '/meetings',
+        }
+      : {
+          title: 'Next City Council Meeting — Second Monday',
+          date: 'Check the public calendar for the exact date and time',
+          summary:
+            'The council meets every second Monday at 6:00 PM at Wiley Town Hall. The clerk posts the agenda ahead of the meeting.',
+          href: '/meetings',
+        };
+  });
 
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
     return getAppRouteLink(href, defaultPath);

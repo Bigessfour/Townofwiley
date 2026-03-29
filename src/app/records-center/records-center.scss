@@ -1,9 +1,6 @@
 :host {
   display: block;
-  margin-top: 0.5rem;
-}
-
-.records-center {
+  margin-top: 0.5rem;           /* Consistent with other feature pages */
 }
 
 .records-center h3,
@@ -13,53 +10,86 @@
 }
 
 .records-center-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;                     /* mobile first */
 }
 
+/* Better card design - matches Weather & Business Directory */
 .records-guide-card {
   border: 1px solid rgba(13, 44, 84, 0.1);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.9));
-  transition: all 160ms ease;
-  box-shadow: var(--surface-shadow-soft);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.92));
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.08);
+  transition: all 180ms ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .records-guide-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--surface-shadow-lift);
-  border-color: var(--civic-blue);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(13, 44, 84, 0.12);
+  border-color: rgba(13, 44, 84, 0.2);
 }
 
 .records-guide-card i {
-  font-size: 2rem;
+  font-size: 2.4rem;
   color: var(--civic-gold);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.records-guide-card h4 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
 }
 
 .records-guide-card p {
   line-height: 1.6;
   color: rgba(20, 30, 42, 0.82);
+  flex-grow: 1;
 }
 
+/* Consistent button style */
 .records-guide-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   width: fit-content;
-  color: var(--civic-blue);
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
   border: 1px solid var(--civic-blue);
+  color: var(--civic-blue);
   transition: all 160ms ease;
+  margin-top: auto;                     /* pushes button to bottom */
 }
 
 .records-guide-link:hover,
 .records-guide-link:focus-visible {
   background: var(--civic-blue);
   color: #fff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(13, 44, 84, 0.15);
 }
 
 .records-guide-link:focus-visible {
   outline: 3px solid rgba(13, 44, 84, 0.24);
   outline-offset: 3px;
+}
+
+/* Responsive grid */
+@media (min-width: 768px) {
+  .records-center-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .records-center-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));   /* keep 2 columns on large screens */
+  }
 }

@@ -73,6 +73,10 @@ const buttonPosition =
 const logEndpoint =
   process.env.LOG_ENDPOINT?.trim() ||
   localSecrets.logging?.endpoint?.trim() || '';
+const contactUpdateApiEndpoint =
+  process.env.CONTACT_UPDATE_API_ENDPOINT?.trim() ||
+  localSecrets.contactUpdate?.apiEndpoint?.trim() ||
+  '';
 const paystarMode =
   explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
     ? explicitPaystarMode
@@ -130,6 +134,9 @@ const runtimeConfig = {
   },
   logging: {
     endpoint: logEndpoint || undefined,
+  },
+  contactUpdate: {
+    apiEndpoint: contactUpdateApiEndpoint,
   },
 };
 

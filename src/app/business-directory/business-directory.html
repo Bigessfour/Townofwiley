@@ -1,6 +1,6 @@
 <section class="public-page business-directory-page grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="business-directory-heading">
   <header class="public-page-header grid gap-4 max-w-[56rem]">
-    <p class="section-kicker">Local Directory</p>
+    <p class="section-kicker">Wiley Business Directory</p>
     <h1 id="business-directory-heading">{{ title }}</h1>
     <p class="public-page-copy">
       Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.
@@ -23,7 +23,7 @@
   </header>
 
   @if (filteredBusinesses().length) {
-    <div class="public-card-grid directory-card-grid grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="public-card-grid directory-card-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-2 sm:px-0">
       @for (business of filteredBusinesses(); track business.name) {
         <article class="public-card public-directory-card grid gap-4 p-5 rounded-2xl h-full">
           <div class="public-card-header grid gap-3 grid-cols-[minmax(0,1fr)_auto] items-start">
@@ -79,6 +79,6 @@
       }
     </div>
   } @else {
-    <p class="public-empty-state">No local businesses match that search yet. Try a broader term or clear the search.</p>
+    <p class="public-empty-state">No businesses match your search. Try a different word or <button type="button" (click)="updateDirectoryQuery('')" class="text-link">clear the search</button>.</p>
   }
 </section>

@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
+import { ContactUpdateService } from '../contact-update/contact-update.service';
 import { PaystarConnectionService } from '../payments/paystar-connection';
 import { CmsContact } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -77,6 +78,19 @@ interface ResidentServicesCopy {
   recordsSubject: string;
   issueCategories: SelectOption<IssueCategory>[];
   requestTypes: SelectOption<RequestType>[];
+  contactUpdateToggleLabel: string;
+  contactUpdateBody: string;
+  contactUpdateFullNameLabel: string;
+  contactUpdateServiceAddressLabel: string;
+  contactUpdatePoBoxLabel: string;
+  contactUpdatePhoneLabel: string;
+  contactUpdateEmailLabel: string;
+  contactUpdateNotesLabel: string;
+  contactUpdateActionLabel: string;
+  contactUpdateDismissLabel: string;
+  contactUpdateEmptyMessage: string;
+  contactUpdateSuccessMessage: string;
+  contactUpdateSubject: string;
 }
 
 const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
@@ -148,6 +162,20 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       { value: 'license', label: 'License or fee question' },
       { value: 'clerk', label: 'Clerk assistance' },
     ],
+    contactUpdateToggleLabel: 'Update contact info with Clerk (optional)',
+    contactUpdateBody:
+      'Help the Clerk keep resident records accurate. All fields are optional — skip this step if you prefer.',
+    contactUpdateFullNameLabel: 'Full name',
+    contactUpdateServiceAddressLabel: 'Service address',
+    contactUpdatePoBoxLabel: 'PO Box (optional)',
+    contactUpdatePhoneLabel: 'Phone number',
+    contactUpdateEmailLabel: 'Email address',
+    contactUpdateNotesLabel: 'Additional notes (optional)',
+    contactUpdateActionLabel: 'Send contact update to Clerk',
+    contactUpdateDismissLabel: 'No thanks, skip for now',
+    contactUpdateEmptyMessage: 'Fill in at least one field to send a contact update.',
+    contactUpdateSuccessMessage: 'Contact info sent to the Clerk. Thank you!',
+    contactUpdateSubject: 'Resident contact information update',
   },
   es: {
     sectionKicker: 'Servicios para residentes',
@@ -217,6 +245,20 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       { value: 'license', label: 'Licencia o pregunta de cuota' },
       { value: 'clerk', label: 'Ayuda de secretaria' },
     ],
+    contactUpdateToggleLabel: 'Actualizar informacion de contacto con la secretaria (opcional)',
+    contactUpdateBody:
+      'Ayude a la secretaria a mantener los registros de residentes actualizados. Todos los campos son opcionales.',
+    contactUpdateFullNameLabel: 'Nombre completo',
+    contactUpdateServiceAddressLabel: 'Direccion del servicio',
+    contactUpdatePoBoxLabel: 'Apartado postal (opcional)',
+    contactUpdatePhoneLabel: 'Numero de telefono',
+    contactUpdateEmailLabel: 'Correo electronico',
+    contactUpdateNotesLabel: 'Notas adicionales (opcional)',
+    contactUpdateActionLabel: 'Enviar actualizacion de contacto a la secretaria',
+    contactUpdateDismissLabel: 'No gracias, omitir por ahora',
+    contactUpdateEmptyMessage: 'Complete al menos un campo para enviar una actualizacion de contacto.',
+    contactUpdateSuccessMessage: 'Informacion de contacto enviada a la secretaria. Gracias.',
+    contactUpdateSubject: 'Actualizacion de informacion de contacto del residente',
   },
 };
 
@@ -243,6 +285,15 @@ type RecordsFormGroup = FormGroup<{
   preferredContact: FormControl<string>;
 }>;
 
+type ContactUpdateFormGroup = FormGroup<{
+  fullName: FormControl<string>;
+  serviceAddress: FormControl<string>;
+  poBox: FormControl<string>;
+  phone: FormControl<string>;
+  email: FormControl<string>;
+  notes: FormControl<string>;
+}>;
+
 @Component({
   selector: 'app-resident-services',
   imports: [ReactiveFormsModule, CardModule, InputTextModule, SelectModule, TextareaModule],
@@ -254,6 +305,7 @@ export class ResidentServices {
   readonly contacts = input<CmsContact[]>([]);
 
   private readonly route = inject(ActivatedRoute);
+  private readonly contactUpdateService = inject(ContactUpdateService);
   private readonly paystarConnection = inject(PaystarConnectionService);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly paystarRuntimeConfig = this.paystarConnection.getRuntimeConfig();
@@ -266,6 +318,9 @@ export class ResidentServices {
   protected readonly paymentStatus = signal<string | null>(null);
   protected readonly issueStatus = signal<string | null>(null);
   protected readonly recordsStatus = signal<string | null>(null);
+  protected readonly contactUpdateExpanded = signal(false);
+  protected readonly contactUpdateStatus = signal<string | null>(null);
+  protected readonly hasSubmittedContactUpdate = signal(false);
   protected readonly servicePanels = computed<ServicePanelOption[]>(() => {
     const copy = this.copy();
 
@@ -332,6 +387,15 @@ export class ResidentServices {
     }),
   });
 
+  protected readonly contactUpdateForm: ContactUpdateFormGroup = new FormGroup({
+    fullName: new FormControl('', { nonNullable: true }),
+    serviceAddress: new FormControl('', { nonNullable: true }),
+    poBox: new FormControl('', { nonNullable: true }),
+    phone: new FormControl('', { nonNullable: true }),
+    email: new FormControl('', { nonNullable: true }),
+    notes: new FormControl('', { nonNullable: true }),
+  });
+
   private readonly paymentFormValue = toSignal(
     this.paymentForm.valueChanges.pipe(startWith(this.paymentForm.getRawValue())),
     { initialValue: this.paymentForm.getRawValue() },
@@ -343,6 +407,10 @@ export class ResidentServices {
   private readonly recordsFormValue = toSignal(
     this.recordsForm.valueChanges.pipe(startWith(this.recordsForm.getRawValue())),
     { initialValue: this.recordsForm.getRawValue() },
+  );
+  private readonly contactUpdateFormValue = toSignal(
+    this.contactUpdateForm.valueChanges.pipe(startWith(this.contactUpdateForm.getRawValue())),
+    { initialValue: this.contactUpdateForm.getRawValue() },
   );
 
   protected readonly townInfoContact = computed(() => this.findContact('town-information'));
@@ -381,6 +449,7 @@ export class ResidentServices {
   protected readonly paymentMailtoHref = computed(() => this.buildPaymentMailtoHref());
   protected readonly issueMailtoHref = computed(() => this.buildIssueMailtoHref());
   protected readonly recordsMailtoHref = computed(() => this.buildRecordsMailtoHref());
+  protected readonly contactUpdateMailtoHref = computed(() => this.buildContactUpdateMailtoHref());
 
   constructor() {
     effect(() => {
@@ -406,6 +475,12 @@ export class ResidentServices {
     this.recordsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.recordsStatus.set(null);
     });
+
+    this.contactUpdateForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.contactUpdateStatus.set(null);
+    });
+
+    this.checkContactUpdateCookie();
   }
 
   protected selectServicePanel(panelId: ServicePanelId): void {
@@ -552,6 +627,101 @@ export class ResidentServices {
       `${this.copy().recordsDeadlineLabel}: ${values.deadline || '-'}`,
       `${this.copy().recordsDetailsLabel}: ${values.details}`,
     ]);
+  }
+
+  protected dismissContactUpdate(): void {
+    this.setContactUpdateCookie();
+    this.hasSubmittedContactUpdate.set(true);
+  }
+
+  protected toggleContactUpdate(): void {
+    this.contactUpdateExpanded.update((v) => !v);
+    this.contactUpdateStatus.set(null);
+  }
+
+  protected async openContactUpdateMailto(event: Event): Promise<void> {
+    event.preventDefault();
+    const href = this.contactUpdateMailtoHref();
+
+    if (!href) {
+      this.contactUpdateStatus.set(this.copy().contactUpdateEmptyMessage);
+      return;
+    }
+
+    this.contactUpdateStatus.set(null);
+    const values = this.contactUpdateFormValue();
+    const result = await this.contactUpdateService.submitUpdate(
+      {
+        fullName: values.fullName ?? '',
+        serviceAddress: values.serviceAddress ?? '',
+        poBox: values.poBox ?? '',
+        phone: values.phone ?? '',
+        email: values.email ?? '',
+        notes: values.notes ?? '',
+        locale: this.siteLanguageService.currentLanguage(),
+        source: 'payment-panel',
+      },
+      href,
+    );
+
+    if (result.outcome === 'api-success') {
+      this.contactUpdateStatus.set(this.copy().contactUpdateSuccessMessage);
+      this.contactUpdateForm.reset();
+      this.contactUpdateExpanded.set(false);
+      this.setContactUpdateCookie();
+      this.hasSubmittedContactUpdate.set(true);
+    } else {
+      this.setContactUpdateCookie();
+      this.hasSubmittedContactUpdate.set(true);
+      this.contactUpdateStatus.set(this.copy().mailClientMessage);
+      window.location.assign(result.href);
+    }
+  }
+
+  private checkContactUpdateCookie(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const hasCookie = document.cookie
+      .split('; ')
+      .some((row) => row.startsWith('wiley_contact_updated='));
+
+    if (hasCookie) {
+      this.hasSubmittedContactUpdate.set(true);
+    }
+  }
+
+  private setContactUpdateCookie(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    document.cookie = `wiley_contact_updated=true; expires=${expires.toUTCString()}; path=/; SameSite=Strict; Secure`;
+  }
+
+  private buildContactUpdateMailtoHref(): string | null {
+    const values = this.contactUpdateFormValue();
+    const recipient =
+      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+    const copy = this.copy();
+    const lines: string[] = [];
+
+    if (values.fullName) lines.push(`${copy.contactUpdateFullNameLabel}: ${values.fullName}`);
+    if (values.serviceAddress)
+      lines.push(`${copy.contactUpdateServiceAddressLabel}: ${values.serviceAddress}`);
+    if (values.poBox) lines.push(`${copy.contactUpdatePoBoxLabel}: ${values.poBox}`);
+    if (values.phone) lines.push(`${copy.contactUpdatePhoneLabel}: ${values.phone}`);
+    if (values.email) lines.push(`${copy.contactUpdateEmailLabel}: ${values.email}`);
+    if (values.notes) lines.push(`${copy.contactUpdateNotesLabel}: ${values.notes}`);
+
+    if (lines.length === 0) {
+      return null;
+    }
+
+    return this.buildMailtoHref(recipient, copy.contactUpdateSubject, lines);
   }
 
   private buildMailtoHref(recipient: string, subject: string, lines: string[]): string | null {

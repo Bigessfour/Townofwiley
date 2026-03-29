@@ -224,6 +224,39 @@
     }
   </header>
 
+  @if (homepageWeatherAlert(); as alert) {
+    <p-card class="site-alert site-alert--nws" role="alert" [attr.aria-label]="appCopy().nwsAlertLabel">
+      <div class="site-alert-copy">
+        <p class="site-alert-headline">{{ appCopy().nwsAlertLabel }}</p>
+        <h2 class="site-alert-title">{{ alert.event }}</h2>
+        <p class="site-alert-detail">{{ alert.headline }}</p>
+        @if (alert.instruction) {
+          <p class="site-alert-instruction">{{ alert.instruction }}</p>
+        }
+      </div>
+
+      <div class="site-alert-actions">
+        <a
+          class="site-alert-link button-cta button-cta--ghost"
+          [attr.href]="alert.forecastUrl"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {{ appCopy().nwsAlertLinkLabel }}
+        </a>
+
+        <p-button
+          [label]="appCopy().alertActionLabel"
+          (onClick)="openSignup()"
+          severity="danger"
+          [outlined]="true"
+          size="small"
+          styleClass="site-alert-button"
+        />
+      </div>
+    </p-card>
+  }
+
   <main class="page-shell" [class.is-feature-page]="isFeaturePageMode()" id="main-content" #mainContent tabindex="-1">
     @if (isFeaturePageMode()) {
       @if (currentFeaturePage(); as currentFeaturePage) {
@@ -923,4 +956,30 @@
       <p>&copy; {{ currentYear }} {{ pageTitle() }}</p>
     </footer>
   </main>
+
+  @if (isAssistantEnabled) {
+    <button
+      type="button"
+      class="floating-chat-button"
+      (click)="openAiChat()"
+      aria-label="Open Ask Wiley — ask questions about town services, meetings, and more"
+      title="Ask Wiley — town assistant"
+    >
+      <i class="pi pi-comments" aria-hidden="true"></i>
+      <span class="floating-chat-label" aria-hidden="true">Ask Wiley</span>
+    </button>
+
+    <p-dialog
+      [visible]="aiChatVisible()"
+      (visibleChange)="aiChatVisible.set($event)"
+      [modal]="true"
+      [closable]="true"
+      header="Ask Wiley — Town Assistant"
+      [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"
+      styleClass="ai-chat-dialog"
+      appendTo="body"
+    >
+      <app-ai-chat />
+    </p-dialog>
+  }
 }

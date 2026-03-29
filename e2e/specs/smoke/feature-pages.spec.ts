@@ -7,7 +7,7 @@ test.describe('Feature Pages Details', () => {
     await expect(homePage.page.locator('#business-directory-heading')).toBeVisible();
     await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
 
-    const searchInput = homePage.page.getByPlaceholder(/search by business/i).first();
+    const searchInput = homePage.page.locator('input[placeholder*="Search by business"]');
     await expect(searchInput).toBeVisible();
 
     await searchInput.fill('Cafe');
