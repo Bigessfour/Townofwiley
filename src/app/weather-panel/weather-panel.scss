@@ -547,10 +547,8 @@
 
 /* ── Alerts panel (PrimeNG p-panel override) ─────────── */
 
-.weather-alerts-panel {
-  .p-panel-header {
-    padding: 0.75rem 1rem;
-  }
+.weather-alerts-header-host {
+  padding: 0.75rem 1rem;
 }
 
 .weather-alerts-panel-header {
@@ -566,35 +564,9 @@
 
 /* ── Radar section ───────────────────────────────────── */
 
-.weather-radar-details {
-  border: 1px solid rgba(0 0 0 / 0.1);
+.weather-radar-panel {
   border-radius: 0.6rem;
   overflow: hidden;
-}
-
-.weather-radar-summary {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1rem;
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
-
-  &::-webkit-details-marker {
-    display: none;
-  }
-
-  &::before {
-    content: '▶';
-    font-size: 0.65rem;
-    transition: transform 0.18s ease;
-    color: var(--ink-500, #777);
-  }
-}
-
-.weather-radar-details[open] .weather-radar-summary::before {
-  transform: rotate(90deg);
 }
 
 .weather-radar-note {

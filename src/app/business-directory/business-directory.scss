@@ -1,9 +1,6 @@
 :host {
   display: block;
 }
-:host {
-  display: block;
-}
 
 .public-page-header h1,
 .public-card h2 {
@@ -65,6 +62,10 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+.public-directory-card {
+  grid-template-rows: auto 1fr auto;
 }
 
 .directory-details {

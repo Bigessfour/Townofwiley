@@ -11,28 +11,34 @@
         <p class="weather-updated">{{ copy().updatedPrefix }} {{ updatedLabel() }}</p>
       }
       <section class="weather-action-row flex flex-wrap gap-3">
-        <button
+        <p-button
           type="button"
-          class="weather-action"
-          (click)="refreshWeather()"
+          icon="pi pi-refresh"
+          [label]="isRefreshing() ? copy().refreshing : copy().refresh"
+          (onClick)="refreshWeather()"
           [disabled]="isBusy()"
-        >
-          {{ isRefreshing() ? copy().refreshing : copy().refresh }}
-        </button>
+          styleClass="weather-action"
+        />
         <a
+          pButton
+          variant="text"
           class="weather-action is-link"
           [attr.href]="weatherGovUrl"
           target="_blank"
           rel="noreferrer noopener"
-        >
-          {{ copy().openForecast }}
-        </a>
+        >{{ copy().openForecast }}</a>
       </section>
     </section>
   </header>
 
   @if (isLoading()) {
-    <p class="weather-status" aria-live="polite">{{ copy().loading }}</p>
+    <div class="weather-skeleton-loading grid gap-4" aria-live="polite" role="status" [attr.aria-label]="copy().loading">
+      <p-skeleton height="11rem" borderRadius="24px" />
+      <div class="flex gap-3">
+        <p-skeleton height="6rem" styleClass="flex-1" borderRadius="18px" />
+        <p-skeleton height="6rem" styleClass="flex-1" borderRadius="18px" />
+      </div>
+    </div>
   } @else {
     @if (loadError()) {
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
@@ -105,7 +111,7 @@
         @if (hourlyPeriods().length > 0) {
           <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
             <h4 id="weather-hourly-heading" class="meta-label weather-section-label">{{ copy().hourlyLabel }}</h4>
-            <div class="weather-hourly-scroll" role="list" aria-label="{{ copy().hourlyLabel }}">
+            <div class="weather-hourly-scroll" role="list" [attr.aria-label]="copy().hourlyLabel">
               @for (h of hourlyPeriods(); track h.timeLabel) {
                 <div class="weather-hourly-card" [class.is-night]="!h.isDaytime" role="listitem">
                   <span class="hourly-time">{{ h.timeLabel }}</span>
@@ -138,7 +144,7 @@
       </section>
 
       <aside class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]" aria-labelledby="weather-alerts-heading">
-        <p-panel styleClass="weather-alerts-panel">
+        <p-panel styleClass="weather-alerts-panel" [pt]="{ header: { class: 'weather-alerts-header-host' } }">
           <ng-template pTemplate="header">
             <div class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full">
               <div>
@@ -153,7 +159,7 @@
           </ng-template>
 
           @if (hasAlerts()) {
-            <p-accordion [multiple]="true" styleClass="weather-accordion">
+            <p-accordion [multiple]="true" styleClass="weather-accordion" [value]="accordionActiveValue()">
               @for (alert of weatherAlerts(); track alert.event + alert.headline; let idx = $index) {
                 <p-accordion-panel [value]="idx">
                   <p-accordion-header>
@@ -180,10 +186,10 @@
               }
             </p-accordion>
           } @else {
-            <article class="weather-alert-card is-clear">
-              <strong>{{ copy().noAlertsTitle }}</strong>
-              <p>{{ copy().noAlertsBody }}</p>
-            </article>
+            <div class="weather-no-alerts grid gap-2">
+              <p-message severity="success" [text]="copy().noAlertsTitle" />
+              <p class="weather-copy">{{ copy().noAlertsBody }}</p>
+            </div>
           }
         </p-panel>
 
@@ -299,11 +305,13 @@
           </section>
         }
 
-        <details class="weather-radar-details">
-          <summary class="weather-radar-summary">
-            <span class="meta-label">{{ copy().radarLabel }}</span>
-            <small class="weather-radar-note">{{ copy().radarNote }}</small>
-          </summary>
+        <p-panel [toggleable]="true" [collapsed]="true" styleClass="weather-radar-panel">
+          <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+              <span class="meta-label">{{ copy().radarLabel }}</span>
+              <small class="weather-radar-note">{{ copy().radarNote }}</small>
+            </div>
+          </ng-template>
           <iframe
             class="weather-radar-frame"
             [src]="radarUrl"
@@ -313,17 +321,16 @@
             height="550"
             referrerpolicy="no-referrer"
           ></iframe>
-        </details>
+        </p-panel>
 
         <footer class="weather-link-row flex justify-start">
           <a
-            class="text-link"
+            pButton
+            variant="text"
             [attr.href]="forecastMapsUrl"
             target="_blank"
             rel="noreferrer noopener"
-          >
-            {{ copy().forecastMaps }}
-          </a>
+          >{{ copy().forecastMaps }}</a>
         </footer>
       </aside>
     </section>

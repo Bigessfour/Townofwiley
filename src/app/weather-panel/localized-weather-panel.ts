@@ -16,6 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
+import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -386,7 +387,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -477,6 +478,7 @@ export class LocalizedWeatherPanel {
     return Math.round(gdd);
   });
   protected readonly hasAlerts = computed(() => this.weatherAlerts().length > 0);
+  protected readonly accordionActiveValue = computed(() => this.hasAlerts() ? [0] : []);
   protected readonly alertSummary = computed(() => {
     const total = this.weatherAlerts().length;
 
