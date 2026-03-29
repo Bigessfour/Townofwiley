@@ -59,6 +59,10 @@ severe-weather-invoke-check.json
 sns-sms-policy.json
 sns-sms-trust.json
 
+# Test output directories (moved from root)
+/logs/
+/test-reports/
+
 # System files
 .DS_Store
 Thumbs.db

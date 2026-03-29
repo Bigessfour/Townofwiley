@@ -48,7 +48,7 @@
     </p-card>
   }
 
-  <header class="site-header" role="banner">
+  <header class="site-header" [class.is-feature-page]="isFeaturePageMode()" role="banner">
     <div class="header-top">
       <a class="town-logo" routerLink="/" href="/" aria-label="Town of Wiley home">
         <div class="official-badge" aria-hidden="true">
@@ -204,22 +204,24 @@
       </div>
     </div>
 
-    <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
-      <figure class="hero-landing-media">
-        <img
-          ngSrc="/hero-wiley.jpg"
-          [attr.alt]="appCopy().heroImageAlt"
-          fill
-          priority
-          sizes="100vw"
-        />
-      </figure>
-      <div class="hero-landing-scrim"></div>
+    @if (!isFeaturePageMode()) {
+      <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
+        <figure class="hero-landing-media">
+          <img
+            ngSrc="/hero-wiley.jpg"
+            [attr.alt]="appCopy().heroImageAlt"
+            fill
+            priority
+            sizes="100vw"
+          />
+        </figure>
+        <div class="hero-landing-scrim"></div>
 
-      <article class="hero-landing-inner hero-content">
-        <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
-      </article>
-    </section>
+        <article class="hero-landing-inner hero-content">
+          <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
+        </article>
+      </section>
+    }
   </header>
 
   <main class="page-shell" id="main-content" #mainContent tabindex="-1">
@@ -228,11 +230,10 @@
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
 
-          <p-card class="panel detail-hero" aria-labelledby="detail-page-heading">
-            <p class="section-kicker">{{ currentFeaturePage.kicker }}</p>
-            <h2 id="detail-page-heading">{{ currentFeaturePage.title }}</h2>
-            <p class="detail-hero-copy">{{ currentFeaturePage.summary }}</p>
-          </p-card>
+          <div class="page-label-strip" aria-label="Current page">
+            <span class="page-label-kicker">{{ currentFeaturePage.kicker }}</span>
+            <span class="page-label-title">{{ currentFeaturePage.title }}</span>
+          </div>
 
           @if (isWeatherMode()) {
             <section class="feature-detail-stack" id="weather">

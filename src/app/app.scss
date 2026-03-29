@@ -120,6 +120,26 @@
   padding-top: 1.5rem;
 }
 
+/* Compact header on feature sub-pages — no hero, tighter padding */
+.site-header.is-feature-page {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(13, 44, 84, 0.1);
+  background: linear-gradient(135deg, #f7f1e7, #eef3f8);
+}
+
+.site-header.is-feature-page .info-buttons {
+  display: none;
+}
+
+.site-header.is-feature-page .header-search-shell {
+  display: none;
+}
+
+.site-header.is-feature-page .header-top {
+  padding-bottom: 0.5rem;
+}
+
 .site-language-switcher {
   display: inline-grid;
   gap: 0.45rem;
@@ -365,7 +385,6 @@ h3 {
 .landing-shortcuts,
 .feature-hub,
 .support-strip,
-.detail-hero,
 .panel {
   position: relative;
   padding: calc(var(--spacing-unit) * 1.7);
@@ -383,12 +402,10 @@ h3 {
 .landing-shortcuts::before,
 .feature-hub::before,
 .support-strip::before,
-.detail-hero::before,
 .panel::before {
   display: none;
 }
 
-.detail-hero :where(.p-card-body),
 .panel :where(.p-card-body) {
   display: grid;
   gap: 1.25rem;
@@ -438,8 +455,7 @@ h3 {
   min-height: 100%;
 }
 
-.feature-hub-copy,
-.detail-hero-copy {
+.feature-hub-copy {
   margin: 0;
   line-height: 1.7;
   color: var(--ink-700);
@@ -494,9 +510,32 @@ h3 {
   text-decoration: none;
 }
 
-.detail-hero {
-  display: grid;
-  gap: 0.9rem;
+.page-label-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.page-label-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--civic-gold, #b07d2e);
+  white-space: nowrap;
+}
+
+.page-label-kicker::after {
+  content: '·';
+  margin-left: 0.6rem;
+  color: rgba(13, 44, 84, 0.3);
+}
+
+.page-label-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(13, 44, 84, 0.72);
 }
 
 .search-panel::before {
