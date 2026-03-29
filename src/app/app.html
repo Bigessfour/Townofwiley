@@ -65,7 +65,11 @@
         data-testid="homepage-section-nav"
       >
         <ng-template pTemplate="item" let-item>
-          <a [href]="item.url" class="p-menubar-item-link">{{ item.label }}</a>
+          @if (item.routerLink) {
+            <a [routerLink]="item.routerLink" [fragment]="item.fragment" class="p-menubar-item-link">{{ item.label }}</a>
+          } @else {
+            <a [attr.href]="item.url" class="p-menubar-item-link">{{ item.label }}</a>
+          }
         </ng-template>
       </p-menubar>
 

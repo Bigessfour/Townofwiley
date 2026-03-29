@@ -1276,7 +1276,9 @@ export class App {
       return {
         label: link.label,
         icon: link.icon,
-        url: url
+        url: url,
+        routerLink: routeLink.isInternal ? (routeLink.path ?? '/') : undefined,
+        fragment: routeLink.isInternal ? routeLink.fragment : undefined,
       };
     });
   });
