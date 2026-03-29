@@ -211,28 +211,22 @@ li {
   letter-spacing: 0.16em;
 }
 
-.main-nav-menubar {
+.main-nav {
   margin-top: calc(var(--spacing-unit) * 1.6);
   width: 100%;
 }
 
-.main-nav-menubar :where(.p-menubar) {
-  width: 100%;
-  padding: 0;
-  border: 0;
-  border-radius: 28px;
-  background: transparent;
-  box-shadow: none;
-}
-
-.main-nav-menubar :where(.p-menubar-root-list) {
+.main-nav-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.main-nav-menubar :where(.p-menuitem-link, .p-menubar-item-link, a) {
+.main-nav-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -247,10 +241,11 @@ li {
   color: var(--text-on-bg);
   font-size: 0.8rem;
   font-weight: 700;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.main-nav-menubar :where(.p-menuitem-icon, i) {
+.main-nav-link i {
   font-size: 0.82rem;
 }
 
@@ -473,15 +468,15 @@ li {
     grid-template-columns: 1fr;
   }
 
-  .main-nav-menubar {
+  .main-nav {
     margin-top: 0;
   }
 
-  .main-nav-menubar :where(.p-menubar-root-list) {
+  .main-nav-list {
     gap: 0.4rem;
   }
 
-  .main-nav-menubar :where(.p-menuitem-link, .p-menubar-item-link, a) {
+  .main-nav-link {
     min-height: 2.1rem;
     padding: 0.35rem 0.55rem;
     font-size: 0.78rem;
@@ -509,11 +504,11 @@ li {
     justify-content: center;
   }
 
-  .main-nav-menubar :where(.p-menubar-root-list) {
+  .main-nav-list {
     gap: 0.4rem;
   }
 
-  .main-nav-menubar :where(.p-menuitem-link, .p-menubar-item-link, a) {
+  .main-nav-link {
     width: 100%;
     justify-content: center;
   }

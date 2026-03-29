@@ -15,7 +15,6 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import type { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -23,7 +22,6 @@ import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
-import { MenubarModule } from 'primeng/menubar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -1070,7 +1068,6 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     TableModule,
     TabsModule,
     CardModule,
-    MenubarModule,
     FullCalendarModule,
     AccessibilitySupport,
     LocalizedAiChat,
@@ -1261,28 +1258,6 @@ export class App {
     return this.cmsAlertBanner();
   });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
-  protected readonly mainMenuItems = computed<MenuItem[]>(() => {
-    return this.appCopy().navLinks.map((link) => {
-      const routeLink = this.resolveAppLink(link.href, '/');
-
-      let url = routeLink.href;
-      if (routeLink.isInternal) {
-        url = routeLink.path ?? '/';
-        if (routeLink.fragment) {
-          url += '#' + routeLink.fragment;
-        }
-      }
-
-      return {
-        label: link.label,
-        icon: link.icon,
-        url: url,
-        routerLink: routeLink.isInternal ? (routeLink.path ?? '/') : undefined,
-        fragment: routeLink.isInternal ? routeLink.fragment : undefined,
-      };
-    });
-  });
-
   private readonly logging = inject(LoggingService);
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
   protected readonly featurePages = computed<FeaturePage[]>(() => {

@@ -58,20 +58,35 @@
         </div>
       </a>
 
-      <p-menubar
-        class="main-nav-menubar"
-        [model]="mainMenuItems()"
-        [ariaLabel]="appCopy().homepageSectionsAriaLabel"
+      <nav
+        class="main-nav"
+        [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
         data-testid="homepage-section-nav"
       >
-        <ng-template pTemplate="item" let-item>
-          @if (item.routerLink) {
-            <a [routerLink]="item.routerLink" [fragment]="item.fragment" class="p-menubar-item-link">{{ item.label }}</a>
-          } @else {
-            <a [attr.href]="item.url" class="p-menubar-item-link">{{ item.label }}</a>
+        <ul class="main-nav-list" role="list">
+          @for (link of appCopy().navLinks; track link.href) {
+            @if (resolveAppLink(link.href); as navLink) {
+              <li class="main-nav-item">
+                @if (navLink.isInternal) {
+                  <a
+                    class="main-nav-link"
+                    [routerLink]="navLink.path"
+                    [fragment]="navLink.fragment"
+                  >
+                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
+                    {{ link.label }}
+                  </a>
+                } @else {
+                  <a class="main-nav-link" [attr.href]="navLink.href">
+                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
+                    {{ link.label }}
+                  </a>
+                }
+              </li>
+            }
           }
-        </ng-template>
-      </p-menubar>
+        </ul>
+      </nav>
 
       <div class="header-right">
         <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
