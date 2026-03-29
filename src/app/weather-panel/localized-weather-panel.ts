@@ -148,7 +148,6 @@ interface AlertSignupErrorDetails {
 interface WeatherCopy {
   sectionKicker: string;
   headingPrefix: string;
-  intro: string;
   sourceDirect: string;
   sourceProxy: string;
   updatedPrefix: string;
@@ -204,8 +203,6 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
   en: {
     sectionKicker: 'Local Weather',
     headingPrefix: 'National Weather Service forecast for',
-    intro:
-      'Official weather and alert data from the National Weather Service, surfaced here so residents can quickly spot wind, temperature swings, and any active advisories that may affect town services.',
     sourceDirect: 'Source: weather.gov',
     sourceProxy: 'Source: weather.gov via Town of Wiley AWS weather service',
     updatedPrefix: 'Forecast updated',
@@ -267,8 +264,6 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
   es: {
     sectionKicker: 'Clima local',
     headingPrefix: 'Pronostico del Servicio Nacional de Meteorologia para',
-    intro:
-      'Datos oficiales del clima y alertas del Servicio Nacional de Meteorologia, mostrados aqui para que los residentes detecten rapidamente viento, cambios de temperatura y cualquier aviso activo que pueda afectar los servicios del pueblo.',
     sourceDirect: 'Fuente: weather.gov',
     sourceProxy: 'Fuente: weather.gov mediante el servicio AWS del Pueblo de Wiley',
     updatedPrefix: 'Pronostico actualizado',
