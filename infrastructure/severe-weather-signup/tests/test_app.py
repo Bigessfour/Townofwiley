@@ -6,7 +6,6 @@ import sys
 import unittest
 from pathlib import Path
 
-
 MODULE_PATH = Path(__file__).resolve().parents[1] / 'app.py'
 SPEC = importlib.util.spec_from_file_location('severe_weather_app', MODULE_PATH)
 APP = importlib.util.module_from_spec(SPEC)
