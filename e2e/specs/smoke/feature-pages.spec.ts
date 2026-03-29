@@ -2,17 +2,17 @@ import { expect, test } from '../../fixtures/town.fixture';
 
 test.describe('Feature Pages Details', () => {
   test('business directory filter works', async ({ homePage }) => {
-    await homePage.page.goto('/businesses');
-    // It's possible the search bar is "Search businesses" or similar
-    const searchInput = homePage.page.getByPlaceholder(/search/i).first();
-    // Wait for business list to load by ensuring there's at least one card or component
-    await expect(homePage.page.locator('app-business-directory')).toBeVisible();
+    await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
 
-    // Attempt string of cafes
+    await expect(homePage.page.locator('#business-directory-heading')).toBeVisible();
+    await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
+
+    const searchInput = homePage.page.getByPlaceholder(/search by business/i).first();
+    await expect(searchInput).toBeVisible();
+
     await searchInput.fill('Cafe');
-    // If there is a loader, you can wait for it.
-    // For now we just check that the list doesn't crash
-    await expect(homePage.page.locator('app-business-directory')).toBeVisible();
+
+    await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
   });
 
   test('meetings calendar tab interaction', async ({ homePage }) => {
