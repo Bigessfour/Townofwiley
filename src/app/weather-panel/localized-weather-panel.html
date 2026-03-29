@@ -38,21 +38,54 @@
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
     }
 
+    @if (solarTimes() || aqiData() || forecastGdd() > 0) {
+      <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
+        @if (solarTimes(); as solar) {
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().sunriseLabel }}</span>
+            <strong>{{ solar.sunrise }}</strong>
+          </div>
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().sunsetLabel }}</span>
+            <strong>{{ solar.sunset }}</strong>
+          </div>
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().photoperiodLabel }}</span>
+            <strong>{{ solar.photoperiod }}</strong>
+          </div>
+        }
+        @if (aqiData(); as aqi) {
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().aqiLabel }}</span>
+            <p-tag [value]="aqi.category" [severity]="aqiSeverityClass(aqi.category)" />
+          </div>
+        }
+        @if (forecastGdd() > 0) {
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().gddLabel }}</span>
+            <strong>{{ forecastGdd() }}</strong>
+            <small class="atglance-unit">{{ copy().gddUnit }}</small>
+          </div>
+        }
+      </section>
+    }
+
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
       <section class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]" aria-labelledby="weather-current-heading">
         @if (currentPeriod(); as period) {
-          <article class="weather-current-card grid gap-4" [class.is-night]="!period.isDaytime" data-testid="weather-current-card">
-            <header class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <section>
-                <p class="meta-label">{{ period.name }}</p>
-                <h3 id="weather-current-heading">{{ period.shortForecast }}</h3>
-                <p class="weather-temperature">{{ period.temperatureLabel }}</p>
-              </section>
-
-              @if (period.iconUrl) {
-                <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
-              }
-            </header>
+          <p-card [styleClass]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')" data-testid="weather-current-card">
+            <ng-template pTemplate="header">
+              <div class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p class="meta-label">{{ period.name }}</p>
+                  <h3 id="weather-current-heading">{{ period.shortForecast }}</h3>
+                  <p class="weather-temperature">{{ period.temperatureLabel }}</p>
+                </div>
+                @if (period.iconUrl) {
+                  <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
+                }
+              </div>
+            </ng-template>
 
             <p class="weather-detail">{{ period.detailedForecast }}</p>
 
@@ -66,59 +99,93 @@
                 <dd>{{ period.precipitationLabel }}</dd>
               </div>
             </dl>
-          </article>
+          </p-card>
         }
 
-        <div class="weather-period-grid grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-          @for (period of upcomingPeriods(); track period.name) {
-            <article class="weather-period-card grid gap-2" [class.is-night]="!period.isDaytime">
-              <header class="weather-period-heading flex items-center justify-between gap-3">
-                <p class="meta-label">{{ period.name }}</p>
-                <strong>{{ period.temperatureLabel }}</strong>
-              </header>
-              <p class="weather-period-summary">{{ period.shortForecast }}</p>
-              <p>{{ period.windLabel }}</p>
-              <span>{{ period.precipitationLabel }}</span>
-            </article>
-          }
-        </div>
+        @if (hourlyPeriods().length > 0) {
+          <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
+            <h4 id="weather-hourly-heading" class="meta-label weather-section-label">{{ copy().hourlyLabel }}</h4>
+            <div class="weather-hourly-scroll" role="list" aria-label="{{ copy().hourlyLabel }}">
+              @for (h of hourlyPeriods(); track h.timeLabel) {
+                <div class="weather-hourly-card" [class.is-night]="!h.isDaytime" role="listitem">
+                  <span class="hourly-time">{{ h.timeLabel }}</span>
+                  <strong class="hourly-temp">{{ h.temperatureLabel }}</strong>
+                  @if (h.precipitationLabel) {
+                    <span class="hourly-precip">{{ h.precipitationLabel }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        <section aria-labelledby="weather-sevenday-heading">
+          <h4 id="weather-sevenday-heading" class="meta-label weather-section-label">{{ copy().sevenDayLabel }}</h4>
+          <div class="weather-period-grid grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+            @for (period of sevenDayPeriods(); track period.name) {
+              <article class="weather-period-card grid gap-2" [class.is-night]="!period.isDaytime">
+                <header class="weather-period-heading flex items-center justify-between gap-3">
+                  <p class="meta-label">{{ period.name }}</p>
+                  <strong>{{ period.temperatureLabel }}</strong>
+                </header>
+                <p class="weather-period-summary">{{ period.shortForecast }}</p>
+                <p>{{ period.windLabel }}</p>
+                <span>{{ period.precipitationLabel }}</span>
+              </article>
+            }
+          </div>
+        </section>
       </section>
 
       <aside class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]" aria-labelledby="weather-alerts-heading">
-        <header class="weather-alerts-header flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <section>
-            <p class="meta-label">{{ copy().alertsKicker }}</p>
-            <h3 id="weather-alerts-heading">{{ copy().alertsHeading }}</h3>
-          </section>
-          <span class="weather-alert-pill" [class.is-clear]="!hasAlerts()">
-            {{ hasAlerts() ? alertSummary() : copy().noActiveAlerts }}
-          </span>
-        </header>
+        <p-panel styleClass="weather-alerts-panel">
+          <ng-template pTemplate="header">
+            <div class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full">
+              <div>
+                <p class="meta-label">{{ copy().alertsKicker }}</p>
+                <h3 id="weather-alerts-heading" class="m-0">{{ copy().alertsHeading }}</h3>
+              </div>
+              <p-tag
+                [value]="hasAlerts() ? alertSummary() : copy().noActiveAlerts"
+                [severity]="hasAlerts() ? 'danger' : 'success'"
+              />
+            </div>
+          </ng-template>
 
-        @if (hasAlerts()) {
-          <section class="weather-alert-list grid gap-3">
-            @for (alert of weatherAlerts(); track alert.event + alert.headline) {
-              <article class="weather-alert-card grid gap-2">
-                <header class="weather-alert-meta flex flex-wrap items-baseline justify-between gap-3">
-                  <strong>{{ alert.event }}</strong>
-                  <span>{{ alert.severity }} · {{ alert.urgency }}</span>
-                </header>
-                <p>{{ alert.headline }}</p>
-                @if (alert.instruction) {
-                  <p class="weather-alert-instruction">{{ alert.instruction }}</p>
-                }
-                @if (alert.expiresLabel) {
-                  <small>{{ alert.expiresLabel }}</small>
-                }
-              </article>
-            }
-          </section>
-        } @else {
-          <article class="weather-alert-card is-clear">
-            <strong>{{ copy().noAlertsTitle }}</strong>
-            <p>{{ copy().noAlertsBody }}</p>
-          </article>
-        }
+          @if (hasAlerts()) {
+            <p-accordion [multiple]="true" styleClass="weather-accordion">
+              @for (alert of weatherAlerts(); track alert.event + alert.headline; let idx = $index) {
+                <p-accordion-panel [value]="idx">
+                  <p-accordion-header>
+                    <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
+                      <p-tag
+                        [value]="alert.severity"
+                        [severity]="alertSeverityClass(alert.severity)"
+                        styleClass="shrink-0"
+                      />
+                      <span>{{ alert.event }}</span>
+                    </span>
+                  </p-accordion-header>
+                  <p-accordion-content>
+                    <p>{{ alert.headline }}</p>
+                    @if (alert.instruction) {
+                      <p class="weather-alert-instruction">{{ alert.instruction }}</p>
+                    }
+                    @if (alert.expiresLabel) {
+                      <small>{{ alert.expiresLabel }}</small>
+                    }
+                    <p class="meta-label">{{ alert.urgency }}</p>
+                  </p-accordion-content>
+                </p-accordion-panel>
+              }
+            </p-accordion>
+          } @else {
+            <article class="weather-alert-card is-clear">
+              <strong>{{ copy().noAlertsTitle }}</strong>
+              <p>{{ copy().noAlertsBody }}</p>
+            </article>
+          }
+        </p-panel>
 
         @if (isAlertSignupEnabled()) {
           <section class="weather-signup-shell" aria-labelledby="weather-signup-heading" data-testid="weather-signup-shell">
@@ -231,6 +298,22 @@
             </form>
           </section>
         }
+
+        <details class="weather-radar-details">
+          <summary class="weather-radar-summary">
+            <span class="meta-label">{{ copy().radarLabel }}</span>
+            <small class="weather-radar-note">{{ copy().radarNote }}</small>
+          </summary>
+          <iframe
+            class="weather-radar-frame"
+            [src]="radarUrl"
+            [title]="copy().radarLabel"
+            loading="lazy"
+            width="600"
+            height="550"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </details>
 
         <footer class="weather-link-row flex justify-start">
           <a

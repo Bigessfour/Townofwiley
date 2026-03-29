@@ -446,3 +446,166 @@
     width: 100%;
   }
 }
+
+/* ── At-a-glance strip ───────────────────────────────── */
+
+.weather-atglance {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(0 0 0 / 0.07);
+}
+
+.atglance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255 255 255 / 0.75);
+  border: 1px solid rgba(0 0 0 / 0.08);
+  border-radius: 0.6rem;
+  min-width: 6rem;
+  text-align: center;
+
+  strong {
+    font-size: 1.05rem;
+    color: var(--ink-900, #111);
+  }
+}
+
+.atglance-unit {
+  font-size: 0.7rem;
+  color: var(--ink-500, #777);
+}
+
+/* ── Weather section labels ──────────────────────────── */
+
+.weather-section-label {
+  margin-bottom: 0.5rem;
+}
+
+/* ── Hourly scroll ───────────────────────────────────── */
+
+.weather-hourly-section {
+  padding: 0.25rem 0;
+}
+
+.weather-hourly-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0 0 0 / 0.18);
+    border-radius: 99px;
+  }
+}
+
+.weather-hourly-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255 255 255 / 0.78);
+  border: 1px solid rgba(0 0 0 / 0.08);
+  border-radius: 0.6rem;
+  min-width: 3.75rem;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  text-align: center;
+
+  &.is-night {
+    background: rgba(20 30 60 / 0.08);
+    border-color: rgba(20 30 60 / 0.14);
+  }
+}
+
+.hourly-time {
+  font-size: 0.72rem;
+  color: var(--ink-500, #777);
+  font-weight: 600;
+}
+
+.hourly-temp {
+  font-size: 1rem;
+}
+
+.hourly-precip {
+  font-size: 0.7rem;
+  color: var(--ink-500, #777);
+}
+
+/* ── Alerts panel (PrimeNG p-panel override) ─────────── */
+
+.weather-alerts-panel {
+  .p-panel-header {
+    padding: 0.75rem 1rem;
+  }
+}
+
+.weather-alerts-panel-header {
+  width: 100%;
+}
+
+/* ── Accordion header layout ─────────────────────────── */
+
+.weather-accordion-header {
+  width: 100%;
+  min-height: 2.25rem;
+}
+
+/* ── Radar section ───────────────────────────────────── */
+
+.weather-radar-details {
+  border: 1px solid rgba(0 0 0 / 0.1);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+.weather-radar-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::before {
+    content: '▶';
+    font-size: 0.65rem;
+    transition: transform 0.18s ease;
+    color: var(--ink-500, #777);
+  }
+}
+
+.weather-radar-details[open] .weather-radar-summary::before {
+  transform: rotate(90deg);
+}
+
+.weather-radar-note {
+  color: var(--ink-500, #777);
+  font-size: 0.78rem;
+}
+
+.weather-radar-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  border-top: 1px solid rgba(0 0 0 / 0.08);
+}

@@ -6,6 +6,7 @@ import { handler } from './index.mjs';
 const successPointPayload = {
   properties: {
     forecast: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
+    forecastHourly: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast/hourly',
     forecastZone: 'https://api.weather.gov/zones/forecast/COZ098',
     relativeLocation: {
       properties: {
@@ -50,6 +51,23 @@ const successAlertPayload = {
       },
     },
   ],
+};
+
+const successHourlyPayload = {
+  properties: {
+    periods: Array.from({ length: 14 }, (_, i) => ({
+      name: `Hour ${i}`,
+      startTime: `2026-03-22T${String(9 + i).padStart(2, '0')}:00:00-06:00`,
+      isDaytime: i < 12,
+      temperature: 60 + i,
+      temperatureUnit: 'F',
+      probabilityOfPrecipitation: { value: 0 },
+      windSpeed: '10 mph',
+      windDirection: 'W',
+      icon: null,
+      shortForecast: 'Sunny',
+    })),
+  },
 };
 
 function jsonFetchResponse(status, payload) {
@@ -101,6 +119,10 @@ test('proxies the NWS forecast and alert payloads with the configured headers', 
       return jsonFetchResponse(200, successAlertPayload);
     }
 
+    if (url === 'https://api.weather.gov/gridpoints/PUB/162,56/forecast/hourly') {
+      return jsonFetchResponse(200, successHourlyPayload);
+    }
+
     throw new Error(`Unexpected URL: ${url}`);
   };
 
@@ -130,9 +152,17 @@ test('proxies the NWS forecast and alert payloads with the configured headers', 
   assert.equal(body.periods.length, 1);
   assert.equal(body.alerts.length, 1);
   assert.equal(body.alerts[0].event, 'High Wind Warning');
-  assert.equal(fetchCalls.length, 3);
+  assert.equal(fetchCalls.length, 4);
   assert.equal(fetchCalls[0].options.headers['user-agent'], process.env.NWS_USER_AGENT);
   assert.equal(fetchCalls[0].options.headers['api-key'], 'test-api-key');
+
+  // New fields
+  assert.ok(Array.isArray(body.hourlyPeriods), 'hourlyPeriods is an array');
+  assert.equal(body.hourlyPeriods.length, 12, 'hourlyPeriods is capped at 12');
+  assert.ok(body.solar, 'solar field is present');
+  assert.ok(typeof body.solar.sunrise === 'string', 'solar.sunrise is a string');
+  assert.ok(typeof body.solar.sunset === 'string', 'solar.sunset is a string');
+  assert.ok(typeof body.solar.photoperiod === 'string', 'solar.photoperiod is a string');
 });
 
 test('returns 502 when the upstream NWS request fails', async (t) => {
@@ -222,4 +252,76 @@ test('omits api-key header when NWS_API_KEY is not set', async (t) => {
     undefined,
     'api-key header must not be sent when NWS_API_KEY is unset',
   );
+});
+
+test('returns aqi data when AIRNOW_API_KEY is set', async (t) => {
+  const originalFetch = global.fetch;
+  const originalUserAgent = process.env.NWS_USER_AGENT;
+  const originalAirnowKey = process.env.AIRNOW_API_KEY;
+
+  process.env.NWS_USER_AGENT = 'TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)';
+  process.env.AIRNOW_API_KEY = 'test-airnow-key';
+
+  global.fetch = async (url) => {
+    if (url.includes('api.weather.gov/points')) return jsonFetchResponse(200, successPointPayload);
+    if (url.includes('gridpoints') && url.includes('/forecast') && !url.includes('hourly'))
+      return jsonFetchResponse(200, successForecastPayload);
+    if (url.includes('alerts/active')) return jsonFetchResponse(200, successAlertPayload);
+    if (url.includes('forecast/hourly')) return jsonFetchResponse(200, successHourlyPayload);
+    if (url.includes('airnowapi.org')) {
+      return jsonFetchResponse(200, [
+        { ParameterName: 'PM2.5', AQI: 12, Category: { Name: 'Good' } },
+      ]);
+    }
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+
+  t.after(() => {
+    global.fetch = originalFetch;
+    if (originalUserAgent) process.env.NWS_USER_AGENT = originalUserAgent;
+    else delete process.env.NWS_USER_AGENT;
+    if (originalAirnowKey) process.env.AIRNOW_API_KEY = originalAirnowKey;
+    else delete process.env.AIRNOW_API_KEY;
+  });
+
+  const response = await handler({ requestContext: { http: { method: 'GET' } } });
+  const body = JSON.parse(response.body);
+
+  assert.equal(response.statusCode, 200);
+  assert.ok(body.aqi, 'aqi field is present');
+  assert.equal(body.aqi.category, 'Good');
+  assert.equal(body.aqi.aqi, 12);
+  assert.equal(body.aqi.parameter, 'PM2.5');
+});
+
+test('returns aqi null when AIRNOW_API_KEY is not set', async (t) => {
+  const originalFetch = global.fetch;
+  const originalUserAgent = process.env.NWS_USER_AGENT;
+  const originalAirnowKey = process.env.AIRNOW_API_KEY;
+
+  process.env.NWS_USER_AGENT = 'TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)';
+  delete process.env.AIRNOW_API_KEY;
+
+  global.fetch = async (url) => {
+    if (url.includes('api.weather.gov/points')) return jsonFetchResponse(200, successPointPayload);
+    if (url.includes('gridpoints') && url.includes('/forecast') && !url.includes('hourly'))
+      return jsonFetchResponse(200, successForecastPayload);
+    if (url.includes('alerts/active')) return jsonFetchResponse(200, successAlertPayload);
+    if (url.includes('forecast/hourly')) return jsonFetchResponse(200, successHourlyPayload);
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+
+  t.after(() => {
+    global.fetch = originalFetch;
+    if (originalUserAgent) process.env.NWS_USER_AGENT = originalUserAgent;
+    else delete process.env.NWS_USER_AGENT;
+    if (originalAirnowKey) process.env.AIRNOW_API_KEY = originalAirnowKey;
+    else delete process.env.AIRNOW_API_KEY;
+  });
+
+  const response = await handler({ requestContext: { http: { method: 'GET' } } });
+  const body = JSON.parse(response.body);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(body.aqi, null, 'aqi must be null when key is absent');
 });

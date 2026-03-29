@@ -8,10 +8,15 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -96,11 +101,34 @@ interface NwsAlertProperties {
   expires?: string;
 }
 
+interface SolarTimes {
+  sunrise: string;
+  sunset: string;
+  photoperiod: string;
+}
+
+interface AqiReading {
+  category: string;
+  aqi: number | null;
+  parameter: string;
+}
+
+interface WeatherHourlyPeriod {
+  timeLabel: string;
+  temperatureLabel: string;
+  precipitationLabel: string;
+  shortForecast: string;
+  isDaytime: boolean;
+}
+
 interface WeatherProxyResponse {
   locationLabel?: string;
   updatedAt?: string;
   periods?: NwsForecastPeriod[];
   alerts?: NwsAlertProperties[];
+  hourlyPeriods?: NwsForecastPeriod[];
+  solar?: SolarTimes;
+  aqi?: AqiReading | null;
 }
 
 interface WeatherPeriod {
@@ -197,6 +225,16 @@ interface WeatherCopy {
   signupSuccess: string;
   signupError: string;
   forecastMaps: string;
+  sunriseLabel: string;
+  sunsetLabel: string;
+  photoperiodLabel: string;
+  aqiLabel: string;
+  gddLabel: string;
+  gddUnit: string;
+  hourlyLabel: string;
+  sevenDayLabel: string;
+  radarLabel: string;
+  radarNote: string;
 }
 
 const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
@@ -260,6 +298,16 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     signupError:
       'Unable to start severe weather alerts right now. Please try again or contact Town Hall.',
     forecastMaps: 'Browse national forecast maps',
+    sunriseLabel: 'Sunrise',
+    sunsetLabel: 'Sunset',
+    photoperiodLabel: 'Daylight',
+    aqiLabel: 'Air Quality',
+    gddLabel: 'Projected GDD',
+    gddUnit: 'base 50\u00B0F, next 7 days',
+    hourlyLabel: 'Hourly forecast',
+    sevenDayLabel: '7-day forecast',
+    radarLabel: 'NEXRAD Radar',
+    radarNote: 'KPUX Pueblo radar \u2014 covers Prowers County',
   },
   es: {
     sectionKicker: 'Clima local',
@@ -323,12 +371,22 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     signupError:
       'No fue posible iniciar las alertas de clima severo en este momento. Intente de nuevo o contacte al ayuntamiento.',
     forecastMaps: 'Explorar mapas nacionales del pronostico',
+    sunriseLabel: 'Amanecer',
+    sunsetLabel: 'Atardecer',
+    photoperiodLabel: 'Luz del dia',
+    aqiLabel: 'Calidad del aire',
+    gddLabel: 'GDD proyectados',
+    gddUnit: 'base 50\u00B0F, proximos 7 dias',
+    hourlyLabel: 'Pronostico por hora',
+    sevenDayLabel: 'Pronostico de 7 dias',
+    radarLabel: 'Radar NEXRAD',
+    radarNote: 'Radar KPUX Pueblo \u2014 cubre el condado de Prowers',
   },
 };
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -374,6 +432,9 @@ export class LocalizedWeatherPanel {
   protected readonly loadError = signal<string | null>(null);
   protected readonly forecastPeriodsState = signal<NwsForecastPeriod[]>([]);
   protected readonly alertRecordsState = signal<NwsAlertProperties[]>([]);
+  protected readonly hourlyPeriodsState = signal<NwsForecastPeriod[]>([]);
+  protected readonly solarState = signal<SolarTimes | null>(null);
+  protected readonly aqiState = signal<AqiReading | null>(null);
   protected readonly alertSignupChannel = signal<AlertSignupChannel>('sms');
   protected readonly alertSignupLanguage = signal<AlertLanguage>(DEFAULT_ALERT_LANGUAGE);
   protected readonly alertSignupDestination = signal('');
@@ -396,6 +457,25 @@ export class LocalizedWeatherPanel {
   );
   protected readonly currentPeriod = computed(() => this.weatherPeriods()[0] ?? null);
   protected readonly upcomingPeriods = computed(() => this.weatherPeriods().slice(1, 5));
+  protected readonly sevenDayPeriods = computed(() => this.weatherPeriods().slice(1, 15));
+  protected readonly hourlyPeriods = computed(() =>
+    this.hourlyPeriodsState().map((p) => this.mapHourlyPeriod(p)),
+  );
+  protected readonly solarTimes = computed(() => this.solarState());
+  protected readonly aqiData = computed(() => this.aqiState());
+  protected readonly forecastGdd = computed(() => {
+    const periods = this.forecastPeriodsState();
+    const BASE_TEMP = 50;
+    let gdd = 0;
+    for (let i = 0; i + 1 < periods.length; i += 2) {
+      const day = periods[i];
+      const night = periods[i + 1];
+      if (!day?.isDaytime) continue;
+      const avg = (day.temperature + night.temperature) / 2;
+      gdd += Math.max(0, avg - BASE_TEMP);
+    }
+    return Math.round(gdd);
+  });
   protected readonly hasAlerts = computed(() => this.weatherAlerts().length > 0);
   protected readonly alertSummary = computed(() => {
     const total = this.weatherAlerts().length;
@@ -445,8 +525,30 @@ export class LocalizedWeatherPanel {
     return this.isAlertSignupSubmitting() ? this.copy().submitting : this.copy().submit;
   });
 
+  protected readonly radarUrl: SafeResourceUrl;
+
   constructor() {
+    const sanitizer = inject(DomSanitizer);
+    this.radarUrl = sanitizer.bypassSecurityTrustResourceUrl(
+      'https://radar.weather.gov/station/KPUX/standard',
+    );
     void this.loadWeather();
+  }
+
+  protected alertSeverityClass(severity: string): 'danger' | 'warn' | 'info' | 'secondary' {
+    const s = (severity ?? '').toLowerCase();
+    if (s === 'extreme' || s === 'severe') return 'danger';
+    if (s === 'moderate') return 'warn';
+    if (s === 'minor') return 'info';
+    return 'secondary';
+  }
+
+  protected aqiSeverityClass(category: string): 'success' | 'warn' | 'danger' | 'secondary' {
+    const c = (category ?? '').toLowerCase();
+    if (c === 'good') return 'success';
+    if (c.includes('moderate') || c.includes('sensitive')) return 'warn';
+    if (c.includes('unhealthy') || c.includes('hazardous') || c.includes('very')) return 'danger';
+    return 'secondary';
   }
 
   protected updateAlertSignupChannel(value: string): void {
@@ -585,6 +687,9 @@ export class LocalizedWeatherPanel {
 
     this.forecastPeriodsState.set(response.periods);
     this.alertRecordsState.set(response.alerts ?? []);
+    this.hourlyPeriodsState.set(response.hourlyPeriods ?? []);
+    this.solarState.set(response.solar ?? null);
+    this.aqiState.set(response.aqi ?? null);
     this.updatedAtState.set(response.updatedAt ?? null);
     this.emitHomepageWeatherAlert();
   }
@@ -660,6 +765,24 @@ export class LocalizedWeatherPanel {
           : this.copy().precipitationUnknown,
       iconUrl: period.icon?.replace('size=medium', 'size=large') ?? undefined,
       iconAlt: `${period.name}: ${period.shortForecast}`,
+      isDaytime: period.isDaytime,
+    };
+  }
+
+  private mapHourlyPeriod(period: NwsForecastPeriod): WeatherHourlyPeriod {
+    const startDate = new Date(period.startTime);
+    const hour = startDate.getHours();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    const precipitationValue = period.probabilityOfPrecipitation?.value;
+    return {
+      timeLabel: `${h12} ${ampm}`,
+      temperatureLabel: `${period.temperature}\u00B0${period.temperatureUnit}`,
+      precipitationLabel:
+        typeof precipitationValue === 'number' && precipitationValue > 0
+          ? `${precipitationValue}%`
+          : '',
+      shortForecast: period.shortForecast,
       isDaytime: period.isDaytime,
     };
   }
