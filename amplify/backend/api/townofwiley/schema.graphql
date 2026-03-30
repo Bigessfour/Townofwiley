@@ -1,12 +1,4 @@
-type SiteSettings
-  @model
-  @auth(
-    rules: [
-      { allow: public, provider: apiKey, operations: [read] }
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type SiteSettings @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   townName: String!
   officeHours: String
@@ -19,21 +11,14 @@ type SiteSettings
   heroTitle: String
   heroMessage: String
   heroSubtext: String
+  heroImageUrl: AWSURL
   welcomeLabel: String
   welcomeHeading: String
   welcomeBody: String
   welcomeCaption: String
 }
 
-type AlertBanner
-  @model
-  @auth(
-    rules: [
-      { allow: public, provider: apiKey, operations: [read] }
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type AlertBanner @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   enabled: Boolean!
   label: String!
@@ -43,32 +28,17 @@ type AlertBanner
   linkHref: AWSURL
 }
 
-type Announcement
-  @model
-  @auth(
-    rules: [
-      { allow: public, provider: apiKey, operations: [read] }
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type Announcement @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   title: String!
   date: AWSDate
   detail: String!
   priority: Int
+  imageUrl: AWSURL
   active: Boolean!
 }
 
-type Event
-  @model
-  @auth(
-    rules: [
-      { allow: public, provider: apiKey, operations: [read] }
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type Event @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   title: String!
   description: String
@@ -78,15 +48,7 @@ type Event
   active: Boolean!
 }
 
-type OfficialContact
-  @model
-  @auth(
-    rules: [
-      { allow: public, provider: apiKey, operations: [read] }
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type OfficialContact @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   label: String!
   value: String!
@@ -96,14 +58,7 @@ type OfficialContact
   displayOrder: Int
 }
 
-type EmailAlias
-  @model
-  @auth(
-    rules: [
-      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
-      { allow: private, provider: userPools, operations: [read, create, update, delete] }
-    ]
-  ) {
+type EmailAlias @model @auth(rules: [{allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
   id: ID!
   aliasAddress: AWSEmail!
   destinationAddress: AWSEmail!
@@ -111,4 +66,39 @@ type EmailAlias
   roleLabel: String
   active: Boolean!
   notes: String
+}
+
+type Business @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
+  id: ID!
+  name: String!
+  phone: String!
+  address: String!
+  website: AWSURL
+  description: String
+  imageUrl: AWSURL
+  active: Boolean!
+  displayOrder: Int
+}
+
+type PublicDocument @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
+  id: ID!
+  title: String!
+  summary: String!
+  sectionId: String!
+  status: String!
+  format: String!
+  href: String!
+  downloadFileName: String
+  keywords: [String]
+  active: Boolean!
+  displayOrder: Int
+}
+
+type ExternalNewsLink @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]}, {allow: private, provider: identityPool, operations: [read, create, update, delete]}, {allow: private, provider: userPools, operations: [read, create, update, delete]}]) {
+  id: ID!
+  title: String!
+  url: AWSURL!
+  source: String!
+  active: Boolean!
+  displayOrder: Int
 }

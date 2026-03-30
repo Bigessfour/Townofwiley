@@ -331,11 +331,33 @@ export class DocumentHub {
   );
   protected readonly sections = computed<DocumentSectionView[]>(() => {
     const language = this.siteLanguageService.currentLanguage();
-    const archive = DOCUMENT_ARCHIVE[language];
+    const staticArchive = DOCUMENT_ARCHIVE[language];
+    const cmsDocuments = this.cms.publicDocuments();
+
+    // Merge: CMS documents take precedence; static entries fill any gaps.
+    const mergedById = new Map<string, PublishedDocument>();
+    for (const doc of staticArchive) {
+      mergedById.set(doc.id, doc);
+    }
+    for (const doc of cmsDocuments) {
+      mergedById.set(doc.id, {
+        id: doc.id,
+        sectionId: doc.sectionId as DocumentArchiveSectionId,
+        title: doc.title,
+        summary: doc.summary,
+        status: doc.status,
+        updatedAt: '',
+        format: doc.format,
+        href: doc.href,
+        downloadFileName: doc.downloadFileName,
+        keywords: doc.keywords,
+      });
+    }
+    const merged = Array.from(mergedById.values());
 
     return DOCUMENT_HUB_COPY[language].sections.map((section) => ({
       ...section,
-      publishedDocuments: archive.filter((document) => document.sectionId === section.id),
+      publishedDocuments: merged.filter((document) => document.sectionId === section.id),
     }));
   });
 

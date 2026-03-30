@@ -172,6 +172,7 @@ interface AlertSignupResponse {
 
 interface AlertSignupErrorDetails {
   message: string;
+  /** @deprecated Auto-switch removed; kept to avoid breaking describeAlertSignupError return shape */
   emailTemporarilyUnavailable: boolean;
 }
 
@@ -275,7 +276,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     residentAlertsKicker: 'Resident alerts',
     residentAlertsHeading: 'Sign up for severe weather alerts',
     residentAlertsBody:
-      'Residents in ZIP code 81092 can request confirmation-based SMS or email weather alerts for the Wiley service area. SMS is the fastest signup path while email confirmations finish AWS approval.',
+      'Residents in ZIP code 81092 can sign up for severe weather alerts by SMS text or email. Enter your mobile number or email address below and confirm the link that is sent to you.',
     notificationMethod: 'Notification method',
     email: 'Email',
     sms: 'SMS text',
@@ -347,7 +348,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     residentAlertsKicker: 'Alertas para residentes',
     residentAlertsHeading: 'Suscribirse a alertas de clima severo',
     residentAlertsBody:
-      'Los residentes del codigo postal 81092 pueden solicitar alertas del clima para el area de servicio de Wiley por SMS o correo electronico con confirmacion previa. El SMS es la ruta mas rapida mientras AWS termina la aprobacion del correo.',
+      'Los residentes del codigo postal 81092 pueden suscribirse a alertas de clima severo por mensaje de texto SMS o correo electronico. Ingrese su numero o correo electronico a continuacion y confirme el enlace que le enviamos.',
     notificationMethod: 'Metodo de notificacion',
     email: 'Correo electronico',
     sms: 'Mensaje SMS',
@@ -627,12 +628,6 @@ export class LocalizedWeatherPanel {
       this.alertSignupFullName.set('');
     } catch (error) {
       const signupError = this.readAlertSignupError(error);
-
-      if (signupError.emailTemporarilyUnavailable && this.alertSignupChannel() === 'email') {
-        this.alertSignupChannel.set('sms');
-        this.alertSignupDestination.set('');
-      }
-
       this.alertSignupFeedbackTone.set('error');
       this.alertSignupFeedback.set(signupError.message);
     } finally {
@@ -828,16 +823,12 @@ export class LocalizedWeatherPanel {
   private readAlertSignupError(error: unknown): AlertSignupErrorDetails {
     if (error instanceof HttpErrorResponse) {
       if (this.isRecord(error.error)) {
-        const apiError = error.error['error'];
-
-        if (typeof apiError === 'string' && apiError.trim()) {
-          return this.describeAlertSignupError(apiError);
-        }
-
-        const apiMessage = error.error['message'];
-
-        if (typeof apiMessage === 'string' && apiMessage.trim()) {
-          return this.describeAlertSignupError(apiMessage);
+        // Standard API error shape: { error: '...' } or { message: '...' }
+        for (const key of ['error', 'message', 'errorMessage']) {
+          const val = error.error[key];
+          if (typeof val === 'string' && val.trim()) {
+            return this.describeAlertSignupError(val);
+          }
         }
       }
 

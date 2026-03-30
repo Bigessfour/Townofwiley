@@ -256,20 +256,17 @@ def ensure_lambda_function(
 
 
 def ensure_function_url(function_name: str) -> str:
-  cors = json.dumps(
-    {
-      'AllowOrigins': ['*'],
-      'AllowMethods': ['GET', 'POST'],
-      'AllowHeaders': ['content-type'],
-    },
-  )
+  # CORS is handled entirely by app.py (DEFAULT_CORS_HEADERS).  Setting it on
+  # the Function URL as well causes the AWS layer to reflect the incoming Origin
+  # as a second access-control-allow-origin header, which browsers reject.
+  no_cors = json.dumps({'AllowOrigins': [], 'AllowMethods': [], 'AllowHeaders': []})
 
   try:
     details = run_aws(['lambda', 'get-function-url-config', '--function-name', function_name])
     function_url = details['FunctionUrl']
-    run_aws(['lambda', 'update-function-url-config', '--function-name', function_name, '--auth-type', 'NONE', '--cors', cors])
+    run_aws(['lambda', 'update-function-url-config', '--function-name', function_name, '--auth-type', 'NONE', '--cors', no_cors])
   except RuntimeError:
-    details = run_aws(['lambda', 'create-function-url-config', '--function-name', function_name, '--auth-type', 'NONE', '--cors', cors])
+    details = run_aws(['lambda', 'create-function-url-config', '--function-name', function_name, '--auth-type', 'NONE', '--cors', no_cors])
     function_url = details['FunctionUrl']
 
   try:

@@ -8,6 +8,7 @@ export interface CmsNotice {
   title: string;
   date: string;
   detail: string;
+  imageUrl?: string;
 }
 
 export interface CmsHeroContent {
@@ -16,6 +17,7 @@ export interface CmsHeroContent {
   title: string;
   message: string;
   subtext: string;
+  heroImageUrl?: string;
   welcomeLabel: string;
   welcomeHeading: string;
   welcomeBody: string;
@@ -47,6 +49,35 @@ export interface CmsCalendarEvent {
   location: string;
   start: string;
   end: string | null;
+}
+
+export interface CmsBusiness {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  website?: string;
+  description?: string;
+  imageUrl?: string;
+}
+
+export interface CmsPublicDocument {
+  id: string;
+  title: string;
+  summary: string;
+  sectionId: string;
+  status: string;
+  format: string;
+  href: string;
+  downloadFileName: string;
+  keywords: string[];
+}
+
+export interface CmsExternalNewsLink {
+  id: string;
+  title: string;
+  url: string;
+  source: string;
 }
 
 const DEFAULT_CMS_HERO: CmsHeroContent = {
@@ -311,6 +342,7 @@ interface SiteSettingsRecord {
   heroTitle?: string | null;
   heroMessage?: string | null;
   heroSubtext?: string | null;
+  heroImageUrl?: string | null;
   welcomeLabel?: string | null;
   welcomeHeading?: string | null;
   welcomeBody?: string | null;
@@ -334,6 +366,7 @@ interface AnnouncementRecord {
   date?: string | null;
   detail: string;
   priority?: number | null;
+  imageUrl?: string | null;
   active: boolean;
 }
 
@@ -357,6 +390,41 @@ interface EventRecord {
   active: boolean;
 }
 
+interface BusinessRecord {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  website?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  active: boolean;
+  displayOrder?: number | null;
+}
+
+interface PublicDocumentRecord {
+  id: string;
+  title: string;
+  summary: string;
+  sectionId: string;
+  status: string;
+  format: string;
+  href: string;
+  downloadFileName?: string | null;
+  keywords?: (string | null)[] | null;
+  active: boolean;
+  displayOrder?: number | null;
+}
+
+interface ExternalNewsLinkRecord {
+  id: string;
+  title: string;
+  url: string;
+  source: string;
+  active: boolean;
+  displayOrder?: number | null;
+}
+
 interface CmsGraphqlResponse {
   data?: {
     listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
@@ -364,6 +432,9 @@ interface CmsGraphqlResponse {
     listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
     listEvents?: CmsGraphqlList<EventRecord>;
     listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
+    listBusinesses?: CmsGraphqlList<BusinessRecord>;
+    listPublicDocuments?: CmsGraphqlList<PublicDocumentRecord>;
+    listExternalNewsLinks?: CmsGraphqlList<ExternalNewsLinkRecord>;
   };
   errors?: {
     message?: string;
@@ -380,6 +451,7 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       heroTitle
       heroMessage
       heroSubtext
+      heroImageUrl
       welcomeLabel
       welcomeHeading
       welcomeBody
@@ -405,6 +477,7 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       date
       detail
       priority
+      imageUrl
       active
     }
   }
@@ -427,6 +500,44 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       detail
       href
       linkLabel
+      displayOrder
+    }
+  }
+  listBusinesses(filter: { active: { eq: true } }, limit: 100) {
+    items {
+      id
+      name
+      phone
+      address
+      website
+      description
+      imageUrl
+      active
+      displayOrder
+    }
+  }
+  listPublicDocuments(filter: { active: { eq: true } }, limit: 200) {
+    items {
+      id
+      title
+      summary
+      sectionId
+      status
+      format
+      href
+      downloadFileName
+      keywords
+      active
+      displayOrder
+    }
+  }
+  listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      title
+      url
+      source
+      active
       displayOrder
     }
   }
@@ -455,7 +566,11 @@ export class LocalizedCmsContentStore {
   private readonly noticeRecordsState = signal<AnnouncementRecord[]>([]);
   private readonly eventRecordsState = signal<EventRecord[]>([]);
   private readonly contactRecordsState = signal<OfficialContactRecord[]>([]);
+  private readonly businessRecordsState = signal<BusinessRecord[]>([]);
+  private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
+  private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
+
     this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
   );
   private readonly loadErrorState = signal<string | null>(null);
@@ -473,6 +588,13 @@ export class LocalizedCmsContentStore {
   readonly events = computed(() => this.normalizeEvents(this.eventRecordsState()));
   readonly contacts = computed(() =>
     this.normalizeContacts(this.contactRecordsState(), this.siteLanguage()),
+  );
+  readonly businesses = computed(() => this.normalizeBusinesses(this.businessRecordsState()));
+  readonly publicDocuments = computed(() =>
+    this.normalizePublicDocuments(this.publicDocumentRecordsState()),
+  );
+  readonly externalNewsLinks = computed(() =>
+    this.normalizeExternalNewsLinks(this.externalNewsLinkRecordsState()),
   );
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
@@ -565,6 +687,21 @@ export class LocalizedCmsContentStore {
           (item): item is OfficialContactRecord => Boolean(item),
         ),
       );
+      this.businessRecordsState.set(
+        (response.data?.listBusinesses?.items ?? []).filter(
+          (item): item is BusinessRecord => Boolean(item),
+        ),
+      );
+      this.publicDocumentRecordsState.set(
+        (response.data?.listPublicDocuments?.items ?? []).filter(
+          (item): item is PublicDocumentRecord => Boolean(item),
+        ),
+      );
+      this.externalNewsLinkRecordsState.set(
+        (response.data?.listExternalNewsLinks?.items ?? []).filter(
+          (item): item is ExternalNewsLinkRecord => Boolean(item),
+        ),
+      );
       this.loadState.set('studio');
     } catch (error) {
       this.applyFallbackContent();
@@ -579,6 +716,9 @@ export class LocalizedCmsContentStore {
     this.noticeRecordsState.set([]);
     this.eventRecordsState.set([]);
     this.contactRecordsState.set([]);
+    this.businessRecordsState.set([]);
+    this.publicDocumentRecordsState.set([]);
+    this.externalNewsLinkRecordsState.set([]);
   }
 
   private normalizeHero(
@@ -643,6 +783,7 @@ export class LocalizedCmsContentStore {
         englishFallback.welcomeCaption,
         localizedFallback.welcomeCaption,
       ),
+      heroImageUrl: siteSettings?.heroImageUrl ?? undefined,
     };
   }
 
@@ -723,6 +864,7 @@ export class LocalizedCmsContentStore {
             englishFallback?.detail,
             localizedFallback?.detail,
           ),
+          imageUrl: record.imageUrl ?? undefined,
         };
       });
 
@@ -805,6 +947,57 @@ export class LocalizedCmsContentStore {
           record.id && record.title && record.start && !Number.isNaN(Date.parse(record.start)),
       )
       .sort((left, right) => Date.parse(left.start) - Date.parse(right.start));
+  }
+
+  private normalizeBusinesses(records: BusinessRecord[]): CmsBusiness[] {
+    return records
+      .filter((r) => Boolean(r.active))
+      .map((r) => ({
+        ...r,
+        displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        phone: r.phone,
+        address: r.address,
+        website: this.cleanText(r.website),
+        description: this.cleanText(r.description),
+        imageUrl: this.cleanText(r.imageUrl),
+      }));
+  }
+
+  private normalizePublicDocuments(records: PublicDocumentRecord[]): CmsPublicDocument[] {
+    return records
+      .filter((r) => Boolean(r.active))
+      .map((r) => ({
+        ...r,
+        displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((r) => ({
+        id: r.id,
+        title: r.title,
+        summary: r.summary,
+        sectionId: r.sectionId,
+        status: r.status,
+        format: r.format,
+        href: r.href,
+        downloadFileName: r.downloadFileName ?? '',
+        keywords: (r.keywords ?? []).filter((k): k is string => typeof k === 'string'),
+      }));
+  }
+
+  private normalizeExternalNewsLinks(records: ExternalNewsLinkRecord[]): CmsExternalNewsLink[] {
+    return records
+      .filter((r) => Boolean(r.active))
+      .map((r) => ({
+        ...r,
+        displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((r) => ({ id: r.id, title: r.title, url: r.url, source: r.source }));
   }
 
   private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {

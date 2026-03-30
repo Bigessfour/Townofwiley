@@ -208,7 +208,7 @@
       <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
         <figure class="hero-landing-media">
           <img
-            ngSrc="/hero-wiley.jpg"
+            [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.jpg'"
             [attr.alt]="appCopy().heroImageAlt"
             fill
             priority

@@ -53,9 +53,8 @@ const NEWS_COPY: Record<SiteLanguage, NewsCopy> = {
   },
 };
 
-// Regional links are maintained here until a CMS external-news model is added.
-// Replace or extend with confirmed sources as coverage is found.
-const REGIONAL_LINKS: ExternalLink[] = [
+// Regional links are used as fallback when no ExternalNewsLink records exist in the CMS.
+const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
   {
     title: 'Lamar Ledger — Wiley and Prowers County Coverage',
     url: 'https://www.lamarledger.com/',
@@ -77,7 +76,13 @@ export class News {
     () => NEWS_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
   protected readonly newsItems = this.cms.notices;
-  protected readonly externalLinks = REGIONAL_LINKS;
+  protected readonly externalLinks = computed<ExternalLink[]>(() => {
+    const cmsLinks = this.cms.externalNewsLinks();
+    if (cmsLinks.length > 0) {
+      return cmsLinks.map((l) => ({ title: l.title, url: l.url, source: l.source }));
+    }
+    return FALLBACK_REGIONAL_LINKS;
+  });
   protected readonly featuredNotice = computed(() => this.newsItems()[0] ?? null);
   protected readonly remainingNotices = computed(() => this.newsItems().slice(1));
 }
