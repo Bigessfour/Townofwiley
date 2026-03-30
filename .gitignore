@@ -51,6 +51,7 @@ blob-report/
 scripts/__pycache__/
 *.pyc
 .vitest-attachments/
+/public/runtime-config.js
 *-access-logs.csv
 .tmp-*.log
 changed-smoke-report.json

@@ -80,6 +80,18 @@ Current public domain details:
   - Name: `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov`
   - Target: `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
 
+#### SPA routing — custom error response
+
+This is a client-side routed Angular SPA. Without a catch-all rule, deep links like `https://townofwiley.gov/weather` return a 403 or 404 from CloudFront on hard refresh.
+
+The `postbuild` script (`scripts/generate-static-route-entrypoints.mjs`) copies `index.html` into each route subdirectory **and** into `dist/.../404.html`, so the app side is handled. The hosting layer also needs to be configured once in the Amplify Console:
+
+1. Open **Amplify Console → App → Hosting → Rewrites and redirects**.
+2. Add a rule: Source `</>`  — Target `/index.html`  — Type `200 (Rewrite)`.
+3. Save and redeploy.
+
+If the distribution is custom-managed in CloudFront directly, add an **Error pages** rule: HTTP 403 → `/404.html` (response code 200), and the same for HTTP 404.
+
 Important custom-domain note for future maintainers:
 
 - Route 53 is the authoritative DNS provider for `townofwiley.gov`.
@@ -173,7 +185,26 @@ Practical workflow:
 
 Current security hardening:
 
-- `package.json` now overrides `undici` to `^7.24.5` so the dependency tree does not stay pinned to the vulnerable `7.22.0` version pulled in by `@angular/build`.
+- `package.json` now overrides `undici` to `^7.24.5` so the dependency tree does not stay pinned to the vulnerable `7.22.0` version pulled in by `@angular/build`. This override should be re-evaluated after each Angular major upgrade — run `npm audit` to check whether the upstream package has resolved the issue so the override can be removed.
+
+## Runtime Config & Secrets
+
+`public/runtime-config.js` is **generated** at build time by `scripts/generate-runtime-config.mjs` and is listed in `.gitignore`. It must never be committed to the repository because it contains live endpoint URLs pulled from secrets.
+
+Required Amplify environment variables (set in Amplify Console → App settings → Environment variables for the `main` branch):
+
+| Variable | Purpose |
+|---|---|
+| `APPSYNC_CMS_ENDPOINT` | AppSync GraphQL endpoint URL |
+| `APPSYNC_CMS_API_KEY` | AppSync public-read API key |
+| `APPSYNC_CMS_REGION` | AWS region (e.g. `us-east-2`) |
+| `EASYPEASY_CHAT_URL` | Easy-Peasy bot embed URL |
+| `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup |
+| `SEVERE_WEATHER_SIGNUP_ENABLED` | `true` / `false` |
+| `LOG_ENDPOINT` | Frontend log ingest endpoint |
+| `CONTACT_UPDATE_API_ENDPOINT` | Lambda Function URL for contact updates |
+
+If a variable is missing, `generate-runtime-config.mjs` silently falls back to an empty string; the feature that depends on it will degrade gracefully rather than break the build.
 
 ## Easy-Peasy Chatbot
 
