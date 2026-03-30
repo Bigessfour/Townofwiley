@@ -67,21 +67,21 @@ When you save a record in Data Manager, the website automatically shows the new 
 
 ---
 
-## Part 3 — What You Can Edit
+## Part 3 — What Each Model Controls
 
 Every piece of content on the website lives in one of these models in Data Manager.
 
-| To change this on the website | Open this model |
+| What you are updating | Open this model |
 | --- | --- |
-| Homepage title, welcome text, hero photo | `SiteSettings` |
-| Emergency alert banner at the top of the homepage | `AlertBanner` |
-| News notices and announcements | `Announcement` |
-| Meetings and calendar events | `Event` |
-| Staff contact cards (phone, email, names) | `OfficialContact` |
+| Homepage title, welcome text, and hero photo | `SiteSettings` |
+| Emergency banner shown at the top of the homepage | `AlertBanner` |
+| Public notices, closures, and general announcements | `Announcement` |
+| Meetings, hearings, and calendar events | `Event` |
+| Staff contact cards for names, phones, and emails | `OfficialContact` |
 | Business directory listings | `Business` |
-| Publicly available town documents | `PublicDocument` |
-| External news links on the /news page | `ExternalNewsLink` |
-| Town email forwarding — redirect a Town address to a staff inbox | `EmailAlias` |
+| Public document archive for forms, guides, and downloads | `PublicDocument` |
+| External news links shown on the /news page | `ExternalNewsLink` |
+| Town email forwarding rules for behind-the-scenes delivery | `EmailAlias` |
 
 ---
 
@@ -162,8 +162,8 @@ To cancel or hide an event, open it and set **active** to **false**.
    - **label** — the role title shown on the card, like `City Clerk`
    - **value** — the person's name or main phone number
    - **detail** — a short sentence describing what this person handles
-   - **href** — the web address or phone number the button links to. For a phone: `tel:+17198294974`. For email: `mailto:name@townofwiley.gov`
-   - **linkLabel** — the text shown on the button, like `Call` or `Send email`
+   - **href** — the button destination. For a phone: `tel:+17198294974`. For email: `mailto:name@townofwiley.gov`. For a web page, use the full `https://` address.
+   - **linkLabel** — the button text residents will see, like `Call` or `Send email`
 4. Click **Save**.
 5. Refresh the /contact page and confirm the update.
 
@@ -214,16 +214,15 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 2. Click **Create publicDocument**.
 3. Fill in **title** — the document name residents will see.
 4. Fill in **summary** — one sentence describing what it is.
-5. Fill in **sectionId** — this determines which section of the documents page it appears under. Type one of these exactly as shown:
-   - `municipal-code` — for ordinances and code sections
-   - `minutes` — for meeting minutes
-   - `financials` — for budgets and audits
-   - `permits` — for permit applications
-   - `forms` — for other official forms
-6. Fill in **href** — the full web address of the document. It must open without requiring a login.
-7. Fill in **format** — for example `PDF`, `DOCX`, or `Web link`.
-8. Fill in **status** — for example `Current`, `Draft`, or `Archived`.
-9. Set **active** to **true** so residents can see it.
+5. Fill in **sectionId** — this decides which section of the documents page it appears under. Use one of these exact values:
+   - `records-requests` — records requests and public forms
+   - `meeting-documents` — meeting packets, agendas, and minutes
+   - `financial-documents` — budgets, audits, and finance documents
+   - `code-references` — ordinances, codes, and reference guides
+6. Fill in **href** — the document link residents will open. It must be a full web address that works without logging in.
+7. Fill in **format** — the file type or delivery type, for example `PDF`, `DOCX`, or `Web link`.
+8. Fill in **status** — the publishing state, for example `Current`, `Draft`, or `Archived`.
+9. Set **active** to **true** so residents can see it on the live site.
 10. Set **displayOrder** if needed — lower numbers appear higher in the list.
 11. Click **Save**.
 12. Refresh the /documents page and confirm the document appears in the correct section.
@@ -233,8 +232,8 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 1. Open **ExternalNewsLink** in Data Manager.
 2. Click **Create externalNewsLink**.
 3. Fill in **title** — a short description, like `Lamar Ledger — Wiley and Prowers County Coverage`.
-4. Fill in **url** — the full website address, like `https://www.lamarledger.com/`.
-5. Fill in **source** — the publication name, like `Lamar Ledger`.
+4. Fill in **url** — the full website address residents should open, like `https://www.lamarledger.com/`.
+5. Fill in **source** — the publication name shown with the link, like `Lamar Ledger`.
 6. Set **active** to **true**.
 7. Click **Save**.
 8. Refresh the /news page and confirm it appears under "From Other Sources."

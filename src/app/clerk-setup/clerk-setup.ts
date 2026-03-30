@@ -72,12 +72,12 @@ export class ClerkSetup {
     'Refresh the public website and confirm the update.',
   ];
   protected readonly taskMap: ClerkSetupTask[] = [
-    { action: 'Homepage title or welcome text', model: 'SiteSettings' },
-    { action: 'Emergency banner at the top of the page', model: 'AlertBanner' },
-    { action: 'Notice cards and announcements', model: 'Announcement' },
-    { action: 'Meetings and calendar items', model: 'Event' },
-    { action: 'Public phone numbers, emails, and contact cards', model: 'OfficialContact' },
-    { action: 'Private Town email forwarding rules', model: 'EmailAlias' },
+    { action: 'Homepage title, welcome text, and hero photo', model: 'SiteSettings' },
+    { action: 'Emergency banner shown at the top of the homepage', model: 'AlertBanner' },
+    { action: 'Public notices, closures, and general announcements', model: 'Announcement' },
+    { action: 'Meetings, hearings, and calendar events', model: 'Event' },
+    { action: 'Staff contact cards for names, phones, and emails', model: 'OfficialContact' },
+    { action: 'Town email forwarding rules for behind-the-scenes delivery', model: 'EmailAlias' },
   ];
   protected readonly doNotUse = [
     'Do not use the root AWS account for daily editing.',
