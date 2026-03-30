@@ -18,13 +18,6 @@ declare global {
   }
 }
 
-const defaultChatbotConfig: RuntimeChatbotConfig = {
-  provider: 'easyPeasy',
-  mode: 'none',
-  chatUrl: '',
-  apiEndpoint: '',
-};
-
 export function getChatbotRuntimeConfig(): RuntimeChatbotConfig {
   const runtimeConfig = typeof window === 'undefined' ? undefined : window.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride =

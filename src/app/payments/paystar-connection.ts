@@ -70,6 +70,7 @@ export class PaystarConnectionService {
       const message = (err as { error?: { message?: string } })?.error?.message;
       throw new Error(
         message ?? 'Unable to connect to Paystar right now. Please try again or call Town Hall.',
+        { cause: err }
       );
     }
   }
