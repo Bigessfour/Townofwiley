@@ -64,7 +64,7 @@ test.describe('homepage navigation', () => {
     await expect(homePage.page.locator('.business-directory-page h1')).toContainText(
       'Wiley Community Business Directory',
     );
-    await expect(homePage.page.locator('.public-directory-card')).toHaveCountGreaterThan(0);
+    await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
 
     await homePage.page.goto('/news');
     await expect(homePage.page.locator('.news-page-shell h1')).toContainText(
@@ -201,7 +201,7 @@ test.describe('homepage navigation', () => {
       siteContent.cmsHeadings.businesses,
     );
     const businessLogCount = logs.length;
-    await homePage.page.locator('a[href*="tempelgrain"]').first().click();
+    await homePage.page.locator('.public-directory-card a[href^="tel:"]').first().click();
     expect(logs.length).toBeGreaterThan(businessLogCount);
 
     await homePage.page.goto('/news');

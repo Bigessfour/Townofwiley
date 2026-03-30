@@ -10,7 +10,7 @@ test.describe('Feature Pages Details', () => {
     const searchInput = homePage.page.locator('input[placeholder*="Search by business"]');
     await expect(searchInput).toBeVisible();
 
-    await searchInput.fill('Cafe');
+    await searchInput.fill('Bank');
 
     await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
   });

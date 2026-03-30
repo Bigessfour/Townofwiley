@@ -213,6 +213,7 @@
 }
 
 .weather-alert-pill,
+.weather-alert-badge,
 .weather-action,
 .weather-action.is-link {
   display: inline-flex;
@@ -223,13 +224,15 @@
   text-decoration: none;
 }
 
-.weather-alert-pill {
+.weather-alert-pill,
+.weather-alert-badge {
   padding: 0.55rem 0.85rem;
   background: rgba(168, 35, 57, 0.12);
   color: #8a1d33;
 }
 
-.weather-alert-pill.is-clear {
+.weather-alert-pill.is-clear,
+.weather-alert-badge.is-clear {
   background: rgba(43, 117, 79, 0.14);
   color: #185d39;
 }

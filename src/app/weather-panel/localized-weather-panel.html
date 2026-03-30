@@ -171,7 +171,7 @@
                 <p-accordion-panel class="weather-alert-card" [value]="idx">
                   <p-accordion-header>
                     <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
-                      <span class="weather-alert-pill">{{ alert.severity }}</span>
+                      <span class="weather-alert-badge">{{ alert.severity }}</span>
                       <span>{{ alert.event }}</span>
                     </span>
                   </p-accordion-header>
@@ -284,7 +284,7 @@
 
               @if (alertSignupFeedback(); as feedback) {
                 <p-message
-                  class="weather-signup-status-message"
+                  class="weather-signup-status"
                   [severity]="alertSignupFeedbackTone() === 'error' ? 'error' : 'success'"
                   [text]="feedback"
                 />
