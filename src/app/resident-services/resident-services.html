@@ -28,7 +28,7 @@
 
   <section class="resident-services-stage grid gap-4">
     @if (activeServicePanel() === 'payment') {
-    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="payment-help">
+    <div class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="payment-help">
       <p class="meta-label">{{ copy().paymentMeta }}</p>
       <i [class]="'pi ' + copy().paymentIcon" aria-hidden="true"></i>
       <h3>{{ copy().paymentTitle }}</h3>
@@ -160,9 +160,9 @@
           }
         </footer>
       </form>
-    </p-card>
+    </div>
     } @else if (activeServicePanel() === 'issue') {
-    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="issue-report">
+    <div class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="issue-report">
       <p class="meta-label">{{ copy().issueMeta }}</p>
       <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
       <h3>{{ copy().issueTitle }}</h3>
@@ -227,9 +227,9 @@
           }
         </footer>
       </form>
-    </p-card>
+    </div>
     } @else {
-    <p-card class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="records-request">
+    <div class="resident-service-card resident-service-card--active grid gap-4 p-6 rounded-2xl" id="records-request">
       <p class="meta-label">{{ copy().recordsMeta }}</p>
       <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
       <h3>{{ copy().recordsTitle }}</h3>
@@ -294,7 +294,7 @@
           }
         </footer>
       </form>
-    </p-card>
+    </div>
     }
   </section>
 </section>
