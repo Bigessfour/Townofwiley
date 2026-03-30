@@ -1187,6 +1187,42 @@ h3 {
   display: block;
 }
 
+/* ── Contact page — Town Hall info block ────────────────────────────────── */
+.contact-town-hall-block {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 18px;
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.contact-town-hall-name {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+.contact-town-hall-address {
+  font-style: normal;
+  color: var(--ink-700);
+  margin: 0;
+}
+
+.contact-town-hall-hours {
+  color: var(--ink-700);
+  margin: 0;
+}
+
+.contact-town-hall-phone {
+  font-weight: 700;
+  color: var(--civic-blue);
+  text-decoration: none;
+  font-size: 1.15rem;
+}
+
 /* ── PrimeNG form control anti-clipping ─────────────────────────────────────
    Ensures p-inputtext, p-select, p-textarea labels never clip text on any
    feature page regardless of Tailwind resets or tight parent padding.

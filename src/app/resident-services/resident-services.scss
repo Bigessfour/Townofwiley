@@ -142,7 +142,6 @@
   cursor: not-allowed;
 }
 
-/* Form Fields - PrimeNG Fix (No Clipping) */
 .resident-field--wide {
   grid-column: 1 / -1;
 }
@@ -163,6 +162,7 @@
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
   color: #0f1b2d;
+  box-sizing: border-box;
 }
 
 .resident-field textarea {

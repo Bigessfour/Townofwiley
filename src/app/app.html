@@ -642,9 +642,19 @@
             </section>
           } @else if (isContactMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel contact-panel" id="contact">
+              <div class="panel contact-panel" id="contact">
                 <p class="section-kicker">{{ appCopy().contactKicker }}</p>
                 <h2>{{ appCopy().contactHeading }}</h2>
+
+                <div class="contact-town-hall-block">
+                  <p class="contact-town-hall-name">Wiley Town Hall</p>
+                  <address class="contact-town-hall-address">
+                    304 Main Street, Wiley, CO 81092
+                  </address>
+                  <p class="contact-town-hall-hours">Monday – Friday &nbsp;·&nbsp; 8:00 AM – 4:00 PM</p>
+                  <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
+                </div>
+
                 <section class="contact-grid" aria-label="Town contacts">
                   @for (contact of contacts(); track contact.id) {
                     <article class="contact-card">
@@ -679,7 +689,7 @@
                     </article>
                   }
                 </div>
-              </p-card>
+              </div>
             </section>
           } @else if (isBusinessesMode()) {
             <section class="feature-detail-stack">

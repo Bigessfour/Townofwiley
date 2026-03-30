@@ -15,7 +15,6 @@
   grid-template-columns: 1fr;                     /* mobile first */
 }
 
-/* Better card design - matches Weather & Business Directory */
 .records-guide-card {
   border: 1px solid rgba(13, 44, 84, 0.1);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.92));
@@ -52,7 +51,6 @@
   flex-grow: 1;
 }
 
-/* Consistent button style */
 .records-guide-link {
   display: inline-flex;
   align-items: center;

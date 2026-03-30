@@ -118,6 +118,10 @@
   box-shadow: 0 22px 50px rgba(17, 36, 61, 0.16);
 }
 
+.weather-current-card :where(.p-card-content) {
+  padding: 0;
+}
+
 .weather-current-card .meta-label,
 .weather-current-card h3,
 .weather-current-card .weather-temperature,
