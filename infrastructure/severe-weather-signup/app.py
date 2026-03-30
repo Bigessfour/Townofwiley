@@ -434,7 +434,38 @@ class SevereWeatherBackend:
     if method == 'GET' and path.endswith('/unsubscribe'):
       return self._unsubscribe_subscription(event)
 
+    if method == 'POST' and path.endswith('/log'):
+      return self._handle_log(event)
+
     return json_response(404, {'error': 'Route not found.'})
+
+  def _handle_log(self, event: dict[str, Any]) -> dict[str, Any]:
+    try:
+      payload = parse_json_body(event)
+    except ValueError:
+      return json_response(400, {'error': 'Invalid JSON body.'})
+
+    level = str(payload.get('level', 'info')).strip().lower()
+    message = str(payload.get('message', '')).strip()[:500]
+
+    if not message:
+      return json_response(400, {'error': 'message is required.'})
+
+    LOGGER.info(
+      json.dumps(
+        {
+          'event': 'client_log',
+          'level': level,
+          'message': message,
+          'context': payload.get('context') if isinstance(payload.get('context'), dict) else {},
+          'page': str(payload.get('page', '')).strip()[:200],
+          'url': str(payload.get('url', '')).strip()[:500],
+          'build': payload.get('build') if isinstance(payload.get('build'), dict) else {},
+        },
+      ),
+    )
+
+    return json_response(200, {'ok': True})
 
   def _create_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
     method = request_method(event)
