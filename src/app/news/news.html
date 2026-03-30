@@ -44,7 +44,7 @@
     </div>
 
     <div class="public-card-grid news-card-grid">
-      @for (item of externalLinks; track item.url) {
+      @for (item of externalLinks(); track item.url) {
         <article class="public-card news-card news-card--external grid gap-3">
           <p class="meta-label">{{ item.source }}</p>
           <h3>{{ item.title }}</h3>
