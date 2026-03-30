@@ -33,18 +33,18 @@ interface AccessibilitySupportCopy {
 const ACCESSIBILITY_SUPPORT_COPY: Record<SiteLanguage, AccessibilitySupportCopy> = {
   en: {
     statementKicker: 'Accessibility Statement',
-    statementTitle: 'The Town of Wiley aims to keep core public information accessible',
+    statementTitle: 'Every resident should be able to use this website',
     statementBody:
-      'The town website is intended to support WCAG 2.1 AA expectations for navigation, readable contrast, accessible documents, and consistent public-service access on desktop and mobile devices.',
+      'Accessibility means that people with disabilities — including those who use screen readers, keyboard navigation, voice control, or other assistive technology — can get the same information and complete the same tasks as anyone else. The Town of Wiley is committed to meeting WCAG 2.1 AA standards so that no resident is blocked from reaching public services, meeting notices, billing help, or emergency information.',
     statementCommitments: [
-      'Keep keyboard navigation, focus states, and skip links working on public pages.',
-      'Publish readable text, accessible documents, and clear contact paths for resident services.',
-      'Respond to reported barriers by routing them to town staff for follow-up.',
+      'All pages support keyboard navigation and screen reader use, with visible focus indicators and skip-to-content links.',
+      'Text and documents are published in readable contrast with plain-language labels so content is usable for everyone.',
+      'If you report a barrier, town staff will review it and follow up with you directly — reports are not ignored.',
     ],
-    reportKicker: 'Barrier Report',
-    reportTitle: 'Report an accessibility barrier',
+    reportKicker: 'Report an Accessibility Issue',
+    reportTitle: 'Having trouble using this site? Let us know.',
     reportBody:
-      'Use this form to prepare an accessibility report for the Town of Wiley if a page, document, image, or service workflow is difficult to use.',
+      'If any page, document, form, or feature on this site is hard to use because of a disability or assistive technology issue, fill out this short form. A town staff member will follow up with you directly. You can also call Town Hall or email the Clerk using the links below.',
     nameLabel: 'Your name',
     contactLabel: 'Best phone or email for follow-up',
     pageLabel: 'Page, document, or service with the barrier',
@@ -60,18 +60,18 @@ const ACCESSIBILITY_SUPPORT_COPY: Record<SiteLanguage, AccessibilitySupportCopy>
   },
   es: {
     statementKicker: 'Declaracion de accesibilidad',
-    statementTitle: 'El Pueblo de Wiley busca mantener accesible la informacion publica esencial',
+    statementTitle: 'Cada residente debe poder usar este sitio',
     statementBody:
-      'El sitio del pueblo busca cumplir con expectativas de WCAG 2.1 AA para navegacion, contraste legible, documentos accesibles y acceso constante a los servicios publicos desde computadoras y telefonos.',
+      'Accesibilidad significa que las personas con discapacidades, incluyendo quienes usan lectores de pantalla, navegacion por teclado, control por voz u otra tecnologia de asistencia, pueden obtener la misma informacion y completar las mismas tareas que cualquier otra persona. El Pueblo de Wiley esta comprometido a cumplir los estandares WCAG 2.1 AA para que ningun residente quede bloqueado al intentar acceder a servicios publicos, avisos de reuniones, ayuda de facturacion o informacion de emergencia.',
     statementCommitments: [
-      'Mantener la navegacion por teclado, los estados de foco y los enlaces para saltar contenido en las paginas publicas.',
-      'Publicar texto legible, documentos accesibles y rutas claras de contacto para los servicios a residentes.',
-      'Responder a las barreras reportadas canalizandolas al personal del pueblo para seguimiento.',
+      'Todas las paginas admiten navegacion por teclado y uso de lectores de pantalla, con indicadores de foco visibles y enlaces para saltar el contenido.',
+      'El texto y los documentos se publican con contraste legible y etiquetas en lenguaje sencillo para que el contenido sea usable para todos.',
+      'Si reporta una barrera, el personal del pueblo la revisara y le dara seguimiento directamente. Los reportes no se ignoran.',
     ],
-    reportKicker: 'Reporte de barrera',
-    reportTitle: 'Reportar una barrera de accesibilidad',
+    reportKicker: 'Reporte un problema de accesibilidad',
+    reportTitle: 'Tiene problemas para usar este sitio? Haganos saber.',
     reportBody:
-      'Use este formulario para preparar un reporte de accesibilidad para el Pueblo de Wiley si una pagina, documento, imagen o flujo de servicio es dificil de usar.',
+      'Si alguna pagina, documento, formulario o funcion de este sitio es dificil de usar por una discapacidad o un problema con tecnologia de asistencia, llene este formulario corto. Un miembro del personal del pueblo le dara seguimiento directamente. Tambien puede llamar al ayuntamiento o enviar un correo a la secretaria usando los enlaces de abajo.',
     nameLabel: 'Su nombre',
     contactLabel: 'Mejor telefono o correo para seguimiento',
     pageLabel: 'Pagina, documento o servicio con la barrera',

@@ -545,52 +545,52 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     serviceCards: [
       {
-        title: 'Online payments',
+        title: 'Pay your utility bill',
         availability: 'Billing help desk',
         description:
-          'Open the billing help desk to request the current payment path, account assistance, and follow-up from Wiley staff.',
+          'To pay your water or utility bill, open the billing help desk and fill out the short form. Town staff will reply with your current balance, payment options, and next steps.',
         href: '/services#payment-help',
         cta: 'Open billing help desk',
       },
       {
-        title: 'Street, utility, and property issue reporting',
+        title: 'Report a street or utility problem',
         availability: 'Self-service',
         description:
-          'Focus on a few high-value request types first: utility concerns, potholes, signage, nuisance issues, and public works follow-up.',
+          'To report a pothole, water or sewer issue, streetlight outage, drainage concern, or nuisance, use the issue report form. Your submission goes directly to the Town Superintendent for follow-up.',
         href: '/services#issue-report',
         cta: 'Open issue report form',
       },
       {
-        title: 'Permits and licenses',
+        title: 'Request permits, licenses, or records',
         availability: 'Business-ready',
         description:
-          'Provide application steps, document uploads, fee details, and status tracking without making residents or contractors drive in repeatedly.',
+          'To request a public record, get permit guidance, or ask a license question, use the records and permit form. The Town Clerk will reply with instructions, fees, and any required documents.',
         href: '/services#records-request',
         cta: 'Open permit and records request form',
       },
       {
-        title: 'Weather, utility, and emergency alerts',
+        title: 'Sign up for weather and emergency alerts',
         availability: 'Multi-channel',
         description:
-          'Pair website notices with SMS, email, and app notifications so wind, snow, outages, and service disruptions reach residents quickly.',
+          'To receive severe weather warnings and emergency notices by text, go to the weather page and enter your phone number in the alert sign-up. You can unsubscribe any time.',
         href: '/weather',
-        cta: 'Establish alert topics and subscriber controls',
+        cta: 'Sign up for weather alerts',
       },
       {
-        title: 'Language access for critical services',
+        title: 'Access the site in Spanish',
         availability: 'Inclusive access',
         description:
-          'Start with critical notices, payment help, clerk services, and emergency updates so language access improves the most-used pages first.',
+          'To switch the site to Spanish, use the language toggle at the top of any page. If you need interpreter assistance for a town service, call Town Hall and staff will help.',
         href: '/accessibility',
-        cta: 'Prioritize high-impact pages for translation',
+        cta: 'View accessibility and language options',
       },
       {
-        title: 'Search and document discovery',
-        availability: 'Plain-language findability',
+        title: 'Find documents, agendas, and forms',
+        availability: 'Plain-language search',
         description:
-          'Help residents find agendas, forms, ordinances, and services using task-based queries rather than internal government terminology.',
+          'To find a meeting agenda, budget document, town ordinance, or public form, type what you are looking for into the search bar on the homepage. Results link directly to the document.',
         href: '/#search-panel',
-        cta: 'Expand search index and document metadata',
+        cta: 'Search town documents',
       },
     ],
     transparencyItems: [
@@ -927,52 +927,52 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     serviceCards: [
       {
-        title: 'Pagos en linea',
+        title: 'Pague su recibo de servicios',
         availability: 'Mesa de ayuda de facturacion',
         description:
-          'Abra la mesa de ayuda de facturacion para solicitar la ruta actual de pago, ayuda con la cuenta y seguimiento del personal de Wiley.',
+          'Para pagar su recibo de agua o servicios, abra la mesa de ayuda y llene el formulario corto. El personal del pueblo le respondera con su saldo actual, opciones de pago y siguientes pasos.',
         href: '/services#payment-help',
         cta: 'Abrir ayuda de facturacion',
       },
       {
-        title: 'Reporte de calles, servicios y problemas de propiedad',
+        title: 'Reporte un problema de calle o servicio',
         availability: 'Autoservicio',
         description:
-          'Enfoquese primero en unos cuantos tipos de solicitud de alto valor: servicios, baches, senalizacion, molestias y seguimiento de obras publicas.',
+          'Para reportar un bache, problema de agua o alcantarillado, alumbrado apagado, drenaje o molestia, use el formulario de reporte. Su envio va directamente al Superintendente del Pueblo.',
         href: '/services#issue-report',
         cta: 'Abrir formulario de reporte',
       },
       {
-        title: 'Permisos y licencias',
+        title: 'Solicite permisos, licencias o registros',
         availability: 'Listo para negocios',
         description:
-          'Ofrezca pasos de solicitud, carga de documentos, detalles de cuotas y seguimiento de estado sin obligar a residentes o contratistas a viajar repetidamente.',
+          'Para solicitar un registro publico, orientacion sobre permisos o una pregunta de licencia, use el formulario. La secretaria del pueblo le respondera con instrucciones, cuotas y documentos requeridos.',
         href: '/services#records-request',
         cta: 'Abrir formulario de permisos y registros',
       },
       {
-        title: 'Alertas de clima, servicios y emergencias',
+        title: 'Registrese para alertas de clima y emergencias',
         availability: 'Multicanal',
         description:
-          'Combine avisos del sitio con SMS, correo electronico y notificaciones para que viento, nieve, cortes y cambios de servicio lleguen rapido a los residentes.',
+          'Para recibir avisos de clima severo y emergencias por mensaje de texto, vaya a la pagina del clima e ingrese su numero de telefono. Puede cancelar su suscripcion en cualquier momento.',
         href: '/weather',
-        cta: 'Definir temas de alerta y controles para suscriptores',
+        cta: 'Registrarse para alertas de clima',
       },
       {
-        title: 'Acceso en otros idiomas para servicios criticos',
+        title: 'Acceda al sitio en espanol',
         availability: 'Acceso inclusivo',
         description:
-          'Empiece con avisos criticos, ayuda de facturacion, servicios de secretaria y actualizaciones de emergencia para mejorar primero las paginas de uso mas frecuente.',
+          'Para cambiar el sitio al espanol, use el boton de idioma en la parte superior de cualquier pagina. Si necesita asistencia de interprete para un servicio del pueblo, llame al ayuntamiento.',
         href: '/accessibility',
-        cta: 'Priorizar paginas de alto impacto para traduccion',
+        cta: 'Ver opciones de accesibilidad e idioma',
       },
       {
-        title: 'Busqueda y descubrimiento de documentos',
+        title: 'Encuentre documentos, agendas y formularios',
         availability: 'Busqueda en lenguaje sencillo',
         description:
-          'Ayude a los residentes a encontrar agendas, formularios, ordenanzas y servicios mediante consultas orientadas a tareas y no a terminologia interna del gobierno.',
+          'Para encontrar una agenda de reunion, documento de presupuesto, ordenanza o formulario publico, escriba lo que busca en la barra de busqueda de la pagina principal.',
         href: '/#search-panel',
-        cta: 'Ampliar el indice de busqueda y los metadatos de documentos',
+        cta: 'Buscar documentos del pueblo',
       },
     ],
     transparencyItems: [
