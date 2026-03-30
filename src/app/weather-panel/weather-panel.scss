@@ -480,7 +480,7 @@
 
 .atglance-unit {
   font-size: 0.7rem;
-  color: var(--ink-500, #777);
+  color: var(--ink-700, #45566e);
 }
 
 .gdd-label-row {
@@ -490,11 +490,23 @@
   gap: 0.25rem;
 }
 
-.gdd-info-icon {
-  font-size: 0.75rem;
-  color: var(--ink-600, #70849a);
+.gdd-info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-800, #2d3f57);
   cursor: help;
   flex-shrink: 0;
+}
+
+.gdd-info-button .pi {
+  font-size: 0.8rem;
 }
 
 /* ── Weather section labels ──────────────────────────── */
@@ -553,7 +565,7 @@
 
 .hourly-time {
   font-size: 0.72rem;
-  color: var(--ink-500, #777);
+  color: var(--ink-700, #45566e);
   font-weight: 600;
 }
 
@@ -563,7 +575,7 @@
 
 .hourly-precip {
   font-size: 0.7rem;
-  color: var(--ink-500, #777);
+  color: var(--ink-700, #45566e);
 }
 
 /* ── Alerts panel (PrimeNG p-panel override) ─────────── */
@@ -606,7 +618,7 @@
 }
 
 .weather-radar-note {
-  color: var(--ink-500, #777);
+  color: var(--ink-700, #45566e);
   font-size: 0.78rem;
 }
 

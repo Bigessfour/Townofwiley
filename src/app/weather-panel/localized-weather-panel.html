@@ -70,10 +70,15 @@
           <div class="atglance-card">
             <span class="meta-label gdd-label-row">
               {{ copy().gddLabel }}
-              <i class="pi pi-info-circle gdd-info-icon"
-                 [pTooltip]="copy().gddTooltip"
-                 tooltipPosition="top"
-                 [attr.aria-label]="copy().gddTooltip"></i>
+              <button
+                type="button"
+                class="gdd-info-button"
+                [attr.aria-label]="copy().gddTooltip"
+                [pTooltip]="copy().gddTooltip"
+                tooltipPosition="top"
+              >
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+              </button>
             </span>
             <strong>{{ forecastGdd() }}</strong>
             <small class="atglance-unit">{{ copy().gddUnit }}</small>

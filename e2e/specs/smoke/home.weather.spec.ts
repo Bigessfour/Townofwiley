@@ -304,7 +304,7 @@ test.describe('homepage weather', () => {
     );
   });
 
-  test('falls back to SMS when SES email confirmations are temporarily unavailable', async ({
+  test('shows a recovery message when SES email confirmations are temporarily unavailable', async ({
     homePage,
   }) => {
     await homePage.enableWeatherProxy();
@@ -324,13 +324,13 @@ test.describe('homepage weather', () => {
 
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
-      await homePage.chooseWeatherSignupChannel('email');
+    await homePage.chooseWeatherSignupChannel('email');
     await homePage.submitWeatherAlertSignup('resident@example.com');
 
     await expect(homePage.weatherSignupStatus).toContainText(
       'Email confirmations are temporarily unavailable',
     );
-    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'SMS text');
+    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'Email');
     await expect(homePage.weatherSignupDestination).toHaveValue('');
   });
 });

@@ -6,8 +6,8 @@ import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import {
-    ContactUpdateRecord,
-    ContactUpdateReviewService,
+  ContactUpdateRecord,
+  ContactUpdateReviewService,
 } from './contact-update-review.service';
 
 interface ClerkSetupTask {
