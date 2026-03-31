@@ -11,22 +11,13 @@
         <p class="weather-updated">{{ copy().updatedPrefix }} {{ updatedLabel() }}</p>
       }
       <section class="weather-action-row flex flex-wrap gap-3">
-        <p-button
-          type="button"
-          icon="pi pi-refresh"
-          [label]="isRefreshing() ? copy().refreshing : copy().refresh"
-          (onClick)="refreshWeather()"
-          [disabled]="isBusy()"
-          styleClass="weather-action"
-        />
-        <a
-          pButton
-          variant="text"
-          class="weather-action is-link"
-          [attr.href]="weatherGovUrl"
-          target="_blank"
-          rel="noreferrer noopener"
-        >{{ copy().openForecast }}</a>
+        <button type="button" class="weather-action" (click)="refreshWeather()" [disabled]="isBusy()">
+          <i class="pi pi-refresh" aria-hidden="true"></i>
+          <span>{{ isRefreshing() ? copy().refreshing : copy().refresh }}</span>
+        </button>
+        <a class="weather-action is-link" [attr.href]="weatherGovUrl" target="_blank" rel="noreferrer noopener">
+          {{ copy().openForecast }}
+        </a>
       </section>
     </section>
   </header>
@@ -313,31 +304,40 @@
           </section>
         }
 
-        <p-panel [toggleable]="true" [collapsed]="false" styleClass="weather-radar-panel">
+        <p-panel styleClass="weather-radar-panel">
           <ng-template pTemplate="header">
-            <div class="flex items-center gap-3">
-              <span class="meta-label">{{ copy().radarLabel }}</span>
-              <small class="weather-radar-note">{{ copy().radarNote }}</small>
+            <div class="weather-radar-header flex items-center justify-between gap-3 w-full">
+              <div class="flex items-center gap-3">
+                <span class="meta-label">{{ copy().radarLabel }}</span>
+                <small class="weather-radar-note">{{ copy().radarNote }}</small>
+              </div>
+              <button
+                type="button"
+                class="weather-radar-toggle"
+                [attr.aria-controls]="'weather-radar-content'"
+                [attr.aria-expanded]="!radarCollapsed()"
+                (click)="toggleRadarPanel()"
+              >
+                {{ radarCollapsed() ? copy().showRadar : copy().hideRadar }}
+              </button>
             </div>
           </ng-template>
-          <img
-            class="weather-radar-frame"
-            [src]="radarUrl"
-            [alt]="copy().radarLabel + ' for ' + locationLabel()"
-            loading="lazy"
-            width="600"
-            height="550"
-          />
+          <div id="weather-radar-content" [hidden]="radarCollapsed()">
+            <img
+              class="weather-radar-frame"
+              [src]="radarUrl"
+              [alt]="copy().radarLabel + ' for ' + locationLabel()"
+              loading="lazy"
+              width="600"
+              height="550"
+            />
+          </div>
         </p-panel>
 
         <footer class="weather-link-row flex justify-start">
-          <a
-            pButton
-            variant="text"
-            [attr.href]="forecastMapsUrl"
-            target="_blank"
-            rel="noreferrer noopener"
-          >{{ copy().forecastMaps }}</a>
+          <a [attr.href]="forecastMapsUrl" target="_blank" rel="noreferrer noopener">
+            {{ copy().forecastMaps }}
+          </a>
         </footer>
       </aside>
     </section>

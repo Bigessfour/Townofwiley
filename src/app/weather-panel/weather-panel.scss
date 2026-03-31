@@ -352,12 +352,22 @@
   border: 1px solid rgba(13, 44, 84, 0.14);
   background: rgba(255, 255, 255, 0.88);
   color: var(--civic-blue);
+  font: inherit;
+  appearance: none;
   cursor: pointer;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
     border-color 160ms ease,
     background-color 160ms ease;
+}
+
+.weather-action {
+  gap: 0.55rem;
+}
+
+.weather-action.is-link {
+  text-decoration: none;
 }
 
 .weather-action:hover,
@@ -620,6 +630,35 @@
 .weather-radar-note {
   color: var(--ink-700, #45566e);
   font-size: 0.78rem;
+}
+
+.weather-radar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.95rem;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--civic-blue);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.weather-radar-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(17, 36, 61, 0.12);
+}
+
+.weather-radar-toggle:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .weather-radar-frame {

@@ -6,6 +6,7 @@ import {
   inject,
   output,
   signal,
+  type Signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -239,6 +240,8 @@ interface WeatherCopy {
   sevenDayLabel: string;
   radarLabel: string;
   radarNote: string;
+  showRadar: string;
+  hideRadar: string;
 }
 
 const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
@@ -313,6 +316,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     sevenDayLabel: '7-day forecast',
     radarLabel: 'NEXRAD Radar',
     radarNote: 'KPUX Pueblo radar \u2014 covers Prowers County',
+    showRadar: 'Show radar',
+    hideRadar: 'Hide radar',
   },
   es: {
     sectionKicker: 'Clima local',
@@ -387,6 +392,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     sevenDayLabel: 'Pronostico de 7 dias',
     radarLabel: 'Radar NEXRAD',
     radarNote: 'Radar KPUX Pueblo \u2014 cubre el condado de Prowers',
+    showRadar: 'Mostrar radar',
+    hideRadar: 'Ocultar radar',
   },
 };
 
@@ -449,6 +456,7 @@ export class LocalizedWeatherPanel {
   protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
   protected readonly isAlertSignupSubmitting = signal(false);
   protected readonly alertSignupUnsubscribeUrl = signal<string | null>(null);
+  protected readonly radarCollapsed: Signal<boolean> = signal(false);
 
   protected readonly updatedLabel = computed(() => {
     const updatedAt = this.updatedAtState();
@@ -556,6 +564,10 @@ export class LocalizedWeatherPanel {
     if (c.includes('moderate') || c.includes('sensitive')) return 'warn';
     if (c.includes('unhealthy') || c.includes('hazardous') || c.includes('very')) return 'danger';
     return 'secondary';
+  }
+
+  protected toggleRadarPanel(): void {
+    this.radarCollapsed.update((value) => !value);
   }
 
   protected updateAlertSignupChannel(value: string): void {

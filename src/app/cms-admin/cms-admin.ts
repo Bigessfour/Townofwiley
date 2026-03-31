@@ -57,12 +57,12 @@ interface CmsAdminCopy {
   crudKicker: string;
   crudTitle: string;
   crudBody: string;
-  crudItems: Array<{
+  crudItems: {
     model: string;
     summary: string;
     operations: string[];
     notes: string;
-  }>;
+  }[];
   routeKicker: string;
   routeTitle: string;
   routeBody: string;
