@@ -53,6 +53,7 @@ describe('App', () => {
   });
 
   afterEach(() => {
+    flushPendingWeatherRequests();
     delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
@@ -79,7 +80,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('.status')?.textContent).toContain('Official Town Website');
+    expect(document.title).toContain('Official Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
     expect(
       compiled.querySelector('.task-card[href="/services#payment-help"]')?.textContent,
@@ -116,7 +117,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('.utility-link[href="/meetings#calendar"]')?.textContent).toContain(
+    expect(compiled.querySelector('.header-meta-link[href="/meetings#calendar"]')?.textContent).toContain(
       'Open the full town calendar',
     );
     expect(
@@ -183,15 +184,23 @@ describe('App', () => {
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     const financeResult = compiled.querySelector(
       '.search-result[href="/documents#financial-documents"]',
     );
 
-    expect(financeResult?.textContent).toContain('Budget summaries and annual reports');
+    expect(financeResult?.querySelector('strong')?.textContent).toContain(
+      'Find budget summaries and annual reports',
+    );
 
     searchInput.value = 'public records checklist';
     searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 150));
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -374,6 +383,9 @@ describe('App', () => {
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(compiled.querySelector('.search-result strong')?.textContent).toContain(
       'Spring Cleanup Day',
@@ -381,6 +393,9 @@ describe('App', () => {
 
     searchInput.value = 'deb dillon';
     searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 150));
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -478,19 +493,14 @@ describe('App', () => {
       isAlertSignupEnabled: () => boolean;
       alertSignupSubmitLabel: () => string;
       alertSignupLanguageLabel: () => string;
+      alertSignupChannel: () => string;
       updateAlertSignupLanguage: (value: string) => void;
     };
 
     expect(component.isAlertSignupEnabled()).toBe(true);
     expect(component.alertSignupSubmitLabel()).toBe('Suscribirse a alertas');
     expect(component.alertSignupLanguageLabel()).toBe('English');
-    expect(
-      (
-        (fixture.nativeElement as HTMLElement).querySelector(
-          '#weather-alert-signup-channel',
-        ) as HTMLSelectElement
-      ).value,
-    ).toBe('sms');
+    expect(component.alertSignupChannel()).toBe('sms');
 
     component.updateAlertSignupLanguage('es');
     fixture.detectChanges();
@@ -550,7 +560,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Referencia rapida');
     expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
     expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Abrir CMS Data Manager',
+      'Abrir pagina de edicion del CMS',
     );
   });
 
@@ -568,7 +578,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('AWS account: 570912405222');
     expect(compiled.textContent).toContain('Amplify app: d331voxr1fhoir');
     expect(compiled.textContent).toContain('Open Studio Home');
-    expect(compiled.textContent).toContain('Open Data Manager');
+    expect(compiled.textContent).toContain('Amplify Studio Data Manager');
   });
 
   it('should render the public document hub on the documents path', async () => {
@@ -585,8 +595,8 @@ describe('App', () => {
     expect(compiled.querySelector('#meeting-documents')?.textContent).toContain(
       'City Council packets and approved minutes',
     );
-    expect(compiled.querySelector('#records-requests')?.textContent).toContain(
-      'Public Records Request Checklist',
+    expect(compiled.querySelector('#records-requests h2')?.textContent).toContain(
+      'Public records and FOIA requests',
     );
     expect(compiled.querySelector('.document-hub-button.primary')?.getAttribute('href')).toBe(
       '/services#records-request',
@@ -747,5 +757,159 @@ describe('App', () => {
     }
 
     throw new Error(`Timed out waiting for request: ${url}`);
+  }
+
+  function flushPendingWeatherRequests(): void {
+    const directRequests = [
+      {
+        url: 'https://api.weather.gov/points/38.154,-102.72',
+        body: {
+          properties: {
+            forecast: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
+            forecastZone: 'https://api.weather.gov/zones/forecast/COZ098',
+            relativeLocation: {
+              properties: {
+                city: 'Wiley',
+                state: 'CO',
+              },
+            },
+          },
+        },
+      },
+      {
+        url: 'https://api.weather.gov/gridpoints/PUB/162,56/forecast',
+        body: {
+          properties: {
+            updatedAt: '2026-03-22T12:57:10+00:00',
+            periods: [
+              {
+                name: 'Today',
+                startTime: '2026-03-22T09:00:00-06:00',
+                isDaytime: true,
+                temperature: 67,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 1 },
+                windSpeed: '15 to 20 mph',
+                windDirection: 'NE',
+                icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+                shortForecast: 'Partly Sunny',
+                detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+              },
+              {
+                name: 'Tonight',
+                startTime: '2026-03-22T18:00:00-06:00',
+                isDaytime: false,
+                temperature: 36,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 1 },
+                windSpeed: '5 to 15 mph',
+                windDirection: 'ESE',
+                icon: 'https://api.weather.gov/icons/land/night/bkn?size=medium',
+                shortForecast: 'Mostly Cloudy',
+                detailedForecast: 'Mostly cloudy, with a low around 36.',
+              },
+              {
+                name: 'Monday',
+                startTime: '2026-03-23T06:00:00-06:00',
+                isDaytime: true,
+                temperature: 73,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 0 },
+                windSpeed: '10 to 30 mph',
+                windDirection: 'SE',
+                icon: 'https://api.weather.gov/icons/land/day/wind_bkn?size=medium',
+                shortForecast: 'Partly Sunny',
+                detailedForecast: 'Partly sunny, with a high near 73.',
+              },
+              {
+                name: 'Monday Night',
+                startTime: '2026-03-23T18:00:00-06:00',
+                isDaytime: false,
+                temperature: 36,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 2 },
+                windSpeed: '5 to 25 mph',
+                windDirection: 'SE',
+                icon: 'https://api.weather.gov/icons/land/night/wind_sct?size=medium',
+                shortForecast: 'Partly Cloudy',
+                detailedForecast: 'Partly cloudy, with a low around 36.',
+              },
+              {
+                name: 'Tuesday',
+                startTime: '2026-03-24T06:00:00-06:00',
+                isDaytime: true,
+                temperature: 88,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 0 },
+                windSpeed: '5 to 10 mph',
+                windDirection: 'SSW',
+                icon: 'https://api.weather.gov/icons/land/day/sct?size=medium',
+                shortForecast: 'Mostly Sunny',
+                detailedForecast: 'Mostly sunny, with a high near 88.',
+              },
+            ],
+          },
+        },
+      },
+      {
+        url: 'https://api.weather.gov/alerts/active?zone=COZ098',
+        body: {
+          features: [],
+        },
+      },
+    ];
+
+    for (const requestConfig of directRequests) {
+      for (const request of httpTesting.match(requestConfig.url)) {
+        request.flush(requestConfig.body);
+      }
+    }
+
+    const runtimeWeatherConfig = {
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG__?.weather ?? {}),
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
+    };
+
+    if (typeof runtimeWeatherConfig.apiEndpoint === 'string' && runtimeWeatherConfig.apiEndpoint) {
+      for (const request of httpTesting.match(runtimeWeatherConfig.apiEndpoint)) {
+        request.flush({
+          locationLabel: 'Wiley, CO',
+          updatedAt: '2026-03-22T12:57:10+00:00',
+          periods: [
+            {
+              name: 'Today',
+              startTime: '2026-03-22T09:00:00-06:00',
+              isDaytime: true,
+              temperature: 67,
+              temperatureUnit: 'F',
+              probabilityOfPrecipitation: { value: 1 },
+              windSpeed: '15 to 20 mph',
+              windDirection: 'NE',
+              icon: null,
+              shortForecast: 'Partly Sunny',
+              detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+            },
+            {
+              name: 'Tonight',
+              startTime: '2026-03-22T18:00:00-06:00',
+              isDaytime: false,
+              temperature: 36,
+              temperatureUnit: 'F',
+              probabilityOfPrecipitation: { value: 1 },
+              windSpeed: '5 to 15 mph',
+              windDirection: 'ESE',
+              icon: null,
+              shortForecast: 'Mostly Cloudy',
+              detailedForecast: 'Mostly cloudy, with a low around 36.',
+            },
+          ],
+          alerts: [],
+        });
+      }
+    }
+
+    for (const request of httpTesting.match('/api/contact-updates-review')) {
+      request.flush([]);
+    }
   }
 });

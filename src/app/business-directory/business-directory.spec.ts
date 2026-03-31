@@ -46,4 +46,50 @@ describe('BusinessDirectory', () => {
     expect(titles).toContain('The Hangar Liquor Store');
     expect(titles).toContain('Tempel Grain');
   });
+
+  it('sorts CMS businesses by display order before the seeded directory entries', () => {
+    const cmsBusinesses = signal<CmsBusiness[]>([
+      {
+        id: 'z-business',
+        name: 'Z Business',
+        phone: '719-000-0000',
+        address: 'Z Street, Wiley, CO',
+        displayOrder: 20,
+      },
+      {
+        id: 'a-business',
+        name: 'A Business',
+        phone: '719-111-1111',
+        address: 'A Street, Wiley, CO',
+        displayOrder: 5,
+      },
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [BusinessDirectory],
+      providers: [
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            businesses: cmsBusinesses,
+          } as unknown as LocalizedCmsContentStore,
+        },
+        {
+          provide: LoggingService,
+          useValue: {
+            buttonClick: () => undefined,
+          },
+        },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(BusinessDirectory);
+    fixture.detectChanges();
+
+    const titles = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('.public-directory-card h2'),
+    ).map((element) => element.textContent?.trim());
+
+    expect(titles.slice(0, 2)).toEqual(['A Business', 'Z Business']);
+  });
 });

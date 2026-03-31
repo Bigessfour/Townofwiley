@@ -14,9 +14,36 @@ export const test = base.extend<TownFixtures>({
       window.localStorage.setItem('tow-site-language', 'en');
     });
 
+    await page.addInitScript(() => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          cms?: {
+            appSync?: {
+              region?: string;
+              apiEndpoint?: string;
+              apiKey?: string;
+            };
+          };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        cms: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms ?? {}),
+          appSync: {
+            region: '',
+            apiEndpoint: '',
+            apiKey: '',
+          },
+        },
+      };
+    });
+
     await mockDirectNwsRoutes(page);
     await use(new HomePage(page, baseURL ?? fallbackBaseUrl));
   },
 });
 
 export { expect };
+

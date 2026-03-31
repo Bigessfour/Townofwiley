@@ -40,6 +40,16 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
+		},
+		{
+			"label": "rerun-failed-playwright-tests",
+			"type": "shell",
+			"command": "npx playwright test e2e/specs/best-practices/deterministic-coverage.spec.ts e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep 'captures the homepage section navigation accessibility tree|captures the site-language accessibility group|keeps the homepage hero visually stable|keeps the weather summary card visually stable|filters external news coverage against a fixed clock|business directory snapshot|meetings calendar tab interaction'",
+			"isBackground": false,
+			"problemMatcher": [
+				"$playwright"
+			],
+			"group": "build"
 		}
 	]
 }

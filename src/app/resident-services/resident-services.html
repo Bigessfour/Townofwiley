@@ -66,27 +66,27 @@
             <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
               <label for="cu-full-name" class="resident-field grid gap-1">
                 <span>{{ copy().contactUpdateFullNameLabel }}</span>
-                <p-inputtext id="cu-full-name" formControlName="fullName" autocomplete="name" />
+                <input pInputText id="cu-full-name" type="text" formControlName="fullName" autocomplete="name" />
               </label>
               <label for="cu-phone" class="resident-field grid gap-1">
                 <span>{{ copy().contactUpdatePhoneLabel }}</span>
-                <p-inputtext id="cu-phone" formControlName="phone" autocomplete="tel" />
+                <input pInputText id="cu-phone" type="tel" formControlName="phone" autocomplete="tel" />
               </label>
               <label for="cu-service-address" class="resident-field grid gap-1">
                 <span>{{ copy().contactUpdateServiceAddressLabel }}</span>
-                <p-inputtext id="cu-service-address" formControlName="serviceAddress" autocomplete="street-address" />
+                <input pInputText id="cu-service-address" type="text" formControlName="serviceAddress" autocomplete="street-address" />
               </label>
               <label for="cu-po-box" class="resident-field grid gap-1">
                 <span>{{ copy().contactUpdatePoBoxLabel }}</span>
-                <p-inputtext id="cu-po-box" formControlName="poBox" />
+                <input pInputText id="cu-po-box" type="text" formControlName="poBox" />
               </label>
               <label for="cu-email" class="resident-field resident-field--wide grid gap-1">
                 <span>{{ copy().contactUpdateEmailLabel }}</span>
-                <p-inputtext id="cu-email" formControlName="email" autocomplete="email" />
+                <input pInputText id="cu-email" type="email" formControlName="email" autocomplete="email" />
               </label>
               <label for="cu-notes" class="resident-field resident-field--wide grid gap-1">
                 <span>{{ copy().contactUpdateNotesLabel }}</span>
-                <p-textarea id="cu-notes" rows="2" formControlName="notes" />
+                <textarea pTextarea id="cu-notes" rows="2" formControlName="notes"></textarea>
               </label>
             </section>
             <footer class="resident-action-row flex flex-wrap gap-3">
@@ -118,19 +118,19 @@
         <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
           <label for="payment-name" class="resident-field grid gap-1">
             <span>{{ copy().paymentNameLabel }}</span>
-            <p-inputtext id="payment-name" formControlName="name" autocomplete="name" />
+            <input pInputText id="payment-name" type="text" formControlName="name" autocomplete="name" />
           </label>
           <label for="payment-contact" class="resident-field grid gap-1">
             <span>{{ copy().paymentContactLabel }}</span>
-            <p-inputtext id="payment-contact" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="payment-contact" type="email" formControlName="preferredContact" autocomplete="email" />
           </label>
           <label for="payment-address" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentAddressLabel }}</span>
-            <p-inputtext id="payment-address" formControlName="serviceAddress" autocomplete="street-address" />
+            <input pInputText id="payment-address" type="text" formControlName="serviceAddress" autocomplete="street-address" />
           </label>
           <label for="payment-question" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentQuestionLabel }}</span>
-            <p-textarea id="payment-question" rows="3" formControlName="accountQuestion" />
+            <textarea pTextarea id="payment-question" rows="3" formControlName="accountQuestion"></textarea>
           </label>
         </section>
 
@@ -196,19 +196,19 @@
           </label>
           <label for="issue-name" class="resident-field grid gap-1">
             <span>{{ copy().issueNameLabel }}</span>
-            <p-inputtext id="issue-name" formControlName="name" autocomplete="name" />
+            <input pInputText id="issue-name" type="text" formControlName="name" autocomplete="name" />
           </label>
           <label for="issue-location" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueLocationLabel }}</span>
-            <p-inputtext id="issue-location" formControlName="location" autocomplete="street-address" />
+            <input pInputText id="issue-location" type="text" formControlName="location" autocomplete="street-address" />
           </label>
           <label for="issue-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueContactLabel }}</span>
-            <p-inputtext id="issue-contact" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="issue-contact" type="email" formControlName="preferredContact" autocomplete="email" />
           </label>
           <label for="issue-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueDetailsLabel }}</span>
-            <p-textarea id="issue-details" rows="4" formControlName="details" />
+            <textarea pTextarea id="issue-details" rows="4" formControlName="details"></textarea>
           </label>
         </section>
 
@@ -263,19 +263,19 @@
           </label>
           <label for="records-name" class="resident-field grid gap-1">
             <span>{{ copy().recordsNameLabel }}</span>
-            <p-inputtext id="records-name" formControlName="name" autocomplete="name" />
+            <input pInputText id="records-name" type="text" formControlName="name" autocomplete="name" />
           </label>
           <label for="records-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsContactLabel }}</span>
-            <p-inputtext id="records-contact" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="records-contact" type="email" formControlName="preferredContact" autocomplete="email" />
           </label>
           <label for="records-deadline" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDeadlineLabel }}</span>
-            <p-inputtext id="records-deadline" formControlName="deadline" />
+            <input pInputText id="records-deadline" type="text" formControlName="deadline" />
           </label>
           <label for="records-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDetailsLabel }}</span>
-            <p-textarea id="records-details" rows="4" formControlName="details" />
+            <textarea pTextarea id="records-details" rows="4" formControlName="details"></textarea>
           </label>
         </section>
 
