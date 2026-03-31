@@ -7,21 +7,21 @@
     </div>
 
     <div class="cms-actions">
-      <a class="cms-link" href="/">{{ copy().returnHome }}</a>
-      <a class="cms-button secondary" [href]="clerkSetupUrl">
-        {{ copy().openSetupPage }}
-      </a>
       <a
         class="cms-button primary"
-        [href]="dataManagerUrl"
+        [href]="cmsEditUrl"
         target="_blank"
         rel="noreferrer noopener"
       >
-        {{ copy().openDataManager }}
+        {{ copy().openCmsEditPage }}
+      </a>
+      <a class="cms-button secondary" [href]="clerkSetupUrl">
+        {{ copy().openSetupPage }}
       </a>
       <a class="cms-button secondary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
         {{ copy().openAmplify }}
       </a>
+      <a class="cms-link" href="/">{{ copy().returnHome }}</a>
     </div>
   </header>
 
@@ -68,8 +68,8 @@
       <h2>{{ copy().accessTitle }}</h2>
       <p>{{ copy().accessBody }}</p>
       <div class="cms-access-links">
-        <a class="cms-link" [href]="dataManagerUrl" target="_blank" rel="noreferrer noopener">
-          {{ copy().openDataManager }}
+        <a class="cms-link" [href]="cmsEditUrl" target="_blank" rel="noreferrer noopener">
+          {{ copy().openCmsEditPage }}
         </a>
         <a class="cms-link" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
           {{ copy().openAmplify }}
@@ -111,6 +111,31 @@
           <li>{{ item }}</li>
         }
       </ul>
+    </div>
+
+    <div class="cms-help-card">
+      <p class="cms-help-kicker">{{ copy().crudKicker }}</p>
+      <h2>{{ copy().crudTitle }}</h2>
+      <p>{{ copy().crudBody }}</p>
+      <div class="grid gap-3 lg:grid-cols-2">
+        @for (item of copy().crudItems; track item.model) {
+          <article class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+            <h3 class="m-0 text-base font-semibold">{{ item.model }}</h3>
+            <p class="mt-2 mb-0">{{ item.summary }}</p>
+            <p class="mt-2 mb-0"><strong>Operations:</strong> {{ item.operations.join(', ') }}</p>
+            <p class="mt-2 mb-0 text-sm text-color-secondary">{{ item.notes }}</p>
+            <a
+              class="cms-link mt-3"
+              [href]="cmsEditUrl"
+              target="_blank"
+              rel="noreferrer noopener"
+              [attr.aria-label]="'Open CMS edit page for ' + item.model"
+            >
+              {{ copy().openCmsEditPage }}
+            </a>
+          </article>
+        }
+      </div>
     </div>
 
     <div class="cms-help-card">

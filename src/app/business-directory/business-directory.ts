@@ -3,7 +3,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { LoggingService } from '../logging.service';
-import { LocalizedCmsContentStore } from '../site-cms-content';
+import { type CmsBusiness, LocalizedCmsContentStore } from '../site-cms-content';
 
 function getVerifiedWebsite(url?: string | null): string | undefined {
   if (!url) {
@@ -25,12 +25,40 @@ function getVerifiedWebsite(url?: string | null): string | undefined {
 }
 
 interface Business {
+  displayOrder?: number;
   name: string;
   phone: string;
   address: string;
   website?: string;
   description?: string;
   image?: string;
+}
+
+function normalizeBusinessKey(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function compareBusinesses(left: Business, right: Business): number {
+  const leftOrder = typeof left.displayOrder === 'number' ? left.displayOrder : Number.MAX_SAFE_INTEGER;
+  const rightOrder = typeof right.displayOrder === 'number' ? right.displayOrder : Number.MAX_SAFE_INTEGER;
+
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+
+  return left.name.localeCompare(right.name);
+}
+
+function mapCmsBusiness(business: CmsBusiness): Business {
+  return {
+    displayOrder: business.displayOrder,
+    name: business.name,
+    phone: business.phone,
+    address: business.address,
+    website: getVerifiedWebsite(business.website),
+    description: business.description,
+    image: business.imageUrl,
+  };
 }
 
 const FALLBACK_BUSINESSES: Business[] = [
@@ -102,18 +130,14 @@ export class BusinessDirectory {
   protected readonly directoryQuery = signal('');
 
   protected readonly businesses = computed<Business[]>(() => {
-    const cmsBusinesses = this.cms.businesses();
-    if (cmsBusinesses.length > 0) {
-      return cmsBusinesses.map((b) => ({
-        name: b.name,
-        phone: b.phone,
-        address: b.address,
-        website: getVerifiedWebsite(b.website),
-        description: b.description,
-        image: b.imageUrl,
-      }));
-    }
-    return FALLBACK_BUSINESSES;
+    const cmsBusinesses = this.cms.businesses().map(mapCmsBusiness);
+    const cmsBusinessKeys = new Set(cmsBusinesses.map((business) => normalizeBusinessKey(business.name)));
+    const fallbackBusinesses = FALLBACK_BUSINESSES.map((business, index) => ({
+      ...business,
+      displayOrder: index + 1000,
+    }));
+
+    return [...cmsBusinesses, ...fallbackBusinesses.filter((business) => !cmsBusinessKeys.has(normalizeBusinessKey(business.name)))].sort(compareBusinesses);
   });
 
   protected readonly filteredBusinesses = computed(() => {

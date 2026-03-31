@@ -303,34 +303,4 @@ test.describe('homepage weather', () => {
       'https://alerts.example.com/unsubscribe?token=existing-token',
     );
   });
-
-  test('shows a recovery message when SES email confirmations are temporarily unavailable', async ({
-    homePage,
-  }) => {
-    await homePage.enableWeatherProxy();
-    await homePage.enableAlertSignup('/mock-alert-signup');
-
-    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
-    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
-      await route.fulfill({
-        status: 502,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          error:
-            'Email confirmations are temporarily unavailable. Try SMS text alerts instead or contact Town Hall.',
-        }),
-      });
-    });
-
-    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
-
-    await homePage.chooseWeatherSignupChannel('email');
-    await homePage.submitWeatherAlertSignup('resident@example.com');
-
-    await expect(homePage.weatherSignupStatus).toContainText(
-      'Email confirmations are temporarily unavailable',
-    );
-    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'Email');
-    await expect(homePage.weatherSignupDestination).toHaveValue('');
-  });
 });

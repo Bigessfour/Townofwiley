@@ -49,14 +49,14 @@ export class ClerkSetup {
   protected readonly clerkName = 'Deb Dillon';
   protected readonly setupType = 'One-time IAM setup';
   protected readonly setupSummary =
-    'Use this page once to confirm IAM access, the correct Town account, and the Studio links. After that, daily edits happen in Amplify Studio Data Manager.';
+    'Use this page once to confirm IAM access, the correct Town account, and the Studio links. After that, daily edits for every CMS model happen in Amplify Studio Data Manager.';
   protected readonly awsAccountId = '570912405222';
   protected readonly amplifyAppId = 'd331voxr1fhoir';
   protected readonly awsRegion = 'us-east-2';
   protected readonly studioUrl =
     'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home';
-  protected readonly dataManagerUrl =
-    'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data';
+  protected readonly cmsEditUrl =
+    'https://us-east-2.admin.amplifyapp.com/admin/login?appId=d331voxr1fhoir&code=9936b78d-30f3-4383-9ce5-fee3804ac0a6&sessionId=bdf7662f-07eb-40ef-8c2f-73f9752f0a60&backendEnvironmentName=main';
   protected readonly awsConsoleUrl = 'https://us-east-2.console.aws.amazon.com/';
   protected readonly setupDetails: ClerkSetupDetail[] = [
     { label: 'AWS account', value: this.awsAccountId },
@@ -66,7 +66,7 @@ export class ClerkSetup {
   ];
   protected readonly dailyChecklist = [
     'Use the correct IAM user for the Town account.',
-    'Open Amplify Studio Data Manager.',
+    'Open Amplify Studio Data Manager for all CMS items.',
     'Open the correct model.',
     'Make the change and save the record.',
     'Refresh the public website and confirm the update.',
@@ -77,6 +77,9 @@ export class ClerkSetup {
     { action: 'Public notices, closures, and general announcements', model: 'Announcement' },
     { action: 'Meetings, hearings, and calendar events', model: 'Event' },
     { action: 'Staff contact cards for names, phones, and emails', model: 'OfficialContact' },
+    { action: 'Business directory entries, logos, and websites', model: 'Business' },
+    { action: 'Public documents, forms, and downloads', model: 'PublicDocument' },
+    { action: 'Outside news links shared on the site', model: 'ExternalNewsLink' },
     { action: 'Town email forwarding rules for behind-the-scenes delivery', model: 'EmailAlias' },
   ];
   protected readonly doNotUse = [

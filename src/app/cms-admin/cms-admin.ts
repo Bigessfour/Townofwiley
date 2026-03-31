@@ -18,7 +18,7 @@ interface CmsAdminCopy {
   returnHome: string;
   openSetupPage: string;
   openAmplify: string;
-  openDataManager: string;
+  openCmsEditPage: string;
   quickReferenceKicker: string;
   quickReferenceTitle: string;
   quickReferenceBody: string;
@@ -54,6 +54,15 @@ interface CmsAdminCopy {
   modelMapKicker: string;
   modelMapTitle: string;
   modelMapItems: string[];
+  crudKicker: string;
+  crudTitle: string;
+  crudBody: string;
+  crudItems: Array<{
+    model: string;
+    summary: string;
+    operations: string[];
+    notes: string;
+  }>;
   routeKicker: string;
   routeTitle: string;
   routeBody: string;
@@ -78,15 +87,15 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     kicker: 'Town Clerk CMS',
     title: 'One place to update the Town website',
     intro:
-      'Use Amplify Studio Data Manager for daily website updates. This page is a guide and status check only. It does not publish live website changes.',
+      'Use Amplify Studio Data Manager for daily website updates across every CMS content type. This page is a guide and status check only. It does not publish live website changes.',
     returnHome: 'Return to homepage',
     openSetupPage: 'Open clerk instructions',
     openAmplify: 'Open Studio Home',
-    openDataManager: 'Open CMS Data Manager',
+    openCmsEditPage: 'Open CMS edit page',
     quickReferenceKicker: 'Quick reference',
     quickReferenceTitle: 'Copy of the clerk instructions',
     quickReferenceBody:
-      'Use this short checklist when you only need a reminder. The direct CMS link opens Amplify Studio Data Manager.',
+      'Use this short checklist when you only need a reminder. The direct CMS link opens Amplify Studio Data Manager for all CMS models.',
     quickReferenceSteps: [
       'Open Data Manager.',
       'Open the correct model for the change you want to make.',
@@ -97,7 +106,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Clerk Access',
     accessTitle: 'Start here every day',
     accessBody:
-      'Open Data Manager when you need to change live website content. Open Studio Home only if you need to get back to the main AWS Studio screen first.',
+      'Open Data Manager when you need to change live website content. Open Studio Home only if you need to get back to the main AWS Studio screen first. All CMS models are edited there.',
     accessChecklist: [
       'Use Data Manager for everyday edits.',
       'If access is denied, AWS account permissions must be fixed first.',
@@ -146,7 +155,70 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement: notice cards',
       'Event: meetings and calendar items',
       'OfficialContact: public contact cards',
+      'Business: business directory entries',
+      'PublicDocument: public documents and downloads',
+      'ExternalNewsLink: news links from outside sources',
       'EmailAlias: private email forwarding only',
+    ],
+    crudKicker: 'CRUD reference',
+    crudTitle: 'Every CMS model already gets CRUD from Amplify Studio and AppSync',
+    crudBody:
+      'Amplify Studio Data Manager uses the AppSync-backed @model operations for create, read, update, and delete. Use the notes below to decide which records stay singletons and which records can be reordered.',
+    crudItems: [
+      {
+        model: 'SiteSettings',
+        summary: 'Homepage title, hero text, and contact fields.',
+        operations: ['Create', 'Read', 'Update', 'Delete'],
+        notes: 'Keep one current record for the public site.',
+      },
+      {
+        model: 'AlertBanner',
+        summary: 'Emergency banner content and call-to-action.',
+        operations: ['Create', 'Read', 'Update', 'Delete'],
+        notes: 'Keep one enabled banner at a time.',
+      },
+      {
+        model: 'Announcement',
+        summary: 'Public notices, closures, and alerts.',
+        operations: ['Create', 'Read', 'Update', 'Delete'],
+        notes: 'Use the priority field to control display order.',
+      },
+      {
+        model: 'Event',
+        summary: 'Meetings, hearings, and calendar items.',
+        operations: ['Create', 'Read', 'Update', 'Delete'],
+        notes: 'The site sorts events by start date and time.',
+      },
+      {
+        model: 'OfficialContact',
+        summary: 'Public contact cards for town staff and offices.',
+        operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
+        notes: 'Use displayOrder to arrange the public list.',
+      },
+      {
+        model: 'Business',
+        summary: 'Business directory entries with phone, website, and image.',
+        operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
+        notes: 'Use displayOrder to keep featured businesses first.',
+      },
+      {
+        model: 'PublicDocument',
+        summary: 'Public forms, notices, and downloadable documents.',
+        operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
+        notes: 'Use displayOrder within each section.',
+      },
+      {
+        model: 'ExternalNewsLink',
+        summary: 'Outside news stories and regional updates.',
+        operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
+        notes: 'Use displayOrder to control the order shown on the page.',
+      },
+      {
+        model: 'EmailAlias',
+        summary: 'Private forwarding rules for town email addresses.',
+        operations: ['Create', 'Read', 'Update', 'Delete'],
+        notes: 'Admin-only internal routing; no public ordering.',
+      },
     ],
     routeKicker: 'Read-only Admin Route',
     routeTitle: 'Do not edit the website on this page',
@@ -168,13 +240,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contentSourceFallback: 'Bundled fallback content',
     contentSourceLoading: 'Loading Amplify Studio content',
     contentSourceError: 'AppSync load failed and site fell back',
-    modelCoverageLabel: 'Homepage models verified',
+    modelCoverageLabel: 'Editable CMS models verified',
     modelCoverageItems: [
       'SiteSettings',
       'AlertBanner',
       'Announcement',
       'Event',
       'OfficialContact',
+      'Business',
+      'PublicDocument',
+      'ExternalNewsLink',
       'EmailAlias',
     ],
   },
@@ -182,15 +257,15 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     kicker: 'CMS de la secretaria',
     title: 'Un solo lugar para actualizar el sitio del pueblo',
     intro:
-      'Use Amplify Studio Data Manager para los cambios diarios del sitio. Esta pagina solo es una guia y una verificacion de estado. No publica cambios en vivo.',
+      'Use Amplify Studio Data Manager para los cambios diarios del sitio en todos los tipos de contenido del CMS. Esta pagina solo es una guia y una verificacion de estado. No publica cambios en vivo.',
     returnHome: 'Volver a la pagina principal',
     openSetupPage: 'Abrir instrucciones del personal',
     openAmplify: 'Abrir Studio Home',
-    openDataManager: 'Abrir CMS Data Manager',
+    openCmsEditPage: 'Abrir pagina de edicion del CMS',
     quickReferenceKicker: 'Referencia rapida',
     quickReferenceTitle: 'Copia de las instrucciones de la secretaria',
     quickReferenceBody:
-      'Use esta lista corta cuando solo necesite un recordatorio. El enlace directo del CMS abre Amplify Studio Data Manager.',
+      'Use esta lista corta cuando solo necesite un recordatorio. El enlace directo del CMS abre Amplify Studio Data Manager para todos los modelos del CMS.',
     quickReferenceSteps: [
       'Abra Data Manager.',
       'Abra el modelo correcto para el cambio que desea hacer.',
@@ -201,7 +276,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Acceso del personal',
     accessTitle: 'Empiece aqui cada dia',
     accessBody:
-      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra Studio Home solo si primero necesita volver a la pantalla principal de Studio.',
+      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra Studio Home solo si primero necesita volver a la pantalla principal de Studio. Todos los modelos del CMS se editan alli.',
     accessChecklist: [
       'Use Data Manager para las ediciones diarias.',
       'Si aparece acceso denegado, primero deben corregirse los permisos de AWS.',
@@ -251,7 +326,70 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement: tarjetas de avisos',
       'Event: reuniones y elementos del calendario',
       'OfficialContact: tarjetas de contacto publico',
+      'Business: entradas del directorio de negocios',
+      'PublicDocument: documentos publicos y descargas',
+      'ExternalNewsLink: enlaces de noticias externas',
       'EmailAlias: solo reenvio privado de correo',
+    ],
+    crudKicker: 'Referencia CRUD',
+    crudTitle: 'Todos los modelos del CMS ya tienen CRUD en Amplify Studio y AppSync',
+    crudBody:
+      'Amplify Studio Data Manager usa las operaciones @model soportadas por AppSync para crear, leer, actualizar y eliminar. Revise las notas para saber que registros deben ser unicos y cuales pueden reordenarse.',
+    crudItems: [
+      {
+        model: 'SiteSettings',
+        summary: 'Titulo de la pagina principal, texto del hero y campos de contacto.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
+        notes: 'Conserve un solo registro actual para el sitio publico.',
+      },
+      {
+        model: 'AlertBanner',
+        summary: 'Contenido del banner de emergencia y llamada a la accion.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
+        notes: 'Conserve un solo banner habilitado a la vez.',
+      },
+      {
+        model: 'Announcement',
+        summary: 'Avisos publicos, cierres y alertas.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
+        notes: 'Use el campo priority para controlar el orden.',
+      },
+      {
+        model: 'Event',
+        summary: 'Reuniones, audiencias y elementos del calendario.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
+        notes: 'El sitio ordena los eventos por fecha y hora de inicio.',
+      },
+      {
+        model: 'OfficialContact',
+        summary: 'Tarjetas de contacto publico para personal y oficinas.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
+        notes: 'Use displayOrder para ordenar la lista publica.',
+      },
+      {
+        model: 'Business',
+        summary: 'Entradas del directorio de negocios con telefono, sitio web e imagen.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
+        notes: 'Use displayOrder para mantener primero los negocios destacados.',
+      },
+      {
+        model: 'PublicDocument',
+        summary: 'Formularios publicos, avisos y documentos descargables.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
+        notes: 'Use displayOrder dentro de cada seccion.',
+      },
+      {
+        model: 'ExternalNewsLink',
+        summary: 'Noticias externas y actualizaciones regionales.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
+        notes: 'Use displayOrder para controlar el orden mostrado.',
+      },
+      {
+        model: 'EmailAlias',
+        summary: 'Reglas privadas de reenvio para direcciones de correo del pueblo.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
+        notes: 'Solo uso interno del personal; sin orden publico.',
+      },
     ],
     routeKicker: 'Ruta administrativa de solo lectura',
     routeTitle: 'No edite el sitio en esta pagina',
@@ -273,13 +411,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contentSourceFallback: 'Contenido incluido en la aplicacion',
     contentSourceLoading: 'Cargando contenido de Amplify Studio',
     contentSourceError: 'Fallo la carga de AppSync y el sitio uso el contenido incluido',
-    modelCoverageLabel: 'Modelos de pagina principal verificados',
+    modelCoverageLabel: 'Modelos editables del CMS verificados',
     modelCoverageItems: [
       'SiteSettings',
       'AlertBanner',
       'Announcement',
       'Event',
       'OfficialContact',
+      'Business',
+      'PublicDocument',
+      'ExternalNewsLink',
       'EmailAlias',
     ],
   },
@@ -341,7 +482,7 @@ export class CmsAdmin {
   });
   protected readonly studioUrl =
     'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home';
-  protected readonly dataManagerUrl =
-    'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data';
+  protected readonly cmsEditUrl =
+    'https://us-east-2.admin.amplifyapp.com/admin/login?appId=d331voxr1fhoir&code=9936b78d-30f3-4383-9ce5-fee3804ac0a6&sessionId=bdf7662f-07eb-40ef-8c2f-73f9752f0a60&backendEnvironmentName=main';
   protected readonly clerkSetupUrl = '/clerk-setup';
 }

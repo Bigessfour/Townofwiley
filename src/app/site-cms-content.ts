@@ -59,6 +59,7 @@ export interface CmsBusiness {
   website?: string;
   description?: string;
   imageUrl?: string;
+  displayOrder?: number;
 }
 
 export interface CmsPublicDocument {
@@ -965,6 +966,7 @@ export class LocalizedCmsContentStore {
         website: this.cleanText(r.website),
         description: this.cleanText(r.description),
         imageUrl: this.cleanText(r.imageUrl),
+        displayOrder: r.displayOrder,
       }));
   }
 
