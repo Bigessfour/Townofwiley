@@ -885,6 +885,75 @@ h3 {
   width: 100%;
 }
 
+.calendar-tool :where(.p-datepicker, .p-datepicker-input, .p-inputtext) {
+  color-scheme: light;
+}
+
+.calendar-tool :where(.p-datepicker-input, .p-inputtext) {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  border-radius: 16px 0 0 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink-900);
+  box-shadow: none;
+}
+
+.calendar-tool :where(.p-datepicker-dropdown) {
+  min-width: 3.25rem;
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  border-left: 0;
+  border-radius: 0 16px 16px 0;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink-900);
+  box-shadow: none;
+}
+
+.calendar-tool :where(.p-datepicker-dropdown:hover, .p-datepicker-dropdown:focus-visible) {
+  background: rgba(243, 247, 251, 0.98);
+  color: var(--ink-900);
+}
+
+.calendar-tool :where(.p-datepicker-panel) {
+  color-scheme: light;
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--ink-900);
+  box-shadow: 0 22px 40px rgba(13, 44, 84, 0.12);
+}
+
+.calendar-tool :where(.p-datepicker-header, .p-datepicker-month-view, .p-datepicker-year-view) {
+  background: transparent;
+  color: var(--ink-900);
+}
+
+.calendar-tool :where(.p-datepicker-prev-button, .p-datepicker-next-button, .p-datepicker-title, .p-datepicker-select-month, .p-datepicker-select-year) {
+  color: var(--ink-900);
+}
+
+.calendar-tool :where(.p-datepicker-day, .p-datepicker-weekday-cell, .p-datepicker-month, .p-datepicker-year) {
+  color: var(--ink-900);
+}
+
+.calendar-tool :where(.p-datepicker-buttonbar) {
+  border-top: 1px solid rgba(13, 44, 84, 0.1);
+  background: transparent;
+}
+
+.calendar-tool :where(.p-datepicker-buttonbar .p-button) {
+  border: 1px solid rgba(13, 44, 84, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink-900);
+  box-shadow: none;
+}
+
+.calendar-tool :where(.p-datepicker-buttonbar .p-button:hover, .p-datepicker-buttonbar .p-button:focus-visible) {
+  background: rgba(243, 247, 251, 0.98);
+  color: var(--ink-900);
+}
+
 .calendar-tool-label {
   font-size: 0.8rem;
   font-weight: 800;

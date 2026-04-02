@@ -38,8 +38,18 @@
     });
   };
 
-  const runtimeConfig = window.__TOW_RUNTIME_CONFIG__;
-  const chatbotConfig = runtimeConfig && runtimeConfig.chatbot;
+  var getChatbotConfig = function () {
+    var runtimeConfig = window.__TOW_RUNTIME_CONFIG__;
+    var runtimeConfigOverride = window.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+
+    return Object.assign(
+      {},
+      runtimeConfig && runtimeConfig.chatbot,
+      runtimeConfigOverride && runtimeConfigOverride.chatbot,
+    );
+  };
+
+  const chatbotConfig = getChatbotConfig();
 
   if (
     !chatbotConfig ||
@@ -50,33 +60,64 @@
     return;
   }
 
-  if (document.querySelector('script[data-tow-chatbot="easy-peasy"]')) {
+  if (
+    document.querySelector('script[data-tow-chatbot="easy-peasy"]') &&
+    document.querySelector('script[data-tow-chatbot="cow-popup"]')
+  ) {
     return;
   }
 
-  const injectWidgetScript = function () {
-    if (document.querySelector('script[data-tow-chatbot="easy-peasy"]')) {
+  const injectCowPopupScript = function () {
+    if (document.querySelector('script[data-tow-chatbot="cow-popup"]')) {
       return;
     }
 
-    const widgetScript = document.createElement('script');
+    const cowScript = document.createElement('script');
+    const cowVideoMp4Src = chatbotConfig.cowVideoMp4Url || chatbotConfig.cowVideoUrl || '/videos/cow-welcome.mp4';
 
-    widgetScript.src = 'https://bots.easy-peasy.ai/chat.min.js';
-    widgetScript.dataset.chatUrl = chatbotConfig.chatUrl;
-    widgetScript.dataset.btnPosition = chatbotConfig.buttonPosition || 'bottom-right';
-    widgetScript.dataset.towChatbot = 'easy-peasy';
-    widgetScript.async = true;
+    cowScript.src = 'cow-video-popup.js';
+    cowScript.dataset.towChatbot = 'cow-popup';
+    cowScript.dataset.buttonPosition = chatbotConfig.buttonPosition || 'bottom-right';
+    cowScript.dataset.videoSrc = cowVideoMp4Src;
+    cowScript.dataset.videoMp4Src = cowVideoMp4Src;
+    cowScript.dataset.delayMs = '300';
+    cowScript.dataset.autoHideMs = '4200';
 
-    document.body.appendChild(widgetScript);
-    watchForChatButton();
+    if (chatbotConfig.cowVideoWebmUrl) {
+      cowScript.dataset.videoWebmSrc = chatbotConfig.cowVideoWebmUrl;
+    }
+
+    if (chatbotConfig.cowVideoPosterUrl) {
+      cowScript.dataset.videoPosterSrc = chatbotConfig.cowVideoPosterUrl;
+    }
+
+    if (chatbotConfig.cowBubbleText) {
+      cowScript.dataset.bubbleText = chatbotConfig.cowBubbleText;
+    }
+
+    cowScript.async = true;
+
+    document.body.appendChild(cowScript);
+  };
+
+  const injectWidgetScript = function () {
+    if (!document.querySelector('script[data-tow-chatbot="easy-peasy"]')) {
+      const widgetScript = document.createElement('script');
+
+      widgetScript.src = 'https://bots.easy-peasy.ai/chat.min.js';
+      widgetScript.dataset.chatUrl = chatbotConfig.chatUrl;
+      widgetScript.dataset.btnPosition = chatbotConfig.buttonPosition || 'bottom-right';
+      widgetScript.dataset.towChatbot = 'easy-peasy';
+      widgetScript.async = true;
+
+      document.body.appendChild(widgetScript);
+      watchForChatButton();
+    }
+
+    injectCowPopupScript();
   };
 
   const scheduleWidgetLoad = function () {
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(injectWidgetScript, { timeout: 4000 });
-      return;
-    }
-
     window.setTimeout(injectWidgetScript, 0);
   };
 

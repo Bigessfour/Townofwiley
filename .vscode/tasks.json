@@ -50,6 +50,36 @@
 				"$playwright"
 			],
 			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm run build",
+			"group": "build"
+		},
+		{
+			"label": "test:unit",
+			"type": "shell",
+			"command": "npm run test:unit",
+			"group": "test"
+		},
+		{
+			"label": "test:e2e:smoke",
+			"type": "shell",
+			"command": "npm run test:e2e:smoke",
+			"group": "test"
+		},
+		{
+			"label": "lint",
+			"type": "shell",
+			"command": "npm run lint",
+			"group": "build"
+		},
+		{
+			"label": "format",
+			"type": "shell",
+			"command": "trunk fmt",
+			"group": "build"
 		}
 	]
 }

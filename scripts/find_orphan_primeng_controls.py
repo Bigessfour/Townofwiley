@@ -40,6 +40,7 @@ PRIMENG_MODULE_SELECTORS: dict[str, list[str]] = {
     "SkeletonModule": ["p-skeleton"],
     "TableModule": ["p-table", "pSortableColumn", "p-sortIcon"],
     "TabsModule": ["p-tabs", "p-tablist", "p-tab", "p-tabpanel", "p-tabpanels"],
+    "TooltipModule": ["p-tooltip", "pTooltip"],
     "TextareaModule": ["pTextarea", "p-textarea"],
     "ToastModule": ["p-toast"],
     "RippleModule": ["pRipple"],

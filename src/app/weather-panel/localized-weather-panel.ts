@@ -1,15 +1,13 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  output,
-  signal,
-  type Signal,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    output,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -456,7 +454,7 @@ export class LocalizedWeatherPanel {
   protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
   protected readonly isAlertSignupSubmitting = signal(false);
   protected readonly alertSignupUnsubscribeUrl = signal<string | null>(null);
-  protected readonly radarCollapsed: Signal<boolean> = signal(false);
+  protected readonly radarCollapsed = signal(false);
 
   protected readonly updatedLabel = computed(() => {
     const updatedAt = this.updatedAtState();
@@ -540,13 +538,9 @@ export class LocalizedWeatherPanel {
     return this.isAlertSignupSubmitting() ? this.copy().submitting : this.copy().submit;
   });
 
-  protected readonly radarUrl: SafeResourceUrl;
+  protected readonly radarImageUrl = 'https://radar.weather.gov/ridge/standard/KPUX_loop.gif';
 
   constructor() {
-    const sanitizer = inject(DomSanitizer);
-    this.radarUrl = sanitizer.bypassSecurityTrustResourceUrl(
-      'https://radar.weather.gov/station/KPUX/standard',
-    );
     void this.loadWeather();
   }
 

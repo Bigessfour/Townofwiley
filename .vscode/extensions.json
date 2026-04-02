@@ -10,7 +10,11 @@
     "ryanluker.vscode-coverage-gutters",
     "eamodio.gitlens",
     "github.copilot",
-    "github.copilot-chat"
+    "github.copilot-chat",
+    "amazonwebservices.aws-toolkit-vscode",
+    "ms-playwright.playwright",
+    "ms-python.python",
+    "trunk.io"
   ],
   "unwantedRecommendations": [
     "ms-dotnettools.csdevkit",
