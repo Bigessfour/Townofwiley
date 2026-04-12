@@ -122,11 +122,11 @@
           </label>
           <label for="payment-contact" class="resident-field grid gap-1">
             <span>{{ copy().paymentContactLabel }}</span>
-            <input pInputText id="payment-contact" type="email" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="payment-contact" type="email" formControlName="preferredContact" autocomplete="email" [invalid]="paymentForm.controls.preferredContact.invalid && paymentForm.controls.preferredContact.touched" />
           </label>
           <label for="payment-address" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentAddressLabel }}</span>
-            <input pInputText id="payment-address" type="text" formControlName="serviceAddress" autocomplete="street-address" />
+            <input pInputText id="payment-address" type="text" formControlName="serviceAddress" autocomplete="street-address" [invalid]="paymentForm.controls.serviceAddress.invalid && paymentForm.controls.serviceAddress.touched" />
           </label>
           <label for="payment-question" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentQuestionLabel }}</span>
@@ -191,24 +191,25 @@
               [options]="copy().issueCategories"
               optionLabel="label"
               optionValue="value"
+              [invalid]="issueForm.controls.category.invalid && issueForm.controls.category.touched"
               fluid
             />
           </label>
           <label for="issue-name" class="resident-field grid gap-1">
             <span>{{ copy().issueNameLabel }}</span>
-            <input pInputText id="issue-name" type="text" formControlName="name" autocomplete="name" />
+            <input pInputText id="issue-name" type="text" formControlName="name" autocomplete="name" [invalid]="issueForm.controls.name.invalid && issueForm.controls.name.touched" />
           </label>
           <label for="issue-location" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueLocationLabel }}</span>
-            <input pInputText id="issue-location" type="text" formControlName="location" autocomplete="street-address" />
+            <input pInputText id="issue-location" type="text" formControlName="location" autocomplete="street-address" [invalid]="issueForm.controls.location.invalid && issueForm.controls.location.touched" />
           </label>
           <label for="issue-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueContactLabel }}</span>
-            <input pInputText id="issue-contact" type="email" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="issue-contact" type="email" formControlName="preferredContact" autocomplete="email" [invalid]="issueForm.controls.preferredContact.invalid && issueForm.controls.preferredContact.touched" />
           </label>
           <label for="issue-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().issueDetailsLabel }}</span>
-            <textarea pTextarea id="issue-details" rows="4" formControlName="details"></textarea>
+            <textarea pTextarea id="issue-details" rows="4" formControlName="details" [invalid]="issueForm.controls.details.invalid && issueForm.controls.details.touched"></textarea>
           </label>
         </section>
 
@@ -258,16 +259,17 @@
               [options]="copy().requestTypes"
               optionLabel="label"
               optionValue="value"
+              [invalid]="recordsForm.controls.requestType.invalid && recordsForm.controls.requestType.touched"
               fluid
             />
           </label>
           <label for="records-name" class="resident-field grid gap-1">
             <span>{{ copy().recordsNameLabel }}</span>
-            <input pInputText id="records-name" type="text" formControlName="name" autocomplete="name" />
+            <input pInputText id="records-name" type="text" formControlName="name" autocomplete="name" [invalid]="recordsForm.controls.name.invalid && recordsForm.controls.name.touched" />
           </label>
           <label for="records-contact" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsContactLabel }}</span>
-            <input pInputText id="records-contact" type="email" formControlName="preferredContact" autocomplete="email" />
+            <input pInputText id="records-contact" type="email" formControlName="preferredContact" autocomplete="email" [invalid]="recordsForm.controls.preferredContact.invalid && recordsForm.controls.preferredContact.touched" />
           </label>
           <label for="records-deadline" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDeadlineLabel }}</span>
@@ -275,7 +277,7 @@
           </label>
           <label for="records-details" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().recordsDetailsLabel }}</span>
-            <textarea pTextarea id="records-details" rows="4" formControlName="details"></textarea>
+            <textarea pTextarea id="records-details" rows="4" formControlName="details" [invalid]="recordsForm.controls.details.invalid && recordsForm.controls.details.touched"></textarea>
           </label>
         </section>
 

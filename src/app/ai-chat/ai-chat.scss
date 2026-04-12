@@ -4,14 +4,14 @@
 }
 
 .assistant-shell {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 18%, transparent);
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(12, 31, 56, 0.96), rgba(21, 48, 82, 0.94));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--p-primary-950) 88%, #08182a), color-mix(in srgb, var(--p-primary-900) 92%, #14345c));
 }
 .assistant-launch-panel {
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 22%, transparent);
+  background: color-mix(in srgb, var(--p-surface-0) 12%, transparent);
 }
 .assistant-launch-link {
   display: inline-flex;
@@ -19,10 +19,10 @@
   justify-content: center;
   width: fit-content;
   padding: 0.8rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 24%, transparent);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: color-mix(in srgb, var(--p-surface-0) 10%, transparent);
+  color: var(--hero-text);
   font-weight: 700;
   text-decoration: none;
   transition:
@@ -42,7 +42,7 @@
 .assistant-thread-kicker,
 .assistant-thread-status {
   margin: 0;
-  color: rgba(255, 255, 255, 0.88);
+  color: color-mix(in srgb, var(--hero-text) 88%, transparent);
 }
 
 .assistant-status {
@@ -50,7 +50,7 @@
 }
 
 .assistant-status.is-offline {
-  color: rgba(255, 219, 153, 0.98);
+  color: color-mix(in srgb, var(--button-accent-start) 92%, white);
 }
 
 .assistant-kicker,
@@ -78,10 +78,10 @@
 .assistant-chip,
 .assistant-send,
 .assistant-links a {
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 24%, transparent);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: color-mix(in srgb, var(--p-surface-0) 10%, transparent);
+  color: var(--hero-text);
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -106,7 +106,7 @@
 .assistant-send:hover,
 .assistant-links a:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
@@ -123,13 +123,13 @@
 .assistant-thread {
   padding: 0.95rem;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 16%, transparent);
+  background: color-mix(in srgb, var(--p-surface-0) 10%, transparent);
 }
 
 .assistant-thread-title {
   margin: 0.2rem 0 0;
-  color: #fff;
+  color: var(--hero-text);
   font-size: 1.05rem;
 }
 
@@ -140,48 +140,48 @@
 
 .assistant-message {
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--p-surface-0) 12%, transparent);
 }
 
 .assistant-message.is-user {
-  background: rgba(164, 90, 44, 0.28);
+  background: color-mix(in srgb, var(--button-accent-end) 28%, transparent);
 }
 
 .assistant-message p {
   margin: 0;
   white-space: pre-line;
-  color: #fff;
+  color: var(--hero-text);
 }
 
 .assistant-form {
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 18%, transparent);
+  background: color-mix(in srgb, var(--p-surface-0) 12%, transparent);
 }
 
 .assistant-input {
   width: 100%;
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 28%, transparent);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: color-mix(in srgb, var(--p-surface-0) 16%, transparent);
+  color: var(--hero-text);
 }
 
 .assistant-input::placeholder {
-  color: rgba(255, 255, 255, 0.68);
+  color: color-mix(in srgb, var(--hero-text) 68%, transparent);
 }
 
 .assistant-input:focus-visible,
 .assistant-chip:focus-visible,
 .assistant-send:focus-visible,
 .assistant-links a:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
 .assistant-launch-link:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -189,14 +189,14 @@
 .assistant-entry-row .p-inputtext {
   min-height: 3.25rem;
   padding: 0.85rem 0.95rem;
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: color-mix(in srgb, var(--p-surface-0) 12%, transparent);
+  border-color: color-mix(in srgb, var(--p-surface-0) 24%, transparent);
+  color: var(--hero-text);
   border-radius: 999px;
 }
 
 .assistant-entry-row .p-inputtext::placeholder {
-  color: rgba(255, 255, 255, 0.52);
+  color: color-mix(in srgb, var(--hero-text) 52%, transparent);
 }
 
 @media (max-width: 640px) {

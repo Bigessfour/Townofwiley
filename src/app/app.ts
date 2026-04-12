@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -213,9 +213,11 @@ interface AppCopy {
   heroImageAlt: string;
   topTasksKicker: string;
   topTasksHeading: string;
+  topTasksBody: string;
   featureHubKicker: string;
   featureHubHeading: string;
   featureHubBody: string;
+  siteMetaDescription: string;
   searchKicker: string;
   searchHeading: string;
   searchLabel: string;
@@ -319,10 +321,14 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
+    topTasksBody:
+      'Start with the resident tasks people need most often: payments, issue reporting, meeting access, and records requests.',
     featureHubKicker: 'Town features',
     featureHubHeading: 'Open the town section you need',
     featureHubBody:
-      'The homepage now stays compact. Use these feature pages for weather, notices, meetings, services, records, and Town Hall contacts.',
+      'Use these feature pages to reach weather, notices, meetings, services, records, and Town Hall contacts quickly.',
+    siteMetaDescription:
+      'Official Town of Wiley website for resident services, weather alerts, meetings, records, notices, and Town Hall contacts.',
     searchKicker: 'Wiley Search',
     searchHeading: 'Search Wiley services',
     searchLabel:
@@ -701,10 +707,14 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
     topTasksKicker: 'Tareas rapidas',
     topTasksHeading: 'Como puedo...',
+    topTasksBody:
+      'Empiece con las tareas que los residentes necesitan con mas frecuencia: pagos, reportes de problemas, acceso a reuniones y solicitudes de registros.',
     featureHubKicker: 'Funciones del pueblo',
     featureHubHeading: 'Abra la seccion del pueblo que necesita',
     featureHubBody:
-      'La pagina principal ahora se mantiene compacta. Use estas paginas para clima, avisos, reuniones, servicios, registros y contactos del ayuntamiento.',
+      'Use estas paginas para llegar rapidamente al clima, avisos, reuniones, servicios, registros y contactos del ayuntamiento.',
+    siteMetaDescription:
+      'Sitio web oficial del Pueblo de Wiley para servicios a residentes, alertas del clima, reuniones, registros, avisos y contactos del ayuntamiento.',
     searchKicker: 'Busqueda de Wiley',
     searchHeading: 'Busque servicios de Wiley',
     searchLabel:
@@ -1098,6 +1108,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
 })
 export class App {
   private static readonly DEFAULT_SITE_TITLE = 'Town of Wiley';
+  private static readonly MAX_META_DESCRIPTION_LENGTH = 160;
   private static readonly SEARCH_DEBOUNCE_MS = 120;
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
@@ -1105,6 +1116,7 @@ export class App {
   private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly router = inject(Router);
   private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
   private readonly initialPath =
     typeof window !== 'undefined'
@@ -1134,6 +1146,16 @@ export class App {
   protected readonly meetingsTab = signal<'month' | 'list'>('month');
   protected readonly calendarHelpVisible = signal(false);
   protected readonly aiChatVisible = signal(false);
+  protected readonly siteAlertCardPt = {
+    body: {
+      class: 'site-alert-body',
+    },
+  };
+  protected readonly supportCardPt = {
+    body: {
+      class: 'support-card-body',
+    },
+  };
   private readonly calendarTableState = signal<CalendarTableState>({
     first: 0,
     rows: 5,
@@ -1222,6 +1244,17 @@ export class App {
     }
 
     return `${featureTitle} | ${siteTitle}`;
+  });
+  protected readonly browserDescription = computed(() => {
+    const featurePage = this.currentFeaturePage();
+
+    if (!featurePage) {
+      return this.appCopy().siteMetaDescription;
+    }
+
+    const description = [featurePage.title, featurePage.summary].filter(Boolean).join('. ');
+
+    return this.truncateMetaDescription(description || this.appCopy().siteMetaDescription);
   });
   protected readonly notices = this.cmsStore.notices;
   protected readonly liveCalendarEvents = this.cmsStore.events;
@@ -1380,8 +1413,15 @@ export class App {
 
     this.logging.pageView(path, fragment, title);
   });
-  private readonly browserTitleEffect = effect(() => {
-    this.title.setTitle(this.browserTitle());
+  private readonly browserMetadataEffect = effect(() => {
+    const title = this.browserTitle();
+    const description = this.browserDescription();
+
+    this.title.setTitle(title);
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: title });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
   });
   protected readonly meetings = computed(() => this.appCopy().meetings);
   protected readonly calendarItems = computed(() => {
@@ -1696,6 +1736,22 @@ export class App {
 
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
+  }
+
+  protected isCurrentRouteLink(link: AppRouteLink): boolean {
+    if (!link.isInternal || !link.path) {
+      return false;
+    }
+
+    if (link.path !== this.currentPath()) {
+      return false;
+    }
+
+    if (link.fragment) {
+      return this.currentFragment() === link.fragment;
+    }
+
+    return !this.currentFragment() || link.path !== '/';
   }
 
   protected performSearch(event?: Event): void {
@@ -2272,6 +2328,14 @@ export class App {
       .toISOString()
       .replace(/[-:]/g, '')
       .replace(/\.\d{3}Z$/, 'Z');
+  }
+
+  private truncateMetaDescription(value: string): string {
+    if (value.length <= App.MAX_META_DESCRIPTION_LENGTH) {
+      return value;
+    }
+
+    return `${value.slice(0, App.MAX_META_DESCRIPTION_LENGTH - 3).trimEnd()}...`;
   }
 
   private escapeIcsText(value: string): string {

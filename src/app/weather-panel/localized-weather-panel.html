@@ -107,6 +107,17 @@
                 <dd>{{ period.precipitationLabel }}</dd>
               </div>
             </dl>
+
+            <ng-template pTemplate="footer">
+              <div class="weather-current-footer flex flex-wrap gap-3">
+                <a class="weather-action is-link" [attr.href]="weatherGovUrl" target="_blank" rel="noreferrer noopener">
+                  {{ copy().openForecast }}
+                </a>
+                <a class="weather-action is-link weather-action--secondary" [attr.href]="forecastMapsUrl" target="_blank" rel="noreferrer noopener">
+                  {{ copy().forecastMaps }}
+                </a>
+              </div>
+            </ng-template>
           </p-card>
         }
 

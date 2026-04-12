@@ -102,6 +102,12 @@ describe('App', () => {
     );
     expect(compiled.querySelector('#site-search')).toBeTruthy();
     expect(compiled.querySelector('.search-submit')?.textContent).toContain('Search');
+    expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
+      'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
+    );
+    expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
+      'Town of Wiley | Official Website',
+    );
     expect(compiled.querySelector('#accessibility')).toBeNull();
     expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
       'Accessibility statement',
@@ -319,6 +325,15 @@ describe('App', () => {
         listAnnouncements: {
           items: [
             {
+              id: 'launch-banner',
+              title: "Welcome to Wiley's New Website",
+              date: '2026-03-30',
+              detail:
+                'We developed this website in house to better offer Wiley Residents quality services.',
+              priority: 0,
+              active: true,
+            },
+            {
               id: 'water-outage',
               title: 'Water outage on Main Street',
               date: '2026-03-22',
@@ -371,6 +386,7 @@ describe('App', () => {
     expect(compiled.querySelector('.feature-card[href="/notices"]')?.textContent).toContain(
       'Corte de agua',
     );
+    expect(compiled.textContent).not.toContain("Welcome to Wiley's New Website");
     expect(compiled.querySelector('.feature-card[href="/meetings"]')?.textContent).toContain(
       'Spring Cleanup Day',
     );

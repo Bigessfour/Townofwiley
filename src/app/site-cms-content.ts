@@ -254,6 +254,16 @@ const DEFAULT_CONTACT_MAP = {
   es: new Map(DEFAULT_CMS_CONTACTS_ES.map((contact) => [contact.id, contact])),
 };
 
+const RETIRED_LAUNCH_NOTICE_TITLES = new Set([
+  'welcometowileysnewwebsite',
+  'bienvenidosalnuevositiowebdewiley',
+]);
+
+const RETIRED_LAUNCH_NOTICE_DETAILS = new Set([
+  'wedevelopedthiswebsiteinhousetobetterofferwileyresidentsqualityservices',
+  'desarrollamosestesitiowebinternamenteparaofreceralosresidentesdewileyserviciosdecalidad',
+]);
+
 const KNOWN_CMS_TEXT_TRANSLATIONS: Record<string, string> = {
   'Town of Wiley, Colorado': 'Pueblo de Wiley, Colorado',
   'Official Town Website': 'Sitio web oficial del pueblo',
@@ -840,6 +850,7 @@ export class LocalizedCmsContentStore {
         priority: typeof record.priority === 'number' ? record.priority : Number.MAX_SAFE_INTEGER,
       }))
       .filter((record) => record.id && record.title && record.detail)
+      .filter((record) => !this.isRetiredLaunchNotice(record.title, record.detail))
       .sort((left, right) => left.priority - right.priority)
       .map((record) => {
         const englishFallback = DEFAULT_NOTICE_MAP.en.get(record.id);
@@ -1067,6 +1078,17 @@ export class LocalizedCmsContentStore {
     }
 
     return KNOWN_CMS_TEXT_TRANSLATIONS[cleanedValue] ?? cleanedValue;
+  }
+
+  private isRetiredLaunchNotice(title: string, detail: string): boolean {
+    return (
+      RETIRED_LAUNCH_NOTICE_TITLES.has(this.normalizeComparableText(title)) ||
+      RETIRED_LAUNCH_NOTICE_DETAILS.has(this.normalizeComparableText(detail))
+    );
+  }
+
+  private normalizeComparableText(value: string): string {
+    return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
   }
 
   private cleanText(value: string | null | undefined): string | undefined {

@@ -9,8 +9,8 @@
 
 .setup-card {
   border-radius: 1.5rem;
-  background: rgba(255, 252, 244, 0.88);
-  border: 1px solid rgba(23, 52, 77, 0.12);
+  background: color-mix(in srgb, var(--surface-card) 92%, #fff7eb);
+  border: 1px solid var(--surface-border);
   box-shadow: 0 20px 45px rgba(31, 42, 31, 0.08);
 }
 
@@ -44,9 +44,9 @@
 .setup-note--strong {
   padding: 0.9rem 1rem;
   border-radius: 1rem;
-  background: rgba(23, 52, 77, 0.08);
-  border: 1px solid rgba(23, 52, 77, 0.12);
-  color: #17344d;
+  background: color-mix(in srgb, var(--p-primary-50) 85%, transparent);
+  border: 1px solid var(--surface-border);
+  color: var(--civic-blue-strong);
   font-weight: 700;
 }
 
@@ -61,14 +61,14 @@
 }
 
 .setup-button.primary {
-  background: #17344d;
+  background: var(--brand-gradient-strong);
   color: #fffdf8;
 }
 
 .setup-button.secondary {
-  background: rgba(255, 255, 255, 0.82);
-  color: #17344d;
-  border: 1px solid rgba(23, 52, 77, 0.12);
+  background: var(--surface-card);
+  color: var(--civic-blue-strong);
+  border: 1px solid var(--surface-border);
 }
 
 .setup-panel {
@@ -85,16 +85,9 @@
 
 // Blend PrimeNG cards into the page palette
 .setup-primeng-card.p-card {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(23, 52, 77, 0.08);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
   border-radius: 1.25rem;
-
-  .p-card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #1f2a1f;
-    margin-bottom: 0.75rem;
-  }
 
   ul,
   ol {
@@ -102,6 +95,32 @@
     padding-left: 1.25rem;
     line-height: 1.6;
   }
+}
+
+.setup-card-body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.setup-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.setup-card-subtitle {
+  color: var(--ink-700);
+  line-height: 1.5;
+}
+
+.setup-card-footer {
+  padding-top: 0.25rem;
+}
+
+.setup-table-caption {
+  display: block;
+  color: var(--ink-700);
+  font-weight: 600;
 }
 
 // Contact Updates tab: ensure table fills the card width

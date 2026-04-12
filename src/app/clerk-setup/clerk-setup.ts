@@ -32,6 +32,12 @@ export class ClerkSetup {
 
   protected readonly activeTab = signal<string>('setup');
   protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
+  protected readonly setupCardPt = {
+    body: { class: 'setup-card-body' },
+    title: { class: 'setup-card-title' },
+    subtitle: { class: 'setup-card-subtitle' },
+    footer: { class: 'setup-card-footer' },
+  };
 
   constructor() {
     void this.loadContactUpdates();
