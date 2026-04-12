@@ -125,49 +125,49 @@ const DEFAULT_CMS_ALERT_BANNER_ES: CmsAlertBanner = {
 
 const DEFAULT_CMS_NOTICES: CmsNotice[] = [
   {
-    id: 'homepage-rebuild',
-    title: 'Town services and notices are available here',
-    date: 'March 2026',
+    id: 'welcome-website',
+    title: 'Welcome to the Town of Wiley Official Website',
+    date: 'April 2026',
     detail:
-      'Residents can use the website to find meetings, service information, office contacts, weather alerts, and public notices without navigating through multiple departments.',
+      'Explore town services, upcoming meetings, weather updates, and public notices. Contact Town Hall at (719) 829-4974 for assistance.',
   },
   {
-    id: 'digital-self-service-rollout',
-    title: 'Digital self-service rollout planned in phases',
-    date: 'Spring 2026',
+    id: 'upcoming-meeting',
+    title: 'Town Council Meeting Scheduled',
+    date: 'April 15, 2026',
     detail:
-      'Payments, service requests, permits, meeting archives, and records access are being organized around resident tasks instead of department structure.',
+      'The next Town Council meeting is scheduled for April 15, 2026 at 7:00 PM at Town Hall. Agenda items include budget review and public comments.',
   },
   {
-    id: 'notice-placement',
-    title: 'Public notice placement reserved for high-visibility alerts',
-    date: 'Operational',
+    id: 'weather-alerts',
+    title: 'Severe Weather Alert Sign-Up Available',
+    date: 'Ongoing',
     detail:
-      'Emergency information, special meeting notices, utility interruptions, and weather-related updates should remain visible without forcing residents to search.',
+      'Sign up for SMS weather alerts to stay informed about severe weather conditions in Wiley. Use the weather panel on the homepage.',
   },
 ];
 
 const DEFAULT_CMS_NOTICES_ES: CmsNotice[] = [
   {
-    id: 'homepage-rebuild',
-    title: 'Los servicios y avisos del pueblo estan disponibles aqui',
-    date: 'Marzo de 2026',
+    id: 'welcome-website',
+    title: 'Bienvenido al Sitio Web Oficial del Pueblo de Wiley',
+    date: 'Abril de 2026',
     detail:
-      'Los residentes pueden usar el sitio web para encontrar reuniones, informacion de servicios, contactos de oficina, alertas del clima y avisos publicos sin navegar por varios departamentos.',
+      'Explore los servicios del pueblo, reuniones próximas, actualizaciones del clima y avisos públicos. Contacte al Ayuntamiento al (719) 829-4974 para asistencia.',
   },
   {
-    id: 'digital-self-service-rollout',
-    title: 'El lanzamiento del autoservicio digital esta planeado por fases',
-    date: 'Primavera de 2026',
+    id: 'upcoming-meeting',
+    title: 'Reunión del Consejo Municipal Programada',
+    date: '15 de abril de 2026',
     detail:
-      'Los pagos, solicitudes de servicio, permisos, archivos de reuniones y acceso a registros se estan organizando alrededor de tareas de residentes y no por estructura departamental.',
+      'La próxima reunión del Consejo Municipal está programada para el 15 de abril de 2026 a las 7:00 PM en el Ayuntamiento. Los temas de la agenda incluyen revisión del presupuesto y comentarios públicos.',
   },
   {
-    id: 'notice-placement',
-    title: 'El espacio para avisos publicos se reserva para alertas de alta visibilidad',
-    date: 'Operacion',
+    id: 'weather-alerts',
+    title: 'Registro Disponible para Alertas de Clima Severo',
+    date: 'Continuo',
     detail:
-      'La informacion de emergencia, avisos de reuniones especiales, interrupciones de servicios y actualizaciones relacionadas con el clima deben seguir visibles sin obligar a los residentes a buscar.',
+      'Regístrese para alertas de SMS sobre el clima para mantenerse informado sobre condiciones climáticas severas en Wiley. Use el panel del clima en la página principal.',
   },
 ];
 
@@ -185,7 +185,7 @@ const DEFAULT_CMS_CONTACTS: CmsContact[] = [
     label: 'Mayor',
     value: 'Stephen McKitrick',
     detail:
-      'Official mayoral correspondence can be sent to this alias and routed through the town email workflow.',
+      'Contact the Mayor by email for official town business or council-related questions.',
     href: 'mailto:stephen.mckitrick@townofwiley.gov',
     linkLabel: 'stephen.mckitrick@townofwiley.gov',
   },
@@ -221,7 +221,7 @@ const DEFAULT_CMS_CONTACTS_ES: CmsContact[] = [
     label: 'Alcalde',
     value: 'Stephen McKitrick',
     detail:
-      'La correspondencia oficial del alcalde puede enviarse a este alias y se canaliza a traves del flujo de correo del pueblo.',
+      'Comuniquese con el alcalde por correo electronico para asuntos oficiales del pueblo o preguntas del concejo.',
     href: 'mailto:stephen.mckitrick@townofwiley.gov',
     linkLabel: 'stephen.mckitrick@townofwiley.gov',
   },
@@ -301,8 +301,8 @@ const KNOWN_CMS_TEXT_TRANSLATIONS: Record<string, string> = {
   'Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.':
     'Ayuntamiento de Wiley, 304 Main Street. Llame con anticipacion si desea tiempo en la agenda del concejo municipal o necesita ayuda del secretario.',
   Mayor: 'Alcalde',
-  'Official mayoral correspondence can be sent to this alias and routed through the town email workflow.':
-    'La correspondencia oficial del alcalde puede enviarse a este alias y se canaliza a traves del flujo de correo del pueblo.',
+  'Contact the Mayor by email for official town business or council-related questions.':
+    'Comuniquese con el alcalde por correo electronico para asuntos oficiales del pueblo o preguntas del concejo.',
   'City Clerk': 'Secretaria municipal',
   'Clerk services, meeting packets, records coordination, and agenda planning support.':
     'Servicios de secretaria, paquetes de reuniones, coordinacion de registros y apoyo para planeacion de agendas.',

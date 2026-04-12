@@ -176,7 +176,7 @@
             <p-accordion [multiple]="true" styleClass="weather-accordion" [value]="accordionActiveValue()">
               @for (alert of weatherAlerts(); track alert.event + alert.headline; let idx = $index) {
                 <p-accordion-panel class="weather-alert-card" [value]="idx">
-                  <p-accordion-header>
+                  <p-accordion-header [attr.aria-label]="alert.event + ' ' + alert.severity + ' alert'">
                     <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
                       <span class="weather-alert-badge">{{ alert.severity }}</span>
                       <span>{{ alert.event }}</span>
@@ -286,6 +286,13 @@
                   />
                 </label>
               </section>
+
+              <p class="weather-signup-disclosure">{{ copy().signupDisclosure }}</p>
+              <p class="weather-signup-links">
+                <a class="weather-signup-link" routerLink="/privacy">{{ copy().privacyPolicyLabel }}</a>
+                <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                <a class="weather-signup-link" routerLink="/terms">{{ copy().smsTermsLabel }}</a>
+              </p>
 
               <p class="weather-signup-note">{{ copy().confirmationNote }}</p>
 

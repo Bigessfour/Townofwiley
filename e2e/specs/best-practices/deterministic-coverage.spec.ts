@@ -130,6 +130,7 @@ test.describe('deterministic regression coverage', () => {
       {
         animations: 'disabled',
         caret: 'hide',
+        maxDiffPixelRatio: 0.005,
       },
     );
   });

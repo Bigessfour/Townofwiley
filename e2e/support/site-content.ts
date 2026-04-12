@@ -64,6 +64,7 @@ export const siteContent = {
     languageEn: 'EN',
     visitWebsite: 'Visit Website',
   },
+  featureHubHeading: 'Open the town section you need',
   expectedStyles: {
     civicBlue: 'rgb(19, 36, 62)',
     heroText: 'rgb(255, 255, 255)',
@@ -74,6 +75,6 @@ export const siteContent = {
   cmsHeadings: {
     news: 'Town News and Announcements',
     businesses: 'Wiley Community Business Directory',
-    documentsHub: 'Stable public destinations for meetings, finance records, and code references',
+    documentsHub: 'Public meeting, finance, and code documents',
   },
 };

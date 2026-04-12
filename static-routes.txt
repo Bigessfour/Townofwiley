@@ -8,6 +8,8 @@
 /news
 /contact
 /accessibility
+/privacy
+/terms
 /documents
 /admin
 /clerk-setup

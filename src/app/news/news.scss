@@ -3,7 +3,11 @@
   margin-top: 0.5rem;
 }
 
-.public-page-header h1,
+.public-page-header h1 {
+  margin: 0;
+  color: var(--civic-blue-strong);
+}
+
 .featured-news-card h2,
 .news-card h3 {
   margin: 0;
@@ -20,25 +24,25 @@
 }
 
 .featured-news-card {
-  border: 1px solid rgba(13, 44, 84, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 241, 231, 0.94));
+  border: 1px solid var(--surface-border-strong);
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   border-radius: 24px;
-  box-shadow: 0 12px 32px rgba(13, 44, 84, 0.10);
+  box-shadow: var(--surface-shadow-soft);
   padding: 1.75rem;
 }
 
 .public-card {
-  border: 1px solid rgba(13, 44, 84, 0.1);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
   box-shadow: var(--surface-shadow-soft);
 }
 
 /* Local Notices — official town look */
 .news-section-local .public-card {
-  border: 1px solid rgba(13, 44, 84, 0.1);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.08);
+  box-shadow: var(--surface-shadow-soft);
   padding: 1.5rem;
   height: 100%;
   display: flex;
@@ -47,16 +51,16 @@
 
 /* Regional Coverage — lighter, secondary-source look */
 .news-section-external .public-card {
-  border: 1px solid rgba(13, 44, 84, 0.08);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(238, 244, 251, 0.92));
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, var(--surface-card), color-mix(in srgb, var(--surface-card-soft) 84%, var(--p-primary-50)));
   border-radius: 24px;
-  box-shadow: 0 8px 24px rgba(13, 44, 84, 0.06);
+  box-shadow: var(--surface-shadow-soft);
   padding: 1.5rem;
   height: 100%;
 }
 
 .news-card--external {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(238, 244, 251, 0.92));
+  background: linear-gradient(180deg, var(--surface-card), color-mix(in srgb, var(--surface-card-soft) 84%, var(--p-primary-50)));
 }
 
 .button-cta {
@@ -70,9 +74,9 @@
 }
 
 .button-cta--light {
-  background: rgba(255, 255, 255, 0.95);
-  color: #0d2c54;
-  border: 1px solid rgba(13, 44, 84, 0.14);
+  background: var(--surface-overlay);
+  color: var(--civic-blue-strong);
+  border: 1px solid var(--surface-border);
 }
 
 .button-cta:hover,

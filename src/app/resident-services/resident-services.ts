@@ -95,19 +95,19 @@ interface ResidentServicesCopy {
 const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
   en: {
     sectionKicker: 'Resident Services',
-    sectionTitle: 'Start the town tasks that still need a human follow-through',
+    sectionTitle: 'Start common town services online',
     sectionBody:
-      'These guided forms prepare the right email for the clerk or town operations so residents do not have to guess who to contact.',
+      'Use these forms to request payment help, report an issue, or contact the clerk without searching for the right office.',
     taskPickerLabel: 'Choose a resident task',
     taskPickerHelp:
-      'Pick the task you need first, then complete only that workflow instead of scanning through every town form.',
+      'Choose the service you need and complete the matching form below.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
       'Your email app should open with a prepared message. If nothing happens, use the direct phone or email links in this card.',
     phoneFallbackLabel: 'Call Town Hall',
     emailFallbackLabel: 'Email contact',
-    paymentMeta: 'Billing help desk',
+    paymentMeta: 'Billing support',
     paymentTitle: 'Pay utility bill',
     paymentIcon: 'pi pi-credit-card',
     issueIcon: 'pi pi-exclamation-triangle',
@@ -124,7 +124,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       'Secure online payment is unavailable right now. Use the billing help email and Town Hall staff will help you complete your payment.',
     paymentPortalUnavailableMessage:
       'Online utility payment is temporarily unavailable. Use the billing help email for account help and payment instructions.',
-    paymentActionLabel: 'Open billing help email',
+    paymentActionLabel: 'Email billing support',
     issueMeta: 'Issue reporting',
     issueTitle: 'Report a street or utility issue',
     issueBody:
@@ -178,19 +178,19 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
   },
   es: {
     sectionKicker: 'Servicios para residentes',
-    sectionTitle: 'Inicie los tramites del pueblo que todavia requieren seguimiento humano',
+    sectionTitle: 'Inicie servicios comunes del pueblo en linea',
     sectionBody:
-      'Estos formularios preparan el correo correcto para la secretaria o para operaciones del pueblo para que los residentes no tengan que adivinar a quien escribir.',
+      'Use estos formularios para solicitar ayuda con pagos, reportar un problema o contactar a la secretaria sin buscar la oficina correcta.',
     taskPickerLabel: 'Elija un tramite para residentes',
     taskPickerHelp:
-      'Primero elija el tramite que necesita y luego complete solo ese flujo en lugar de revisar todos los formularios del pueblo.',
+      'Elija el servicio que necesita y complete el formulario correspondiente abajo.',
     validationMessage:
       'Complete los campos obligatorios para que el sitio pueda preparar el mensaje con los detalles correctos.',
     mailClientMessage:
       'Su aplicacion de correo debe abrirse con un mensaje preparado. Si no ocurre nada, use los enlaces directos de telefono o correo de esta tarjeta.',
     phoneFallbackLabel: 'Llamar al ayuntamiento',
     emailFallbackLabel: 'Enviar correo',
-    paymentMeta: 'Mesa de ayuda de facturacion',
+    paymentMeta: 'Soporte de facturacion',
     paymentTitle: 'Pagar recibo de servicios',
     paymentIcon: 'pi pi-credit-card',
     issueIcon: 'pi pi-exclamation-triangle',
@@ -207,7 +207,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       'El pago seguro en linea no esta disponible en este momento. Use el correo de ayuda de facturacion y el personal del ayuntamiento le ayudara a completar su pago.',
     paymentPortalUnavailableMessage:
       'El pago en linea de servicios esta temporalmente no disponible. Use el correo de ayuda de facturacion para recibir instrucciones y apoyo con su cuenta.',
-    paymentActionLabel: 'Abrir correo de ayuda de facturacion',
+    paymentActionLabel: 'Enviar correo a soporte de facturacion',
     issueMeta: 'Reporte de problemas',
     issueTitle: 'Reportar un problema de calle o servicio',
     issueBody:

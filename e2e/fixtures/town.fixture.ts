@@ -12,6 +12,7 @@ export const test = base.extend<TownFixtures>({
   homePage: async ({ page, baseURL }, use) => {
     await page.addInitScript(() => {
       window.localStorage.setItem('tow-site-language', 'en');
+      window.localStorage.removeItem('towCowPopupSeen');
     });
 
     await page.addInitScript(() => {
@@ -29,6 +30,13 @@ export const test = base.extend<TownFixtures>({
 
       runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
         ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        chatbot: {
+          provider: 'easyPeasy',
+          mode: 'none',
+          chatUrl: '',
+          buttonPosition: 'bottom-right',
+          apiEndpoint: '',
+        },
         cms: {
           ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms ?? {}),
           appSync: {

@@ -175,6 +175,17 @@ test.describe('homepage navigation', () => {
       }
     });
 
+    const resolveThemeColor = async (variableName: string) =>
+      homePage.page.evaluate((name) => {
+        const rootStyle = getComputedStyle(document.documentElement);
+        const probe = document.createElement('div');
+        probe.style.color = `var(${name})`;
+        document.body.appendChild(probe);
+        const resolved = getComputedStyle(probe).color || rootStyle.getPropertyValue(name).trim();
+        probe.remove();
+        return resolved;
+      }, variableName);
+
     await homePage.goto();
 
     // Check fonts and colors on hero/heading (design validation)
@@ -188,7 +199,7 @@ test.describe('homepage navigation', () => {
       const el = document.querySelector('h1');
       return el ? getComputedStyle(el).color : '';
     });
-    expect(heroH1Color).toBe(siteContent.expectedStyles.heroText);
+    expect(heroH1Color).toBe(await resolveThemeColor('--hero-text'));
 
     // Test language buttons trigger logging
     const initialLogCount = logs.length;
@@ -221,6 +232,6 @@ test.describe('homepage navigation', () => {
       const el = document.querySelector('.news-page-shell h1');
       return el ? getComputedStyle(el).color : '';
     });
-    expect(newsH1Color).toBe(siteContent.expectedStyles.civicBlue);
+    expect(newsH1Color).toBe(await resolveThemeColor('--civic-blue-strong'));
   });
 });

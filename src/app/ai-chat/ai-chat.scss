@@ -6,7 +6,7 @@
 .assistant-shell {
   border: 1px solid color-mix(in srgb, var(--p-surface-0) 18%, transparent);
   border-radius: 22px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--p-primary-950) 88%, #08182a), color-mix(in srgb, var(--p-primary-900) 92%, #14345c));
+  background: linear-gradient(180deg, var(--hero-card-night-start), var(--hero-card-end));
 }
 .assistant-launch-panel {
   border-radius: 20px;
@@ -107,7 +107,7 @@
 .assistant-links a:hover {
   transform: translateY(-1px);
   background: color-mix(in srgb, var(--p-surface-0) 18%, transparent);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .assistant-chip:disabled,

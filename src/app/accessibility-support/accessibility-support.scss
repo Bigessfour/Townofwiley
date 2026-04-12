@@ -63,19 +63,19 @@
 .accessibility-action {
   border: 1px solid transparent;
   background: var(--brand-gradient-strong);
-  color: #fff;
+  color: var(--surface-inverse);
 }
 
 .accessibility-contact-link:hover,
 .accessibility-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(13, 44, 84, 0.12);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .accessibility-action.is-disabled {
   pointer-events: auto;
   background: color-mix(in srgb, var(--civic-blue) 70%, var(--p-surface-400));
-  color: #fff;
+  color: var(--surface-inverse);
 }
 
 .accessibility-field--wide {

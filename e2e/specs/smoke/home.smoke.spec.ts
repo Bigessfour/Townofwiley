@@ -109,7 +109,7 @@ async function expectFeaturePageFromHomepage(
 ): Promise<void> {
   await homePage.goto();
 
-  const featureGrid = homePage.page.getByRole('region', { name: 'Town feature pages' });
+  const featureGrid = homePage.page.getByRole('region', { name: siteContent.featureHubHeading });
   const featureCard = featureGrid.locator(`.feature-card[href="${gateway.href}"]`);
 
   await expect(featureCard, gateway.name).toBeVisible();

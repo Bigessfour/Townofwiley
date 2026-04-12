@@ -7,9 +7,9 @@
   display: grid;
   gap: 1.35rem;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(240, 246, 255, 0.94)),
-    radial-gradient(circle at top right, rgba(38, 115, 185, 0.16), transparent 34%),
-    radial-gradient(circle at bottom left, rgba(212, 161, 75, 0.16), transparent 30%);
+    linear-gradient(135deg, var(--surface-card), var(--surface-card-soft)),
+    radial-gradient(circle at top right, var(--page-glow-cool), transparent 34%),
+    radial-gradient(circle at bottom left, var(--page-glow-warm), transparent 30%);
 }
 
 .weather-header,
@@ -107,14 +107,14 @@
 .weather-alert-card {
   padding: 1.2rem;
   border-radius: 24px;
-  border: 1px solid rgba(13, 44, 84, 0.1);
+  border: 1px solid var(--surface-border);
 }
 
 .weather-current-card {
   background:
-    linear-gradient(180deg, rgba(13, 44, 84, 0.94), rgba(34, 72, 119, 0.92)),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 24%);
-  color: #fff;
+    linear-gradient(180deg, var(--hero-card-start), var(--hero-card-end)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--surface-inverse) 12%, transparent), transparent 24%);
+  color: var(--surface-inverse);
   box-shadow: 0 22px 50px rgba(17, 36, 61, 0.16);
 }
 
@@ -128,13 +128,13 @@
 .weather-current-card .weather-detail,
 .weather-current-card dt,
 .weather-current-card dd {
-  color: #fff;
+  color: var(--surface-inverse);
 }
 
 .weather-current-card.is-night {
   background:
-    linear-gradient(180deg, rgba(17, 28, 58, 0.96), rgba(31, 44, 86, 0.94)),
-    radial-gradient(circle at top right, rgba(125, 176, 255, 0.14), transparent 28%);
+    linear-gradient(180deg, var(--hero-card-night-start), var(--hero-card-night-end)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--p-primary-200) 14%, transparent), transparent 28%);
 }
 
 .weather-current-topline {
@@ -166,7 +166,7 @@
   min-width: 12rem;
   padding: 0.85rem 0.95rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--surface-inverse) 10%, transparent);
 }
 
 .weather-metrics dt,
@@ -231,14 +231,14 @@
 .weather-alert-pill,
 .weather-alert-badge {
   padding: 0.55rem 0.85rem;
-  background: rgba(168, 35, 57, 0.12);
-  color: #8a1d33;
+  background: color-mix(in srgb, var(--p-red-100) 80%, transparent);
+  color: var(--p-red-800);
 }
 
 .weather-alert-pill.is-clear,
 .weather-alert-badge.is-clear {
-  background: rgba(43, 117, 79, 0.14);
-  color: #185d39;
+  background: var(--success-surface);
+  color: var(--success-text);
 }
 
 .weather-alert-list {
@@ -246,11 +246,11 @@
 }
 
 .weather-alert-card {
-  background: color-mix(in srgb, var(--surface-card) 88%, #fff1f1);
+  background: color-mix(in srgb, var(--surface-card) 88%, var(--p-red-50));
 }
 
 .weather-alert-card.is-clear {
-  background: color-mix(in srgb, var(--surface-card) 88%, #eef9f1);
+  background: color-mix(in srgb, var(--surface-card) 88%, var(--p-green-50));
 }
 
 .weather-signup-shell {
@@ -286,9 +286,9 @@
   width: 100%;
   min-height: 3.25rem;
   padding: 0.75rem 0.95rem;
-  border: 1px solid rgba(13, 44, 84, 0.14);
+  border: 1px solid var(--surface-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--surface-card);
   color: var(--ink-900);
   line-height: 1.5;
 }
@@ -299,13 +299,32 @@
 }
 
 .weather-signup-field input[readonly] {
-  background: rgba(13, 44, 84, 0.05);
+  background: color-mix(in srgb, var(--surface-card) 78%, var(--p-primary-50));
 }
 
 .weather-signup-field p-select,
 .weather-signup-status-message,
 .weather-signup-submit {
   width: 100%;
+}
+
+.weather-signup-disclosure,
+.weather-signup-links {
+  margin: 0;
+  color: var(--ink-700);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.weather-signup-link {
+  color: var(--brand-primary);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.weather-signup-link:hover,
+.weather-signup-link:focus-visible {
+  color: color-mix(in srgb, var(--brand-primary) 80%, black);
 }
 
 .weather-signup-status {
@@ -315,27 +334,27 @@
 }
 
 .weather-signup-status.is-success {
-  background: rgba(43, 117, 79, 0.12);
-  color: #185d39;
+  background: var(--success-surface);
+  color: var(--success-text);
 }
 
 .weather-signup-status.is-error {
-  background: rgba(168, 35, 57, 0.08);
-  color: #7c2130;
+  background: color-mix(in srgb, var(--p-red-100) 72%, transparent);
+  color: var(--p-red-800);
 }
 
 /* Contrast fix: PrimeNG default #10b981 on white is 2.53:1 (fails WCAG AA 4.5:1).
    Darkened to #0a7a52 which passes at ~5.1:1 against white. */
 .weather-signup-submit.p-button,
 .weather-signup-submit .p-button {
-  background: #0a7a52;
-  border-color: #0a7a52;
+  background: color-mix(in srgb, var(--success-text) 92%, black);
+  border-color: color-mix(in srgb, var(--success-text) 92%, black);
 }
 
 .weather-signup-submit.p-button:hover,
 .weather-signup-submit .p-button:hover {
-  background: #085f40;
-  border-color: #085f40;
+  background: color-mix(in srgb, var(--success-text) 80%, black);
+  border-color: color-mix(in srgb, var(--success-text) 80%, black);
 }
 
 .weather-alert-meta {
@@ -348,7 +367,7 @@
 .weather-alert-instruction {
   padding: 0.8rem 0.95rem;
   border-radius: 16px;
-  background: rgba(13, 44, 84, 0.05);
+  background: color-mix(in srgb, var(--surface-card) 78%, var(--p-primary-50));
 }
 
 .weather-action-row {
@@ -359,8 +378,8 @@
 .weather-action,
 .weather-action.is-link {
   padding: 0.8rem 1rem;
-  border: 1px solid rgba(13, 44, 84, 0.14);
-  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-overlay);
   color: var(--civic-blue);
   font: inherit;
   appearance: none;
@@ -383,7 +402,7 @@
 .weather-action:hover,
 .weather-action.is-link:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(17, 36, 61, 0.12);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .weather-action:disabled {
@@ -401,13 +420,25 @@
 .weather-status {
   padding: 1rem 1.1rem;
   border-radius: 18px;
-  background: rgba(13, 44, 84, 0.06);
+  background: color-mix(in srgb, var(--surface-card) 82%, var(--p-primary-50));
 }
 
 .weather-status.is-error {
-  background: rgba(168, 35, 57, 0.08);
-  color: #7c2130;
+  background: color-mix(in srgb, var(--p-red-100) 72%, transparent);
+  color: var(--p-red-800);
   font-weight: 700;
+}
+:host ::ng-deep .weather-no-alerts .p-message.p-message-success {
+  background: var(--success-surface);
+  border: 1px solid color-mix(in srgb, var(--success-text) 14%, transparent);
+}
+
+:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-text {
+  color: var(--success-text);
+}
+
+:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-icon {
+  color: var(--success-text);
 }
 
 .weather-action:focus-visible,

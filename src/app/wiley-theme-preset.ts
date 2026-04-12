@@ -19,7 +19,7 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
     focusRing: {
       width: '3px',
       style: 'solid',
-      color: '#ffbf47',
+      color: '{amber.400}',
       offset: '2px',
     },
     colorScheme: {
@@ -75,7 +75,7 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
         light: {
           root: {
             background: '{surface.0}',
-            borderColor: 'rgba(13, 44, 84, 0.12)',
+            borderColor: '{surface.200}',
             color: '{surface.800}',
           },
           header: {

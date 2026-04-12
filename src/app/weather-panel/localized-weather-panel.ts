@@ -8,6 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -218,6 +219,9 @@ interface WeatherCopy {
   fullName: string;
   fullNamePlaceholder: string;
   zipCode: string;
+  signupDisclosure: string;
+  privacyPolicyLabel: string;
+  smsTermsLabel: string;
   confirmationNote: string;
   submit: string;
   submitting: string;
@@ -291,6 +295,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     fullName: 'Full name (optional)',
     fullNamePlaceholder: 'Jordan Resident',
     zipCode: 'Service ZIP code',
+    signupDisclosure:
+      'By signing up, you agree to receive transactional severe weather alerts for ZIP code 81092. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.',
+    privacyPolicyLabel: 'Privacy notice',
+    smsTermsLabel: 'SMS terms',
     confirmationNote:
       'We send a confirmation first. Alerts do not start until the resident finishes the confirmation step.',
     submit: 'Sign up for alerts',
@@ -365,6 +373,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     fullName: 'Nombre completo (opcional)',
     fullNamePlaceholder: 'Jordan Resident',
     zipCode: 'Codigo postal del servicio',
+    signupDisclosure:
+      'Al suscribirse, usted acepta recibir alertas transaccionales de clima severo para el codigo postal 81092. La frecuencia de mensajes varia. Pueden aplicarse tarifas de mensajes y datos. Responda STOP para cancelar o HELP para obtener ayuda.',
+    privacyPolicyLabel: 'Aviso de privacidad',
+    smsTermsLabel: 'Terminos de SMS',
     confirmationNote:
       'Primero enviamos una confirmacion. Las alertas no comienzan hasta que la persona complete ese paso.',
     submit: 'Suscribirse a alertas',
@@ -397,7 +409,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule, TooltipModule],
+  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule, TooltipModule],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

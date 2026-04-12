@@ -139,8 +139,9 @@
 
 .resident-action.is-disabled {
   border: 1px solid var(--surface-border-strong);
-  background: var(--surface-card);
-  color: color-mix(in srgb, var(--civic-blue) 72%, transparent);
+  background: var(--surface-overlay);
+  color: var(--civic-blue-strong);
+  opacity: 1;
   cursor: not-allowed;
 }
 

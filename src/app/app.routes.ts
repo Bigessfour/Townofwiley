@@ -14,5 +14,7 @@ export const routes: Routes = [
   { path: 'news', component: App },
   { path: 'contact', component: App },
   { path: 'accessibility', component: App },
+  { path: 'privacy', component: App },
+  { path: 'terms', component: App },
   { path: '', component: App, pathMatch: 'full' },
 ];

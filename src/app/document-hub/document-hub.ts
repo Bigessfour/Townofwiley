@@ -52,21 +52,21 @@ interface DocumentHubCopy {
   sections: DocumentSection[];
 }
 
-export const DOCUMENT_HUB_TITLE_EN = 'Stable public destinations for meetings, finance records, and code references';
+export const DOCUMENT_HUB_TITLE_EN = 'Public meeting, finance, and code documents';
 
 const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   en: {
     kicker: 'Public Document Hub',
-    title: DOCUMENT_HUB_TITLE_EN,
+    title: 'Public meeting, finance, and code documents',
     intro:
-      'Use this page when you need meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, or a structured records request path. Even when a file is not posted yet, the destination stays public and tells residents exactly where the follow-up belongs.',
+      'Use this page to find meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, and records request information.',
     returnHome: 'Return to homepage',
     openRecordsForm: 'Open records request form',
     sectionNavLabel: 'Document hub sections',
     publishedArchiveKicker: 'Published now',
     publishedArchiveHeading: 'Downloadable public files available now',
     publishedArchiveIntro:
-      'This first-pass archive publishes real public reference files with stable URLs. Future packets, reports, and code documents can be added to the same public path without changing the resident workflow.',
+      'Browse the public documents that are currently available for download.',
     openDocumentLabel: 'Open document',
     downloadDocumentLabel: 'Download file',
     updatedLabel: 'Updated',
@@ -80,10 +80,10 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
           'Start here when you need a specific date range, accessible copy, public record, or document that is not already posted in the public destinations below.',
         items: [
           {
-            title: 'Records request workflow',
+            title: 'Records request form',
             status: 'Resident request path live',
             detail:
-              'Use the structured clerk intake form for public records, meeting packets, approved minutes, permit references, or accessible document copies that still need staff follow-up.',
+              'Use the clerk request form for public records, meeting packets, approved minutes, permit references, or accessible document copies.',
             actions: [
               { label: 'Open records request form', href: '/services#records-request' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
@@ -132,7 +132,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
             title: 'Budget summary destination',
             status: 'Public destination live',
             detail:
-              'Use this destination for budget-summary requests, finance-document follow-up, and the clerk path when a current posting is still being prepared.',
+              'Use this section for budget summaries, annual reports, and finance document requests.',
             actions: [
               { label: 'Request budget documents', href: '/services#records-request' },
               { label: 'Email the Clerk', href: 'mailto:deb.dillon@townofwiley.gov' },
@@ -183,16 +183,16 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   },
   es: {
     kicker: 'Centro publico de documentos',
-    title: 'Destinos publicos estables para reuniones, finanzas y referencias de codigo',
+    title: 'Documentos publicos de reuniones, finanzas y codigo',
     intro:
-      'Use esta pagina cuando necesite paquetes de agenda, minutas aprobadas, resumenes de presupuesto, informes anuales, ordenanzas, referencias de zonificacion o una ruta estructurada de solicitud de registros. Aunque un archivo aun no este publicado, el destino sigue siendo publico y le indica al residente donde corresponde el seguimiento.',
+      'Use esta pagina para encontrar paquetes de agenda, minutas aprobadas, resumenes de presupuesto, informes anuales, ordenanzas, referencias de zonificacion e informacion para solicitar registros.',
     returnHome: 'Volver a la pagina principal',
     openRecordsForm: 'Abrir formulario de registros',
     sectionNavLabel: 'Secciones del centro de documentos',
     publishedArchiveKicker: 'Publicado ahora',
     publishedArchiveHeading: 'Archivos publicos descargables disponibles ahora',
     publishedArchiveIntro:
-      'Este primer archivo publica documentos reales de referencia con rutas estables. Los futuros paquetes, informes y referencias de codigo pueden agregarse a la misma ruta publica sin cambiar el flujo para residentes.',
+      'Consulte los documentos publicos que actualmente estan disponibles para descargar.',
     openDocumentLabel: 'Abrir documento',
     downloadDocumentLabel: 'Descargar archivo',
     updatedLabel: 'Actualizado',
@@ -206,10 +206,10 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
           'Empiece aqui cuando necesite un rango de fechas, una copia accesible, un registro publico o un documento que todavia no este publicado en los destinos publicos de abajo.',
         items: [
           {
-            title: 'Flujo de solicitud de registros',
+            title: 'Formulario de solicitud de registros',
             status: 'Ruta publica para residentes activa',
             detail:
-              'Use el formulario estructurado de la secretaria para registros publicos, paquetes de reuniones, minutas aprobadas, referencias para permisos o copias accesibles que aun requieren seguimiento del personal.',
+              'Use el formulario de la secretaria para registros publicos, paquetes de reuniones, minutas aprobadas, referencias para permisos o copias accesibles.',
             actions: [
               { label: 'Abrir formulario de registros', href: '/services#records-request' },
               { label: 'Escribir a la secretaria', href: 'mailto:deb.dillon@townofwiley.gov' },

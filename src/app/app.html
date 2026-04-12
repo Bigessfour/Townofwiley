@@ -42,14 +42,13 @@
           </a>
         }
 
-        <p-button
-          [label]="appCopy().alertActionLabel"
-          (onClick)="openSignup()"
-          severity="secondary"
-          outlined="true"
-          size="small"
-          styleClass="site-alert-button"
-        />
+        <a
+          class="site-alert-button button-cta button-cta--ghost"
+          routerLink="/weather"
+          (click)="trackAlertSignupClick()"
+        >
+          {{ appCopy().alertActionLabel }}
+        </a>
       </div>
     </p-card>
   }
@@ -265,14 +264,13 @@
           {{ appCopy().nwsAlertLinkLabel }}
         </a>
 
-        <p-button
-          [label]="appCopy().alertActionLabel"
-          (onClick)="openSignup()"
-          severity="danger"
-          [outlined]="true"
-          size="small"
-          styleClass="site-alert-button"
-        />
+        <a
+          class="site-alert-button button-cta button-cta--ghost"
+          routerLink="/weather"
+          (click)="trackAlertSignupClick()"
+        >
+          {{ appCopy().alertActionLabel }}
+        </a>
       </div>
     </p-card>
   }
@@ -392,6 +390,7 @@
                     [label]="appCopy().calendarHelpButtonLabel"
                     icon="pi pi-question-circle"
                     severity="secondary"
+                    styleClass="calendar-help-button"
                     (onClick)="openCalendarHelp()"
                   />
                 </section>
@@ -665,6 +664,38 @@
                 <app-accessibility-support [contacts]="contacts()" />
               </p-card>
             </section>
+          } @else if (isPrivacyMode()) {
+            <section class="feature-detail-stack">
+              <p-card class="panel" id="privacy">
+                <p class="section-kicker">{{ privacyPolicyCopy().kicker }}</p>
+                <h2>{{ privacyPolicyCopy().title }}</h2>
+                <p class="feature-hub-copy">{{ privacyPolicyCopy().intro }}</p>
+                <div class="stack-list">
+                  @for (item of privacyPolicyCopy().items; track item.title) {
+                    <article class="info-row">
+                      <strong>{{ item.title }}</strong>
+                      <span>{{ item.detail }}</span>
+                    </article>
+                  }
+                </div>
+              </p-card>
+            </section>
+          } @else if (isTermsMode()) {
+            <section class="feature-detail-stack">
+              <p-card class="panel" id="terms">
+                <p class="section-kicker">{{ smsTermsCopy().kicker }}</p>
+                <h2>{{ smsTermsCopy().title }}</h2>
+                <p class="feature-hub-copy">{{ smsTermsCopy().intro }}</p>
+                <div class="stack-list">
+                  @for (item of smsTermsCopy().items; track item.title) {
+                    <article class="info-row">
+                      <strong>{{ item.title }}</strong>
+                      <span>{{ item.detail }}</span>
+                    </article>
+                  }
+                </div>
+              </p-card>
+            </section>
           } @else if (isContactMode()) {
             <section class="feature-detail-stack">
               <div class="panel contact-panel" id="contact">
@@ -933,7 +964,7 @@
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
           <p class="feature-hub-copy">
-            Keep emergency alerts, meeting access, and Town Hall response paths one click away for residents under time pressure.
+            Get weather alerts, meeting information, and direct Town Hall contact in one place.
           </p>
 
           <section class="support-link-grid grid gap-4 md:grid-cols-2" [attr.aria-label]="appCopy().topTasksHeading">

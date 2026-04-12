@@ -154,6 +154,18 @@ interface AccessibilityItem {
   detail: string;
 }
 
+interface PolicyItem {
+  title: string;
+  detail: string;
+}
+
+interface PolicyPageCopy {
+  kicker: string;
+  title: string;
+  intro: string;
+  items: PolicyItem[];
+}
+
 interface LeadershipGroup {
   title: string;
   detail: string;
@@ -182,6 +194,8 @@ type FeaturePageId =
   | 'records'
   | 'contact'
   | 'accessibility'
+  | 'privacy'
+  | 'terms'
   | 'businesses'
   | 'news';
 
@@ -277,6 +291,8 @@ interface AppCopy {
   contactKicker: string;
   contactHeading: string;
   backHomeLabel: string;
+  privacySummary: string;
+  termsSummary: string;
   featureTitles: FeatureTitles;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];
@@ -291,6 +307,125 @@ interface AppCopy {
   accessibilityItems: AccessibilityItem[];
   leadershipGroups: LeadershipGroup[];
 }
+
+const WEATHER_ALERT_POLICY_COPY: Record<SiteLanguage, { privacy: PolicyPageCopy; terms: PolicyPageCopy }> = {
+  en: {
+    privacy: {
+      kicker: 'Privacy',
+      title: 'Weather alert privacy notice',
+      intro:
+        'This notice explains how the Town of Wiley uses the phone numbers and email addresses submitted through the severe weather alert signup form.',
+      items: [
+        {
+          title: 'Information we collect',
+          detail:
+            'We collect the destination you enter, your preferred language, ZIP code 81092, and any optional name you provide when you request weather alerts.',
+        },
+        {
+          title: 'How the information is used',
+          detail:
+            'The Town uses this information only to send signup confirmations, severe weather alerts, and alert-management links related to Wiley weather notifications.',
+        },
+        {
+          title: 'Storage and sharing',
+          detail:
+            'Subscriber data is stored in AWS services that support the weather alert program. The Town does not sell this information or use it for unrelated marketing.',
+        },
+        {
+          title: 'How to remove your information',
+          detail:
+            'You can unsubscribe at any time from the alert management link after signup. You can also contact Town Hall at (719) 829-4974 for assistance.',
+        },
+      ],
+    },
+    terms: {
+      kicker: 'SMS Terms',
+      title: 'Weather alert SMS terms',
+      intro:
+        'These terms apply when you sign up for Town of Wiley severe weather alerts by text message.',
+      items: [
+        {
+          title: 'Consent to receive messages',
+          detail:
+            'By submitting your mobile number, you agree to receive transactional severe weather alerts and signup confirmations for ZIP code 81092.',
+        },
+        {
+          title: 'Message frequency and charges',
+          detail:
+            'Message frequency varies with National Weather Service activity, confirmation steps, and account changes. Message and data rates may apply.',
+        },
+        {
+          title: 'How to opt out or get help',
+          detail:
+            'Reply STOP to end text alerts. Reply HELP for help, or contact Town Hall at (719) 829-4974.',
+        },
+        {
+          title: 'Program scope',
+          detail:
+            'These messages are public-safety and service-impact alerts for Wiley weather conditions. They are not promotional marketing texts.',
+        },
+      ],
+    },
+  },
+  es: {
+    privacy: {
+      kicker: 'Privacidad',
+      title: 'Aviso de privacidad para alertas del clima',
+      intro:
+        'Este aviso explica como el Pueblo de Wiley usa los numeros de telefono y correos electronicos enviados mediante el formulario de alertas de clima severo.',
+      items: [
+        {
+          title: 'Informacion que recopilamos',
+          detail:
+            'Recopilamos el destino que usted ingresa, su idioma preferido, el codigo postal 81092 y cualquier nombre opcional que proporcione al solicitar alertas del clima.',
+        },
+        {
+          title: 'Como se usa la informacion',
+          detail:
+            'El Pueblo usa esta informacion solo para enviar confirmaciones de registro, alertas de clima severo y enlaces para administrar alertas relacionadas con notificaciones meteorologicas de Wiley.',
+        },
+        {
+          title: 'Almacenamiento y uso compartido',
+          detail:
+            'Los datos de suscriptores se almacenan en servicios de AWS que respaldan el programa de alertas del clima. El Pueblo no vende esta informacion ni la usa para mercadotecnia no relacionada.',
+        },
+        {
+          title: 'Como eliminar su informacion',
+          detail:
+            'Puede cancelar la suscripcion en cualquier momento desde el enlace de administracion de alertas despues del registro. Tambien puede llamar al Ayuntamiento al (719) 829-4974 para obtener ayuda.',
+        },
+      ],
+    },
+    terms: {
+      kicker: 'Terminos SMS',
+      title: 'Terminos de SMS para alertas del clima',
+      intro:
+        'Estos terminos se aplican cuando usted se suscribe por mensaje de texto a las alertas de clima severo del Pueblo de Wiley.',
+      items: [
+        {
+          title: 'Consentimiento para recibir mensajes',
+          detail:
+            'Al enviar su numero celular, usted acepta recibir alertas transaccionales de clima severo y confirmaciones de registro para el codigo postal 81092.',
+        },
+        {
+          title: 'Frecuencia y cargos',
+          detail:
+            'La frecuencia de mensajes varia segun la actividad del Servicio Nacional de Meteorologia, los pasos de confirmacion y los cambios en su cuenta. Pueden aplicarse tarifas de mensajes y datos.',
+        },
+        {
+          title: 'Como cancelar o pedir ayuda',
+          detail:
+            'Responda STOP para terminar las alertas por texto. Responda HELP para obtener ayuda, o llame al Ayuntamiento al (719) 829-4974.',
+        },
+        {
+          title: 'Alcance del programa',
+          detail:
+            'Estos mensajes son alertas de seguridad publica e impacto en servicios por condiciones meteorologicas de Wiley. No son mensajes promocionales.',
+        },
+      ],
+    },
+  },
+};
 
 function normalizePath(pathname: string): string {
   const pathWithoutHashOrQuery = pathname.split(/[?#]/, 1)[0] ?? pathname;
@@ -398,6 +533,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactKicker: 'Contact and Response Paths',
     contactHeading: 'Residents should always know where to go next',
     backHomeLabel: 'Return to homepage',
+    privacySummary: 'How the Town of Wiley uses contact information from the weather alert signup form.',
+    termsSummary: 'Message frequency, opt-out instructions, and program terms for Wiley weather alert texts.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
@@ -406,11 +543,15 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       records: 'Records and documents',
       contact: 'Contact Town Hall',
       accessibility: 'Accessibility statement',
+      privacy: 'Weather alert privacy notice',
+      terms: 'Weather alert SMS terms',
       businesses: 'Business directory',
       news: 'Town news',
     },
     footerLinks: [
       { label: 'Accessibility statement', href: '/accessibility' },
+      { label: 'Weather alert privacy', href: '/privacy' },
+      { label: 'Weather alert SMS terms', href: '/terms' },
       { label: 'Public records and FOIA', href: '/records' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
@@ -439,30 +580,30 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pay utility bill',
         description:
-          'Surface water and utility payments immediately so residents are not forced to navigate a deep department structure.',
+          'Pay your water and utility bills online or find payment options.',
         href: '/services#payment-help',
-        note: 'Use the billing help desk to request the current payment path and account guidance.',
+        note: 'Contact Town Hall for payment assistance.',
       },
       {
         title: 'Report a street or utility issue',
         description:
-          'Give residents a direct path for outages, potholes, drainage concerns, and streetlight issues without relying on phone tag.',
+          'Report potholes, outages, drainage issues, or streetlight problems.',
         href: '/services#issue-report',
-        note: 'Use the issue report form to prepare the right message for town operations.',
+        note: 'Submit your report directly to town services.',
       },
       {
         title: 'Find a meeting or agenda',
         description:
-          'Put board meetings, notices, agendas, and minutes directly on the homepage for a town where civic information should stay one click away.',
+          'View upcoming meetings, agendas, and past minutes.',
         href: '/meetings',
-        note: 'Open meetings information should stay one click away from the homepage.',
+        note: 'All meeting information is available here.',
       },
       {
         title: 'Request records, permits, or clerk help',
         description:
-          'Group routine clerk and permit needs under plain-language labels so residents do not have to guess which office handles the task.',
+          'Request public records, permits, or assistance from the clerk.',
         href: '/services#records-request',
-        note: 'Use the request form to send structured records, permit, and clerk questions.',
+        note: 'Use the form to submit your request.',
       },
     ],
     meetings: [
@@ -552,11 +693,11 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     serviceCards: [
       {
         title: 'Pay your utility bill',
-        availability: 'Billing help desk',
+        availability: 'Online payments and billing support',
         description:
-          'To pay your water or utility bill, open the billing help desk and fill out the short form. Town staff will reply with your current balance, payment options, and next steps.',
+          'Pay online when the secure payment portal is available, or use the billing form to ask about your balance, payment options, or account details.',
         href: '/services#payment-help',
-        cta: 'Open billing help desk',
+        cta: 'Open utility payment options',
       },
       {
         title: 'Report a street or utility problem',
@@ -656,7 +797,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Accessible documents and media',
         detail:
-          'Require searchable PDFs, captioned video, transcripts, alt text, and document publishing workflows that do not create inaccessible archives.',
+          'Provide searchable PDFs, captioned video, transcripts, alt text, and downloadable files that remain accessible over time.',
       },
       {
         title: 'Ongoing compliance operations',
@@ -786,6 +927,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactKicker: 'Contacto y rutas de respuesta',
     contactHeading: 'Los residentes siempre deben saber a donde ir despues',
     backHomeLabel: 'Volver a la pagina principal',
+    privacySummary: 'Como usa el Pueblo de Wiley la informacion de contacto del formulario de alertas del clima.',
+    termsSummary: 'Frecuencia de mensajes, instrucciones para cancelar y terminos del programa de alertas por texto de Wiley.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
@@ -794,11 +937,15 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       records: 'Registros y documentos',
       contact: 'Contactar al ayuntamiento',
       accessibility: 'Declaracion de accesibilidad',
+      privacy: 'Aviso de privacidad para alertas del clima',
+      terms: 'Terminos de SMS para alertas del clima',
       businesses: 'Directorio de negocios',
       news: 'Noticias del pueblo',
     },
     footerLinks: [
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
+      { label: 'Privacidad de alertas del clima', href: '/privacy' },
+      { label: 'Terminos SMS de alertas del clima', href: '/terms' },
       { label: 'Registros publicos y FOIA', href: '/records' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
@@ -825,30 +972,30 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pagar recibo de servicios',
         description:
-          'Muestre de inmediato los pagos de agua y servicios para que los residentes no tengan que navegar una estructura profunda por departamentos.',
+          'Pague sus recibos de agua y servicios en línea o encuentre opciones de pago.',
         href: '/services#payment-help',
-        note: 'Use la mesa de ayuda de facturacion para solicitar la ruta actual de pago y orientacion de cuenta.',
+        note: 'Contacte al Ayuntamiento para asistencia con pagos.',
       },
       {
         title: 'Reportar un problema de calle o servicio',
         description:
-          'Ofrezca una ruta directa para cortes, baches, drenaje y alumbrado publico sin depender de llamadas repetidas.',
+          'Reportar baches, cortes, problemas de drenaje o alumbrado público.',
         href: '/services#issue-report',
-        note: 'Use el formulario de reporte para preparar el mensaje correcto para operaciones del pueblo.',
+        note: 'Envíe su reporte directamente a los servicios del pueblo.',
       },
       {
-        title: 'Encontrar una reunion o agenda',
+        title: 'Encontrar una reunión o agenda',
         description:
-          'Ponga reuniones, avisos, agendas y minutas directamente en la pagina principal para que la informacion civica quede a un clic.',
+          'Ver reuniones próximas, agendas y minutas pasadas.',
         href: '/meetings',
-        note: 'La informacion de reuniones abiertas debe quedar a un solo clic de la pagina principal.',
+        note: 'Toda la información de reuniones está disponible aquí.',
       },
       {
         title: 'Solicitar registros, permisos o ayuda del secretario',
         description:
-          'Agrupe necesidades rutinarias del secretario y permisos con etiquetas sencillas para que los residentes no tengan que adivinar que oficina maneja cada tramite.',
+          'Solicitar registros públicos, permisos o asistencia del secretario.',
         href: '/services#records-request',
-        note: 'Use el formulario de solicitud para enviar preguntas estructuradas sobre registros, permisos y secretaria.',
+        note: 'Use el formulario para enviar su solicitud.',
       },
     ],
     meetings: [
@@ -938,11 +1085,11 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     serviceCards: [
       {
         title: 'Pague su recibo de servicios',
-        availability: 'Mesa de ayuda de facturacion',
+        availability: 'Pagos en linea y soporte de facturacion',
         description:
-          'Para pagar su recibo de agua o servicios, abra la mesa de ayuda y llene el formulario corto. El personal del pueblo le respondera con su saldo actual, opciones de pago y siguientes pasos.',
+          'Pague en linea cuando el portal seguro este disponible o use el formulario de facturacion para preguntar por su saldo, opciones de pago o detalles de cuenta.',
         href: '/services#payment-help',
-        cta: 'Abrir ayuda de facturacion',
+        cta: 'Abrir opciones de pago de servicios',
       },
       {
         title: 'Reporte un problema de calle o servicio',
@@ -1042,7 +1189,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Documentos y medios accesibles',
         detail:
-          'Exija PDF buscables, video con subtitulos, transcripciones, texto alternativo y flujos de publicacion que no creen archivos inaccesibles.',
+          'Ofrezca PDF buscables, video con subtitulos, transcripciones, texto alternativo y archivos descargables que sigan siendo accesibles con el tiempo.',
       },
       {
         title: 'Operacion continua de cumplimiento',
@@ -1208,6 +1355,8 @@ export class App {
   protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
+  protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
+  protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
   protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
   protected readonly isFeaturePageMode = computed(
@@ -1219,6 +1368,8 @@ export class App {
       this.isRecordsMode() ||
       this.isContactMode() ||
       this.isAccessibilityMode() ||
+        this.isPrivacyMode() ||
+        this.isTermsMode() ||
       this.isBusinessesMode() ||
       this.isNewsMode(),
   );
@@ -1261,6 +1412,12 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly privacyPolicyCopy = computed(
+    () => WEATHER_ALERT_POLICY_COPY[this.siteLanguage()].privacy,
+  );
+  protected readonly smsTermsCopy = computed(
+    () => WEATHER_ALERT_POLICY_COPY[this.siteLanguage()].terms,
+  );
   protected readonly languageChoices = computed(() => [
     { label: this.appCopy().languageOptions.es, value: 'es' as SiteLanguage },
     { label: this.appCopy().languageOptions.en, value: 'en' as SiteLanguage },
@@ -1380,6 +1537,22 @@ export class App {
         title: copy.featureTitles.accessibility,
         summary: copy.complianceNote,
         href: '/accessibility',
+        showOnHomepage: false,
+      },
+      {
+        id: 'privacy',
+        kicker: this.privacyPolicyCopy().kicker,
+        title: copy.featureTitles.privacy,
+        summary: copy.privacySummary,
+        href: '/privacy',
+        showOnHomepage: false,
+      },
+      {
+        id: 'terms',
+        kicker: this.smsTermsCopy().kicker,
+        title: copy.featureTitles.terms,
+        summary: copy.termsSummary,
+        href: '/terms',
         showOnHomepage: false,
       },
       {
@@ -1858,14 +2031,8 @@ export class App {
     return score;
   }
 
-  protected openSignup(): void {
+  protected trackAlertSignupClick(): void {
     this.logging.buttonClick('alert-signup');
-    if (this.isWeatherMode()) {
-      this.scrollToFragment('#weather-signup-heading', '#weather');
-      return;
-    }
-
-    this.router.navigate(['/weather']);
   }
 
   protected openCalendar(event?: Event): void {
