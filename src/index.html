@@ -7,10 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Official Town of Wiley website with notices, meetings, weather updates, and resident services."
+      content="Official Town of Wiley website for resident services, weather alerts, meetings, records, notices, and Town Hall contacts."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <!-- Apple touch icon: iOS ignores SVG; fallback to favicon until a PNG is available -->
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg?v=2" />
+    <meta name="theme-color" content="#133b63" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://townofwiley.gov/" />
+    <meta property="og:image" content="https://townofwiley.gov/hero-wiley.webp" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HS0707W6BF"></script>
     <script>
@@ -23,7 +28,7 @@
   </head>
   <body>
     <app-root></app-root>
-    <script src="runtime-config.js"></script>
+    <script src="runtime-config.js" defer></script>
     <script src="easy-peasy-loader.js" defer></script>
   </body>
 </html>

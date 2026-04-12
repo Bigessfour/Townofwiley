@@ -36,6 +36,7 @@
     "deploy:email-alias-router": "python scripts/deploy-email-alias-router.py",
     "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",
     "deploy:site-monitor": "python scripts/deploy-site-monitor.py",
+    "assets:hero": "node scripts/convert-hero.mjs",
     "lint": "ng lint"
   },
   "prettier": {
@@ -89,6 +90,7 @@
     "jsdom": "^27.1.0",
     "playwright": "^1.58.2",
     "postcss": "^8.5.8",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.2.2",
     "tailwindcss-primeui": "^0.6.1",
     "typescript": "~5.9.2",

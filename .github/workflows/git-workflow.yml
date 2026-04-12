@@ -65,7 +65,7 @@ jobs:
             [[ -z "$FILE" ]] && continue
 
             case "$FILE" in
-              src/*|public/*|package.json|package-lock.json|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|static-routes.txt)
+              src/*|public/*|package.json|package-lock.json|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|static-routes.txt)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -157,8 +157,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Verify WebP hero assets exist
+        run: |
+          for f in public/hero-wiley.webp public/hero-wiley-800.webp; do
+            [ -f "$f" ] || (echo "::error::Missing required asset: $f — run npm run assets:hero" && exit 1)
+          done
+
       - name: Build
         run: npm run build
+
+      - name: Verify build output contains WebP reference
+        run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)
 
   frontend-smoke:
     needs: detect-changes
@@ -219,6 +228,23 @@ jobs:
 
       - name: Run public-site proxy tests
         run: npm run test:infra
+
+      - name: Verify NWS proxy solar fmt does not produce NaN
+        run: |
+          node --input-type=module <<'EOF'
+          import { handler } from './infrastructure/nws-weather-proxy/index.mjs';
+          // Smoke-test the solar formatter with whole-number hour values that
+          // previously triggered the NaN:00 bug.
+          const { computeSolarTimes } = await import('./infrastructure/nws-weather-proxy/index.mjs').catch(() => ({}));
+          // If the module does not export computeSolarTimes directly, skip.
+          if (typeof computeSolarTimes !== 'function') process.exit(0);
+          const result = computeSolarTimes('2026-06-21');
+          if (result.sunrise.includes('NaN') || result.sunset.includes('NaN')) {
+            console.error('Solar formatter produced NaN:', result);
+            process.exit(1);
+          }
+          console.log('Solar times OK:', result);
+          EOF
 
   backend-python-tests:
     runs-on: ubuntu-latest

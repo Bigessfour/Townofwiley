@@ -193,11 +193,11 @@
 }
 
 .weather-period-card {
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--surface-card);
 }
 
 .weather-period-card.is-night {
-  background: rgba(232, 238, 249, 0.9);
+  background: color-mix(in srgb, var(--surface-card-soft) 88%, var(--p-primary-50));
 }
 
 .weather-period-heading {
@@ -246,18 +246,18 @@
 }
 
 .weather-alert-card {
-  background: rgba(255, 248, 248, 0.92);
+  background: color-mix(in srgb, var(--surface-card) 88%, #fff1f1);
 }
 
 .weather-alert-card.is-clear {
-  background: rgba(241, 248, 244, 0.95);
+  background: color-mix(in srgb, var(--surface-card) 88%, #eef9f1);
 }
 
 .weather-signup-shell {
   padding: 1.2rem;
   border-radius: 24px;
-  border: 1px solid rgba(13, 44, 84, 0.1);
-  background: rgba(244, 248, 255, 0.96);
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-card) 88%, var(--p-primary-50));
 }
 
 .weather-signup-grid {
@@ -324,8 +324,18 @@
   color: #7c2130;
 }
 
-.weather-signup-submit {
-  width: 100%;
+/* Contrast fix: PrimeNG default #10b981 on white is 2.53:1 (fails WCAG AA 4.5:1).
+   Darkened to #0a7a52 which passes at ~5.1:1 against white. */
+.weather-signup-submit.p-button,
+.weather-signup-submit .p-button {
+  background: #0a7a52;
+  border-color: #0a7a52;
+}
+
+.weather-signup-submit.p-button:hover,
+.weather-signup-submit .p-button:hover {
+  background: #085f40;
+  border-color: #085f40;
 }
 
 .weather-alert-meta {
@@ -600,12 +610,12 @@
 
 /* Override PrimeNG default dark surface with site-matching light background */
 .weather-alerts-panel {
-  --p-panel-background: rgba(255, 255, 255, 0.96);
-  --p-panel-header-background: rgba(248, 251, 255, 0.97);
-  --p-panel-content-background: rgba(255, 255, 255, 0.96);
+  --p-panel-background: var(--surface-card);
+  --p-panel-header-background: color-mix(in srgb, var(--surface-card) 85%, var(--p-primary-50));
+  --p-panel-content-background: var(--surface-card);
   --p-panel-header-color: var(--ink-900);
   --p-panel-content-color: var(--ink-900);
-  --p-panel-border-color: rgba(13, 44, 84, 0.1);
+  --p-panel-border-color: var(--surface-border);
 }
 
 /* ── Accordion header layout ─────────────────────────── */
@@ -620,11 +630,11 @@
 .weather-radar-panel {
   border-radius: 0.6rem;
   overflow: hidden;
-  --p-panel-background: rgba(255, 255, 255, 0.96);
-  --p-panel-header-background: rgba(248, 251, 255, 0.97);
-  --p-panel-content-background: rgba(255, 255, 255, 0.96);
+  --p-panel-background: var(--surface-card);
+  --p-panel-header-background: color-mix(in srgb, var(--surface-card) 85%, var(--p-primary-50));
+  --p-panel-content-background: var(--surface-card);
   --p-panel-header-color: var(--ink-900);
-  --p-panel-border-color: rgba(13, 44, 84, 0.1);
+  --p-panel-border-color: var(--surface-border);
 }
 
 .weather-radar-note {
@@ -638,9 +648,9 @@
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.65rem 0.95rem;
-  border: 1px solid rgba(13, 44, 84, 0.14);
+  border: 1px solid var(--surface-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface-card);
   color: var(--civic-blue);
   font: inherit;
   cursor: pointer;
@@ -667,4 +677,13 @@
   max-width: 100%;
   border: none;
   border-top: 1px solid rgba(0 0 0 / 0.08);
+}
+
+.weather-current-footer {
+  margin-top: 0.35rem;
+}
+
+.weather-action--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }

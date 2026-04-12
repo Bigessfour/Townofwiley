@@ -84,7 +84,8 @@ function computeSolarTimes(dateStr) {
 
   const fmt = (h) => {
     const hr = ((Math.floor(h) % 24) + 24) % 24;
-    const min = Math.round(((h % 1) + 1) % 1 * 60);
+    const frac = h - Math.floor(h);
+    const min = Math.round((frac < 0 ? frac + 1 : frac) * 60) % 60;
     const ampm = hr >= 12 ? 'PM' : 'AM';
     return `${hr % 12 || 12}:${String(min).padStart(2, '0')} ${ampm}`;
   };

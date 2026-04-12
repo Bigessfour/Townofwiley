@@ -42,7 +42,7 @@
   overflow: hidden;
 }
 
-.site-alert :where(.p-card-body) {
+.site-alert-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -235,15 +235,12 @@
 }
 
 .utility-link {
-  border-radius: 999px;
-}
-
-.utility-link {
   display: grid;
   gap: 0.2rem;
   min-width: 12rem;
   padding: calc(var(--spacing-unit) * 0.95) calc(var(--spacing-unit) * 1.05);
   border: 1px solid rgba(13, 44, 84, 0.1);
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.82);
   color: var(--text-on-bg);
   font: inherit;
@@ -427,7 +424,7 @@ h3 {
   padding: calc(var(--spacing-unit) * 1.7);
 }
 
-.support-strip :where(.p-card-body) {
+.support-card-body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: calc(var(--spacing-unit) * 2);
@@ -481,9 +478,9 @@ h3 {
   gap: 0.75rem;
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.15);
-  border: 1px solid rgba(13, 44, 84, 0.1);
+  border: 1px solid var(--surface-border);
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 247, 251, 0.92));
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
   box-shadow: 0 22px 44px rgba(17, 36, 61, 0.08);
   color: inherit;
   text-decoration: none;
@@ -506,8 +503,20 @@ h3 {
 .feature-card:hover,
 .feature-card:focus-visible {
   transform: translateY(-2px);
-  border-color: rgba(13, 44, 84, 0.18);
+  border-color: var(--surface-border-strong);
   box-shadow: 0 22px 42px rgba(17, 36, 61, 0.1);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .feature-page-shell {
@@ -600,9 +609,9 @@ h3 {
   align-items: start;
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.08);
-  border: 1px solid rgba(13, 44, 84, 0.08);
+  border: 1px solid var(--surface-border);
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.92));
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   color: inherit;
   text-decoration: none;
   position: relative;
@@ -697,7 +706,7 @@ h3 {
   padding: 0.95rem 1.15rem;
   border: 0;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(212, 161, 75, 0.94), rgba(164, 90, 44, 0.9));
+  background: linear-gradient(135deg, var(--button-accent-start), var(--button-accent-end));
   color: #fff;
   font-weight: 800;
   cursor: pointer;
@@ -752,9 +761,9 @@ h3 {
   gap: 0.7rem;
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.15);
-  border: 1px solid rgba(13, 44, 84, 0.08);
+  border: 1px solid var(--surface-border);
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 241, 231, 0.94));
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   box-shadow: 0 22px 44px rgba(17, 36, 61, 0.08);
 }
 
@@ -831,9 +840,9 @@ h3 {
 .calendar-panel .p-tablist {
   gap: 0.45rem;
   padding: 0.35rem;
-  border: 1px solid rgba(19, 59, 99, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--surface-card);
 }
 
 .calendar-panel .p-tab {
@@ -849,7 +858,7 @@ h3 {
 }
 
 .calendar-panel .p-tab[data-p-active='true'] {
-  background: linear-gradient(135deg, rgba(19, 59, 99, 0.98), rgba(41, 66, 95, 0.94));
+  background: var(--brand-gradient-strong);
   color: #fff;
   box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
 }
@@ -1468,12 +1477,12 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .site-alert :where(.p-card-body) {
+  .site-alert-body {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .support-strip :where(.p-card-body) {
+  .support-card-body {
     grid-template-columns: 1fr;
   }
 
@@ -1650,7 +1659,7 @@ input:focus-visible {
 // ── NWS Severe Weather Alert Banner ─────────────────────────────────────────
 // Overrides the base .site-alert gradient with a high-visibility emergency red.
 .site-alert--nws {
-  background: linear-gradient(135deg, #9f1e2c, #c22a3a) !important;
+  background: linear-gradient(135deg, #9f1e2c, #c22a3a);
   box-shadow: 0 22px 54px rgba(159, 30, 44, 0.35);
 }
 

@@ -18,12 +18,18 @@
   }
 
   @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
-    <p-card class="site-alert" [attr.aria-label]="appCopy().siteAlertAriaLabel">
+    <p-card
+      class="site-alert"
+      role="region"
+      [pt]="siteAlertCardPt"
+      [attr.aria-labelledby]="'site-alert-title'"
+      [attr.aria-describedby]="'site-alert-detail'"
+    >
       <div class="site-alert-copy">
         <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
         <p class="site-alert-label">{{ alertBanner().label }}</p>
-        <h2 class="site-alert-title">{{ alertBanner().title }}</h2>
-        <p class="site-alert-detail">{{ alertBanner().detail }}</p>
+        <h2 id="site-alert-title" class="site-alert-title">{{ alertBanner().title }}</h2>
+        <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
       </div>
 
       <div class="site-alert-actions">
@@ -72,6 +78,8 @@
                     class="main-nav-link"
                     [routerLink]="navLink.path"
                     [fragment]="navLink.fragment"
+                    [class.is-active]="isCurrentRouteLink(navLink)"
+                    [attr.aria-current]="isCurrentRouteLink(navLink) ? 'page' : null"
                   >
                     @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
                     {{ link.label }}
@@ -140,6 +148,8 @@
             [attr.title]="appCopy().searchHeading"
             (submit)="performSearch($event)"
           >
+            <label class="sr-only" for="site-search">{{ appCopy().searchLabel }}</label>
+            <p id="site-search-note" class="sr-only">{{ appCopy().searchNote }}</p>
             <p-inputgroup class="search-control-row header-search-row flex gap-3">
               <input
                 pInputText
@@ -150,9 +160,11 @@
                 (ngModelChange)="updateSearch($event)"
                 [ngModelOptions]="{ standalone: true }"
                 [attr.aria-label]="appCopy().searchLabel"
+                aria-describedby="site-search-note"
                 [attr.placeholder]="appCopy().searchPlaceholder"
                 [attr.title]="appCopy().searchPlaceholder"
                 autocomplete="off"
+                enterkeyhint="search"
                 spellcheck="false"
               />
               <p-button
@@ -172,12 +184,13 @@
                   <p-skeleton width="100%" height="4.5rem" />
                 </div>
               } @else if (searchResults().length) {
-                <div class="search-results grid gap-3">
+                <div class="search-results grid gap-3" role="list" [attr.aria-label]="appCopy().searchHeading">
                   @for (result of searchResults(); track result.href + result.title) {
                     @if (resolveAppLink(result.href); as searchResultLink) {
                       @if (searchResultLink.isInternal) {
                         <a
                           class="search-result"
+                          role="listitem"
                           [routerLink]="searchResultLink.path"
                           [fragment]="searchResultLink.fragment"
                         >
@@ -186,7 +199,7 @@
                           <small>{{ result.category }}</small>
                         </a>
                       } @else {
-                        <a class="search-result" [attr.href]="searchResultLink.href">
+                        <a class="search-result" role="listitem" [attr.href]="searchResultLink.href">
                           <strong>{{ result.title }}</strong>
                           <span>{{ result.summary }}</span>
                           <small>{{ result.category }}</small>
@@ -208,7 +221,8 @@
       <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
         <figure class="hero-landing-media">
           <img
-            [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.jpg'"
+            [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
+            ngSrcset="800w, 1184w"
             [attr.alt]="appCopy().heroImageAlt"
             fill
             priority
@@ -225,11 +239,17 @@
   </header>
 
   @if (homepageWeatherAlert(); as alert) {
-    <p-card class="site-alert site-alert--nws" role="alert" [attr.aria-label]="appCopy().nwsAlertLabel">
+    <p-card
+      class="site-alert site-alert--nws"
+      role="alert"
+      [pt]="siteAlertCardPt"
+      [attr.aria-labelledby]="'nws-alert-title'"
+      [attr.aria-describedby]="'nws-alert-detail'"
+    >
       <div class="site-alert-copy">
         <p class="site-alert-headline">{{ appCopy().nwsAlertLabel }}</p>
-        <h2 class="site-alert-title">{{ alert.event }}</h2>
-        <p class="site-alert-detail">{{ alert.headline }}</p>
+        <h2 id="nws-alert-title" class="site-alert-title">{{ alert.event }}</h2>
+        <p id="nws-alert-detail" class="site-alert-detail">{{ alert.headline }}</p>
         @if (alert.instruction) {
           <p class="site-alert-instruction">{{ alert.instruction }}</p>
         }
@@ -343,7 +363,7 @@
                   </aside>
                 </header>
 
-                <section class="calendar-tools" aria-label="Calendar controls">
+                <section class="calendar-tools" aria-labelledby="calendar-heading">
                   <section class="calendar-tool">
                     <label class="calendar-tool-label" for="calendar-jump-month">
                       {{ appCopy().calendarJumpLabel }}
@@ -377,7 +397,7 @@
                 </section>
 
                 <p-tabs [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
-                  <p-tablist>
+                  <p-tablist [attr.aria-label]="appCopy().meetingsHeading">
                     <p-tab value="month">{{ appCopy().calendarMonthTabLabel }}</p-tab>
                     <p-tab value="list">{{ appCopy().calendarListTabLabel }}</p-tab>
                   </p-tablist>
@@ -409,6 +429,11 @@
                           stripedRows
                           showGridlines
                         >
+                          <ng-template #caption>
+                            <span class="sr-only">
+                              {{ appCopy().calendarHeading }}. {{ appCopy().calendarCopy }}
+                            </span>
+                          </ng-template>
                           <ng-template #header>
                             <tr>
                               <th pSortableColumn="title">
@@ -709,9 +734,7 @@
             <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
             <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
           </div>
-          <p class="feature-hub-copy">
-            Start with the resident tasks people expect to find immediately: payments, meetings, records, and issue reporting.
-          </p>
+          <p class="feature-hub-copy">{{ appCopy().topTasksBody }}</p>
         </header>
 
         <p-divider styleClass="section-divider" />
@@ -884,7 +907,7 @@
 
         <p-divider styleClass="section-divider" />
 
-        <section class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Town feature pages">
+        <section class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3" [attr.aria-label]="appCopy().featureHubHeading">
           @for (feature of homepageFeaturePages(); track feature.id) {
             @if (resolveAppLink(feature.href); as featureLink) {
               @if (featureLink.isInternal) {
@@ -906,14 +929,14 @@
       </section>
 
       <section class="support-strip grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]">
-        <p-card class="hero-card stay-informed-card" aria-labelledby="stay-informed-heading">
+        <p-card class="hero-card stay-informed-card" [pt]="supportCardPt" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
           <p class="feature-hub-copy">
             Keep emergency alerts, meeting access, and Town Hall response paths one click away for residents under time pressure.
           </p>
 
-          <section class="support-link-grid grid gap-4 md:grid-cols-2" aria-label="Quick resident links">
+          <section class="support-link-grid grid gap-4 md:grid-cols-2" [attr.aria-label]="appCopy().topTasksHeading">
             @if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
                 @if (supportContactLink.isInternal) {
@@ -940,7 +963,7 @@
           </section>
         </p-card>
 
-        <p-card class="chatbot-panel panel" id="chatbot-panel" aria-labelledby="chatbot-heading">
+        <p-card class="chatbot-panel panel" id="chatbot-panel" [pt]="supportCardPt" aria-labelledby="chatbot-heading">
           <p class="section-kicker">Chat with Wiley</p>
           <h2 id="chatbot-heading">Town Assistant</h2>
 
