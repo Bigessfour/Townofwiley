@@ -546,8 +546,13 @@ Current resident-facing weather UI behavior:
 - The resident-facing signup is currently limited to ZIP code `81092` because the backend enforces that service area.
 - The checked-in runtime config currently enables this signup form and points it at the live severe-weather backend, so if the form disappears in production the first thing to verify is whether `public/runtime-config.js` was regenerated with the expected alert-signup block during the build.
 - The live severe-weather backend sender is now `alerts@townofwiley.gov`, which is allowed through the verified `townofwiley.gov` SES domain identity in `us-east-2`.
-- Email confirmations are working through SES, but SMS confirmations are still blocked because Amazon SNS SMS in `us-east-2` reports `IsInSandbox: true` for this account.
-- SES and SNS SMS are separate AWS delivery systems. SES production access does not remove the SNS SMS sandbox.
+- Email confirmations are working through SES, and SMS confirmations are now live through Amazon SNS in `us-east-2` with transactional SMS delivery enabled for this account.
+- SES and SNS SMS are separate AWS delivery systems, so both services need to remain configured in the same deployment path.
+- The severe-weather backend keeps subscription records in DynamoDB with the subscriber channel, normalized destination, full name, preferred language, ZIP code, status, and confirmation/unsubscribe tokens, so the site is already tracking who signs up.
+- Scheduled alert fan-out now isolates individual send failures so one bad destination does not stop the rest of the alert run.
+- The developer-only smoke-test token is stored in AWS Secrets Manager under `TownOfWileySevereWeatherDeveloperTestToken` and mirrored in the repo's encrypted secrets locker instead of being hardcoded in Lambda config.
+- CloudWatch alarms are configured for both the normal alert-trigger event and delivery failures, with SNS topic notifications sent to the configured alarm recipient.
+- Reusable developer-only alert smoke tests can be run against the backend with `scripts/send-developer-weather-test.py`; that route sends only to the explicit email and SMS recipients you provide and does not fan out to the subscriber table.
 
 Recommended `NWS_USER_AGENT` format:
 

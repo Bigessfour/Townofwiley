@@ -58,6 +58,10 @@ const templateSecrets = {
       enabled: false,
       apiEndpoint: '',
       senderEmail: '',
+      alarmNotificationEmail: 'steve.mckitrick@townofwiley.gov',
+      developerTestTokenSecretName: 'TownOfWileySevereWeatherDeveloperTestToken',
+      developerTestToken: '',
+      cloudwatchNamespace: 'TownOfWiley/SevereWeather',
     },
   },
   payments: {
@@ -127,6 +131,22 @@ const envMappings = [
   {
     env: 'SEVERE_WEATHER_SIGNUP_SENDER_EMAIL',
     path: ['weather', 'alertSignup', 'senderEmail'],
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_ALARM_NOTIFICATION_EMAIL',
+    path: ['weather', 'alertSignup', 'alarmNotificationEmail'],
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_DEVELOPER_TEST_TOKEN_SECRET_NAME',
+    path: ['weather', 'alertSignup', 'developerTestTokenSecretName'],
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_DEVELOPER_TEST_TOKEN',
+    path: ['weather', 'alertSignup', 'developerTestToken'],
+  },
+  {
+    env: 'SEVERE_WEATHER_SIGNUP_CLOUDWATCH_NAMESPACE',
+    path: ['weather', 'alertSignup', 'cloudwatchNamespace'],
   },
   { env: 'PAYSTAR_MODE', path: ['payments', 'paystar', 'mode'] },
   { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },

@@ -14,7 +14,13 @@ sys.modules[SPEC.name] = APP
 SPEC.loader.exec_module(APP)
 
 
-def build_backend(alerts: list[dict] | None = None) -> APP.SevereWeatherBackend:
+def build_backend(
+  alerts: list[dict] | None = None,
+  developer_test_token_secret_name: str = '',
+  developer_test_token: str = '',
+  cloudwatch_gateway: APP.CloudwatchGateway | None = None,
+  secrets_manager_client: object | None = None,
+) -> APP.SevereWeatherBackend:
   return APP.SevereWeatherBackend(
     config=APP.AppConfig(
       subscriptions_table='subscriptions',
@@ -26,12 +32,17 @@ def build_backend(alerts: list[dict] | None = None) -> APP.SevereWeatherBackend:
       public_api_base_url='https://alerts.example.com',
       nws_user_agent='TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)',
       nws_api_key='',
+      developer_test_token_secret_name=developer_test_token_secret_name,
+      developer_test_token=developer_test_token,
+      cloudwatch_namespace='TownOfWiley/SevereWeather',
     ),
     subscription_store=APP.MemorySubscriptionStore(),
     delivery_store=APP.MemoryDeliveryStore(),
     notification_gateway=APP.MemoryNotificationGateway(),
     nws_client=APP.StaticNwsClient(alerts or []),
     translation_gateway=APP.MemoryTranslationGateway(),
+    cloudwatch_gateway=cloudwatch_gateway or APP.MemoryCloudwatchGateway(),
+    secrets_manager_client=secrets_manager_client,
   )
 
 
@@ -55,6 +66,40 @@ class FailingNotificationGateway:
   def send_alert(self, channel: str, destination: str, subject: str, message: str) -> None:
     del channel, destination, subject, message
     raise RuntimeError(self._message)
+
+
+class FlakyNotificationGateway:
+  def __init__(self) -> None:
+    self.alert_messages: list[dict[str, str]] = []
+    self._should_fail = True
+
+  def send_confirmation(self, channel: str, destination: str, subject: str, message: str) -> None:
+    del channel, destination, subject, message
+
+  def send_alert(self, channel: str, destination: str, subject: str, message: str) -> None:
+    if self._should_fail:
+      self._should_fail = False
+      raise RuntimeError('Temporary send failure')
+
+    self.alert_messages.append(
+      {
+        'channel': channel,
+        'destination': destination,
+        'subject': subject,
+        'message': message,
+      },
+    )
+
+
+class FakeSecretsManagerClient:
+  def __init__(self, secrets: dict[str, str]) -> None:
+    self._secrets = secrets
+
+  def get_secret_value(self, SecretId: str) -> dict[str, str]:
+    if SecretId not in self._secrets:
+      raise RuntimeError(f'Secret not found: {SecretId}')
+
+    return {'SecretString': self._secrets[SecretId]}
 
 
 class SevereWeatherBackendTests(unittest.TestCase):
@@ -338,6 +383,65 @@ class SevereWeatherBackendTests(unittest.TestCase):
     self.assertEqual(json.loads(first['body'])['messagesSent'], 1)
     self.assertEqual(json.loads(second['body'])['messagesSent'], 0)
     self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
+
+  def test_scheduled_event_continues_when_one_delivery_fails(self) -> None:
+    backend = build_backend(
+      alerts=[
+        {
+          'id': 'alert-1',
+          'event': 'High Wind Warning',
+          'headline': 'High winds expected in Wiley.',
+          'severity': 'Severe',
+          'urgency': 'Immediate',
+          'expires': '2026-03-22T23:00:00+00:00',
+          'instruction': 'Secure loose outdoor items.',
+          'areaDesc': 'Wiley and surrounding area',
+        },
+      ],
+    )
+
+    for destination in ('resident1@example.com', 'resident2@example.com'):
+      backend.handle(
+        {
+          'requestContext': {'http': {'method': 'POST'}},
+          'rawPath': '/subscriptions',
+          'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+          'body': json.dumps(
+            {
+              'channel': 'email',
+              'destination': destination,
+              'zipCode': '81092',
+            },
+          ),
+        },
+      )
+      token = (
+        backend._notification_gateway.confirmation_messages[-1]['message']
+        .split('Confirm alerts: ')[1]
+        .split('\n')[0]
+        .split('token=')[1]
+      )
+      backend.handle(
+        {
+          'requestContext': {'http': {'method': 'GET'}},
+          'rawPath': '/confirm',
+          'queryStringParameters': {'token': token},
+        },
+      )
+
+    flaky_gateway = FlakyNotificationGateway()
+    backend._notification_gateway = flaky_gateway
+
+    response = backend.handle({'source': 'aws.events', 'detail-type': 'Scheduled Event'})
+
+    body = json.loads(response['body'])
+    self.assertEqual(body['messagesSent'], 1)
+    self.assertEqual(body['messagesFailed'], 1)
+    self.assertEqual(len(flaky_gateway.alert_messages), 1)
+    self.assertEqual(
+      [metric['metric_name'] for metric in backend._cloudwatch_gateway.metrics],
+      ['NormalAlertTriggered', 'AlertDeliveryFailure'],
+    )
 
   # ---------------------------------------------------------------------------
   # Input validation: channel / destination / language / body
@@ -722,6 +826,121 @@ class SevereWeatherBackendTests(unittest.TestCase):
 
     self.assertEqual(response['statusCode'], 502)
     self.assertIn('Text alert confirmations', response['body'])
+
+  def test_developer_test_route_sends_only_explicit_sms_and_email_recipients(self) -> None:
+    backend = build_backend(developer_test_token='developer-secret')
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/developer-test',
+        'headers': {
+          'host': 'alerts.example.com',
+          'x-forwarded-proto': 'https',
+          'x-townofwiley-test-token': 'developer-secret',
+        },
+        'body': json.dumps(
+          {
+            'emailDestination': 'steve.mckitrick@townofwiley.gov',
+            'smsDestination': '(719) 640-2230',
+            'preferredLanguage': 'en',
+            'event': 'Town of Wiley developer alert test',
+            'headline': 'This message should go only to Steve',
+            'instruction': 'Confirm the alert delivery path and stop here.',
+            'zipCode': '81092',
+          },
+        ),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    gateway = backend._notification_gateway
+    self.assertEqual(len(gateway.alert_messages), 2)
+    self.assertEqual({message['channel'] for message in gateway.alert_messages}, {'email', 'sms'})
+    self.assertIn('steve.mckitrick@townofwiley.gov', {message['destination'] for message in gateway.alert_messages})
+    self.assertIn('+17196402230', {message['destination'] for message in gateway.alert_messages})
+    self.assertIn('Town of Wiley alert: Town of Wiley developer alert test', {message['subject'] for message in gateway.alert_messages})
+    self.assertTrue(
+      any('Headline: This message should go only to Steve' in message['message'] for message in gateway.alert_messages),
+    )
+
+  def test_developer_test_route_resolves_token_from_managed_secret(self) -> None:
+    backend = build_backend(
+      developer_test_token_secret_name='TownOfWileySevereWeatherDeveloperTestToken',
+      secrets_manager_client=FakeSecretsManagerClient(
+        {'TownOfWileySevereWeatherDeveloperTestToken': 'managed-secret-token'},
+      ),
+    )
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/developer-test',
+        'headers': {
+          'host': 'alerts.example.com',
+          'x-forwarded-proto': 'https',
+          'x-townofwiley-test-token': 'managed-secret-token',
+        },
+        'body': json.dumps({'emailDestination': 'steve.mckitrick@townofwiley.gov'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 200)
+    self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
+    self.assertEqual(backend._notification_gateway.alert_messages[0]['destination'], 'steve.mckitrick@townofwiley.gov')
+
+  def test_developer_test_route_is_disabled_without_token(self) -> None:
+    backend = build_backend()
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/developer-test',
+        'headers': {'host': 'alerts.example.com', 'x-forwarded-proto': 'https'},
+        'body': json.dumps({'emailDestination': 'steve.mckitrick@townofwiley.gov'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 404)
+    self.assertIn('disabled', response['body'])
+
+  def test_developer_test_route_rejects_invalid_token(self) -> None:
+    backend = build_backend(developer_test_token='developer-secret')
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/developer-test',
+        'headers': {
+          'host': 'alerts.example.com',
+          'x-forwarded-proto': 'https',
+          'x-townofwiley-test-token': 'wrong-token',
+        },
+        'body': json.dumps({'emailDestination': 'steve.mckitrick@townofwiley.gov'}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 403)
+    self.assertIn('Invalid developer test token', response['body'])
+
+  def test_developer_test_route_requires_a_destination(self) -> None:
+    backend = build_backend(developer_test_token='developer-secret')
+
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'POST'}},
+        'rawPath': '/developer-test',
+        'headers': {
+          'host': 'alerts.example.com',
+          'x-forwarded-proto': 'https',
+          'x-townofwiley-test-token': 'developer-secret',
+        },
+        'body': json.dumps({}),
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 400)
+    self.assertIn('emailDestination or smsDestination', response['body'])
 
   # ---------------------------------------------------------------------------
   # Scheduled event: no alerts, no subscribers

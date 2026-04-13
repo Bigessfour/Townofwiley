@@ -50,6 +50,9 @@ class AppConfig:
   public_api_base_url: str
   nws_user_agent: str
   nws_api_key: str
+  developer_test_token_secret_name: str = ''
+  developer_test_token: str = ''
+  cloudwatch_namespace: str = 'TownOfWiley/SevereWeather'
 
 
 class SubscriptionStore(Protocol):
@@ -74,6 +77,10 @@ class NotificationGateway(Protocol):
   def send_confirmation(self, channel: str, destination: str, subject: str, message: str) -> None: ...
 
   def send_alert(self, channel: str, destination: str, subject: str, message: str) -> None: ...
+
+
+class CloudwatchGateway(Protocol):
+  def put_metric_data(self, namespace: str, metric_name: str, value: float) -> None: ...
 
 
 class TranslationGateway(Protocol):
@@ -162,6 +169,20 @@ class MemoryNotificationGateway:
         'destination': destination,
         'subject': subject,
         'message': message,
+      },
+    )
+
+
+class MemoryCloudwatchGateway:
+  def __init__(self) -> None:
+    self.metrics: list[dict[str, Any]] = []
+
+  def put_metric_data(self, namespace: str, metric_name: str, value: float) -> None:
+    self.metrics.append(
+      {
+        'namespace': namespace,
+        'metric_name': metric_name,
+        'value': value,
       },
     )
 
@@ -329,6 +350,28 @@ class AwsTranslationGateway:
     return translated_text or text
 
 
+class AwsCloudwatchGateway:
+  def __init__(self) -> None:
+    self._client: Any | None = None
+
+  def put_metric_data(self, namespace: str, metric_name: str, value: float) -> None:
+    if self._client is None:
+      import boto3
+
+      self._client = boto3.client('cloudwatch')
+
+    self._client.put_metric_data(
+      Namespace=namespace,
+      MetricData=[
+        {
+          'MetricName': metric_name,
+          'Unit': 'Count',
+          'Value': value,
+        },
+      ],
+    )
+
+
 class WeatherGovNwsClient:
   def fetch_active_alerts(self, zone_code: str, user_agent: str, api_key: str) -> list[dict[str, Any]]:
     headers = {
@@ -386,6 +429,8 @@ class SevereWeatherBackend:
     notification_gateway: NotificationGateway,
     nws_client: NwsClient,
     translation_gateway: TranslationGateway,
+    cloudwatch_gateway: CloudwatchGateway | None = None,
+    secrets_manager_client: Any | None = None,
   ) -> None:
     self._config = config
     self._subscription_store = subscription_store
@@ -393,6 +438,9 @@ class SevereWeatherBackend:
     self._notification_gateway = notification_gateway
     self._nws_client = nws_client
     self._translation_gateway = translation_gateway
+    self._cloudwatch_gateway = cloudwatch_gateway or AwsCloudwatchGateway()
+    self._secrets_manager_client = secrets_manager_client
+    self._developer_test_token_cache: str | None = None
 
   def handle(self, event: dict[str, Any]) -> dict[str, Any]:
     if is_scheduled_event(event):
@@ -427,6 +475,9 @@ class SevereWeatherBackend:
 
     if method == 'POST' and path.endswith('/subscriptions'):
       return self._create_subscription(event)
+
+    if method == 'POST' and path.endswith('/developer-test'):
+      return self._handle_developer_test(event)
 
     if method == 'GET' and path.endswith('/confirm'):
       return self._confirm_subscription(event)
@@ -466,6 +517,78 @@ class SevereWeatherBackend:
     )
 
     return json_response(200, {'ok': True})
+
+  def _handle_developer_test(self, event: dict[str, Any]) -> dict[str, Any]:
+    developer_test_token = self._resolve_developer_test_token()
+
+    if not developer_test_token:
+      return json_response(404, {'error': 'Developer test route is disabled.'})
+
+    provided_token = request_header(event, 'x-townofwiley-test-token')
+
+    if provided_token != developer_test_token:
+      return json_response(403, {'error': 'Invalid developer test token.'})
+
+    try:
+      payload = parse_json_body(event)
+    except ValueError as error:
+      return json_response(400, {'error': str(error)})
+
+    preferred_language = normalize_alert_language(payload.get('preferredLanguage', LANGUAGE_EN))
+    zip_code = str(payload.get('zipCode', self._config.allowed_zip_code)).strip() or self._config.allowed_zip_code
+    event_name = normalize_whitespace(
+      str(payload.get('event', 'Town of Wiley severe weather test alert')).strip(),
+    )
+    headline = normalize_whitespace(
+      str(payload.get('headline', 'Developer-only smoke test for the severe weather alert path')).strip(),
+    )
+    severity = normalize_whitespace(str(payload.get('severity', 'Moderate')).strip())
+    urgency = normalize_whitespace(str(payload.get('urgency', 'Expected')).strip())
+    instruction = normalize_whitespace(
+      str(payload.get('instruction', 'Confirm delivery on the email address and mobile number provided.')).strip(),
+    )
+    expires = normalize_whitespace(str(payload.get('expires', '')).strip())
+    area_desc = normalize_whitespace(str(payload.get('areaDesc', 'Town of Wiley developer test recipients')).strip())
+    alert = {
+      'id': str(payload.get('alertId') or f'developer-test-{uuid.uuid4().hex}'),
+      'event': event_name,
+      'headline': headline,
+      'severity': severity,
+      'urgency': urgency,
+      'expires': expires,
+      'instruction': instruction,
+      'areaDesc': area_desc,
+    }
+    subscription_template = {
+      'zipCode': zip_code,
+      'unsubscribeToken': str(payload.get('unsubscribeToken') or uuid.uuid4().hex),
+      'preferredLanguage': preferred_language,
+    }
+
+    destinations_sent: list[dict[str, str]] = []
+
+    for channel, destination_key in ((EMAIL_CHANNEL, 'emailDestination'), (SMS_CHANNEL, 'smsDestination')):
+      raw_destination = str(payload.get(destination_key, '')).strip()
+
+      if not raw_destination:
+        continue
+
+      normalized_destination, _ = normalize_destination(channel, raw_destination)
+      subject = self._build_alert_subject(subscription_template, alert)
+      message = self._build_alert_message(subscription_template, alert)
+      self._notification_gateway.send_alert(channel, normalized_destination, subject, message)
+      destinations_sent.append({'channel': channel, 'destination': normalized_destination})
+
+    if not destinations_sent:
+      return json_response(400, {'error': 'Provide at least one emailDestination or smsDestination.'})
+
+    return json_response(
+      200,
+      {
+        'message': 'Developer-only test alert sent.',
+        'destinationsSent': destinations_sent,
+      },
+    )
 
   def _create_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
     method = request_method(event)
@@ -745,6 +868,7 @@ class SevereWeatherBackend:
     )
     subscriptions = self._subscription_store.list_active_subscriptions(self._config.allowed_zip_code)
     sent_count = 0
+    failed_count = 0
 
     for subscription in subscriptions:
       for alert in alerts:
@@ -753,14 +877,32 @@ class SevereWeatherBackend:
         if self._delivery_store.has_delivery(delivery_id):
           continue
 
-        self._notification_gateway.send_alert(
-          subscription['channel'],
-          subscription['destination'],
-          self._build_alert_subject(subscription, alert),
-          self._build_alert_message(subscription, alert),
-        )
+        try:
+          self._notification_gateway.send_alert(
+            subscription['channel'],
+            subscription['destination'],
+            self._build_alert_subject(subscription, alert),
+            self._build_alert_message(subscription, alert),
+          )
+        except Exception as error:
+          failed_count += 1
+          log_alert_delivery_failure(
+            channel=subscription['channel'],
+            destination=subscription['destination'],
+            alert_id=alert['id'],
+            subscription_id=subscription['subscriptionId'],
+            error=error,
+          )
+          continue
+
         self._delivery_store.mark_delivered(delivery_id, subscription['subscriptionId'], alert['id'])
         sent_count += 1
+
+    if sent_count > 0:
+      self._publish_metric('NormalAlertTriggered', 1)
+
+    if failed_count > 0:
+      self._publish_metric('AlertDeliveryFailure', failed_count)
 
     return {
       'statusCode': 200,
@@ -769,6 +911,7 @@ class SevereWeatherBackend:
           'subscriptionsChecked': len(subscriptions),
           'activeAlerts': len(alerts),
           'messagesSent': sent_count,
+          'messagesFailed': failed_count,
         },
       ),
     }
@@ -877,6 +1020,62 @@ class SevereWeatherBackend:
 
     return restore_translated_urls(translated, placeholder_map)
 
+  def _resolve_developer_test_token(self) -> str:
+    if self._config.developer_test_token:
+      return self._config.developer_test_token
+
+    if self._developer_test_token_cache is not None:
+      return self._developer_test_token_cache
+
+    secret_name = self._config.developer_test_token_secret_name.strip()
+
+    if not secret_name:
+      self._developer_test_token_cache = ''
+      return ''
+
+    try:
+      secret_value = self._get_secret_string(secret_name)
+    except Exception as error:
+      LOGGER.error(
+        json.dumps(
+          {
+            'event': 'developer_test_secret_lookup_failed',
+            'secretName': secret_name,
+            'error': normalize_whitespace(str(error))[:500],
+          },
+        ),
+      )
+      self._developer_test_token_cache = ''
+      return ''
+
+    self._developer_test_token_cache = secret_value
+    return secret_value
+
+  def _get_secret_string(self, secret_name: str) -> str:
+    if self._secrets_manager_client is None:
+      import boto3
+
+      region_name = os.environ.get('AWS_REGION') or None
+      self._secrets_manager_client = boto3.client('secretsmanager', region_name=region_name)
+
+    response = self._secrets_manager_client.get_secret_value(SecretId=secret_name)
+    return str(response.get('SecretString', '')).strip()
+
+  def _publish_metric(self, metric_name: str, value: float) -> None:
+    try:
+      self._cloudwatch_gateway.put_metric_data(self._config.cloudwatch_namespace, metric_name, value)
+    except Exception as error:
+      LOGGER.error(
+        json.dumps(
+          {
+            'event': 'cloudwatch_metric_publish_failed',
+            'metricName': metric_name,
+            'namespace': self._config.cloudwatch_namespace,
+            'error': normalize_whitespace(str(error))[:500],
+          },
+        ),
+      )
+
 
 def request_method(event: dict[str, Any]) -> str:
   return str(event.get('requestContext', {}).get('http', {}).get('method') or event.get('httpMethod') or '').upper()
@@ -913,6 +1112,17 @@ def parse_json_body(event: dict[str, Any]) -> dict[str, Any]:
 def query_param(event: dict[str, Any], name: str) -> str:
   query = event.get('queryStringParameters') or {}
   value = query.get(name)
+  return str(value).strip() if value else ''
+
+
+def request_header(event: dict[str, Any], name: str) -> str:
+  headers = event.get('headers') or {}
+  value = (
+    headers.get(name)
+    or headers.get(name.lower())
+    or headers.get(name.title())
+    or headers.get(name.upper())
+  )
   return str(value).strip() if value else ''
 
 
@@ -1016,6 +1226,28 @@ def log_signup_attempt(
     payload['error'] = error
 
   LOGGER.info(json.dumps(payload))
+
+
+def log_alert_delivery_failure(
+  *,
+  channel: str,
+  destination: str,
+  alert_id: str,
+  subscription_id: str,
+  error: Exception,
+) -> None:
+  LOGGER.error(
+    json.dumps(
+      {
+        'event': 'alert_delivery_failure',
+        'channel': channel,
+        'destinationMasked': mask_destination(destination),
+        'alertId': alert_id,
+        'subscriptionId': subscription_id,
+        'error': normalize_whitespace(str(error))[:500],
+      },
+    ),
+  )
 
 
 def mask_destination(destination: str) -> str:
@@ -1153,6 +1385,10 @@ def read_config() -> AppConfig:
     public_api_base_url=os.environ.get('PUBLIC_API_BASE_URL', '').strip(),
     nws_user_agent=os.environ.get('NWS_USER_AGENT', '').strip(),
     nws_api_key=os.environ.get('NWS_API_KEY', '').strip(),
+    developer_test_token_secret_name=os.environ.get('DEVELOPER_TEST_TOKEN_SECRET_NAME', '').strip(),
+    developer_test_token=os.environ.get('DEVELOPER_TEST_TOKEN', '').strip(),
+    cloudwatch_namespace=os.environ.get('CLOUDWATCH_NAMESPACE', 'TownOfWiley/SevereWeather').strip()
+    or 'TownOfWiley/SevereWeather',
   )
 
 
@@ -1173,6 +1409,7 @@ def build_runtime_backend() -> SevereWeatherBackend:
     notification_gateway=AwsNotificationGateway(config.sender_email, config.notification_sender_name, ses_client, sns_client),
     nws_client=WeatherGovNwsClient(),
     translation_gateway=AwsTranslationGateway(translate_client),
+    cloudwatch_gateway=AwsCloudwatchGateway(),
   )
 
 

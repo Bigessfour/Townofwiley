@@ -18,12 +18,12 @@ Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) fo
 
 ## 2. Weather Alert Signup & Backend
 - [x] Frontend signup and weather panel (signals, computed, OnPush, HttpClient, runtime config for alerts).
-- [ ] Resolve SNS SMS sandbox (`us-east-2` `IsInSandbox: true`) or document alternative.
+- [x] Resolve SNS SMS sandbox state for `us-east-2` and verify transactional SMS delivery in production.
 - [x] Complete live unsubscribe journey validation.
-- **Deeper Analysis Findings (completed):** Full review of `weather-panel.ts`, `localized-weather-panel.ts`, templates, and backend signup. Uses signals (`signal`, `computed`), `inject`, `OnPush`, native control flow in templates, robust validation (email/SMS patterns), NWS proxy fallback, loading states, error handling, and runtime config. Signup form submits to backend; email confirmations work. `isBusy` computed correctly. Backend handles confirmation/unsubscribe links. Hidden/undiscovered: SMS blocked by SNS sandbox (AWS account config, not code). No bugs, lint issues, or pattern violations. Method is proper per docs, best practices, and e2e. Frontend fully finalized.
+- **Deeper Analysis Findings (completed):** Full review of `weather-panel.ts`, `localized-weather-panel.ts`, templates, and backend signup. Uses signals (`signal`, `computed`), `inject`, `OnPush`, native control flow in templates, robust validation (email/SMS patterns), NWS proxy fallback, loading states, error handling, and runtime config. Signup form submits to backend; email confirmations work. `isBusy` computed correctly. Backend handles confirmation/unsubscribe links. SMS now works through SNS outside sandbox with transactional delivery settings, scheduled delivery now tolerates single-recipient send failures without aborting the entire run, and the developer-only token is now sourced from AWS Secrets Manager with repo-managed encrypted secrets. No bugs, lint issues, or pattern violations. Method is proper per docs, best practices, and e2e. Frontend fully finalized.
 - **Codebase Fix:** Added `alertSignupUnsubscribeUrl` signal (cleared on new signup) and conditional unsubscribe link in `weather-panel.html` using response.unsubscribeUrl. Unsubscribe journey now fully exposed in frontend.
 - **Files:** `infrastructure/severe-weather-signup/app.py`, `src/app/weather-panel/*`, runtime config, `src/app/app.routes.ts`.
-- **Note:** Email via SES is live; smoke tests pass. Item 2 completed (SMS sandbox is AWS config).
+- **Note:** Email via SES and SMS via SNS are live; smoke tests pass. Item 2 completed, with CloudWatch alarms now configured for normal-trigger and failure notification paths.
 
 ## 3. Language Access & Localization
 - [x] Extend translations to subpages, Amplify Studio content, clerk documents, and attachments. (Completed via in-house bilingual copy pattern.)

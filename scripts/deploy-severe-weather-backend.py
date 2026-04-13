@@ -13,6 +13,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SECRETS_PATH = REPO_ROOT / 'secrets' / 'local' / 'user-secrets.json'
+ENCRYPTED_SECRETS_PATH = REPO_ROOT / 'secrets' / 'encrypted' / 'user-secrets.lockbox.json'
 BACKEND_DIR = REPO_ROOT / 'infrastructure' / 'severe-weather-signup'
 
 
@@ -31,6 +32,13 @@ def parse_args() -> argparse.Namespace:
   parser.add_argument('--notification-sender-name', default='Town of Wiley Alerts')
   parser.add_argument('--nws-user-agent', default='')
   parser.add_argument('--nws-api-key', default='')
+  parser.add_argument('--developer-test-token', default='')
+  parser.add_argument(
+    '--developer-test-token-secret-name',
+    default='TownOfWileySevereWeatherDeveloperTestToken',
+  )
+  parser.add_argument('--alarm-notification-email', default='steve.mckitrick@townofwiley.gov')
+  parser.add_argument('--cloudwatch-namespace', default='TownOfWiley/SevereWeather')
   parser.add_argument('--runtime', default='python3.13')
   parser.add_argument('--app-id', default='')
   parser.add_argument('--skip-amplify-update', action='store_true')
@@ -79,6 +87,150 @@ def run_aws(command: list[str], expect_json: bool = True) -> Any:
     return output
 
   return json.loads(output) if output else {}
+
+
+def unlock_local_secrets_if_needed() -> None:
+  if not ENCRYPTED_SECRETS_PATH.exists():
+    return
+
+  subprocess.run(
+    ['node', 'scripts/user-secrets.mjs', 'unlock'],
+    cwd=REPO_ROOT,
+    check=False,
+    capture_output=True,
+    text=True,
+  )
+
+
+def read_developer_test_token(alert_signup_secrets: dict[str, Any]) -> str:
+  token = str(alert_signup_secrets.get('developerTestToken', '')).strip()
+
+  if token:
+    return token
+
+  unlock_local_secrets_if_needed()
+
+  if not SECRETS_PATH.exists():
+    return ''
+
+  secrets = load_local_secrets()
+  return str(secrets.get('weather', {}).get('alertSignup', {}).get('developerTestToken', '')).strip()
+
+
+def ensure_secrets_manager_secret(secret_name: str, secret_value: str) -> str:
+  if not secret_name:
+    raise RuntimeError('Developer test secret name is required.')
+
+  if not secret_value:
+    raise RuntimeError('Developer test token is required before it can be stored in Secrets Manager.')
+
+  try:
+    details = run_aws(['secretsmanager', 'describe-secret', '--secret-id', secret_name])
+    secret_arn = details['ARN']
+    run_aws(['secretsmanager', 'put-secret-value', '--secret-id', secret_name, '--secret-string', secret_value])
+    return secret_arn
+  except RuntimeError:
+    pass
+
+  details = run_aws(
+    [
+      'secretsmanager',
+      'create-secret',
+      '--name',
+      secret_name,
+      '--secret-string',
+      secret_value,
+    ],
+  )
+  return details['ARN']
+
+
+def ensure_sns_topic(topic_name: str) -> str:
+  details = run_aws(['sns', 'create-topic', '--name', topic_name])
+  return details['TopicArn']
+
+
+def ensure_sns_email_subscription(topic_arn: str, email: str) -> None:
+  if not email:
+    raise RuntimeError('Alarm notification email is required to subscribe CloudWatch alarm topics.')
+
+  subscriptions = run_aws(['sns', 'list-subscriptions-by-topic', '--topic-arn', topic_arn])
+
+  for subscription in subscriptions.get('Subscriptions', []):
+    if subscription.get('Protocol') == 'email' and subscription.get('Endpoint') == email:
+      return
+
+  run_aws(
+    [
+      'sns',
+      'subscribe',
+      '--topic-arn',
+      topic_arn,
+      '--protocol',
+      'email',
+      '--notification-endpoint',
+      email,
+    ],
+  )
+
+
+def ensure_cloudwatch_alarm(alarm_name: str, namespace: str, metric_name: str, topic_arn: str, description: str) -> None:
+  run_aws(
+    [
+      'cloudwatch',
+      'put-metric-alarm',
+      '--alarm-name',
+      alarm_name,
+      '--alarm-description',
+      description,
+      '--namespace',
+      namespace,
+      '--metric-name',
+      metric_name,
+      '--statistic',
+      'Sum',
+      '--period',
+      '60',
+      '--evaluation-periods',
+      '1',
+      '--threshold',
+      '0',
+      '--comparison-operator',
+      'GreaterThanThreshold',
+      '--treat-missing-data',
+      'notBreaching',
+      '--alarm-actions',
+      topic_arn,
+      '--unit',
+      'Count',
+    ],
+    expect_json=False,
+  )
+
+
+def ensure_alert_alarms(namespace: str, notification_email: str, function_name: str) -> None:
+  triggered_topic_name = f'{function_name}AlertTriggeredNotifications'
+  failure_topic_name = f'{function_name}AlertFailureNotifications'
+  triggered_topic_arn = ensure_sns_topic(triggered_topic_name)
+  failure_topic_arn = ensure_sns_topic(failure_topic_name)
+
+  ensure_sns_email_subscription(triggered_topic_arn, notification_email)
+  ensure_sns_email_subscription(failure_topic_arn, notification_email)
+
+  ensure_cloudwatch_alarm(
+    f'{function_name}AlertTriggeredAlarm',
+    namespace,
+    'NormalAlertTriggered',
+    triggered_topic_arn,
+    'Notifies when the severe weather backend publishes a normal alert-trigger event.',
+  )
+  ensure_cloudwatch_alarm(
+    f'{function_name}AlertFailureAlarm',
+    namespace,
+    'AlertDeliveryFailure',
+    failure_topic_arn,
+    'Notifies when the severe weather backend records one or more alert delivery failures.',
+  )
 
 
 def package_backend() -> Path:
@@ -132,7 +284,7 @@ def ensure_table(table_name: str, key_name: str) -> str:
     return table['Table']['TableArn']
 
 
-def ensure_role(role_name: str, subscriptions_arn: str, deliveries_arn: str) -> str:
+def ensure_role(role_name: str, subscriptions_arn: str, deliveries_arn: str, secret_arn: str = '') -> str:
   trust_policy = {
     'Version': '2012-10-17',
     'Statement': [
@@ -160,6 +312,16 @@ def ensure_role(role_name: str, subscriptions_arn: str, deliveries_arn: str) -> 
         'Effect': 'Allow',
         'Action': ['sns:Publish'],
         'Resource': '*',
+      },
+      {
+        'Effect': 'Allow',
+        'Action': ['cloudwatch:PutMetricData'],
+        'Resource': '*',
+      },
+      {
+        'Effect': 'Allow',
+        'Action': ['secretsmanager:GetSecretValue'],
+        'Resource': [secret_arn] if secret_arn else '*',
       },
       {
         'Effect': 'Allow',
@@ -414,14 +576,26 @@ def main() -> int:
   sender_email = args.sender_email or alert_signup_secrets.get('senderEmail', '')
   nws_user_agent = args.nws_user_agent or nws_secrets.get('userAgent', '')
   nws_api_key = args.nws_api_key or nws_secrets.get('apiKey', '')
+  developer_test_secret_name = (
+    args.developer_test_token_secret_name or alert_signup_secrets.get('developerTestTokenSecretName', '')
+  ).strip() or 'TownOfWileySevereWeatherDeveloperTestToken'
+  alarm_notification_email = (args.alarm_notification_email or alert_signup_secrets.get('alarmNotificationEmail', '')).strip() or 'steve.mckitrick@townofwiley.gov'
+  cloudwatch_namespace = (args.cloudwatch_namespace or alert_signup_secrets.get('cloudwatchNamespace', '')).strip() or 'TownOfWiley/SevereWeather'
+  developer_test_token = args.developer_test_token.strip() or read_developer_test_token(alert_signup_secrets)
 
   if not nws_user_agent:
     raise RuntimeError('NWS_USER_AGENT is required to deploy the scheduled alert poller.')
 
+  if not developer_test_token:
+    raise RuntimeError(
+      'Developer test token is required. Store it in secrets/local/user-secrets.json or unlock the repo secrets locker.',
+    )
+
   archive_path = package_backend()
   subscriptions_arn = ensure_table(args.subscriptions_table, 'subscriptionId')
   deliveries_arn = ensure_table(args.deliveries_table, 'deliveryId')
-  role_arn = ensure_role(args.role_name, subscriptions_arn, deliveries_arn)
+  secret_arn = ensure_secrets_manager_secret(developer_test_secret_name, developer_test_token)
+  role_arn = ensure_role(args.role_name, subscriptions_arn, deliveries_arn, secret_arn)
   environment = {
     'SUBSCRIPTIONS_TABLE': args.subscriptions_table,
     'DELIVERIES_TABLE': args.deliveries_table,
@@ -432,11 +606,14 @@ def main() -> int:
     'PUBLIC_API_BASE_URL': '',
     'NWS_USER_AGENT': nws_user_agent,
     'NWS_API_KEY': nws_api_key,
+    'DEVELOPER_TEST_TOKEN_SECRET_NAME': developer_test_secret_name,
+    'CLOUDWATCH_NAMESPACE': cloudwatch_namespace,
   }
   function_arn = ensure_lambda_function(args.function_name, role_arn, args.runtime, archive_path, environment)
   function_url = ensure_function_url(args.function_name)
   update_function_public_base_url(args.function_name, environment, function_url)
   ensure_schedule(args.rule_name, args.schedule_expression, args.function_name, function_arn)
+  ensure_alert_alarms(cloudwatch_namespace, alarm_notification_email, args.function_name)
 
   if not args.skip_amplify_update and app_id:
     merge_amplify_environment(app_id, args.branch_name, function_url)
@@ -452,6 +629,8 @@ def main() -> int:
         'functionName': args.function_name,
         'amplifyAppId': app_id,
         'branchName': args.branch_name,
+        'developerTestSecretArn': secret_arn,
+        'cloudwatchNamespace': cloudwatch_namespace,
         'senderStatus': sender_status,
       },
       indent=2,
