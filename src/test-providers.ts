@@ -2,6 +2,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { EnvironmentProviders, Provider } from '@angular/core';
 
+const globalScope = globalThis as typeof globalThis & {
+	global?: typeof globalThis;
+};
+
+globalScope.global ??= globalThis;
+
 function noop(): void {
 	return;
 }

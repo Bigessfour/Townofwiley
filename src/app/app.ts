@@ -91,6 +91,8 @@ interface CalendarItem {
   sourceLabel: string;
   isFeatured: boolean;
   sortDate: number;
+  startDate: Date;
+  endDate: Date;
   title: string;
   date: string;
   category: string;
@@ -1342,7 +1344,9 @@ export class App {
     },
     events: this.calendarItems().map(item => ({
       title: item.title,
-      start: item.date,
+      start: item.startDate,
+      end: item.endDate,
+      allDay: false,
       extendedProps: { item }
     }))
   }));
@@ -1618,7 +1622,13 @@ export class App {
       window.removeEventListener('scroll', handleScroll);
     };
   });
-  protected readonly meetings = computed(() => this.appCopy().meetings);
+  protected readonly meetings = computed(() => {
+    const liveEvents = this.liveCalendarEvents();
+
+    return liveEvents.length
+      ? liveEvents.map((event) => this.createMeetingItemFromEvent(event))
+      : this.appCopy().meetings;
+  });
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
 
@@ -2224,13 +2234,17 @@ export class App {
 
   private createCalendarItem(seed: CalendarEventSeed, isFeatured: boolean): CalendarItem {
     const copy = this.appCopy();
+    const startDate = this.parseCalendarSeedDate(seed.startLocal);
+    const endDate = this.parseCalendarSeedDate(seed.endLocal);
 
     return {
       id: seed.slug,
       source: 'seed',
       sourceLabel: copy.calendarFallbackBadge,
       isFeatured,
-      sortDate: this.parseCalendarSeedTimestamp(seed.startLocal),
+      sortDate: startDate.getTime(),
+      startDate,
+      endDate,
       title: seed.title,
       date: seed.dateLabel,
       category: seed.category,
@@ -2258,6 +2272,20 @@ export class App {
     };
   }
 
+  private createMeetingItemFromEvent(event: CmsCalendarEvent): MeetingItem {
+    const start = new Date(event.start);
+    const end = this.resolveCalendarEventEnd(event);
+
+    return {
+      title: event.title,
+      schedule: this.formatCalendarEventDate(start, end),
+      format: event.description || this.appCopy().calendarEventFallbackDetail,
+      location: event.location || this.appCopy().calendarEventFallbackLocation,
+      cta: this.appCopy().openCalendarLabel,
+      href: '/meetings#calendar',
+    };
+  }
+
   private createCalendarItemFromEvent(event: CmsCalendarEvent, isFeatured: boolean): CalendarItem {
     const copy = this.appCopy();
     const start = new Date(event.start);
@@ -2269,6 +2297,8 @@ export class App {
       sourceLabel: copy.calendarManagedBadge,
       isFeatured,
       sortDate: start.getTime(),
+      startDate: start,
+      endDate: end,
       title: event.title,
       date: this.formatCalendarEventDate(start, end),
       category: copy.calendarPublishedEventCategory,
@@ -2443,10 +2473,14 @@ export class App {
   }
 
   private parseCalendarSeedTimestamp(value: string): number {
+    return this.parseCalendarSeedDate(value).getTime();
+  }
+
+  private parseCalendarSeedDate(value: string): Date {
     const match = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(value);
 
     if (!match) {
-      return 0;
+      return new Date(0);
     }
 
     const [, year, month, day, hour, minute, second] = match;
@@ -2458,7 +2492,7 @@ export class App {
       Number(hour),
       Number(minute),
       Number(second),
-    ).getTime();
+    );
   }
 
   private formatCalendarEventDate(start: Date, end: Date): string {

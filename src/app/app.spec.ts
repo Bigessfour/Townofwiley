@@ -184,6 +184,124 @@ describe('App', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/meetings'], { fragment: 'calendar' });
   });
 
+  it('should map published CMS events into the meetings calendar month view', async () => {
+    window.history.pushState({}, '', '/meetings');
+
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    cmsRequest.flush({
+      data: {
+        listSiteSettings: { items: [] },
+        listAlertBanners: { items: [] },
+        listAnnouncements: { items: [] },
+        listEvents: {
+          items: [
+            {
+              id: 'spring-cleanup-day',
+              title: 'Spring Cleanup Day',
+              description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
+              location: 'Wiley Community Park',
+              start: '2026-04-25T10:00:00-06:00',
+              end: '2026-04-25T13:00:00-06:00',
+              active: true,
+            },
+          ],
+        },
+        listOfficialContacts: { items: [] },
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+      },
+    });
+
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as App & {
+      calendarItems: () => Array<{ title: string; startDate: Date; endDate: Date }>;
+      calendarOptions: () => { events: Array<{ title: string; start: Date; end: Date }> };
+    };
+
+    expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');
+    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-04-25T16:00:00.000Z');
+    expect(component.calendarOptions().events[0]).toMatchObject({
+      title: 'Spring Cleanup Day',
+      start: new Date('2026-04-25T10:00:00-06:00'),
+      end: new Date('2026-04-25T13:00:00-06:00'),
+    });
+  });
+
+  it('should render published CMS events in the meetings card list', async () => {
+    window.history.pushState({}, '', '/meetings');
+
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    cmsRequest.flush({
+      data: {
+        listSiteSettings: { items: [] },
+        listAlertBanners: { items: [] },
+        listAnnouncements: { items: [] },
+        listEvents: {
+          items: [
+            {
+              id: 'spring-cleanup-day',
+              title: 'Spring Cleanup Day',
+              description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
+              location: 'Wiley Community Park',
+              start: '2026-04-25T10:00:00-06:00',
+              end: '2026-04-25T13:00:00-06:00',
+              active: true,
+            },
+          ],
+        },
+        listOfficialContacts: { items: [] },
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+      },
+    });
+
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain(
+      'Spring Cleanup Day',
+    );
+    expect(compiled.querySelector('.meeting-card .meeting-location')?.textContent).toContain(
+      'Wiley Community Park',
+    );
+    expect(compiled.querySelector('.meeting-card .text-link')?.getAttribute('href')).toBe(
+      '/meetings#calendar',
+    );
+  });
+
   it('should route document-related search queries into the public document hub', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -619,7 +737,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Amplify Studio Data Manager');
   });
 
-  it('should open the document upload tab from the clerk setup fragment', async () => {
+  it('should open the document publishing tab from the clerk setup fragment', async () => {
     window.history.pushState({}, '', '/clerk-setup#documents');
 
     const fixture = TestBed.createComponent(App);
@@ -628,14 +746,13 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(
-      'Upload documents to make them available for download on the public Documents page.',
+      'Use the supported Studio PublicDocument workflow for downloadable files.',
     );
-    expect(compiled.querySelector('.section-callout strong')?.textContent).toContain(
-      'Meeting Documents',
-    );
-    expect(compiled.textContent).toContain('Upload Documents');
+    expect(compiled.textContent).toContain('Supported document workflow');
+    expect(compiled.textContent).toContain('Website section map');
     expect(compiled.textContent).toContain('Meeting Documents');
-    expect(compiled.textContent).toContain('Documents currently uploaded to Meeting Documents');
+    expect(compiled.textContent).toContain('meeting-documents');
+    expect(compiled.textContent).toContain('Open CMS Admin');
   });
 
   it('should link the admin upload button to the clerk setup document tab', async () => {

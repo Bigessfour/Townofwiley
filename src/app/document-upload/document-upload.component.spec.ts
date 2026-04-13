@@ -111,17 +111,22 @@ describe('DocumentUploadComponent', () => {
     expect(uploadService.getDocuments).toHaveBeenCalledWith('meeting-documents');
     expect(component.selectedFiles).toEqual([]);
     expect(component.uploadedDocuments()).toEqual([uploadedDocument]);
+    expect(component.statusMessage()).toBe('Uploaded 1 file to Meeting Documents.');
+    expect(component.errorMessage()).toBeNull();
   });
 
   it('rolls back an uploaded file when public record creation fails', async () => {
     uploadService.uploadDocument.mockResolvedValue(uploadedDocument);
-    cmsPublicDocumentAdminService.createDocumentFromUpload.mockRejectedValue(new Error('boom'));
+    cmsPublicDocumentAdminService.createDocumentFromUpload.mockRejectedValue(
+      new Error('Not authorized to access createPublicDocument on type Mutation'),
+    );
 
     const fixture = await createFixture();
     const component = fixture.componentInstance;
     component.selectedFiles = [file];
 
     await component.uploadFiles();
+    fixture.detectChanges();
 
     expect(uploadService.uploadDocument).toHaveBeenCalledWith(file, 'meeting-documents');
     expect(cmsPublicDocumentAdminService.createDocumentFromUpload).toHaveBeenCalledWith(
@@ -130,6 +135,15 @@ describe('DocumentUploadComponent', () => {
     );
     expect(uploadService.deleteDocument).toHaveBeenCalledWith(uploadedDocument.id);
     expect(documentRefreshService.triggerRefresh).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toContain(
+      'The file upload reached storage, but the PublicDocument database record could not be created.',
+    );
+    expect(component.errorMessage()).toContain(
+      'Confirm you are using the Town AWS editor account and that document upload permissions are available.',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      'The file upload reached storage, but the PublicDocument database record could not be created.',
+    );
   });
 
   it('removes an uploaded document and reloads the section list', async () => {

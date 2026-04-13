@@ -4,6 +4,12 @@ import { afterEach, vi } from 'vitest';
 
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
+const globalScope = globalThis as typeof globalThis & {
+  global?: typeof globalThis;
+};
+
+globalScope.global ??= globalThis;
+
 TestBed.initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting(), {
   teardown: { destroyAfterEach: true },
 });

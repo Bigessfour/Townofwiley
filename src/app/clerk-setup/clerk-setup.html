@@ -7,7 +7,7 @@
     <p-tabs lazy [value]="activeTab()" (valueChange)="activeTab.set($event?.toString() ?? 'setup')">
       <p-tablist aria-label="Clerk setup content tabs">
         <p-tab value="setup">Setup Guide</p-tab>
-        <p-tab value="documents">Document Upload</p-tab>
+        <p-tab value="documents">Document Publishing</p-tab>
         <p-tab value="updates">
           Contact Updates
           @if (contactUpdates().length > 0) {
@@ -21,7 +21,7 @@
         <p-tabpanel value="setup">
           <div class="grid gap-4 pt-2">
             <p class="setup-note setup-note--strong">
-              Use Amplify Studio Data Manager for text and record edits. Use the Document Upload tab on this page for public document files.
+              Use Amplify Studio Data Manager for text and record edits. Use the Document Publishing tab on this page to open the supported Studio PublicDocument workflow.
             </p>
 
             <div class="setup-actions flex flex-wrap gap-3">
@@ -116,40 +116,62 @@
             </p-card>
           </div>
         </p-tabpanel>
-        <!-- ── Document Upload tab ─────────────────────────────────────── -->
+        <!-- ── Document Publishing tab ─────────────────────────────────── -->
         <p-tabpanel value="documents">
           <div class="grid gap-4 pt-2">
             <p class="setup-note setup-note--strong">
-              Upload documents to make them available for download on the public Documents page.
+              Use the supported Studio PublicDocument workflow for downloadable files. The retired in-page upload widget has been removed because it could leave staff with a storage upload but no matching database record.
             </p>
 
-            <div class="grid gap-4 lg:grid-cols-2">
-              <app-document-upload
-                sectionId="meeting-documents"
-                sectionName="Meeting Documents"
-                (documentUploaded)="onDocumentUploaded($event)">
-              </app-document-upload>
-
-              <app-document-upload
-                sectionId="financial-documents"
-                sectionName="Financial Documents"
-                (documentUploaded)="onDocumentUploaded($event)">
-              </app-document-upload>
+            <div class="setup-actions flex flex-wrap gap-3">
+              <a class="setup-button primary" [href]="cmsAdminUrl" target="_blank" rel="noreferrer noopener">
+                Open CMS Admin
+              </a>
+              <a
+                class="setup-button secondary"
+                [href]="studioUrl"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Open Studio Home
+              </a>
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
-              <app-document-upload
-                sectionId="code-references"
-                sectionName="Code & Zoning References"
-                (documentUploaded)="onDocumentUploaded($event)">
-              </app-document-upload>
+              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+                <ng-template #title>Supported document workflow</ng-template>
+                <ng-template #subtitle>Use Studio-managed PublicDocument edits instead of a custom page uploader.</ng-template>
+                <ol class="grid gap-2">
+                  @for (item of documentPublishingSteps; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ol>
+              </p-card>
 
-              <app-document-upload
-                sectionId="records-requests"
-                sectionName="Records & Requests"
-                (documentUploaded)="onDocumentUploaded($event)">
-              </app-document-upload>
+              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+                <ng-template #title>Website section map</ng-template>
+                <ng-template #subtitle>Use these exact values when routing a file to the public Documents experience.</ng-template>
+                <ul class="grid gap-3">
+                  @for (section of documentSections; track section.sectionId) {
+                    <li>
+                      <strong>{{ section.label }}:</strong>
+                      <p-tag [value]="section.sectionId" severity="secondary" styleClass="ml-1" />
+                      <p class="setup-note mt-1 mb-0">{{ section.detail }}</p>
+                    </li>
+                  }
+                </ul>
+              </p-card>
             </div>
+
+            <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+              <ng-template #title>Before you publish a document</ng-template>
+              <ng-template #subtitle>Keep file publishing in the same supported CMS process as the rest of the site.</ng-template>
+              <ul class="grid gap-2">
+                @for (item of documentPublishingChecks; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </p-card>
           </div>
         </p-tabpanel>
         <!-- ── Contact Updates tab ──────────────────────────────────────── -->

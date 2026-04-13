@@ -24,6 +24,18 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
         If a file is uploaded to the wrong section, use the remove action below and upload it again in the correct place.
       </p>
 
+      @if (statusMessage()) {
+        <p class="upload-status upload-status--success" aria-live="polite">
+          {{ statusMessage() }}
+        </p>
+      }
+
+      @if (errorMessage()) {
+        <p class="upload-status upload-status--error" role="alert" aria-live="assertive">
+          {{ errorMessage() }}
+        </p>
+      }
+
       <p-fileUpload
         #fileUpload
         name="documents"
@@ -157,6 +169,26 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
       margin-bottom: 1rem;
     }
 
+    .upload-status {
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: var(--border-radius);
+      border: 1px solid transparent;
+      line-height: 1.5;
+    }
+
+    .upload-status--success {
+      border-color: color-mix(in srgb, #166534 28%, transparent);
+      background: color-mix(in srgb, #dcfce7 82%, white);
+      color: #166534;
+    }
+
+    .upload-status--error {
+      border-color: color-mix(in srgb, #991b1b 28%, transparent);
+      background: color-mix(in srgb, #fee2e2 85%, white);
+      color: #991b1b;
+    }
+
     .empty-state {
       text-align: center;
       padding: 2rem;
@@ -264,6 +296,8 @@ export class DocumentUploadComponent implements OnInit {
   private readonly cmsPublicDocumentAdminService = inject(CmsPublicDocumentAdminService);
   private readonly documentRefreshService = inject(DocumentRefreshService);
   private readonly uploadService = inject(DocumentUploadService);
+  private readonly permissionGuidance =
+    'Confirm you are using the Town AWS editor account and that document upload permissions are available.';
 
   // Inputs
   sectionId = input.required<DocumentArchiveSectionId>();
@@ -278,6 +312,8 @@ export class DocumentUploadComponent implements OnInit {
   currentUploadIndex = signal(0);
   uploadProgress = signal(0);
   uploadedDocuments = signal<UploadedDocument[]>([]);
+  errorMessage = signal<string | null>(null);
+  statusMessage = signal<string | null>(null);
 
   ngOnInit() {
     this.loadUploadedDocuments();
@@ -302,6 +338,10 @@ export class DocumentUploadComponent implements OnInit {
   async uploadFiles() {
     if (this.selectedFiles.length === 0) return;
 
+    this.errorMessage.set(null);
+    this.statusMessage.set(null);
+    const fileCount = this.selectedFiles.length;
+
     this.isUploading.set(true);
     this.currentUploadIndex.set(0);
     this.uploadProgress.set(0);
@@ -311,7 +351,13 @@ export class DocumentUploadComponent implements OnInit {
         this.currentUploadIndex.set(i);
         const file = this.selectedFiles[i];
 
-        const uploadedDoc = await this.uploadService.uploadDocument(file, this.sectionId());
+        let uploadedDoc: UploadedDocument;
+        try {
+          uploadedDoc = await this.uploadService.uploadDocument(file, this.sectionId());
+        } catch (error) {
+          throw new Error(this.describeUploadFailure(error, 'storage'), { cause: error });
+        }
+
         try {
           await this.cmsPublicDocumentAdminService.createDocumentFromUpload(
             uploadedDoc,
@@ -319,7 +365,7 @@ export class DocumentUploadComponent implements OnInit {
           );
         } catch (error) {
           await this.uploadService.deleteDocument(uploadedDoc.id).catch(() => undefined);
-          throw error;
+          throw new Error(this.describeUploadFailure(error, 'database'), { cause: error });
         }
 
         this.documentRefreshService.triggerRefresh();
@@ -330,8 +376,12 @@ export class DocumentUploadComponent implements OnInit {
 
       this.selectedFiles = [];
       await this.loadUploadedDocuments();
+      this.statusMessage.set(
+        `Uploaded ${fileCount === 1 ? '1 file' : `${fileCount} files`} to ${this.sectionName()}.`,
+      );
     } catch (error) {
       console.error('Upload failed:', error);
+      this.errorMessage.set(this.toErrorMessage(error));
     } finally {
       this.isUploading.set(false);
       this.uploadProgress.set(0);
@@ -340,10 +390,16 @@ export class DocumentUploadComponent implements OnInit {
 
   async deleteDocument(doc: UploadedDocument) {
     try {
+      this.errorMessage.set(null);
+      this.statusMessage.set(null);
       await this.uploadService.deleteDocument(doc.id);
       await this.loadUploadedDocuments();
+      this.statusMessage.set(`Removed ${doc.name} from ${this.sectionName()}.`);
     } catch (error) {
       console.error('Delete failed:', error);
+      this.errorMessage.set(
+        `The document could not be removed from ${this.sectionName()}. ${this.permissionGuidance}`,
+      );
     }
   }
 
@@ -366,5 +422,44 @@ export class DocumentUploadComponent implements OnInit {
 
   formatDate(date: Date): string {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private describeUploadFailure(error: unknown, stage: 'storage' | 'database'): string {
+    const rawMessage = this.toErrorMessage(error);
+    const normalizedMessage = rawMessage.toLowerCase();
+    const needsPermissionHelp =
+      normalizedMessage.includes('not authorized') ||
+      normalizedMessage.includes('access denied') ||
+      normalizedMessage.includes('credential') ||
+      normalizedMessage.includes('forbidden') ||
+      normalizedMessage.includes('no current user') ||
+      normalizedMessage.includes('unauthorized');
+
+    if (stage === 'storage') {
+      const baseMessage =
+        'The file could not be uploaded to Town document storage.';
+      return needsPermissionHelp
+        ? `${baseMessage} ${this.permissionGuidance}`
+        : `${baseMessage} ${rawMessage}`;
+    }
+
+    const baseMessage =
+      'The file upload reached storage, but the PublicDocument database record could not be created. The uploaded file was rolled back, so this section still shows no documents.';
+
+    return needsPermissionHelp
+      ? `${baseMessage} ${this.permissionGuidance}`
+      : `${baseMessage} ${rawMessage}`;
+  }
+
+  private toErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message.trim()) {
+      return error.message.trim();
+    }
+
+    if (typeof error === 'string' && error.trim()) {
+      return error.trim();
+    }
+
+    return 'An unexpected error occurred.';
   }
 }
