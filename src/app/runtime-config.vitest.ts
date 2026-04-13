@@ -50,10 +50,13 @@ describe('runtime config helpers', () => {
     expect(configureMock).toHaveBeenCalledTimes(1);
 
     const configureArg = configureMock.mock.calls[0][0] as {
+      Auth: { Cognito: { allowGuestAccess: boolean; identityPoolId: string } };
       API: { GraphQL: { endpoint: string; apiKey: string } };
       Storage: { S3: { bucket: string; region: string } };
     };
 
+    expect(configureArg.Auth.Cognito.allowGuestAccess).toBe(true);
+    expect(configureArg.Auth.Cognito.identityPoolId).toBe('us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56');
     expect(configureArg.API.GraphQL.endpoint).toBe(
       'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
     );

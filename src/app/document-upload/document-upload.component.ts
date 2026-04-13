@@ -15,8 +15,13 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
   template: `
     <div class="document-upload">
       <h3>Upload Documents</h3>
+      <p class="section-callout" aria-label="Intended upload section">
+        <span>Intended section</span>
+        <strong>{{ sectionName() }}</strong>
+      </p>
       <p class="upload-instructions">
         Select PDF, Word, Excel, or other document files to upload to the {{ sectionName() }} section.
+        If a file is uploaded to the wrong section, use the remove action below and upload it again in the correct place.
       </p>
 
       <p-fileUpload
@@ -85,7 +90,10 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
 
       @if (uploadedDocuments().length > 0) {
         <div class="uploaded-documents mt-4">
-          <h4>Recently Uploaded Documents</h4>
+          <div class="uploaded-documents-header">
+            <h4>Documents currently uploaded to {{ sectionName() }}</h4>
+            <p class="uploaded-count">{{ uploadedDocuments().length }} file(s) in this section</p>
+          </div>
           <div class="document-list">
             @for (doc of uploadedDocuments(); track doc.id) {
               <div class="document-item">
@@ -98,14 +106,19 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
                 </div>
                 <p-button
                   icon="pi pi-trash"
+                  label="Remove from website"
                   severity="danger"
                   text
-                  rounded
                   (onClick)="deleteDocument(doc)">
                 </p-button>
               </div>
             }
           </div>
+        </div>
+      } @else {
+        <div class="uploaded-documents mt-4">
+          <h4>Documents currently uploaded to {{ sectionName() }}</h4>
+          <p class="empty-documents">No documents have been uploaded to this section yet.</p>
         </div>
       }
     </div>
@@ -113,6 +126,30 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
   styles: [`
     .document-upload {
       max-width: 600px;
+    }
+
+    .section-callout {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border-left: 4px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-0));
+    }
+
+    .section-callout span {
+      color: var(--primary-color);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-callout strong {
+      color: var(--text-color);
+      font-size: 1rem;
     }
 
     .upload-instructions {
@@ -159,9 +196,21 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
       border-radius: var(--border-radius);
     }
 
-    .uploaded-documents h4 {
+    .uploaded-documents-header {
+      display: grid;
+      gap: 0.25rem;
       margin-bottom: 1rem;
+    }
+
+    .uploaded-documents h4 {
+      margin: 0;
       color: var(--text-color);
+    }
+
+    .uploaded-count {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
     }
 
     .document-list {
@@ -198,6 +247,15 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
       color: var(--text-color-secondary);
       display: block;
       margin-top: 0.25rem;
+    }
+
+    .empty-documents {
+      margin: 0;
+      padding: 1rem;
+      border: 1px dashed var(--surface-border);
+      border-radius: var(--border-radius);
+      background: var(--surface-section);
+      color: var(--text-color-secondary);
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -274,7 +332,6 @@ export class DocumentUploadComponent implements OnInit {
       await this.loadUploadedDocuments();
     } catch (error) {
       console.error('Upload failed:', error);
-      // TODO: Show error message to user
     } finally {
       this.isUploading.set(false);
       this.uploadProgress.set(0);
@@ -287,7 +344,6 @@ export class DocumentUploadComponent implements OnInit {
       await this.loadUploadedDocuments();
     } catch (error) {
       console.error('Delete failed:', error);
-      // TODO: Show error message to user
     }
   }
 

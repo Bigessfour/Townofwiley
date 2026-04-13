@@ -579,7 +579,9 @@ describe('App', () => {
     );
     expect(compiled.textContent).toContain('Event');
     expect(compiled.textContent).toContain('EmailAlias');
-    expect(compiled.textContent).toContain('Esta pagina solo es una guia y una verificacion de estado');
+    expect(compiled.textContent).toContain(
+      'Esta pagina solo muestra guia y estado actual del CMS. No guarda ni publica contenido del sitio.',
+    );
     expect(compiled.textContent).toContain('Abrir instrucciones del personal');
     expect(compiled.textContent).toContain('Referencia rapida');
     expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
@@ -628,8 +630,12 @@ describe('App', () => {
     expect(compiled.textContent).toContain(
       'Upload documents to make them available for download on the public Documents page.',
     );
+    expect(compiled.querySelector('.section-callout strong')?.textContent).toContain(
+      'Meeting Documents',
+    );
     expect(compiled.textContent).toContain('Upload Documents');
     expect(compiled.textContent).toContain('Meeting Documents');
+    expect(compiled.textContent).toContain('Documents currently uploaded to Meeting Documents');
   });
 
   it('should link the admin upload button to the clerk setup document tab', async () => {
