@@ -87,7 +87,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     kicker: 'Town Clerk CMS',
     title: 'One place to update the Town website',
     intro:
-      'Use Amplify Studio Data Manager for daily website updates across every CMS content type. This page is a guide and status check only. It does not publish live website changes.',
+      'Use Amplify Studio Data Manager for daily website updates across the normal CMS models. PublicDocument files are the exception: upload those from the clerk page document uploader so they land in the correct website section.',
     returnHome: 'Return to homepage',
     openSetupPage: 'Open clerk instructions',
     openAmplify: 'Open Studio Home',
@@ -95,7 +95,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     quickReferenceKicker: 'Quick reference',
     quickReferenceTitle: 'Copy of the clerk instructions',
     quickReferenceBody:
-      'Use this short checklist when you only need a reminder. The direct CMS link opens Amplify Studio Data Manager for all CMS models.',
+      'Use this short checklist when you only need a reminder. The direct CMS link opens Amplify Studio Data Manager for normal CMS models, but document files still go through the clerk page uploader.',
     quickReferenceSteps: [
       'Open Data Manager.',
       'Open the correct model for the change you want to make.',
@@ -106,9 +106,10 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Clerk Access',
     accessTitle: 'Start here every day',
     accessBody:
-      'Open Data Manager when you need to change live website content. Open Studio Home only if you need to get back to the main AWS Studio screen first. All CMS models are edited there.',
+      'Open Data Manager when you need to change live website content. Open Studio Home only if you need to get back to the main AWS Studio screen first. PublicDocument files do not have a native upload control there, so use the clerk page uploader for documents.',
     accessChecklist: [
       'Use Data Manager for everyday edits.',
+      'Use the clerk page Document Upload tab for PublicDocument files.',
       'If access is denied, AWS account permissions must be fixed first.',
       'Use only one model at a time so changes stay clear and easy to verify.',
       'After every save, refresh the public website and confirm the change.',
@@ -142,7 +143,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     publishingKicker: 'Publishing Flow',
     publishingTitle: 'Daily website update checklist',
     publishingSteps: [
-      'Open Data Manager.',
+      'Open Data Manager for text and record changes, or open the clerk page for document uploads.',
       'Open the correct model for the change you want to make.',
       'Edit the record and save it.',
       'Refresh the public site and confirm the update.',
@@ -156,14 +157,14 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Event: meetings and calendar items',
       'OfficialContact: public contact cards',
       'Business: business directory entries',
-      'PublicDocument: public documents and downloads',
+      'PublicDocument: upload from the clerk page; the uploader creates the CMS record and section mapping',
       'ExternalNewsLink: news links from outside sources',
       'EmailAlias: private email forwarding only',
     ],
     crudKicker: 'CRUD reference',
-    crudTitle: 'Every CMS model already gets CRUD from Amplify Studio and AppSync',
+    crudTitle: 'Most CMS models get normal CRUD in Amplify Studio and AppSync',
     crudBody:
-      'Amplify Studio Data Manager uses the AppSync-backed @model operations for create, read, update, and delete. Use the notes below to decide which records stay singletons and which records can be reordered.',
+      'Amplify Studio Data Manager uses the AppSync-backed @model operations for the normal text-and-record models. PublicDocument records still exist in AppSync, but file uploads go through the custom clerk workflow because Studio Data Manager does not provide a document picker here.',
     crudItems: [
       {
         model: 'SiteSettings',
@@ -205,7 +206,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'PublicDocument',
         summary: 'Public forms, notices, and downloadable documents.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
-        notes: 'Use displayOrder within each section.',
+        notes: 'Upload files from the clerk page Document Upload tab. That flow creates the PublicDocument record and routes it to the correct section.',
       },
       {
         model: 'ExternalNewsLink',
@@ -257,7 +258,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     kicker: 'CMS de la secretaria',
     title: 'Un solo lugar para actualizar el sitio del pueblo',
     intro:
-      'Use Amplify Studio Data Manager para los cambios diarios del sitio en todos los tipos de contenido del CMS. Esta pagina solo es una guia y una verificacion de estado. No publica cambios en vivo.',
+      'Use Amplify Studio Data Manager para los cambios diarios en los modelos normales del CMS. Los archivos de PublicDocument son la excepcion: subalos desde el cargador de documentos en la pagina de secretaria para que lleguen a la seccion correcta del sitio.',
     returnHome: 'Volver a la pagina principal',
     openSetupPage: 'Abrir instrucciones del personal',
     openAmplify: 'Abrir Studio Home',
@@ -265,7 +266,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     quickReferenceKicker: 'Referencia rapida',
     quickReferenceTitle: 'Copia de las instrucciones de la secretaria',
     quickReferenceBody:
-      'Use esta lista corta cuando solo necesite un recordatorio. El enlace directo del CMS abre Amplify Studio Data Manager para todos los modelos del CMS.',
+      'Use esta lista corta cuando solo necesite un recordatorio. El enlace directo del CMS abre Amplify Studio Data Manager para los modelos normales del CMS, pero los archivos de documentos siguen usando el cargador de la pagina de secretaria.',
     quickReferenceSteps: [
       'Abra Data Manager.',
       'Abra el modelo correcto para el cambio que desea hacer.',
@@ -276,9 +277,10 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Acceso del personal',
     accessTitle: 'Empiece aqui cada dia',
     accessBody:
-      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra Studio Home solo si primero necesita volver a la pantalla principal de Studio. Todos los modelos del CMS se editan alli.',
+      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra Studio Home solo si primero necesita volver a la pantalla principal de Studio. Los archivos de PublicDocument no tienen un cargador nativo alli, por eso deben subirse desde la pagina de secretaria.',
     accessChecklist: [
       'Use Data Manager para las ediciones diarias.',
+      'Use la pestana Document Upload en la pagina de secretaria para los archivos de PublicDocument.',
       'Si aparece acceso denegado, primero deben corregirse los permisos de AWS.',
       'Use un solo modelo a la vez para mantener cambios claros y faciles de revisar.',
       'Despues de cada guardado, actualice el sitio publico y confirme el cambio.',
@@ -313,7 +315,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     publishingKicker: 'Flujo de publicacion',
     publishingTitle: 'Lista diaria para actualizar el sitio',
     publishingSteps: [
-      'Abra Data Manager.',
+      'Abra Data Manager para cambios de texto y registros, o abra la pagina de secretaria para subir documentos.',
       'Abra el modelo correcto para el cambio que desea hacer.',
       'Edite el registro y guardelo.',
       'Actualice el sitio publico y confirme el cambio.',
@@ -327,14 +329,14 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Event: reuniones y elementos del calendario',
       'OfficialContact: tarjetas de contacto publico',
       'Business: entradas del directorio de negocios',
-      'PublicDocument: documentos publicos y descargas',
+      'PublicDocument: suba el archivo desde la pagina de secretaria; el cargador crea el registro y la seccion correcta',
       'ExternalNewsLink: enlaces de noticias externas',
       'EmailAlias: solo reenvio privado de correo',
     ],
     crudKicker: 'Referencia CRUD',
-    crudTitle: 'Todos los modelos del CMS ya tienen CRUD en Amplify Studio y AppSync',
+    crudTitle: 'La mayoria de los modelos del CMS tienen CRUD normal en Amplify Studio y AppSync',
     crudBody:
-      'Amplify Studio Data Manager usa las operaciones @model soportadas por AppSync para crear, leer, actualizar y eliminar. Revise las notas para saber que registros deben ser unicos y cuales pueden reordenarse.',
+      'Amplify Studio Data Manager usa las operaciones @model soportadas por AppSync para los modelos normales de texto y registros. Los registros PublicDocument siguen existiendo en AppSync, pero la carga de archivos pasa por el flujo personalizado de la secretaria porque Studio Data Manager no ofrece un selector de documentos aqui.',
     crudItems: [
       {
         model: 'SiteSettings',
@@ -376,7 +378,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'PublicDocument',
         summary: 'Formularios publicos, avisos y documentos descargables.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
-        notes: 'Use displayOrder dentro de cada seccion.',
+        notes: 'Suba archivos desde la pestana Document Upload en la pagina de secretaria. Ese flujo crea el registro PublicDocument y lo dirige a la seccion correcta.',
       },
       {
         model: 'ExternalNewsLink',

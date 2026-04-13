@@ -2,9 +2,13 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
+import { DocumentUploadComponent } from '../document-upload/document-upload.component';
+import { UploadedDocument } from '../document-upload.service';
+import { getClerkSetupRuntimeConfig } from './clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -25,12 +29,14 @@ interface ClerkSetupDetail {
   templateUrl: './clerk-setup.html',
   styleUrl: './clerk-setup.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule],
+  imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule, SkeletonModule, DocumentUploadComponent],
 })
 export class ClerkSetup {
   private readonly contactUpdateReview = inject(ContactUpdateReviewService);
+  private readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
 
   protected readonly activeTab = signal<string>('setup');
+  protected readonly contactUpdatesLoading = signal(true);
   protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
   protected readonly setupCardPt = {
     body: { class: 'setup-card-body' },
@@ -43,27 +49,36 @@ export class ClerkSetup {
     void this.loadContactUpdates();
   }
 
+  onDocumentUploaded(document: UploadedDocument) {
+    // Document uploaded successfully - could add notification here
+    console.log('Document uploaded:', document);
+    // Optionally refresh the document hub or show a success message
+  }
+
   private async loadContactUpdates(): Promise<void> {
-    const updates = await this.contactUpdateReview.getAllUpdates();
-    this.contactUpdates.set(updates);
+    this.contactUpdatesLoading.set(true);
+
+    try {
+      const updates = await this.contactUpdateReview.getAllUpdates();
+      this.contactUpdates.set(updates);
+    } finally {
+      this.contactUpdatesLoading.set(false);
+    }
   }
 
   protected downloadCSV(): void {
     this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
   }
 
-  protected readonly clerkName = 'Deb Dillon';
+  protected readonly clerkName = this.clerkSetupConfig.clerkName;
   protected readonly setupType = 'One-time IAM setup';
   protected readonly setupSummary =
-    'Use this page once to confirm IAM access, the correct Town account, and the Studio links. After that, daily edits for every CMS model happen in Amplify Studio Data Manager.';
-  protected readonly awsAccountId = '570912405222';
-  protected readonly amplifyAppId = 'd331voxr1fhoir';
-  protected readonly awsRegion = 'us-east-2';
-  protected readonly studioUrl =
-    'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home';
-  protected readonly cmsEditUrl =
-    'https://us-east-2.admin.amplifyapp.com/admin/login?appId=d331voxr1fhoir&code=9936b78d-30f3-4383-9ce5-fee3804ac0a6&sessionId=bdf7662f-07eb-40ef-8c2f-73f9752f0a60&backendEnvironmentName=main';
-  protected readonly awsConsoleUrl = 'https://us-east-2.console.aws.amazon.com/';
+    'Use this page once to confirm IAM access, the correct Town account, and the Studio links. Daily text and record edits happen in Amplify Studio Data Manager, but document files must be uploaded from the Document Upload tab on this page.';
+  protected readonly awsAccountId = this.clerkSetupConfig.awsAccountId;
+  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
+  protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
+  protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
+  protected readonly studioUrl = this.clerkSetupConfig.studioUrl;
   protected readonly setupDetails: ClerkSetupDetail[] = [
     { label: 'AWS account', value: this.awsAccountId },
     { label: 'Region', value: this.awsRegion },
@@ -72,7 +87,8 @@ export class ClerkSetup {
   ];
   protected readonly dailyChecklist = [
     'Use the correct IAM user for the Town account.',
-    'Open Amplify Studio Data Manager for all CMS items.',
+    'Open Amplify Studio Data Manager for text and record changes.',
+    'Use the Document Upload tab on this page for PublicDocument files.',
     'Open the correct model.',
     'Make the change and save the record.',
     'Refresh the public website and confirm the update.',
@@ -84,7 +100,7 @@ export class ClerkSetup {
     { action: 'Meetings, hearings, and calendar events', model: 'Event' },
     { action: 'Staff contact cards for names, phones, and emails', model: 'OfficialContact' },
     { action: 'Business directory entries, logos, and websites', model: 'Business' },
-    { action: 'Public documents, forms, and downloads', model: 'PublicDocument' },
+    { action: 'Public documents, forms, and downloads', model: 'Document Upload tab -> creates PublicDocument' },
     { action: 'Outside news links shared on the site', model: 'ExternalNewsLink' },
     { action: 'Town email forwarding rules for behind-the-scenes delivery', model: 'EmailAlias' },
   ];

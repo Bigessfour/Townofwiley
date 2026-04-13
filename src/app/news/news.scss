@@ -25,6 +25,7 @@
 
 .featured-news-card {
   border: 1px solid var(--surface-border-strong);
+  border-left: 6px solid var(--civic-blue);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   border-radius: 24px;
   box-shadow: var(--surface-shadow-soft);
@@ -34,6 +35,8 @@
 .public-card {
   border: 1px solid var(--surface-border);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--surface-shadow-soft);
 }
 
@@ -93,7 +96,7 @@
 /* Mobile-first grid — stacks on phones, 2-col at tablet, 3-col at desktop */
 .news-card-grid {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
   grid-template-columns: 1fr;
 }
 
@@ -112,4 +115,8 @@
 .news-section-header h2 {
   margin: 0.25rem 0 0;
   font-size: 1.55rem;
+}
+
+.featured-news-link {
+  width: fit-content;
 }

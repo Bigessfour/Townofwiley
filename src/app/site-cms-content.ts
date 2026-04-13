@@ -644,6 +644,15 @@ export class LocalizedCmsContentStore {
     }
   }
 
+  async refreshContent(): Promise<void> {
+    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+      this.applyFallbackContent();
+      return;
+    }
+
+    await this.loadContent();
+  }
+
   private async loadContent(): Promise<void> {
     this.loadState.set('loading');
     this.loadErrorState.set(null);

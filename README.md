@@ -203,6 +203,11 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_ENABLED` | `true` / `false` |
 | `LOG_ENDPOINT` | Frontend log ingest endpoint |
 | `CONTACT_UPDATE_API_ENDPOINT` | Lambda Function URL for contact updates |
+| `CLERK_SETUP_AWS_ACCOUNT_ID` | Town AWS account ID shown on the clerk setup page |
+| `CLERK_SETUP_AMPLIFY_APP_ID` | Amplify app ID used for the clerk setup links |
+| `CLERK_SETUP_AWS_REGION` | AWS region used to build clerk setup console links |
+| `CLERK_SETUP_AWS_CONSOLE_URL` | Optional direct AWS console URL for the clerk setup page |
+| `CLERK_SETUP_STUDIO_URL` | Optional direct Amplify Studio URL for the clerk setup page |
 
 If a variable is missing, `generate-runtime-config.mjs` silently falls back to an empty string; the feature that depends on it will degrade gracefully rather than break the build.
 

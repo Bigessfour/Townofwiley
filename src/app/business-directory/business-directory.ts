@@ -128,6 +128,7 @@ export class BusinessDirectory {
   protected readonly logging = inject(LoggingService);
   private readonly cms = inject(LocalizedCmsContentStore);
   protected readonly directoryQuery = signal('');
+  protected readonly failedLogoNames = signal<Set<string>>(new Set());
 
   protected readonly businesses = computed<Business[]>(() => {
     const cmsBusinesses = this.cms.businesses().map(mapCmsBusiness);
@@ -161,9 +162,42 @@ export class BusinessDirectory {
     );
   });
 
+  protected readonly filteredBusinessCount = computed(() => this.filteredBusinesses().length);
+
   protected readonly title = 'Wiley Community Business Directory';
 
   protected updateDirectoryQuery(value: string): void {
     this.directoryQuery.set(value);
+  }
+
+  protected markLogoFailed(name: string): void {
+    this.failedLogoNames.update((current) => {
+      const next = new Set(current);
+      next.add(normalizeBusinessKey(name));
+      return next;
+    });
+  }
+
+  protected hasLogoFailed(name: string): boolean {
+    return this.failedLogoNames().has(normalizeBusinessKey(name));
+  }
+
+  protected getLogoFallbackText(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  protected getMapsUrl(address: string): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  }
+
+  protected getPhoneHref(phone: string): string | null {
+    const normalizedPhone = phone.replace(/[^\d+]/g, '');
+
+    return normalizedPhone ? `tel:${normalizedPhone}` : null;
   }
 }

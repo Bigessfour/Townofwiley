@@ -17,6 +17,9 @@
       },
       "api": {
         "townofwiley": {}
+      },
+      "storage": {
+        "documents": {}
       }
     }
   }

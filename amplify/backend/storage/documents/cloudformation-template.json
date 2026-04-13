@@ -1,0 +1,148 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"14.3.0\",\"stackType\":\"storage-S3\",\"metadata\":{\"whyContinueWithGen1\":\"\"}}",
+  "Parameters": {
+    "bucketName": {
+      "Type": "String",
+      "Default": "townofwiley-documents-storage"
+    },
+    "env": {
+      "Type": "String"
+    },
+    "authRoleName": {
+      "Type": "String"
+    },
+    "unauthRoleName": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Ref": "bucketName"
+        },
+        "CorsConfiguration": {
+          "CorsRules": [
+            {
+              "AllowedHeaders": [
+                "*"
+              ],
+              "AllowedMethods": [
+                "GET",
+                "PUT",
+                "POST",
+                "DELETE",
+                "HEAD"
+              ],
+              "AllowedOrigins": [
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "AuthRolePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "documentsAuthAccess",
+        "Roles": [
+          {
+            "Ref": "authRoleName"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:aws:s3:::${S3Bucket}/*"
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:aws:s3:::${S3Bucket}"
+              },
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "documents/*",
+                    "documents/"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UnauthRolePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "documentsGuestReadAccess",
+        "Roles": [
+          {
+            "Ref": "unauthRoleName"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:aws:s3:::${S3Bucket}/*"
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:aws:s3:::${S3Bucket}"
+              },
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "documents/*",
+                    "documents/"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "BucketName": {
+      "Value": {
+        "Ref": "S3Bucket"
+      },
+      "Description": "Name of the S3 bucket"
+    },
+    "Region": {
+      "Value": {
+        "Ref": "AWS::Region"
+      },
+      "Description": "AWS Region"
+    }
+  }
+}

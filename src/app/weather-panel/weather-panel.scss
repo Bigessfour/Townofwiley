@@ -629,6 +629,13 @@
   color: var(--ink-700, #45566e);
 }
 
+.weather-current-updated {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
 /* ── Alerts panel (PrimeNG p-panel override) ─────────── */
 
 .weather-alerts-header-host {
@@ -677,6 +684,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   min-height: 2.75rem;
   padding: 0.65rem 0.95rem;
   border: 1px solid var(--surface-border);
@@ -708,6 +716,12 @@
   max-width: 100%;
   border: none;
   border-top: 1px solid rgba(0 0 0 / 0.08);
+}
+
+@media (max-width: 640px) {
+  .weather-hourly-card {
+    padding: 0.75rem 0.9rem;
+  }
 }
 
 .weather-current-footer {

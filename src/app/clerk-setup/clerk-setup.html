@@ -7,6 +7,7 @@
     <p-tabs lazy [value]="activeTab()" (valueChange)="activeTab.set($event?.toString() ?? 'setup')">
       <p-tablist aria-label="Clerk setup content tabs">
         <p-tab value="setup">Setup Guide</p-tab>
+        <p-tab value="documents">Document Upload</p-tab>
         <p-tab value="updates">
           Contact Updates
           @if (contactUpdates().length > 0) {
@@ -20,20 +21,20 @@
         <p-tabpanel value="setup">
           <div class="grid gap-4 pt-2">
             <p class="setup-note setup-note--strong">
-              The only place to edit live website content is Amplify Studio Data Manager.
+              Use Amplify Studio Data Manager for text and record edits. Use the Document Upload tab on this page for public document files.
             </p>
 
             <div class="setup-actions flex flex-wrap gap-3">
-              <a class="setup-button primary" href="/admin">
+              <a class="setup-button primary" href="/admin" target="_blank" rel="noreferrer noopener">
                 Open CMS Admin
               </a>
               <a
                 class="setup-button secondary"
-                [href]="cmsEditUrl"
+                [href]="awsConsoleUrl"
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                Open CMS edit page
+                Open AWS Console
               </a>
               <a
                 class="setup-button secondary"
@@ -115,7 +116,42 @@
             </p-card>
           </div>
         </p-tabpanel>
+        <!-- ── Document Upload tab ─────────────────────────────────────── -->
+        <p-tabpanel value="documents">
+          <div class="grid gap-4 pt-2">
+            <p class="setup-note setup-note--strong">
+              Upload documents to make them available for download on the public Documents page.
+            </p>
 
+            <div class="grid gap-4 lg:grid-cols-2">
+              <app-document-upload
+                sectionId="meeting-documents"
+                sectionName="Meeting Documents"
+                (documentUploaded)="onDocumentUploaded($event)">
+              </app-document-upload>
+
+              <app-document-upload
+                sectionId="financial-documents"
+                sectionName="Financial Documents"
+                (documentUploaded)="onDocumentUploaded($event)">
+              </app-document-upload>
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+              <app-document-upload
+                sectionId="code-references"
+                sectionName="Code & Zoning References"
+                (documentUploaded)="onDocumentUploaded($event)">
+              </app-document-upload>
+
+              <app-document-upload
+                sectionId="records-requests"
+                sectionName="Records & Requests"
+                (documentUploaded)="onDocumentUploaded($event)">
+              </app-document-upload>
+            </div>
+          </div>
+        </p-tabpanel>
         <!-- ── Contact Updates tab ──────────────────────────────────────── -->
         <p-tabpanel value="updates">
           <div class="grid gap-4 pt-2">
@@ -134,10 +170,20 @@
                 [outlined]="true"
                 (click)="downloadCSV()"
                 [disabled]="contactUpdates().length === 0"
+                aria-label="Download all contact updates as CSV"
               >Download CSV</button>
             </header>
 
-            @if (contactUpdates().length === 0) {
+            @if (contactUpdatesLoading()) {
+              <div class="grid gap-3 py-4" aria-busy="true" aria-live="polite">
+                <p class="setup-note text-center">Loading contact updates...</p>
+                <div class="grid gap-2">
+                  <p-skeleton height="3rem" />
+                  <p-skeleton height="3rem" />
+                  <p-skeleton height="3rem" />
+                </div>
+              </div>
+            } @else if (contactUpdates().length === 0) {
               <p class="text-center py-12 text-color-secondary">
                 No contact updates received yet.
               </p>

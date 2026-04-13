@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { DocumentRefreshService } from '../document-refresh.service';
+import { DocumentUploadService } from '../document-upload.service';
 import {
     DOCUMENT_ARCHIVE,
     type DocumentArchiveSectionId,
@@ -325,6 +327,10 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 export class DocumentHub {
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly cms = inject(LocalizedCmsContentStore);
+  private readonly documentUploadService = inject(DocumentUploadService);
+  private readonly documentRefreshService = inject(DocumentRefreshService);
+
+  protected readonly resolvedCmsDocumentHrefs = signal<Record<string, string>>({});
 
   protected readonly copy = computed(
     () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -333,8 +339,9 @@ export class DocumentHub {
     const language = this.siteLanguageService.currentLanguage();
     const staticArchive = DOCUMENT_ARCHIVE[language];
     const cmsDocuments = this.cms.publicDocuments();
+    const resolvedCmsDocumentHrefs = this.resolvedCmsDocumentHrefs();
 
-    // Merge: CMS documents take precedence; static entries fill any gaps.
+    // Merge: CMS documents take precedence and can reference storage-backed files; static entries fill gaps.
     const mergedById = new Map<string, PublishedDocument>();
     for (const doc of staticArchive) {
       mergedById.set(doc.id, doc);
@@ -348,7 +355,7 @@ export class DocumentHub {
         status: doc.status,
         updatedAt: '',
         format: doc.format,
-        href: doc.href,
+        href: resolvedCmsDocumentHrefs[doc.id] ?? doc.href,
         downloadFileName: doc.downloadFileName,
         keywords: doc.keywords,
       });
@@ -421,5 +428,57 @@ export class DocumentHub {
 
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
+  }
+
+  constructor() {
+    void this.resolveCmsDocumentHrefs();
+
+    effect(() => {
+      this.documentRefreshService.getRefreshTrigger()();
+      void this.cms.refreshContent();
+      void this.resolveCmsDocumentHrefs();
+    });
+  }
+
+  private async resolveCmsDocumentHrefs() {
+    try {
+      const hrefEntries = await Promise.all(
+        this.cms.publicDocuments().map(async (document) => {
+          const resolvedHref = await this.documentUploadService.resolveDocumentHref(document.href);
+          return [document.id, resolvedHref] as const;
+        }),
+      );
+
+      this.resolvedCmsDocumentHrefs.set(Object.fromEntries(hrefEntries));
+    } catch (error) {
+      console.error('Failed to resolve CMS document links:', error);
+      this.resolvedCmsDocumentHrefs.set({});
+    }
+  }
+
+  private formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  private formatDate(date: Date): string {
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private getFormatFromType(mimeType: string): string {
+    const formatMap: Record<string, string> = {
+      'application/pdf': 'PDF',
+      'application/msword': 'DOC',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+      'application/vnd.ms-excel': 'XLS',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+      'text/plain': 'TXT',
+      'image/jpeg': 'JPG',
+      'image/png': 'PNG',
+    };
+    return formatMap[mimeType] || 'File';
   }
 }

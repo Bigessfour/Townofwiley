@@ -52,6 +52,34 @@ const cmsRegion =
   localSecrets.cms?.appSync?.region?.trim() ||
   localSecrets.aws?.region?.trim() ||
   '';
+const clerkSetupAwsAccountId =
+  process.env.CLERK_SETUP_AWS_ACCOUNT_ID?.trim() ||
+  localSecrets.clerkSetup?.awsAccountId?.trim() ||
+  '';
+const clerkSetupClerkName =
+  process.env.CLERK_SETUP_CLERK_NAME?.trim() ||
+  localSecrets.clerkSetup?.clerkName?.trim() ||
+  'Deb Dillon';
+const clerkSetupAmplifyAppId =
+  process.env.CLERK_SETUP_AMPLIFY_APP_ID?.trim() ||
+  localSecrets.clerkSetup?.amplifyAppId?.trim() ||
+  '';
+const clerkSetupAwsRegion =
+  process.env.CLERK_SETUP_AWS_REGION?.trim() ||
+  localSecrets.clerkSetup?.awsRegion?.trim() ||
+  cmsRegion ||
+  localSecrets.aws?.region?.trim() ||
+  '';
+const clerkSetupAwsConsoleUrl =
+  process.env.CLERK_SETUP_AWS_CONSOLE_URL?.trim() ||
+  localSecrets.clerkSetup?.awsConsoleUrl?.trim() ||
+  (clerkSetupAwsRegion ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/` : 'https://console.aws.amazon.com/');
+const clerkSetupStudioUrl =
+  process.env.CLERK_SETUP_STUDIO_URL?.trim() ||
+  localSecrets.clerkSetup?.studioUrl?.trim() ||
+  (clerkSetupAwsRegion && clerkSetupAmplifyAppId
+    ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/home?region=${clerkSetupAwsRegion}#/${clerkSetupAmplifyAppId}/main/studio/home`
+    : clerkSetupAwsConsoleUrl);
 const severeWeatherSignupEnabled =
   process.env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'
     ? false
@@ -131,6 +159,14 @@ const runtimeConfig = {
       apiEndpoint: cmsApiEndpoint,
       apiKey: cmsApiKey,
     },
+  },
+  clerkSetup: {
+    clerkName: clerkSetupClerkName,
+    awsAccountId: clerkSetupAwsAccountId,
+    amplifyAppId: clerkSetupAmplifyAppId,
+    awsRegion: clerkSetupAwsRegion,
+    awsConsoleUrl: clerkSetupAwsConsoleUrl,
+    studioUrl: clerkSetupStudioUrl,
   },
   logging: {
     endpoint: logEndpoint || undefined,

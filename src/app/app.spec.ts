@@ -12,6 +12,14 @@ import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
 
 interface TestRuntimeConfig {
+  clerkSetup?: {
+    clerkName?: string;
+    awsAccountId?: string;
+    amplifyAppId?: string;
+    awsRegion?: string;
+    awsConsoleUrl?: string;
+    studioUrl?: string;
+  };
   payments?: {
     paystar?: {
       mode?: 'none' | 'hosted' | 'api';
@@ -582,6 +590,18 @@ describe('App', () => {
 
   it('should render the Deb Dillon clerk setup page on the clerk setup path', async () => {
     window.history.pushState({}, '', '/clerk-setup');
+
+    runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
+      clerkSetup: {
+        clerkName: 'Deb Dillon',
+        awsAccountId: '570912405222',
+        amplifyAppId: 'd331voxr1fhoir',
+        awsRegion: 'us-east-2',
+        awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
+        studioUrl:
+          'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home',
+      },
+    };
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

@@ -7,12 +7,46 @@
     linear-gradient(180deg, var(--page-backdrop-end) 0%, var(--page-backdrop-start) 36%, var(--page-backdrop-mid) 100%);
 }
 
+/* ── Design System Tokens ────────────────────────────────────────────────── */
+
+:root {
+  /* Typography Scale (1.25 ratio, responsive with clamp) */
+  --font-size-body: clamp(0.875rem, 2vw, 1rem);
+  --font-size-kicker: clamp(0.75rem, 1.5vw, 0.875rem);
+  --font-size-h3: clamp(1.125rem, 2.5vw, 1.25rem);
+  --font-size-h2: clamp(1.5rem, 3.5vw, 1.75rem);
+  --font-size-h1: clamp(2rem, 5.5vw, 2.5rem);
+
+  /* Spacing System (8px grid) */
+  --space-xs: 0.5rem; /* 8px */
+  --space-sm: 1rem;   /* 16px */
+  --space-md: 1.5rem; /* 24px */
+  --space-lg: 2rem;   /* 32px */
+  --space-xl: 3rem;   /* 48px */
+  --space-2xl: 4rem;  /* 64px */
+
+  /* Shadow Hierarchy */
+  --shadow-subtle: 0 4px 12px rgba(17, 36, 61, 0.08);
+  --shadow-medium: 0 12px 24px rgba(17, 36, 61, 0.12);
+  --shadow-strong: 0 22px 44px rgba(17, 36, 61, 0.16);
+  --shadow-floating: 0 26px 70px rgba(17, 36, 61, 0.2);
+
+  /* Border Radius Scale */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.5rem;  /* 8px */
+  --radius-lg: 1rem;    /* 16px */
+  --radius-xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px;
+}
+
+/* ── Component Styles ────────────────────────────────────────────────────── */
+
 .skip-link {
   position: absolute;
-  left: 1rem;
+  left: var(--space-sm);
   top: -4rem;
-  padding: 0.8rem 1rem;
-  border-radius: 999px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-full);
   background: var(--civic-blue);
   color: var(--surface-inverse);
   font-weight: 700;
@@ -21,7 +55,7 @@
 }
 
 .skip-link:focus {
-  top: 1rem;
+  top: var(--space-sm);
 }
 
 .site-header,
@@ -35,10 +69,10 @@
 
 .site-alert {
   margin-top: calc(var(--spacing-unit) * 1.1);
-  border-radius: 28px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(135deg, var(--alert-banner-start), var(--alert-banner-end));
   color: var(--surface-inverse-strong);
-  box-shadow: 0 22px 54px var(--alert-banner-shadow);
+  box-shadow: var(--shadow-strong);
   overflow: hidden;
 }
 
@@ -52,7 +86,7 @@
 
 .site-alert-copy {
   display: grid;
-  gap: 0.45rem;
+  gap: var(--space-xs);
 }
 
 .site-alert-actions {
@@ -60,7 +94,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .site-alert-label,
@@ -71,7 +105,7 @@
 
 .site-alert-headline {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--font-size-kicker);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -79,7 +113,7 @@
 }
 
 .site-alert-label {
-  font-size: 0.8rem;
+  font-size: var(--font-size-kicker);
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -102,8 +136,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.85rem 1.1rem;
-  border-radius: 999px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--surface-inverse) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--surface-inverse) 22%, transparent);
   color: var(--surface-inverse);
@@ -117,13 +151,13 @@
 
 .site-header {
   max-width: none;
-  padding-top: 1.5rem;
+  padding-top: var(--space-lg);
 }
 
 /* Compact header on feature sub-pages — no hero, tighter padding */
 .site-header.is-feature-page {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
   border-bottom: 1px solid var(--surface-border);
   background: linear-gradient(135deg, var(--page-backdrop-end), var(--page-backdrop-mid));
 }
@@ -137,29 +171,29 @@
 }
 
 .site-header.is-feature-page .header-top {
-  padding-bottom: 0.5rem;
+  padding-bottom: var(--space-sm);
 }
 
 .site-header.is-feature-page .main-nav-link {
-  font-size: 0.88rem;
-  padding: 0.3rem 0.55rem;
+  font-size: var(--font-size-kicker);
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .site-header.is-feature-page .town-logo .official-badge {
-  font-size: 0.62rem;
-  padding: 0.32rem 0.55rem;
+  font-size: var(--font-size-kicker);
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .page-shell.is-feature-page {
-  padding-top: 0.75rem;
-  gap: 1rem;
+  padding-top: var(--space-sm);
+  gap: var(--space-sm);
 }
 
 .site-language-switcher {
   display: inline-grid;
-  gap: 0.45rem;
+  gap: var(--space-xs);
   justify-items: end;
-  font-size: 0.78rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -173,23 +207,23 @@
 .site-language-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
   border: 1px solid var(--surface-border);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--surface-overlay);
-  box-shadow: 0 16px 34px rgba(17, 36, 61, 0.08);
+  box-shadow: var(--shadow-subtle);
 }
 
 .site-language-button {
   min-width: 6.75rem;
-  padding: 0.72rem 1rem;
+  padding: var(--space-lg) var(--space-md);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--ink-800);
   font: inherit;
-  font-size: 0.88rem;
+  font-size: var(--font-size-kicker);
   letter-spacing: 0.02em;
   text-transform: none;
   cursor: pointer;
@@ -208,7 +242,7 @@
 .site-language-button[aria-pressed='true'] {
   background: var(--brand-gradient-strong);
   color: var(--surface-inverse);
-  box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
+  box-shadow: var(--shadow-medium);
 }
 
 .site-language-button:focus-visible {
@@ -219,34 +253,34 @@
 .utility-strip {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--space-sm);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 
 .utility-strip-links {
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--space-sm);
   align-items: stretch;
 }
 
 .utility-link {
   display: grid;
-  gap: 0.2rem;
+  gap: var(--space-xs);
   min-width: 12rem;
   padding: calc(var(--spacing-unit) * 0.95) calc(var(--spacing-unit) * 1.05);
   border: 1px solid rgba(13, 44, 84, 0.1);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.82);
   color: var(--text-on-bg);
   font: inherit;
   text-align: left;
   text-decoration: none;
-  box-shadow: 0 20px 42px rgba(17, 36, 61, 0.09);
+  box-shadow: var(--shadow-subtle);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
@@ -255,7 +289,7 @@
 }
 
 .utility-link strong {
-  font-size: 0.78rem;
+  font-size: var(--font-size-kicker);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--civic-rust);
@@ -263,7 +297,7 @@
 
 .utility-link span {
   color: var(--text-on-bg);
-  font-size: 0.98rem;
+  font-size: var(--font-size-body);
   font-weight: 700;
   line-height: 1.35;
 }
@@ -289,14 +323,14 @@
   gap: calc(var(--spacing-unit) * 0.45);
   padding: calc(var(--spacing-unit) * 1.1) calc(var(--spacing-unit) * 1.2);
   border: 1px solid rgba(13, 44, 84, 0.08);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--surface-shadow-soft);
+  box-shadow: var(--shadow-subtle);
 }
 
 .fact-card strong {
   color: var(--ink-900);
-  font-size: 1rem;
+  font-size: var(--font-size-body);
 }
 
 .fact-card span {
@@ -310,16 +344,16 @@
 .meta-label {
   margin: 0;
   color: var(--civic-rust);
-  font-size: 0.82rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .status {
-  margin: 0.75rem 0 0;
+  margin: var(--space-sm) 0 0;
   color: var(--ink-800);
-  font-size: 0.95rem;
+  font-size: var(--font-size-body);
   font-weight: 700;
 }
 
@@ -333,24 +367,24 @@ h3 {
 
 h1 {
   margin-top: calc(var(--spacing-unit) * 0.9);
-  font-size: clamp(2.5rem, 5.5vw, 5rem);
+  font-size: var(--font-size-h1);
   line-height: 0.98;
 }
 
 h2 {
-  font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+  font-size: var(--font-size-h2);
   line-height: 1.1;
 }
 
 h3 {
-  font-size: 1.2rem;
+  font-size: var(--font-size-h3);
   line-height: 1.15;
 }
 
 .message {
   max-width: 42rem;
   margin: calc(var(--spacing-unit) * 1.35) 0 0;
-  font-size: 1.18rem;
+  font-size: var(--font-size-h3);
   line-height: 1.72;
   color: var(--ink-800);
 }
@@ -358,7 +392,7 @@ h3 {
 .subtext {
   max-width: 46rem;
   margin: calc(var(--spacing-unit) * 0.95) 0 0;
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.78;
   color: var(--ink-700);
 }
@@ -401,9 +435,9 @@ h3 {
   position: relative;
   padding: calc(var(--spacing-unit) * 1.7);
   border: 1px solid rgba(13, 44, 84, 0.08);
-  border-radius: 30px;
+  border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--surface-shadow-lift);
+  box-shadow: var(--shadow-medium);
 }
 
 .hero-card {
@@ -420,7 +454,7 @@ h3 {
 
 .panel :where(.p-card-body) {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-lg);
   padding: calc(var(--spacing-unit) * 1.7);
 }
 
@@ -431,17 +465,17 @@ h3 {
 }
 
 .section-divider {
-  margin: 0.2rem 0;
+  margin: var(--space-xs) 0;
 }
 
 .search-panel {
-  padding: 1.6rem;
-  border-radius: 34px;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
   background:
     linear-gradient(180deg, rgba(13, 44, 84, 0.96), rgba(28, 59, 102, 0.94)),
     radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 28%);
   color: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 26px 70px rgba(17, 36, 61, 0.16);
+  box-shadow: var(--shadow-floating);
 }
 
 .landing-task-grid {
@@ -450,7 +484,7 @@ h3 {
 
 .civic-panel {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-lg);
 }
 
 .landing-notice-grid {
@@ -458,9 +492,36 @@ h3 {
   margin-top: 0;
 }
 
+.landing-notices-header {
+  align-items: start;
+}
+
+.landing-notice-timeline {
+  margin-top: var(--space-xs);
+}
+
+.landing-notice-timeline .p-timeline-event-opposite {
+  padding-right: var(--space-sm);
+}
+
+.landing-notice-timeline .p-timeline-event-content {
+  padding-bottom: var(--space-lg);
+}
+
+.notice-card--timeline {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+}
+
+.notice-timeline-date {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+}
+
 .stay-informed-card {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-lg);
 }
 
 .support-link-card {
@@ -475,13 +536,13 @@ h3 {
 
 .feature-card {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-sm);
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.15);
   border: 1px solid var(--surface-border);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
-  box-shadow: 0 22px 44px rgba(17, 36, 61, 0.08);
+  box-shadow: var(--shadow-subtle);
   color: inherit;
   text-decoration: none;
   transition:
@@ -491,7 +552,7 @@ h3 {
 }
 
 .feature-card strong {
-  font-size: 1.18rem;
+  font-size: var(--font-size-h3);
   color: var(--ink-900);
 }
 
@@ -504,7 +565,7 @@ h3 {
 .feature-card:focus-visible {
   transform: translateY(-2px);
   border-color: var(--surface-border-strong);
-  box-shadow: 0 22px 42px rgba(17, 36, 61, 0.1);
+  box-shadow: var(--shadow-medium);
 }
 
 .sr-only {
@@ -521,12 +582,12 @@ h3 {
 
 .feature-page-shell {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .feature-detail-stack {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-lg);
 }
 
 .detail-back-link {
@@ -541,12 +602,12 @@ h3 {
 .page-label-strip {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-sm);
   flex-wrap: wrap;
 }
 
 .page-label-kicker {
-  font-size: 0.72rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -556,12 +617,12 @@ h3 {
 
 .page-label-kicker::after {
   content: '·';
-  margin-left: 0.6rem;
+  margin-left: var(--space-sm);
   color: rgba(13, 44, 84, 0.3);
 }
 
 .page-label-title {
-  font-size: 0.92rem;
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: rgba(13, 44, 84, 0.72);
 }
@@ -583,13 +644,13 @@ h3 {
 .calendar-grid,
 .leadership-grid {
   display: grid;
-  gap: 1.4rem;
+  gap: var(--space-lg);
 }
 
 .task-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 1.5rem;
-  gap: 1rem;
+  margin-top: var(--space-lg);
+  gap: var(--space-sm);
 }
 
 .task-card,
@@ -605,17 +666,17 @@ h3 {
 .task-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem;
+  gap: var(--space-sm);
   align-items: start;
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.08);
   border: 1px solid var(--surface-border);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   color: inherit;
   text-decoration: none;
   position: relative;
-  box-shadow: 0 22px 42px rgba(17, 36, 61, 0.07);
+  box-shadow: var(--shadow-subtle);
 }
 
 .task-card::after {
@@ -644,7 +705,7 @@ h3 {
   justify-content: center;
   width: 3.3rem;
   height: 3.3rem;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(135deg, rgba(212, 161, 75, 0.22), rgba(164, 90, 44, 0.08));
   color: var(--civic-blue);
   box-shadow: inset 0 0 0 1px rgba(164, 90, 44, 0.08);
@@ -662,14 +723,14 @@ h3 {
 
 .task-card-copy {
   display: grid;
-  gap: 0.45rem;
+  gap: var(--space-xs);
 }
 
 .task-card strong,
 .search-result strong,
 .service-card h3,
 .contact-card strong {
-  font-size: 1.05rem;
+  font-size: var(--font-size-body);
   color: var(--ink-900);
 }
 
@@ -703,9 +764,9 @@ h3 {
   align-items: center;
   justify-content: center;
   min-width: 8rem;
-  padding: 0.95rem 1.15rem;
+  padding: var(--space-md) var(--space-lg);
   border: 0;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--button-accent-start), var(--button-accent-end));
   color: #fff;
   font-weight: 800;
@@ -732,7 +793,7 @@ h3 {
 .search-submit:hover,
 .search-submit:focus-visible {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(17, 36, 61, 0.2);
+  box-shadow: var(--shadow-floating);
 }
 
 :host ::ng-deep .search-submit.p-button:hover,
@@ -746,8 +807,8 @@ h3 {
 
 .search-result {
   display: grid;
-  gap: 0.35rem;
-  padding: 0.95rem 0;
+  gap: var(--space-xs);
+  padding: var(--space-md) 0;
   border: 0;
   border-top: 1px solid rgba(13, 44, 84, 0.14);
   border-radius: 0;
@@ -766,57 +827,57 @@ h3 {
 
 .empty-state {
   margin: 0;
-  padding: 1rem 0 0;
+  padding: var(--space-sm) 0 0;
   border-top: 1px solid rgba(13, 44, 84, 0.14);
 }
 
 .notice-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.25rem;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
 }
 
 .notice-card {
   display: grid;
-  gap: 0.7rem;
+  gap: var(--space-sm);
   min-height: 100%;
   padding: calc(var(--spacing-unit) * 1.15);
   border: 1px solid var(--surface-border);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
-  box-shadow: 0 22px 44px rgba(17, 36, 61, 0.08);
+  box-shadow: var(--shadow-subtle);
 }
 
 .notice-card .meta-label {
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
   background: rgba(13, 44, 84, 0.06);
 }
 
 .notice-card strong {
-  font-size: 1.15rem;
+  font-size: var(--font-size-h3);
 }
 
 .stack-list {
   display: grid;
-  gap: 0.85rem;
+  gap: var(--space-md);
 }
 
 .transparency-actions {
   display: grid;
-  gap: 1.4rem;
+  gap: var(--space-lg);
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1.4rem;
+  margin-top: var(--space-lg);
 }
 
 .transparency-action {
   display: grid;
-  gap: 0.45rem;
-  padding: 1rem 0 0;
+  gap: var(--space-xs);
+  padding: var(--space-sm) 0 0;
   border-top: 1px solid rgba(13, 44, 84, 0.12);
   color: inherit;
   text-decoration: none;
@@ -827,7 +888,7 @@ h3 {
 }
 
 .transparency-action strong {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   color: var(--ink-900);
 }
 
@@ -838,8 +899,8 @@ h3 {
 
 .info-row {
   display: grid;
-  gap: 0.45rem;
-  padding: 1rem 0;
+  gap: var(--space-xs);
+  padding: var(--space-sm) 0;
   border-top: 1px solid rgba(13, 44, 84, 0.12);
   background: transparent;
 }
@@ -851,23 +912,23 @@ h3 {
 }
 
 .service-panel {
-  margin-top: 1rem;
+  margin-top: var(--space-sm);
 }
 
 .calendar-panel {
-  margin-top: 1rem;
+  margin-top: var(--space-sm);
 }
 
 .calendar-panel .p-tablist {
-  gap: 0.45rem;
-  padding: 0.35rem;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
   border: 1px solid var(--surface-border);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--surface-card);
 }
 
 .calendar-panel .p-tab {
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   color: var(--ink-900);
   font-weight: 700;
 }
@@ -881,18 +942,18 @@ h3 {
 .calendar-panel .p-tab[data-p-active='true'] {
   background: var(--brand-gradient-strong);
   color: #fff;
-  box-shadow: 0 12px 22px rgba(17, 36, 61, 0.16);
+  box-shadow: var(--shadow-medium);
 }
 
 .calendar-header {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(19rem, 0.95fr);
-  gap: 1.5rem;
+  gap: var(--space-lg);
 }
 
 .calendar-header-copy {
   display: grid;
-  gap: 0.85rem;
+  gap: var(--space-md);
 }
 
 .calendar-tools {
@@ -900,13 +961,13 @@ h3 {
   flex-wrap: wrap;
   align-items: end;
   justify-content: space-between;
-  gap: 1rem;
-  margin: 1rem 0 1.15rem;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0 var(--space-md);
 }
 
 .calendar-tool {
   display: grid;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   min-width: min(100%, 20rem);
   flex: 1 1 20rem;
 }
@@ -922,9 +983,9 @@ h3 {
 .calendar-tool :where(.p-datepicker-input, .p-inputtext) {
   width: 100%;
   min-height: 3.25rem;
-  padding: 0.75rem 0.95rem;
+  padding: var(--space-sm) var(--space-md);
   border: 1px solid rgba(13, 44, 84, 0.14);
-  border-radius: 16px 0 0 16px;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
   background: rgba(255, 255, 255, 0.96);
   color: var(--ink-900);
   box-shadow: none;
@@ -934,7 +995,7 @@ h3 {
   min-width: 3.25rem;
   border: 1px solid rgba(13, 44, 84, 0.14);
   border-left: 0;
-  border-radius: 0 16px 16px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   background: rgba(255, 255, 255, 0.96);
   color: var(--ink-900);
   box-shadow: none;
@@ -948,10 +1009,10 @@ h3 {
 .calendar-tool :where(.p-datepicker-panel) {
   color-scheme: light;
   border: 1px solid rgba(13, 44, 84, 0.12);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.98);
   color: var(--ink-900);
-  box-shadow: 0 22px 40px rgba(13, 44, 84, 0.12);
+  box-shadow: var(--shadow-medium);
 }
 
 .calendar-tool :where(.p-datepicker-header, .p-datepicker-month-view, .p-datepicker-year-view) {
@@ -985,7 +1046,7 @@ h3 {
 }
 
 .calendar-tool-label {
-  font-size: 0.8rem;
+  font-size: var(--font-size-kicker);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -994,7 +1055,7 @@ h3 {
 
 .calendar-jump-note {
   margin: 0;
-  font-size: 0.94rem;
+  font-size: var(--font-size-body);
   color: var(--ink-700);
 }
 
@@ -1020,39 +1081,39 @@ h3 {
 }
 
 .calendar-help-copy {
-  margin: 0 0 0.9rem;
+  margin: 0 0 var(--space-md);
   line-height: 1.65;
   color: var(--ink-800);
 }
 
 .calendar-help-list {
   margin: 0;
-  padding-left: 1.15rem;
+  padding-left: var(--space-lg);
   display: grid;
-  gap: 0.65rem;
+  gap: var(--space-sm);
   color: var(--ink-700);
   line-height: 1.6;
 }
 
 .calendar-table {
   display: block;
-  margin-top: 1rem;
+  margin-top: var(--space-sm);
 }
 
 .calendar-table-placeholder {
   display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding: 1rem;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
   border: 1px solid rgba(13, 44, 84, 0.1);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
-  box-shadow: 0 18px 34px rgba(17, 36, 61, 0.07);
+  box-shadow: var(--shadow-subtle);
 }
 
 .calendar-table-placeholder-row {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .calendar-table-header-cell {
@@ -1060,16 +1121,16 @@ h3 {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .calendar-table-title {
   display: grid;
-  gap: 0.35rem;
+  gap: var(--space-xs);
 }
 
 .calendar-table-title strong {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
 }
 
 .calendar-table-note {
@@ -1080,42 +1141,42 @@ h3 {
 .calendar-table-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: var(--space-xs);
 }
 
 .calendar-table-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .calendar-tabs {
   display: block;
-  margin-top: 1rem;
+  margin-top: var(--space-sm);
 }
 
 .calendar-meta-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .calendar-pill-group {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .calendar-pill {
   display: inline-flex;
   align-items: center;
-  padding: 0.4rem 0.75rem;
-  border-radius: 999px;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
   background: rgba(13, 44, 84, 0.09);
   color: var(--ink-800);
-  font-size: 0.82rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
 }
 
@@ -1132,12 +1193,12 @@ h3 {
 
 .calendar-overview {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-sm);
   padding: calc(var(--spacing-unit) * 1.05) calc(var(--spacing-unit) * 1.1);
   border: 1px solid rgba(13, 44, 84, 0.12);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 231, 0.9));
-  box-shadow: 0 22px 40px rgba(13, 44, 84, 0.09);
+  box-shadow: var(--shadow-medium);
 }
 
 .calendar-overview p,
@@ -1147,7 +1208,7 @@ h3 {
 
 .calendar-overview > strong {
   color: var(--ink-900);
-  font-size: 1.25rem;
+  font-size: var(--font-size-h2);
   line-height: 1.2;
 }
 
@@ -1158,13 +1219,13 @@ h3 {
 
 .calendar-overview-next {
   display: grid;
-  gap: 0.3rem;
-  padding-top: 0.8rem;
+  gap: var(--space-xs);
+  padding-top: var(--space-lg);
   border-top: 1px solid rgba(13, 44, 84, 0.12);
 }
 
 .calendar-overview-next span {
-  font-size: 0.78rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1172,24 +1233,24 @@ h3 {
 }
 
 .calendar-overview-next strong {
-  font-size: 0.98rem;
+  font-size: var(--font-size-body);
   line-height: 1.45;
 }
 
 .calendar-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1.4rem;
+  margin-top: var(--space-lg);
   align-items: start;
 }
 
 .calendar-card {
   display: grid;
-  gap: 0.7rem;
+  gap: var(--space-sm);
   padding: calc(var(--spacing-unit) * 1.1);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
   border: 1px solid rgba(13, 44, 84, 0.12);
-  box-shadow: 0 22px 40px rgba(13, 44, 84, 0.09);
+  box-shadow: var(--shadow-medium);
 }
 
 .calendar-card.is-featured {
@@ -1198,18 +1259,18 @@ h3 {
 
 .calendar-card-top {
   display: grid;
-  gap: 0.65rem;
+  gap: var(--space-sm);
 }
 
 .calendar-source-badge {
   display: inline-flex;
   width: fit-content;
   align-items: center;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
   background: rgba(13, 44, 84, 0.08);
   color: var(--ink-700);
-  font-size: 0.78rem;
+  font-size: var(--font-size-kicker);
   font-weight: 700;
   border: 1px solid rgba(13, 44, 84, 0.12);
 }
@@ -1222,7 +1283,7 @@ h3 {
 
 .calendar-card strong {
   color: var(--ink-900);
-  font-size: 1rem;
+  font-size: var(--font-size-body);
 }
 
 .calendar-location {
@@ -1234,8 +1295,8 @@ h3 {
 .calendar-agenda-note,
 .meeting-agenda-note {
   margin: 0;
-  padding: 0.85rem 1rem;
-  border-radius: 16px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
   background: rgba(212, 161, 75, 0.12);
   color: var(--ink-900);
   font-weight: 600;
@@ -1250,18 +1311,18 @@ h3 {
 .calendar-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.2rem;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
 }
 
 .calendar-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem 0;
+  padding: var(--space-xs) 0;
   border: 0;
   border-bottom: 1px solid rgba(13, 44, 84, 0.18);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--civic-blue);
   font-weight: 700;
@@ -1286,12 +1347,12 @@ h3 {
 .service-grid,
 .contact-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1.25rem;
+  margin-top: var(--space-lg);
 }
 
 .service-card,
 .contact-card {
-  padding: 1rem 0 0;
+  padding: var(--space-sm) 0 0;
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -1300,7 +1361,7 @@ h3 {
 
 .service-card h3,
 .contact-card strong {
-  margin-top: 0.45rem;
+  margin-top: var(--space-xs);
 }
 
 .contact-card strong {
@@ -1310,17 +1371,17 @@ h3 {
 /* ── Contact page — Town Hall info block ────────────────────────────────── */
 .contact-town-hall-block {
   display: grid;
-  gap: 0.35rem;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
-  border-radius: 18px;
+  gap: var(--space-xs);
+  padding: var(--space-lg) var(--space-xl);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-md);
   border: 1px solid rgba(13, 44, 84, 0.12);
   background: rgba(255, 255, 255, 0.84);
 }
 
 .contact-town-hall-name {
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: var(--font-size-h3);
   color: var(--ink-900);
   margin: 0;
 }
@@ -1340,7 +1401,7 @@ h3 {
   font-weight: 700;
   color: var(--civic-blue);
   text-decoration: none;
-  font-size: 1.15rem;
+  font-size: var(--font-size-h3);
 }
 
 /* ── PrimeNG form control anti-clipping ─────────────────────────────────────
@@ -1354,8 +1415,8 @@ h3 {
 .p-textarea,
 .p-password input {
   min-height: 3.25rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
   line-height: 1.5;
 }
 
@@ -1366,8 +1427,8 @@ h3 {
 .p-select .p-select-label,
 .p-dropdown .p-dropdown-label {
   min-height: 3.25rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
   line-height: 1.5;
   display: flex;
   align-items: center;
@@ -1376,8 +1437,8 @@ h3 {
 .contact-link {
   display: inline-flex;
   align-items: center;
-  margin-top: 0.45rem;
-  font-size: 1.05rem;
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: var(--civic-blue);
   text-decoration: none;
@@ -1386,7 +1447,7 @@ h3 {
 .text-link {
   display: inline-flex;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: var(--space-lg);
   color: var(--civic-blue);
   font-weight: 700;
   text-decoration: underline;
@@ -1400,16 +1461,16 @@ h3 {
 }
 
 .contact-grid {
-  margin-top: 1.25rem;
+  margin-top: var(--space-lg);
 }
 
 .leadership-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 1.25rem;
+  margin-top: var(--space-lg);
 }
 
 .leadership-card {
-  padding: 1rem 0 0;
+  padding: var(--space-sm) 0 0;
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -1417,7 +1478,7 @@ h3 {
 }
 
 .leadership-card h3 {
-  margin-bottom: 0.55rem;
+  margin-bottom: var(--space-sm);
 }
 
 .leadership-card p {
@@ -1427,17 +1488,17 @@ h3 {
 }
 
 .leadership-list {
-  margin: 1rem 0 0;
-  padding-left: 1.15rem;
+  margin: var(--space-sm) 0 0;
+  padding-left: var(--space-lg);
   color: var(--ink-900);
 }
 
 .leadership-list li + li {
-  margin-top: 0.45rem;
+  margin-top: var(--space-xs);
 }
 
 .compliance-note {
-  margin: 1rem 0 0;
+  margin: var(--space-sm) 0 0;
   font-weight: 600;
 }
 
@@ -1456,16 +1517,16 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-sm);
   margin-top: 0;
-  padding: 1.4rem 0 0;
+  padding: var(--space-lg) 0 0;
   border-top: 1px solid rgba(13, 44, 84, 0.14);
 }
 
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 
 .footer-links a {
@@ -1512,6 +1573,10 @@ input:focus-visible {
   .community-strip,
   .notice-grid {
     grid-template-columns: 1fr;
+  }
+
+  .landing-notice-timeline .p-timeline-event-opposite {
+    display: none;
   }
 
   .site-alert,
@@ -1563,12 +1628,12 @@ input:focus-visible {
   }
 
   .site-header {
-    padding-top: 1.5rem;
+    padding-top: var(--space-lg);
   }
 
   .hero-card,
   .panel {
-    padding-top: 1.5rem;
+    padding-top: var(--space-lg);
   }
 
   h1 {
@@ -1582,10 +1647,10 @@ input:focus-visible {
   position: relative;
   width: 100vw;
   min-height: 34rem;
-  margin: 1.25rem 0 2rem;
+  margin: var(--space-lg) 0 var(--space-xl);
   margin-left: calc(50% - 50vw);
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: var(--radius-xl);
 }
 
 .hero-landing-media {
@@ -1612,7 +1677,7 @@ input:focus-visible {
   align-items: center;
   justify-content: center;
   min-height: 34rem;
-  padding: 0 1.5rem;
+  padding: 0 var(--space-lg);
   text-align: center;
 }
 
@@ -1627,7 +1692,7 @@ input:focus-visible {
 @media (max-width: 640px) {
   .hero-landing {
     min-height: 26rem;
-    margin-top: 0.75rem;
+    margin-top: var(--space-sm);
   }
 
   .hero-landing-inner {
@@ -1638,8 +1703,8 @@ input:focus-visible {
 // ── Floating Ask Wiley chat button ──────────────────────────────────────────
 .floating-chat-button {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
   z-index: 900;
   display: flex;
   align-items: center;
@@ -1651,14 +1716,14 @@ input:focus-visible {
   background: #0d2c54;
   color: #fff;
   font-size: 1.5rem;
-  box-shadow: 0 10px 30px rgba(13, 44, 84, 0.28);
+  box-shadow: var(--shadow-floating);
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 .floating-chat-button:hover {
   transform: scale(1.08);
-  box-shadow: 0 14px 40px rgba(13, 44, 84, 0.38);
+  box-shadow: var(--shadow-strong);
 }
 
 .floating-chat-button:focus-visible {
@@ -1669,14 +1734,14 @@ input:focus-visible {
 .floating-chat-label {
   position: absolute;
   right: 4.5rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
   background: #fff;
   color: #0d2c54;
-  font-size: 0.92rem;
+  font-size: var(--font-size-body);
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-subtle);
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
@@ -1688,11 +1753,11 @@ input:focus-visible {
 
 @media (max-width: 480px) {
   .floating-chat-button {
-    bottom: 1rem;
-    right: 1rem;
+    bottom: var(--space-sm);
+    right: var(--space-sm);
     width: 3.25rem;
     height: 3.25rem;
-    font-size: 1.25rem;
+    font-size: var(--font-size-h3);
   }
 
   .floating-chat-label { display: none; }
@@ -1702,7 +1767,7 @@ input:focus-visible {
 // Overrides the base .site-alert gradient with a high-visibility emergency red.
 .site-alert--nws {
   background: linear-gradient(135deg, #9f1e2c, #c22a3a);
-  box-shadow: 0 22px 54px rgba(159, 30, 44, 0.35);
+  box-shadow: var(--shadow-strong);
 }
 
 .site-alert--nws .site-alert-headline {
@@ -1720,7 +1785,7 @@ input:focus-visible {
 }
 
 .site-alert-instruction {
-  margin-top: 0.25rem;
+  margin-top: var(--space-xs);
   font-style: italic;
   opacity: 0.88;
 }

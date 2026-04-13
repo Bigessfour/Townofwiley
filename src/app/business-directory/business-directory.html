@@ -6,6 +6,10 @@
       Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.
     </p>
 
+    @if (filteredBusinessCount() > 0) {
+      <p class="business-directory-count meta-label">{{ filteredBusinessCount() }} businesses</p>
+    }
+
     <label class="public-search-field grid gap-2 max-w-[28rem]">
       <span>Search local businesses</span>
       <p-iconfield class="public-search-input">
@@ -25,14 +29,14 @@
   @if (filteredBusinesses().length) {
     <div class="public-card-grid directory-card-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-2 sm:px-0">
       @for (business of filteredBusinesses(); track business.name) {
-        <article class="public-card public-directory-card grid gap-4 p-5 rounded-2xl h-full">
+        <article class="public-card public-directory-card grid gap-4 p-6 sm:p-5 rounded-2xl h-full">
           <div class="public-card-header grid gap-3 grid-cols-[minmax(0,1fr)_auto] items-start">
             <div>
               <p class="meta-label">Wiley business</p>
               <h2>{{ business.name }}</h2>
             </div>
 
-            @if (business.image && business.website) {
+            @if (business.image && business.website && !hasLogoFailed(business.name)) {
               <a
                 class="directory-logo-link"
                 [href]="business.website"
@@ -40,7 +44,24 @@
                 rel="noreferrer noopener"
                 (click)="logging.buttonClick('business-logo', business.name)"
               >
-                <img [src]="business.image" [alt]="business.name" loading="lazy" decoding="async" />
+                <img
+                  [src]="business.image"
+                  [alt]="business.name + ' logo'"
+                  loading="lazy"
+                  decoding="async"
+                  (error)="markLogoFailed(business.name)"
+                />
+              </a>
+            } @else if (business.website) {
+              <a
+                class="directory-logo-link directory-logo-link--fallback"
+                [href]="business.website"
+                target="_blank"
+                rel="noreferrer noopener"
+                (click)="logging.buttonClick('business-logo-fallback', business.name)"
+                [attr.aria-label]="business.name + ' website'"
+              >
+                <span class="directory-logo-fallback-text">{{ getLogoFallbackText(business.name) }}</span>
               </a>
             }
           </div>
@@ -51,14 +72,37 @@
               <div>
                 <dt>Phone</dt>
                 <dd>
-                  <a [href]="'tel:' + business.phone" (click)="logging.buttonClick('business-phone', business.name)">
-                    {{ business.phone }}
-                  </a>
+                  @if (getPhoneHref(business.phone); as phoneHref) {
+                    <div class="directory-contact-actions">
+                      <a [href]="phoneHref" (click)="logging.buttonClick('business-phone', business.name)">
+                        {{ business.phone }}
+                      </a>
+                      <a
+                        class="button-cta button-cta--light directory-call-button"
+                        [href]="phoneHref"
+                        (click)="logging.buttonClick('business-call', business.name)"
+                      >
+                        Call
+                      </a>
+                    </div>
+                  } @else {
+                    <span>{{ business.phone }}</span>
+                  }
                 </dd>
               </div>
               <div>
                 <dt>Address</dt>
-                <dd>{{ business.address }}</dd>
+                <dd>
+                  <a
+                    class="directory-address-link"
+                    [href]="getMapsUrl(business.address)"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    (click)="logging.buttonClick('business-address', business.name)"
+                  >
+                    {{ business.address }}
+                  </a>
+                </dd>
               </div>
             </dl>
           </div>

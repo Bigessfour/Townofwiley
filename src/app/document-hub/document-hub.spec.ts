@@ -6,6 +6,8 @@ import {
   type CmsPublicDocument,
   LocalizedCmsContentStore,
 } from '../site-cms-content';
+import { DocumentRefreshService } from '../document-refresh.service';
+import { DocumentUploadService } from '../document-upload.service';
 import { DOCUMENT_HUB_TITLE_EN, DocumentHub } from './document-hub';
 
 describe('DocumentHub', () => {
@@ -51,8 +53,16 @@ describe('DocumentHub', () => {
           useValue: {
             events,
             publicDocuments,
+            refreshContent: vi.fn().mockResolvedValue(undefined),
           } as unknown as LocalizedCmsContentStore,
         },
+        {
+          provide: DocumentUploadService,
+          useValue: {
+            resolveDocumentHref: vi.fn(async (href: string) => href),
+          } as unknown as DocumentUploadService,
+        },
+        DocumentRefreshService,
       ],
     });
 

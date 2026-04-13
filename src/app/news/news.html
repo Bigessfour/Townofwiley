@@ -12,6 +12,9 @@
         <h2>{{ featuredNotice.title }}</h2>
         <p class="featured-news-date">{{ featuredNotice.date }}</p>
         <p>{{ featuredNotice.detail }}</p>
+        <a href="/notices" class="button-cta button-cta--light featured-news-link">
+          {{ copy().readArticleLabel }}
+        </a>
       </div>
     </article>
   }
@@ -34,6 +37,16 @@
         }
       </div>
     </section>
+    } @else {
+      <section class="news-section news-section-local grid gap-6" aria-labelledby="recent-town-notices-heading">
+        <div class="news-section-header grid gap-1">
+          <p class="section-kicker">{{ copy().officialKicker }}</p>
+          <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
+          <p class="public-page-copy">{{ copy().officialCopy }}</p>
+        </div>
+
+        <p class="public-empty-state">No current notices. Check back soon for town updates.</p>
+      </section>
   }
 
   <section class="news-section news-section-external grid gap-6" aria-labelledby="external-news-heading">
