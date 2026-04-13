@@ -35,7 +35,7 @@ export class ClerkSetup {
   private readonly contactUpdateReview = inject(ContactUpdateReviewService);
   private readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
 
-  protected readonly activeTab = signal<string>('setup');
+  protected readonly activeTab = signal<string>(this.resolveInitialTab());
   protected readonly contactUpdatesLoading = signal(true);
   protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
   protected readonly setupCardPt = {
@@ -47,6 +47,20 @@ export class ClerkSetup {
 
   constructor() {
     void this.loadContactUpdates();
+  }
+
+  private resolveInitialTab(): string {
+    if (typeof window === 'undefined') {
+      return 'setup';
+    }
+
+    const fragment = window.location.hash.replace(/^#/, '');
+
+    if (fragment === 'documents' || fragment === 'updates' || fragment === 'setup') {
+      return fragment;
+    }
+
+    return 'setup';
   }
 
   onDocumentUploaded(document: UploadedDocument) {
