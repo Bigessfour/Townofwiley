@@ -1,0 +1,200 @@
+{
+  "appId": "d331voxr1fhoir",
+  "environmentName": "main",
+  "clientToken": "public-document-upload-form-20260413a",
+  "formToCreate": {
+    "name": "PublicDocumentUploadForm",
+    "dataType": {
+      "dataSourceType": "DataStore",
+      "dataTypeName": "PublicDocument"
+    },
+    "formActionType": "create",
+    "fields": {
+      "title": {
+        "label": "Document title",
+        "position": {
+          "fixed": "first"
+        },
+        "inputType": {
+          "type": "TextField",
+          "required": true,
+          "placeholder": "Town board meeting agenda"
+        }
+      },
+      "summary": {
+        "label": "Summary",
+        "position": {
+          "below": "title"
+        },
+        "inputType": {
+          "type": "TextAreaField",
+          "required": true,
+          "placeholder": "Short summary shown on the website."
+        }
+      },
+      "sectionId": {
+        "label": "Website section",
+        "position": {
+          "below": "summary"
+        },
+        "inputType": {
+          "type": "SelectField",
+          "required": true,
+          "placeholder": "Select a section",
+          "valueMappings": {
+            "values": [
+              {
+                "displayValue": { "value": "Meeting Documents" },
+                "value": { "value": "meeting-documents" }
+              },
+              {
+                "displayValue": { "value": "Financial Documents" },
+                "value": { "value": "financial-documents" }
+              },
+              {
+                "displayValue": { "value": "Code & Zoning References" },
+                "value": { "value": "code-references" }
+              },
+              {
+                "displayValue": { "value": "Records & Requests" },
+                "value": { "value": "records-requests" }
+              }
+            ]
+          }
+        }
+      },
+      "href": {
+        "label": "Document file",
+        "position": {
+          "below": "sectionId"
+        },
+        "inputType": {
+          "type": "StorageField",
+          "required": true,
+          "fileUploaderConfig": {
+            "accessLevel": "public",
+            "acceptedFileTypes": [
+              ".pdf",
+              ".doc",
+              ".docx",
+              ".xls",
+              ".xlsx",
+              ".txt"
+            ],
+            "showThumbnails": false,
+            "isResumable": true,
+            "maxFileCount": 1,
+            "maxSize": 10485760
+          }
+        }
+      },
+      "downloadFileName": {
+        "label": "Download file name",
+        "position": {
+          "below": "href"
+        },
+        "inputType": {
+          "type": "TextField",
+          "required": false,
+          "placeholder": "agenda-april-2026.pdf"
+        }
+      },
+      "format": {
+        "label": "Format",
+        "position": {
+          "below": "downloadFileName"
+        },
+        "inputType": {
+          "type": "TextField",
+          "required": true,
+          "placeholder": "PDF"
+        }
+      },
+      "status": {
+        "label": "Status",
+        "position": {
+          "below": "format"
+        },
+        "inputType": {
+          "type": "SelectField",
+          "required": true,
+          "valueMappings": {
+            "values": [
+              {
+                "displayValue": { "value": "Published" },
+                "value": { "value": "Published" }
+              },
+              {
+                "displayValue": { "value": "Draft" },
+                "value": { "value": "Draft" }
+              }
+            ]
+          }
+        }
+      },
+      "active": {
+        "label": "Visible on website",
+        "position": {
+          "below": "status"
+        },
+        "inputType": {
+          "type": "SwitchField",
+          "required": true,
+          "defaultChecked": true
+        }
+      },
+      "displayOrder": {
+        "label": "Display order",
+        "position": {
+          "below": "active"
+        },
+        "inputType": {
+          "type": "NumberField",
+          "required": false,
+          "placeholder": "10"
+        }
+      },
+      "keywords": {
+        "label": "Keywords",
+        "position": {
+          "below": "displayOrder"
+        },
+        "inputType": {
+          "type": "TextField",
+          "required": false,
+          "isArray": true,
+          "placeholder": "agenda"
+        }
+      }
+    },
+    "style": {
+      "horizontalGap": {
+        "value": "20px"
+      },
+      "verticalGap": {
+        "value": "20px"
+      },
+      "outerPadding": {
+        "value": "20px"
+      }
+    },
+    "sectionalElements": {},
+    "schemaVersion": "1",
+    "cta": {
+      "position": "bottom",
+      "clear": {
+        "excluded": false,
+        "children": "Clear"
+      },
+      "submit": {
+        "excluded": false,
+        "children": "Create document"
+      },
+      "cancel": {
+        "excluded": true,
+        "children": "Cancel"
+      }
+    },
+    "labelDecorator": "required"
+  }
+}

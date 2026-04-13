@@ -1,5 +1,20 @@
 import { Amplify } from 'aws-amplify';
 
+interface AppRuntimeConfig {
+  cms?: {
+    appSync?: {
+      apiEndpoint?: string;
+      apiKey?: string;
+    };
+  };
+}
+
+const runtimeConfig =
+  typeof window === 'undefined'
+    ? undefined
+    : ((window as Window & { __TOW_RUNTIME_CONFIG__?: AppRuntimeConfig }).__TOW_RUNTIME_CONFIG__ ?? undefined);
+const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
+
 Amplify.configure({
   Auth: {
     Cognito: {
@@ -10,9 +25,11 @@ Amplify.configure({
   },
   API: {
     GraphQL: {
-      endpoint: 'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
+      endpoint:
+        cmsAppSyncConfig?.apiEndpoint ??
+        'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
       defaultAuthMode: 'apiKey',
-      apiKey: 'da2-dtpfsmrmtfbqxfwspnp3ep3fcq',
+      apiKey: cmsAppSyncConfig?.apiKey ?? '',
     },
   },
   Storage: {

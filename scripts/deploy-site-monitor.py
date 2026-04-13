@@ -11,7 +11,7 @@ from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-AMPLIFY_CONFIG_PATH = REPO_ROOT / 'src' / 'amplifyconfiguration.json'
+RUNTIME_CONFIG_PATH = REPO_ROOT / 'public' / 'runtime-config.js'
 BACKEND_DIR = REPO_ROOT / 'infrastructure' / 'site-monitor'
 
 
@@ -56,13 +56,23 @@ def run_aws(command: list[str], expect_json: bool = True) -> Any:
 
 
 def load_amplify_config() -> dict[str, str]:
-  if not AMPLIFY_CONFIG_PATH.exists():
+  if not RUNTIME_CONFIG_PATH.exists():
     return {}
 
-  payload = json.loads(AMPLIFY_CONFIG_PATH.read_text(encoding='utf-8'))
+  runtime_config_text = RUNTIME_CONFIG_PATH.read_text(encoding='utf-8')
+  prefix = 'window.__TOW_RUNTIME_CONFIG__ = '
+  if prefix not in runtime_config_text:
+    return {}
+
+  payload_text = runtime_config_text.split(prefix, 1)[1].strip()
+  if payload_text.endswith(';'):
+    payload_text = payload_text[:-1].strip()
+
+  payload = json.loads(payload_text)
+  app_sync = payload.get('cms', {}).get('appSync', {})
   return {
-    'endpoint': str(payload.get('aws_appsync_graphqlEndpoint', '')).strip(),
-    'apiKey': str(payload.get('aws_appsync_apiKey', '')).strip(),
+    'endpoint': str(app_sync.get('apiEndpoint', '')).strip(),
+    'apiKey': str(app_sync.get('apiKey', '')).strip(),
   }
 
 

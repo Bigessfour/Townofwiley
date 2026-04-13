@@ -26,11 +26,25 @@ export class DocumentUploadService {
   }
 
   getStorageKeyFromHref(href: string | null | undefined): string | null {
-    if (!href || !href.startsWith('storage:')) {
+    if (!href) {
       return null;
     }
 
-    return href.slice('storage:'.length);
+    if (href.startsWith('storage:')) {
+      return href.slice('storage:'.length);
+    }
+
+    if (
+      href.startsWith('http://') ||
+      href.startsWith('https://') ||
+      href.startsWith('/') ||
+      href.startsWith('mailto:') ||
+      href.startsWith('tel:')
+    ) {
+      return null;
+    }
+
+    return href;
   }
 
   async uploadDocument(file: File, sectionId: string): Promise<UploadedDocument> {

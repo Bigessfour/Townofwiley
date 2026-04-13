@@ -8,6 +8,14 @@
 
     <div class="cms-actions">
       <a
+        class="cms-button add"
+        [href]="publicDocumentUploadFormUrl"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        {{ copy().openPublicDocumentUploadForm }}
+      </a>
+      <a
         class="cms-button primary"
         [href]="cmsEditUrl"
         target="_blank"
@@ -32,6 +40,22 @@
     } @else if (loadError()) {
       <strong>{{ loadError() }}</strong>
     }
+  </section>
+
+  <section class="cms-banner" aria-label="Public document upload form">
+    <p class="cms-help-kicker">{{ copy().uploadFormKicker }}</p>
+    <strong>{{ copy().uploadFormTitle }}</strong>
+    <p>{{ copy().uploadFormBody }}</p>
+    <div class="cms-actions">
+      <a
+        class="cms-button add"
+        [href]="publicDocumentUploadFormUrl"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        {{ copy().openPublicDocumentUploadForm }}
+      </a>
+    </div>
   </section>
 
   <section class="cms-summary" aria-label="CMS summary">
