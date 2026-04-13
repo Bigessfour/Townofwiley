@@ -8,6 +8,8 @@ export interface CmsNotice {
   title: string;
   date: string;
   detail: string;
+  body?: string;        // multi-paragraph newsletter content, newline-separated
+  type?: 'notice' | 'newsletter';
   imageUrl?: string;
 }
 

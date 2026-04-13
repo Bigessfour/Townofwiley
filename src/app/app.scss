@@ -398,7 +398,7 @@
 
 .header-meta-link {
   display: inline-grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(max-content, 1fr);
   align-items: center;
   gap: 0.2rem 0.75rem;
   min-height: 3.75rem;
@@ -409,7 +409,7 @@
   color: var(--ink-900);
   box-shadow: var(--header-link-shadow);
   text-decoration: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .header-meta-link i {
@@ -434,6 +434,7 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .header-meta-link span {
@@ -441,6 +442,8 @@
   font-size: var(--font-size-body);
   font-weight: 700;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .header-meta-link:hover,
@@ -484,6 +487,12 @@
   padding-bottom: var(--space-sm);
   border-bottom: 1px solid var(--surface-border);
   background: linear-gradient(135deg, var(--page-backdrop-end), var(--page-backdrop-mid));
+}
+
+.info-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .site-header.is-feature-page .info-buttons {
@@ -540,8 +549,8 @@
 }
 
 .site-language-button {
-  min-width: 6.75rem;
-  padding: var(--space-lg) var(--space-md);
+  min-width: 4rem;
+  padding: var(--space-sm) var(--space-md);
   border: 0;
   border-radius: var(--radius-full);
   background: transparent;
@@ -2039,6 +2048,12 @@ button:not(:disabled):active,
 .search-result:hover {
   transform: translateY(-2px);
   color: var(--ink-900);
+}
+
+@media (max-width: 1100px) {
+  .info-buttons {
+    display: none;
+  }
 }
 
 @media (max-width: 960px) {

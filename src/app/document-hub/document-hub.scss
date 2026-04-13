@@ -81,6 +81,7 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  white-space: nowrap;
   background: color-mix(in srgb, var(--surface-card) 90%, var(--p-amber-50));
   border: 1px solid var(--surface-border);
 }
@@ -124,6 +125,7 @@
 
 .document-hub-nav {
   display: flex;
+  flex-wrap: wrap;
   background: var(--surface-card);
   border-color: var(--surface-border);
   color: var(--civic-blue-strong);

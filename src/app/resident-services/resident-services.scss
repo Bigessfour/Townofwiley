@@ -46,6 +46,9 @@
 .resident-service-toggle-copy strong {
   color: var(--ink-900);
   font-size: 1.1rem;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .resident-service-toggle-copy small {
@@ -104,6 +107,7 @@
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
   transition: all 160ms ease;
 }
 

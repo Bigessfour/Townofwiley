@@ -233,6 +233,10 @@
   padding: 0.55rem 0.85rem;
   background: color-mix(in srgb, var(--p-red-100) 80%, transparent);
   color: var(--p-red-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .weather-alert-pill.is-clear,
@@ -402,6 +406,7 @@
   font: inherit;
   appearance: none;
   cursor: pointer;
+  white-space: nowrap;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
