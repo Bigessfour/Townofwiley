@@ -8,8 +8,10 @@ import {
     inject,
     signal,
     viewChild,
+    PLATFORM_ID,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -22,6 +24,7 @@ import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
+import { TimelineModule } from 'primeng/timeline';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -477,7 +480,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     noticesKicker: 'Latest Updates',
     noticesHeading: 'News & Announcements',
     meetingsKicker: 'Meetings and Calendar',
-    meetingsHeading: 'Meeting access and community timing belong on the homepage',
+    meetingsHeading: 'Meeting access and community updates',
     openCalendarLabel: 'Open the full town calendar',
     calendarKicker: 'Calendar',
     calendarHeading: 'Public calendar',
@@ -489,7 +492,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarHelpButtonLabel: 'Calendar help',
     calendarHelpTitle: 'How to use the calendar tools',
     calendarHelpBody:
-      'The month picker moves the schedule view to the month you want. The calendar cards below still show the live event feed and related actions.',
+      'Choose a month to focus the calendar view. The event cards below still show the live schedule and related links.',
     calendarHelpPointOne: 'Pick a month to move the full calendar view.',
     calendarHelpPointTwo: 'Use the event cards for agendas, downloads, and links.',
     calendarHelpPointThree: 'Open notices when you need agenda-linked alerts.',
@@ -501,10 +504,10 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarStatusLiveSummarySingular: 'upcoming event',
     calendarStatusLiveSummaryPlural: 'upcoming events',
     calendarStatusLiveDetail:
-      'These calendar cards reflect the latest meeting and community event information available for Wiley.',
+      'These calendar cards show the latest meeting and community event information for Wiley.',
     calendarStatusFallbackSummary: 'Recurring town schedule',
     calendarStatusFallbackDetail:
-      'The calendar below lists Wiley\'s regular meeting schedule and key community timing.',
+      'The calendar below lists Wiley\'s regular meetings and community events.',
     calendarStatusNextLabel: 'Next upcoming event',
     calendarStatusFallbackNextLabel: 'Next scheduled meeting',
     calendarManagedBadge: 'Updated event',
@@ -633,7 +636,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         format: 'A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.',
         location: 'Town-wide notices and service locations',
         agendaNote:
-          'Use this slot for community timing that is easier to understand when presented as a calendar item.',
+          'Use this space for community items that are easier to follow on a calendar.',
         cta: 'Browse notices',
         href: '/notices',
       },
@@ -682,7 +685,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         dateLabel: 'Seasonal deadlines, closures, and town reminders',
         category: 'Community calendar',
         detail:
-          'Use calendar cards for cleanup days, utility interruptions, school-centered events, seasonal deadlines, and weather-sensitive notices instead of burying them in scattered updates.',
+          'Cleanup days, utility interruptions, school events, seasonal deadlines, and weather notices appear here as calendar items.',
         location: 'Town-wide notices and service locations',
         recurrence: 'Operational updates',
         startLocal: '20260425T080000',
@@ -869,8 +872,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     noticesKicker: 'Novedades',
     noticesHeading: 'Noticias y anuncios',
     meetingsKicker: 'Reuniones y calendario',
-    meetingsHeading:
-      'El acceso a reuniones y al calendario comunitario debe estar en la pagina principal',
+    meetingsHeading: 'Acceso a reuniones y actualizaciones comunitarias',
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
     calendarHeading: 'Calendario publico',
@@ -882,7 +884,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarHelpButtonLabel: 'Ayuda del calendario',
     calendarHelpTitle: 'Como usar las herramientas del calendario',
     calendarHelpBody:
-      'El selector de mes mueve la vista del calendario al mes que quiera. Las tarjetas del calendario siguen mostrando el flujo de eventos y las acciones relacionadas.',
+      'Elija un mes para enfocar la vista del calendario. Las tarjetas de eventos abajo siguen mostrando el horario en vivo y los enlaces relacionados.',
     calendarHelpPointOne: 'Elija un mes para mover la vista del calendario completo.',
     calendarHelpPointTwo: 'Use las tarjetas de eventos para agendas, descargas y enlaces.',
     calendarHelpPointThree: 'Abra avisos cuando necesite alertas vinculadas a agendas.',
@@ -894,10 +896,10 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarStatusLiveSummarySingular: 'proximo evento',
     calendarStatusLiveSummaryPlural: 'proximos eventos',
     calendarStatusLiveDetail:
-      'Estas tarjetas del calendario muestran la informacion mas reciente disponible sobre reuniones y eventos comunitarios de Wiley.',
+      'Estas tarjetas del calendario muestran la informacion mas reciente sobre reuniones y eventos comunitarios de Wiley.',
     calendarStatusFallbackSummary: 'Horario recurrente del pueblo',
     calendarStatusFallbackDetail:
-      'El calendario a continuacion muestra el horario regular de reuniones del pueblo y las fechas comunitarias clave.',
+      'El calendario a continuacion muestra las reuniones regulares y los eventos comunitarios del pueblo.',
     calendarStatusNextLabel: 'Proximo evento',
     calendarStatusFallbackNextLabel: 'Proxima reunion programada',
     calendarManagedBadge: 'Evento actualizado',
@@ -1025,7 +1027,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         format: 'Un resumen continuo para dias de limpieza, cierres, interrupciones de servicios y otras actualizaciones de tiempo.',
         location: 'Avisos de todo el pueblo y ubicaciones de servicio',
         agendaNote:
-          'Use este espacio para el tiempo comunitario que se entiende mejor cuando se presenta como un elemento del calendario.',
+          'Use este espacio para elementos comunitarios que se siguen mejor en un calendario.',
         cta: 'Ver avisos',
         href: '/notices',
       },
@@ -1074,7 +1076,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
         dateLabel: 'Fechas estacionales, cierres y recordatorios del pueblo',
         category: 'Calendario comunitario',
         detail:
-          'Use tarjetas de calendario para jornadas de limpieza, interrupciones de servicios, eventos escolares, fechas limite estacionales y avisos sensibles al clima en lugar de esconderlos en actualizaciones dispersas.',
+          'Las jornadas de limpieza, interrupciones de servicios, eventos escolares, fechas limite estacionales y avisos meteorologicos aparecen aqui como elementos del calendario.',
         location: 'Avisos del pueblo y ubicaciones de servicio',
         recurrence: 'Actualizaciones operativas',
         startLocal: '20260425T080000',
@@ -1233,6 +1235,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     DialogModule,
     InputGroupModule,
     InputTextModule,
+    TimelineModule,
     SkeletonModule,
     TableModule,
     TabsModule,
@@ -1265,6 +1268,8 @@ export class App {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
+  private readonly headerEl = viewChild<ElementRef<HTMLElement>>('headerElement');
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly initialPath =
     typeof window !== 'undefined'
       ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
@@ -1293,6 +1298,7 @@ export class App {
   protected readonly meetingsTab = signal<'month' | 'list'>('month');
   protected readonly calendarHelpVisible = signal(false);
   protected readonly aiChatVisible = signal(false);
+  protected readonly headerScrolled = signal(false);
   protected readonly siteAlertCardPt = {
     body: {
       class: 'site-alert-body',
@@ -1595,6 +1601,22 @@ export class App {
     this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
+  });
+  private readonly headerScrollEffect = effect(() => {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const handleScroll = () => {
+      this.headerScrolled.set(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   });
   protected readonly meetings = computed(() => this.appCopy().meetings);
   protected readonly calendarItems = computed(() => {

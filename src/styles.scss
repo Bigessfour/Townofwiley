@@ -180,6 +180,7 @@ li {
   color: var(--ink-900);
   text-decoration: none;
   box-shadow: 0 14px 28px rgba(17, 36, 61, 0.1);
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header-meta-link strong {
@@ -193,17 +194,31 @@ li {
   font-size: 1rem;
 }
 
+.header-meta-link i {
+  font-size: 0.9rem;
+  color: var(--civic-blue);
+}
+
 .header-meta-link:hover,
 .header-meta-link:focus-visible {
+  transform: translateY(-2px);
   box-shadow: 0 18px 34px rgba(17, 36, 61, 0.14);
 }
 
 .site-header {
-  position: relative;
-  z-index: 4;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   max-width: 1240px;
   margin: 0 auto;
   padding: 1rem 1rem 0;
+  transition: box-shadow 0.3s ease;
+}
+
+.site-header.scrolled {
+  box-shadow: 0 6px 20px rgba(13, 44, 84, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
 }
 
 .header-top {
@@ -260,7 +275,7 @@ li {
   justify-content: center;
   gap: 0.35rem;
   min-height: 2.2rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.95rem;
   border-radius: 999px;
   background: var(--surface-overlay);
   box-shadow:
@@ -271,15 +286,37 @@ li {
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
+  position: relative;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-nav-link.is-active,
 .main-nav-link[aria-current='page'] {
-  background: color-mix(in srgb, var(--p-primary-50) 70%, var(--p-surface-0));
+  color: var(--civic-blue-strong);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--civic-blue) 10%, transparent);
   box-shadow:
     0 14px 32px rgba(17, 36, 61, 0.12),
     inset 0 0 0 1px var(--surface-border-strong);
-  color: var(--civic-blue-strong);
+}
+
+.main-nav-link.is-active::after,
+.main-nav-link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--civic-blue);
+  border-radius: 50%;
+}
+
+.main-nav-link:hover:not(.is-active):not([aria-current='page']) {
+  color: var(--civic-blue);
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--civic-blue) 8%, transparent);
 }
 
 .main-nav-link i {

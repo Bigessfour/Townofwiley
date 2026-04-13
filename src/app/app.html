@@ -53,7 +53,7 @@
     </p-card>
   }
 
-  <header class="site-header" [class.is-feature-page]="isFeaturePageMode()" role="banner">
+  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner">
     <div class="header-top">
       <a class="town-logo" routerLink="/" href="/" aria-label="Town of Wiley home">
         <div class="official-badge" aria-hidden="true">
@@ -122,17 +122,20 @@
               class="header-meta-link button-cta button-cta--light"
               [attr.href]="primaryContact.href ?? '/contact'"
             >
+              <i class="pi pi-phone" aria-hidden="true"></i>
               <strong>{{ primaryContact.label }}</strong>
               <span>{{ primaryContact.value }}</span>
             </a>
           }
 
           <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
+            <i class="pi pi-calendar" aria-hidden="true"></i>
             <strong>{{ appCopy().meetingsKicker }}</strong>
             <span>{{ appCopy().openCalendarLabel }}</span>
           </a>
 
           <a routerLink="/" fragment="top-tasks" class="header-meta-link button-cta button-cta--light">
+            <i class="pi pi-list" aria-hidden="true"></i>
             <strong>{{ appCopy().topTasksKicker }}</strong>
             <span>{{ appCopy().topTasksHeading }}</span>
           </a>
@@ -907,7 +910,7 @@
         </p-card>
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
-          <header class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end">
+          <header class="landing-section-header landing-notices-header grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end">
             <div>
               <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
               <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
@@ -915,15 +918,18 @@
             <a class="text-link" routerLink="/notices">View all notices</a>
           </header>
 
-          <div class="notice-grid landing-notice-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            @for (notice of notices(); track notice.id) {
-              <article class="notice-card">
-                <p class="meta-label">{{ notice.date }}</p>
+          <p-timeline class="landing-notice-timeline" [value]="notices()" align="left">
+            <ng-template #opposite let-notice>
+              <span class="notice-timeline-date meta-label">{{ notice.date }}</span>
+            </ng-template>
+
+            <ng-template #content let-notice>
+              <article class="notice-card notice-card--timeline">
                 <strong>{{ notice.title }}</strong>
                 <span>{{ notice.detail }}</span>
               </article>
-            }
-          </div>
+            </ng-template>
+          </p-timeline>
         </p-card>
       </section>
 
