@@ -41,12 +41,6 @@
         "VersioningConfiguration": {
           "Status": "Enabled"
         },
-        "LoggingConfiguration": {
-          "DestinationBucketName": {
-            "Ref": "S3LogBucket"
-          },
-          "LogFilePrefix": "documents/"
-        },
         "CorsConfiguration": {
           "CorsRules": [
             {
@@ -63,68 +57,6 @@
               "AllowedOrigins": [
                 "*"
               ]
-            }
-          ]
-        }
-      }
-    },
-    "S3LogBucket": {
-      "Type": "AWS::S3::Bucket",
-      "Properties": {
-        "BucketName": {
-          "Fn::Sub": "${bucketName}-${env}-logs"
-        },
-        "PublicAccessBlockConfiguration": {
-          "BlockPublicAcls": true,
-          "BlockPublicPolicy": true,
-          "IgnorePublicAcls": true,
-          "RestrictPublicBuckets": true
-        },
-        "BucketEncryption": {
-          "ServerSideEncryptionConfiguration": [
-            {
-              "ServerSideEncryptionByDefault": {
-                "SSEAlgorithm": "AES256"
-              }
-            }
-          ]
-        },
-        "VersioningConfiguration": {
-          "Status": "Enabled"
-        }
-      }
-    },
-    "S3LogBucketPolicy": {
-      "Type": "AWS::S3::BucketPolicy",
-      "Properties": {
-        "Bucket": {
-          "Ref": "S3LogBucket"
-        },
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "S3ServerAccessLogsPolicy",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "logging.s3.amazonaws.com"
-              },
-              "Action": "s3:PutObject",
-              "Resource": {
-                "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3LogBucket}/*"
-              },
-              "Condition": {
-                "StringEquals": {
-                  "aws:SourceAccount": {
-                    "Ref": "AWS::AccountId"
-                  }
-                },
-                "ArnLike": {
-                  "aws:SourceArn": {
-                    "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3Bucket}"
-                  }
-                }
-              }
             }
           ]
         }
