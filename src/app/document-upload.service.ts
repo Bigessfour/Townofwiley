@@ -52,7 +52,7 @@ export class DocumentUploadService {
     const key = `documents/${sectionId}/${fileName}`;
 
     try {
-      const result = await uploadData({
+      await uploadData({
         key,
         data: file,
         options: {
