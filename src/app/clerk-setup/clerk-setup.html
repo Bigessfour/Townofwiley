@@ -175,12 +175,12 @@
             </header>
 
             @if (contactUpdatesLoading()) {
-              <div class="grid gap-3 py-4" aria-busy="true" aria-live="polite">
+              <div class="setup-contact-updates-loading grid gap-3 py-4" aria-busy="true" aria-live="polite">
                 <p class="setup-note text-center">Loading contact updates...</p>
                 <div class="grid gap-2">
-                  <p-skeleton height="3rem" />
-                  <p-skeleton height="3rem" />
-                  <p-skeleton height="3rem" />
+                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
+                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
+                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
                 </div>
               </div>
             } @else if (contactUpdates().length === 0) {

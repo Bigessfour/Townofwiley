@@ -123,6 +123,18 @@
   font-weight: 600;
 }
 
+.setup-contact-updates-loading {
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 86%, white);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-card) 94%, white), color-mix(in srgb, var(--surface-card) 88%, #fff8e8));
+  box-shadow: 0 12px 28px rgba(31, 42, 31, 0.06);
+}
+
+.setup-contact-updates-loading .p-skeleton {
+  min-height: 3rem;
+}
+
 // Contact Updates tab: ensure table fills the card width
 .p-tabpanel {
   padding-top: 0.5rem;

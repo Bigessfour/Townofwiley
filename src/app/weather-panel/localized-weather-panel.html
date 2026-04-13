@@ -24,10 +24,10 @@
 
   @if (isLoading()) {
     <div class="weather-skeleton-loading grid gap-4" aria-live="polite" role="status" [attr.aria-label]="copy().loading">
-      <p-skeleton height="11rem" borderRadius="24px" />
+      <p-skeleton styleClass="shimmer shimmer--hero" height="11rem" borderRadius="24px" />
       <div class="flex gap-3">
-        <p-skeleton height="6rem" styleClass="flex-1" borderRadius="18px" />
-        <p-skeleton height="6rem" styleClass="flex-1" borderRadius="18px" />
+        <p-skeleton height="6rem" styleClass="shimmer shimmer--card flex-1" borderRadius="18px" />
+        <p-skeleton height="6rem" styleClass="shimmer shimmer--card flex-1" borderRadius="18px" />
       </div>
     </div>
   } @else {
@@ -161,7 +161,7 @@
         </section>
       </section>
 
-      <aside class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]" aria-labelledby="weather-alerts-heading">
+      <aside class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]" aria-labelledby="weather-alerts-heading" aria-live="polite" aria-atomic="false">
         <p-panel styleClass="weather-alerts-panel" [pt]="{ header: { class: 'weather-alerts-header-host' } }">
           <ng-template pTemplate="header">
             <div class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full">

@@ -181,12 +181,20 @@
 
             @if (searchDraftQuery().trim()) {
               @if (isSearchPending()) {
-                <div class="search-results grid gap-3" aria-live="polite" aria-busy="true">
-                  <p-skeleton width="100%" height="4.5rem" />
-                  <p-skeleton width="100%" height="4.5rem" />
+                <div class="search-results search-results--loading grid gap-3" aria-live="polite" aria-busy="true">
+                  <article class="search-result-skeleton shimmer" aria-hidden="true">
+                    <p-skeleton styleClass="shimmer shimmer--line shimmer--title" width="48%" height="1rem" />
+                    <p-skeleton styleClass="shimmer shimmer--line" width="86%" height="0.9rem" />
+                    <p-skeleton styleClass="shimmer shimmer--line shimmer--meta" width="32%" height="0.8rem" />
+                  </article>
+                  <article class="search-result-skeleton shimmer" aria-hidden="true">
+                    <p-skeleton styleClass="shimmer shimmer--line shimmer--title" width="42%" height="1rem" />
+                    <p-skeleton styleClass="shimmer shimmer--line" width="80%" height="0.9rem" />
+                    <p-skeleton styleClass="shimmer shimmer--line shimmer--meta" width="28%" height="0.8rem" />
+                  </article>
                 </div>
               } @else if (searchResults().length) {
-                <div class="search-results grid gap-3" role="list" [attr.aria-label]="appCopy().searchHeading">
+                <div class="search-results grid gap-3" role="list" aria-live="polite" aria-atomic="false" [attr.aria-label]="appCopy().searchHeading">
                   @for (result of searchResults(); track result.href + result.title) {
                     @if (resolveAppLink(result.href); as searchResultLink) {
                       @if (searchResultLink.isInternal) {
@@ -531,31 +539,31 @@
 
                           <ng-template #loadingbody>
                             <tr>
-                              <td><p-skeleton width="14rem" height="1rem" /></td>
-                              <td><p-skeleton width="9rem" height="1rem" /></td>
-                              <td><p-skeleton width="8rem" height="1rem" /></td>
-                              <td><p-skeleton width="10rem" height="1rem" /></td>
-                              <td><p-skeleton width="8rem" height="1rem" /></td>
-                              <td><p-skeleton width="12rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line shimmer--title" width="14rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line" width="9rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line" width="8rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line" width="10rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line" width="8rem" height="1rem" /></td>
+                              <td><p-skeleton styleClass="shimmer shimmer--line shimmer--meta" width="12rem" height="1rem" /></td>
                             </tr>
                           </ng-template>
                         </p-table>
                       } @placeholder {
-                        <div class="calendar-table-placeholder" aria-hidden="true">
-                          <p-skeleton width="12rem" height="1rem" />
+                        <div class="calendar-table-placeholder shimmer" aria-hidden="true">
+                          <p-skeleton styleClass="shimmer shimmer--line shimmer--title" width="12rem" height="1rem" />
                           <div class="calendar-table-placeholder-row">
-                            <p-skeleton width="100%" height="3rem" />
-                            <p-skeleton width="100%" height="3rem" />
-                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
                           </div>
                         </div>
                       } @loading (minimum 150ms) {
-                        <div class="calendar-table-placeholder" aria-live="polite">
-                          <p-skeleton width="12rem" height="1rem" />
+                        <div class="calendar-table-placeholder shimmer" aria-live="polite">
+                          <p-skeleton styleClass="shimmer shimmer--line shimmer--title" width="12rem" height="1rem" />
                           <div class="calendar-table-placeholder-row">
-                            <p-skeleton width="100%" height="3rem" />
-                            <p-skeleton width="100%" height="3rem" />
-                            <p-skeleton width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
+                            <p-skeleton styleClass="shimmer shimmer--row" width="100%" height="3rem" />
                           </div>
                         </div>
                       }
