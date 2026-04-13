@@ -617,6 +617,34 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Amplify Studio Data Manager');
   });
 
+  it('should open the document upload tab from the clerk setup fragment', async () => {
+    window.history.pushState({}, '', '/clerk-setup#documents');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(
+      'Upload documents to make them available for download on the public Documents page.',
+    );
+    expect(compiled.textContent).toContain('Upload Documents');
+    expect(compiled.textContent).toContain('Meeting Documents');
+  });
+
+  it('should link the admin upload button to the clerk setup document tab', async () => {
+    window.history.pushState({}, '', '/admin');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.cms-button.add')?.getAttribute('href')).toBe(
+      '/clerk-setup#documents',
+    );
+  });
+
   it('should render the public document hub on the documents path', async () => {
     window.history.pushState({}, '', '/documents');
 
