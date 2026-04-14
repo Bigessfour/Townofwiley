@@ -1,19 +1,29 @@
-const corsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,OPTIONS',
-  'access-control-allow-headers': 'content-type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://townofwiley.gov',
+  'https://www.townofwiley.gov',
+  'http://localhost:4200',
+]);
+
+function buildCorsHeaders(requestOrigin) {
+  const origin = ALLOWED_ORIGINS.has(requestOrigin) ? requestOrigin : 'https://townofwiley.gov';
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'GET,OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    vary: 'Origin',
+  };
+}
 
 const WILEY_LAT = 38.154;
 const WILEY_LON = -102.72;
 const WILEY_ZIP = '81092';
 const wileyPointUrl = `https://api.weather.gov/points/${WILEY_LAT},${WILEY_LON}`;
 
-function jsonResponse(statusCode, body) {
+function jsonResponse(statusCode, body, requestOrigin) {
   return {
     statusCode,
     headers: {
-      ...corsHeaders,
+      ...buildCorsHeaders(requestOrigin ?? ''),
       'content-type': 'application/json; charset=utf-8',
     },
     body: JSON.stringify(body),
@@ -79,8 +89,8 @@ function computeSolarTimes(dateStr) {
   const dstEnd = new Date(year, 10, 1 + ((7 - new Date(year, 10, 1).getDay()) % 7));
   const utcOffset = date >= dstStart && date < dstEnd ? -6 : -7;
 
-  // Solar noon in local clock hours
-  const solarNoon = 12 - WILEY_LON / 15 - utcOffset;
+  // Solar noon in local clock hours (longitude → UTC offset, then shift to local wall clock)
+  const solarNoon = 12 - WILEY_LON / 15 + utcOffset;
 
   const fmt = (h) => {
     const hr = ((Math.floor(h) % 24) + 24) % 24;
@@ -129,16 +139,18 @@ async function fetchAqi(apiKey) {
 }
 
 export async function handler(event) {
+  const requestOrigin = event.headers?.origin ?? event.headers?.Origin ?? '';
+
   if (event.requestContext?.http?.method === 'OPTIONS') {
     return {
       statusCode: 204,
-      headers: corsHeaders,
+      headers: buildCorsHeaders(requestOrigin),
       body: '',
     };
   }
 
   if (event.requestContext?.http?.method !== 'GET') {
-    return jsonResponse(405, { error: 'Method not allowed.' });
+    return jsonResponse(405, { error: 'Method not allowed.' }, requestOrigin);
   }
 
   const userAgent = process.env.NWS_USER_AGENT?.trim();
@@ -148,7 +160,7 @@ export async function handler(event) {
   if (!userAgent) {
     return jsonResponse(500, {
       error: 'NWS proxy is missing the required NWS_USER_AGENT configuration.',
-    });
+    }, requestOrigin);
   }
 
   try {
@@ -163,7 +175,7 @@ export async function handler(event) {
     if (!forecastUrl || !zoneCode) {
       return jsonResponse(502, {
         error: 'NWS point response did not include the expected forecast metadata.',
-      });
+      }, requestOrigin);
     }
 
     const [forecastResponse, alertResponse, hourlyResponse, aqi] = await Promise.all([
@@ -195,13 +207,13 @@ export async function handler(event) {
         : [],
       solar,
       aqi,
-    });
+    }, requestOrigin);
   } catch (error) {
     return jsonResponse(502, {
       error:
         error instanceof Error && error.message
           ? error.message
           : 'Unable to reach the National Weather Service right now.',
-    });
+    }, requestOrigin);
   }
 }

@@ -406,7 +406,7 @@
                   />
                 </section>
 
-                <p-tabs [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
+                <p-tabs class="calendar-tabs" [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
                   <p-tablist [attr.aria-label]="appCopy().meetingsHeading">
                     <p-tab value="month">{{ appCopy().calendarMonthTabLabel }}</p-tab>
                     <p-tab value="list">{{ appCopy().calendarListTabLabel }}</p-tab>
