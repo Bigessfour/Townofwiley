@@ -120,13 +120,21 @@
             <span>{{ copy().paymentNameLabel }} <span class="required" aria-hidden="true">*</span></span>
             <input pInputText id="payment-name" type="text" formControlName="name" autocomplete="name" />
           </label>
-          <label for="payment-contact" class="resident-field grid gap-1">
-            <span>{{ copy().paymentContactLabel }} <span class="required" aria-hidden="true">*</span></span>
-            <input pInputText id="payment-contact" type="email" formControlName="preferredContact" autocomplete="email" [invalid]="paymentForm.controls.preferredContact.invalid && paymentForm.controls.preferredContact.touched" />
+          <label for="payment-phone" class="resident-field grid gap-1">
+            <span>{{ copy().paymentPhoneLabel }} <span class="required" aria-hidden="true">*</span></span>
+            <input pInputText id="payment-phone" type="tel" formControlName="phone" autocomplete="tel" [invalid]="paymentForm.controls.phone.invalid && paymentForm.controls.phone.touched" />
           </label>
-          <label for="payment-address" class="resident-field resident-field--wide grid gap-1">
-            <span>{{ copy().paymentAddressLabel }} <span class="required" aria-hidden="true">*</span></span>
-            <input pInputText id="payment-address" type="text" formControlName="serviceAddress" autocomplete="street-address" [invalid]="paymentForm.controls.serviceAddress.invalid && paymentForm.controls.serviceAddress.touched" />
+          <label for="payment-email" class="resident-field grid gap-1">
+            <span>{{ copy().paymentEmailLabel }} <span class="required" aria-hidden="true">*</span></span>
+            <input pInputText id="payment-email" type="email" formControlName="email" autocomplete="email" [invalid]="paymentForm.controls.email.invalid && paymentForm.controls.email.touched" />
+          </label>
+          <label for="payment-street-address" class="resident-field resident-field--wide grid gap-1">
+            <span>{{ copy().paymentStreetAddressLabel }} <span class="required" aria-hidden="true">*</span></span>
+            <input pInputText id="payment-street-address" type="text" formControlName="streetAddress" autocomplete="street-address" [invalid]="paymentForm.controls.streetAddress.invalid && paymentForm.controls.streetAddress.touched" />
+          </label>
+          <label for="payment-po-box" class="resident-field resident-field--wide grid gap-1">
+            <span>{{ copy().paymentPoBoxLabel }}</span>
+            <input pInputText id="payment-po-box" type="text" formControlName="poBox" />
           </label>
           <label for="payment-question" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().paymentQuestionLabel }}</span>

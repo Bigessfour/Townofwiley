@@ -46,7 +46,7 @@
               </a>
             </div>
 
-            <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+            <p-card class="setup-primeng-card" [pt]="setupCardPt">
               <ng-template #title>Prepopulated Town account details</ng-template>
               <ng-template #subtitle>Verify the account, region, and app before any live edits.</ng-template>
               <ul class="grid gap-2">
@@ -65,7 +65,7 @@
             </p-card>
 
             <div class="grid gap-4 lg:grid-cols-2">
-              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+              <p-card class="setup-primeng-card" [pt]="setupCardPt">
                 <ng-template #title>Do this every time</ng-template>
                 <ng-template #subtitle>Daily editing workflow inside Amplify Studio.</ng-template>
                 <ol class="grid gap-2">
@@ -75,7 +75,7 @@
                 </ol>
               </p-card>
 
-              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+              <p-card class="setup-primeng-card" [pt]="setupCardPt">
                 <ng-template #title>If you want to change this</ng-template>
                 <ng-template #subtitle>Match the resident-facing task to the CMS model.</ng-template>
                 <ul class="grid gap-2">
@@ -89,7 +89,7 @@
               </p-card>
             </div>
 
-            <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+            <p-card class="setup-primeng-card" [pt]="setupCardPt">
               <ng-template #title>Do not use these to edit the website</ng-template>
               <ng-template #subtitle>These paths bypass the intended content workflow.</ng-template>
               <ul class="grid gap-2">
@@ -99,7 +99,7 @@
               </ul>
             </p-card>
 
-            <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+            <p-card class="setup-primeng-card" [pt]="setupCardPt">
               <ng-template #title>Before you finish for the day</ng-template>
               <ng-template #subtitle>Closeout checks before leaving the site live.</ng-template>
               <ul class="grid gap-2">
@@ -138,7 +138,7 @@
             </div>
 
             <div class="grid gap-4 lg:grid-cols-2">
-              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+              <p-card class="setup-primeng-card" [pt]="setupCardPt">
                 <ng-template #title>Supported document workflow</ng-template>
                 <ng-template #subtitle>Use Studio-managed PublicDocument edits instead of a custom page uploader.</ng-template>
                 <ol class="grid gap-2">
@@ -148,7 +148,7 @@
                 </ol>
               </p-card>
 
-              <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+              <p-card class="setup-primeng-card" [pt]="setupCardPt">
                 <ng-template #title>Website section map</ng-template>
                 <ng-template #subtitle>Use these exact values when routing a file to the public Documents experience.</ng-template>
                 <ul class="grid gap-3">
@@ -163,7 +163,7 @@
               </p-card>
             </div>
 
-            <p-card styleClass="setup-primeng-card" [pt]="setupCardPt">
+            <p-card class="setup-primeng-card" [pt]="setupCardPt">
               <ng-template #title>Before you publish a document</ng-template>
               <ng-template #subtitle>Keep file publishing in the same supported CMS process as the rest of the site.</ng-template>
               <ul class="grid gap-2">
@@ -200,9 +200,9 @@
               <div class="setup-contact-updates-loading grid gap-3 py-4" aria-busy="true" aria-live="polite">
                 <p class="setup-note text-center">Loading contact updates...</p>
                 <div class="grid gap-2">
-                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
-                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
-                  <p-skeleton styleClass="shimmer shimmer--compact" height="3rem" />
+                  <p-skeleton class="shimmer shimmer--compact" height="3rem" />
+                  <p-skeleton class="shimmer shimmer--compact" height="3rem" />
+                  <p-skeleton class="shimmer shimmer--compact" height="3rem" />
                 </div>
               </div>
             } @else if (contactUpdates().length === 0) {

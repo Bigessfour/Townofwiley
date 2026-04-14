@@ -24,10 +24,10 @@
 
   @if (isLoading()) {
     <div class="weather-skeleton-loading grid gap-4" aria-live="polite" role="status" [attr.aria-label]="copy().loading">
-      <p-skeleton styleClass="shimmer shimmer--hero" height="11rem" borderRadius="24px" />
+      <p-skeleton class="shimmer shimmer--hero" height="11rem" borderRadius="24px" />
       <div class="flex gap-3">
-        <p-skeleton height="6rem" styleClass="shimmer shimmer--card flex-1" borderRadius="18px" />
-        <p-skeleton height="6rem" styleClass="shimmer shimmer--card flex-1" borderRadius="18px" />
+        <p-skeleton height="6rem" class="shimmer shimmer--card flex-1" borderRadius="18px" />
+        <p-skeleton height="6rem" class="shimmer shimmer--card flex-1" borderRadius="18px" />
       </div>
     </div>
   } @else {
@@ -81,7 +81,7 @@
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
       <section class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]" aria-labelledby="weather-current-heading">
         @if (currentPeriod(); as period) {
-          <p-card [styleClass]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')" data-testid="weather-current-card">
+          <p-card [class]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')" data-testid="weather-current-card">
             <ng-template pTemplate="header">
               <div class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>

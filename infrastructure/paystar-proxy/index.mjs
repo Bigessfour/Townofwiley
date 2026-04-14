@@ -61,9 +61,10 @@ export async function handler(event) {
     });
   }
 
-  // Prefer accountNumber for reference tracking; fall back to serviceAddress.
+  // Prefer accountNumber for reference tracking; fall back to streetAddress, then legacy serviceAddress.
   const referenceId =
     (typeof requestBody?.accountNumber === 'string' && requestBody.accountNumber.trim()) ||
+    (typeof requestBody?.streetAddress === 'string' && requestBody.streetAddress.trim()) ||
     (typeof requestBody?.serviceAddress === 'string' && requestBody.serviceAddress.trim()) ||
     undefined;
 

@@ -46,9 +46,11 @@ interface ResidentServicesCopy {
   issueIcon: string;
   recordsIcon: string;
   paymentNameLabel: string;
-  paymentAddressLabel: string;
+  paymentStreetAddressLabel: string;
+  paymentPoBoxLabel: string;
+  paymentPhoneLabel: string;
+  paymentEmailLabel: string;
   paymentQuestionLabel: string;
-  paymentContactLabel: string;
   paymentPortalActionLabel: string;
   paymentPortalLaunchMessage: string;
   paymentPortalErrorMessage: string;
@@ -115,9 +117,11 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     paymentBody:
       'Use the secure Paystar payment path when it is configured below. If you need account help or the payment path is unavailable, send a prepared billing request to Wiley staff.',
     paymentNameLabel: 'Resident name',
-    paymentAddressLabel: 'Service address or account identifier',
+    paymentStreetAddressLabel: 'Street address',
+    paymentPoBoxLabel: 'PO Box (optional)',
+    paymentPhoneLabel: 'Phone number',
+    paymentEmailLabel: 'Email address',
     paymentQuestionLabel: 'Billing question or amount due',
-    paymentContactLabel: 'Best phone or email for follow-up',
     paymentPortalActionLabel: 'Open secure Paystar payment portal',
     paymentPortalLaunchMessage: 'Opening the secure Paystar payment portal.',
     paymentPortalErrorMessage:
@@ -198,9 +202,11 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     paymentBody:
       'Use la ruta segura de Paystar cuando este configurada abajo. Si necesita ayuda con su cuenta o la ruta de pago no esta disponible, envie una solicitud preparada al personal de Wiley.',
     paymentNameLabel: 'Nombre del residente',
-    paymentAddressLabel: 'Direccion del servicio o identificador de cuenta',
+    paymentStreetAddressLabel: 'Direccion de calle',
+    paymentPoBoxLabel: 'Apartado postal (opcional)',
+    paymentPhoneLabel: 'Numero de telefono',
+    paymentEmailLabel: 'Correo electronico',
     paymentQuestionLabel: 'Pregunta de facturacion o monto adeudado',
-    paymentContactLabel: 'Mejor telefono o correo para seguimiento',
     paymentPortalActionLabel: 'Abrir portal seguro de pago Paystar',
     paymentPortalLaunchMessage: 'Abriendo el portal seguro de pago de Paystar.',
     paymentPortalErrorMessage:
@@ -263,9 +269,11 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
 
 type PaymentFormGroup = FormGroup<{
   name: FormControl<string>;
-  serviceAddress: FormControl<string>;
+  streetAddress: FormControl<string>;
+  poBox: FormControl<string>;
+  phone: FormControl<string>;
+  email: FormControl<string>;
   accountQuestion: FormControl<string>;
-  preferredContact: FormControl<string>;
 }>;
 
 type IssueFormGroup = FormGroup<{
@@ -353,15 +361,14 @@ export class ResidentServices {
 
   protected readonly paymentForm: PaymentFormGroup = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    serviceAddress: new FormControl('', {
+    streetAddress: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    poBox: new FormControl('', { nonNullable: true }),
+    phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.email],
     }),
     accountQuestion: new FormControl('', { nonNullable: true }),
-    preferredContact: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
   });
 
   protected readonly issueForm: IssueFormGroup = new FormGroup({
@@ -509,8 +516,8 @@ export class ResidentServices {
       const values = this.paymentFormValue();
       const launch = await this.paystarConnection.createLaunchRequest({
         residentName: values.name?.trim() ?? '',
-        serviceAddress: values.serviceAddress?.trim() ?? '',
-        preferredContact: values.preferredContact?.trim() ?? '',
+        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()].filter(Boolean).join(', '),
+        preferredContact: [values.phone?.trim(), values.email?.trim()].filter(Boolean).join(' / '),
         accountQuestion: values.accountQuestion?.trim() ?? '',
         locale: this.siteLanguageService.currentLanguage(),
         source: 'resident-services',
@@ -576,12 +583,15 @@ export class ResidentServices {
     const values = this.paymentFormValue();
     const recipient =
       this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+    const copy = this.copy();
 
-    return this.buildMailtoHref(recipient, this.copy().paymentSubject, [
-      `${this.copy().paymentNameLabel}: ${values.name}`,
-      `${this.copy().paymentAddressLabel}: ${values.serviceAddress}`,
-      `${this.copy().paymentContactLabel}: ${values.preferredContact}`,
-      `${this.copy().paymentQuestionLabel}: ${values.accountQuestion || '-'}`,
+    return this.buildMailtoHref(recipient, copy.paymentSubject, [
+      `${copy.paymentNameLabel}: ${values.name}`,
+      `${copy.paymentPhoneLabel}: ${values.phone}`,
+      `${copy.paymentEmailLabel}: ${values.email}`,
+      `${copy.paymentStreetAddressLabel}: ${values.streetAddress}`,
+      `${copy.paymentPoBoxLabel}: ${values.poBox || '-'}`,
+      `${copy.paymentQuestionLabel}: ${values.accountQuestion || '-'}`,
     ]);
   }
 

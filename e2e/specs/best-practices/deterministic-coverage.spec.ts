@@ -163,3 +163,489 @@ test.describe('deterministic regression coverage', () => {
   });
 });
 
+test.describe('homepage section visual coverage', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('keeps site header visually stable on desktop', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.site-header')).toHaveScreenshot('header-desktop.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test('keeps site header visually stable on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 667 });
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.site-header')).toHaveScreenshot('header-mobile.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.03,
+    });
+  });
+
+  test('keeps top-tasks grid visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#top-tasks')).toHaveScreenshot('top-tasks-grid.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test('keeps feature-hub cards visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.feature-hub')).toHaveScreenshot('feature-hub.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.03,
+    });
+  });
+
+  test('keeps support strip visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.support-strip')).toHaveScreenshot('support-strip.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test('keeps calendar panel visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.calendar-panel')).toHaveScreenshot('calendar-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.03,
+    });
+  });
+});
+
+test.describe('feature panel visual coverage', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('notices panel snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/notices', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#alerts')).toHaveScreenshot('notices-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test('meetings list panel snapshot', async ({ homePage }) => {
+    // Calendar datepicker renders the live month name — aria-snapshot the list panel only.
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+
+    await expect(
+      homePage.page.locator('[aria-labelledby="meetings-heading"]'),
+    ).toMatchAriaSnapshot(`
+      - paragraph: Meetings and Calendar
+      - heading "Meeting access and community updates" [level=2]
+      - article:
+        - strong: Town council regular meeting
+        - text: Every second Monday at 6:00 PM
+        - paragraph: Wiley Town Hall, 304 Main Street
+        - text: In person at Wiley Town Hall with agenda materials posted ahead of time.
+        - paragraph: Residents can call Town Hall at (719) 829-4974 or email the clerk before the meeting if they want to be placed on the agenda.
+        - link "Open calendar":
+          - /url: /meetings#calendar
+      - article:
+        - strong: Planning and zoning review
+        - text: First Thursday at 5:30 PM
+        - paragraph: Wiley Town Hall, 304 Main Street
+        - text: Public hearing for planning, zoning, and land use items.
+        - paragraph: Agenda packets, hearing notices, and filing deadlines should stay linked from the calendar entry.
+        - link "View meeting details":
+          - /url: /meetings#calendar
+      - article:
+        - strong: Community deadlines and service updates
+        - text: Seasonal notices and recurring town reminders
+        - paragraph: Town-wide notices and service locations
+        - text: A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.
+        - paragraph: Use this space for community items that are easier to follow on a calendar.
+        - link "Browse notices":
+          - /url: /notices
+      - link "Open the full town calendar":
+        - /url: "#calendar"
+    `);
+  });
+
+  test('services panel snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#services')).toHaveScreenshot('services-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('records panel snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#records')).toHaveScreenshot('records-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('accessibility panel snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#accessibility')).toHaveScreenshot(
+      'accessibility-panel.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.01,
+      },
+    );
+  });
+
+  test('contact panel snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#contact')).toHaveScreenshot('contact-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.005,
+    });
+  });
+
+  test('news page snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-news')).toHaveScreenshot('news-page.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test('document hub snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot(
+      'document-hub.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+});
+
+test.describe('homepage subsection visual coverage', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('keeps civic grid (meetings + notices) visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.landing-civic-grid')).toHaveScreenshot(
+      'civic-grid.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test('keeps site footer visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('.site-footer')).toHaveScreenshot('site-footer.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.005,
+    });
+  });
+
+  test('keeps section navigation visually stable', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.getByTestId('homepage-section-nav')).toHaveScreenshot(
+      'section-nav.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.005,
+      },
+    );
+  });
+});
+
+test.describe('static page visual coverage', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('privacy policy page snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/privacy', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#privacy')).toHaveScreenshot('privacy-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.005,
+    });
+  });
+
+  test('terms page snapshot', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.goto('/terms', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#terms')).toHaveScreenshot('terms-panel.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.005,
+    });
+  });
+});
+
+test.describe('subcomponent aria contracts', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('resident services task picker aria structure', async ({ homePage }) => {
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+
+    await expect(
+      homePage.page.locator('.resident-service-picker'),
+    ).toMatchAriaSnapshot(`
+      - region "Choose a resident task":
+        - paragraph: Choose the service you need and complete the matching form below.
+        - button "Pay utility bill Billing support" [pressed]:
+          - strong: Pay utility bill
+          - text: Billing support
+        - button "Report a street or utility issue Issue reporting":
+          - strong: Report a street or utility issue
+          - text: Issue reporting
+        - button "Request records, permits, or clerk help Clerk intake":
+          - strong: Request records, permits, or clerk help
+          - text: Clerk intake
+    `);
+  });
+
+  test('records center guides aria structure', async ({ homePage }) => {
+    await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
+
+    await expect(
+      homePage.page.locator('.records-center'),
+    ).toMatchAriaSnapshot(`
+      - region /Open stable public document destinations/:
+        - paragraph
+        - heading /document destinations/ [level=3]
+        - region "Records and document guides":
+          - region /Public records and FOIA guide/
+          - region /Find meeting packets/
+          - region /Find budget summaries/
+          - region /Locate ordinances/
+    `);
+  });
+
+  test('document hub nav aria structure', async ({ homePage }) => {
+    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page.locator('.document-hub-nav')).toMatchAriaSnapshot(`
+      - navigation
+    `);
+  });
+
+  test('footer links aria structure', async ({ homePage }) => {
+    await homePage.goto();
+
+    await expect(homePage.page.locator('.site-footer')).toMatchAriaSnapshot(`
+      - link "Accessibility statement"
+      - link "Weather alert privacy"
+      - link "Weather alert SMS terms"
+      - link "Public records and FOIA"
+      - link "Meeting notices"
+      - link "Contact Town Hall"
+      - paragraph: /2026 Town of Wiley/
+    `);
+  });
+});
+
+test.describe('mobile responsive visual coverage', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('business directory renders correctly on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 812 });
+    await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-business-directory')).toHaveScreenshot(
+      'business-directory-mobile.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test('contact panel renders correctly on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 812 });
+    await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#contact')).toHaveScreenshot('contact-panel-mobile.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('news page renders correctly on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 812 });
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-news')).toHaveScreenshot('news-page-mobile.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test('services panel renders correctly on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 812 });
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('#services')).toHaveScreenshot('services-panel-mobile.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('document hub renders correctly on mobile', async ({ homePage }) => {
+    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+
+    await homePage.page.setViewportSize({ width: 375, height: 812 });
+    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot(
+      'document-hub-mobile.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+});
+
