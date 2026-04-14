@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
@@ -92,6 +93,8 @@ interface ResidentServicesCopy {
   contactUpdateEmptyMessage: string;
   contactUpdateSuccessMessage: string;
   contactUpdateSubject: string;
+  requiredFieldMessage: string;
+  invalidEmailMessage: string;
 }
 
 const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
@@ -179,6 +182,8 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     contactUpdateEmptyMessage: 'Fill in at least one field to send a contact update.',
     contactUpdateSuccessMessage: 'Contact info sent to the Clerk. Thank you!',
     contactUpdateSubject: 'Resident contact information update',
+    requiredFieldMessage: 'This field is required.',
+    invalidEmailMessage: 'Enter a valid email address.',
   },
   es: {
     sectionKicker: 'Servicios para residentes',
@@ -264,6 +269,8 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     contactUpdateEmptyMessage: 'Complete al menos un campo para enviar una actualizacion de contacto.',
     contactUpdateSuccessMessage: 'Informacion de contacto enviada a la secretaria. Gracias.',
     contactUpdateSubject: 'Actualizacion de informacion de contacto del residente',
+    requiredFieldMessage: 'Este campo es obligatorio.',
+    invalidEmailMessage: 'Ingrese un correo electronico valido.',
   },
 };
 
@@ -303,7 +310,7 @@ type ContactUpdateFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule, InputTextModule, SelectModule, TextareaModule],
+  imports: [ReactiveFormsModule, InputTextModule, MessageModule, SelectModule, TextareaModule],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -540,6 +547,22 @@ export class ResidentServices {
 
   protected openRecordsMailto(event: Event): void {
     this.handleMailtoClick(event, this.recordsForm, this.recordsMailtoHref(), this.recordsStatus);
+  }
+
+  protected validationMessage(control: AbstractControl, fieldLabel: string): string | null {
+    if (!control.invalid || !control.touched) {
+      return null;
+    }
+
+    if (control.hasError('email')) {
+      return this.copy().invalidEmailMessage;
+    }
+
+    if (control.hasError('required')) {
+      return `${fieldLabel}: ${this.copy().requiredFieldMessage}`;
+    }
+
+    return this.copy().requiredFieldMessage;
   }
 
   private handleMailtoClick(

@@ -231,8 +231,8 @@ describe('App', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance as App & {
-      calendarItems: () => Array<{ title: string; startDate: Date; endDate: Date }>;
-      calendarOptions: () => { events: Array<{ title: string; start: Date; end: Date }> };
+      calendarItems: () => { title: string; startDate: Date; endDate: Date }[];
+      calendarOptions: () => { events: { title: string; start: Date; end: Date }[] };
     };
 
     expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');

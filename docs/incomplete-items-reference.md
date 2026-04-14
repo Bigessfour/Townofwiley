@@ -6,6 +6,46 @@
 
 Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) for any Angular edits (standalone components, signals, native control flow `@if`/`@for`, `input()`/`output()`, `OnPush`, `inject()`, no `ngClass`/`ngStyle`, WCAG AA).
 
+## 0. Polish and Completeness Checklist
+
+This site is a small-town local resource, so the best return comes from improving clarity, reliability, and usability before chasing enterprise-grade infrastructure. Prioritize items that make the site easier to use, easier to trust, and easier to maintain.
+
+### P1: Highest Payback for Time Invested
+- [x] Add visible form validation messages for every user-facing form field that can fail validation. Completed in `src/app/resident-services/resident-services.html` with `p-message` field feedback and covered by `src/app/resident-services/resident-services.spec.ts`.
+- [x] Add unit tests for form validation, derived state, and mailto / payload-building logic in resident services and weather flows. Validated with `npx vitest run src/app/resident-services/resident-services.vitest.ts src/app/weather-panel/weather-panel.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
+- [x] Add integration-style service tests for API failure paths, retry behavior, and user-facing error states. Validated with `npx vitest run src/app/weather-panel/weather-panel.vitest.ts src/app/contact-update/contact-update.service.vitest.ts src/app/payments/paystar-connection.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
+- [x] Add a global Angular `ErrorHandler` and verify uncaught errors surface a friendly fallback. Validated with `npx playwright test e2e/specs/smoke/global-error-handler.spec.ts` on 2026-04-14.
+- [x] Add keyboard and focus-state checks for form submit, modal, and navigation flows. Validated with `npx playwright test e2e/specs/smoke/accessibility-focus.spec.ts`.
+- [x] Add ARIA attributes and error-description links where validation or state feedback is shown. Validated with `npx playwright test e2e/specs/smoke/accessibility-focus.spec.ts`.
+
+### P2: Strong Value, Moderate Effort
+- [x] Add loading states for form submits and any async UI action that can leave the page feeling frozen.
+- [x] Tighten mobile spacing and header behavior on the most important public pages.
+- [x] Add unit tests for shared copy helpers, language toggles, and any conditional UI rendering.
+- [x] Expand integration tests for contact-update, paystar-proxy, and weather proxy request/response handling. (Paystar remains a placeholder).
+- [x] Add i18n coverage for all new validation, loading, and error strings.
+
+### P3: Good Cleanup, Lower Urgency
+- [x] Review bundle size warnings and lazy-load any feature routes that are rarely used. Validated route structures and bundle size output.
+- [x] Improve image delivery only where it affects visible content or page speed. Opted for standard Angular image directives where applicable.
+- [x] Expand README and runbooks with the minimum deployment and maintenance steps a volunteer or clerk would actually need. Documentation updated.
+- [x] Add lightweight monitoring only if it helps local debugging without adding operational overhead. Minimal logging enhancements established.
+
+### Test Priority Order
+1. Form validation unit tests.
+2. Service-level integration tests for failed requests and recovery paths.
+3. Error-handler and fallback-state tests.
+4. Accessibility-focused tests for keyboard flow and ARIA output.
+5. Copy and i18n regression tests for user-facing text.
+6. Loading-state and responsive layout tests for the highest-traffic pages.
+
+### Done When
+- [ ] The site clearly explains validation failures to a real user.
+- [ ] Failed API calls produce a visible, friendly recovery path.
+- [ ] The main public flows work with keyboard only.
+- [ ] Unit and integration tests cover the highest-risk logic.
+- [ ] The remaining issues are mostly cosmetic or optional enhancements, not blockers.
+
 ## 1. Document & Records Hub (High Priority)
 - [x] Post real agenda packets, minutes, budgets, annual reports, ordinances to `public/documents/archive/`. (Completed with 6 guide HTMLs matching manifest; first-pass per publishing guide.)
 - [x] Update manifest in `src/app/document-hub/document-archive.ts` (section ids: records-requests, meeting-documents, etc.). (Full bilingual, 6 entries exact match to archive files.)

@@ -1,17 +1,22 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
     ApplicationConfig,
+    ErrorHandler,
     provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
+import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
+import { GlobalErrorHandler } from './global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    MessageService,
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(),
     provideAnimations(),

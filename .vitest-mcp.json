@@ -1,0 +1,9 @@
+{
+  "safety": {
+    "allowedPaths": ["c:\\Users\\biges\\Desktop\\Town Website"]
+  },
+  "testDefaults": {
+    "format": "detailed",
+    "timeout": 60000
+  }
+}

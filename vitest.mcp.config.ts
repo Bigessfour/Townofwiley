@@ -2,10 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    // Support both node and browser environments
-    environment: 'node',
-    environmentMatchGlobs: [['**/browser/**', 'jsdom']],
-    // Exclude test-validation directory from npm test runs
+    include: ['src/**/*.vitest.ts'],
+    environment: 'jsdom',
     exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/test-validation/**'],
     globals: true,
     setupFiles: ['./src/vitest.setup.ts'],

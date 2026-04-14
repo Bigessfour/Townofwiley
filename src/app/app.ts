@@ -28,6 +28,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { ToastModule } from 'primeng/toast';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -1241,6 +1242,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     SkeletonModule,
     TableModule,
     TabsModule,
+    ToastModule,
     CardModule,
     FullCalendarModule,
     AccessibilitySupport,
