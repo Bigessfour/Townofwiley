@@ -2,7 +2,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { describe, expect, it } from 'vitest';
 import { ResidentServices } from './resident-services';
 
-type ResidentServicesHarness = Record<string, unknown> & Partial<ResidentServices>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ResidentServicesHarness = any;
 
 function createHarness(): ResidentServicesHarness {
   const component = Object.create(ResidentServices.prototype) as ResidentServicesHarness;
@@ -25,7 +26,8 @@ function createHarness(): ResidentServicesHarness {
     paymentPoBoxLabel: 'PO Box',
     paymentQuestionLabel: 'Billing question',
   } as unknown as Record<string, string>);
-  component.validationMessage = (ResidentServices.prototype as unknown as Record<string, unknown>).validationMessage;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component.validationMessage = (ResidentServices.prototype as any).validationMessage;
   component.paymentFormValue = () => component.paymentForm.getRawValue();
 
   return component;
@@ -77,7 +79,8 @@ describe('ResidentServices derived state & mailto', () => {
     });
 
     // Mock clerk contact email
-    (component as Record<string, unknown>).clerkContact = () => ({ href: 'mailto:clerk@wiley.gov' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (component as any).clerkContact = () => ({ href: 'mailto:clerk@wiley.gov' });
     
     const href = component['buildPaymentMailtoHref']();
     expect(href).toContain('mailto:clerk@wiley.gov');
