@@ -176,44 +176,35 @@ describe('App', () => {
     expect(servicesMenu?.items?.[0]).toMatchObject([
       {
         label: 'Online Payments',
-        routerLink: '/services',
+        routerLink: ['/services'],
         fragment: 'payment-help',
-        url: '/services#payment-help',
       },
       {
         label: 'Report Street/Utility Issue',
-        routerLink: '/services',
+        routerLink: ['/services'],
         fragment: 'issue-report',
-        url: '/services#issue-report',
       },
       {
         label: 'Permits & Licenses',
-        routerLink: '/services',
+        routerLink: ['/services'],
         fragment: 'records-request',
-        url: '/services#records-request',
       },
     ]);
     expect(servicesMenu?.items?.[1]).toMatchObject([
       {
         label: 'Weather & Emergency Alerts',
         routerLink: '/weather',
-        url: '/weather',
       },
       {
         label: 'Language Access',
         routerLink: '/accessibility',
-        url: '/accessibility',
       },
       {
         label: 'Search All Services',
-        routerLink: '/',
+        routerLink: ['/'],
         fragment: 'search-panel',
-        url: '/#search-panel',
       },
     ]);
-    expect(servicesMenu?.items?.flat().every((item) => typeof item.command === 'function')).toBe(
-      true,
-    );
   });
 
   it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {

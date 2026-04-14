@@ -2845,3 +2845,32 @@ button:not(:disabled):active,
   font-style: italic;
   opacity: 0.88;
 }
+
+/* Tighten Meetings/Calendar page layout */
+.feature-detail-stack,
+.calendar-panel {
+  gap: 1rem !important;           /* was 1.5rem+ */
+}
+
+.calendar-header {
+  gap: 1rem !important;
+  grid-template-columns: 2fr 1fr;
+}
+
+.calendar-overview {
+  padding: 1.2rem 1.3rem !important;
+  margin-top: 0 !important;
+}
+
+.panel {
+  padding: 1.4rem !important;     /* reduced from 1.7rem */
+}
+
+.calendar-tools {
+  margin: 0.8rem 0 1rem !important;
+}
+
+/* Remove extra top margin on calendar section */
+#calendar {
+  margin-top: 0.5rem !important;
+}

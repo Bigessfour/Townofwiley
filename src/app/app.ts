@@ -1444,50 +1444,16 @@ export class App {
         icon: 'pi pi-cog',
         items: [
           [
-            {
-              label: 'Online Payments',
-              routerLink: '/services',
-              fragment: 'payment-help',
-              url: this.buildMenuUrl('/services', 'payment-help'),
-              command: () => this.navigateTo('/services', 'payment-help'),
-            },
-            {
-              label: 'Report Street/Utility Issue',
-              routerLink: '/services',
-              fragment: 'issue-report',
-              url: this.buildMenuUrl('/services', 'issue-report'),
-              command: () => this.navigateTo('/services', 'issue-report'),
-            },
-            {
-              label: 'Permits & Licenses',
-              routerLink: '/services',
-              fragment: 'records-request',
-              url: this.buildMenuUrl('/services', 'records-request'),
-              command: () => this.navigateTo('/services', 'records-request'),
-            },
+            { label: 'Online Payments', routerLink: ['/services'], fragment: 'payment-help' },
+            { label: 'Report Street/Utility Issue', routerLink: ['/services'], fragment: 'issue-report' },
+            { label: 'Permits & Licenses', routerLink: ['/services'], fragment: 'records-request' }
           ],
           [
-            {
-              label: 'Weather & Emergency Alerts',
-              routerLink: '/weather',
-              url: this.buildMenuUrl('/weather'),
-              command: () => this.navigateTo('/weather'),
-            },
-            {
-              label: 'Language Access',
-              routerLink: '/accessibility',
-              url: this.buildMenuUrl('/accessibility'),
-              command: () => this.navigateTo('/accessibility'),
-            },
-            {
-              label: 'Search All Services',
-              routerLink: '/',
-              fragment: 'search-panel',
-              url: this.buildMenuUrl('/', 'search-panel'),
-              command: () => this.navigateTo('/', 'search-panel'),
-            },
-          ],
-        ],
+            { label: 'Weather & Emergency Alerts', routerLink: '/weather' },
+            { label: 'Language Access', routerLink: '/accessibility' },
+            { label: 'Search All Services', routerLink: ['/'], fragment: 'search-panel' }
+          ]
+        ]
       },
       { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
       { label: copy.featureTitles.contact, routerLink: '/contact', icon: 'pi pi-envelope' },

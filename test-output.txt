@@ -1,0 +1,156 @@
+
+> townofwiley-app@0.0.0 test:unit
+> ng test
+
+[33mΓ¥»[39m Building...
+[32mΓ£ö[39m Building...
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m                                             [2m | [22m [1mRaw size[22m
+[32mspec-app-app.js[39m                                      [2m | [22m[2mspec-app-app[22m                                      [2m | [22m[36m771.13 kB[39m[2m | [22m
+[32mchunk-J3QVR4HK.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m[36m115.68 kB[39m[2m | [22m
+[32mstyles.css[39m                                           [2m | [22m[2mstyles[22m                                            [2m | [22m [36m84.73 kB[39m[2m | [22m
+[32mchunk-GC7GORWQ.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m [36m59.77 kB[39m[2m | [22m
+[32mspec-app-document-upload-document-upload.component.js[39m[2m | [22m[2mspec-app-document-upload-document-upload.component[22m[2m | [22m [36m41.28 kB[39m[2m | [22m
+[32mchunk-AU2EHPJT.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m [36m34.45 kB[39m[2m | [22m
+[32mchunk-WTU2YOMO.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m [36m33.39 kB[39m[2m | [22m
+[32mchunk-OPXWBB2X.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m [36m22.06 kB[39m[2m | [22m
+[32mspec-app-site-cms-content.js[39m                         [2m | [22m[2mspec-app-site-cms-content[22m                         [2m | [22m [36m12.39 kB[39m[2m | [22m
+[32mchunk-H6COUPFB.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m  [36m5.33 kB[39m[2m | [22m
+[32mchunk-RSTWSNOR.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m  [36m4.75 kB[39m[2m | [22m
+[32mspec-app-business-directory-business-directory.js[39m    [2m | [22m[2mspec-app-business-directory-business-directory[22m    [2m | [22m  [36m3.06 kB[39m[2m | [22m
+[32mchunk-IVJRPJOP.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m  [36m2.92 kB[39m[2m | [22m
+[32mspec-app-document-hub-document-hub.js[39m                [2m | [22m[2mspec-app-document-hub-document-hub[22m                [2m | [22m  [36m2.90 kB[39m[2m | [22m
+[32mchunk-F5QMOFT4.js[39m                                    [2m | [22m[2m-[22m                                                 [2m | [22m  [36m2.24 kB[39m[2m | [22m
+[32minit-testbed.js[39m                                      [2m | [22m[2minit-testbed[22m                                      [2m | [22m  [36m2.21 kB[39m[2m | [22m
+[32mspec-app-news-news.js[39m                                [2m | [22m[2mspec-app-news-news[22m                                [2m | [22m  [36m2.08 kB[39m[2m | [22m
+[32mspec-app-resident-services-resident-services.js[39m      [2m | [22m[2mspec-app-resident-services-resident-services[22m      [2m | [22m  [36m1.88 kB[39m[2m | [22m
+[32mvitest-mock-patch.js[39m                                 [2m | [22m[2mvitest-mock-patch[22m                                 [2m | [22m[36m704 bytes[39m[2m | [22m
+
+[1m [22m                                                    [2m | [22m[1mInitial total[22m                                     [2m | [22m  [1m1.20 MB[22m
+
+Application bundle generation complete. [6.030 seconds] - 2026-04-14T23:22:41.325Z
+
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/Users/biges/Desktop/Town Website[39m
+
+ [31mΓ¥»[39m [30m[42m townofwiley-app [49m[39m src/app/site-cms-content.spec.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 131[2mms[22m[39m
+     [32mΓ£ô[39m uses bundled fallback content when runtime config is missing[32m 82[2mms[22m[39m
+[31m     [31m├ù[31m loads and normalizes public CMS content from AppSync[39m[32m 46[2mms[22m[39m
+ [32mΓ£ô[39m [30m[42m townofwiley-app [49m[39m src/app/news/news.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 204[2mms[22m[39m
+ [32mΓ£ô[39m [30m[42m townofwiley-app [49m[39m src/app/business-directory/business-directory.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 512[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m keeps seeded businesses visible when CMS adds a new business [33m 417[2mms[22m[39m
+ [32mΓ£ô[39m [30m[42m townofwiley-app [49m[39m src/app/document-hub/document-hub.spec.ts [2m([22m[2m1 test[22m[2m)[22m[33m 416[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders CMS-backed documents and the next meeting [33m 412[2mms[22m[39m
+ [31mΓ¥»[39m [30m[42m townofwiley-app [49m[39m src/app/resident-services/resident-services.spec.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 203[2mms[22m[39m
+[31m     [31m├ù[31m shows field-level validation messages for invalid payment inputs[39m[32m 173[2mms[22m[39m
+[31m     [31m├ù[31m returns an invalid email message for bad email input[39m[32m 28[2mms[22m[39m
+ [32mΓ£ô[39m [30m[42m townofwiley-app [49m[39m src/app/document-upload/document-upload.component.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 674[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m shows the intended section and current uploaded documents [33m 467[2mms[22m[39m
+[90mstdout[2m | src/app/app.spec.ts[2m > [22m[2mApp[2m > [22m[2mshould render the English homepage by default
+[22m[39m{
+  timestamp: [32m'2026-04-14T23:22:49.366Z'[39m,
+  level: [32m'info'[39m,
+  message: [32m'Page view'[39m,
+  context: {
+    eventType: [32m'page_view'[39m,
+    path: [32m'/'[39m,
+    fragment: [90mundefined[39m,
+    title: [32m'Town of Wiley'[39m
+  },
+  page: [32m'/'[39m,
+  url: [32m'http://localhost:3000/'[39m,
+  referrer: [90mundefined[39m,
+  build: [90mundefined[39m
+}
+
+[90mstdout[2m | src/app/app.spec.ts[2m > [22m[2mApp[2m > [22m[2mshould expose navigable resident-services submenu targets in the mega menu model
+[22m[39m{
+  timestamp: [32m'2026-04-14T23:22:49.497Z'[39m,
+  level: [32m'info'[39m,
+  message: [32m'Page view'[39m,
+  context: {
+    eventType: [32m'page_view'[39m,
+    path: [32m'/'[39m,
+    fragment: [90mundefined[39m,
+    title: [32m'Town of Wiley'[39m
+  },
+  page: [32m'/'[39m,
+  url: [32m'http://localhost:3000/'[39m,
+  referrer: [90mundefined[39m,
+  build: [90mundefined[39m
+}
+
+[90mstdout[2m | src/app/app.spec.ts[2m > [22m[2mApp[2m > [22m[2mshould invoke the MegaMenu command exactly once and suppress the default anchor behavior
+[22m[39m{
+  timestamp: [32m'2026-04-14T23:22:49.582Z'[39m,
+  level: [32m'info'[39m,
+  message: [32m'Page view'[39m,
+  context: {
+    eventType: [32m'page_view'[39m,
+    path: [32m'/'[39m,
+    fragment: [90mundefined[39m,
+    title: [32m'Town of Wiley'[39m
+  },
+  page: [32m'/'[39m,
+  url: [32m'http://localhost:3000/'[39m,
+  referrer: [90mundefined[39m,
+  build: [90mundefined[39m
+}
+
+[90mstdout[2m | src/app/app.spec.ts[2m > [22m[2mApp[2m > [22m[2mshould expose the meetings calendar jump link on the meetings page
+[22m[39m{
+  timestamp: [32m'2026-04-14T23:22:49.645Z'[39m,
+  level: [32m'info'[39m,
+  message: [32m'Page view'[39m,
+  context: {
+    eventType: [32m'page_view'[39m,
+    path: [32m'/meetings'[39m,
+    fragment: [90mundefined[39m,
+    title: [32m'Meetings and calendar'[39m
+  },
+  page: [32m'/meetings'[39m,
+  url: [32m'http://localhost:3000/meetings'[39m,
+  referrer: [90mundefined[39m,
+  build: [90mundefined[39m
+}
+
+[90mstdout[2m | src/app/app.spec.ts[2m > [22m[2mApp[2m > [22m[2mshould map published CMS events into the meetings calendar month view
+[22m[39m{
+  timestamp: [32m'2026-04-14T23:22:49.711Z'[39m,
+  level: [32m'info'[39m,
+  message: [32m'Page view'[39m,
+  context: {
+    eventType: [32m'page_view'[39m,
+    path: [32m'/meetings'[39m,
+    fragment: [90mundefined[39m,
+    title: [32m'Meetings and calendar'[39m
+  },
+  page: [32m'/meetings'[39m,
+  url: [32m'http://localhost:3000/meetings'[39m,
+  referrer: [90mundefined[39m,
+  build: [90mundefined[39m
+}
+
+ [31mΓ¥»[39m [30m[42m townofwiley-app [49m[39m src/app/app.spec.ts [2m([22m[2m17 tests[22m[2m | [22m[31m16 failed[39m[2m)[22m[33m 776[2mms[22m[39m
+     [32mΓ£ô[39m should create the app[32m 187[2mms[22m[39m
+[31m     [31m├ù[31m should render the English homepage by default[39m[32m 283[2mms[22m[39m
+[31m     [31m├ù[31m should expose navigable resident-services submenu targets in the mega menu model[39m[32m 103[2mms[22m[39m
+[31m     [31m├ù[31m should invoke the MegaMenu command exactly once and suppress the default anchor behavior[39m[32m 74[2mms[22m[39m
+[31m     [31m├ù[31m should expose the meetings calendar jump link on the meetings page[39m[32m 67[2mms[22m[39m
+[31m     [31m├ù[31m should map published CMS events into the meetings calendar month view[39m[32m 55[2mms[22m[39m
+[31m     [31m├ù[31m should render published CMS events in the meetings card list[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m should render a Paystar payment action when payment runtime config is present[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m should use the configured weather proxy when available[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m should render the severe weather signup form when signup runtime config is enabled[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m should elevate active NWS alerts into the homepage banner[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should render the clerk editor on the admin path[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should render the Deb Dillon clerk setup page on the clerk setup path[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should open the document publishing tab from the clerk setup fragment[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should link the admin upload button to the clerk setup document tab[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should render the public document hub on the documents path[39m[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m should fall back to the public NWS feed when the configured proxy fails[39m[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m19 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 17:22:41
+[2m   Duration [22m 8.39s[2m (transform 3.51s, setup 7.20s, import 12.49s, tests 2.92s, environment 12.66s)[22m
+
