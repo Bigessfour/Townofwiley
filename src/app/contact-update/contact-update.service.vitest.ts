@@ -57,7 +57,8 @@ describe('ContactUpdateService (Unit)', () => {
     const { getContactUpdateRuntimeConfig } = await import('./contact-update-config');
     vi.mocked(getContactUpdateRuntimeConfig).mockReturnValue({ apiEndpoint: '' });
 
-    const result = await service.submitUpdate({} as unknown as ContactUpdateRequest, 'mailto:clerk@wiley.gov');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await service.submitUpdate({} as unknown as any, 'mailto:clerk@wiley.gov');
     expect(result.outcome).toBe('mailto');
     expect(vi.spyOn(http, 'post')).not.toHaveBeenCalled();
   });
