@@ -290,7 +290,7 @@
 
   <main class="page-shell" [class.is-feature-page]="isFeaturePageMode()" id="main-content" #mainContent tabindex="-1">
     @if (isFeaturePageMode()) {
-      @if (currentFeaturePage(); as currentFeaturePage) {
+      @if (currentFeaturePage(); as featurePage) {
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
 
@@ -890,7 +890,6 @@
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
               <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
             </div>
-            <a class="text-link" routerLink="/meetings" fragment="calendar">{{ appCopy().openCalendarLabel }}</a>
           </header>
 
           <div class="stack-list grid gap-3">
@@ -975,7 +974,7 @@
         </section>
       </section>
 
-      <section class="support-strip grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]">
+      <section [class]="isAssistantEnabled ? 'support-strip grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]' : 'support-strip grid gap-8'">
         <p-card class="hero-card stay-informed-card" [pt]="supportCardPt" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
@@ -1010,19 +1009,19 @@
           </section>
         </p-card>
 
-        <p-card class="chatbot-panel panel" id="chatbot-panel" [pt]="supportCardPt" aria-labelledby="chatbot-heading">
-          <p class="section-kicker">Chat with Wiley</p>
-          <h2 id="chatbot-heading">Town Assistant</h2>
+        @if (isAssistantEnabled) {
+          <p-card class="chatbot-panel panel" id="chatbot-panel" [pt]="supportCardPt" aria-labelledby="chatbot-heading">
+            <p class="section-kicker">Chat with Wiley</p>
+            <h2 id="chatbot-heading">Town Assistant</h2>
 
-          @if (isAssistantEnabled) {
             <app-ai-chat />
-          }
-        </p-card>
+          </p-card>
+        }
       </section>
     }
 
     <footer class="site-footer">
-      <div class="footer-links">
+      <div class="footer-links flex flex-wrap gap-6 items-center justify-center">
         @for (link of appCopy().footerLinks; track link.label) {
           @if (resolveAppLink(link.href); as footerLink) {
             @if (footerLink.isInternal) {

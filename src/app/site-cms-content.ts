@@ -136,9 +136,9 @@ const DEFAULT_CMS_NOTICES: CmsNotice[] = [
   {
     id: 'upcoming-meeting',
     title: 'Town Council Meeting Scheduled',
-    date: 'April 15, 2026',
+    date: 'April 13, 2026',
     detail:
-      'The next Town Council meeting is scheduled for April 15, 2026 at 7:00 PM at Town Hall. Agenda items include budget review and public comments.',
+      'The next Town Council meeting is scheduled for April 13, 2026 at 7:00 PM at Town Hall. Agenda items include budget review and public comments.',
   },
   {
     id: 'weather-alerts',
@@ -160,9 +160,9 @@ const DEFAULT_CMS_NOTICES_ES: CmsNotice[] = [
   {
     id: 'upcoming-meeting',
     title: 'Reunión del Consejo Municipal Programada',
-    date: '15 de abril de 2026',
+    date: '13 de abril de 2026',
     detail:
-      'La próxima reunión del Consejo Municipal está programada para el 15 de abril de 2026 a las 7:00 PM en el Ayuntamiento. Los temas de la agenda incluyen revisión del presupuesto y comentarios públicos.',
+      'La próxima reunión del Consejo Municipal está programada para el 13 de abril de 2026 a las 7:00 PM en el Ayuntamiento. Los temas de la agenda incluyen revisión del presupuesto y comentarios públicos.',
   },
   {
     id: 'weather-alerts',
@@ -862,6 +862,14 @@ export class LocalizedCmsContentStore {
       }))
       .filter((record) => record.id && record.title && record.detail)
       .filter((record) => !this.isRetiredLaunchNotice(record.title, record.detail))
+      .filter((record) => {
+        if (!record.date) {
+          return true;
+        }
+
+        const parsed = Date.parse(record.date);
+        return Number.isNaN(parsed) || parsed >= Date.now();
+      })
       .sort((left, right) => left.priority - right.priority)
       .map((record) => {
         const englishFallback = DEFAULT_NOTICE_MAP.en.get(record.id);
@@ -967,7 +975,11 @@ export class LocalizedCmsContentStore {
       }))
       .filter(
         (record) =>
-          record.id && record.title && record.start && !Number.isNaN(Date.parse(record.start)),
+          record.id &&
+          record.title &&
+          record.start &&
+          !Number.isNaN(Date.parse(record.start)) &&
+          Date.parse(record.end || record.start) >= Date.now(),
       )
       .sort((left, right) => Date.parse(left.start) - Date.parse(right.start));
   }

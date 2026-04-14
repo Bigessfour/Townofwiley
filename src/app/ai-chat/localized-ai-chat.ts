@@ -3,8 +3,11 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, injec
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
+import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
+import { PanelModule } from 'primeng/panel';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
@@ -178,7 +181,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
 
 @Component({
   selector: 'app-ai-chat',
-  imports: [ButtonModule, ChipModule, InputTextModule, RouterLink, ScrollPanelModule],
+  imports: [ButtonModule, CardModule, ChipModule, FieldsetModule, InputTextModule, PanelModule, RouterLink, ScrollPanelModule],
   templateUrl: './localized-ai-chat.html',
   styleUrl: './ai-chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

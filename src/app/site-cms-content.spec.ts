@@ -25,6 +25,7 @@ describe('LocalizedCmsContentStore', () => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
     TestBed.resetTestingModule();
+    vi.useRealTimers();
   });
 
   it('uses bundled fallback content when runtime config is missing', () => {
@@ -46,6 +47,8 @@ describe('LocalizedCmsContentStore', () => {
   });
 
   it('loads and normalizes public CMS content from AppSync', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
     window.localStorage.setItem('tow-site-language', 'es');
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
@@ -319,7 +322,7 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.alertBanner().title).toBe('Main Street cerrada esta noche');
     expect(store.notices().map((notice) => notice.title)).toEqual(['Corte de agua en Main Street']);
     expect(store.notices()[0]?.date).toContain('abril');
-    expect(store.events().map((event) => event.title)).toEqual(['April Workshop', 'May Council Meeting']);
+    expect(store.events().map((event) => event.title)).toEqual(['May Council Meeting']);
     expect(store.contacts().map((contact) => contact.label)).toEqual(['Informacion del pueblo', 'Secretaria municipal']);
     expect(store.businesses().map((business) => business.name)).toEqual(['B Business', 'A Business']);
     expect(store.publicDocuments().map((document) => document.title)).toEqual([

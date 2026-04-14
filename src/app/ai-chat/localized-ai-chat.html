@@ -9,14 +9,13 @@
   </div>
 
   @if (isConfigured) {
-    <div class="assistant-form grid gap-2 rounded-[20px] p-[0.95rem]">
-      <label class="assistant-label" for="assistant-question">{{ copy().questionLabel }}</label>
-      <p class="assistant-helper">{{ copy().helper }}</p>
+    <p-fieldset [legend]="copy().questionLabel" styleClass="assistant-form fieldset-form">
+      <p class="assistant-helper mb-3">{{ copy().helper }}</p>
       <div class="assistant-entry-row grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <input
           pInputText
           id="assistant-question"
-          class="assistant-input"
+          class="assistant-input w-full"
           type="text"
           [value]="draft()"
           (input)="updateDraft($any($event.target).value)"
@@ -32,13 +31,13 @@
           styleClass="assistant-send"
         />
       </div>
-    </div>
+    </p-fieldset>
   } @else if (isEmbedConfigured) {
-    <div class="assistant-launch-panel grid gap-3 rounded-[20px] p-[0.95rem]">
-      <p class="assistant-helper">{{ copy().embedHelper }}</p>
+    <p-panel header="External Chat" styleClass="assistant-launch-panel">
+      <p class="assistant-helper mb-3">{{ copy().embedHelper }}</p>
       @if (hasDirectChatLink) {
         <a
-          class="assistant-launch-link"
+          class="assistant-launch-link text-primary font-semibold"
           [attr.href]="directChatUrl"
           target="_blank"
           rel="noreferrer noopener"
@@ -46,60 +45,65 @@
           {{ copy().openDirectChatLink }}
         </a>
       }
-    </div>
+    </p-panel>
   }
 
   <div class="assistant-window grid gap-4">
     @if (isConfigured) {
-      <div class="assistant-prompts-shell grid gap-3 rounded-[20px] p-[0.95rem]">
-        <p class="assistant-prompt-label">{{ copy().promptsLabel }}</p>
+      <p-fieldset [legend]="copy().promptsLabel" styleClass="assistant-prompts-shell">
         <div class="assistant-prompts flex flex-wrap gap-2" [attr.aria-label]="copy().promptsAriaLabel">
           @for (prompt of starterPrompts(); track prompt) {
             <p-chip
               [label]="prompt"
               (click)="askPrompt(prompt)"
-              styleClass="assistant-chip"
+              styleClass="assistant-chip cursor-pointer"
             />
           }
         </div>
-      </div>
+      </p-fieldset>
     }
 
-    <div class="assistant-thread grid gap-3 rounded-[20px] p-[0.95rem]">
-      <div class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p class="assistant-thread-kicker">{{ copy().conversationKicker }}</p>
-          <h4 class="assistant-thread-title">{{ copy().conversationTitle }}</h4>
+    <p-panel styleClass="assistant-thread">
+      <ng-template pTemplate="header">
+        <div class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between w-full">
+          <div>
+            <p class="assistant-thread-kicker m-0 text-sm opacity-80">{{ copy().conversationKicker }}</p>
+            <h4 class="assistant-thread-title m-0 text-lg">{{ copy().conversationTitle }}</h4>
+          </div>
+          <p class="assistant-thread-status m-0 text-sm font-semibold opacity-90">
+            {{ isSending() ? copy().conversationWaiting : copy().conversationReady }}
+          </p>
         </div>
-        <p class="assistant-thread-status">
-          {{ isSending() ? copy().conversationWaiting : copy().conversationReady }}
-        </p>
-      </div>
+      </ng-template>
 
-      <p-scrollPanel #messagesContainer styleClass="assistant-messages grid gap-3 overflow-y-auto pr-1" [style.height]="'300px'">
-        @for (message of messages(); track $index) {
-          <article class="assistant-message grid gap-2 rounded-[20px] p-[0.9rem_1rem]" [class.is-user]="message.role === 'user'">
-            <span class="assistant-role">{{
-              message.role === 'user' ? copy().userRole : copy().assistantRole
-            }}</span>
-            <p>{{ message.content }}</p>
-
-            @if (message.links?.length) {
-              <div class="assistant-links flex flex-wrap gap-2">
-                @for (link of message.links; track link.href) {
-                  @if (resolveAppLink(link.href); as assistantLink) {
-                    @if (assistantLink.isInternal) {
-                      <a [routerLink]="assistantLink.path" [fragment]="assistantLink.fragment">{{ link.label }}</a>
-                    } @else {
-                      <a [attr.href]="assistantLink.href">{{ link.label }}</a>
+      <p-scrollPanel #messagesContainer styleClass="assistant-messages-scroll pr-2" [style.height]="'350px'">
+        <div class="assistant-messages-container grid gap-4">
+          @for (message of messages(); track $index) {
+            <p-card [styleClass]="message.role === 'user' ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none' : 'assistant-message surface-100 border-none'">
+              <div class="message-content-container block">
+                <span class="assistant-role block text-xs font-semibold mb-2 opacity-70">{{
+                  message.role === 'user' ? copy().userRole : copy().assistantRole
+                }}</span>
+                <p class="m-0 line-height-3">{{ message.content }}</p>
+  
+                @if (message.links?.length) {
+                  <div class="assistant-links flex flex-wrap gap-2 mt-3 pt-3 border-top-1 surface-border">
+                    @for (link of message.links; track link.href) {
+                      @if (resolveAppLink(link.href); as assistantLink) {
+                        @if (assistantLink.isInternal) {
+                          <a [routerLink]="assistantLink.path" [fragment]="assistantLink.fragment" class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline">{{ link.label }}</a>
+                        } @else {
+                          <a [attr.href]="assistantLink.href" target="_blank" rel="noopener" class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline">{{ link.label }}</a>
+                        }
+                      }
                     }
-                  }
+                  </div>
                 }
               </div>
-            }
-          </article>
-        }
+            </p-card>
+          }
+        </div>
       </p-scrollPanel>
-    </div>
+    </p-panel>
   </div>
 </section>

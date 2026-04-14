@@ -29,6 +29,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { ToastModule } from 'primeng/toast';
+import { MenubarModule } from 'primeng/menubar';
+import { MenuItem } from 'primeng/api';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -462,8 +464,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
-    topTasksBody:
-      'Start with the resident tasks people need most often: payments, issue reporting, meeting access, and records requests.',
+    topTasksBody: '',
     featureHubKicker: 'Town features',
     featureHubHeading: 'Open the town section you need',
     featureHubBody:
@@ -854,8 +855,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
     topTasksKicker: 'Tareas rapidas',
     topTasksHeading: 'Como puedo...',
-    topTasksBody:
-      'Empiece con las tareas que los residentes necesitan con mas frecuencia: pagos, reportes de problemas, acceso a reuniones y solicitudes de registros.',
+    topTasksBody: '',
     featureHubKicker: 'Funciones del pueblo',
     featureHubHeading: 'Abra la seccion del pueblo que necesita',
     featureHubBody:
@@ -1243,6 +1243,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     TableModule,
     TabsModule,
     ToastModule,
+    MenubarModule,
     CardModule,
     FullCalendarModule,
     AccessibilitySupport,
@@ -1424,6 +1425,18 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly menuItems = computed<MenuItem[]>(() => {
+    return this.appCopy().navLinks.map(link => {
+      const internalLink = this.resolveAppLink(link.href) || { isInternal: false, path: link.href, href: link.href, fragment: undefined };
+      return {
+        label: link.label,
+        icon: link.icon,
+        url: !internalLink.isInternal ? internalLink.href : undefined,
+        routerLink: internalLink.isInternal ? internalLink.path : undefined,
+        fragment: internalLink.isInternal ? internalLink.fragment : undefined
+      };
+    });
+  });
   protected readonly privacyPolicyCopy = computed(
     () => WEATHER_ALERT_POLICY_COPY[this.siteLanguage()].privacy,
   );
