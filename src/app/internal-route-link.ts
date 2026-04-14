@@ -19,6 +19,8 @@ const APP_ROUTE_PATHS = new Set([
   '/news',
   '/contact',
   '/accessibility',
+  '/privacy',
+  '/terms',
 ]);
 
 const EXTERNAL_LINK_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;

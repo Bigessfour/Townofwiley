@@ -28,9 +28,11 @@ import { TimelineModule } from 'primeng/timeline';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
-import { MenubarModule } from 'primeng/menubar';
-import { MenuItem } from 'primeng/api';
+import { MegaMenuModule } from 'primeng/megamenu';
+import { DrawerModule } from 'primeng/drawer';
+import { MegaMenuItem } from 'primeng/api';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -1231,6 +1233,7 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   imports: [
     NgOptimizedImage,
     RouterLink,
+    DrawerModule,
     FormsModule,
     ButtonModule,
     DividerModule,
@@ -1242,8 +1245,9 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     SkeletonModule,
     TableModule,
     TabsModule,
+    ToolbarModule,
     ToastModule,
-    MenubarModule,
+    MegaMenuModule,
     CardModule,
     FullCalendarModule,
     AccessibilitySupport,
@@ -1304,6 +1308,8 @@ export class App {
   protected readonly calendarHelpVisible = signal(false);
   protected readonly aiChatVisible = signal(false);
   protected readonly headerScrolled = signal(false);
+  protected readonly sidebarVisible = signal(false);
+  protected readonly mobileMenuItems = computed(() => this.menuItems());
   protected readonly siteAlertCardPt = {
     body: {
       class: 'site-alert-body',
@@ -1425,18 +1431,89 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
-  protected readonly menuItems = computed<MenuItem[]>(() => {
-    return this.appCopy().navLinks.map(link => {
-      const internalLink = this.resolveAppLink(link.href) || { isInternal: false, path: link.href, href: link.href, fragment: undefined };
-      return {
-        label: link.label,
-        icon: link.icon,
-        url: !internalLink.isInternal ? internalLink.href : undefined,
-        routerLink: internalLink.isInternal ? internalLink.path : undefined,
-        fragment: internalLink.isInternal ? internalLink.fragment : undefined
-      };
-    });
+  protected readonly menuItems = computed<MegaMenuItem[]>(() => {
+    const copy = this.appCopy();
+
+    return [
+      { label: 'Home', routerLink: '/' },
+      { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
+      { label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
+      { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+      {
+        label: copy.featureTitles.services,
+        icon: 'pi pi-cog',
+        items: [
+          [
+            {
+              label: 'Online Payments',
+              routerLink: '/services',
+              fragment: 'payment-help',
+              url: this.buildMenuUrl('/services', 'payment-help'),
+              command: () => this.navigateTo('/services', 'payment-help'),
+            },
+            {
+              label: 'Report Street/Utility Issue',
+              routerLink: '/services',
+              fragment: 'issue-report',
+              url: this.buildMenuUrl('/services', 'issue-report'),
+              command: () => this.navigateTo('/services', 'issue-report'),
+            },
+            {
+              label: 'Permits & Licenses',
+              routerLink: '/services',
+              fragment: 'records-request',
+              url: this.buildMenuUrl('/services', 'records-request'),
+              command: () => this.navigateTo('/services', 'records-request'),
+            },
+          ],
+          [
+            {
+              label: 'Weather & Emergency Alerts',
+              routerLink: '/weather',
+              url: this.buildMenuUrl('/weather'),
+              command: () => this.navigateTo('/weather'),
+            },
+            {
+              label: 'Language Access',
+              routerLink: '/accessibility',
+              url: this.buildMenuUrl('/accessibility'),
+              command: () => this.navigateTo('/accessibility'),
+            },
+            {
+              label: 'Search All Services',
+              routerLink: '/',
+              fragment: 'search-panel',
+              url: this.buildMenuUrl('/', 'search-panel'),
+              command: () => this.navigateTo('/', 'search-panel'),
+            },
+          ],
+        ],
+      },
+      { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
+      { label: copy.featureTitles.contact, routerLink: '/contact', icon: 'pi pi-envelope' },
+    ];
   });
+
+  private buildMenuUrl(path: string, fragment?: string): string {
+    return this.router.serializeUrl(
+      this.router.createUrlTree([path], fragment ? { fragment } : undefined),
+    );
+  }
+
+  protected activateMegaMenuItem(item: MegaMenuItem, event: MouseEvent): void {
+    if (!item.command) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    item.command(event);
+  }
+
+  private navigateTo(path: string, fragment?: string): void {
+    void this.router.navigate([path], fragment ? { fragment } : undefined);
+  }
+
   protected readonly privacyPolicyCopy = computed(
     () => WEATHER_ALERT_POLICY_COPY[this.siteLanguage()].privacy,
   );
@@ -2098,6 +2175,14 @@ export class App {
     this.calendarJumpMonth.set(value);
   }
 
+  protected openMobileMenu(): void {
+    this.sidebarVisible.set(true);
+  }
+
+  protected closeMobileMenu(): void {
+    this.sidebarVisible.set(false);
+  }
+
   protected updateCalendarTable(event: {
     first?: number | null;
     rows?: number | null;
@@ -2584,3 +2669,5 @@ export class App {
       .replace(/\n/g, '\\n');
   }
 }
+
+

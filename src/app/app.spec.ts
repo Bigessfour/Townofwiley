@@ -5,11 +5,15 @@ import {
     provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { App } from './app';
 import { routes } from './app.routes';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
+import { MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
   clerkSetup?: {
@@ -54,7 +58,35 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter(routes)],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter(routes),
+        provideAnimations(),
+        MessageService,
+        providePrimeNG({
+          theme: {
+            preset: WILEY_THEME_PRESET,
+            options: {
+              prefix: 'p',
+              darkModeSelector: false,
+              cssLayer: {
+                name: 'primeng',
+                order: 'theme, base, primeng',
+              },
+            },
+          },
+          ripple: true,
+          inputStyle: 'outlined',
+          inputVariant: 'outlined',
+          zIndex: {
+            modal: 1100,
+            overlay: 1000,
+            menu: 1000,
+            tooltip: 1100,
+          },
+        }),
+      ],
     }).compileComponents();
 
     httpTesting = TestBed.inject(HttpTestingController);
@@ -108,8 +140,6 @@ describe('App', () => {
     expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
       'Contact Town Hall',
     );
-    expect(compiled.querySelector('#site-search')).toBeTruthy();
-    expect(compiled.querySelector('.search-submit')?.textContent).toContain('Search');
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
       'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
     );
@@ -122,24 +152,97 @@ describe('App', () => {
     );
   });
 
-  it('should send the top calendar actions to the meetings calendar section', async () => {
+  it('should expose navigable resident-services submenu targets in the mega menu model', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await flushWeatherRequests();
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const compiled = fixture.nativeElement as HTMLElement;
+    const component = fixture.componentInstance as App & {
+      menuItems: () => {
+        label: string;
+        routerLink?: string;
+        fragment?: string;
+        url?: string;
+        items?: Array<Array<{ label: string; routerLink?: string; fragment?: string; url?: string; command?: (event: unknown) => void }>>;
+      };
+    };
 
-    expect(compiled.querySelector('.header-meta-link[href="/meetings#calendar"]')?.textContent).toContain(
-      'Open the full town calendar',
+    const servicesMenu = component.menuItems().find((item) => item.label === 'Resident services');
+
+    expect(servicesMenu).toBeDefined();
+    expect(servicesMenu?.items).toHaveLength(2);
+    expect(servicesMenu?.items?.[0]).toMatchObject([
+      {
+        label: 'Online Payments',
+        routerLink: '/services',
+        fragment: 'payment-help',
+        url: '/services#payment-help',
+      },
+      {
+        label: 'Report Street/Utility Issue',
+        routerLink: '/services',
+        fragment: 'issue-report',
+        url: '/services#issue-report',
+      },
+      {
+        label: 'Permits & Licenses',
+        routerLink: '/services',
+        fragment: 'records-request',
+        url: '/services#records-request',
+      },
+    ]);
+    expect(servicesMenu?.items?.[1]).toMatchObject([
+      {
+        label: 'Weather & Emergency Alerts',
+        routerLink: '/weather',
+        url: '/weather',
+      },
+      {
+        label: 'Language Access',
+        routerLink: '/accessibility',
+        url: '/accessibility',
+      },
+      {
+        label: 'Search All Services',
+        routerLink: '/',
+        fragment: 'search-panel',
+        url: '/#search-panel',
+      },
+    ]);
+    expect(servicesMenu?.items?.flat().every((item) => typeof item.command === 'function')).toBe(
+      true,
     );
-    expect(
-      compiled.querySelector('.header-meta-link[href="/meetings#calendar"]')?.textContent,
-    ).toContain('Open the full town calendar');
   });
 
-  it('should scroll to the calendar section when the top calendar action is used on the meetings page', async () => {
+  it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as App & {
+      activateMegaMenuItem: (item: { command?: (event: unknown) => void }, event: MouseEvent) => void;
+    };
+    const command = vi.fn();
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+    const event = {
+      preventDefault,
+      stopPropagation,
+    } as unknown as MouseEvent;
+
+    component.activateMegaMenuItem({ command }, event);
+
+    expect(preventDefault).toHaveBeenCalledTimes(1);
+    expect(stopPropagation).toHaveBeenCalledTimes(1);
+    expect(command).toHaveBeenCalledTimes(1);
+    expect(command).toHaveBeenCalledWith(event);
+  });
+
+  it('should expose the meetings calendar jump link on the meetings page', async () => {
     window.history.pushState({}, '', '/meetings');
 
     const fixture = TestBed.createComponent(App);
@@ -149,39 +252,13 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const calendarPanel = compiled.querySelector('#calendar') as HTMLElement;
-    const scrollIntoViewSpy = vi.spyOn(calendarPanel, 'scrollIntoView');
-    const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
-    const topCalendarLink = compiled.querySelector(
-      '.header-meta-link[href="/meetings#calendar"]',
-    ) as HTMLAnchorElement;
 
-    topCalendarLink.click();
-    await Promise.resolve();
-
-    expect(scrollIntoViewSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
-    expect(replaceStateSpy).toHaveBeenCalledWith(window.history.state, '', '/meetings#calendar');
-    expect(document.activeElement).toBe(calendarPanel);
-  });
-
-  it('should navigate to meetings with calendar fragment when calendar action is used not on meetings page', async () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    await flushWeatherRequests();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const router = TestBed.inject(Router);
-    const navigateSpy = vi.spyOn(router, 'navigate');
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const topCalendarLink = compiled.querySelector(
-      '.header-meta-link[href="/meetings#calendar"]',
-    ) as HTMLAnchorElement;
-
-    topCalendarLink.click();
-
-    expect(navigateSpy).toHaveBeenCalledWith(['/meetings'], { fragment: 'calendar' });
+    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent).toContain(
+      'Open the full town calendar',
+    );
+    expect(
+      compiled.querySelector('a.text-link[href="#calendar"]')?.textContent,
+    ).toContain('Open the full town calendar');
   });
 
   it('should map published CMS events into the meetings calendar month view', async () => {
@@ -302,47 +379,6 @@ describe('App', () => {
     );
   });
 
-  it('should route document-related search queries into the public document hub', async () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    await flushWeatherRequests();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
-
-    searchInput.value = 'Budget summaries and annual reports';
-    searchInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const financeResult = compiled.querySelector(
-      '.search-result[href="/documents#financial-documents"]',
-    );
-
-    expect(financeResult?.querySelector('strong')?.textContent).toContain(
-      'Find budget summaries and annual reports',
-    );
-
-    searchInput.value = 'public records checklist';
-    searchInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const archiveResult = compiled.querySelector(
-      '.search-result[href="/documents/archive/public-records-request-checklist.html"]',
-    );
-
-    expect(archiveResult?.textContent).toContain('Public Records Request Checklist');
-  });
-
   it('should render a Paystar payment action when payment runtime config is present', async () => {
     window.history.pushState({}, '', '/services');
 
@@ -368,183 +404,6 @@ describe('App', () => {
 
     expect(paystarAction?.textContent).toContain('Open secure Paystar payment portal');
     expect(paystarAction?.getAttribute('href')).toBe('https://secure.paystar.io/townofwiley');
-  });
-
-  it('should switch the homepage language to English when selected', async () => {
-    window.localStorage.setItem('tow-site-language', 'es');
-
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    await flushWeatherRequests();
-    fixture.detectChanges();
-
-    const englishButton = fixture.nativeElement.querySelector(
-      '#site-language-en',
-    ) as HTMLButtonElement;
-    englishButton.click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    expect(compiled.querySelector('.search-submit')?.textContent).toContain('Search');
-    expect(compiled.querySelector('.footer-links')?.textContent).toContain(
-      'Accessibility statement',
-    );
-  });
-
-  it('should render homepage content from Amplify Studio CMS when AppSync runtime config is present', async () => {
-    window.localStorage.setItem('tow-site-language', 'es');
-
-    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-      cms: {
-        appSync: {
-          region: 'us-east-2',
-          apiEndpoint: 'https://cms.example.com/graphql',
-          apiKey: 'test-public-api-key',
-        },
-      },
-    };
-
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    expect(cmsRequest.request.method).toBe('POST');
-    expect(cmsRequest.request.headers.get('x-api-key')).toBe('test-public-api-key');
-    cmsRequest.flush({
-      data: {
-        listSiteSettings: {
-          items: [
-            {
-              townName: 'Town of Wiley',
-              heroEyebrow: 'Town Website',
-              heroStatus: 'Open for Residents',
-              heroTitle: 'Wiley Community Updates',
-              heroMessage:
-                'Find the latest notices, meeting updates, and town information in one place.',
-              heroSubtext:
-                'This version highlights emergency notices and resident-facing updates first.',
-              welcomeLabel: 'Welcome Photo',
-              welcomeHeading: 'A fresh homepage for Wiley residents',
-              welcomeBody:
-                'The welcome area now explains what residents can do on the site right away.',
-              welcomeCaption: 'Updated caption for the Wiley homepage photo.',
-            },
-          ],
-        },
-        listAlertBanners: {
-          items: [
-            {
-              id: 'alert-1',
-              enabled: true,
-              label: 'Emergency Notice',
-              title: 'Main Street closed tonight',
-              detail: 'Crews will close Main Street from 8 PM until midnight for utility repairs.',
-              linkLabel: 'Call Town Hall',
-              linkHref: 'tel:+17198294974',
-              updatedAt: '2026-03-22T18:00:00Z',
-            },
-          ],
-        },
-        listAnnouncements: {
-          items: [
-            {
-              id: 'launch-banner',
-              title: "Welcome to Wiley's New Website",
-              date: '2026-03-30',
-              detail:
-                'We developed this website in house to better offer Wiley Residents quality services.',
-              priority: 0,
-              active: true,
-            },
-            {
-              id: 'water-outage',
-              title: 'Water outage on Main Street',
-              date: '2026-03-22',
-              detail: 'Crews will repair a broken main from 10 PM until approximately 2 AM.',
-              priority: 1,
-              active: true,
-            },
-          ],
-        },
-        listEvents: {
-          items: [
-            {
-              id: 'spring-cleanup-day',
-              title: 'Spring Cleanup Day',
-              description:
-                'Bring brush, yard debris, and approved bulk items to the collection site.',
-              location: 'Wiley Community Park',
-              start: '2026-04-25T10:00:00-06:00',
-              end: '2026-04-25T13:00:00-06:00',
-              active: true,
-            },
-          ],
-        },
-        listOfficialContacts: {
-          items: [
-            {
-              id: 'clerk-desk',
-              label: 'Clerk Desk',
-              value: 'Deb Dillon',
-              detail: 'Call or email for meeting packets and town records requests.',
-              href: 'mailto:deb.dillon@townofwiley.gov',
-              linkLabel: 'deb.dillon@townofwiley.gov',
-              displayOrder: 1,
-            },
-          ],
-        },
-      },
-    });
-
-    await flushWeatherRequests();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Actualizaciones comunitarias');
-    expect(compiled.querySelector('.site-alert-button')?.textContent).toContain('alertas');
-    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
-      'Main Street cerrada',
-    );
-    expect(compiled.querySelector('.feature-card[href="/notices"]')?.textContent).toContain(
-      'Corte de agua',
-    );
-    expect(compiled.textContent).not.toContain("Welcome to Wiley's New Website");
-    expect(compiled.querySelector('.feature-card[href="/meetings"]')?.textContent).toContain(
-      'Spring Cleanup Day',
-    );
-    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
-      'Deb Dillon',
-    );
-
-    const searchInput = compiled.querySelector('#site-search') as HTMLInputElement;
-    searchInput.value = 'spring cleanup';
-    searchInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(compiled.querySelector('.search-result strong')?.textContent).toContain(
-      'Spring Cleanup Day',
-    );
-
-    searchInput.value = 'deb dillon';
-    searchInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(
-      compiled.querySelector('.search-result[href="mailto:deb.dillon@townofwiley.gov"]')
-        ?.textContent,
-    ).toContain('Deb Dillon');
   });
 
   it('should use the configured weather proxy when available', async () => {

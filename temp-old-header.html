@@ -1,0 +1,172 @@
+  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner">
+    <div class="header-utility flex flex-wrap justify-content-end align-items-center gap-4 py-1 surface-border">
+      <div class="info-buttons flex gap-4 align-items-center">
+        @if (primaryContact(); as primaryContact) {
+          <a class="flex align-items-center gap-2 text-color no-underline font-bold text-sm uppercase letter-spacing-1 hover:text-primary transition-colors transition-duration-150 cursor-pointer" [attr.href]="primaryContact.href ?? '/contact'">
+            <i class="pi pi-phone text-primary" aria-hidden="true"></i>
+            <span>{{ primaryContact.label }}: {{ primaryContact.value }}</span>
+          </a>
+        }
+        <a routerLink="/" fragment="top-tasks" class="flex align-items-center gap-2 text-color no-underline font-bold text-sm uppercase letter-spacing-1 hover:text-primary transition-colors transition-duration-150 cursor-pointer">
+          <i class="pi pi-list text-primary" aria-hidden="true"></i>
+          <span>{{ appCopy().topTasksKicker }}</span>
+        </a>
+      </div>
+      <div class="site-language-switcher flex align-items-center gap-2 m-0 p-0" [attr.aria-label]="appCopy().languageLabel">
+        <div class="site-language-toggle flex flex-row gap-1 p-0 m-0" role="group" [attr.aria-label]="appCopy().languageLabel">
+          @for (choice of languageChoices(); track choice.value) {
+            <button
+              type="button"
+              class="w-auto border-none border-round-xl p-1 px-2 font-bold cursor-pointer transition-colors transition-duration-150"
+              [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+              [class]="siteLanguage() === choice.value ? 'bg-primary text-white' : 'bg-transparent text-color hover:surface-200'"
+              [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+              [attr.aria-pressed]="siteLanguage() === choice.value"
+              [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+              (click)="updateSiteLanguage(choice.value)"
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="header-main flex flex-wrap justify-content-between align-items-center py-2">
+      <nav
+        class="main-nav flex-grow-1 flex align-items-center justify-content-start"
+        [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
+        data-testid="homepage-section-nav"
+      >
+        <ul class="main-nav-list flex gap-4 m-0 p-0 list-none" role="list">
+          @for (link of appCopy().navLinks; track link.href) {
+            @if (resolveAppLink(link.href); as navLink) {
+              <li class="main-nav-item">
+                @if (navLink.isInternal) {
+                  <a
+                    class="main-nav-link text-xl font-bold no-underline text-color"
+                    [routerLink]="navLink.path"
+                    [fragment]="navLink.fragment"
+                    [class.is-active]="isCurrentRouteLink(navLink)"
+                    [attr.aria-current]="isCurrentRouteLink(navLink) ? 'page' : null"
+                  >
+                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
+                    {{ link.label }}
+                  </a>
+                } @else {
+                  <a class="main-nav-link text-xl font-bold no-underline text-color" [attr.href]="navLink.href">
+                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
+                    {{ link.label }}
+                  </a>
+                }
+              </li>
+            }
+          }
+        </ul>
+      </nav>
+
+      <div class="header-search-shell flex-shrink-0" style="width: 300px;">
+          <form
+            class="header-search-form"
+            id="search-panel"
+            role="search"
+            [attr.aria-label]="appCopy().searchHeading"
+            [attr.title]="appCopy().searchHeading"
+            (submit)="performSearch($event)"
+          >
+            <label class="sr-only" for="site-search">{{ appCopy().searchLabel }}</label>
+            <p id="site-search-note" class="sr-only">{{ appCopy().searchNote }}</p>
+            <p-inputgroup class="search-control-row header-search-row flex gap-3">
+              <input
+                pInputText
+                id="site-search"
+                name="site-search"
+                class="header-search search-input"
+                [ngModel]="searchDraftQuery()"
+                (ngModelChange)="updateSearch($event)"
+                [ngModelOptions]="{ standalone: true }"
+                [attr.aria-label]="appCopy().searchLabel"
+                aria-describedby="site-search-note"
+                [attr.placeholder]="appCopy().searchPlaceholder"
+                [attr.title]="appCopy().searchPlaceholder"
+                autocomplete="off"
+                enterkeyhint="search"
+                spellcheck="false"
+              />
+              <p-button
+                type="submit"
+                [label]="appCopy().searchActionLabel"
+                [ariaLabel]="appCopy().searchActionLabel"
+                severity="secondary"
+                styleClass="search-submit header-search-submit"
+                [attr.title]="appCopy().searchActionLabel"
+              />
+            </p-inputgroup>
+
+            @if (searchDraftQuery().trim()) {
+              @if (isSearchPending()) {
+                <div class="search-results search-results--loading grid gap-3" aria-live="polite" aria-busy="true">
+                  <article class="search-result-skeleton shimmer" aria-hidden="true">
+                    <p-skeleton class="shimmer shimmer--line shimmer--title" width="48%" height="1rem" />
+                    <p-skeleton class="shimmer shimmer--line" width="86%" height="0.9rem" />
+                    <p-skeleton class="shimmer shimmer--line shimmer--meta" width="32%" height="0.8rem" />
+                  </article>
+                  <article class="search-result-skeleton shimmer" aria-hidden="true">
+                    <p-skeleton class="shimmer shimmer--line shimmer--title" width="42%" height="1rem" />
+                    <p-skeleton class="shimmer shimmer--line" width="80%" height="0.9rem" />
+                    <p-skeleton class="shimmer shimmer--line shimmer--meta" width="28%" height="0.8rem" />
+                  </article>
+                </div>
+              } @else if (searchResults().length) {
+                <div class="search-results grid gap-3" role="list" aria-live="polite" aria-atomic="false" [attr.aria-label]="appCopy().searchHeading">
+                  @for (result of searchResults(); track result.href + result.title) {
+                    @if (resolveAppLink(result.href); as searchResultLink) {
+                      @if (searchResultLink.isInternal) {
+                        <a
+                          class="search-result"
+                          role="listitem"
+                          [routerLink]="searchResultLink.path"
+                          [fragment]="searchResultLink.fragment"
+                        >
+                          <strong>{{ result.title }}</strong>
+                          <span>{{ result.summary }}</span>
+                          <small>{{ result.category }}</small>
+                        </a>
+                      } @else {
+                        <a class="search-result" role="listitem" [attr.href]="searchResultLink.href">
+                          <strong>{{ result.title }}</strong>
+                          <span>{{ result.summary }}</span>
+                          <small>{{ result.category }}</small>
+                        </a>
+                      }
+                    }
+                  }
+                </div>
+              } @else {
+                <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
+              }
+            }
+          </form>
+        </div>
+      </div>
+
+    @if (!isFeaturePageMode()) {
+      <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
+        <figure class="hero-landing-media">
+          <img
+            [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
+            ngSrcset="800w, 1184w"
+            [attr.alt]="appCopy().heroImageAlt"
+            fill
+            priority
+            sizes="100vw"
+          />
+        </figure>
+        <div class="hero-landing-scrim"></div>
+
+        <article class="hero-landing-inner hero-content">
+          <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
+        </article>
+      </section>
+    }
+  </header>

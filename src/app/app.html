@@ -55,200 +55,109 @@
     </p-card>
   }
 
-  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner">
-    <div class="header-top">
-      <a class="town-logo" routerLink="/" href="/" aria-label="Town of Wiley home">
-        <div class="official-badge" aria-hidden="true">
-          <strong>WELCOME TO</strong><br />
-          TOWN OF WILEY<br />
-          WEBSITE
-        </div>
-      </a>
+  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner"></header>
 
-      <nav
-        class="main-nav"
-        [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
-        data-testid="homepage-section-nav"
-      >
-        <ul class="main-nav-list" role="list">
-          @for (link of appCopy().navLinks; track link.href) {
-            @if (resolveAppLink(link.href); as navLink) {
-              <li class="main-nav-item">
-                @if (navLink.isInternal) {
-                  <a
-                    class="main-nav-link"
-                    [routerLink]="navLink.path"
-                    [fragment]="navLink.fragment"
-                    [class.is-active]="isCurrentRouteLink(navLink)"
-                    [attr.aria-current]="isCurrentRouteLink(navLink) ? 'page' : null"
-                  >
-                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
-                    {{ link.label }}
-                  </a>
-                } @else {
-                  <a class="main-nav-link" [attr.href]="navLink.href">
-                    @if (link.icon) {<i [class]="link.icon" aria-hidden="true"></i>}
-                    {{ link.label }}
-                  </a>
-                }
-              </li>
-            }
-          }
-        </ul>
+  <div class="mobile-menu-bar">
+    <button
+      type="button"
+      class="mobile-menu-button"
+      [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
+      [attr.aria-expanded]="sidebarVisible()"
+      aria-controls="mobile-menu-drawer"
+      (click)="openMobileMenu()"
+    >
+      <i class="pi pi-bars" aria-hidden="true"></i>
+      <span>Menu</span>
+    </button>
+  </div>
+
+  <p-megamenu
+    [model]="menuItems()"
+    orientation="horizontal"
+    styleClass="desktop-mega-menu w-full border-none shadow-sm mega-menu-civic"
+    [style]="{ 'background': 'rgba(255,255,255,0.95)', 'backdrop-filter': 'blur(12px)' }"
+  >
+    <ng-template #item let-item>
+      @if (item.root) {
+        <a
+          pRipple
+          class="mega-menu-root-link"
+          [routerLink]="item.routerLink"
+          [fragment]="item.fragment"
+          [attr.href]="item.url"
+          (click)="item.command ? item.command($event) : null"
+        >
+          @if (item.icon) { <i [class]="item.icon" aria-hidden="true"></i> }
+          <span>{{ item.label }}</span>
+          @if (item.items) { <i class="pi pi-angle-down" aria-hidden="true"></i> }
+        </a>
+      } @else {
+        <a
+          pRipple
+          class="mega-menu-sub-link"
+          [routerLink]="item.routerLink"
+          [fragment]="item.fragment"
+          [attr.href]="item.url"
+          (click)="activateMegaMenuItem(item, $event)"
+        >
+          @if (item.icon) { <i [class]="item.icon" aria-hidden="true"></i> }
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </ng-template>
+  </p-megamenu>
+
+  <p-drawer
+    id="mobile-menu-drawer"
+    [(visible)]="sidebarVisible"
+    position="left"
+    styleClass="mobile-menu-drawer"
+    [modal]="true"
+    [dismissible]="true"
+    [showCloseIcon]="true"
+    (onHide)="closeMobileMenu()"
+  >
+    <div class="mobile-menu-drawer-content">
+      <p class="mobile-menu-kicker">{{ appCopy().homepageSectionsAriaLabel }}</p>
+      <nav class="mobile-menu-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
+        <a routerLink="/" (click)="closeMobileMenu()">Home</a>
+        <a routerLink="/weather" (click)="closeMobileMenu()">{{ appCopy().featureTitles.weather }}</a>
+        <a routerLink="/notices" (click)="closeMobileMenu()">{{ appCopy().featureTitles.notices }}</a>
+        <a routerLink="/meetings" (click)="closeMobileMenu()">{{ appCopy().featureTitles.meetings }}</a>
+        <div class="mobile-menu-group">
+          <span>{{ appCopy().featureTitles.services }}</span>
+          <a routerLink="/services" fragment="payment-help" (click)="closeMobileMenu()">Online Payments</a>
+          <a routerLink="/services" fragment="issue-report" (click)="closeMobileMenu()">Report Street/Utility Issue</a>
+          <a routerLink="/services" fragment="records-request" (click)="closeMobileMenu()">Permits &amp; Licenses</a>
+          <a routerLink="/weather" (click)="closeMobileMenu()">Weather &amp; Emergency Alerts</a>
+          <a routerLink="/accessibility" (click)="closeMobileMenu()">Language Access</a>
+          <a routerLink="/" fragment="search-panel" (click)="closeMobileMenu()">Search All Services</a>
+        </div>
+        <a routerLink="/records" (click)="closeMobileMenu()">{{ appCopy().featureTitles.records }}</a>
+        <a routerLink="/contact" (click)="closeMobileMenu()">{{ appCopy().featureTitles.contact }}</a>
       </nav>
-
-      <div class="header-right">
-        <div class="site-language-switcher inline-grid justify-items-end gap-2" [attr.aria-label]="appCopy().languageLabel">
-          <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-          <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
-            @for (choice of languageChoices(); track choice.value) {
-              <button
-                type="button"
-                class="site-language-button"
-                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
-                [class.is-active]="siteLanguage() === choice.value"
-                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
-                [attr.aria-pressed]="siteLanguage() === choice.value"
-                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
-                (click)="updateSiteLanguage(choice.value)"
-              >
-                {{ choice.label }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="info-buttons">
-          @if (primaryContact(); as primaryContact) {
-            <a
-              class="header-meta-link button-cta button-cta--light"
-              [attr.href]="primaryContact.href ?? '/contact'"
-            >
-              <i class="pi pi-phone" aria-hidden="true"></i>
-              <strong>{{ primaryContact.label }}</strong>
-              <span>{{ primaryContact.value }}</span>
-            </a>
-          }
-
-          <a routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)" class="header-meta-link button-cta button-cta--light">
-            <i class="pi pi-calendar" aria-hidden="true"></i>
-            <strong>{{ appCopy().meetingsKicker }}</strong>
-            <span>{{ appCopy().openCalendarLabel }}</span>
-          </a>
-
-          <a routerLink="/" fragment="top-tasks" class="header-meta-link button-cta button-cta--light">
-            <i class="pi pi-list" aria-hidden="true"></i>
-            <strong>{{ appCopy().topTasksKicker }}</strong>
-            <span>{{ appCopy().topTasksHeading }}</span>
-          </a>
-        </div>
-
-        <div class="header-search-shell">
-          <form
-            class="header-search-form"
-            id="search-panel"
-            role="search"
-            [attr.aria-label]="appCopy().searchHeading"
-            [attr.title]="appCopy().searchHeading"
-            (submit)="performSearch($event)"
-          >
-            <label class="sr-only" for="site-search">{{ appCopy().searchLabel }}</label>
-            <p id="site-search-note" class="sr-only">{{ appCopy().searchNote }}</p>
-            <p-inputgroup class="search-control-row header-search-row flex gap-3">
-              <input
-                pInputText
-                id="site-search"
-                name="site-search"
-                class="header-search search-input"
-                [ngModel]="searchDraftQuery()"
-                (ngModelChange)="updateSearch($event)"
-                [ngModelOptions]="{ standalone: true }"
-                [attr.aria-label]="appCopy().searchLabel"
-                aria-describedby="site-search-note"
-                [attr.placeholder]="appCopy().searchPlaceholder"
-                [attr.title]="appCopy().searchPlaceholder"
-                autocomplete="off"
-                enterkeyhint="search"
-                spellcheck="false"
-              />
-              <p-button
-                type="submit"
-                [label]="appCopy().searchActionLabel"
-                [ariaLabel]="appCopy().searchActionLabel"
-                severity="secondary"
-                styleClass="search-submit header-search-submit"
-                [attr.title]="appCopy().searchActionLabel"
-              />
-            </p-inputgroup>
-
-            @if (searchDraftQuery().trim()) {
-              @if (isSearchPending()) {
-                <div class="search-results search-results--loading grid gap-3" aria-live="polite" aria-busy="true">
-                  <article class="search-result-skeleton shimmer" aria-hidden="true">
-                    <p-skeleton class="shimmer shimmer--line shimmer--title" width="48%" height="1rem" />
-                    <p-skeleton class="shimmer shimmer--line" width="86%" height="0.9rem" />
-                    <p-skeleton class="shimmer shimmer--line shimmer--meta" width="32%" height="0.8rem" />
-                  </article>
-                  <article class="search-result-skeleton shimmer" aria-hidden="true">
-                    <p-skeleton class="shimmer shimmer--line shimmer--title" width="42%" height="1rem" />
-                    <p-skeleton class="shimmer shimmer--line" width="80%" height="0.9rem" />
-                    <p-skeleton class="shimmer shimmer--line shimmer--meta" width="28%" height="0.8rem" />
-                  </article>
-                </div>
-              } @else if (searchResults().length) {
-                <div class="search-results grid gap-3" role="list" aria-live="polite" aria-atomic="false" [attr.aria-label]="appCopy().searchHeading">
-                  @for (result of searchResults(); track result.href + result.title) {
-                    @if (resolveAppLink(result.href); as searchResultLink) {
-                      @if (searchResultLink.isInternal) {
-                        <a
-                          class="search-result"
-                          role="listitem"
-                          [routerLink]="searchResultLink.path"
-                          [fragment]="searchResultLink.fragment"
-                        >
-                          <strong>{{ result.title }}</strong>
-                          <span>{{ result.summary }}</span>
-                          <small>{{ result.category }}</small>
-                        </a>
-                      } @else {
-                        <a class="search-result" role="listitem" [attr.href]="searchResultLink.href">
-                          <strong>{{ result.title }}</strong>
-                          <span>{{ result.summary }}</span>
-                          <small>{{ result.category }}</small>
-                        </a>
-                      }
-                    }
-                  }
-                </div>
-              } @else {
-                <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
-              }
-            }
-          </form>
-        </div>
-      </div>
     </div>
+  </p-drawer>
 
-    @if (!isFeaturePageMode()) {
-      <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
-        <figure class="hero-landing-media">
-          <img
-            [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
-            ngSrcset="800w, 1184w"
-            [attr.alt]="appCopy().heroImageAlt"
-            fill
-            priority
-            sizes="100vw"
-          />
-        </figure>
-        <div class="hero-landing-scrim"></div>
+  @if (!isFeaturePageMode()) {
+    <section class="hero-landing hero" aria-labelledby="site-hero-title" data-testid="homepage-hero">
+      <figure class="hero-landing-media">
+        <img
+          [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
+          ngSrcset="800w, 1184w"
+          [attr.alt]="appCopy().heroImageAlt"
+          fill
+          priority
+          sizes="100vw"
+        />
+      </figure>
+      <div class="hero-landing-scrim"></div>
 
-        <article class="hero-landing-inner hero-content">
-          <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
-        </article>
-      </section>
-    }
-  </header>
+      <article class="hero-landing-inner hero-content">
+        <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
+      </article>
+    </section>
+  }
 
   @if (homepageWeatherAlert(); as alert) {
     <p-card
@@ -360,53 +269,61 @@
                       appCopy().calendarBridgeLabel
                     }}</a>
                   </section>
-                  <aside
-                    class="calendar-overview"
+
+                  <p-card
+                    class="calendar-overview-card"
                     [attr.aria-label]="appCopy().calendarStatusAriaLabel"
                   >
-                    <p class="meta-label">{{ calendarOverview().statusKicker }}</p>
+                    <ng-template #title>
+                      <span class="meta-label">{{ calendarOverview().statusKicker }}</span>
+                    </ng-template>
+
                     <strong>{{ calendarOverview().summary }}</strong>
                     <p class="calendar-overview-copy">{{ calendarOverview().detail }}</p>
                     <div class="calendar-overview-next">
                       <span>{{ calendarOverview().nextEventLabel }}</span>
                       <strong>{{ calendarOverview().nextEventValue }}</strong>
                     </div>
-                  </aside>
+                  </p-card>
                 </header>
 
-                <section class="calendar-tools" aria-labelledby="calendar-heading">
-                  <section class="calendar-tool">
-                    <label class="calendar-tool-label" for="calendar-jump-month">
-                      {{ appCopy().calendarJumpLabel }}
-                    </label>
-                    <p-datepicker
-                      inputId="calendar-jump-month"
-                      [ngModel]="calendarJumpMonth()"
-                      (ngModelChange)="updateCalendarJumpMonth($event)"
-                      view="month"
-                      dateFormat="mm/yy"
-                      [showIcon]="true"
-                      [showButtonBar]="true"
-                      [readonlyInput]="true"
-                      [placeholder]="appCopy().calendarJumpPlaceholder"
-                    />
-                    @if (calendarJumpMonth(); as selectedMonth) {
-                      <p class="calendar-jump-note">
-                        {{ appCopy().calendarJumpCurrentLabel }}
-                        {{ formatCalendarMonth(selectedMonth) }}
-                      </p>
-                    }
-                  </section>
+                <p-toolbar class="calendar-tools-toolbar" aria-labelledby="calendar-heading">
+                  <ng-template #start>
+                    <section class="calendar-tool">
+                      <label class="calendar-tool-label" for="calendar-jump-month">
+                        {{ appCopy().calendarJumpLabel }}
+                      </label>
+                      <p-datepicker
+                        inputId="calendar-jump-month"
+                        [ngModel]="calendarJumpMonth()"
+                        (ngModelChange)="updateCalendarJumpMonth($event)"
+                        view="month"
+                        dateFormat="mm/yy"
+                        [showIcon]="true"
+                        [showButtonBar]="true"
+                        [readonlyInput]="true"
+                        [placeholder]="appCopy().calendarJumpPlaceholder"
+                      />
+                      @if (calendarJumpMonth(); as selectedMonth) {
+                        <p class="calendar-jump-note">
+                          {{ appCopy().calendarJumpCurrentLabel }}
+                          {{ formatCalendarMonth(selectedMonth) }}
+                        </p>
+                      }
+                    </section>
+                  </ng-template>
 
-                  <p-button
-                    type="button"
-                    [label]="appCopy().calendarHelpButtonLabel"
-                    icon="pi pi-question-circle"
-                    severity="secondary"
-                    styleClass="calendar-help-button"
-                    (onClick)="openCalendarHelp()"
-                  />
-                </section>
+                  <ng-template #end>
+                    <p-button
+                      type="button"
+                      [label]="appCopy().calendarHelpButtonLabel"
+                      icon="pi pi-question-circle"
+                      severity="secondary"
+                      styleClass="calendar-help-button"
+                      (onClick)="openCalendarHelp()"
+                    />
+                  </ng-template>
+                </p-toolbar>
 
                 <p-tabs class="calendar-tabs" [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
                   <p-tablist [attr.aria-label]="appCopy().meetingsHeading">
@@ -788,93 +705,101 @@
               @if (resolveAppLink(task.href); as taskLink) {
                 @if (taskLink.isInternal) {
                   <a class="task-card" [routerLink]="taskLink.path" [fragment]="taskLink.fragment">
-                    <span class="task-card-icon" aria-hidden="true">
-                      @switch (taskIndex) {
-                        @case (0) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M4 7.5h16" />
-                            <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                            <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
-                            <path d="M9 12h6" />
-                          </svg>
-                        }
-                        @case (1) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M12 20v-7" />
-                            <path d="M8 17l4 3 4-3" />
-                            <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
-                          </svg>
-                        }
-                        @case (2) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <rect x="4" y="5" width="16" height="15" rx="2" />
-                            <path d="M8 3v4" />
-                            <path d="M16 3v4" />
-                            <path d="M4 10h16" />
-                            <path d="M8 14h3" />
-                          </svg>
-                        }
-                        @default {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M7 4h8l4 4v12H7z" />
-                            <path d="M15 4v4h4" />
-                            <path d="M10 13h6" />
-                            <path d="M10 17h4" />
-                          </svg>
-                        }
-                      }
-                    </span>
+                    <p-card styleClass="task-card-surface">
+                      <div class="task-card-inner">
+                        <span class="task-card-icon" aria-hidden="true">
+                          @switch (taskIndex) {
+                            @case (0) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M4 7.5h16" />
+                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
+                                <path d="M9 12h6" />
+                              </svg>
+                            }
+                            @case (1) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M12 20v-7" />
+                                <path d="M8 17l4 3 4-3" />
+                                <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
+                              </svg>
+                            }
+                            @case (2) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <rect x="4" y="5" width="16" height="15" rx="2" />
+                                <path d="M8 3v4" />
+                                <path d="M16 3v4" />
+                                <path d="M4 10h16" />
+                                <path d="M8 14h3" />
+                              </svg>
+                            }
+                            @default {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M7 4h8l4 4v12H7z" />
+                                <path d="M15 4v4h4" />
+                                <path d="M10 13h6" />
+                                <path d="M10 17h4" />
+                              </svg>
+                            }
+                          }
+                        </span>
 
-                    <div class="task-card-copy">
-                      <strong>{{ task.title }}</strong>
-                      <span>{{ task.description }}</span>
-                      <small>{{ task.note }}</small>
-                    </div>
+                        <div class="task-card-copy">
+                          <strong>{{ task.title }}</strong>
+                          <span>{{ task.description }}</span>
+                          <small>{{ task.note }}</small>
+                        </div>
+                      </div>
+                    </p-card>
                   </a>
                 } @else {
                   <a class="task-card" [attr.href]="taskLink.href">
-                    <span class="task-card-icon" aria-hidden="true">
-                      @switch (taskIndex) {
-                        @case (0) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M4 7.5h16" />
-                            <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                            <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
-                            <path d="M9 12h6" />
-                          </svg>
-                        }
-                        @case (1) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M12 20v-7" />
-                            <path d="M8 17l4 3 4-3" />
-                            <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
-                          </svg>
-                        }
-                        @case (2) {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <rect x="4" y="5" width="16" height="15" rx="2" />
-                            <path d="M8 3v4" />
-                            <path d="M16 3v4" />
-                            <path d="M4 10h16" />
-                            <path d="M8 14h3" />
-                          </svg>
-                        }
-                        @default {
-                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                            <path d="M7 4h8l4 4v12H7z" />
-                            <path d="M15 4v4h4" />
-                            <path d="M10 13h6" />
-                            <path d="M10 17h4" />
-                          </svg>
-                        }
-                      }
-                    </span>
+                    <p-card styleClass="task-card-surface">
+                      <div class="task-card-inner">
+                        <span class="task-card-icon" aria-hidden="true">
+                          @switch (taskIndex) {
+                            @case (0) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M4 7.5h16" />
+                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
+                                <path d="M9 12h6" />
+                              </svg>
+                            }
+                            @case (1) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M12 20v-7" />
+                                <path d="M8 17l4 3 4-3" />
+                                <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
+                              </svg>
+                            }
+                            @case (2) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <rect x="4" y="5" width="16" height="15" rx="2" />
+                                <path d="M8 3v4" />
+                                <path d="M16 3v4" />
+                                <path d="M4 10h16" />
+                                <path d="M8 14h3" />
+                              </svg>
+                            }
+                            @default {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M7 4h8l4 4v12H7z" />
+                                <path d="M15 4v4h4" />
+                                <path d="M10 13h6" />
+                                <path d="M10 17h4" />
+                              </svg>
+                            }
+                          }
+                        </span>
 
-                    <div class="task-card-copy">
-                      <strong>{{ task.title }}</strong>
-                      <span>{{ task.description }}</span>
-                      <small>{{ task.note }}</small>
-                    </div>
+                        <div class="task-card-copy">
+                          <strong>{{ task.title }}</strong>
+                          <span>{{ task.description }}</span>
+                          <small>{{ task.note }}</small>
+                        </div>
+                      </div>
+                    </p-card>
                   </a>
                 }
               }
@@ -974,7 +899,7 @@
         </section>
       </section>
 
-      <section [class]="isAssistantEnabled ? 'support-strip grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]' : 'support-strip grid gap-8'">
+      <section class="support-strip grid gap-8">
         <p-card class="hero-card stay-informed-card" [pt]="supportCardPt" aria-labelledby="stay-informed-heading">
           <p class="section-kicker">Stay Informed</p>
           <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
@@ -1008,15 +933,6 @@
             </a>
           </section>
         </p-card>
-
-        @if (isAssistantEnabled) {
-          <p-card class="chatbot-panel panel" id="chatbot-panel" [pt]="supportCardPt" aria-labelledby="chatbot-heading">
-            <p class="section-kicker">Chat with Wiley</p>
-            <h2 id="chatbot-heading">Town Assistant</h2>
-
-            <app-ai-chat />
-          </p-card>
-        }
       </section>
     }
 
@@ -1062,3 +978,6 @@
     </p-dialog>
   }
 }
+
+
+

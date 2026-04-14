@@ -1,0 +1,46 @@
+  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner">
+    <p-megamenu [model]="menuItems()" styleClass="w-full border-none border-round-none shadow-none">
+        <ng-template #start>
+            <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8">
+                <path d="M25.87 18.05L23.16 17.45L25.27 20.46V29.78L32.49 23.76V13.53L29.18 14.73L25.87 18.05Z" fill="var(--p-primary-color)" />
+                <path d="M25.27 35.4L16.64 40L8.03 35.4V23.67L16.64 28.5L25.27 23.67V35.4Z" fill="var(--p-primary-color)" />
+                <path d="M13.88 9.38L10.56 8.18L3.34 14.2V24.43L10.56 18.4L8.45 15.4L11.16 16L13.88 9.38Z" fill="var(--p-primary-color)" />
+                <path d="M16.64 4L22.25 0L27.87 4V10.14L22.25 14L16.64 10.14V4Z" fill="var(--p-primary-color)" />
+                <path d="M2.51 29.74L0.26 27.64L0 35.44L7.54 35.91L5.19 33.72L10.87 28.63L8.2 25.56L2.51 29.74Z" fill="var(--p-text-color)" />
+                <path d="M31.28 35.91L38.83 35.44L38.56 27.64L36.31 29.74L30.63 25.56L27.96 28.63L33.64 33.72L31.28 35.91Z" fill="var(--p-text-color)" />
+            </svg>
+        </ng-template>
+        <ng-template #item let-item>
+            <a *ngIf="item.root" pRipple class="flex align-items-center cursor-pointer px-4 py-2 bg-transparent hover:surface-100 dark:hover:surface-800 border-round-md transition-all transition-duration-200 text-color no-underline font-bold text-sm uppercase letter-spacing-1 hover:text-primary" [routerLink]="item.routerLink" [fragment]="item.fragment" [attr.href]="item.url" (click)="item.command ? item.command($event) : null">
+                <i *ngIf="item.icon" [class]="item.icon + ' mr-2'"></i>
+                <span class="font-medium">{{ item.label }}</span>
+                <i *ngIf="item.items" class="pi pi-angle-down ml-auto"></i>
+            </a>
+            <a *ngIf="!item.root" pRipple class="flex align-items-center cursor-pointer px-4 py-2 hover:surface-100 dark:hover:surface-800 border-round-md transition-all transition-duration-200 text-color no-underline" [routerLink]="item.routerLink" [fragment]="item.fragment" [attr.href]="item.url" (click)="item.command ? item.command($event) : null">
+                <i *ngIf="item.icon" [class]="item.icon + ' mr-2'"></i>
+                <span class="ml-2">{{ item.label }}</span>
+            </a>
+        </ng-template>
+        <ng-template #end>
+            <div class="flex align-items-center gap-3">
+              <!-- Utility Buttons (Search + Top Tasks + Primary Contact + Language Switcher + AI Chat) -->
+              <p-button icon="pi pi-search" [rounded]="true" [text]="true" severity="secondary" (onClick)="focusSearch()" />
+              <app-localized-ai-chat />
+              @for (choice of languageChoices(); track choice.value) {
+                <button
+                  type="button"
+                  class="w-auto border-none border-round-xl p-1 px-2 font-bold cursor-pointer transition-colors transition-duration-150"
+                  [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                  [class]="siteLanguage() === choice.value ? 'bg-primary text-white' : 'bg-transparent text-color hover:surface-200'"
+                  [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                  [attr.aria-pressed]="siteLanguage() === choice.value"
+                  [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                  (click)="updateSiteLanguage(choice.value)"
+                >
+                  {{ choice.label }}
+                </button>
+              }
+            </div>
+        </ng-template>
+    </p-megamenu>
+  </header>

@@ -85,6 +85,7 @@
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
     "@angular/platform-browser-dynamic": "^21.2.5",
+    "@applitools/eyes-playwright": "^1.46.5",
     "@axe-core/playwright": "^4.11.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",

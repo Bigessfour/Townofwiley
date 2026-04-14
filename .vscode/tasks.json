@@ -80,6 +80,11 @@
 			"type": "shell",
 			"command": "trunk fmt",
 			"group": "build"
+		},
+		{
+			"label": "Update ai chat html",
+			"type": "shell",
+			"command": "node fix_ai_chat.js"
 		}
 	]
 }
