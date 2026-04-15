@@ -133,7 +133,7 @@ describe('LocalizedCmsContentStore', () => {
             {
               id: 'water-outage',
               title: 'Water outage on Main Street',
-              date: '2026-04-05',
+              date: '2026-04-18',
               detail: 'Crews will repair a broken main from 10 PM until approximately 2 AM.',
               priority: 2,
               active: true,

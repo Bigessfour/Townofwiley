@@ -147,6 +147,10 @@ describe('App', () => {
       'Town of Wiley | Official Website',
     );
     expect(compiled.querySelector('#accessibility')).toBeNull();
+    expect(compiled.querySelector('#search-panel')).not.toBeNull();
+    expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
+      'Search Wiley services',
+    );
     expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
       'Accessibility statement',
     );
@@ -162,6 +166,7 @@ describe('App', () => {
     const component = fixture.componentInstance as App & {
       menuItems: () => {
         label: string;
+        root?: boolean;
         routerLink?: string;
         fragment?: string;
         url?: string;
@@ -171,6 +176,7 @@ describe('App', () => {
 
     const servicesMenu = component.menuItems().find((item) => item.label === 'Resident services');
 
+  expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
     expect(servicesMenu).toBeDefined();
     expect(servicesMenu?.items).toHaveLength(2);
     expect(servicesMenu?.items?.[0]).toMatchObject([

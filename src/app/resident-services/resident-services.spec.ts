@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { ResidentServices } from './resident-services';
 
 type ResidentServicesTestHarness = ResidentServices & {
@@ -16,7 +17,7 @@ describe('ResidentServices', () => {
   it('shows field-level validation messages for invalid payment inputs', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideRouter([])],
     });
 
     const fixture = TestBed.createComponent(ResidentServices);
@@ -37,7 +38,7 @@ describe('ResidentServices', () => {
   it('returns an invalid email message for bad email input', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideRouter([])],
     });
 
     const fixture = TestBed.createComponent(ResidentServices);

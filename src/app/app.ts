@@ -1435,11 +1435,12 @@ export class App {
     const copy = this.appCopy();
 
     return [
-      { label: 'Home', routerLink: '/' },
-      { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
-      { label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
-      { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+      { root: true, label: 'Home', routerLink: '/' },
+      { root: true, label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
+      { root: true, label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
+      { root: true, label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
       {
+        root: true,
         label: copy.featureTitles.services,
         icon: 'pi pi-cog',
         items: [
@@ -1455,8 +1456,8 @@ export class App {
           ]
         ]
       },
-      { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
-      { label: copy.featureTitles.contact, routerLink: '/contact', icon: 'pi pi-envelope' },
+      { root: true, label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
+      { root: true, label: copy.featureTitles.contact, routerLink: '/contact', icon: 'pi pi-envelope' },
     ];
   });
 

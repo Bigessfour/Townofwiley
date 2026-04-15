@@ -305,6 +305,61 @@
   align-items: start;
 }
 
+.town-logo,
+.header-search-shell,
+.header-search-form,
+.header-search-row,
+.main-nav {
+  min-width: 0;
+}
+
+.town-logo {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  text-decoration: none;
+  color: inherit;
+}
+
+.town-logo strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  line-height: 1;
+  color: var(--ink-900);
+}
+
+.official-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 2rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--header-border);
+  border-radius: var(--radius-full);
+  background: var(--header-link-surface);
+  color: var(--civic-rust);
+  font-size: var(--font-size-kicker);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-search-shell {
+  width: 100%;
+  max-width: 32rem;
+  justify-self: end;
+}
+
+.header-search-form {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.header-search-row {
+  display: flex;
+  align-items: center;
+}
+
 .header-right,
 .header-search-shell,
 .header-search-form,
@@ -871,6 +926,8 @@ h3 {
 }
 
 .search-panel {
+  display: grid;
+  gap: var(--space-lg);
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background:
@@ -1094,6 +1151,45 @@ h3 {
 
 .search-panel::before {
   display: none;
+}
+
+.search-panel-header,
+.search-form {
+  min-width: 0;
+}
+
+.search-panel-copy,
+.search-note {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.search-control-row {
+  display: flex;
+  align-items: center;
+}
+
+.header-search-shell .search-input,
+.header-search-shell .search-submit {
+  min-height: 3rem;
+}
+
+:host ::ng-deep .search-control-row .search-input.p-inputtext {
+  width: 100%;
+  min-height: 3.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--ink-900);
+}
+
+:host ::ng-deep .search-control-row .search-input.p-inputtext::placeholder {
+  color: rgba(13, 44, 84, 0.55);
+}
+
+:host ::ng-deep .search-control-row .search-input.p-inputtext:focus-visible {
+  border-color: rgba(212, 161, 75, 0.72);
 }
 
 .search-result strong,
@@ -2444,6 +2540,19 @@ button:not(:disabled):active,
 }
 
 @media (max-width: 720px) {
+  .header-top {
+    grid-template-columns: 1fr;
+  }
+
+  .header-right,
+  .header-search-shell {
+    justify-self: stretch;
+  }
+
+  .town-logo {
+    justify-items: start;
+  }
+
   .header-meta-link {
     min-width: 0;
   }
@@ -2712,10 +2821,19 @@ button:not(:disabled):active,
   margin-bottom: var(--space-lg);
 
   .p-menuitem-link {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0.85rem 1.1rem;
     border-radius: 9999px;
     margin: 0 4px;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--ink-900);
+  }
+
+  .p-megamenu-item > .p-menuitem-link {
+    margin: 2px 4px;
   }
 
   .p-megamenu-panel {

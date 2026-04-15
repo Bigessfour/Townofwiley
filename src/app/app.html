@@ -55,7 +55,97 @@
     </p-card>
   }
 
-  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner"></header>
+  <header #headerElement class="site-header" [class.is-feature-page]="isFeaturePageMode()" [class.scrolled]="headerScrolled()" role="banner">
+    <div class="header-main">
+      <div class="header-top">
+        <a class="town-logo" routerLink="/" aria-label="Return to homepage">
+          <span class="official-badge">Official Town Website</span>
+          <strong>{{ pageTitle() }}</strong>
+        </a>
+
+        <nav class="main-nav" data-testid="homepage-section-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
+          <div class="main-nav-list">
+            @for (link of appCopy().navLinks; track link.label) {
+              @if (resolveAppLink(link.href, '/'); as navLink) {
+                <a
+                  class="main-nav-link"
+                  [class.is-active]="isCurrentRouteLink(navLink)"
+                  [routerLink]="navLink.path"
+                  [fragment]="navLink.fragment"
+                  [attr.aria-current]="isCurrentRouteLink(navLink) ? 'page' : null"
+                >
+                  @if (link.icon) { <i [class]="link.icon" aria-hidden="true"></i> }
+                  <span>{{ link.label }}</span>
+                </a>
+              }
+            }
+          </div>
+        </nav>
+
+        <div class="header-right">
+          <div class="site-language-switcher">
+            <span class="site-language-label">{{ appCopy().languageLabel }}</span>
+            <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
+              @for (choice of languageChoices(); track choice.value) {
+                <button
+                  type="button"
+                  class="site-language-button"
+                  [class.is-active]="siteLanguage() === choice.value"
+                  [attr.id]="'site-language-' + choice.value"
+                  [attr.aria-pressed]="siteLanguage() === choice.value"
+                  (click)="updateSiteLanguage(choice.value)"
+                >
+                  {{ choice.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="info-buttons">
+            <a class="header-meta-link" routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)">
+              <i class="pi pi-calendar" aria-hidden="true"></i>
+              <strong>Meetings and Calendar</strong>
+              <span>{{ appCopy().openCalendarLabel }}</span>
+            </a>
+
+            <a class="header-meta-link" routerLink="/" fragment="top-tasks">
+              <i class="pi pi-list" aria-hidden="true"></i>
+              <strong>{{ appCopy().topTasksKicker }}</strong>
+              <span>{{ appCopy().topTasksHeading }}</span>
+            </a>
+
+            <a class="header-meta-link" routerLink="/weather" (click)="trackAlertSignupClick()">
+              <i class="pi pi-bell" aria-hidden="true"></i>
+              <strong>{{ appCopy().nwsAlertLabel }}</strong>
+              <span>{{ appCopy().alertActionLabel }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      @if (!isFeaturePageMode()) {
+        <section class="header-search-shell">
+          <form class="header-search-form" role="search" (submit)="performSearch($event)">
+            <label class="sr-only" for="site-search">{{ appCopy().searchLabel }}</label>
+            <div class="header-search-row search-control-row flex flex-wrap items-center gap-3">
+              <input
+                pInputText
+                id="site-search"
+                class="search-input"
+                type="search"
+                name="siteSearch"
+                [ngModel]="searchDraftQuery()"
+                (ngModelChange)="updateSearch($event)"
+                [placeholder]="appCopy().searchPlaceholder"
+                autocomplete="off"
+              />
+              <p-button type="submit" styleClass="search-submit" [label]="appCopy().searchActionLabel" />
+            </div>
+          </form>
+        </section>
+      }
+    </div>
+  </header>
 
   <div class="mobile-menu-bar">
     <button
@@ -806,6 +896,52 @@
             }
         </section>
 
+      </section>
+
+      <section class="search-panel panel grid gap-6" id="search-panel" aria-labelledby="search-panel-heading">
+        <header class="search-panel-header grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end">
+          <div>
+            <p class="section-kicker">{{ appCopy().searchKicker }}</p>
+            <h2 id="search-panel-heading">{{ appCopy().searchHeading }}</h2>
+          </div>
+          <p class="search-panel-copy">{{ appCopy().searchLabel }}</p>
+        </header>
+
+        <p class="search-note">{{ appCopy().searchNote }}</p>
+
+        @if (isSearchPending()) {
+          <div class="search-results search-results--loading" aria-live="polite" aria-busy="true">
+            @for (_ of [0, 1, 2]; track $index) {
+              <article class="search-result-skeleton shimmer" aria-hidden="true">
+                <p-skeleton class="shimmer shimmer--line shimmer--title" width="12rem" height="1rem" />
+                <p-skeleton class="shimmer shimmer--line" width="100%" height="1rem" />
+                <p-skeleton class="shimmer shimmer--line shimmer--meta" width="8rem" height="0.9rem" />
+              </article>
+            }
+          </div>
+        } @else if (searchResults().length) {
+          <div class="search-results" aria-live="polite">
+            @for (result of searchResults(); track result.href) {
+              @if (resolveAppLink(result.href); as resultLink) {
+                @if (resultLink.isInternal) {
+                  <a class="search-result" [routerLink]="resultLink.path" [fragment]="resultLink.fragment">
+                    <strong>{{ result.title }}</strong>
+                    <span>{{ result.summary }}</span>
+                    <small>{{ result.category }}</small>
+                  </a>
+                } @else {
+                  <a class="search-result" [attr.href]="resultLink.href">
+                    <strong>{{ result.title }}</strong>
+                    <span>{{ result.summary }}</span>
+                    <small>{{ result.category }}</small>
+                  </a>
+                }
+              }
+            }
+          </div>
+        } @else {
+          <p class="empty-state" aria-live="polite">{{ appCopy().searchEmptyState }}</p>
+        }
       </section>
 
       <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">

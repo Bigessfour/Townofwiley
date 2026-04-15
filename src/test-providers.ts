@@ -42,6 +42,22 @@ if (typeof HTMLElement !== 'undefined' && !HTMLElement.prototype.scrollIntoView)
 	};
 }
 
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
+	Object.defineProperty(window, 'matchMedia', {
+		writable: true,
+		value: (query: string) => ({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: noop,
+			removeListener: noop,
+			addEventListener: noop,
+			removeEventListener: noop,
+			dispatchEvent: () => false,
+		}),
+	});
+}
+
 const testProviders: (Provider | EnvironmentProviders)[] = [provideHttpClient(), provideHttpClientTesting()];
 
 export default testProviders;
