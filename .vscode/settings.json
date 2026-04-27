@@ -9,6 +9,7 @@
     "amplify/backend/awscloudformation": true
   },
   "terminal.integrated.hideOnStartup": "never",
+  "terminal.integrated.shellIntegration.enabled": false,
   "terminal.integrated.tabs.enabled": true,
   "terminal.integrated.tabs.hideCondition": "never",
   "terminal.integrated.env.windows": {
@@ -16,7 +17,7 @@
   },
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "trunk.io",
     "editor.formatOnSave": true
   },
   "[html]": {

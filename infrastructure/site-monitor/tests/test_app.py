@@ -55,6 +55,28 @@ class MemoryStateStore:
     self.state[str(item['monitorName'])] = dict(item)
 
 
+class RecordingDynamoClient:
+  def __init__(self) -> None:
+    self.calls: list[dict[str, object]] = []
+    self.items: dict[str, dict[str, object]] = {}
+
+  def get_item(self, **kwargs: object) -> dict[str, object]:
+    self.calls.append({'operation': 'get_item', **kwargs})
+    table_name = str(kwargs['TableName'])
+    key = kwargs['Key']
+    monitor_name = str(key['monitorName']['S'])  # type: ignore[index]
+    item = self.items.get(f'{table_name}:{monitor_name}')
+    return {'Item': dict(item)} if item else {}
+
+  def put_item(self, **kwargs: object) -> dict[str, object]:
+    self.calls.append({'operation': 'put_item', **kwargs})
+    table_name = str(kwargs['TableName'])
+    item = kwargs['Item']
+    monitor_name = str(item['monitorName']['S'])  # type: ignore[index]
+    self.items[f'{table_name}:{monitor_name}'] = dict(item)  # type: ignore[arg-type]
+    return {}
+
+
 class SiteMonitorTests(unittest.TestCase):
   def healthy_fetch_map(self) -> dict[tuple[str, str], object]:
     return {
@@ -236,10 +258,50 @@ class SiteMonitorTests(unittest.TestCase):
 
     response = monitor.handle({'source': 'aws.events', 'detail-type': 'Scheduled Event'})
 
+    self.assertTrue(response['ok'])
+    self.assertEqual(response['status'], 'healthy')
+    failing_checks = [result for result in response['results'] if not result['ok']]
+    self.assertEqual(failing_checks, [])
+
+  def test_route_failure_is_reported_for_http_error(self) -> None:
+    fetch_map = self.healthy_fetch_map()
+    fetch_map[('GET', 'https://townofwiley.gov/news')] = FakeResponse(
+      '<html><body>Town News and Announcements</body></html>',
+      status=503,
+    )
+    monitor, _mailer, _state_store = self.build_monitor(fetch_map)
+
+    response = monitor.handle({'source': 'aws.events', 'detail-type': 'Scheduled Event'})
+
     self.assertFalse(response['ok'])
     failing_checks = [result for result in response['results'] if not result['ok']]
     self.assertEqual(failing_checks[0]['name'], 'news')
-    self.assertIn('missing expected markers', failing_checks[0]['detail'])
+    self.assertEqual(failing_checks[0]['detail'], 'HTTP 503')
+
+  def test_dynamo_state_store_uses_table_name(self) -> None:
+    client = RecordingDynamoClient()
+    store = APP.DynamoStateStore('TownOfWileyDeveloperMonitorState', client)
+
+    store.save_state({'monitorName': 'TownOfWileySiteMonitor', 'status': 'healthy'})
+    self.assertEqual(
+      client.calls[0],
+      {
+        'operation': 'put_item',
+        'TableName': 'TownOfWileyDeveloperMonitorState',
+        'Item': {'monitorName': {'S': 'TownOfWileySiteMonitor'}, 'status': {'S': 'healthy'}},
+      },
+    )
+
+    loaded = store.load_state('TownOfWileySiteMonitor')
+    self.assertEqual(loaded, {'monitorName': 'TownOfWileySiteMonitor', 'status': 'healthy'})
+    self.assertEqual(
+      client.calls[1],
+      {
+        'operation': 'get_item',
+        'TableName': 'TownOfWileyDeveloperMonitorState',
+        'Key': {'monitorName': {'S': 'TownOfWileySiteMonitor'}},
+      },
+    )
 
 
 if __name__ == '__main__':

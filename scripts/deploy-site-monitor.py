@@ -193,26 +193,48 @@ def ensure_lambda_function(
   try:
     details = run_aws(['lambda', 'get-function', '--function-name', function_name])
     run_aws(['lambda', 'update-function-code', '--function-name', function_name, '--zip-file', f'fileb://{archive_path}'])
+    run_aws(['lambda', 'wait', 'function-updated-v2', '--function-name', function_name], expect_json=False)
+
+    def update_configuration() -> None:
+      run_aws(
+        [
+          'lambda',
+          'update-function-configuration',
+          '--function-name',
+          function_name,
+          '--handler',
+          'index.handler',
+          '--runtime',
+          runtime,
+          '--timeout',
+          '60',
+          '--memory-size',
+          '256',
+          '--role',
+          role_arn,
+          '--environment',
+          json.dumps({'Variables': environment}),
+        ],
+      )
+
     run_aws(
       [
         'lambda',
-        'update-function-configuration',
+        'wait',
+        'function-updated-v2',
         '--function-name',
         function_name,
-        '--handler',
-        'index.handler',
-        '--runtime',
-        runtime,
-        '--timeout',
-        '60',
-        '--memory-size',
-        '256',
-        '--role',
-        role_arn,
-        '--environment',
-        json.dumps({'Variables': environment}),
       ],
+      expect_json=False,
     )
+    try:
+      update_configuration()
+    except RuntimeError as error:
+      if 'ResourceConflictException' not in str(error):
+        raise
+
+      run_aws(['lambda', 'wait', 'function-updated-v2', '--function-name', function_name], expect_json=False)
+      update_configuration()
     return details['Configuration']['FunctionArn']
   except RuntimeError:
     details = run_aws(
@@ -299,6 +321,7 @@ def main() -> int:
       'ALERT_SENDER_EMAIL': args.sender_email,
       'ALERT_SENDER_NAME': args.sender_name,
       'MONITOR_NAME': args.monitor_name,
+      'SITE_MONITOR_STATE_TABLE_NAME': args.state_table,
       'SITE_MONITOR_STATE_TABLE_REGION': state_table_region,
     },
   )

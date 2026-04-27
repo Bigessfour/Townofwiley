@@ -1,13 +1,16 @@
+import type { Page } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
 import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 
-async function waitForFonts(page: Parameters<typeof test>[0]['page']): Promise<void> {
+async function waitForFonts(page: Page): Promise<void> {
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
 }
 
 const supportsVisualSnapshots = process.platform === 'win32';
+const useVisualSnapshots =
+  supportsVisualSnapshots || process.env.PLAYWRIGHT_VISUAL_SNAPSHOTS === '1';
 
 test.describe('deterministic regression coverage', () => {
   // eslint-disable-next-line no-empty-pattern
@@ -23,29 +26,28 @@ test.describe('deterministic regression coverage', () => {
 
     await expect(homePage.page.getByTestId('homepage-section-nav')).toMatchAriaSnapshot(`
       - navigation "Homepage sections":
-        - list:
-          - listitem:
-            - link /Top Tasks/
-          - listitem:
-            - link /Weather/
-          - listitem:
-            - link /Notices/
-          - listitem:
-            - link /Meetings/
-          - listitem:
-            - link /Services/
-          - listitem:
-            - link /Records/
-          - listitem:
-            - link /Documents/
-          - listitem:
-            - link /Accessibility/
-          - listitem:
-            - link /Businesses/
-          - listitem:
-            - link /News/
-          - listitem:
-            - link /Contact/
+        - link "Top Tasks":
+          - /url: /#top-tasks
+        - link "Weather":
+          - /url: /weather
+        - link "Notices":
+          - /url: /notices
+        - link "Meetings":
+          - /url: /meetings
+        - link "Services":
+          - /url: /services
+        - link "Records":
+          - /url: /records
+        - link "Documents":
+          - /url: /documents
+        - link "Accessibility":
+          - /url: /accessibility
+        - link "Businesses":
+          - /url: /businesses
+        - link "News":
+          - /url: /news
+        - link "Contact":
+          - /url: /contact
     `);
   });
 
@@ -54,28 +56,25 @@ test.describe('deterministic regression coverage', () => {
 
     await expect(homePage.page.getByRole('group', { name: 'Site language' })).toMatchAriaSnapshot(`
       - group "Site language":
-        - 'button "Site language: ES"': ES
-        - 'button "Site language: EN" [pressed]': EN
+        - button "ES"
+        - button "EN" [pressed]
     `);
   });
 
   test('keeps the homepage hero visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.getByTestId('homepage-hero')).toHaveScreenshot(
-      'homepage-hero.png',
-      {
-        animations: 'disabled',
-        caret: 'hide',
-      },
-    );
+    await expect(homePage.page.getByTestId('homepage-hero')).toHaveScreenshot('homepage-hero.png', {
+      animations: 'disabled',
+      caret: 'hide',
+    });
   });
 
   test('keeps the weather summary card visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.enableWeatherProxy('/mock-weather-visual');
     await homePage.enableAlertSignup('/mock-alert-signup');
@@ -148,7 +147,7 @@ test.describe('deterministic regression coverage', () => {
   });
 
   test('business directory snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Snapshots are bound to Windows CI baseline.');
+    test.skip(!useVisualSnapshots, 'Snapshots are opt-in outside win32.');
     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
@@ -173,7 +172,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps site header visually stable on desktop', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -186,7 +185,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps site header visually stable on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.setViewportSize({ width: 375, height: 667 });
     await homePage.goto();
@@ -200,7 +199,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps top-tasks grid visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -213,7 +212,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps feature-hub cards visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -226,7 +225,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps support strip visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -239,7 +238,7 @@ test.describe('homepage section visual coverage', () => {
   });
 
   test('keeps calendar panel visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
@@ -263,7 +262,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('notices panel snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.page.goto('/notices', { waitUntil: 'domcontentloaded' });
@@ -281,9 +280,8 @@ test.describe('feature panel visual coverage', () => {
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
 
-    await expect(
-      homePage.page.locator('[aria-labelledby="meetings-heading"]'),
-    ).toMatchAriaSnapshot(`
+    await expect(homePage.page.locator('[aria-labelledby="meetings-heading"]'))
+      .toMatchAriaSnapshot(`
       - paragraph: Meetings and Calendar
       - heading "Meeting access and community updates" [level=2]
       - article:
@@ -316,7 +314,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('services panel snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -329,7 +327,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('records panel snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -342,7 +340,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('accessibility panel snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -358,7 +356,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('contact panel snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -371,7 +369,7 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('news page snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
@@ -385,19 +383,16 @@ test.describe('feature panel visual coverage', () => {
   });
 
   test('document hub snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot(
-      'document-hub.png',
-      {
-        animations: 'disabled',
-        caret: 'hide',
-        maxDiffPixelRatio: 0.05,
-      },
-    );
+    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot('document-hub.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
   });
 });
 
@@ -411,20 +406,17 @@ test.describe('homepage subsection visual coverage', () => {
   });
 
   test('keeps civic grid (meetings + notices) visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.goto();
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('.landing-civic-grid')).toHaveScreenshot(
-      'civic-grid.png',
-      {
-        animations: 'disabled',
-        caret: 'hide',
-        maxDiffPixelRatio: 0.05,
-      },
-    );
+    await expect(homePage.page.locator('.landing-civic-grid')).toHaveScreenshot('civic-grid.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
   });
 
   test('keeps site footer visually stable', async ({ homePage }) => {
@@ -505,9 +497,7 @@ test.describe('subcomponent aria contracts', () => {
   test('resident services task picker aria structure', async ({ homePage }) => {
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
 
-    await expect(
-      homePage.page.locator('.resident-service-picker'),
-    ).toMatchAriaSnapshot(`
+    await expect(homePage.page.locator('.resident-service-picker')).toMatchAriaSnapshot(`
       - region "Choose a resident task":
         - paragraph: Choose the service you need and complete the matching form below.
         - button "Pay utility bill Billing support" [pressed]:
@@ -525,9 +515,7 @@ test.describe('subcomponent aria contracts', () => {
   test('records center guides aria structure', async ({ homePage }) => {
     await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
 
-    await expect(
-      homePage.page.locator('.records-center'),
-    ).toMatchAriaSnapshot(`
+    await expect(homePage.page.locator('.records-center')).toMatchAriaSnapshot(`
       - region /Open stable public document destinations/:
         - paragraph
         - heading /document destinations/ [level=3]
@@ -648,4 +636,3 @@ test.describe('mobile responsive visual coverage', () => {
     );
   });
 });
-

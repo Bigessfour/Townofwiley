@@ -59,7 +59,7 @@
     <div class="header-main">
       <div class="header-top">
         <a class="town-logo" routerLink="/" aria-label="Return to homepage">
-          <span class="official-badge">Official Town Website</span>
+          <span class="official-badge">{{ heroContent().status }}</span>
           <strong>{{ pageTitle() }}</strong>
         </a>
 
@@ -104,7 +104,7 @@
           <div class="info-buttons">
             <a class="header-meta-link" routerLink="/meetings" fragment="calendar" (click)="openCalendar($event)">
               <i class="pi pi-calendar" aria-hidden="true"></i>
-              <strong>Meetings and Calendar</strong>
+              <strong>{{ appCopy().meetingsQuickLinkLabel }}</strong>
               <span>{{ appCopy().openCalendarLabel }}</span>
             </a>
 
@@ -157,7 +157,7 @@
       (click)="openMobileMenu()"
     >
       <i class="pi pi-bars" aria-hidden="true"></i>
-      <span>Menu</span>
+      <span>{{ appCopy().mobileMenuLabel }}</span>
     </button>
   </div>
 
@@ -210,18 +210,18 @@
     <div class="mobile-menu-drawer-content">
       <p class="mobile-menu-kicker">{{ appCopy().homepageSectionsAriaLabel }}</p>
       <nav class="mobile-menu-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
-        <a routerLink="/" (click)="closeMobileMenu()">Home</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ appCopy().homeLabel }}</a>
         <a routerLink="/weather" (click)="closeMobileMenu()">{{ appCopy().featureTitles.weather }}</a>
         <a routerLink="/notices" (click)="closeMobileMenu()">{{ appCopy().featureTitles.notices }}</a>
         <a routerLink="/meetings" (click)="closeMobileMenu()">{{ appCopy().featureTitles.meetings }}</a>
         <div class="mobile-menu-group">
           <span>{{ appCopy().featureTitles.services }}</span>
-          <a routerLink="/services" fragment="payment-help" (click)="closeMobileMenu()">Online Payments</a>
-          <a routerLink="/services" fragment="issue-report" (click)="closeMobileMenu()">Report Street/Utility Issue</a>
-          <a routerLink="/services" fragment="records-request" (click)="closeMobileMenu()">Permits &amp; Licenses</a>
-          <a routerLink="/weather" (click)="closeMobileMenu()">Weather &amp; Emergency Alerts</a>
-          <a routerLink="/accessibility" (click)="closeMobileMenu()">Language Access</a>
-          <a routerLink="/" fragment="search-panel" (click)="closeMobileMenu()">Search All Services</a>
+          <a routerLink="/services" fragment="payment-help" (click)="closeMobileMenu()">{{ appCopy().mobileOnlinePaymentsLabel }}</a>
+          <a routerLink="/services" fragment="issue-report" (click)="closeMobileMenu()">{{ appCopy().mobileIssueLabel }}</a>
+          <a routerLink="/services" fragment="records-request" (click)="closeMobileMenu()">{{ appCopy().mobileRecordsLabel }}</a>
+          <a routerLink="/weather" (click)="closeMobileMenu()">{{ appCopy().mobileWeatherAlertsLabel }}</a>
+          <a routerLink="/accessibility" (click)="closeMobileMenu()">{{ appCopy().mobileLanguageAccessLabel }}</a>
+          <a routerLink="/" fragment="search-panel" (click)="closeMobileMenu()">{{ appCopy().mobileSearchAllServicesLabel }}</a>
         </div>
         <a routerLink="/records" (click)="closeMobileMenu()">{{ appCopy().featureTitles.records }}</a>
         <a routerLink="/contact" (click)="closeMobileMenu()">{{ appCopy().featureTitles.contact }}</a>
@@ -244,7 +244,21 @@
       <div class="hero-landing-scrim"></div>
 
       <article class="hero-landing-inner hero-content">
-        <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
+        <div class="hero-landing-copy">
+          <p class="hero-landing-eyebrow">{{ heroContent().eyebrow }}</p>
+          <p class="hero-landing-status">{{ heroContent().status }}</p>
+          <h1 id="site-hero-title" class="town-title">{{ pageTitle() }}</h1>
+          <p class="hero-landing-message">{{ heroContent().message }}</p>
+          <p class="hero-landing-subtext">{{ heroContent().subtext }}</p>
+          <div class="hero-landing-actions">
+            <a class="button-cta button-cta--solid" routerLink="/services">
+              {{ appCopy().heroPrimaryActionLabel }}
+            </a>
+            <a class="button-cta button-cta--ghost" routerLink="/meetings">
+              {{ appCopy().heroSecondaryActionLabel }}
+            </a>
+          </div>
+        </div>
       </article>
     </section>
   }

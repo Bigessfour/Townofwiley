@@ -1,69 +1,59 @@
 import { expect, test } from '../../fixtures/town.fixture';
+import { siteContent } from '../../support/site-content';
 
-test.describe('Feature Pages Details', () => {
-  test('business directory filter works', async ({ homePage }) => {
+test.describe('feature page coverage', () => {
+  test('business directory search keeps verified contact actions available', async ({ homePage }) => {
     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.locator('#business-directory-heading')).toBeVisible();
-    await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
+    await expect(homePage.businessDirectoryHeading).toHaveText(siteContent.cmsHeadings.businesses);
 
-    const searchInput = homePage.page.locator('input[placeholder*="Search by business"]');
-    await expect(searchInput).toBeVisible();
+    await homePage.searchBusinessDirectory('Tempel Grain');
 
-    await searchInput.fill('Bank');
+    const tempelGrainCard = homePage.businessDirectoryCards.filter({ hasText: 'Tempel Grain' });
 
-    await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
-  });
-
-  test('meetings calendar tab interaction', async ({ homePage }) => {
-    await homePage.page.goto('/meetings');
-    // Often there are tabs for calendar vs list, we just click whatever looks like a calendar tab if existing
-    const calendarTab = homePage.page.getByRole('tab', { name: /calendar/i }).first();
-    const eventListTab = homePage.page.getByRole('tab', { name: /event list|list/i }).first();
-
-    if (await calendarTab.isVisible()) {
-      await calendarTab.click();
-    }
-    if (await eventListTab.isVisible()) {
-      await eventListTab.click();
-    }
-    await expect(homePage.page.locator('.meeting-card').first()).toBeVisible();
-  });
-
-  test('document downloads handling', async ({ homePage }) => {
-    await homePage.page.goto('/documents');
-    // Look for a PDF link
-    const pdfLink = homePage.page.locator('a[href*=".pdf"]').first();
-
-    if (await pdfLink.isVisible()) {
-      const popupPromise = homePage.page.waitForEvent('popup');
-      await pdfLink.click();
-      const popup = await popupPromise;
-      expect(popup.url()).toContain('.pdf');
-    }
-  });
-
-  test('contact form error boundary (500 mock)', async ({ homePage }) => {
-    await homePage.page.goto('/contact');
-
-    // We would mock the submit API endpoint to return 500
-    // If there's an API, we can intercept it
-    await homePage.page.route('**/api/contact*', route =>
-      route.fulfill({ status: 500, body: 'Internal Server Error' })
+    await expect(tempelGrainCard).toHaveCount(1);
+    await expect(tempelGrainCard.getByRole('link', { name: 'Visit website' })).toHaveAttribute(
+      'href',
+      'https://www.tempelgrain.com/',
     );
-
-    // Because contact forms can vary, we will just simulate a network delay
-    // rather than form submission for stability
+    await expect(tempelGrainCard.getByRole('link', { name: 'Call' })).toHaveAttribute(
+      'href',
+      'tel:7198294408',
+    );
   });
 
-  test('slow network simulation on homepage', async ({ homePage }) => {
-    await homePage.page.route('**/*', async route => {
-      // Simulate rural internet delay of 500ms
-      await new Promise(resolve => setTimeout(resolve, 500));
-      await route.continue();
+  test('meetings page keeps the calendar and meeting summary reachable', async ({ homePage }) => {
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+
+    const meetingsPanel = homePage.page.locator('[aria-labelledby="meetings-heading"]');
+
+    await expect(meetingsPanel).toContainText('Meeting access and community updates');
+    await expect(homePage.page.getByRole('link', { name: 'Open calendar' })).toHaveAttribute(
+      'href',
+      '/meetings#calendar',
+    );
+    await expect(homePage.page.locator('#calendar')).toBeVisible();
+    await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
+  });
+
+  test('documents page keeps the document hub and archive link visible', async ({ homePage }) => {
+    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+
+    await expect(
+      homePage.page.getByRole('heading', { level: 1, name: siteContent.cmsHeadings.documentsHub }),
+    ).toBeVisible();
+
+    const meetingAccessGuide = homePage.page.locator('article', {
+      hasText: 'City Council Meeting Access Guide',
     });
 
-    await homePage.page.goto('/');
-    await expect(homePage.page.locator('h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(meetingAccessGuide.getByRole('link', { name: 'Open document' })).toHaveAttribute(
+      'href',
+      '/documents/archive/city-council-meeting-access-guide.html',
+    );
+    await expect(meetingAccessGuide.getByRole('link', { name: 'Download file' })).toHaveAttribute(
+      'href',
+      '/documents/archive/city-council-meeting-access-guide.html',
+    );
   });
 });

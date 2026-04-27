@@ -16,6 +16,7 @@ Supported commands:
 - `npm run secrets:lock`
 - `npm run secrets:lock:prune`
 - `npm run secrets:prune-local`
+- `npm run secrets:export-env`
 - `npm run secrets:import-env`
 
 The encrypted lockbox is portable across machines. The passphrase is not committed and must be provided by either:

@@ -191,7 +191,9 @@ export class AccessibilitySupport {
 
     const values = this.reportFormValue();
     const recipient =
-      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
+      this.getEmailAddress(this.clerkContact()) ||
+      this.getEmailAddress(this.townInfoContact()) ||
+      'deb.dillon@townofwiley.gov';
 
     if (!recipient) {
       return null;

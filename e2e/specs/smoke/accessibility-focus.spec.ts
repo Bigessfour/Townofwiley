@@ -1,28 +1,36 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '../../fixtures/town.fixture';
 
-test.describe('Accessibility, Keyboard Focus, and ARIA checks', () => {
-  test('navigation flows and modal interactions manage focus correctly', async ({ page }) => {
-    await page.goto('/');
-    
-    // Press Tab to focus the first interactive element (usually skip link or home link)
-    await page.keyboard.press('Tab');
-    
-    // Assuming the first tab focuses a visible navigation element
-    const firstLink = page.locator('a').first();
-    // Wait for network idle to ensure the app is fully hydrated
-    await page.waitForLoadState('networkidle');
-    
-    // This is a basic smoke check, we just want to ensure Tab works and ARIA is present
-    expect(await page.accessibility.snapshot()).toBeTruthy();
+test.describe('accessibility and focus behavior', () => {
+  test('skip link moves focus to main content', async ({ homePage }) => {
+    await homePage.goto();
+
+    await homePage.page.keyboard.press('Tab');
+
+    await expect(homePage.skipLink).toBeFocused();
+
+    await homePage.page.keyboard.press('Enter');
+
+    await expect(homePage.page).toHaveURL(/#main-content$/);
+    await expect(homePage.mainContent).toBeFocused();
   });
 
-  test('form validation feedback uses appropriate ARIA attributes', async ({ page }) => {
-    await page.goto('/');
-    
-    // We will verify that ARIA attributes are used on the main form or interactive elements
-    // For smoke testing purposes, we ensure no critical ARIA violations crash the page
-    const alerts = page.locator('[role="alert"], [aria-live="polite"], [aria-live="assertive"]');
-    // Just looking for presence or valid page state
-    await expect(page.locator('app-root')).toBeVisible();
+  test('accessibility report fields stay labelled and submission is mailto-based', async ({ homePage }) => {
+    await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.accessibilityReportCard).toBeVisible();
+    await homePage.fillAccessibilityBarrierReport({
+      name: 'Jordan Resident',
+      contact: 'jordan@example.com',
+      page: 'Resident Services > Issue reporting',
+      details: 'The issue report controls are not reachable with keyboard navigation.',
+    });
+    await expect(homePage.accessibilityReportName).toBeVisible();
+    await expect(homePage.accessibilityReportContact).toBeVisible();
+    await expect(homePage.accessibilityReportPage).toBeVisible();
+    await expect(homePage.accessibilityReportDetails).toBeVisible();
+    await expect(homePage.accessibilityReportCard).toContainText('Open accessibility report email');
+    await expect(
+      homePage.page.getByRole('link', { name: 'Email the Clerk · deb.dillon@townofwiley.gov' }),
+    ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');
   });
 });

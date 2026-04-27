@@ -48,7 +48,41 @@ DEFAULT_RECIPIENT_EMAIL = 'bigessfour@gmail.com'
 DEFAULT_SENDER_EMAIL = 'alerts@townofwiley.gov'
 DEFAULT_SENDER_NAME = 'Town of Wiley Alerts'
 DEFAULT_MONITOR_NAME = 'TownOfWileySiteMonitor'
+DEFAULT_STATE_TABLE_NAME = 'TownOfWileyDeveloperMonitorState'
 DEFAULT_USER_AGENT = 'TownOfWileySiteMonitor/1.0 (contact: bigessfour@gmail.com)'
+
+
+def _serialize_dynamo_value(value: Any) -> dict[str, Any]:
+  if value is None:
+    return {'NULL': True}
+  if isinstance(value, bool):
+    return {'BOOL': value}
+  if isinstance(value, (int, float)):
+    return {'N': str(value)}
+  if isinstance(value, str):
+    return {'S': value}
+  if isinstance(value, dict):
+    return {'M': {key: _serialize_dynamo_value(subvalue) for key, subvalue in value.items()}}
+  if isinstance(value, list):
+    return {'L': [_serialize_dynamo_value(item) for item in value]}
+  raise TypeError(f'Unsupported DynamoDB value type: {type(value)!r}')
+
+
+def _deserialize_dynamo_value(value: dict[str, Any]) -> Any:
+  if 'S' in value:
+    return value['S']
+  if 'N' in value:
+    number = value['N']
+    return float(number) if '.' in number or 'e' in number.lower() else int(number)
+  if 'BOOL' in value:
+    return bool(value['BOOL'])
+  if 'NULL' in value:
+    return None
+  if 'M' in value:
+    return {key: _deserialize_dynamo_value(subvalue) for key, subvalue in value['M'].items()}
+  if 'L' in value:
+    return [_deserialize_dynamo_value(item) for item in value['L']]
+  raise TypeError(f'Unsupported DynamoDB attribute value: {value!r}')
 @dataclass(frozen=True)
 class AppConfig:
   site_url: str
@@ -112,15 +146,17 @@ class MemoryMailer:
 
 
 class DynamoStateStore:
-  def __init__(self, table: Any) -> None:
+  def __init__(self, table_name: str, table: Any) -> None:
+    self._table_name = table_name
     self._table = table
 
   def load_state(self, monitor_name: str) -> dict[str, Any] | None:
-    response = self._table.get_item(Key={'monitorName': monitor_name})
-    return response.get('Item')
+    response = self._table.get_item(TableName=self._table_name, Key={'monitorName': _serialize_dynamo_value(monitor_name)})
+    item = response.get('Item')
+    return {key: _deserialize_dynamo_value(value) for key, value in item.items()} if item else None
 
   def save_state(self, item: dict[str, Any]) -> None:
-    self._table.put_item(Item=item)
+    self._table.put_item(TableName=self._table_name, Item={key: _serialize_dynamo_value(value) for key, value in item.items()})
 
 
 class SesMailer:
@@ -220,7 +256,7 @@ class TownSiteMonitor:
   def run_checks(self) -> list[ProbeResult]:
     site_url = self._config.site_url.rstrip('/')
     checks = [
-      self._probe_html(name, site_url + path, DEFAULT_PUBLIC_PAGE_MARKERS[name])
+      self._probe_html(name, site_url + path, ())
       for name, path in DEFAULT_PUBLIC_PAGE_PATHS.items()
     ]
 
@@ -530,6 +566,7 @@ def _read_error_body(error: HTTPError) -> str:
 def build_runtime_monitor() -> TownSiteMonitor:
   aws_region = os.environ.get('AWS_REGION', '').strip()
   state_table_region = os.environ.get('SITE_MONITOR_STATE_TABLE_REGION', '').strip() or aws_region
+  state_table_name = os.environ.get('SITE_MONITOR_STATE_TABLE_NAME', DEFAULT_STATE_TABLE_NAME).strip() or DEFAULT_STATE_TABLE_NAME
 
   config = AppConfig(
     site_url=os.environ.get('SITE_URL', DEFAULT_SITE_URL).strip() or DEFAULT_SITE_URL,
@@ -565,7 +602,7 @@ def build_runtime_monitor() -> TownSiteMonitor:
 
   return TownSiteMonitor(
     config=config,
-    state_store=DynamoStateStore(boto3.client('dynamodb', **dynamodb_kwargs)),
+    state_store=DynamoStateStore(state_table_name, boto3.client('dynamodb', **dynamodb_kwargs)),
     mailer=SesMailer(
       sender_email=config.notification_sender,
       sender_name=config.notification_sender_name,

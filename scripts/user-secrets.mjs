@@ -383,6 +383,42 @@ function importEnvSecrets() {
   console.log(`Imported ${imported.length} environment variable(s): ${imported.join(', ')}`);
 }
 
+function quoteShellValue(value) {
+  return `'${String(value).replaceAll("'", `'"'"'`)}'`;
+}
+
+function exportEnvSecrets() {
+  ensureStructure();
+
+  const secrets = existsSync(paths.localSecrets)
+    ? readJson(paths.localSecrets)
+    : structuredClone(templateSecrets);
+  const awsSecrets = secrets.aws ?? {};
+  const exported = [];
+
+  for (const [envName, secretKey] of [
+    ['AWS_ACCESS_KEY_ID', 'accessKeyId'],
+    ['AWS_SECRET_ACCESS_KEY', 'secretAccessKey'],
+    ['AWS_SESSION_TOKEN', 'sessionToken'],
+    ['AWS_REGION', 'region'],
+  ]) {
+    const value = awsSecrets[secretKey];
+
+    if (!value || process.env[envName]) {
+      continue;
+    }
+
+    exported.push(`export ${envName}=${quoteShellValue(value)}`);
+  }
+
+  if (exported.length === 0) {
+    console.log('No AWS credentials were available to export.');
+    return;
+  }
+
+  console.log(exported.join('\n'));
+}
+
 function status() {
   ensureStructure();
 
@@ -437,6 +473,9 @@ try {
       break;
     case 'import-env':
       importEnvSecrets();
+      break;
+    case 'export-env':
+      exportEnvSecrets();
       break;
     case 'prune-local':
       pruneLocalSecrets();

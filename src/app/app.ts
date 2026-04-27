@@ -1,38 +1,37 @@
-import { NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    PLATFORM_ID,
     computed,
     effect,
     inject,
     signal,
     viewChild,
-    PLATFORM_ID,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { MegaMenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
+import { DrawerModule } from 'primeng/drawer';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
-import { TimelineModule } from 'primeng/timeline';
+import { MegaMenuModule } from 'primeng/megamenu';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { ToolbarModule } from 'primeng/toolbar';
+import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
-import { MegaMenuModule } from 'primeng/megamenu';
-import { DrawerModule } from 'primeng/drawer';
-import { MegaMenuItem } from 'primeng/api';
+import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
@@ -222,8 +221,11 @@ interface FeaturePage {
 
 interface AppCopy {
   skipLinkLabel: string;
+  homeLabel: string;
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
+  mobileMenuLabel: string;
+  meetingsQuickLinkLabel: string;
   siteAlertAriaLabel: string;
   alertHeadline: string;
   alertActionLabel: string;
@@ -235,6 +237,8 @@ interface AppCopy {
   communityFactsAriaLabel: string;
   leadershipAriaLabel: string;
   heroImageAlt: string;
+  heroPrimaryActionLabel: string;
+  heroSecondaryActionLabel: string;
   topTasksKicker: string;
   topTasksHeading: string;
   topTasksBody: string;
@@ -249,6 +253,12 @@ interface AppCopy {
   searchActionLabel: string;
   searchNote: string;
   searchEmptyState: string;
+  mobileOnlinePaymentsLabel: string;
+  mobileIssueLabel: string;
+  mobileRecordsLabel: string;
+  mobileWeatherAlertsLabel: string;
+  mobileLanguageAccessLabel: string;
+  mobileSearchAllServicesLabel: string;
   noticesKicker: string;
   noticesHeading: string;
   meetingsKicker: string;
@@ -447,11 +457,14 @@ function normalizePath(pathname: string): string {
 const APP_COPY: Record<SiteLanguage, AppCopy> = {
   en: {
     skipLinkLabel: 'Skip to main content',
+    homeLabel: 'Home',
     languageLabel: 'Site language',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
+    mobileMenuLabel: 'Menu',
+    meetingsQuickLinkLabel: 'Meetings and Calendar',
     siteAlertAriaLabel: 'Town alert banner',
     alertHeadline: 'Severe weather and service alerts for Wiley, 81092',
     alertActionLabel: 'Sign up for text or email alerts',
@@ -464,6 +477,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipAriaLabel: 'Town leadership roster',
     heroImageAlt:
       'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    heroPrimaryActionLabel: 'Explore resident services',
+    heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
     topTasksBody: '',
@@ -483,6 +498,12 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Use the search bar to jump to the best match, then browse the suggested shortcuts below for related resident tasks.',
     searchEmptyState:
       'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
+    mobileOnlinePaymentsLabel: 'Online Payments',
+    mobileIssueLabel: 'Report Street/Utility Issue',
+    mobileRecordsLabel: 'Permits & Licenses',
+    mobileWeatherAlertsLabel: 'Weather & Emergency Alerts',
+    mobileLanguageAccessLabel: 'Language Access',
+    mobileSearchAllServicesLabel: 'Search All Services',
     noticesKicker: 'Latest Updates',
     noticesHeading: 'News & Announcements',
     meetingsKicker: 'Meetings and Calendar',
@@ -838,11 +859,14 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
   },
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
+    homeLabel: 'Inicio',
     languageLabel: 'Idioma del sitio',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
+    mobileMenuLabel: 'Menu',
+    meetingsQuickLinkLabel: 'Reuniones y calendario',
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
     alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
     alertActionLabel: 'Inscribirse para alertas por texto o correo',
@@ -855,6 +879,8 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroImageAlt:
       'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
+    heroPrimaryActionLabel: 'Explorar servicios para residentes',
+    heroSecondaryActionLabel: 'Ver reuniones y avisos',
     topTasksKicker: 'Tareas rapidas',
     topTasksHeading: 'Como puedo...',
     topTasksBody: '',
@@ -874,6 +900,12 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Use la barra de busqueda para ir al mejor resultado y luego revise los accesos directos sugeridos para tareas de residentes.',
     searchEmptyState:
       'Todavia no hay coincidencia directa. Pruebe permisos, impuestos, reuniones, servicios, registros, clima o calles.',
+    mobileOnlinePaymentsLabel: 'Pagos en linea',
+    mobileIssueLabel: 'Reportar problema de calle o servicio',
+    mobileRecordsLabel: 'Permisos y licencias',
+    mobileWeatherAlertsLabel: 'Alertas de clima y emergencia',
+    mobileLanguageAccessLabel: 'Acceso en espanol',
+    mobileSearchAllServicesLabel: 'Buscar todos los servicios',
     noticesKicker: 'Novedades',
     noticesHeading: 'Noticias y anuncios',
     meetingsKicker: 'Reuniones y calendario',
@@ -1435,7 +1467,7 @@ export class App {
     const copy = this.appCopy();
 
     return [
-      { root: true, label: 'Home', routerLink: '/' },
+      { root: true, label: copy.homeLabel, routerLink: '/' },
       { root: true, label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
       { root: true, label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
       { root: true, label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
@@ -1445,14 +1477,14 @@ export class App {
         icon: 'pi pi-cog',
         items: [
           [
-            { label: 'Online Payments', routerLink: ['/services'], fragment: 'payment-help' },
-            { label: 'Report Street/Utility Issue', routerLink: ['/services'], fragment: 'issue-report' },
-            { label: 'Permits & Licenses', routerLink: ['/services'], fragment: 'records-request' }
+            { label: copy.mobileOnlinePaymentsLabel, routerLink: ['/services'], fragment: 'payment-help' },
+            { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
+            { label: copy.mobileRecordsLabel, routerLink: ['/services'], fragment: 'records-request' }
           ],
           [
-            { label: 'Weather & Emergency Alerts', routerLink: '/weather' },
-            { label: 'Language Access', routerLink: '/accessibility' },
-            { label: 'Search All Services', routerLink: ['/'], fragment: 'search-panel' }
+            { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
+            { label: copy.mobileLanguageAccessLabel, routerLink: '/accessibility' },
+            { label: copy.mobileSearchAllServicesLabel, routerLink: ['/'], fragment: 'search-panel' }
           ]
         ]
       },
