@@ -35,7 +35,7 @@ jobs:
       changed_files: ${{ steps.classify.outputs.changed_files }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -132,16 +132,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Restore Angular CLI cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .angular/cache
           key: ${{ runner.os }}-angular-cache-${{ hashFiles('package-lock.json', 'angular.json', 'tsconfig*.json') }}
@@ -175,10 +175,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 24 (deterministic)
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
@@ -200,7 +200,7 @@ jobs:
 
       - name: Upload test artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-trace-and-video
           path: |
@@ -215,10 +215,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -255,7 +255,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -275,3 +275,28 @@ jobs:
     steps:
       - name: Mark maintainer-only change set
         run: echo "Maintainer-only changes detected. Frontend regression checks were intentionally skipped."
+
+  security-audit:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.app_changed == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies (no scripts)
+        run: npm ci --ignore-scripts --no-fund
+
+      - name: Run npm audit (fail on critical)
+        run: npm audit --audit-level=critical
+
+      - name: Run npm audit (warn on high)
+        run: npm audit --audit-level=high
+        continue-on-error: true

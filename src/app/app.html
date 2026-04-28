@@ -1,18 +1,14 @@
 <p-toast position="top-right" />
 
-@if (isDocumentHubMode()) {
-  <app-document-hub />
-} @else if (isClerkSetupMode()) {
-  <app-clerk-setup />
-} @else if (isAdminMode()) {
-  <app-cms-admin />
+@if (isTopLevelLazyRouteMode()) {
+  <router-outlet />
 } @else {
   <a class="skip-link" href="#main-content" (click)="focusMainContent()">
     {{ appCopy().skipLinkLabel }}
   </a>
 
   @if (shouldPrimeWeatherAlerts()) {
-    <app-weather-panel
+    <app-homepage-weather-alert-primer
       class="weather-alert-loader"
       aria-hidden="true"
       (activeAlertChange)="updateHomepageWeatherAlert($event)"
@@ -84,21 +80,20 @@
 
         <div class="header-right">
           <div class="site-language-switcher">
-            <span class="site-language-label">{{ appCopy().languageLabel }}</span>
-            <div class="site-language-toggle" role="group" [attr.aria-label]="appCopy().languageLabel">
-              @for (choice of languageChoices(); track choice.value) {
-                <button
-                  type="button"
-                  class="site-language-button"
-                  [class.is-active]="siteLanguage() === choice.value"
-                  [attr.id]="'site-language-' + choice.value"
-                  [attr.aria-pressed]="siteLanguage() === choice.value"
-                  (click)="updateSiteLanguage(choice.value)"
-                >
-                  {{ choice.label }}
-                </button>
-              }
-            </div>
+            <label class="site-language-label" for="site-language-switcher">{{ appCopy().languageLabel }}</label>
+            <p-selectbutton
+              inputId="site-language-switcher"
+              [options]="languageChoices()"
+              [ngModel]="siteLanguage()"
+              (ngModelChange)="updateSiteLanguage($event)"
+              [ngModelOptions]="{ standalone: true }"
+              optionLabel="label"
+              optionValue="value"
+              [allowEmpty]="false"
+              size="small"
+              styleClass="site-language-selectbutton"
+              [attr.aria-label]="appCopy().languageLabel"
+            />
           </div>
 
           <div class="info-buttons">
@@ -310,314 +305,15 @@
 
           @if (isWeatherMode()) {
             <section class="feature-detail-stack" id="weather">
-              <app-weather-panel (activeAlertChange)="updateHomepageWeatherAlert($event)" />
+              <router-outlet />
             </section>
           } @else if (isNoticesMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel" id="alerts">
-                <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
-                <h2>{{ appCopy().noticesHeading }}</h2>
-                <section class="notice-grid">
-                  @for (notice of notices(); track notice.id) {
-                    <article class="notice-card">
-                      <p class="meta-label">{{ notice.date }}</p>
-                      <strong>{{ notice.title }}</strong>
-                      <span>{{ notice.detail }}</span>
-                    </article>
-                  }
-                </section>
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isMeetingsMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel" aria-labelledby="meetings-heading">
-                <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
-                <h2 id="meetings-heading">{{ appCopy().meetingsHeading }}</h2>
-                <section class="stack-list">
-                  @for (meeting of meetings(); track meeting.title) {
-                    <article class="info-row meeting-card">
-                      <strong>{{ meeting.title }}</strong>
-                      <span>{{ meeting.schedule }}</span>
-                      @if (meeting.location) {
-                        <p class="meeting-location">{{ meeting.location }}</p>
-                      }
-                      <small>{{ meeting.format }}</small>
-                      @if (meeting.agendaNote) {
-                        <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
-                      }
-                      @if (meeting.cta && meeting.href) {
-                        @if (resolveAppLink(meeting.href); as meetingLink) {
-                          @if (meetingLink.isInternal) {
-                            <a class="text-link" [routerLink]="meetingLink.path" [fragment]="meetingLink.fragment">{{ meeting.cta }}</a>
-                          } @else {
-                            <a class="text-link" [attr.href]="meetingLink.href">{{ meeting.cta }}</a>
-                          }
-                        }
-                      }
-                    </article>
-                  }
-                </section>
-                <a class="text-link" href="#calendar">{{ appCopy().openCalendarLabel }}</a>
-              </p-card>
-
-              <p-card
-                class="panel calendar-panel"
-                id="calendar"
-                aria-labelledby="calendar-heading"
-              >
-                <p class="section-kicker">{{ appCopy().calendarKicker }}</p>
-                <header class="calendar-header">
-                  <section class="calendar-header-copy">
-                    <h2 id="calendar-heading">{{ appCopy().calendarHeading }}</h2>
-                    <a class="text-link" routerLink="/notices">{{
-                      appCopy().calendarBridgeLabel
-                    }}</a>
-                  </section>
-
-                  <p-card
-                    class="calendar-overview-card"
-                    [attr.aria-label]="appCopy().calendarStatusAriaLabel"
-                  >
-                    <ng-template #title>
-                      <span class="meta-label">{{ calendarOverview().statusKicker }}</span>
-                    </ng-template>
-
-                    <strong>{{ calendarOverview().summary }}</strong>
-                    <p class="calendar-overview-copy">{{ calendarOverview().detail }}</p>
-                    <div class="calendar-overview-next">
-                      <span>{{ calendarOverview().nextEventLabel }}</span>
-                      <strong>{{ calendarOverview().nextEventValue }}</strong>
-                    </div>
-                  </p-card>
-                </header>
-
-                <p-toolbar class="calendar-tools-toolbar" aria-labelledby="calendar-heading">
-                  <ng-template #start>
-                    <section class="calendar-tool">
-                      <label class="calendar-tool-label" for="calendar-jump-month">
-                        {{ appCopy().calendarJumpLabel }}
-                      </label>
-                      <p-datepicker
-                        inputId="calendar-jump-month"
-                        [ngModel]="calendarJumpMonth()"
-                        (ngModelChange)="updateCalendarJumpMonth($event)"
-                        view="month"
-                        dateFormat="mm/yy"
-                        [showIcon]="true"
-                        [showButtonBar]="true"
-                        [readonlyInput]="true"
-                        [placeholder]="appCopy().calendarJumpPlaceholder"
-                      />
-                      @if (calendarJumpMonth(); as selectedMonth) {
-                        <p class="calendar-jump-note">
-                          {{ appCopy().calendarJumpCurrentLabel }}
-                          {{ formatCalendarMonth(selectedMonth) }}
-                        </p>
-                      }
-                    </section>
-                  </ng-template>
-
-                  <ng-template #end>
-                    <p-button
-                      type="button"
-                      [label]="appCopy().calendarHelpButtonLabel"
-                      icon="pi pi-question-circle"
-                      severity="secondary"
-                      styleClass="calendar-help-button"
-                      (onClick)="openCalendarHelp()"
-                    />
-                  </ng-template>
-                </p-toolbar>
-
-                <p-tabs class="calendar-tabs" [value]="meetingsTab()" (valueChange)="updateMeetingsTab($event)">
-                  <p-tablist [attr.aria-label]="appCopy().meetingsHeading">
-                    <p-tab value="month">{{ appCopy().calendarMonthTabLabel }}</p-tab>
-                    <p-tab value="list">{{ appCopy().calendarListTabLabel }}</p-tab>
-                  </p-tablist>
-                  <p-tabpanels>
-                    <p-tabpanel value="month">
-                      <full-calendar [options]="calendarOptions()"></full-calendar>
-                    </p-tabpanel>
-                    <p-tabpanel value="list">
-                      @defer (when meetingsTab() === 'list') {
-                        <p-table
-                          class="calendar-table"
-                          [value]="calendarTableItems()"
-                          dataKey="id"
-                          [rowTrackBy]="trackCalendarRow"
-                          [loading]="cmsContentLoading()"
-                          [lazy]="true"
-                          [lazyLoadOnInit]="false"
-                          [first]="calendarTableFirst()"
-                          [paginator]="true"
-                          [rows]="calendarTableRows()"
-                          [rowsPerPageOptions]="[5, 10]"
-                          [sortField]="calendarTableSortField()"
-                          [sortOrder]="calendarTableSortOrder()"
-                          [totalRecords]="calendarTableTotalRecords()"
-                          [scrollable]="true"
-                          scrollHeight="28rem"
-                          [tableStyle]="{ 'min-width': '72rem' }"
-                          (onLazyLoad)="updateCalendarTable($event)"
-                          stripedRows
-                          showGridlines
-                        >
-                          <ng-template #caption>
-                            <span class="sr-only">
-                              {{ appCopy().calendarHeading }}. {{ appCopy().calendarCopy }}
-                            </span>
-                          </ng-template>
-                          <ng-template #header>
-                            <tr>
-                              <th pSortableColumn="title">
-                                <div class="calendar-table-header-cell">
-                                  <span>{{ appCopy().calendarPublishedEventCategory }}</span>
-                                  <p-sortIcon field="title" />
-                                </div>
-                              </th>
-                              <th pSortableColumn="date">
-                                <div class="calendar-table-header-cell">
-                                  <span>{{ appCopy().calendarStatusNextLabel }}</span>
-                                  <p-sortIcon field="date" />
-                                </div>
-                              </th>
-                              <th pSortableColumn="category">
-                                <div class="calendar-table-header-cell">
-                                  <span>{{ appCopy().calendarKicker }}</span>
-                                  <p-sortIcon field="category" />
-                                </div>
-                              </th>
-                              <th pSortableColumn="location">
-                                <div class="calendar-table-header-cell">
-                                  <span>Location</span>
-                                  <p-sortIcon field="location" />
-                                </div>
-                              </th>
-                              <th pSortableColumn="recurrence">
-                                <div class="calendar-table-header-cell">
-                                  <span>Recurrence</span>
-                                  <p-sortIcon field="recurrence" />
-                                </div>
-                              </th>
-                              <th>{{ appCopy().calendarActionsAriaLabel }}</th>
-                            </tr>
-                          </ng-template>
-
-                          <ng-template #body let-item>
-                            <tr [class.is-featured]="item.isFeatured" [class.is-live]="item.source === 'live'">
-                              <td>
-                                <div class="calendar-table-title">
-                                  <strong>{{ item.title }}</strong>
-                                  <span class="calendar-source-badge" [class.is-live]="item.source === 'live'">
-                                    {{ item.sourceLabel }}
-                                  </span>
-                                  @if (item.agendaNote) {
-                                    <span class="calendar-table-note">{{ item.agendaNote }}</span>
-                                  }
-                                </div>
-                              </td>
-                              <td>{{ item.date }}</td>
-                              <td>
-                                <div class="calendar-table-meta">
-                                  <span class="calendar-pill">{{ item.category }}</span>
-                                  @if (item.isFeatured) {
-                                    <span class="calendar-pill is-featured">
-                                      {{ appCopy().calendarFeaturedBadge }}
-                                    </span>
-                                  }
-                                </div>
-                              </td>
-                              <td>{{ item.location }}</td>
-                              <td>{{ item.recurrence }}</td>
-                              <td>
-                                <div class="calendar-table-actions">
-                                  @for (action of item.actions; track action.label) {
-                                    @if (resolveAppLink(action.href); as actionLink) {
-                                      @if (actionLink.isInternal) {
-                                        <a
-                                          class="calendar-action"
-                                          [routerLink]="actionLink.path"
-                                          [fragment]="actionLink.fragment"
-                                          [attr.download]="action.downloadFileName ?? null"
-                                        >
-                                          {{ action.label }}
-                                        </a>
-                                      } @else {
-                                        <a
-                                          class="calendar-action"
-                                          [attr.href]="actionLink.href"
-                                          [attr.download]="action.downloadFileName ?? null"
-                                          [attr.target]="action.external ? '_blank' : null"
-                                          [attr.rel]="action.external ? 'noreferrer noopener' : null"
-                                        >
-                                          {{ action.label }}
-                                        </a>
-                                      }
-                                    }
-                                  }
-                                </div>
-                              </td>
-                            </tr>
-                          </ng-template>
-
-                          <ng-template #loadingbody>
-                            <tr>
-                              <td><p-skeleton class="shimmer shimmer--line shimmer--title" width="14rem" height="1rem" /></td>
-                              <td><p-skeleton class="shimmer shimmer--line" width="9rem" height="1rem" /></td>
-                              <td><p-skeleton class="shimmer shimmer--line" width="8rem" height="1rem" /></td>
-                              <td><p-skeleton class="shimmer shimmer--line" width="10rem" height="1rem" /></td>
-                              <td><p-skeleton class="shimmer shimmer--line" width="8rem" height="1rem" /></td>
-                              <td><p-skeleton class="shimmer shimmer--line shimmer--meta" width="12rem" height="1rem" /></td>
-                            </tr>
-                          </ng-template>
-                        </p-table>
-                      } @placeholder {
-                        <div class="calendar-table-placeholder shimmer" aria-hidden="true">
-                          <p-skeleton class="shimmer shimmer--line shimmer--title" width="12rem" height="1rem" />
-                          <div class="calendar-table-placeholder-row">
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                          </div>
-                        </div>
-                      } @loading (minimum 150ms) {
-                        <div class="calendar-table-placeholder shimmer" aria-live="polite">
-                          <p-skeleton class="shimmer shimmer--line shimmer--title" width="12rem" height="1rem" />
-                          <div class="calendar-table-placeholder-row">
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                            <p-skeleton class="shimmer shimmer--row" width="100%" height="3rem" />
-                          </div>
-                        </div>
-                      }
-                    </p-tabpanel>
-                  </p-tabpanels>
-                </p-tabs>
-
-                <p-dialog
-                  [header]="appCopy().calendarHelpTitle"
-                  [modal]="true"
-                  [visible]="calendarHelpVisible()"
-                  (visibleChange)="calendarHelpVisible.set($event)"
-                  [style]="{ width: '36rem' }"
-                >
-                  <p class="calendar-help-copy">{{ appCopy().calendarHelpBody }}</p>
-                  <ul class="calendar-help-list">
-                    <li>{{ appCopy().calendarHelpPointOne }}</li>
-                    <li>{{ appCopy().calendarHelpPointTwo }}</li>
-                    <li>{{ appCopy().calendarHelpPointThree }}</li>
-                  </ul>
-
-                  <ng-template #footer>
-                    <p-button
-                      type="button"
-                      [label]="appCopy().calendarHelpCloseLabel"
-                      severity="secondary"
-                      (onClick)="closeCalendarHelp()"
-                    />
-                  </ng-template>
-                </p-dialog>
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isServicesMode()) {
             <section class="feature-detail-stack">
@@ -646,7 +342,7 @@
                 </section>
               </p-card>
 
-              <app-resident-services id="resident-services" [contacts]="contacts()" />
+              <router-outlet />
             </section>
           } @else if (isRecordsMode()) {
             <section class="feature-detail-stack">
@@ -678,116 +374,32 @@
                     }
                   }
                 </div>
-                <app-records-center />
+                <router-outlet />
               </p-card>
             </section>
           } @else if (isAccessibilityMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel" id="accessibility">
-                <p class="section-kicker">{{ appCopy().accessibilityKicker }}</p>
-                <h2>{{ appCopy().accessibilityHeading }}</h2>
-                <div class="stack-list">
-                  @for (item of accessibilityItems(); track item.title) {
-                    <article class="info-row accessibility-row">
-                      <strong>{{ item.title }}</strong>
-                      <span>{{ item.detail }}</span>
-                    </article>
-                  }
-                </div>
-                <p class="compliance-note">{{ appCopy().complianceNote }}</p>
-                <app-accessibility-support [contacts]="contacts()" />
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isPrivacyMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel" id="privacy">
-                <p class="section-kicker">{{ privacyPolicyCopy().kicker }}</p>
-                <h2>{{ privacyPolicyCopy().title }}</h2>
-                <p class="feature-hub-copy">{{ privacyPolicyCopy().intro }}</p>
-                <div class="stack-list">
-                  @for (item of privacyPolicyCopy().items; track item.title) {
-                    <article class="info-row">
-                      <strong>{{ item.title }}</strong>
-                      <span>{{ item.detail }}</span>
-                    </article>
-                  }
-                </div>
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isTermsMode()) {
             <section class="feature-detail-stack">
-              <p-card class="panel" id="terms">
-                <p class="section-kicker">{{ smsTermsCopy().kicker }}</p>
-                <h2>{{ smsTermsCopy().title }}</h2>
-                <p class="feature-hub-copy">{{ smsTermsCopy().intro }}</p>
-                <div class="stack-list">
-                  @for (item of smsTermsCopy().items; track item.title) {
-                    <article class="info-row">
-                      <strong>{{ item.title }}</strong>
-                      <span>{{ item.detail }}</span>
-                    </article>
-                  }
-                </div>
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isContactMode()) {
             <section class="feature-detail-stack">
-              <div class="panel contact-panel" id="contact">
-                <p class="section-kicker">{{ appCopy().contactKicker }}</p>
-                <h2>{{ appCopy().contactHeading }}</h2>
-
-                <div class="contact-town-hall-block">
-                  <p class="contact-town-hall-name">Wiley Town Hall</p>
-                  <address class="contact-town-hall-address">
-                    304 Main Street, Wiley, CO 81092
-                  </address>
-                  <p class="contact-town-hall-hours">Monday – Friday &nbsp;·&nbsp; 8:00 AM – 4:00 PM</p>
-                  <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
-                </div>
-
-                <section class="contact-grid" aria-label="Town contacts">
-                  @for (contact of contacts(); track contact.id) {
-                    <article class="contact-card">
-                      <span>{{ contact.label }}</span>
-                      @if (contact.href) {
-                        @if (contact.linkLabel && contact.linkLabel !== contact.value) {
-                          <strong>{{ contact.value }}</strong>
-                          <a class="contact-link" [attr.href]="contact.href">{{
-                            contact.linkLabel
-                          }}</a>
-                        } @else {
-                          <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
-                        }
-                      } @else {
-                        <strong>{{ contact.value }}</strong>
-                      }
-                      <p>{{ contact.detail }}</p>
-                    </article>
-                  }
-                </section>
-
-                <div class="leadership-grid" role="list" [attr.aria-label]="appCopy().leadershipAriaLabel">
-                  @for (group of leadershipGroups(); track group.title) {
-                    <article class="leadership-card" role="listitem">
-                      <h3>{{ group.title }}</h3>
-                      <p>{{ group.detail }}</p>
-                      <ul class="leadership-list">
-                        @for (member of group.members; track member) {
-                          <li>{{ member }}</li>
-                        }
-                      </ul>
-                    </article>
-                  }
-                </div>
-              </div>
+              <router-outlet />
             </section>
           } @else if (isBusinessesMode()) {
             <section class="feature-detail-stack">
-              <app-business-directory></app-business-directory>
+              <router-outlet />
             </section>
           } @else if (isNewsMode()) {
             <section class="feature-detail-stack">
-              <app-news></app-news>
+              <router-outlet />
             </section>
           }
         </section>
@@ -1128,6 +740,14 @@
     </p-dialog>
   }
 }
+
+
+
+
+
+
+
+
 
 
 

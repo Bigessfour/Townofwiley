@@ -104,8 +104,10 @@ function createHarness(): ResidentServicesHarness {
       { value: 'license', label: 'License or fee question' },
       { value: 'clerk', label: 'Clerk assistance' },
     ],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   component.validationMessage = (ResidentServices.prototype as any).validationMessage;
   component.buildPaymentMailtoHref = (ResidentServices.prototype as any).buildPaymentMailtoHref;
   component.buildIssueMailtoHref = (ResidentServices.prototype as any).buildIssueMailtoHref;
@@ -116,6 +118,7 @@ function createHarness(): ResidentServicesHarness {
   component.openContactUpdateMailto = (ResidentServices.prototype as any).openContactUpdateMailto;
   component.toggleContactUpdate = (ResidentServices.prototype as any).toggleContactUpdate;
   component.dismissContactUpdate = (ResidentServices.prototype as any).dismissContactUpdate;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   component.paymentFormValue = () => component.paymentForm.getRawValue();
   component.issueFormValue = () => component.issueForm.getRawValue();

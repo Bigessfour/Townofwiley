@@ -1,0 +1,15 @@
+<section class="feature-detail-stack">
+  <p-card class="panel" id="privacy">
+    <p class="section-kicker">{{ copy().kicker }}</p>
+    <h2>{{ copy().title }}</h2>
+    <p class="feature-hub-copy">{{ copy().intro }}</p>
+    <div class="stack-list">
+      @for (item of copy().items; track item.title) {
+        <article class="info-row">
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.detail }}</span>
+        </article>
+      }
+    </div>
+  </p-card>
+</section>

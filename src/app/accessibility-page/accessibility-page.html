@@ -1,0 +1,16 @@
+<section class="feature-detail-stack">
+  <p-card class="panel" id="accessibility">
+    <p class="section-kicker">{{ copy().accessibilityKicker }}</p>
+    <h2>{{ copy().accessibilityHeading }}</h2>
+    <div class="stack-list">
+      @for (item of accessibilityItems(); track item.title) {
+        <article class="info-row accessibility-row">
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.detail }}</span>
+        </article>
+      }
+    </div>
+    <p class="compliance-note">{{ copy().complianceNote }}</p>
+    <app-accessibility-support [contacts]="contacts()" />
+  </p-card>
+</section>

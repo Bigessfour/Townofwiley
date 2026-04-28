@@ -13,7 +13,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
@@ -32,21 +32,15 @@ import { TabsModule } from 'primeng/tabs';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { filter, map, startWith } from 'rxjs';
-import { AccessibilitySupport } from './accessibility-support/accessibility-support';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
-import { BusinessDirectory } from './business-directory/business-directory';
 import { getChatbotRuntimeConfig } from './chatbot-config';
-import { ClerkSetup } from './clerk-setup/clerk-setup';
-import { CmsAdmin } from './cms-admin/cms-admin';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
-import { DocumentHub } from './document-hub/document-hub';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { LoggingService } from './logging.service';
-import { News } from './news/news';
-import { RECORDS_CENTER_COPY, RecordsCenter } from './records-center/records-center';
-import { ResidentServices } from './resident-services/resident-services';
+import { RECORDS_CENTER_COPY } from './records-center/records-center';
 import {
     CmsAlertBanner,
     CmsCalendarEvent,
@@ -54,10 +48,8 @@ import {
     LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
-import {
-    HomepageWeatherAlert,
-    LocalizedWeatherPanel,
-} from './weather-panel/localized-weather-panel';
+import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
+import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 
 interface NavLink {
   label: string;
@@ -328,7 +320,7 @@ interface AppCopy {
   leadershipGroups: LeadershipGroup[];
 }
 
-const WEATHER_ALERT_POLICY_COPY: Record<SiteLanguage, { privacy: PolicyPageCopy; terms: PolicyPageCopy }> = {
+export const WEATHER_ALERT_POLICY_COPY: Record<SiteLanguage, { privacy: PolicyPageCopy; terms: PolicyPageCopy }> = {
   en: {
     privacy: {
       kicker: 'Privacy',
@@ -454,7 +446,7 @@ function normalizePath(pathname: string): string {
   return trimmedPath || '/';
 }
 
-const APP_COPY: Record<SiteLanguage, AppCopy> = {
+export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   en: {
     skipLinkLabel: 'Skip to main content',
     homeLabel: 'Home',
@@ -1281,17 +1273,11 @@ const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ToastModule,
     MegaMenuModule,
     CardModule,
+    SelectButtonModule,
     FullCalendarModule,
-    AccessibilitySupport,
+    RouterOutlet,
     LocalizedAiChat,
-    LocalizedWeatherPanel,
-    CmsAdmin,
-    ClerkSetup,
-    DocumentHub,
-    RecordsCenter,
-    ResidentServices,
-    BusinessDirectory,
-    News,
+    HomepageWeatherAlertPrimer,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -1410,6 +1396,9 @@ export class App {
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
   protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
+  protected readonly isTopLevelLazyRouteMode = computed(
+    () => this.isAdminMode() || this.isClerkSetupMode() || this.isDocumentHubMode(),
+  );
   protected readonly isFeaturePageMode = computed(
     () =>
       this.isWeatherMode() ||
@@ -2668,5 +2657,17 @@ export class App {
       .replace(/\n/g, '\\n');
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,0 +1,48 @@
+<section class="feature-detail-stack">
+  <div class="panel contact-panel" id="contact">
+    <p class="section-kicker">{{ copy().contactKicker }}</p>
+    <h2>{{ copy().contactHeading }}</h2>
+
+    <div class="contact-town-hall-block">
+      <p class="contact-town-hall-name">Wiley Town Hall</p>
+      <address class="contact-town-hall-address">
+        304 Main Street, Wiley, CO 81092
+      </address>
+      <p class="contact-town-hall-hours">Monday – Friday &nbsp;·&nbsp; 8:00 AM – 4:00 PM</p>
+      <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
+    </div>
+
+    <section class="contact-grid" aria-label="Town contacts">
+      @for (contact of contacts(); track contact.id) {
+        <article class="contact-card">
+          <span>{{ contact.label }}</span>
+          @if (contact.href) {
+            @if (contact.linkLabel && contact.linkLabel !== contact.value) {
+              <strong>{{ contact.value }}</strong>
+              <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
+            } @else {
+              <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
+            }
+          } @else {
+            <strong>{{ contact.value }}</strong>
+          }
+          <p>{{ contact.detail }}</p>
+        </article>
+      }
+    </section>
+
+    <div class="leadership-grid" role="list" [attr.aria-label]="copy().leadershipAriaLabel">
+      @for (group of leadershipGroups(); track group.title) {
+        <article class="leadership-card" role="listitem">
+          <h3>{{ group.title }}</h3>
+          <p>{{ group.detail }}</p>
+          <ul class="leadership-list">
+            @for (member of group.members; track member) {
+              <li>{{ member }}</li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+# Town of Wiley llms.txt
+
+This repository provides AI-development context for Angular-aware assistants and code generation tools.
+
+## Primary Context Files
+
+- [Full repository context](./llms-full.txt)
+- [Angular best practices](./.vscode/angular-best-practices.md)
+- [Angular reference bundle](./.vscode/llms.txt)
+- [Copilot workspace instructions](./.github/copilot-instructions.md)
+- [VS Code workspace instructions](./.instructions.md)
+- [AI application development standards](./.github/instructions/ai-application-development.instructions.md)
+
+## Project Summary
+
+- Framework: Angular 21
+- Architecture: standalone components, signals-first state, native template control flow
+- UI stack: PrimeNG, SCSS, Playwright, Vitest
+- Quality focus: WCAG AA accessibility, deterministic e2e coverage, Angular MCP-assisted development
+
+## Recommended Tooling
+
+- Angular CLI MCP server via `.vscode/mcp.json`
+- PrimeNG MCP server via `.vscode/mcp.json`
+- Vitest MCP server via `.vscode/mcp.json`
+- Web Codegen Scorer via `hello-world/config.mjs`
+- AI Feature agent via `.github/agents/ai-feature.agent.md`
+
+## Notes
+
+- Prefer repository-local guidance over generic Angular patterns when they differ in specificity.
+- Use `llms-full.txt` when a tool supports richer compiled context.

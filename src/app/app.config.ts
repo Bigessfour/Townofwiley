@@ -12,6 +12,7 @@ import { MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 import { GlobalErrorHandler } from './global-error-handler';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -48,6 +49,6 @@ export const appConfig: ApplicationConfig = {
         menu: 1000,
         tooltip: 1100,
       },
-    }),
+    }), provideClientHydration(withEventReplay()),
   ],
 };

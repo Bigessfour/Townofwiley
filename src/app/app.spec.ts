@@ -170,7 +170,7 @@ describe('App', () => {
         routerLink?: string;
         fragment?: string;
         url?: string;
-        items?: Array<Array<{ label: string; routerLink?: string; fragment?: string; url?: string; command?: (event: unknown) => void }>>;
+        items?: { label: string; routerLink?: string; fragment?: string; url?: string; command?: (event: unknown) => void }[][];
       };
     };
 

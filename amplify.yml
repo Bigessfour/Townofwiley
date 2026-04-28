@@ -16,3 +16,62 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+  customHeaders:
+    # Security headers applied to all responses
+    - pattern: '**/*'
+      headers:
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'X-Frame-Options'
+          value: 'DENY'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'
+        - key: 'Referrer-Policy'
+          value: 'strict-origin-when-cross-origin'
+        - key: 'Permissions-Policy'
+          value: 'camera=(), microphone=(), geolocation=(), payment=()'
+        - key: 'Content-Security-Policy'
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://api.weather.gov https://radar.weather.gov; connect-src 'self' https://*.appsync-api.us-east-2.amazonaws.com wss://*.appsync-realtime-api.us-east-2.amazonaws.com https://cognito-idp.us-east-2.amazonaws.com https://cognito-identity.us-east-2.amazonaws.com https://cognito-sync.us-east-2.amazonaws.com https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com https://api.weather.gov https://alerts.weather.gov https://*.lambda-url.us-east-2.on.aws; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    # Immutable cache for fingerprinted JS/CSS bundles (Angular outputHashing: all)
+    - pattern: '**/*.js'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.css'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    # Long cache for fonts (versioned by npm at build time)
+    - pattern: '**/*.woff'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '**/*.woff2'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    # Medium cache for images
+    - pattern: '**/*.webp'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=2592000'
+    - pattern: '**/*.png'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=2592000'
+    - pattern: '**/*.gif'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=2592000'
+    # No-cache for HTML entry points (prerendered pages must always be fresh)
+    - pattern: '**/*.html'
+      headers:
+        - key: 'Cache-Control'
+          value: 'no-cache, no-store, must-revalidate'
+    # No-cache for runtime config (injected per environment)
+    - pattern: '**/runtime-config.js'
+      headers:
+        - key: 'Cache-Control'
+          value: 'no-cache, no-store, must-revalidate'

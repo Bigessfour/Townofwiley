@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const browserOutputDir = path.resolve('dist/townofwiley-app/browser');
 const indexPath = path.join(browserOutputDir, 'index.html');
-const routesFilePath = path.resolve('static-routes.txt');
+const routesFilePath = path.resolve('scripts/static-routes.txt');
 
 if (!existsSync(indexPath)) {
   throw new Error(`Missing build index at ${indexPath}`);

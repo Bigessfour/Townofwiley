@@ -9,7 +9,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
 import { ContactUpdateService } from '../contact-update/contact-update.service';
 import { PaystarConnectionService } from '../payments/paystar-connection';
-import { CmsContact } from '../site-cms-content';
+import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
@@ -319,6 +319,7 @@ export class ResidentServices {
   readonly contacts = input<CmsContact[]>([]);
 
   private readonly route = inject(ActivatedRoute);
+  private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly contactUpdateService = inject(ContactUpdateService);
   private readonly paystarConnection = inject(PaystarConnectionService);
   private readonly siteLanguageService = inject(SiteLanguageService);
@@ -335,6 +336,10 @@ export class ResidentServices {
   protected readonly contactUpdateExpanded = signal(false);
   protected readonly contactUpdateStatus = signal<string | null>(null);
   protected readonly hasSubmittedContactUpdate = signal(false);
+  private readonly resolvedContacts = computed<CmsContact[]>(() => {
+    const providedContacts = this.contacts();
+    return providedContacts.length > 0 ? providedContacts : this.cmsStore.contacts();
+  });
   protected readonly servicePanels = computed<ServicePanelOption[]>(() => {
     const copy = this.copy();
 
@@ -583,7 +588,7 @@ export class ResidentServices {
   }
 
   private findContact(id: string): CmsContact | null {
-    return this.contacts().find((contact) => contact.id === id) ?? null;
+    return this.resolvedContacts().find((contact) => contact.id === id) ?? null;
   }
 
   private getContactHref(contact: CmsContact | null, prefix: 'mailto:' | 'tel:'): string | null {
@@ -769,3 +774,6 @@ export class ResidentServices {
     return `mailto:${recipient}?${params.toString()}`;
   }
 }
+
+
+

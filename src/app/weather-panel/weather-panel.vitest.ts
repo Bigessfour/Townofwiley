@@ -362,6 +362,7 @@ describe('WeatherPanel', () => {
     const emitSpy = vi.spyOn(panel.activeAlertChange, 'emit');
 
     panel.alertRecordsState.set([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (panel as any).emitHomepageWeatherAlert();
     expect(emitSpy).toHaveBeenLastCalledWith(null);
 
@@ -374,6 +375,7 @@ describe('WeatherPanel', () => {
         instruction: 'Stay indoors.',
       },
     ]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (panel as any).emitHomepageWeatherAlert();
 
     expect(emitSpy).toHaveBeenLastCalledWith(

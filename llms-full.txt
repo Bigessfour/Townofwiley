@@ -1,0 +1,76 @@
+# Town of Wiley AI Context
+
+This file provides compiled AI-development context for the Town of Wiley repository.
+
+## Repository Overview
+
+Town of Wiley is an Angular 21 web application backed by AWS infrastructure. The frontend is built around standalone Angular APIs, signals-oriented state, native control flow, SCSS styling, Playwright end-to-end tests, and Vitest/browser unit coverage.
+
+## Authoritative Project Guidance
+
+The following files are the primary sources of truth for AI-assisted work in this repository:
+
+- `.vscode/angular-best-practices.md`
+- `.vscode/llms.txt`
+- `.github/copilot-instructions.md`
+- `.instructions.md`
+- `.github/instructions/ai-application-development.instructions.md`
+
+When there is overlap, prefer `.vscode/angular-best-practices.md` for Angular code standards.
+
+## Angular Standards
+
+- Use standalone components instead of NgModules.
+- Do not add `standalone: true` to Angular decorators in Angular v20+.
+- Prefer signals for local state and `computed()` for derived state.
+- Prefer `input()` and `output()` over decorator-based inputs and outputs.
+- Prefer `inject()` over constructor injection when practical.
+- Set `changeDetection: ChangeDetectionStrategy.OnPush` on components.
+- Prefer native control flow blocks (`@if`, `@for`, `@switch`) over `*ngIf`, `*ngFor`, and `*ngSwitch`.
+- Prefer reactive forms instead of template-driven forms.
+- Avoid `ngClass` and `ngStyle`; use class and style bindings instead.
+- Use `NgOptimizedImage` for static images when applicable.
+
+## Accessibility Standards
+
+- Code must pass AXE checks where applicable.
+- Code must meet WCAG AA minimums, including keyboard access, focus management, readable contrast, semantics, and appropriate ARIA usage.
+- Favor semantic HTML and accessible user-facing locators in test code.
+
+## Testing And Validation
+
+- Use Angular and workspace-native validation paths before ad hoc commands when available.
+- Main frontend validation surfaces include:
+  - `npm run build`
+  - `npm run lint`
+  - `npm run test:unit`
+  - `npm run test:vitest`
+  - `npm run test:e2e:smoke`
+  - `npm run test:e2e:snapshots`
+- Playwright coverage and snapshot baselines are already part of this repository.
+
+## AI Tooling Setup
+
+- Angular CLI MCP server is configured in `.vscode/mcp.json`.
+- PrimeNG MCP server is configured in `.vscode/mcp.json`.
+- Vitest MCP server is configured in `.vscode/mcp.json`.
+- Copilot instruction files are enabled in `.vscode/settings.json`.
+- Chat agents and memory tooling are enabled in `.vscode/settings.json`.
+- An AI feature development instruction file is available at `.github/instructions/ai-application-development.instructions.md`.
+- An AI feature specialist agent and prompt are available under `.github/agents/ai-feature.agent.md` and `.github/prompts/ai-feature.prompt.md`.
+
+## Web Codegen Scorer
+
+- Web Codegen Scorer is installed in the local environment and available on PATH.
+- Repository scorer configuration is defined in `hello-world/config.mjs`.
+- The scorer is configured for Angular and uses `.vscode/angular-best-practices.md` as its generation system prompt.
+
+## Working Guidance For AI Tools
+
+- Use repository-local Angular guidance before generic Angular examples.
+- Use Angular CLI MCP for Angular documentation, best practices, examples, and workspace inspection when available.
+- Keep model credentials out of client-delivered code and prefer repo secret flows or server-side boundaries for privileged AI access.
+- Constrain tool-calling integrations with explicit allowlists and validate model-requested actions before execution.
+- Design AI-backed user flows for non-determinism with schema validation, safe fallbacks, and graceful degradation.
+- Keep changes small, consistent with the existing codebase, and focused on user-facing correctness.
+- Preserve accessibility, responsive behavior, and deterministic tests when modifying UI.

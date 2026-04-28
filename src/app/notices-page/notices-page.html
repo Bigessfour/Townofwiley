@@ -1,0 +1,15 @@
+<section class="feature-detail-stack">
+  <p-card class="panel" id="alerts">
+    <p class="section-kicker">{{ copy().noticesKicker }}</p>
+    <h2>{{ copy().noticesHeading }}</h2>
+    <section class="notice-grid">
+      @for (notice of notices(); track notice.id) {
+        <article class="notice-card">
+          <p class="meta-label">{{ notice.date }}</p>
+          <strong>{{ notice.title }}</strong>
+          <span>{{ notice.detail }}</span>
+        </article>
+      }
+    </section>
+  </p-card>
+</section>
