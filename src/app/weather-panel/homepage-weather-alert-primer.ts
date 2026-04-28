@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, output } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import type { HomepageWeatherAlert } from './weather-panel';
 
@@ -32,9 +32,15 @@ interface NwsAlertResponse {
 })
 export class HomepageWeatherAlertPrimer {
   private readonly http = inject(HttpClient);
+  private readonly destroyRef = inject(DestroyRef);
+  private isDestroyed = false;
   readonly activeAlertChange = output<HomepageWeatherAlert | null>();
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.isDestroyed = true;
+    });
+
     void this.loadAlert();
   }
 
@@ -43,17 +49,17 @@ export class HomepageWeatherAlertPrimer {
       const pointResponse = await firstValueFrom(this.http.get<NwsPointResponse>(WILEY_POINT_URL));
       const zoneCode = pointResponse.properties.forecastZone.split('/').pop();
       if (!zoneCode) {
-        this.activeAlertChange.emit(null);
+        this.safeEmitAlert(null);
         return;
       }
       const alertResponse = await firstValueFrom(this.http.get<NwsAlertResponse>(`https://api.weather.gov/alerts/active?zone=${zoneCode}`));
       const primary = alertResponse.features[0]?.properties;
       if (!primary) {
-        this.activeAlertChange.emit(null);
+        this.safeEmitAlert(null);
         return;
       }
       const total = alertResponse.features.length;
-      this.activeAlertChange.emit({
+      this.safeEmitAlert({
         total,
         event: primary.event,
         headline: (primary.headline ?? primary.description ?? primary.event).replace(/\s+/g, ' ').trim(),
@@ -63,7 +69,15 @@ export class HomepageWeatherAlertPrimer {
         forecastUrl: WILEY_FORECAST_PAGE_URL,
       });
     } catch {
-      this.activeAlertChange.emit(null);
+      this.safeEmitAlert(null);
     }
+  }
+
+  private safeEmitAlert(alert: HomepageWeatherAlert | null): void {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    this.activeAlertChange.emit(alert);
   }
 }

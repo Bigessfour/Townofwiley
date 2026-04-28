@@ -1,25 +1,94 @@
 {
-	"version": "0.2.1",
-	"configurations": [
-		{
-			"name": "Launch Angular App",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://localhost:4200",
-			"webRoot": "${workspaceFolder}/src",
-			"sourceMapPathOverrides": {
-				"webpack:///src/*": "${webRoot}/*"
-			}
-		},
-		{
-			"name": "Debug Angular Unit Tests",
-			"type": "chrome",
-			"request": "launch",
-			"url": "http://localhost:9876/debug.html",
-			"webRoot": "${workspaceFolder}",
-			"sourceMapPathOverrides": {
-				"webpack:///src/*": "${workspaceFolder}/src/*"
-			}
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Town Site: Launch + Debug (Chrome)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:4300",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "serve:debug",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+        "${workspaceFolder}/.angular/cache/**",
+        "**/chunk-*.js",
+        "**/.angular/cache/**",
+        "**/@fs/**/.angular/cache/**",
+        "http://127.0.0.1:4300/@fs/**/.angular/cache/**",
+        "**/vite/deps/chunk-*.js",
+        "http://127.0.0.1:4300/@fs/**/vite/deps/chunk-*.js*"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${webRoot}/*",
+        "webpack:///*": "${webRoot}/*",
+        "/./*": "${webRoot}/*",
+        "vite:///*": "*",
+        "/@fs/*": "*"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "Town Site: Attach to Running Chrome (9222)",
+      "type": "pwa-chrome",
+      "request": "attach",
+      "port": 9222,
+      "urlFilter": "http://127.0.0.1:4300/*",
+      "webRoot": "${workspaceFolder}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+        "${workspaceFolder}/.angular/cache/**",
+        "**/chunk-*.js",
+        "**/.angular/cache/**",
+        "**/@fs/**/.angular/cache/**",
+        "http://127.0.0.1:4300/@fs/**/.angular/cache/**",
+        "**/vite/deps/chunk-*.js",
+        "http://127.0.0.1:4300/@fs/**/vite/deps/chunk-*.js*"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "justMyCode": true
+    },
+    {
+      "name": "Town Site: Unit Tests (Karma Debug)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:9876/debug.html",
+      "webRoot": "${workspaceFolder}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": [
+        "${workspaceFolder}/.angular/cache/**",
+        "**/chunk-*.js",
+        "**/.angular/cache/**",
+        "**/@fs/**/.angular/cache/**",
+        "http://127.0.0.1:4300/@fs/**/.angular/cache/**",
+        "**/vite/deps/chunk-*.js",
+        "http://127.0.0.1:4300/@fs/**/vite/deps/chunk-*.js*"
+      ],
+      "justMyCode": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Town Site: Start + Debug",
+      "configurations": [
+        "Town Site: Launch + Debug (Chrome)"
+      ]
+    }
+  ]
 }

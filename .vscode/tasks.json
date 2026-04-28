@@ -82,6 +82,28 @@
 			"group": "build"
 		},
 		{
+			"label": "serve:debug",
+			"type": "shell",
+			"command": "npm run start -- --host 127.0.0.1 --port 4300",
+			"isBackground": true,
+			"problemMatcher": [
+				{
+					"owner": "custom",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(.*)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".",
+						"endsPattern": "Local:\\s+http://127.0.0.1:4300"
+					}
+				}
+			],
+			"group": "build"
+		},
+		{
 			"label": "Update ai chat html",
 			"type": "shell",
 			"command": "node fix_ai_chat.js"

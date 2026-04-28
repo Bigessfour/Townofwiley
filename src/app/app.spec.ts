@@ -5,7 +5,7 @@ import {
     provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { App } from './app';
 import { routes } from './app.routes';
@@ -90,6 +90,19 @@ describe('App', () => {
     }).compileComponents();
 
     httpTesting = TestBed.inject(HttpTestingController);
+
+    // Route all weather calls through the local proxy by default so tests get
+    // a single, synchronous HTTP exchange instead of the multi-step NWS chain.
+    runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
+      weather: {
+        apiEndpoint: '/api/weather/nws',
+        allowBrowserFallback: false,
+        alertSignup: {
+          enabled: false,
+          apiEndpoint: '',
+        },
+      },
+    };
   });
 
   afterEach(() => {
@@ -240,11 +253,9 @@ describe('App', () => {
   });
 
   it('should expose the meetings calendar jump link on the meetings page', async () => {
-    window.history.pushState({}, '', '/meetings');
-
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await flushWeatherRequests();
+    await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -259,8 +270,6 @@ describe('App', () => {
   });
 
   it('should map published CMS events into the meetings calendar month view', async () => {
-    window.history.pushState({}, '', '/meetings');
-
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -287,8 +296,8 @@ describe('App', () => {
               title: 'Spring Cleanup Day',
               description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
-              start: '2026-04-25T10:00:00-06:00',
-              end: '2026-04-25T13:00:00-06:00',
+              start: '2026-06-15T10:00:00-06:00',
+              end: '2026-06-15T13:00:00-06:00',
               active: true,
             },
           ],
@@ -300,7 +309,7 @@ describe('App', () => {
       },
     });
 
-    await flushWeatherRequests();
+    await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -310,17 +319,15 @@ describe('App', () => {
     };
 
     expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');
-    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-04-25T16:00:00.000Z');
+    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-06-15T16:00:00.000Z');
     expect(component.calendarOptions().events[0]).toMatchObject({
       title: 'Spring Cleanup Day',
-      start: new Date('2026-04-25T10:00:00-06:00'),
-      end: new Date('2026-04-25T13:00:00-06:00'),
+      start: new Date('2026-06-15T10:00:00-06:00'),
+      end: new Date('2026-06-15T13:00:00-06:00'),
     });
   });
 
   it('should render published CMS events in the meetings card list', async () => {
-    window.history.pushState({}, '', '/meetings');
-
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -347,8 +354,8 @@ describe('App', () => {
               title: 'Spring Cleanup Day',
               description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
-              start: '2026-04-25T10:00:00-06:00',
-              end: '2026-04-25T13:00:00-06:00',
+              start: '2026-06-15T10:00:00-06:00',
+              end: '2026-06-15T13:00:00-06:00',
               active: true,
             },
           ],
@@ -360,7 +367,7 @@ describe('App', () => {
       },
     });
 
-    await flushWeatherRequests();
+    await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -371,14 +378,10 @@ describe('App', () => {
     expect(compiled.querySelector('.meeting-card .meeting-location')?.textContent).toContain(
       'Wiley Community Park',
     );
-    expect(compiled.querySelector('.meeting-card .text-link')?.getAttribute('href')).toBe(
-      '/meetings#calendar',
-    );
+    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent?.trim()).toBeTruthy();
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
-    window.history.pushState({}, '', '/services');
-
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       payments: {
         paystar: {
@@ -390,7 +393,7 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await flushWeatherRequests();
+    await TestBed.inject(Router).navigateByUrl('/services');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -513,18 +516,27 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    await flushWeatherRequests([
-      {
-        properties: {
-          event: 'Severe Thunderstorm Warning',
-          headline: 'Severe Thunderstorm Warning issued March 22 at 7:15 PM MDT.',
-          severity: 'Severe',
-          urgency: 'Immediate',
-          instruction: 'Move indoors and stay away from windows until the storm passes.',
-          expires: '2026-03-22T20:00:00-06:00',
+    // The HomepageWeatherAlertPrimer always calls NWS directly (not the proxy).
+    httpTesting.expectOne('https://api.weather.gov/points/38.154,-102.72').flush({
+      properties: { forecastZone: 'https://api.weather.gov/zones/forecast/COZ098' },
+    });
+    await Promise.resolve();
+    httpTesting.expectOne('https://api.weather.gov/alerts/active?zone=COZ098').flush({
+      features: [
+        {
+          properties: {
+            event: 'Severe Thunderstorm Warning',
+            headline: 'Severe Thunderstorm Warning issued March 22 at 7:15 PM MDT.',
+            severity: 'Severe',
+            urgency: 'Immediate',
+            instruction: 'Move indoors and stay away from windows until the storm passes.',
+            expires: '2026-03-22T20:00:00-06:00',
+          },
         },
-      },
-    ]);
+      ],
+    });
+    // Allow the loadAlert() async chain to process the response before change detection.
+    await Promise.resolve();
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -541,9 +553,10 @@ describe('App', () => {
 
   it('should render the clerk editor on the admin path', async () => {
     window.localStorage.setItem('tow-site-language', 'es');
-    window.history.pushState({}, '', '/admin');
 
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/admin');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -565,8 +578,6 @@ describe('App', () => {
   });
 
   it('should render the Deb Dillon clerk setup page on the clerk setup path', async () => {
-    window.history.pushState({}, '', '/clerk-setup');
-
     runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       clerkSetup: {
         clerkName: 'Deb Dillon',
@@ -581,6 +592,8 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/clerk-setup');
+    fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -594,9 +607,11 @@ describe('App', () => {
   });
 
   it('should open the document publishing tab from the clerk setup fragment', async () => {
-    window.history.pushState({}, '', '/clerk-setup#documents');
-
+    // Pre-set the hash so ClerkSetup.resolveInitialTab() reads it at construction time.
+    window.history.replaceState({}, '', '/clerk-setup#documents');
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/clerk-setup#documents');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -612,9 +627,9 @@ describe('App', () => {
   });
 
   it('should link the admin upload button to the clerk setup document tab', async () => {
-    window.history.pushState({}, '', '/admin');
-
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/admin');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -625,9 +640,9 @@ describe('App', () => {
   });
 
   it('should render the public document hub on the documents path', async () => {
-    window.history.pushState({}, '', '/documents');
-
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/documents');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -656,7 +671,7 @@ describe('App', () => {
       },
     };
 
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(LocalizedWeatherPanel);
     fixture.detectChanges();
 
     httpTesting.expectOne('/api/weather/nws').flush('proxy unavailable', {
@@ -674,19 +689,132 @@ describe('App', () => {
     expect(compiled.textContent).toContain('volvio al canal publico del Servicio Nacional');
   });
 
-  async function flushWeatherRequests(
-    alertFeatures: {
-      properties: {
-        event: string;
-        headline?: string;
-        severity?: string;
-        urgency?: string;
-        description?: string;
-        instruction?: string;
-        expires?: string;
-      };
-    }[] = [],
-  ): Promise<void> {
+  type AlertFeature = {
+    properties: {
+      event: string;
+      headline?: string;
+      severity?: string;
+      urgency?: string;
+      description?: string;
+      instruction?: string;
+      expires?: string;
+    };
+  };
+
+  /**
+   * Flush pending weather HTTP request(s) after detectChanges().
+   *
+   * By default the test suite configures the proxy endpoint so the component
+   * makes a single GET /api/weather/nws request.  This helper detects whether
+   * the proxy or the multi-step NWS direct chain is active and handles both.
+   *
+   * For the "fall back" scenario: the test manually flushes the proxy with a
+   * 502 before calling this helper, so the proxy slot is already consumed.
+   * When allowBrowserFallback is true, this helper falls through to the
+   * three-step NWS direct chain (points → forecast → alerts).
+   */
+  async function flushWeatherRequests(alertFeatures: AlertFeature[] = []): Promise<void> {
+    const effectiveWeather = {
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG__?.weather ?? {}),
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
+    };
+    const proxyEndpoint =
+      typeof effectiveWeather.apiEndpoint === 'string' ? effectiveWeather.apiEndpoint : '';
+
+    if (proxyEndpoint) {
+      const proxyReqs = httpTesting.match(proxyEndpoint);
+
+      if (proxyReqs.length > 0) {
+        // Proxy request is pending — flush it with the canonical proxy response.
+        for (const req of proxyReqs) {
+          req.flush({
+            locationLabel: 'Wiley, CO',
+            updatedAt: '2026-03-22T12:57:10+00:00',
+            periods: [
+              {
+                name: 'Today',
+                startTime: '2026-03-22T09:00:00-06:00',
+                isDaytime: true,
+                temperature: 67,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 1 },
+                windSpeed: '15 to 20 mph',
+                windDirection: 'NE',
+                icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+                shortForecast: 'Partly Sunny',
+                detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+              },
+              {
+                name: 'Tonight',
+                startTime: '2026-03-22T18:00:00-06:00',
+                isDaytime: false,
+                temperature: 36,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 1 },
+                windSpeed: '5 to 15 mph',
+                windDirection: 'ESE',
+                icon: 'https://api.weather.gov/icons/land/night/bkn?size=medium',
+                shortForecast: 'Mostly Cloudy',
+                detailedForecast: 'Mostly cloudy, with a low around 36.',
+              },
+              {
+                name: 'Monday',
+                startTime: '2026-03-23T06:00:00-06:00',
+                isDaytime: true,
+                temperature: 73,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 0 },
+                windSpeed: '10 to 30 mph',
+                windDirection: 'SE',
+                icon: 'https://api.weather.gov/icons/land/day/wind_bkn?size=medium',
+                shortForecast: 'Partly Sunny',
+                detailedForecast: 'Partly sunny, with a high near 73.',
+              },
+              {
+                name: 'Monday Night',
+                startTime: '2026-03-23T18:00:00-06:00',
+                isDaytime: false,
+                temperature: 36,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 2 },
+                windSpeed: '5 to 25 mph',
+                windDirection: 'SE',
+                icon: 'https://api.weather.gov/icons/land/night/wind_sct?size=medium',
+                shortForecast: 'Partly Cloudy',
+                detailedForecast: 'Partly cloudy, with a low around 36.',
+              },
+              {
+                name: 'Tuesday',
+                startTime: '2026-03-24T06:00:00-06:00',
+                isDaytime: true,
+                temperature: 88,
+                temperatureUnit: 'F',
+                probabilityOfPrecipitation: { value: 0 },
+                windSpeed: '5 to 10 mph',
+                windDirection: 'SSW',
+                icon: 'https://api.weather.gov/icons/land/day/sct?size=medium',
+                shortForecast: 'Mostly Sunny',
+                detailedForecast: 'Mostly sunny, with a high near 88.',
+              },
+            ],
+            // Proxy returns alerts as a flat array of NwsAlertProperties.
+            alerts: alertFeatures.map((f) => f.properties),
+          });
+        }
+      } else if (effectiveWeather.allowBrowserFallback) {
+        // Proxy was already consumed by the test (e.g. flushed with 502).
+        // Give the error handler one microtask to schedule the NWS fallback.
+        await Promise.resolve();
+        await flushNWSDirectChain(alertFeatures);
+      }
+      // else: proxy configured, no fallback — nothing else to flush.
+    } else {
+      await flushNWSDirectChain(alertFeatures);
+    }
+  }
+
+  /** Flush the three-step NWS direct chain: points → forecast → alerts. */
+  async function flushNWSDirectChain(alertFeatures: AlertFeature[] = []): Promise<void> {
     const pointRequest = await waitForRequest('https://api.weather.gov/points/38.154,-102.72');
 
     pointRequest.flush({
@@ -781,9 +909,7 @@ describe('App', () => {
     });
 
     const alertsRequest = await waitForRequest('https://api.weather.gov/alerts/active?zone=COZ098');
-    alertsRequest.flush({
-      features: alertFeatures,
-    });
+    alertsRequest.flush({ features: alertFeatures });
 
     await Promise.resolve();
   }

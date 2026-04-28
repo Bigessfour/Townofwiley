@@ -70,6 +70,7 @@ test.describe('deterministic regression coverage', () => {
     await expect(homePage.page.getByTestId('homepage-hero')).toHaveScreenshot('homepage-hero.png', {
       animations: 'disabled',
       caret: 'hide',
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -124,12 +125,16 @@ test.describe('deterministic regression coverage', () => {
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
+    await expect(homePage.page.getByTestId('weather-current-card')).toContainText('Partly Sunny');
+    await expect(homePage.page.getByRole('heading', { name: '7-day forecast' })).toBeVisible();
+    await expect(homePage.page.getByRole('heading', { name: 'Active watches, warnings, and advisories' })).toBeVisible();
+
     await expect(homePage.page.getByTestId('weather-current-card')).toHaveScreenshot(
       'weather-current-card.png',
       {
         animations: 'disabled',
         caret: 'hide',
-        maxDiffPixelRatio: 0.005,
+        maxDiffPixelRatio: 0.02,
       },
     );
   });

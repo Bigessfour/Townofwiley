@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, PLATFORM_ID, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -47,8 +48,10 @@ interface CalendarItem {
 export class MeetingsPage {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly copy = computed(() => APP_COPY[this.siteLanguageService.currentLanguage() || 'en']);
+  protected readonly isBrowser = computed(() => isPlatformBrowser(this.platformId));
   private readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();
@@ -69,8 +72,8 @@ export class MeetingsPage {
       recurrence: seed.recurrence,
       agendaNote: seed.agendaNote,
       actions: seed.extraActions ?? [],
-      startDate: new Date(seed.startLocal),
-      endDate: new Date(seed.endLocal),
+      startDate: this.parseCalendarSeedDate(seed.startLocal),
+      endDate: this.parseCalendarSeedDate(seed.endLocal),
     }));
   });
   protected readonly calendarOptions = computed(() => ({
@@ -87,7 +90,7 @@ export class MeetingsPage {
 
   private createMeetingItemFromEvent(event: CmsCalendarEvent): MeetingItem {
     const start = new Date(event.start);
-    const end = event.end ? new Date(event.end) : new Date(event.start);
+    const end = this.resolveCalendarEventEnd(event);
     return {
       title: event.title,
       schedule: this.formatCalendarEventDate(start, end),
@@ -98,7 +101,7 @@ export class MeetingsPage {
 
   private createCalendarItemFromEvent(event: CmsCalendarEvent): CalendarItem {
     const start = new Date(event.start);
-    const end = event.end ? new Date(event.end) : new Date(event.start);
+    const end = this.resolveCalendarEventEnd(event);
     return {
       id: event.id,
       title: event.title,
@@ -111,6 +114,40 @@ export class MeetingsPage {
       startDate: start,
       endDate: end,
     };
+  }
+
+  private resolveCalendarEventEnd(event: CmsCalendarEvent): Date {
+    if (event.end) {
+      const explicitEnd = new Date(event.end);
+
+      if (!Number.isNaN(explicitEnd.getTime())) {
+        return explicitEnd;
+      }
+    }
+
+    const defaultEnd = new Date(event.start);
+    defaultEnd.setHours(defaultEnd.getHours() + 1);
+
+    return defaultEnd;
+  }
+
+  private parseCalendarSeedDate(value: string): Date {
+    const match = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(value);
+
+    if (!match) {
+      return new Date(0);
+    }
+
+    const [, year, month, day, hour, minute, second] = match;
+
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second),
+    );
   }
 
   private formatCalendarEventDate(start: Date, end: Date): string {
@@ -126,4 +163,3 @@ export class MeetingsPage {
     return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
   }
 }
-

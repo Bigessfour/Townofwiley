@@ -3,6 +3,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    DestroyRef,
     inject,
     output,
     signal,
@@ -416,8 +417,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 })
 export class LocalizedWeatherPanel {
   private readonly http = inject(HttpClient);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly weatherConfig = this.getWeatherRuntimeConfig();
+  private isDestroyed = false;
   private readonly englishDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
@@ -553,6 +556,10 @@ export class LocalizedWeatherPanel {
   protected readonly radarImageUrl = 'https://radar.weather.gov/ridge/standard/KPUX_loop.gif';
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.isDestroyed = true;
+    });
+
     void this.loadWeather();
   }
 
@@ -740,11 +747,11 @@ export class LocalizedWeatherPanel {
     const primaryAlert = activeAlerts[0];
 
     if (!primaryAlert) {
-      this.activeAlertChange.emit(null);
+      this.safeEmitAlert(null);
       return;
     }
 
-    this.activeAlertChange.emit({
+    this.safeEmitAlert({
       total: activeAlerts.length,
       event: primaryAlert.event,
       headline: this.normalizeWhitespace(
@@ -757,6 +764,14 @@ export class LocalizedWeatherPanel {
       urgency: primaryAlert.urgency,
       forecastUrl: this.weatherGovUrl,
     });
+  }
+
+  private safeEmitAlert(alert: HomepageWeatherAlert | null): void {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    this.activeAlertChange.emit(alert);
   }
 
   private extractZoneCode(zoneUrl: string): string {
@@ -928,3 +943,4 @@ export class LocalizedWeatherPanel {
     };
   }
 }
+

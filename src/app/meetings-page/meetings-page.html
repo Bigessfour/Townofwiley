@@ -31,7 +31,9 @@
         <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
       </section>
     </header>
-    <full-calendar [options]="calendarOptions()"></full-calendar>
+    @if (isBrowser()) {
+      <full-calendar [options]="calendarOptions()"></full-calendar>
+    }
     <section class="stack-list">
       @for (item of calendarItems(); track item.id) {
         <article class="info-row meeting-card">
