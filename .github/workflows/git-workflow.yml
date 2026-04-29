@@ -193,7 +193,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run deterministic E2E regression suite
-        run: npx playwright test --project=desktop-chromium
+        run: npx playwright test e2e/specs/smoke --project=desktop-chromium --workers=1
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}

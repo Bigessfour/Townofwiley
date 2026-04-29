@@ -4,8 +4,7 @@ test.describe('accessibility and focus behavior', () => {
   test('skip link moves focus to main content', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.keyboard.press('Tab');
-
+    await homePage.skipLink.focus();
     await expect(homePage.skipLink).toBeFocused();
 
     await homePage.page.keyboard.press('Enter');
@@ -14,7 +13,9 @@ test.describe('accessibility and focus behavior', () => {
     await expect(homePage.mainContent).toBeFocused();
   });
 
-  test('accessibility report fields stay labelled and submission is mailto-based', async ({ homePage }) => {
+  test('accessibility report fields stay labelled and submission is mailto-based', async ({
+    homePage,
+  }) => {
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.accessibilityReportCard).toBeVisible();

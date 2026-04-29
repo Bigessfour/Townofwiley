@@ -1,9 +1,5 @@
-import { provideHttpClient } from '@angular/common/http';
-import {
-    ApplicationConfig,
-    ErrorHandler,
-    provideBrowserGlobalErrorListeners,
-} from '@angular/core';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
@@ -19,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     MessageService,
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     provideAnimations(),
     provideRouter(
       routes,
@@ -49,6 +45,7 @@ export const appConfig: ApplicationConfig = {
         menu: 1000,
         tooltip: 1100,
       },
-    }), provideClientHydration(withEventReplay()),
+    }),
+    provideClientHydration(withEventReplay()),
   ],
 };

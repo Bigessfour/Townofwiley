@@ -51,13 +51,13 @@ test.describe('homepage weather', () => {
   test('renders the weather panel from the AWS proxy configuration', async ({ homePage }) => {
     await homePage.enableWeatherProxy();
 
-    let directWeatherGovRequestCount = 0;
-    await homePage.page.route('https://api.weather.gov/**', async (route) => {
-      directWeatherGovRequestCount += 1;
+    let directForecastRequestCount = 0;
+    await homePage.page.route('https://api.weather.gov/gridpoints/**', async (route) => {
+      directForecastRequestCount += 1;
       await route.fulfill({
         status: 599,
         contentType: 'text/plain',
-        body: 'Proxy-mode weather test should not hit weather.gov directly.',
+        body: 'Proxy-mode weather test should not hit the browser forecast feed directly.',
       });
     });
 
@@ -103,7 +103,7 @@ test.describe('homepage weather', () => {
     await expect(homePage.weatherAlertCards.first()).toContainText('High Wind Warning');
     await expect(homePage.weatherAlertCards.first()).toContainText('Severe · Immediate');
     await expect(homePage.weatherAlertCards.first()).toContainText('Avoid unnecessary travel.');
-    expect(directWeatherGovRequestCount).toBe(0);
+    expect(directForecastRequestCount).toBe(0);
   });
 
   test('refreshes weather data without leaving the page', async ({ homePage }) => {

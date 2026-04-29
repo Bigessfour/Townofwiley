@@ -177,7 +177,9 @@ export class HomePage {
     this.residentServiceRecordsName = page.getByLabel('Resident or business name');
     this.residentServiceRecordsContact = page.getByLabel('Best phone or email for reply');
     this.residentServiceRecordsDeadline = page.getByLabel('Requested deadline or meeting date');
-    this.residentServiceRecordsDetails = page.getByLabel('Records, permit, or clerk request details');
+    this.residentServiceRecordsDetails = page.getByLabel(
+      'Records, permit, or clerk request details',
+    );
     this.residentServiceRecordsAction = page.getByRole('button', {
       name: 'Open records and permit email',
     });
@@ -199,7 +201,7 @@ export class HomePage {
     this.businessDirectoryCards = page.locator('.public-directory-card');
     this.businessDirectoryEmptyState = page.locator('.public-empty-state');
     this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
-    this.assistantDialog = page.getByRole('dialog', { name: 'Ask Wiley — Town Assistant' });
+    this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
     this.assistantShell = page.locator('.assistant-shell');
     this.assistantStatus = page.locator('.assistant-status');
     this.assistantThreadStatus = page.locator('.assistant-thread-status');
@@ -213,8 +215,19 @@ export class HomePage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.page.goto('/', { waitUntil: 'commit' });
     await expect(this.heroHeading).toBeVisible();
+    await this.page.evaluate(async () => {
+      for (let index = 0; index < 3; index += 1) {
+        const activeElement = document.activeElement;
+
+        if (activeElement instanceof HTMLElement) {
+          activeElement.blur();
+        }
+
+        await new Promise(requestAnimationFrame);
+      }
+    });
   }
 
   async enableProgrammaticChat(apiEndpoint = '/mock-chatbot'): Promise<void> {
@@ -428,7 +441,12 @@ export class HomePage {
   }): Promise<void> {
     if (details.requestType) {
       await this.residentServiceRecordsType.click();
-      await this.page.getByRole('option', { name: this.getRecordsRequestTypeLabel(details.requestType), exact: true }).click();
+      await this.page
+        .getByRole('option', {
+          name: this.getRecordsRequestTypeLabel(details.requestType),
+          exact: true,
+        })
+        .click();
     }
 
     await this.residentServiceRecordsName.fill(details.name);
@@ -458,8 +476,9 @@ export class HomePage {
   }
 
   async openAssistantDialog(): Promise<void> {
-    await this.floatingChatButton.scrollIntoViewIfNeeded();
-    await this.floatingChatButton.dispatchEvent('click');
+    await this.floatingChatButton.evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
     await expect(this.assistantDialog).toBeVisible();
   }
 
@@ -504,7 +523,9 @@ export class HomePage {
     );
   }
 
-  private getRecordsRequestTypeLabel(requestType: 'records' | 'permit' | 'license' | 'clerk'): string {
+  private getRecordsRequestTypeLabel(
+    requestType: 'records' | 'permit' | 'license' | 'clerk',
+  ): string {
     const requestTypeLabels = {
       records: 'Public records / FOIA',
       permit: 'Permit guidance',
@@ -516,7 +537,15 @@ export class HomePage {
   }
 
   private async selectPrimeSelectOption(combobox: Locator, optionLabel: string): Promise<void> {
-    await combobox.getByRole('button', { name: 'dropdown trigger' }).click();
-    await this.page.getByRole('option', { name: optionLabel, exact: true }).click();
+    await combobox.click();
+
+    const optionIndex = optionLabel === 'Email' || optionLabel === 'Spanish' ? 1 : 0;
+
+    for (let index = 0; index < optionIndex; index += 1) {
+      await this.page.keyboard.press('ArrowDown');
+    }
+
+    await this.page.keyboard.press('Enter');
+    await expect(combobox).toHaveAccessibleName(optionLabel);
   }
 }

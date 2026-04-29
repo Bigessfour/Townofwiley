@@ -1,14 +1,14 @@
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    PLATFORM_ID,
-    computed,
-    effect,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -42,10 +42,10 @@ import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { LoggingService } from './logging.service';
 import { RECORDS_CENTER_COPY } from './records-center/records-center';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    LocalizedCmsContentStore,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
@@ -320,7 +320,10 @@ interface AppCopy {
   leadershipGroups: LeadershipGroup[];
 }
 
-export const WEATHER_ALERT_POLICY_COPY: Record<SiteLanguage, { privacy: PolicyPageCopy; terms: PolicyPageCopy }> = {
+export const WEATHER_ALERT_POLICY_COPY: Record<
+  SiteLanguage,
+  { privacy: PolicyPageCopy; terms: PolicyPageCopy }
+> = {
   en: {
     privacy: {
       kicker: 'Privacy',
@@ -526,7 +529,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'These calendar cards show the latest meeting and community event information for Wiley.',
     calendarStatusFallbackSummary: 'Recurring town schedule',
     calendarStatusFallbackDetail:
-      'The calendar below lists Wiley\'s regular meetings and community events.',
+      "The calendar below lists Wiley's regular meetings and community events.",
     calendarStatusNextLabel: 'Next upcoming event',
     calendarStatusFallbackNextLabel: 'Next scheduled meeting',
     calendarManagedBadge: 'Updated event',
@@ -555,8 +558,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactKicker: 'Contact and Response Paths',
     contactHeading: 'Residents should always know where to go next',
     backHomeLabel: 'Return to homepage',
-    privacySummary: 'How the Town of Wiley uses contact information from the weather alert signup form.',
-    termsSummary: 'Message frequency, opt-out instructions, and program terms for Wiley weather alert texts.',
+    privacySummary:
+      'How the Town of Wiley uses contact information from the weather alert signup form.',
+    termsSummary:
+      'Message frequency, opt-out instructions, and program terms for Wiley weather alert texts.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
@@ -601,29 +606,25 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     topTasks: [
       {
         title: 'Pay utility bill',
-        description:
-          'Pay your water and utility bills online or find payment options.',
+        description: 'Pay your water and utility bills online or find payment options.',
         href: '/services#payment-help',
         note: 'Contact Town Hall for payment assistance.',
       },
       {
         title: 'Report a street or utility issue',
-        description:
-          'Report potholes, outages, drainage issues, or streetlight problems.',
+        description: 'Report potholes, outages, drainage issues, or streetlight problems.',
         href: '/services#issue-report',
         note: 'Submit your report directly to town services.',
       },
       {
         title: 'Find a meeting or agenda',
-        description:
-          'View upcoming meetings, agendas, and past minutes.',
+        description: 'View upcoming meetings, agendas, and past minutes.',
         href: '/meetings',
         note: 'All meeting information is available here.',
       },
       {
         title: 'Request records, permits, or clerk help',
-        description:
-          'Request public records, permits, or assistance from the clerk.',
+        description: 'Request public records, permits, or assistance from the clerk.',
         href: '/services#records-request',
         note: 'Use the form to submit your request.',
       },
@@ -652,10 +653,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Community deadlines and service updates',
         schedule: 'Seasonal notices and recurring town reminders',
-        format: 'A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.',
+        format:
+          'A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.',
         location: 'Town-wide notices and service locations',
-        agendaNote:
-          'Use this space for community items that are easier to follow on a calendar.',
+        agendaNote: 'Use this space for community items that are easier to follow on a calendar.',
         cta: 'Browse notices',
         href: '/notices',
       },
@@ -905,7 +906,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
     calendarHeading: 'Calendario publico',
-    calendarCopy: 'Vea las últimas reuniones del pueblo, agendas y eventos comunitarios para Wiley.',
+    calendarCopy:
+      'Vea las últimas reuniones del pueblo, agendas y eventos comunitarios para Wiley.',
     calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
     calendarJumpLabel: 'Ir a un mes',
     calendarJumpPlaceholder: 'Elija un mes',
@@ -958,8 +960,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactKicker: 'Contacto y rutas de respuesta',
     contactHeading: 'Los residentes siempre deben saber a donde ir despues',
     backHomeLabel: 'Volver a la pagina principal',
-    privacySummary: 'Como usa el Pueblo de Wiley la informacion de contacto del formulario de alertas del clima.',
-    termsSummary: 'Frecuencia de mensajes, instrucciones para cancelar y terminos del programa de alertas por texto de Wiley.',
+    privacySummary:
+      'Como usa el Pueblo de Wiley la informacion de contacto del formulario de alertas del clima.',
+    termsSummary:
+      'Frecuencia de mensajes, instrucciones para cancelar y terminos del programa de alertas por texto de Wiley.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
@@ -1002,29 +1006,25 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
-        description:
-          'Pague sus recibos de agua y servicios en línea o encuentre opciones de pago.',
+        description: 'Pague sus recibos de agua y servicios en línea o encuentre opciones de pago.',
         href: '/services#payment-help',
         note: 'Contacte al Ayuntamiento para asistencia con pagos.',
       },
       {
         title: 'Reportar un problema de calle o servicio',
-        description:
-          'Reportar baches, cortes, problemas de drenaje o alumbrado público.',
+        description: 'Reportar baches, cortes, problemas de drenaje o alumbrado público.',
         href: '/services#issue-report',
         note: 'Envíe su reporte directamente a los servicios del pueblo.',
       },
       {
         title: 'Encontrar una reunión o agenda',
-        description:
-          'Ver reuniones próximas, agendas y minutas pasadas.',
+        description: 'Ver reuniones próximas, agendas y minutas pasadas.',
         href: '/meetings',
         note: 'Toda la información de reuniones está disponible aquí.',
       },
       {
         title: 'Solicitar registros, permisos o ayuda del secretario',
-        description:
-          'Solicitar registros públicos, permisos o asistencia del secretario.',
+        description: 'Solicitar registros públicos, permisos o asistencia del secretario.',
         href: '/services#records-request',
         note: 'Use el formulario para enviar su solicitud.',
       },
@@ -1033,7 +1033,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Reunion ordinaria del concejo municipal',
         schedule: 'Cada segundo lunes a las 6:00 PM',
-        format: 'Presencial en el ayuntamiento de Wiley con materiales de agenda publicados antes de la reunion.',
+        format:
+          'Presencial en el ayuntamiento de Wiley con materiales de agenda publicados antes de la reunion.',
         location: 'Ayuntamiento de Wiley, 304 Main Street',
         agendaNote:
           'Los residentes pueden llamar al ayuntamiento al (719) 829-4974 o escribir al secretario antes de la reunion si desean ser agregados a la agenda.',
@@ -1053,7 +1054,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Fechas limite comunitarias y actualizaciones de servicio',
         schedule: 'Avisos estacionales y recordatorios recurrentes del pueblo',
-        format: 'Un resumen continuo para dias de limpieza, cierres, interrupciones de servicios y otras actualizaciones de tiempo.',
+        format:
+          'Un resumen continuo para dias de limpieza, cierres, interrupciones de servicios y otras actualizaciones de tiempo.',
         location: 'Avisos de todo el pueblo y ubicaciones de servicio',
         agendaNote:
           'Use este espacio para elementos comunitarios que se siguen mejor en un calendario.',
@@ -1304,7 +1306,7 @@ export class App {
   private readonly initialFragment =
     typeof window !== 'undefined'
       ? window.location.hash.replace(/^#/, '')
-      : this.router.parseUrl(this.router.url).fragment ?? '';
+      : (this.router.parseUrl(this.router.url).fragment ?? '');
   private readonly currentPath = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -1369,13 +1371,13 @@ export class App {
       prev: 'Previous',
       next: 'Next',
     },
-    events: this.calendarItems().map(item => ({
+    events: this.calendarItems().map((item) => ({
       title: item.title,
       start: item.startDate,
       end: item.endDate,
       allDay: false,
-      extendedProps: { item }
-    }))
+      extendedProps: { item },
+    })),
   }));
 
   protected readonly searchDraftQuery = signal('');
@@ -1408,8 +1410,8 @@ export class App {
       this.isRecordsMode() ||
       this.isContactMode() ||
       this.isAccessibilityMode() ||
-        this.isPrivacyMode() ||
-        this.isTermsMode() ||
+      this.isPrivacyMode() ||
+      this.isTermsMode() ||
       this.isBusinessesMode() ||
       this.isNewsMode(),
   );
@@ -1457,28 +1459,60 @@ export class App {
 
     return [
       { root: true, label: copy.homeLabel, routerLink: '/' },
-      { root: true, label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
+      {
+        root: true,
+        label: copy.featureTitles.weather,
+        routerLink: '/weather',
+        icon: 'pi pi-cloud',
+      },
       { root: true, label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
-      { root: true, label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+      {
+        root: true,
+        label: copy.featureTitles.meetings,
+        routerLink: '/meetings',
+        icon: 'pi pi-calendar',
+      },
       {
         root: true,
         label: copy.featureTitles.services,
         icon: 'pi pi-cog',
         items: [
           [
-            { label: copy.mobileOnlinePaymentsLabel, routerLink: ['/services'], fragment: 'payment-help' },
+            {
+              label: copy.mobileOnlinePaymentsLabel,
+              routerLink: ['/services'],
+              fragment: 'payment-help',
+            },
             { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
-            { label: copy.mobileRecordsLabel, routerLink: ['/services'], fragment: 'records-request' }
+            {
+              label: copy.mobileRecordsLabel,
+              routerLink: ['/services'],
+              fragment: 'records-request',
+            },
           ],
           [
             { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
             { label: copy.mobileLanguageAccessLabel, routerLink: '/accessibility' },
-            { label: copy.mobileSearchAllServicesLabel, routerLink: ['/'], fragment: 'search-panel' }
-          ]
-        ]
+            {
+              label: copy.mobileSearchAllServicesLabel,
+              routerLink: ['/'],
+              fragment: 'search-panel',
+            },
+          ],
+        ],
       },
-      { root: true, label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
-      { root: true, label: copy.featureTitles.contact, routerLink: '/contact', icon: 'pi pi-envelope' },
+      {
+        root: true,
+        label: copy.featureTitles.records,
+        routerLink: '/records',
+        icon: 'pi pi-folder',
+      },
+      {
+        root: true,
+        label: copy.featureTitles.contact,
+        routerLink: '/contact',
+        icon: 'pi pi-envelope',
+      },
     ];
   });
 
@@ -1714,7 +1748,9 @@ export class App {
 
     return liveEvents.length
       ? liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0))
-      : this.appCopy().calendarSeeds.map((seed, index) => this.createCalendarItem(seed, index === 0));
+      : this.appCopy().calendarSeeds.map((seed, index) =>
+          this.createCalendarItem(seed, index === 0),
+        );
   });
   protected readonly calendarTableTotalRecords = computed(() => this.calendarItems().length);
   protected readonly calendarTableFirst = computed(() => {
@@ -1731,15 +1767,15 @@ export class App {
     return Math.min(first, maxFirst);
   });
   protected readonly calendarTableRows = computed(() => this.calendarTableState().rows);
-  protected readonly calendarTableSortField = computed(() => this.calendarTableState().sortField ?? undefined);
-  protected readonly calendarTableSortOrder = computed(() => this.calendarTableState().sortOrder ?? 1);
+  protected readonly calendarTableSortField = computed(
+    () => this.calendarTableState().sortField ?? undefined,
+  );
+  protected readonly calendarTableSortOrder = computed(
+    () => this.calendarTableState().sortOrder ?? 1,
+  );
   protected readonly calendarTableItems = computed(() => {
     const state = this.calendarTableState();
-    const items = this.sortCalendarItems(
-      this.calendarItems(),
-      state.sortField,
-      state.sortOrder,
-    );
+    const items = this.sortCalendarItems(this.calendarItems(), state.sortField, state.sortOrder);
     const first = this.calendarTableFirst();
 
     return items.slice(first, first + state.rows);
@@ -1785,16 +1821,7 @@ export class App {
   private readonly weatherSearchKeywords = computed<string[]>(() =>
     this.siteLanguage() === 'en'
       ? ['weather', 'forecast', 'alerts', 'warning', 'watch', 'advisory', 'wind', 'snow']
-      : [
-          'clima',
-          'pronostico',
-          'alertas',
-          'advertencia',
-          'vigilancia',
-          'aviso',
-          'viento',
-          'nieve',
-        ],
+      : ['clima', 'pronostico', 'alertas', 'advertencia', 'vigilancia', 'aviso', 'viento', 'nieve'],
   );
   private readonly weatherSearchItems = computed<SearchItem[]>(() => {
     const copy = this.appCopy();
@@ -1973,7 +2000,13 @@ export class App {
   );
   private searchDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
-  protected focusMainContent(): void {
+  protected focusMainContent(event?: Event): void {
+    event?.preventDefault();
+
+    if (typeof window !== 'undefined') {
+      window.location.hash = 'main-content';
+    }
+
     queueMicrotask(() => {
       this.mainContent()?.nativeElement.focus();
     });
@@ -2081,7 +2114,18 @@ export class App {
       ['contact', 'clerk', 'email', 'phone', 'call'].includes(term),
     );
     const hasDocumentIntent = terms.some((term) =>
-      ['document', 'documents', 'record', 'records', 'minutes', 'packet', 'form', 'pdf', 'archive', 'guide'].includes(term),
+      [
+        'document',
+        'documents',
+        'record',
+        'records',
+        'minutes',
+        'packet',
+        'form',
+        'pdf',
+        'archive',
+        'guide',
+      ].includes(term),
     );
 
     if (!terms.every((term) => haystack.includes(term))) {
@@ -2110,7 +2154,10 @@ export class App {
       score += 30;
     }
 
-    if ((href === '/contact' || href.startsWith('mailto:') || href.startsWith('tel:')) && hasContactIntent) {
+    if (
+      (href === '/contact' || href.startsWith('mailto:') || href.startsWith('tel:')) &&
+      hasContactIntent
+    ) {
       score += 24;
     }
 
@@ -2520,10 +2567,12 @@ export class App {
         return (leftValue - rightValue) * direction;
       }
 
-      return String(leftValue).localeCompare(String(rightValue), undefined, {
-        numeric: true,
-        sensitivity: 'base',
-      }) * direction;
+      return (
+        String(leftValue).localeCompare(String(rightValue), undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }) * direction
+      );
     });
   }
 
@@ -2657,17 +2706,3 @@ export class App {
       .replace(/\n/g, '\\n');
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

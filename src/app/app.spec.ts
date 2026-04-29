@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-    HttpTestingController,
-    TestRequest,
-    provideHttpClientTesting,
+  HttpTestingController,
+  TestRequest,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -183,13 +183,19 @@ describe('App', () => {
         routerLink?: string;
         fragment?: string;
         url?: string;
-        items?: { label: string; routerLink?: string; fragment?: string; url?: string; command?: (event: unknown) => void }[][];
+        items?: {
+          label: string;
+          routerLink?: string;
+          fragment?: string;
+          url?: string;
+          command?: (event: unknown) => void;
+        }[][];
       };
     };
 
     const servicesMenu = component.menuItems().find((item) => item.label === 'Resident services');
 
-  expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
+    expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
     expect(servicesMenu).toBeDefined();
     expect(servicesMenu?.items).toHaveLength(2);
     expect(servicesMenu?.items?.[0]).toMatchObject([
@@ -234,7 +240,10 @@ describe('App', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance as App & {
-      activateMegaMenuItem: (item: { command?: (event: unknown) => void }, event: MouseEvent) => void;
+      activateMegaMenuItem: (
+        item: { command?: (event: unknown) => void },
+        event: MouseEvent,
+      ) => void;
     };
     const command = vi.fn();
     const preventDefault = vi.fn();
@@ -264,9 +273,9 @@ describe('App', () => {
     expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent).toContain(
       'Open the full town calendar',
     );
-    expect(
-      compiled.querySelector('a.text-link[href="#calendar"]')?.textContent,
-    ).toContain('Open the full town calendar');
+    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent).toContain(
+      'Open the full town calendar',
+    );
   });
 
   it('should map published CMS events into the meetings calendar month view', async () => {
@@ -294,7 +303,8 @@ describe('App', () => {
             {
               id: 'spring-cleanup-day',
               title: 'Spring Cleanup Day',
-              description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
+              description:
+                'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
               start: '2026-06-15T10:00:00-06:00',
               end: '2026-06-15T13:00:00-06:00',
@@ -352,7 +362,8 @@ describe('App', () => {
             {
               id: 'spring-cleanup-day',
               title: 'Spring Cleanup Day',
-              description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
+              description:
+                'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
               start: '2026-06-15T10:00:00-06:00',
               end: '2026-06-15T13:00:00-06:00',
@@ -378,7 +389,9 @@ describe('App', () => {
     expect(compiled.querySelector('.meeting-card .meeting-location')?.textContent).toContain(
       'Wiley Community Park',
     );
-    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent?.trim()).toBeTruthy();
+    expect(
+      compiled.querySelector('a.text-link[href="#calendar"]')?.textContent?.trim(),
+    ).toBeTruthy();
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
@@ -689,7 +702,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('volvio al canal publico del Servicio Nacional');
   });
 
-  type AlertFeature = {
+  interface AlertFeature {
     properties: {
       event: string;
       headline?: string;
@@ -699,7 +712,7 @@ describe('App', () => {
       instruction?: string;
       expires?: string;
     };
-  };
+  }
 
   /**
    * Flush pending weather HTTP request(s) after detectChanges().

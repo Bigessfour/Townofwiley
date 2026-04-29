@@ -13,7 +13,9 @@ test.describe('homepage chat', () => {
     await homePage.enableProgrammaticChat();
 
     const requestBodies: ChatRequestPayload[] = [];
-    let releaseFirstResponse = () => { /* intentional noop initially */ };
+    let releaseFirstResponse = () => {
+      /* intentional noop initially */
+    };
     const firstResponseGate = new Promise<void>((resolve) => {
       releaseFirstResponse = resolve;
     });
@@ -58,6 +60,7 @@ test.describe('homepage chat', () => {
     });
 
     await homePage.goto();
+    await homePage.openAssistantDialog();
 
     await expect(homePage.assistantShell).toBeVisible();
     await expect(homePage.assistantStatus).toContainText('Programmatic chat is online.');
@@ -132,6 +135,7 @@ test.describe('homepage chat', () => {
     });
 
     await homePage.goto();
+    await homePage.openAssistantDialog();
 
     await homePage.sendAssistantQuestion('Who is the mayor?');
 
