@@ -9,17 +9,21 @@
   </header>
 
   @if (featuredNotice(); as featuredNotice) {
-    <article class="featured-news-card grid gap-4 p-6 rounded-[28px]">
-      <div class="featured-news-copy grid gap-4">
+    <p-card class="featured-news-card" [pt]="newsCardPt">
+      <ng-template pTemplate="header">
         <p class="meta-label">{{ copy().featuredKicker }}</p>
         <h2>{{ featuredNotice.title }}</h2>
         <p class="featured-news-date">{{ featuredNotice.date }}</p>
+      </ng-template>
+      <ng-template pTemplate="content">
         <p>{{ featuredNotice.detail }}</p>
+      </ng-template>
+      <ng-template pTemplate="footer">
         <a href="/notices" class="button-cta button-cta--light featured-news-link">
           {{ copy().readArticleLabel }}
         </a>
-      </div>
-    </article>
+      </ng-template>
+    </p-card>
   }
 
   @if (remainingNotices().length) {
@@ -35,11 +39,15 @@
 
       <div class="public-card-grid news-card-grid">
         @for (item of remainingNotices(); track item.id) {
-          <article class="public-card news-card grid gap-3">
-            <p class="meta-label">{{ item.date }}</p>
-            <h3>{{ item.title }}</h3>
-            <p class="public-card-copy">{{ item.detail }}</p>
-          </article>
+          <p-card class="public-card news-card" [pt]="newsCardPt">
+            <ng-template pTemplate="header">
+              <p class="meta-label">{{ item.date }}</p>
+              <h3>{{ item.title }}</h3>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p class="public-card-copy">{{ item.detail }}</p>
+            </ng-template>
+          </p-card>
         }
       </div>
     </section>
@@ -70,20 +78,24 @@
 
     <div class="public-card-grid news-card-grid">
       @for (item of externalLinks(); track item.url) {
-        <article class="public-card news-card news-card--external grid gap-3">
-          <p class="meta-label">{{ item.source }}</p>
-          <h3>{{ item.title }}</h3>
-          <div class="public-card-actions flex flex-wrap gap-3">
-            <a
-              [href]="item.url"
-              target="_blank"
-              rel="noreferrer noopener"
-              class="button-cta button-cta--light"
-            >
-              {{ copy().readArticleLabel }}
-            </a>
-          </div>
-        </article>
+        <p-card class="public-card news-card news-card--external" [pt]="newsCardPt">
+          <ng-template pTemplate="header">
+            <p class="meta-label">{{ item.source }}</p>
+            <h3>{{ item.title }}</h3>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <div class="public-card-actions flex flex-wrap gap-3">
+              <a
+                [href]="item.url"
+                target="_blank"
+                rel="noreferrer noopener"
+                class="button-cta button-cta--light"
+              >
+                {{ copy().readArticleLabel }}
+              </a>
+            </div>
+          </ng-template>
+        </p-card>
       }
     </div>
   </section>

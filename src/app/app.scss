@@ -220,7 +220,13 @@
   overflow: hidden;
 }
 
+.site-alert-header,
+.site-alert-footer {
+  padding: var(--card-padding);
+}
+
 .site-alert-body {
+  /* Legacy for any remaining body content; templates now handle header/footer */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -239,6 +245,10 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-sm);
+}
+
+.site-alert-footer {
+  border-top: 1px solid color-mix(in srgb, var(--surface-inverse) 20%, transparent);
 }
 
 .site-alert-label,
@@ -925,6 +935,17 @@ h6 {
   display: grid;
   gap: var(--section-gap-compact);
   padding: var(--panel-padding);
+}
+
+/* Support for PrimeNG Card templates (header now contains section-kicker/h2) */
+.panel :where(.p-card-header) {
+  padding: 0;
+  margin-bottom: var(--space-md);
+}
+
+.panel .p-card-header :where(.section-header) {
+  margin: 0;
+  padding: 0;
 }
 
 .support-card-body {
@@ -1657,32 +1678,6 @@ h6 {
 .calendar-header-copy {
   display: grid;
   gap: var(--space-md);
-}
-
-.calendar-overview-card {
-  width: min(100%, 36rem);
-  justify-self: end;
-}
-
-:host ::ng-deep .calendar-overview-card.p-card {
-  border: 1px solid rgba(13, 44, 84, 0.12);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 241, 231, 0.94));
-  box-shadow: var(--shadow-medium);
-}
-
-:host ::ng-deep .calendar-overview-card .p-card-body {
-  padding: 0;
-}
-
-:host ::ng-deep .calendar-overview-card .p-card-content {
-  display: grid;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-}
-
-:host ::ng-deep .calendar-overview-card .p-card-title {
-  margin: 0;
 }
 
 .calendar-tools-toolbar {
@@ -2605,12 +2600,16 @@ button:not(:disabled):active,
     grid-template-columns: 1fr;
   }
 
-  .site-alert-body {
+  .site-alert-header,
+  .site-alert-body,
+  .site-alert-footer {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .support-card-body {
+  .support-card-body,
+  .support-card-header,
+  .support-card-footer {
     grid-template-columns: 1fr;
   }
 

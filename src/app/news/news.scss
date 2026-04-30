@@ -23,47 +23,44 @@
   color: var(--ink-700);
 }
 
-.featured-news-card {
-  border: 1px solid var(--surface-border-strong);
+/* Consolidated with app.scss card styles + PrimeNG p-card templates/PT */
+.featured-news-card.p-card,
+.public-card.p-card {
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
+  border-radius: 24px;
+  box-shadow: var(--surface-shadow-soft);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Featured has accent left border */
+.featured-news-card.p-card {
   border-left: 6px solid var(--civic-blue);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
-  border-radius: 24px;
-  box-shadow: var(--surface-shadow-soft);
   padding: 1.75rem;
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
 }
 
-.public-card {
-  border: 1px solid var(--surface-border);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--surface-shadow-soft);
-}
-
-/* Local Notices — official town look */
-.news-section-local .public-card {
-  border: 1px solid var(--surface-border);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
-  border-radius: 24px;
-  box-shadow: var(--surface-shadow-soft);
+/* Local vs External variants via PT or class */
+.news-section-local .public-card.p-card {
   padding: 1.5rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-/* Regional Coverage — lighter, secondary-source look */
-.news-section-external .public-card {
-  border: 1px solid var(--surface-border);
+.news-section-external .public-card.p-card,
+.news-card--external.p-card {
   background: linear-gradient(180deg, var(--surface-card), color-mix(in srgb, var(--surface-card-soft) 84%, var(--p-primary-50)));
-  border-radius: 24px;
-  box-shadow: var(--surface-shadow-soft);
-  padding: 1.5rem;
-  height: 100%;
 }
 
-.news-card--external {
-  background: linear-gradient(180deg, var(--surface-card), color-mix(in srgb, var(--surface-card-soft) 84%, var(--p-primary-50)));
+/* PrimeNG template regions */
+.news-card-header,
+.news-card-content,
+.news-card-footer {
+  padding: 0;
+}
+
+.news-card-content {
+  flex: 1;
 }
 
 .button-cta {

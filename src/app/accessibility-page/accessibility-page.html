@@ -1,7 +1,9 @@
 <section class="feature-detail-stack">
   <p-card class="panel" id="accessibility">
-    <p class="section-kicker">{{ copy().accessibilityKicker }}</p>
-    <h1>{{ copy().accessibilityHeading }}</h1>
+    <ng-template pTemplate="header">
+      <p class="section-kicker">{{ copy().accessibilityKicker }}</p>
+      <h1>{{ copy().accessibilityHeading }}</h1>
+    </ng-template>
     <div class="stack-list">
       @for (item of accessibilityItems(); track item.title) {
         <article class="info-row accessibility-row">

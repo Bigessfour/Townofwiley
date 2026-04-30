@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { CardModule } from 'primeng/card';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -64,6 +65,7 @@ const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
 
 @Component({
   selector: 'app-news',
+  imports: [CardModule],
   templateUrl: './news.html',
   styleUrl: './news.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,4 +87,10 @@ export class News {
   });
   protected readonly featuredNotice = computed(() => this.newsItems()[0] ?? null);
   protected readonly remainingNotices = computed(() => this.newsItems().slice(1));
+
+  protected readonly newsCardPt = {
+    header: { class: 'news-card-header' },
+    content: { class: 'news-card-content' },
+    footer: { class: 'news-card-footer' },
+  };
 }

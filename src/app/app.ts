@@ -1367,14 +1367,18 @@ export class App {
   protected readonly sidebarVisible = signal(false);
   protected readonly mobileMenuItems = computed(() => this.menuItems());
   protected readonly siteAlertCardPt = {
-    body: {
-      class: 'site-alert-body',
-    },
+    header: { class: 'site-alert-header' },
+    body: { class: 'site-alert-body' },
+    footer: { class: 'site-alert-footer' },
   };
   protected readonly supportCardPt = {
-    body: {
-      class: 'support-card-body',
-    },
+    header: { class: 'support-card-header' },
+    body: { class: 'support-card-body' },
+    footer: { class: 'support-card-footer' },
+  };
+  protected readonly taskCardPt = {
+    title: { class: 'task-card-title' },
+    content: { class: 'task-card-content' },
   };
   protected readonly desktopMegaMenuPt = {
     item: {

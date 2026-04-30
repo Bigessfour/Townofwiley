@@ -138,19 +138,25 @@
   text-align: right;
 }
 
-.assistant-message {
+.assistant-message.p-card {
   border-radius: 20px;
   background: color-mix(in srgb, var(--p-surface-0) 12%, transparent);
+  border: none;
 }
 
-.assistant-message.is-user {
+.assistant-message.is-user.p-card {
   background: color-mix(in srgb, var(--button-accent-end) 28%, transparent);
+}
+
+.assistant-message-header {
+  padding: 1rem 1rem 0;
 }
 
 .assistant-message p {
   margin: 0;
   white-space: pre-line;
   color: var(--hero-text);
+  padding: 0 1rem 1rem;
 }
 
 .assistant-form {

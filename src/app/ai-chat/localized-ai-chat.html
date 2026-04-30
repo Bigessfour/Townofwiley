@@ -79,13 +79,15 @@
       <p-scrollPanel #messagesContainer styleClass="assistant-messages-scroll pr-2" [style.height]="'350px'">
         <div class="assistant-messages-container grid gap-4">
           @for (message of messages(); track $index) {
-            <p-card [styleClass]="message.role === 'user' ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none' : 'assistant-message surface-100 border-none'">
-              <div class="message-content-container block">
+            <p-card [styleClass]="message.role === 'user' ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none' : 'assistant-message surface-100 border-none'" [pt]="messageCardPt">
+              <ng-template pTemplate="header">
                 <span class="assistant-role block text-xs font-semibold mb-2 opacity-70">{{
                   message.role === 'user' ? copy().userRole : copy().assistantRole
                 }}</span>
+              </ng-template>
+              <div class="message-content-container block">
                 <p class="m-0 line-height-3">{{ message.content }}</p>
-  
+
                 @if (message.links?.length) {
                   <div class="assistant-links flex flex-wrap gap-2 mt-3 pt-3 border-top-1 surface-border">
                     @for (link of message.links; track link.href) {

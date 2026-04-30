@@ -1,7 +1,9 @@
 <section class="feature-detail-stack">
   <p-card class="panel" aria-labelledby="meetings-heading">
-    <p class="section-kicker">{{ copy().meetingsKicker }}</p>
-    <h1 id="meetings-heading">{{ copy().meetingsHeading }}</h1>
+    <ng-template pTemplate="header">
+      <p class="section-kicker">{{ copy().meetingsKicker }}</p>
+      <h1 id="meetings-heading">{{ copy().meetingsHeading }}</h1>
+    </ng-template>
     <section class="stack-list">
       @for (meeting of meetings(); track meeting.title) {
         <article class="info-row meeting-card">
@@ -24,13 +26,15 @@
   </p-card>
 
   <p-card class="panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">
-    <p class="section-kicker">{{ copy().calendarKicker }}</p>
-    <header class="calendar-header">
-      <section class="calendar-header-copy">
-        <h2 id="calendar-heading">{{ copy().calendarHeading }}</h2>
-        <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
-      </section>
-    </header>
+    <ng-template pTemplate="header">
+      <p class="section-kicker">{{ copy().calendarKicker }}</p>
+      <header class="calendar-header">
+        <section class="calendar-header-copy">
+          <h2 id="calendar-heading">{{ copy().calendarHeading }}</h2>
+          <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
+        </section>
+      </header>
+    </ng-template>
     @if (isBrowser()) {
       <full-calendar [options]="calendarOptions()"></full-calendar>
     }

@@ -25,33 +25,37 @@
           [attr.aria-labelledby]="'site-alert-title'"
           [attr.aria-describedby]="'site-alert-detail'"
         >
-          <div class="site-alert-copy">
-            <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
-            <p class="site-alert-label">{{ alertBanner().label }}</p>
-            <strong id="site-alert-title" class="site-alert-title">{{
-              alertBanner().title
-            }}</strong>
-            <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
-          </div>
+          <ng-template pTemplate="header">
+            <div class="site-alert-copy">
+              <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
+              <p class="site-alert-label">{{ alertBanner().label }}</p>
+              <strong id="site-alert-title" class="site-alert-title">{{
+                alertBanner().title
+              }}</strong>
+              <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
+            </div>
+          </ng-template>
 
-          <div class="site-alert-actions">
-            @if (alertBanner().linkLabel && alertBanner().linkHref) {
+          <ng-template pTemplate="footer">
+            <div class="site-alert-actions">
+              @if (alertBanner().linkLabel && alertBanner().linkHref) {
+                <a
+                  class="site-alert-link button-cta button-cta--ghost"
+                  [attr.href]="alertBanner().linkHref"
+                >
+                  {{ alertBanner().linkLabel }}
+                </a>
+              }
+
               <a
-                class="site-alert-link button-cta button-cta--ghost"
-                [attr.href]="alertBanner().linkHref"
+                class="site-alert-button button-cta button-cta--ghost"
+                routerLink="/weather"
+                (click)="trackAlertSignupClick()"
               >
-                {{ alertBanner().linkLabel }}
+                {{ appCopy().alertActionLabel }}
               </a>
-            }
-
-            <a
-              class="site-alert-button button-cta button-cta--ghost"
-              routerLink="/weather"
-              (click)="trackAlertSignupClick()"
-            >
-              {{ appCopy().alertActionLabel }}
-            </a>
-          </div>
+            </div>
+          </ng-template>
         </p-card>
       }
     </section>
@@ -261,33 +265,37 @@
       [attr.aria-labelledby]="'nws-alert-title'"
       [attr.aria-describedby]="'nws-alert-detail'"
     >
-      <div class="site-alert-copy">
-        <p class="site-alert-headline">{{ appCopy().nwsAlertLabel }}</p>
-        <h2 id="nws-alert-title" class="site-alert-title">{{ alert.event }}</h2>
-        <p id="nws-alert-detail" class="site-alert-detail">{{ alert.headline }}</p>
-        @if (alert.instruction) {
-          <p class="site-alert-instruction">{{ alert.instruction }}</p>
-        }
-      </div>
+      <ng-template pTemplate="header">
+        <div class="site-alert-copy">
+          <p class="site-alert-headline">{{ appCopy().nwsAlertLabel }}</p>
+          <h2 id="nws-alert-title" class="site-alert-title">{{ alert.event }}</h2>
+          <p id="nws-alert-detail" class="site-alert-detail">{{ alert.headline }}</p>
+          @if (alert.instruction) {
+            <p class="site-alert-instruction">{{ alert.instruction }}</p>
+          }
+        </div>
+      </ng-template>
 
-      <div class="site-alert-actions">
-        <a
-          class="site-alert-link button-cta button-cta--ghost"
-          [attr.href]="alert.forecastUrl"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          {{ appCopy().nwsAlertLinkLabel }}
-        </a>
+      <ng-template pTemplate="footer">
+        <div class="site-alert-actions">
+          <a
+            class="site-alert-link button-cta button-cta--ghost"
+            [attr.href]="alert.forecastUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {{ appCopy().nwsAlertLinkLabel }}
+          </a>
 
-        <a
-          class="site-alert-button button-cta button-cta--ghost"
-          routerLink="/weather"
-          (click)="trackAlertSignupClick()"
-        >
-          {{ appCopy().alertActionLabel }}
-        </a>
-      </div>
+          <a
+            class="site-alert-button button-cta button-cta--ghost"
+            routerLink="/weather"
+            (click)="trackAlertSignupClick()"
+          >
+            {{ appCopy().alertActionLabel }}
+          </a>
+        </div>
+      </ng-template>
     </p-card>
   }
 
@@ -318,8 +326,10 @@
           } @else if (isServicesMode()) {
             <section class="feature-detail-stack">
               <p-card class="panel service-panel" id="services">
-                <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
-                <h1>{{ appCopy().servicesHeading }}</h1>
+                <ng-template pTemplate="header">
+                  <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
+                  <h1>{{ appCopy().servicesHeading }}</h1>
+                </ng-template>
                 <section class="service-grid">
                   @for (service of serviceCards(); track service.title) {
                     <article class="service-card">
@@ -351,8 +361,10 @@
           } @else if (isRecordsMode()) {
             <section class="feature-detail-stack">
               <p-card class="panel" id="records">
-                <p class="section-kicker">{{ appCopy().transparencyKicker }}</p>
-                <h2>{{ appCopy().transparencyHeading }}</h2>
+                <ng-template pTemplate="header">
+                  <p class="section-kicker">{{ appCopy().transparencyKicker }}</p>
+                  <h2>{{ appCopy().transparencyHeading }}</h2>
+                </ng-template>
                 <div class="stack-list">
                   @for (item of transparencyItems(); track item.title) {
                     <article class="info-row">
@@ -438,7 +450,7 @@
             @if (resolveAppLink(task.href); as taskLink) {
               @if (taskLink.isInternal) {
                 <a class="task-card" [routerLink]="taskLink.path" [fragment]="taskLink.fragment">
-                  <p-card styleClass="task-card-surface">
+                  <p-card styleClass="task-card-surface" [pt]="taskCardPt">
                     <div class="task-card-inner">
                       <span class="task-card-icon" aria-hidden="true">
                         @switch (taskIndex) {
@@ -477,17 +489,19 @@
                         }
                       </span>
 
-                      <div class="task-card-copy">
-                        <strong>{{ task.title }}</strong>
-                        <span>{{ task.description }}</span>
-                        <small>{{ task.note }}</small>
-                      </div>
+                      <ng-template pTemplate="title">
+                        <div class="task-card-copy">
+                          <strong>{{ task.title }}</strong>
+                          <span>{{ task.description }}</span>
+                          <small>{{ task.note }}</small>
+                        </div>
+                      </ng-template>
                     </div>
                   </p-card>
                 </a>
               } @else {
                 <a class="task-card" [attr.href]="taskLink.href">
-                  <p-card styleClass="task-card-surface">
+                  <p-card styleClass="task-card-surface" [pt]="taskCardPt">
                     <div class="task-card-inner">
                       <span class="task-card-icon" aria-hidden="true">
                         @switch (taskIndex) {
@@ -526,11 +540,13 @@
                         }
                       </span>
 
-                      <div class="task-card-copy">
-                        <strong>{{ task.title }}</strong>
-                        <span>{{ task.description }}</span>
-                        <small>{{ task.note }}</small>
-                      </div>
+                      <ng-template pTemplate="title">
+                        <div class="task-card-copy">
+                          <strong>{{ task.title }}</strong>
+                          <span>{{ task.description }}</span>
+                          <small>{{ task.note }}</small>
+                        </div>
+                      </ng-template>
                     </div>
                   </p-card>
                 </a>
@@ -606,17 +622,19 @@
 
       <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">
         <p-card class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
-          <header
-            class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
-          >
-            <div>
-              <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
-              <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
-            </div>
-            <a class="text-link" routerLink="/meetings" fragment="calendar">{{
-              appCopy().openCalendarLabel
-            }}</a>
-          </header>
+          <ng-template pTemplate="header">
+            <header
+              class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
+            >
+              <div>
+                <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
+                <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
+              </div>
+              <a class="text-link" routerLink="/meetings" fragment="calendar">{{
+                appCopy().openCalendarLabel
+              }}</a>
+            </header>
+          </ng-template>
 
           <div class="stack-list grid gap-3">
             @for (meeting of meetings(); track meeting.title) {
@@ -652,15 +670,17 @@
         </p-card>
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
-          <header
-            class="section-header landing-section-header landing-notices-header grid lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
-          >
-            <div>
-              <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
-              <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
-            </div>
-            <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
-          </header>
+          <ng-template pTemplate="header">
+            <header
+              class="section-header landing-section-header landing-notices-header grid lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
+            >
+              <div>
+                <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
+                <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
+              </div>
+              <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
+            </header>
+          </ng-template>
 
           <p-timeline class="landing-notice-timeline" [value]="notices()" align="left">
             <ng-template #opposite let-notice>
@@ -724,8 +744,10 @@
           [pt]="supportCardPt"
           aria-labelledby="stay-informed-heading"
         >
-          <p class="section-kicker">{{ appCopy().stayInformedKicker }}</p>
-          <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
+          <ng-template pTemplate="header">
+            <p class="section-kicker">{{ appCopy().stayInformedKicker }}</p>
+            <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
+          </ng-template>
           <p class="feature-hub-copy">
             {{ appCopy().stayInformedBody }}
           </p>

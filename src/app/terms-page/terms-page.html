@@ -1,7 +1,9 @@
 <section class="feature-detail-stack">
   <p-card class="panel" id="terms">
-    <p class="section-kicker">{{ copy().kicker }}</p>
-    <h1>{{ copy().title }}</h1>
+    <ng-template pTemplate="header">
+      <p class="section-kicker">{{ copy().kicker }}</p>
+      <h1>{{ copy().title }}</h1>
+    </ng-template>
     <p class="feature-hub-copy">{{ copy().intro }}</p>
     <div class="stack-list">
       @for (item of copy().items; track item.title) {

@@ -217,6 +217,10 @@ export class LocalizedAiChat {
   });
   protected readonly messages = signal<ChatMessage[]>([this.createWelcomeMessage()]);
 
+  protected readonly messageCardPt = {
+    header: { class: 'assistant-message-header' },
+  };
+
   constructor() {
     effect(() => {
       this.copy();
