@@ -26,7 +26,6 @@ import { DrawerModule } from 'primeng/drawer';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
 import { MegaMenuModule } from 'primeng/megamenu';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -1313,7 +1312,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ToastModule,
     MegaMenuModule,
     CardModule,
-    SelectButtonModule,
     FullCalendarModule,
     RouterOutlet,
     LocalizedAiChat,

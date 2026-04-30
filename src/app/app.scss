@@ -673,105 +673,57 @@
 }
 
 .site-language-switcher {
-  /* More prominent per Phase 2: larger touch targets, stronger visual weight, better contrast */
-  display: inline-grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-xs) var(--space-sm);
-  min-width: 0;
+  /* Ultra-compact per PrimeNG MegaMenu template patterns and user request.
+     Uses custom button group for minimal footprint while maintaining accessibility,
+     touch targets (>=44px), contrast, and professional civic appearance. */
+  display: inline-flex;
   align-items: center;
-  justify-items: stretch;
-  padding: var(--space-sm);
-  border: 2px solid var(--surface-border-strong);
+  min-width: 0;
+}
+
+/* ── Language Toggle (PrimeNG MegaMenu end template) ─────────────────────── */
+.site-language-toggle {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  background: var(--header-link-surface);
+  border: 1px solid var(--header-border);
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--surface-card) 96%, var(--p-surface-0));
-  box-shadow: var(--shadow-medium);
-  font-size: var(--font-size-body);
+  padding: 2px;
+  min-height: var(--header-touch);
+  align-items: center;
+}
+
+.language-toggle-btn {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--header-control-size);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink-900);
-}
-
-.site-language-label {
-  padding-inline-start: var(--space-sm);
-  font: inherit;
-  color: var(--ink-900);
-  white-space: nowrap;
-  font-weight: 700;
-  font-size: var(--font-size-body);
-}
-
-:host ::ng-deep .p-togglebutton.site-language-selectbutton,
-:host ::ng-deep .p-togglebutton.site-language-selectbutton .p-togglebutton-content,
-:host ::ng-deep p-togglebutton.site-language-selectbutton {
-  min-height: var(--header-touch) !important;
-  box-sizing: border-box;
-}
-
-:host ::ng-deep .p-togglebutton.site-language-selectbutton {
-  /* Larger for Phase 2 prominence and better mobile tap targets */
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-body);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  min-height: 3rem;
-}
-
-:host
-  ::ng-deep
-  .site-language-switcher
-  .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked) {
   background: transparent;
-  color: var(--ink-900) !important;
-  border-color: transparent !important;
-  box-shadow: none;
-}
-
-:host
-  ::ng-deep
-  .site-language-switcher
-  .p-togglebutton.site-language-selectbutton
-  .p-togglebutton-content {
-  color: inherit !important;
-}
-
-:host
-  ::ng-deep
-  .site-language-switcher
-  .p-togglebutton.site-language-selectbutton
-  .p-togglebutton-label {
-  color: inherit !important;
-  display: block;
-  min-width: 2.25rem; /* Increased to prevent bilingual label clipping (EN/ES) */
-  text-align: center;
+  cursor: pointer;
+  transition: all var(--motion-medium) var(--motion-ease);
+  min-height: calc(var(--header-touch) - 8px);
+  min-width: 2.1rem;
   white-space: nowrap;
-  opacity: 1;
+  line-height: 1;
 }
 
-:host ::ng-deep .site-language-switcher .p-selectbutton,
-:host ::ng-deep .site-language-switcher .p-togglebutton.site-language-selectbutton {
-  min-width: 5rem; /* Increased to prevent bilingual label clipping per visual-box audit */
+.language-toggle-btn:hover {
+  background: var(--header-link-surface-hover);
 }
 
-:host
-  ::ng-deep
-  .site-language-switcher
-  .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked)
-  .p-togglebutton-label,
-.site-language-switcher .p-selectbutton .p-button-label {
-  color: var(--ink-900) !important;
-  white-space: nowrap;
-  overflow: visible;
-}
-
-:host ::ng-deep .p-togglebutton.site-language-selectbutton.p-togglebutton-checked {
+.language-toggle-btn.active,
+.language-toggle-btn[aria-pressed='true'] {
   background: var(--brand-gradient-strong);
   color: var(--surface-inverse);
-  border-color: transparent;
   box-shadow: var(--shadow-subtle);
 }
+
+/* Legacy SelectButton rules can be cleaned up later if SelectButtonModule is fully removed */
 
 .utility-strip {
   max-width: 1240px;
@@ -2561,7 +2513,6 @@ button:not(:disabled):active,
 
   .site-language-switcher {
     justify-self: start;
-    justify-items: stretch;
   }
 
   .info-buttons {
@@ -2599,7 +2550,6 @@ button:not(:disabled):active,
   .utility-strip,
   .site-language-switcher {
     justify-self: start;
-    justify-items: stretch;
   }
 
   .utility-strip {

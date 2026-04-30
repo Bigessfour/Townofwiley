@@ -150,23 +150,27 @@
             </div>
           </form>
         }
-        <div class="site-language-switcher">
-          <label class="site-language-label" for="mega-language-switcher">{{
-            appCopy().languageLabel
-          }}</label>
-          <p-selectbutton
-            inputId="mega-language-switcher"
-            [options]="languageChoices()"
-            [ngModel]="siteLanguage()"
-            (ngModelChange)="updateSiteLanguage($event)"
-            [ngModelOptions]="{ standalone: true }"
-            optionLabel="label"
-            optionValue="value"
-            [allowEmpty]="false"
-            size="small"
-            styleClass="site-language-selectbutton"
+        <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
+          <div
+            class="site-language-toggle flex flex-row gap-1"
+            role="group"
             [attr.aria-label]="appCopy().languageLabel"
-          />
+          >
+            @for (choice of languageChoices(); track choice.value) {
+              <button
+                type="button"
+                class="language-toggle-btn"
+                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                [class.active]="siteLanguage() === choice.value"
+                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                [attr.aria-pressed]="siteLanguage() === choice.value"
+                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                (click)="updateSiteLanguage(choice.value)"
+              >
+                {{ choice.label }}
+              </button>
+            }
+          </div>
         </div>
         <a class="contact-button" routerLink="/contact" (click)="sidebarVisible.set(false)">
           <i class="pi pi-envelope" aria-hidden="true"></i>
