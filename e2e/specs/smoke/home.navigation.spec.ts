@@ -211,6 +211,8 @@ test.describe('homepage navigation', () => {
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
     await homePage.page.getByRole('button', { name: 'ES' }).click();
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /es/i);
+    await homePage.page.getByRole('button', { name: 'EN' }).click();
+    await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
 
     // Test business directory buttons/logging
     await homePage.page.goto('/businesses');

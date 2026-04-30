@@ -196,11 +196,15 @@ test('returns 502 when the upstream NWS request fails', async (t) => {
 });
 
 test('returns 204 for OPTIONS preflight with CORS headers', async () => {
-  const response = await handler({ requestContext: { http: { method: 'OPTIONS' } } });
+  const response = await handler({
+    headers: { origin: 'http://localhost:4200' },
+    requestContext: { http: { method: 'OPTIONS' } },
+  });
 
   assert.equal(response.statusCode, 204);
-  assert.equal(response.headers['access-control-allow-origin'], '*');
+  assert.equal(response.headers['access-control-allow-origin'], 'http://localhost:4200');
   assert.match(response.headers['access-control-allow-methods'], /GET/);
+  assert.equal(response.headers.vary, 'Origin');
 });
 
 test('returns 405 for unsupported methods', async () => {

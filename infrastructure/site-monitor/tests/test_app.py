@@ -114,10 +114,7 @@ class SiteMonitorTests(unittest.TestCase):
         '<html><body>Public Document Hub Stable public destinations for meetings, finance records, and code references</body></html>',
       ),
       ('GET', 'https://townofwiley.gov/admin'): FakeResponse(
-        '<html><body>Open CMS Data Manager Amplify Studio</body></html>',
-      ),
-      ('GET', 'https://townofwiley.gov/clerk-setup'): FakeResponse(
-        '<html><body>One place to manage Town website content</body></html>',
+        '<html><body>Open Amplify Studio Data Manager CMS Connection Status</body></html>',
       ),
       ('POST', 'https://example.appsync-api.us-east-2.amazonaws.com/graphql'): FakeResponse(
         json.dumps({'data': {'listSiteSettings': {'items': []}}}),
@@ -140,7 +137,6 @@ class SiteMonitorTests(unittest.TestCase):
       config=APP.AppConfig(
         site_url='https://townofwiley.gov',
         admin_url='https://townofwiley.gov/admin',
-        clerk_setup_url='https://townofwiley.gov/clerk-setup',
         cms_endpoint='https://example.appsync-api.us-east-2.amazonaws.com/graphql',
         cms_api_key='test-key',
         notification_recipient='bigessfour@gmail.com',
@@ -218,7 +214,6 @@ class SiteMonitorTests(unittest.TestCase):
       config=APP.AppConfig(
         site_url='https://townofwiley.gov',
         admin_url='https://townofwiley.gov/admin',
-        clerk_setup_url='https://townofwiley.gov/clerk-setup',
         cms_endpoint='https://example.appsync-api.us-east-2.amazonaws.com/graphql',
         cms_api_key='test-key',
         notification_recipient='bigessfour@gmail.com',

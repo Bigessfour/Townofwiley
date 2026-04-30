@@ -44,7 +44,12 @@
     {
       "label": "rerun-failed-playwright-tests",
       "type": "shell",
-      "command": "npx playwright test e2e/specs/best-practices/deterministic-coverage.spec.ts e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep 'captures the homepage section navigation accessibility tree|captures the site-language accessibility group|keeps the homepage hero visually stable|keeps the weather summary card visually stable|filters external news coverage against a fixed clock|business directory snapshot|meetings calendar tab interaction'",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/best-practices/deterministic-coverage.spec.ts e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep 'captures the homepage section navigation accessibility tree|captures the site-language accessibility group|keeps the homepage hero visually stable|keeps the weather summary card visually stable|filters external news coverage against a fixed clock|business directory snapshot|meetings calendar tab interaction'",
       "isBackground": false,
       "problemMatcher": ["$playwright"],
       "group": "build"
@@ -52,25 +57,40 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "npm run build",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' build",
       "group": "build"
     },
     {
       "label": "test:unit",
       "type": "shell",
-      "command": "npm run test:unit",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' test",
       "group": "test"
     },
     {
       "label": "test:e2e:smoke",
       "type": "shell",
-      "command": "npm run test:e2e:smoke",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/smoke --workers=1",
       "group": "test"
     },
     {
       "label": "lint",
       "type": "shell",
-      "command": "npm run lint",
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' lint",
       "group": "build"
     },
     {
@@ -82,7 +102,12 @@
     {
       "label": "serve:debug",
       "type": "shell",
-      "command": "npm run start -- --host 127.0.0.1 --port 4300",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' serve --host 127.0.0.1 --port 4300",
       "isBackground": true,
       "problemMatcher": [
         {
@@ -104,12 +129,22 @@
     {
       "label": "Update ai chat html",
       "type": "shell",
-      "command": "node fix_ai_chat.js"
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "$env:PATH='/opt/homebrew/opt/node@24/bin;' + $env:PATH; & '/opt/homebrew/opt/node@24/bin/node' fix_ai_chat.js"
     },
     {
       "label": "validate weather smoke proxy",
       "type": "shell",
-      "command": "npx",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js'",
       "args": [
         "playwright",
         "test",
@@ -125,7 +160,12 @@
     {
       "label": "local frontend smoke desktop serial",
       "type": "shell",
-      "command": "npx",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js'",
       "args": [
         "playwright",
         "test",
@@ -133,6 +173,18 @@
         "--project=desktop-chromium",
         "--workers=1"
       ],
+      "isBackground": false,
+      "group": "test"
+    },
+    {
+      "label": "smoke: meetings spec",
+      "type": "shell",
+      "options": {
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+        }
+      },
+      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep \"meetings page keeps the calendar and meeting summary reachable\" --workers=1",
       "isBackground": false,
       "group": "test"
     }

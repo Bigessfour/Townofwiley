@@ -113,7 +113,11 @@
 .weather-current-card {
   background:
     linear-gradient(180deg, var(--hero-card-start), var(--hero-card-end)),
-    radial-gradient(circle at top right, color-mix(in srgb, var(--surface-inverse) 12%, transparent), transparent 24%);
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--surface-inverse) 12%, transparent),
+      transparent 24%
+    );
   color: var(--surface-inverse);
   box-shadow: 0 22px 50px rgba(17, 36, 61, 0.16);
 }
@@ -134,7 +138,11 @@
 .weather-current-card.is-night {
   background:
     linear-gradient(180deg, var(--hero-card-night-start), var(--hero-card-night-end)),
-    radial-gradient(circle at top right, color-mix(in srgb, var(--p-primary-200) 14%, transparent), transparent 28%);
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--p-primary-200) 14%, transparent),
+      transparent 28%
+    );
 }
 
 .weather-current-topline {
@@ -269,8 +277,16 @@
   border-radius: 24px;
   border: 1px solid var(--surface-border);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-card) 94%, white), color-mix(in srgb, var(--surface-card-soft) 92%, white)),
-    radial-gradient(circle at top right, color-mix(in srgb, var(--page-glow-cool) 18%, transparent), transparent 38%);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-card) 94%, white),
+      color-mix(in srgb, var(--surface-card-soft) 92%, white)
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--page-glow-cool) 18%, transparent),
+      transparent 38%
+    );
   box-shadow: var(--shadow-subtle);
 }
 
@@ -453,15 +469,22 @@
 }
 :host ::ng-deep .weather-no-alerts .p-message.p-message-success {
   background: var(--success-surface);
-  border: 1px solid color-mix(in srgb, var(--success-text) 14%, transparent);
+  border: 1px solid color-mix(in srgb, #111111 14%, transparent);
+  color: var(--p-message-success-color) !important;
+  --p-message-success-color: #111111;
+  --p-message-success-border-color: color-mix(in srgb, #111111 14%, transparent);
 }
 
 :host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-text {
-  color: var(--success-text);
+  font-weight: 700;
 }
 
 :host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-icon {
-  color: var(--success-text);
+  color: var(--p-message-success-color) !important;
+}
+
+:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-detail {
+  color: var(--p-message-success-color) !important;
 }
 
 .weather-action:focus-visible,
@@ -568,8 +591,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
   border-radius: 999px;

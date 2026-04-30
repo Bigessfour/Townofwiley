@@ -8,7 +8,7 @@ export interface CmsNotice {
   title: string;
   date: string;
   detail: string;
-  body?: string;        // multi-paragraph newsletter content, newline-separated
+  body?: string; // multi-paragraph newsletter content, newline-separated
   type?: 'notice' | 'newsletter';
   imageUrl?: string;
 }
@@ -186,8 +186,7 @@ const DEFAULT_CMS_CONTACTS: CmsContact[] = [
     id: 'mayor',
     label: 'Mayor',
     value: 'Stephen McKitrick',
-    detail:
-      'Contact the Mayor by email for official town business or council-related questions.',
+    detail: 'Contact the Mayor by email for official town business or council-related questions.',
     href: 'mailto:stephen.mckitrick@townofwiley.gov',
     linkLabel: 'stephen.mckitrick@townofwiley.gov',
   },
@@ -341,6 +340,15 @@ interface RuntimeCmsConfig {
   region: string;
   apiEndpoint: string;
   apiKey: string;
+}
+
+export interface CmsConnectionTestResult {
+  ok: boolean;
+  latencyMs: number;
+  checkedAt: string;
+  recordCount: number;
+  sampleTownName?: string;
+  error?: string;
 }
 
 interface CmsGraphqlList<T> {
@@ -556,6 +564,14 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
   }
 }`;
 
+const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
+  listSiteSettings(limit: 1) {
+    items {
+      townName
+    }
+  }
+}`;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -583,7 +599,6 @@ export class LocalizedCmsContentStore {
   private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
   private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
-
     this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
   );
   private readonly loadErrorState = signal<string | null>(null);
@@ -655,6 +670,72 @@ export class LocalizedCmsContentStore {
     await this.loadContent();
   }
 
+  async testCmsConnection(): Promise<CmsConnectionTestResult> {
+    const checkedAt = new Date().toISOString();
+
+    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+      return {
+        ok: false,
+        latencyMs: 0,
+        checkedAt,
+        recordCount: 0,
+        error:
+          this.siteLanguage() === 'es'
+            ? 'Falta la configuracion de AppSync del CMS en este despliegue.'
+            : 'CMS AppSync runtime config is missing on this deployment.',
+      };
+    }
+
+    const startedAt = performance.now();
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<CmsGraphqlResponse>(
+          this.cmsConfig.apiEndpoint,
+          {
+            query: CMS_CONNECTION_TEST_QUERY,
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+              'x-api-key': this.cmsConfig.apiKey,
+            },
+          },
+        ),
+      );
+      const latencyMs = Math.round(performance.now() - startedAt);
+
+      if (response.errors?.length) {
+        throw new Error(
+          response.errors
+            .map((error) => error.message?.trim())
+            .filter((message): message is string => Boolean(message))
+            .join(' '),
+        );
+      }
+
+      const records = (response.data?.listSiteSettings?.items ?? []).filter(
+        (item): item is SiteSettingsRecord => Boolean(item),
+      );
+
+      return {
+        ok: true,
+        latencyMs,
+        checkedAt,
+        recordCount: records.length,
+        sampleTownName: records[0]?.townName,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        latencyMs: Math.round(performance.now() - startedAt),
+        checkedAt,
+        recordCount: 0,
+        error: this.readLoadError(error),
+      };
+    }
+  }
+
   private async loadContent(): Promise<void> {
     this.loadState.set('loading');
     this.loadErrorState.set(null);
@@ -710,8 +791,8 @@ export class LocalizedCmsContentStore {
         ),
       );
       this.businessRecordsState.set(
-        (response.data?.listBusinesses?.items ?? []).filter(
-          (item): item is BusinessRecord => Boolean(item),
+        (response.data?.listBusinesses?.items ?? []).filter((item): item is BusinessRecord =>
+          Boolean(item),
         ),
       );
       this.publicDocumentRecordsState.set(

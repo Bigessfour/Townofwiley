@@ -1,18 +1,18 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
-  TestRequest,
   provideHttpClientTesting,
+  TestRequest,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
 import { App } from './app';
 import { routes } from './app.routes';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
-import { MessageService } from 'primeng/api';
-import { providePrimeNG } from 'primeng/config';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
@@ -230,6 +230,16 @@ describe('App', () => {
         fragment: 'search-panel',
       },
     ]);
+  });
+
+  it('should keep non-core public routes lazy-loaded', () => {
+    const eagerRoutePaths = new Set(['']);
+
+    expect(
+      routes
+        .filter((route) => !eagerRoutePaths.has(route.path ?? ''))
+        .every((route) => route.loadComponent),
+    ).toBe(true);
   });
 
   it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {
@@ -575,22 +585,22 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Un solo lugar para actualizar el sitio del pueblo',
+      'Administracion de contenido del Pueblo de Wiley',
     );
     expect(compiled.textContent).toContain('Event');
     expect(compiled.textContent).toContain('EmailAlias');
     expect(compiled.textContent).toContain(
       'Esta pagina solo muestra guia y estado actual del CMS. No guarda ni publica contenido del sitio.',
     );
-    expect(compiled.textContent).toContain('Abrir instrucciones del personal');
+    expect(compiled.textContent).toContain('Configuracion y credenciales');
     expect(compiled.textContent).toContain('Referencia rapida');
     expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
     expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Abrir pagina de edicion del CMS',
+      'Abrir Amplify Studio Data Manager',
     );
   });
 
-  it('should render the Deb Dillon clerk setup page on the clerk setup path', async () => {
+  it('should render the Deb Dillon setup details on the admin hub path', async () => {
     runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       clerkSetup: {
         clerkName: 'Deb Dillon',
@@ -605,41 +615,43 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/clerk-setup');
+    await TestBed.inject(Router).navigateByUrl('/admin');
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.setup-card h1')?.textContent).toContain('One-time IAM setup');
-    expect(compiled.textContent).toContain('Welcome, Deb Dillon.');
-    expect(compiled.textContent).toContain('Prepopulated Town account details');
-    expect(compiled.textContent).toContain('AWS account: 570912405222');
-    expect(compiled.textContent).toContain('Amplify app: d331voxr1fhoir');
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
+      'Town of Wiley Content Management',
+    );
+    expect(compiled.textContent).toContain('Setup & credentials');
+    expect(compiled.textContent).toContain('570912405222');
+    expect(compiled.textContent).toContain('d331voxr1fhoir');
     expect(compiled.textContent).toContain('Open Studio Home');
     expect(compiled.textContent).toContain('Amplify Studio Data Manager');
   });
 
-  it('should open the document publishing tab from the clerk setup fragment', async () => {
-    // Pre-set the hash so ClerkSetup.resolveInitialTab() reads it at construction time.
+  it('should redirect the clerk setup document fragment to the admin document tab', async () => {
+    // Pre-set the hash so the legacy redirect preserves the intended admin tab.
     window.history.replaceState({}, '', '/clerk-setup#documents');
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/clerk-setup#documents');
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      'Use the supported Studio PublicDocument workflow for downloadable files.',
-    );
+    expect(TestBed.inject(Router).url).toBe('/admin#documents');
+    expect(compiled.textContent).toContain('Supported document workflow');
     expect(compiled.textContent).toContain('Supported document workflow');
     expect(compiled.textContent).toContain('Website section map');
     expect(compiled.textContent).toContain('Meeting Documents');
     expect(compiled.textContent).toContain('meeting-documents');
-    expect(compiled.textContent).toContain('Open CMS Admin');
+    expect(compiled.textContent).toContain('Open Amplify Studio Data Manager');
   });
 
-  it('should link the admin upload button to the clerk setup document tab', async () => {
+  it('should link the admin document button to the admin document tab', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/admin');
@@ -648,7 +660,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-button.add')?.getAttribute('href')).toBe(
-      '/clerk-setup#documents',
+      '/admin#documents',
     );
   });
 

@@ -1,14 +1,45 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { LocalizedCmsContentStore } from '../site-cms-content';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
+import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
+import { TagModule } from 'primeng/tag';
+import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
+import {
+  ContactUpdateRecord,
+  ContactUpdateReviewService,
+} from '../clerk-setup/contact-update-review.service';
+import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
     appSync?: {
+      region?: string;
       apiEndpoint?: string;
       apiKey?: string;
     };
   };
+}
+
+interface CmsAdminSetupDetail {
+  key: string;
+  label: string;
+  value: string;
+  copyValue: string;
+}
+
+interface CmsAdminTask {
+  action: string;
+  model: string;
+}
+
+interface CmsAdminDocumentSection {
+  label: string;
+  sectionId: string;
+  detail: string;
 }
 
 interface CmsAdminCopy {
@@ -23,6 +54,52 @@ interface CmsAdminCopy {
   openSetupPage: string;
   openAmplify: string;
   openCmsEditPage: string;
+  openAwsConsole: string;
+  setupTab: string;
+  documentsTab: string;
+  updatesTab: string;
+  setupKicker: string;
+  setupTitle: string;
+  setupBody: string;
+  setupDetailsTitle: string;
+  setupDetailsSubtitle: string;
+  copyValueLabel: string;
+  copiedLabel: string;
+  dailyWorkflowTitle: string;
+  dailyWorkflowSubtitle: string;
+  taskMapTitle: string;
+  taskMapSubtitle: string;
+  documentWorkflowTitle: string;
+  documentWorkflowSubtitle: string;
+  documentSectionsTitle: string;
+  documentSectionsSubtitle: string;
+  documentChecksTitle: string;
+  documentChecksSubtitle: string;
+  contactUpdatesTitle: string;
+  contactUpdatesSubtitle: string;
+  downloadCsvLabel: string;
+  contactUpdatesLoading: string;
+  noContactUpdates: string;
+  connectionKicker: string;
+  connectionTitle: string;
+  connectionBody: string;
+  testConnection: string;
+  testingConnection: string;
+  connectionSuccess: string;
+  connectionFailed: string;
+  connectionReady: string;
+  connectionNotRun: string;
+  lastCheckedLabel: string;
+  latencyLabel: string;
+  recordCountLabel: string;
+  sampleTownLabel: string;
+  endpointLabel: string;
+  regionLabel: string;
+  apiKeyLabel: string;
+  apiKeyPresent: string;
+  apiKeyMissing: string;
+  troubleLabel: string;
+  troubleText: string;
   quickReferenceKicker: string;
   quickReferenceTitle: string;
   quickReferenceBody: string;
@@ -100,7 +177,60 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     openPublicDocumentUploadForm: 'Open document publishing guide',
     openSetupPage: 'Open clerk instructions',
     openAmplify: 'Open Studio Home',
-    openCmsEditPage: 'Open CMS edit page',
+    openCmsEditPage: 'Open Amplify Studio Data Manager',
+    openAwsConsole: 'Open AWS Console',
+    setupTab: 'Setup & credentials',
+    documentsTab: 'Document publishing',
+    updatesTab: 'Contact updates',
+    setupKicker: 'Admin hub',
+    setupTitle: 'Town of Wiley Content Management - for Deb & authorized staff',
+    setupBody:
+      'This is the single bookmarkable page for the daily CMS workflow, first-time setup details, live connection proof, document publishing guidance, and resident contact updates.',
+    setupDetailsTitle: 'Setup & credentials',
+    setupDetailsSubtitle:
+      'Use these values to confirm the correct AWS account, region, and Amplify app before live edits.',
+    copyValueLabel: 'Copy',
+    copiedLabel: 'Copied',
+    dailyWorkflowTitle: 'Do this every time',
+    dailyWorkflowSubtitle: 'Daily editing workflow inside Amplify Studio Data Manager.',
+    taskMapTitle: 'If you want to change this',
+    taskMapSubtitle: 'Match the resident-facing task to the CMS model.',
+    documentWorkflowTitle: 'Supported document workflow',
+    documentWorkflowSubtitle:
+      'Use Studio-managed PublicDocument edits instead of the retired in-page uploader.',
+    documentSectionsTitle: 'Website section map',
+    documentSectionsSubtitle:
+      'Use these exact section IDs when routing files to the public Documents experience.',
+    documentChecksTitle: 'Before you publish a document',
+    documentChecksSubtitle:
+      'Keep file publishing in the same supported CMS process as the rest of the site.',
+    contactUpdatesTitle: 'Resident Contact Updates',
+    contactUpdatesSubtitle: 'All submissions from the bill-pay contact-update form.',
+    downloadCsvLabel: 'Download CSV',
+    contactUpdatesLoading: 'Loading contact updates...',
+    noContactUpdates: 'No contact updates received yet.',
+    connectionKicker: 'CMS Connection Status',
+    connectionTitle: 'Prove Studio is connected',
+    connectionBody:
+      'Run a live read against the same AppSync CMS endpoint the public site uses. This does not edit content.',
+    testConnection: 'Test CMS Connection',
+    testingConnection: 'Testing connection...',
+    connectionSuccess: 'Connected',
+    connectionFailed: 'Connection failed',
+    connectionReady: 'Ready to test',
+    connectionNotRun: 'Not tested yet',
+    lastCheckedLabel: 'Last checked',
+    latencyLabel: 'Latency',
+    recordCountLabel: 'Sample records',
+    sampleTownLabel: 'Sample town name',
+    endpointLabel: 'Endpoint',
+    regionLabel: 'Region',
+    apiKeyLabel: 'API key',
+    apiKeyPresent: 'Present',
+    apiKeyMissing: 'Missing',
+    troubleLabel: 'Troubleshooting',
+    troubleText:
+      'Check the Amplify environment variables for APPSYNC_CMS_ENDPOINT, APPSYNC_CMS_API_KEY, and APPSYNC_CMS_REGION, then redeploy so runtime-config.js is regenerated.',
     quickReferenceKicker: 'Quick reference',
     quickReferenceTitle: 'Copy of the clerk instructions',
     quickReferenceBody:
@@ -197,7 +327,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'Event',
         summary: 'Meetings, hearings, and calendar items.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
-        notes: 'Set title, start, and active for every record. Add description and location for the meetings cards, use end when it is known, and remember the site sorts events by start date and time.',
+        notes:
+          'Set title, start, and active for every record. Add description and location for the meetings cards, use end when it is known, and remember the site sorts events by start date and time.',
       },
       {
         model: 'OfficialContact',
@@ -215,7 +346,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'PublicDocument',
         summary: 'Public forms, notices, and downloadable documents.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
-        notes: 'Use the Studio publishing guide so file routing stays in the supported PublicDocument workflow.',
+        notes:
+          'Use the Studio publishing guide so file routing stays in the supported PublicDocument workflow.',
       },
       {
         model: 'ExternalNewsLink',
@@ -276,7 +408,60 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     openPublicDocumentUploadForm: 'Abrir guia de publicacion de documentos',
     openSetupPage: 'Abrir instrucciones del personal',
     openAmplify: 'Abrir Studio Home',
-    openCmsEditPage: 'Abrir pagina de edicion del CMS',
+    openCmsEditPage: 'Abrir Amplify Studio Data Manager',
+    openAwsConsole: 'Abrir consola de AWS',
+    setupTab: 'Configuracion y datos',
+    documentsTab: 'Publicacion de documentos',
+    updatesTab: 'Actualizaciones de contacto',
+    setupKicker: 'Centro administrativo',
+    setupTitle: 'Administracion de contenido del Pueblo de Wiley - para Deb y personal autorizado',
+    setupBody:
+      'Esta es la pagina unica para guardar en favoritos: flujo diario del CMS, datos de configuracion, prueba de conexion en vivo, guia de documentos y actualizaciones de contacto de residentes.',
+    setupDetailsTitle: 'Configuracion y credenciales',
+    setupDetailsSubtitle:
+      'Use estos valores para confirmar la cuenta de AWS, la region y la aplicacion Amplify correctas antes de editar contenido en vivo.',
+    copyValueLabel: 'Copiar',
+    copiedLabel: 'Copiado',
+    dailyWorkflowTitle: 'Haga esto cada vez',
+    dailyWorkflowSubtitle: 'Flujo diario de edicion dentro de Amplify Studio Data Manager.',
+    taskMapTitle: 'Si quiere cambiar esto',
+    taskMapSubtitle: 'Relacione la tarea para residentes con el modelo del CMS.',
+    documentWorkflowTitle: 'Flujo compatible de documentos',
+    documentWorkflowSubtitle:
+      'Use ediciones PublicDocument administradas por Studio en lugar del cargador en pagina retirado.',
+    documentSectionsTitle: 'Mapa de secciones del sitio',
+    documentSectionsSubtitle:
+      'Use estos sectionId exactos para dirigir archivos a la experiencia publica de documentos.',
+    documentChecksTitle: 'Antes de publicar un documento',
+    documentChecksSubtitle:
+      'Mantenga la publicacion de archivos en el mismo proceso compatible del CMS que el resto del sitio.',
+    contactUpdatesTitle: 'Actualizaciones de contacto de residentes',
+    contactUpdatesSubtitle: 'Todos los envios del formulario de actualizacion de contacto de pago.',
+    downloadCsvLabel: 'Descargar CSV',
+    contactUpdatesLoading: 'Cargando actualizaciones de contacto...',
+    noContactUpdates: 'Aun no se han recibido actualizaciones de contacto.',
+    connectionKicker: 'Estado de conexion del CMS',
+    connectionTitle: 'Comprobar que Studio esta conectado',
+    connectionBody:
+      'Ejecute una lectura en vivo contra el mismo endpoint AppSync del CMS que usa el sitio publico. Esto no edita contenido.',
+    testConnection: 'Probar conexion del CMS',
+    testingConnection: 'Probando conexion...',
+    connectionSuccess: 'Conectado',
+    connectionFailed: 'Fallo la conexion',
+    connectionReady: 'Listo para probar',
+    connectionNotRun: 'Aun no probado',
+    lastCheckedLabel: 'Ultima revision',
+    latencyLabel: 'Latencia',
+    recordCountLabel: 'Registros de muestra',
+    sampleTownLabel: 'Nombre de pueblo de muestra',
+    endpointLabel: 'Endpoint',
+    regionLabel: 'Region',
+    apiKeyLabel: 'Clave API',
+    apiKeyPresent: 'Presente',
+    apiKeyMissing: 'Falta',
+    troubleLabel: 'Solucion de problemas',
+    troubleText:
+      'Revise las variables de entorno de Amplify APPSYNC_CMS_ENDPOINT, APPSYNC_CMS_API_KEY y APPSYNC_CMS_REGION, luego vuelva a desplegar para regenerar runtime-config.js.',
     quickReferenceKicker: 'Referencia rapida',
     quickReferenceTitle: 'Copia de las instrucciones de la secretaria',
     quickReferenceBody:
@@ -374,7 +559,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'Event',
         summary: 'Reuniones, audiencias y elementos del calendario.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
-        notes: 'Configure title, start y active en cada registro. Agregue description y location para las tarjetas de reuniones, use end cuando se conozca y recuerde que el sitio ordena los eventos por fecha y hora de inicio.',
+        notes:
+          'Configure title, start y active en cada registro. Agregue description y location para las tarjetas de reuniones, use end cuando se conozca y recuerde que el sitio ordena los eventos por fecha y hora de inicio.',
       },
       {
         model: 'OfficialContact',
@@ -392,7 +578,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'PublicDocument',
         summary: 'Formularios publicos, avisos y documentos descargables.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
-        notes: 'Use la guia de publicacion en Studio para que la ruta del archivo permanezca en el flujo compatible de PublicDocument.',
+        notes:
+          'Use la guia de publicacion en Studio para que la ruta del archivo permanezca en el flujo compatible de PublicDocument.',
       },
       {
         model: 'ExternalNewsLink',
@@ -447,23 +634,46 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
   templateUrl: './cms-admin.html',
   styleUrl: './cms-admin.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule, SkeletonModule],
 })
 export class CmsAdmin {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly contactUpdateReview = inject(ContactUpdateReviewService);
+  private readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
   private readonly appSyncRuntimeConfig = (() => {
     if (typeof window === 'undefined') {
-      return { apiEndpoint: '', apiKey: '' };
+      return { region: '', apiEndpoint: '', apiKey: '' };
     }
 
-    const runtimeConfig = window.__TOW_RUNTIME_CONFIG__ as CmsAdminRuntimeConfig | undefined;
-    const appSync = runtimeConfig?.cms?.appSync;
+    const runtimeWindow = window as Window & {
+      __TOW_RUNTIME_CONFIG__?: CmsAdminRuntimeConfig;
+      __TOW_RUNTIME_CONFIG_OVERRIDE__?: CmsAdminRuntimeConfig;
+    };
+    const appSync = {
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG__?.cms?.appSync ?? {}),
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms?.appSync ?? {}),
+    };
 
     return {
+      region: typeof appSync?.region === 'string' ? appSync.region : '',
       apiEndpoint: typeof appSync?.apiEndpoint === 'string' ? appSync.apiEndpoint : '',
       apiKey: typeof appSync?.apiKey === 'string' ? appSync.apiKey : '',
     };
   })();
+
+  protected readonly activeTab = signal<string>(this.resolveInitialTab());
+  protected readonly contactUpdatesLoading = signal(true);
+  protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
+  protected readonly connectionTestResult = signal<CmsConnectionTestResult | null>(null);
+  protected readonly connectionTestLoading = signal(false);
+  protected readonly copiedSetupKey = signal<string | null>(null);
+  protected readonly setupCardPt = {
+    body: { class: 'setup-card-body' },
+    title: { class: 'setup-card-title' },
+    subtitle: { class: 'setup-card-subtitle' },
+    footer: { class: 'setup-card-footer' },
+  };
 
   protected readonly persistenceSummary = this.cmsStore.persistenceSummary;
   protected readonly isLoading = this.cmsStore.isLoading;
@@ -478,6 +688,185 @@ export class CmsAdmin {
   protected readonly contactCount = computed(() => this.cmsStore.contacts().length);
   protected readonly hasAppSyncRuntimeConfig =
     Boolean(this.appSyncRuntimeConfig.apiEndpoint) && Boolean(this.appSyncRuntimeConfig.apiKey);
+  protected readonly maskedEndpoint = computed(() =>
+    this.maskEndpoint(this.appSyncRuntimeConfig.apiEndpoint),
+  );
+  protected readonly appSyncRegion = computed(
+    () => this.appSyncRuntimeConfig.region || this.clerkSetupConfig.awsRegion || 'not configured',
+  );
+  protected readonly awsAccountId = this.clerkSetupConfig.awsAccountId;
+  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
+  protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
+  protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
+  protected readonly studioUrl = this.clerkSetupConfig.studioUrl;
+  protected readonly dataManagerUrl = this.buildDataManagerUrl();
+  protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => {
+    const copy = this.copy();
+    return [
+      {
+        key: 'aws-account',
+        label: 'AWS account',
+        value: this.awsAccountId || 'Not configured',
+        copyValue: this.awsAccountId,
+      },
+      {
+        key: 'region',
+        label: copy.regionLabel,
+        value: this.awsRegion || 'Not configured',
+        copyValue: this.awsRegion,
+      },
+      {
+        key: 'amplify-app',
+        label: 'Amplify app',
+        value: this.amplifyAppId || 'Not configured',
+        copyValue: this.amplifyAppId,
+      },
+      {
+        key: 'aws-console',
+        label: copy.openAwsConsole,
+        value: this.awsConsoleUrl,
+        copyValue: this.awsConsoleUrl,
+      },
+      {
+        key: 'studio-url',
+        label: copy.openAmplify,
+        value: this.studioUrl,
+        copyValue: this.studioUrl,
+      },
+      {
+        key: 'data-manager-url',
+        label: copy.openCmsEditPage,
+        value: this.dataManagerUrl,
+        copyValue: this.dataManagerUrl,
+      },
+    ];
+  });
+  protected readonly dailyChecklist = computed(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? [
+          'Use el usuario correcto para la cuenta del pueblo.',
+          'Abra Amplify Studio Data Manager para cambios de texto y registros.',
+          'Use la pestana de documentos para seguir el flujo PublicDocument compatible.',
+          'Abra el modelo correcto.',
+          'Haga el cambio y guarde el registro.',
+          'Actualice el sitio publico y confirme el cambio.',
+        ]
+      : [
+          'Use the correct IAM user for the Town account.',
+          'Open Amplify Studio Data Manager for text and record changes.',
+          'Use the Document Publishing tab to follow the supported Studio PublicDocument workflow.',
+          'Open the correct model.',
+          'Make the change and save the record.',
+          'Refresh the public website and confirm the update.',
+        ],
+  );
+  protected readonly taskMap = computed<CmsAdminTask[]>(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? [
+          {
+            action: 'Titulo de inicio, texto de bienvenida y foto principal',
+            model: 'SiteSettings',
+          },
+          { action: 'Banner de emergencia en la pagina principal', model: 'AlertBanner' },
+          { action: 'Avisos publicos, cierres y anuncios generales', model: 'Announcement' },
+          { action: 'Reuniones, audiencias y calendario', model: 'Event' },
+          { action: 'Tarjetas de contacto del personal', model: 'OfficialContact' },
+          { action: 'Directorio de negocios, logos y sitios web', model: 'Business' },
+          { action: 'Documentos publicos, formularios y descargas', model: 'PublicDocument' },
+          { action: 'Noticias externas compartidas en el sitio', model: 'ExternalNewsLink' },
+          { action: 'Reglas internas de reenvio de correo', model: 'EmailAlias' },
+        ]
+      : [
+          { action: 'Homepage title, welcome text, and hero photo', model: 'SiteSettings' },
+          { action: 'Emergency banner shown at the top of the homepage', model: 'AlertBanner' },
+          { action: 'Public notices, closures, and general announcements', model: 'Announcement' },
+          { action: 'Meetings, hearings, and calendar events', model: 'Event' },
+          { action: 'Staff contact cards for names, phones, and emails', model: 'OfficialContact' },
+          { action: 'Business directory entries, logos, and websites', model: 'Business' },
+          { action: 'Public documents, forms, and downloads', model: 'PublicDocument' },
+          { action: 'Outside news links shared on the site', model: 'ExternalNewsLink' },
+          {
+            action: 'Town email forwarding rules for behind-the-scenes delivery',
+            model: 'EmailAlias',
+          },
+        ],
+  );
+  protected readonly documentPublishingSteps = computed(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? [
+          'Abra Data Manager y continue al flujo compatible de PublicDocument en Studio.',
+          'Cree o actualice el registro PublicDocument en Studio.',
+          'Dirija el archivo a la seccion publica correcta usando el sectionId exacto.',
+          'Guarde el cambio y actualice la pagina publica de documentos para verificarlo.',
+        ]
+      : [
+          'Open Data Manager and continue into the supported Studio PublicDocument workflow.',
+          'Create or update the PublicDocument entry there instead of using the retired in-page uploader.',
+          'Route the file to the correct resident-facing section using the exact sectionId shown below.',
+          'Save the Studio change, then refresh the public Documents page or related resident page to verify it appears.',
+        ],
+  );
+  protected readonly documentSections = computed<CmsAdminDocumentSection[]>(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? [
+          {
+            label: 'Documentos de reuniones',
+            sectionId: 'meeting-documents',
+            detail: 'Agendas, actas aprobadas y registros recurrentes de reuniones.',
+          },
+          {
+            label: 'Documentos financieros',
+            sectionId: 'financial-documents',
+            detail: 'Presupuestos, informes anuales, auditorias y descargas financieras.',
+          },
+          {
+            label: 'Codigo y zonificacion',
+            sectionId: 'code-references',
+            detail: 'Ordenanzas, zonificacion, permisos y referencias de codigo.',
+          },
+          {
+            label: 'Registros y solicitudes',
+            sectionId: 'records-requests',
+            detail:
+              'Formularios de registros, seguimiento de secretaria y guia de registros publicos.',
+          },
+        ]
+      : [
+          {
+            label: 'Meeting Documents',
+            sectionId: 'meeting-documents',
+            detail: 'Agenda packets, approved minutes, and other recurring meeting records.',
+          },
+          {
+            label: 'Financial Documents',
+            sectionId: 'financial-documents',
+            detail: 'Budget summaries, annual reports, audits, and finance downloads.',
+          },
+          {
+            label: 'Code & Zoning References',
+            sectionId: 'code-references',
+            detail: 'Ordinances, zoning references, permit guidance, and code lookups.',
+          },
+          {
+            label: 'Records & Requests',
+            sectionId: 'records-requests',
+            detail: 'Records request forms, clerk follow-up files, and public records guidance.',
+          },
+        ],
+  );
+  protected readonly documentPublishingChecks = computed(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? [
+          'Si el flujo de Studio no abre o dice acceso denegado, corrija permisos de AWS primero.',
+          'Mantenga los cambios PublicDocument en Studio para que metadata y registro sigan juntos.',
+          'Use el modelo Event para reuniones y audiencias para alimentar el calendario en vivo.',
+        ]
+      : [
+          'If the supported Studio flow is unavailable or says access is denied, fix AWS permissions first.',
+          'Keep PublicDocument edits in Studio so the file metadata and database record stay in the same supported CMS process.',
+          'Use the Events model for meetings and hearing dates so posted events keep driving the live calendar.',
+        ],
+  );
   protected readonly alertStatusLabel = computed(() =>
     this.cmsStore.alertBanner().enabled ? this.copy().bannerEnabled : this.copy().bannerHidden,
   );
@@ -496,11 +885,95 @@ export class CmsAdmin {
 
     return this.copy().contentSourceStudio;
   });
-  protected readonly studioUrl =
-    'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home';
-  protected readonly publicDocumentUploadFormUrl =
-    '/clerk-setup#documents';
-  protected readonly cmsEditUrl =
-    'https://us-east-2.admin.amplifyapp.com/admin/login?appId=d331voxr1fhoir&code=9936b78d-30f3-4383-9ce5-fee3804ac0a6&sessionId=bdf7662f-07eb-40ef-8c2f-73f9752f0a60&backendEnvironmentName=main';
-  protected readonly clerkSetupUrl = '/clerk-setup';
+  protected readonly publicDocumentUploadFormUrl = '/admin#documents';
+  protected readonly cmsEditUrl = this.dataManagerUrl;
+  protected readonly clerkSetupUrl = '/admin#setup';
+
+  constructor() {
+    void this.loadContactUpdates();
+  }
+
+  protected updateActiveTab(value: string | number | undefined): void {
+    const tab = value?.toString() ?? 'setup';
+    this.activeTab.set(tab);
+
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', `/admin#${tab}`);
+    }
+  }
+
+  protected async testConnection(): Promise<void> {
+    this.connectionTestLoading.set(true);
+
+    try {
+      this.connectionTestResult.set(await this.cmsStore.testCmsConnection());
+    } finally {
+      this.connectionTestLoading.set(false);
+    }
+  }
+
+  protected async copySetupValue(detail: CmsAdminSetupDetail): Promise<void> {
+    if (!detail.copyValue) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(detail.copyValue);
+      this.copiedSetupKey.set(detail.key);
+      window.setTimeout(() => this.copiedSetupKey.set(null), 1800);
+    } catch {
+      this.copiedSetupKey.set(null);
+    }
+  }
+
+  protected downloadCSV(): void {
+    this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
+  }
+
+  private resolveInitialTab(): string {
+    if (typeof window === 'undefined') {
+      return 'setup';
+    }
+
+    const fragment = window.location.hash.replace(/^#/, '');
+
+    if (fragment === 'documents' || fragment === 'updates' || fragment === 'setup') {
+      return fragment;
+    }
+
+    return 'setup';
+  }
+
+  private async loadContactUpdates(): Promise<void> {
+    this.contactUpdatesLoading.set(true);
+
+    try {
+      this.contactUpdates.set(await this.contactUpdateReview.getAllUpdates());
+    } finally {
+      this.contactUpdatesLoading.set(false);
+    }
+  }
+
+  private buildDataManagerUrl(): string {
+    const region = this.clerkSetupConfig.awsRegion;
+    const appId = this.clerkSetupConfig.amplifyAppId;
+
+    if (!region || !appId) {
+      return this.clerkSetupConfig.studioUrl;
+    }
+
+    return `https://${region}.console.aws.amazon.com/amplify/home?region=${region}#/${appId}/main/studio/data`;
+  }
+
+  private maskEndpoint(endpoint: string): string {
+    if (!endpoint) {
+      return 'Not configured';
+    }
+
+    try {
+      return new URL(endpoint).host;
+    } catch {
+      return endpoint.replace(/^https?:\/\//, '').split('/')[0] || endpoint;
+    }
+  }
 }

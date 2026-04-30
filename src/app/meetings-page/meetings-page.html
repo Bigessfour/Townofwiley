@@ -36,7 +36,7 @@
     }
     <section class="stack-list">
       @for (item of calendarItems(); track item.id) {
-        <article class="info-row meeting-card">
+        <article class="info-row calendar-card">
           <strong>{{ item.title }}</strong>
           <span>{{ item.date }}</span>
           <p>{{ item.detail }}</p>
@@ -44,7 +44,13 @@
           @if (item.actions.length > 0) {
             <div class="calendar-table-actions">
               @for (action of item.actions; track action.label) {
-                <a class="calendar-action" [attr.href]="action.href" [attr.target]="action.external ? '_blank' : null" [attr.rel]="action.external ? 'noreferrer noopener' : null">{{ action.label }}</a>
+                <a
+                  class="calendar-action"
+                  [attr.href]="action.href"
+                  [attr.target]="action.external ? '_blank' : null"
+                  [attr.rel]="action.external ? 'noreferrer noopener' : null"
+                  >{{ action.label }}</a
+                >
               }
             </div>
           }

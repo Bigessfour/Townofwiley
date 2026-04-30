@@ -11,7 +11,9 @@ const fallbackBaseUrl = `http://127.0.0.1:${process.env.E2E_PORT ?? '4300'}`;
 export const test = base.extend<TownFixtures>({
   homePage: async ({ page, baseURL }, use) => {
     await page.addInitScript(() => {
-      window.localStorage.setItem('tow-site-language', 'en');
+      if (!window.localStorage.getItem('tow-site-language')) {
+        window.localStorage.setItem('tow-site-language', 'en');
+      }
       window.localStorage.removeItem('towCowPopupSeen');
     });
 
@@ -54,4 +56,3 @@ export const test = base.extend<TownFixtures>({
 });
 
 export { expect };
-

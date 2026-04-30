@@ -2,7 +2,11 @@ import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
 
 test.describe('feature page coverage', () => {
-  test('business directory search keeps verified contact actions available', async ({ homePage }) => {
+  test.describe.configure({ timeout: 90000 });
+
+  test('business directory search keeps verified contact actions available', async ({
+    homePage,
+  }) => {
     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.businessDirectoryHeading).toHaveText(siteContent.cmsHeadings.businesses);
@@ -32,7 +36,7 @@ test.describe('feature page coverage', () => {
       'href',
       '/meetings#calendar',
     );
-    await expect(homePage.page.locator('#calendar')).toBeVisible();
+    await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
     await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
   });
 

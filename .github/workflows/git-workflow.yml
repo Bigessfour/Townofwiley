@@ -29,6 +29,7 @@ jobs:
       app_changed: ${{ steps.classify.outputs.app_changed }}
       e2e_changed: ${{ steps.classify.outputs.e2e_changed }}
       site_proxy_changed: ${{ steps.classify.outputs.site_proxy_changed }}
+      site_monitor_changed: ${{ steps.classify.outputs.site_monitor_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
       email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
       docs_only: ${{ steps.classify.outputs.docs_only }}
@@ -57,6 +58,7 @@ jobs:
           APP_CHANGED=false
           E2E_CHANGED=false
           SITE_PROXY_CHANGED=false
+          SITE_MONITOR_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
           EMAIL_ALIAS_CHANGED=false
           DOCS_ONLY=true
@@ -75,6 +77,10 @@ jobs:
                 ;;
               infrastructure/nws-weather-proxy/*|infrastructure/paystar-proxy/*)
                 SITE_PROXY_CHANGED=true
+                DOCS_ONLY=false
+                ;;
+              infrastructure/site-monitor/**|scripts/deploy-site-monitor.py)
+                SITE_MONITOR_CHANGED=true
                 DOCS_ONLY=false
                 ;;
               infrastructure/severe-weather-signup/*)
@@ -97,6 +103,7 @@ jobs:
             echo "app_changed=$APP_CHANGED"
             echo "e2e_changed=$E2E_CHANGED"
             echo "site_proxy_changed=$SITE_PROXY_CHANGED"
+            echo "site_monitor_changed=$SITE_MONITOR_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
             echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
             echo "docs_only=$DOCS_ONLY"
@@ -114,6 +121,7 @@ jobs:
           - Deployable site files changed: ${{ steps.classify.outputs.app_changed }}
           - End-to-end validation files changed: ${{ steps.classify.outputs.e2e_changed }}
           - Website runtime proxy code changed: ${{ steps.classify.outputs.site_proxy_changed }}
+          - Site monitor code changed: ${{ steps.classify.outputs.site_monitor_changed }}
           - Severe weather signup backend changed: ${{ steps.classify.outputs.weather_alerts_changed }}
           - Email alias router changed: ${{ steps.classify.outputs.email_alias_changed }}
           - Docs or maintainer-only change set: ${{ steps.classify.outputs.docs_only }}
@@ -156,6 +164,12 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Run Angular browser unit tests
+        run: npm run test:unit:browser
+
+      - name: Run Vitest helper tests
+        run: npm run test:vitest
 
       - name: Verify WebP hero assets exist
         run: |
@@ -207,6 +221,34 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
+
+  site-monitor-tests:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.app_changed == 'true' ||
+      needs.detect-changes.outputs.e2e_changed == 'true' ||
+      needs.detect-changes.outputs.site_monitor_changed == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify Node version
+        run: node --version | grep -qE '^v24\.' || (echo "::error::Expected Node 24.x, got $(node --version)" && exit 1)
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Run site monitor tests
+        run: npm run test:infra:monitor
 
   site-runtime-proxy-tests:
     runs-on: ubuntu-latest

@@ -15,40 +15,60 @@
     />
   }
 
-  @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
-    <p-card
-      class="site-alert"
-      role="region"
-      [pt]="siteAlertCardPt"
-      [attr.aria-labelledby]="'site-alert-title'"
-      [attr.aria-describedby]="'site-alert-detail'"
-    >
-      <div class="site-alert-copy">
-        <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
-        <p class="site-alert-label">{{ alertBanner().label }}</p>
-        <h2 id="site-alert-title" class="site-alert-title">{{ alertBanner().title }}</h2>
-        <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
-      </div>
-
-      <div class="site-alert-actions">
-        @if (alertBanner().linkLabel && alertBanner().linkHref) {
-          <a
-            class="site-alert-link button-cta button-cta--ghost"
-            [attr.href]="alertBanner().linkHref"
-          >
-            {{ alertBanner().linkLabel }}
-          </a>
-        }
-
-        <a
-          class="site-alert-button button-cta button-cta--ghost"
-          routerLink="/weather"
-          (click)="trackAlertSignupClick()"
+  @if (shouldPrimeWeatherAlerts()) {
+    <section class="site-alert-slot">
+      @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
+        <p-card
+          class="site-alert"
+          role="region"
+          [pt]="siteAlertCardPt"
+          [attr.aria-labelledby]="'site-alert-title'"
+          [attr.aria-describedby]="'site-alert-detail'"
         >
-          {{ appCopy().alertActionLabel }}
-        </a>
-      </div>
-    </p-card>
+          <div class="site-alert-copy">
+            <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
+            <p class="site-alert-label">{{ alertBanner().label }}</p>
+            <h2 id="site-alert-title" class="site-alert-title">{{ alertBanner().title }}</h2>
+            <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
+          </div>
+
+          <div class="site-alert-actions">
+            @if (alertBanner().linkLabel && alertBanner().linkHref) {
+              <a
+                class="site-alert-link button-cta button-cta--ghost"
+                [attr.href]="alertBanner().linkHref"
+              >
+                {{ alertBanner().linkLabel }}
+              </a>
+            }
+
+            <a
+              class="site-alert-button button-cta button-cta--ghost"
+              routerLink="/weather"
+              (click)="trackAlertSignupClick()"
+            >
+              {{ appCopy().alertActionLabel }}
+            </a>
+          </div>
+        </p-card>
+      } @else {
+        <div class="site-alert site-alert--placeholder" aria-hidden="true">
+          <div class="site-alert-copy">
+            <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
+            <p class="site-alert-label">{{ appCopy().nwsAlertLabel }}</p>
+            <h2 class="site-alert-title">Weather alerts load here</h2>
+            <p class="site-alert-detail">
+              Emergency notices and severe weather updates will appear in this space.
+            </p>
+          </div>
+
+          <div class="site-alert-actions">
+            <span class="site-alert-link button-cta button-cta--ghost">Preparing alerts</span>
+            <span class="site-alert-button button-cta button-cta--ghost">Open weather</span>
+          </div>
+        </div>
+      }
+    </section>
   }
 
   <header
@@ -181,6 +201,7 @@
 
   <p-megamenu
     [model]="menuItems()"
+    [pt]="desktopMegaMenuPt"
     orientation="horizontal"
     styleClass="desktop-mega-menu w-full border-none shadow-sm mega-menu-civic"
     [style]="{ background: 'rgba(255,255,255,0.95)', 'backdrop-filter': 'blur(12px)' }"
@@ -284,7 +305,7 @@
       <figure class="hero-landing-media">
         <img
           [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
-          [attr.alt]="appCopy().heroImageAlt"
+          [attr.alt]="appCopy().heroAlt"
           fill
           priority
           sizes="100vw"
@@ -672,6 +693,9 @@
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
               <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
             </div>
+            <a class="text-link" routerLink="/meetings" fragment="calendar">{{
+              appCopy().openCalendarLabel
+            }}</a>
           </header>
 
           <div class="stack-list grid gap-3">

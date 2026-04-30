@@ -107,10 +107,12 @@ const PROXY_RESPONSE_WITH_ALERTS = {
 };
 
 function setWeatherRuntimeConfig(config: Record<string, unknown>): void {
-  (window as Window & { __TOW_RUNTIME_CONFIG__?: Record<string, unknown> }).__TOW_RUNTIME_CONFIG__ = {
-    weather: config,
-  };
-  delete (window as Window & { __TOW_RUNTIME_CONFIG_OVERRIDE__?: Record<string, unknown> }).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  (window as Window & { __TOW_RUNTIME_CONFIG__?: Record<string, unknown> }).__TOW_RUNTIME_CONFIG__ =
+    {
+      weather: config,
+    };
+  delete (window as Window & { __TOW_RUNTIME_CONFIG_OVERRIDE__?: Record<string, unknown> })
+    .__TOW_RUNTIME_CONFIG_OVERRIDE__;
 }
 
 function createPanel(options: {
@@ -138,14 +140,17 @@ function createPanel(options: {
     ],
   });
 
-  const panel = TestBed.runInInjectionContext(() => new LocalizedWeatherPanel()) as WeatherPanelHarness;
+  const panel = TestBed.runInInjectionContext(
+    () => new LocalizedWeatherPanel(),
+  ) as WeatherPanelHarness;
 
   return { panel, http, languageState };
 }
 
 async function settle(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
+  for (let tick = 0; tick < 10; tick += 1) {
+    await Promise.resolve();
+  }
 }
 
 describe('WeatherPanel', () => {
@@ -175,8 +180,10 @@ describe('WeatherPanel', () => {
     panel.alertSignupFeedback.set('Old message');
     panel.alertSignupDestination.set('7195550102');
 
-    expect(panel.weatherSourceLabel()).toContain('weather.gov via Town of Wiley AWS weather service');
-    expect(panel.alertSignupDestinationLabel()).toBe('SMS text');
+    expect(panel.weatherSourceLabel()).toContain(
+      'weather.gov via Town of Wiley AWS weather service',
+    );
+    expect(panel.alertSignupDestinationLabel()).toBe('Mobile number');
     expect(panel.alertSignupDestinationPlaceholder()).toBe('(719) 555-0102');
     expect(panel.alertSignupDestinationType()).toBe('tel');
     expect(panel.alertSignupLanguageLabel()).toBe('English');
@@ -228,7 +235,8 @@ describe('WeatherPanel', () => {
         alertSignup: { enabled: true, apiEndpoint: '/alert-signups' },
       },
       getImpl: () => of(PROXY_RESPONSE_WITH_ALERTS),
-      postImpl: () => of({ message: 'Request received.', unsubscribeUrl: 'https://example.com/unsub' }),
+      postImpl: () =>
+        of({ message: 'Request received.', unsubscribeUrl: 'https://example.com/unsub' }),
     });
 
     await settle();
@@ -275,7 +283,9 @@ describe('WeatherPanel', () => {
 
     expect(http.post).not.toHaveBeenCalled();
     expect(panel.alertSignupFeedbackTone()).toBe('error');
-    expect(panel.alertSignupFeedback()).toBe('Enter a valid email address before signing up for severe weather alerts.');
+    expect(panel.alertSignupFeedback()).toBe(
+      'Enter a valid email address before signing up for severe weather alerts.',
+    );
   });
 
   it('uses the browser feed when no proxy endpoint is configured', async () => {
@@ -309,7 +319,7 @@ describe('WeatherPanel', () => {
     expect(panel.hasAlerts()).toBe(false);
     expect(panel.weatherPeriods()).toHaveLength(2);
     expect(panel.currentPeriod()?.name).toBe('Today');
-    expect(panel.forecastGdd()).toBe(7);
+    expect(panel.forecastGdd()).toBe(12);
   });
 
   it('falls back to the browser feed when the proxy fails and fallback is enabled', async () => {

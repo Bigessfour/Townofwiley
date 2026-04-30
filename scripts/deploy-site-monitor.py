@@ -24,7 +24,6 @@ def parse_args() -> argparse.Namespace:
   parser.add_argument('--schedule-expression', default='rate(5 minutes)')
   parser.add_argument('--site-url', default='https://townofwiley.gov')
   parser.add_argument('--admin-url', default='')
-  parser.add_argument('--clerk-setup-url', default='')
   parser.add_argument('--recipient-email', default='bigessfour@gmail.com')
   parser.add_argument('--sender-email', default='alerts@townofwiley.gov')
   parser.add_argument('--sender-name', default='Town of Wiley Alerts')
@@ -301,7 +300,6 @@ def main() -> int:
 
   site_url = args.site_url.strip() or 'https://townofwiley.gov'
   admin_url = args.admin_url.strip() or f'{site_url.rstrip("/")}/admin'
-  clerk_setup_url = args.clerk_setup_url.strip() or f'{site_url.rstrip("/")}/clerk-setup'
   state_table_region = args.state_table_region.strip() or os.environ.get('AWS_REGION', '').strip()
   archive_path = package_backend()
   table_arn = ensure_table(args.state_table)
@@ -314,7 +312,6 @@ def main() -> int:
     environment={
       'SITE_URL': site_url,
       'ADMIN_URL': admin_url,
-      'CLERK_SETUP_URL': clerk_setup_url,
       'APPSYNC_CMS_ENDPOINT': appsync_endpoint,
       'APPSYNC_CMS_API_KEY': appsync_api_key,
       'ALERT_RECIPIENT_EMAIL': args.recipient_email,
@@ -335,7 +332,6 @@ def main() -> int:
         'stateTableArn': table_arn,
         'siteUrl': site_url,
         'adminUrl': admin_url,
-        'clerkSetupUrl': clerk_setup_url,
         'recipientEmail': args.recipient_email,
         'monitorName': args.monitor_name,
       },

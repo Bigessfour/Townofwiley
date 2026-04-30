@@ -14,6 +14,8 @@ export class NoticesPage {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
 
-  protected readonly copy = computed(() => APP_COPY[this.siteLanguageService.currentLanguage() || 'en']);
+  protected readonly copy = computed(
+    () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
   protected readonly notices = this.cmsStore.notices;
 }

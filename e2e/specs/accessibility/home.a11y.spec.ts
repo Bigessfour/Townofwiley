@@ -1,24 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '../../fixtures/town.fixture';
-
-const publicPages = [
-  { path: '/', label: 'landing page' },
-  { path: '/notices', label: 'notices page' },
-  { path: '/meetings', label: 'meetings page' },
-  { path: '/weather', label: 'weather page' },
-  { path: '/services', label: 'services page' },
-  { path: '/records', label: 'records page' },
-  { path: '/businesses', label: 'businesses page' },
-  { path: '/news', label: 'news page' },
-  { path: '/contact', label: 'contact page' },
-  { path: '/accessibility', label: 'accessibility page' },
-  { path: '/documents', label: 'documents page' },
-];
+import { accessibilityRouteContracts } from '../../support/public-routes';
 
 test.describe('homepage accessibility', () => {
   test.describe.configure({ mode: 'serial' });
 
-  for (const publicPage of publicPages) {
+  for (const publicPage of accessibilityRouteContracts) {
     test(`has no critical or serious axe violations on the ${publicPage.label}`, async ({
       homePage,
     }) => {
@@ -30,7 +17,7 @@ test.describe('homepage accessibility', () => {
       });
       await expect(homePage.page.locator('#main-content')).toBeVisible();
       // The standalone document hub does not render the standard town header shell
-      if (publicPage.path !== '/documents') {
+      if (publicPage.standardShell !== false) {
         await expect(homePage.page.locator('a.town-logo[href]')).toBeAttached({ timeout: 15000 });
       }
 
@@ -45,9 +32,7 @@ test.describe('homepage accessibility', () => {
 
       expect(
         impactfulViolations,
-        impactfulViolations
-          .map((violation) => `${violation.id}: ${violation.help}`)
-          .join('\n\n'),
+        impactfulViolations.map((violation) => `${violation.id}: ${violation.help}`).join('\n\n'),
       ).toEqual([]);
     });
   }

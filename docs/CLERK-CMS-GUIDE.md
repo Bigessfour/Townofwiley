@@ -22,7 +22,13 @@ They will send you an email from AWS with the subject **"You are invited to coll
 
 If the link has expired (they expire after 24 hours), ask for a new invitation.
 
-### Step 3 — Bookmark your two links
+### Step 3 — Bookmark your main website management page
+
+Bookmark this page first: https://townofwiley.gov/admin
+
+The admin page shows the Studio links, setup details, document publishing guide, contact updates, and a CMS connection test. Use it as the starting point each time.
+
+### Step 4 — Bookmark the Studio links if you want direct shortcuts
 
 Bookmark both of these links in your browser now. You will use them every time.
 
@@ -31,7 +37,7 @@ Bookmark both of these links in your browser now. You will use them every time.
 | [Studio Home](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home) | Starting page for Amplify Studio |
 | [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data) | Where you edit all website content |
 
-### Step 4 — Log in for the first time
+### Step 5 — Log in for the first time
 
 1. Go to the Studio Home link above.
 2. It will ask for your email and password.
@@ -48,8 +54,12 @@ All website content is managed in one place: **Data Manager**.
 
 Direct link: https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data
 
+Start here if you are not sure where to go: https://townofwiley.gov/admin
+
+The admin page is a guide and status page. It proves whether the public website can reach the CMS, but the actual content edits still happen in Amplify Studio Data Manager.
+
 **Do not** try to edit the website from:
-- The `/admin` page on the public website — that is a read-only status page
+- The `/admin` page itself — use its Data Manager button to open the real editor
 - Code files — leave those alone entirely
 - Any other tool
 

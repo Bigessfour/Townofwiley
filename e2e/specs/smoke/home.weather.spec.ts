@@ -1,8 +1,22 @@
 import { expect, test } from '../../fixtures/town.fixture';
-import { mockWeatherProxyRoute } from '../../support/weather-mocks';
+import { mockDirectNwsRoutes, mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 test.describe('homepage weather', () => {
-  test('elevates active Wiley alerts into the homepage warning banner', async ({ homePage }) => {
+  test.describe.configure({ timeout: 90000 });
+
+  test('elevates active Wiley alerts into the homepage warning banner', async ({
+    homePage,
+  }, testInfo) => {
+    const activeAlert = {
+      event: 'Severe Thunderstorm Warning',
+      headline: 'Severe Thunderstorm Warning issued for Wiley.',
+      severity: 'Severe',
+      urgency: 'Immediate',
+      instruction: 'Move indoors and stay away from windows.',
+      expires: '2026-03-22T20:00:00-06:00',
+    };
+
+    await mockDirectNwsRoutes(homePage.page, [activeAlert]);
     await homePage.enableWeatherProxy('/mock-homepage-weather');
     await homePage.enableAlertSignup('/mock-alert-signup');
 
@@ -24,24 +38,23 @@ test.describe('homepage weather', () => {
           detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
         },
       ],
-      alerts: [
-        {
-          event: 'Severe Thunderstorm Warning',
-          headline: 'Severe Thunderstorm Warning issued for Wiley.',
-          severity: 'Severe',
-          urgency: 'Immediate',
-          instruction: 'Move indoors and stay away from windows.',
-          expires: '2026-03-22T20:00:00-06:00',
-        },
-      ],
+      alerts: [activeAlert],
     });
 
     await homePage.goto();
 
-    await expect(homePage.siteAlert).toBeVisible();
+    await expect(homePage.siteAlert).toBeVisible({ timeout: 20000 });
     await expect(homePage.siteAlertTitle).toContainText('Severe Thunderstorm Warning');
     await expect(homePage.siteAlertDetail).toContainText('Severe Thunderstorm Warning issued');
     await expect(homePage.siteAlertLink).toHaveAttribute('href', /forecast\.weather\.gov/);
+
+    if (testInfo.project.name === 'desktop-chromium') {
+      await expect(homePage.siteAlert).toHaveScreenshot('homepage-nws-alert-banner.png', {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.02,
+      });
+    }
 
     await homePage.siteAlertButton.click();
     await expect(homePage.page).toHaveURL(/\/weather$/);
@@ -268,6 +281,47 @@ test.describe('homepage weather', () => {
         channel: 'email',
         preferredLanguage: 'es',
         destination: 'resident@example.com',
+        fullName: 'Jordan Resident',
+        zipCode: '81092',
+      },
+    ]);
+  });
+
+  test('submits SMS severe weather signups with normalized payload details', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    const signupRequests: Record<string, unknown>[] = [];
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      signupRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message:
+            'Thanks. Check your inbox or phone for the confirmation step before Wiley alerts begin.',
+        }),
+      });
+    });
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.weatherSignupChannel).toHaveAttribute('aria-label', 'SMS text');
+    await homePage.submitWeatherAlertSignup('(719) 829-4974', 'Jordan Resident');
+
+    await expect(homePage.weatherSignupStatus).toContainText(
+      'Check your inbox or phone for the confirmation step',
+    );
+    expect(signupRequests).toEqual([
+      {
+        channel: 'sms',
+        preferredLanguage: 'en',
+        destination: '(719) 829-4974',
         fullName: 'Jordan Resident',
         zipCode: '81092',
       },

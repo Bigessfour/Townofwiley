@@ -281,6 +281,10 @@ export class HomePage {
             weather?: {
               apiEndpoint?: string;
               allowBrowserFallback?: boolean;
+              alertSignup?: {
+                enabled?: boolean;
+                apiEndpoint?: string;
+              };
             };
           };
         };
@@ -288,6 +292,7 @@ export class HomePage {
         runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
           ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
           weather: {
+            ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
             apiEndpoint: endpoint,
             allowBrowserFallback: fallback,
           },

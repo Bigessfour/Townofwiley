@@ -8,7 +8,8 @@ export const routes: Routes = [
   },
   {
     path: 'clerk-setup',
-    loadComponent: () => import('./clerk-setup/clerk-setup').then((m) => m.ClerkSetup),
+    loadComponent: () =>
+      import('./clerk-setup/clerk-setup-redirect').then((m) => m.ClerkSetupRedirect),
   },
   {
     path: 'documents',
@@ -29,7 +30,8 @@ export const routes: Routes = [
   },
   {
     path: 'services',
-    loadComponent: () => import('./resident-services/resident-services').then((m) => m.ResidentServices),
+    loadComponent: () =>
+      import('./resident-services/resident-services').then((m) => m.ResidentServices),
   },
   {
     path: 'records',
@@ -50,7 +52,8 @@ export const routes: Routes = [
   },
   {
     path: 'accessibility',
-    loadComponent: () => import('./accessibility-page/accessibility-page').then((m) => m.AccessibilityPage),
+    loadComponent: () =>
+      import('./accessibility-page/accessibility-page').then((m) => m.AccessibilityPage),
   },
   {
     path: 'privacy',
@@ -62,5 +65,3 @@ export const routes: Routes = [
   },
   { path: '', component: App, pathMatch: 'full' },
 ];
-
-

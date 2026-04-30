@@ -1,10 +1,11 @@
 ---
-description: "Use when working on Playwright e2e tests, page objects, fixtures, locators, trace debugging, or flaky test repairs in this repo."
-name: "Playwright Testing Standards"
+description: 'Use when working on Playwright e2e tests, page objects, fixtures, locators, trace debugging, or flaky test repairs in this repo.'
+name: 'Playwright Testing Standards'
 applyTo:
-  - "playwright.config.ts"
-  - "e2e/**/*.ts"
+  - 'playwright.config.ts'
+  - 'e2e/**/*.ts'
 ---
+
 # Playwright Testing Standards
 
 - Keep tests in `e2e/specs/`, shared page objects in `e2e/pages/`, and test setup in `e2e/fixtures/`.

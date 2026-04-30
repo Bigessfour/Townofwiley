@@ -16,7 +16,7 @@ interface MockForecastPeriod {
   detailedForecast: string;
 }
 
-interface MockWeatherAlert {
+export interface MockWeatherAlert {
   event: string;
   headline: string;
   severity: string;
@@ -118,8 +118,8 @@ const forecastPayload = {
   },
 };
 
-const alertPayload = {
-  features: [],
+const nwsJsonHeaders = {
+  'Access-Control-Allow-Origin': '*',
 };
 
 export const defaultProxyWeatherPayload: MockWeatherProxyPayload = {
@@ -129,28 +129,44 @@ export const defaultProxyWeatherPayload: MockWeatherProxyPayload = {
   alerts: [],
 };
 
-export async function mockDirectNwsRoutes(page: Page): Promise<void> {
-  await page.route('https://api.weather.gov/points/38.154,-102.72', async (route) => {
+export async function mockDirectNwsRoutes(
+  page: Page,
+  alerts: MockWeatherAlert[] = [],
+): Promise<void> {
+  const pointUrl = 'https://api.weather.gov/points/38.154,-102.72';
+  const forecastUrl = 'https://api.weather.gov/gridpoints/PUB/162,56/forecast';
+  const alertsUrl = 'https://api.weather.gov/alerts/active?zone=COZ098';
+
+  await page.unroute(pointUrl).catch(() => undefined);
+  await page.unroute(forecastUrl).catch(() => undefined);
+  await page.unroute(alertsUrl).catch(() => undefined);
+
+  await page.route(pointUrl, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
+      headers: nwsJsonHeaders,
       body: JSON.stringify(pointPayload),
     });
   });
 
-  await page.route('https://api.weather.gov/gridpoints/PUB/162,56/forecast', async (route) => {
+  await page.route(forecastUrl, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
+      headers: nwsJsonHeaders,
       body: JSON.stringify(forecastPayload),
     });
   });
 
-  await page.route('https://api.weather.gov/alerts/active?zone=COZ098', async (route) => {
+  await page.route(alertsUrl, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(alertPayload),
+      headers: nwsJsonHeaders,
+      body: JSON.stringify({
+        features: alerts.map((alert) => ({ properties: alert })),
+      }),
     });
   });
 }

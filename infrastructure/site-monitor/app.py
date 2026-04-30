@@ -12,7 +12,6 @@ from urllib.request import Request, urlopen
 
 DEFAULT_SITE_URL = 'https://townofwiley.gov'
 DEFAULT_ADMIN_PATH = '/admin'
-DEFAULT_CLERK_SETUP_PATH = '/clerk-setup'
 DEFAULT_PUBLIC_PAGE_MARKERS = {
   'homepage': ('Town of Wiley',),
   'weather': ('National Weather Service forecast for', 'Active watches, warnings, and advisories'),
@@ -25,8 +24,7 @@ DEFAULT_PUBLIC_PAGE_MARKERS = {
   'contact': ('Contact Town Hall', 'Residents should always know where to go next'),
   'accessibility': ('Accessibility statement', 'Report an accessibility barrier'),
   'documents': ('Public Document Hub', 'Stable public destinations for meetings, finance records, and code references'),
-  'admin': ('Open CMS Data Manager', 'Amplify Studio'),
-  'clerk-setup': ('One place to manage Town website content',),
+  'admin': ('Open Amplify Studio Data Manager', 'CMS Connection Status'),
 }
 DEFAULT_PUBLIC_PAGE_PATHS = {
   'homepage': '/',
@@ -41,7 +39,6 @@ DEFAULT_PUBLIC_PAGE_PATHS = {
   'accessibility': '/accessibility',
   'documents': '/documents',
   'admin': DEFAULT_ADMIN_PATH,
-  'clerk-setup': DEFAULT_CLERK_SETUP_PATH,
 }
 DEFAULT_CMS_QUERY = 'query TownWebsiteHealth { listSiteSettings(limit: 1) { items { id } } }'
 DEFAULT_RECIPIENT_EMAIL = 'bigessfour@gmail.com'
@@ -87,7 +84,6 @@ def _deserialize_dynamo_value(value: dict[str, Any]) -> Any:
 class AppConfig:
   site_url: str
   admin_url: str
-  clerk_setup_url: str
   cms_endpoint: str
   cms_api_key: str
   notification_recipient: str
@@ -573,10 +569,6 @@ def build_runtime_monitor() -> TownSiteMonitor:
     admin_url=os.environ.get('ADMIN_URL', '').strip() or urljoin(
       os.environ.get('SITE_URL', DEFAULT_SITE_URL).strip().rstrip('/') + '/',
       DEFAULT_ADMIN_PATH.lstrip('/'),
-    ),
-    clerk_setup_url=os.environ.get('CLERK_SETUP_URL', '').strip() or urljoin(
-      os.environ.get('SITE_URL', DEFAULT_SITE_URL).strip().rstrip('/') + '/',
-      DEFAULT_CLERK_SETUP_PATH.lstrip('/'),
     ),
     cms_endpoint=os.environ.get('APPSYNC_CMS_ENDPOINT', '').strip(),
     cms_api_key=os.environ.get('APPSYNC_CMS_API_KEY', '').strip(),

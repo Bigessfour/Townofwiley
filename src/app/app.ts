@@ -26,13 +26,13 @@ import { DrawerModule } from 'primeng/drawer';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
 import { MegaMenuModule } from 'primeng/megamenu';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { filter, map, startWith } from 'rxjs';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
@@ -48,8 +48,8 @@ import {
   LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
-import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
+import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
   label: string;
@@ -228,7 +228,7 @@ interface AppCopy {
   homepageSectionsAriaLabel: string;
   communityFactsAriaLabel: string;
   leadershipAriaLabel: string;
-  heroImageAlt: string;
+  heroAlt: string;
   heroPrimaryActionLabel: string;
   heroSecondaryActionLabel: string;
   topTasksKicker: string;
@@ -470,8 +470,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageSectionsAriaLabel: 'Homepage sections',
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
-    heroImageAlt:
-      'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    heroAlt: 'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -870,7 +869,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageSectionsAriaLabel: 'Secciones de la pagina principal',
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
-    heroImageAlt:
+    heroAlt:
       'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
     heroSecondaryActionLabel: 'Ver reuniones y avisos',
@@ -1338,6 +1337,11 @@ export class App {
   protected readonly supportCardPt = {
     body: {
       class: 'support-card-body',
+    },
+  };
+  protected readonly desktopMegaMenuPt = {
+    item: {
+      'aria-level': null,
     },
   };
   private readonly calendarTableState = signal<CalendarTableState>({

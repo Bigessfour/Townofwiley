@@ -3,16 +3,16 @@
     "SessionStart": [
       {
         "type": "command",
-        "windows": "python scripts\\copilot_hook_terminal_policy.py --event session-start",
-        "command": "python scripts/copilot_hook_terminal_policy.py --event session-start",
+        "windows": "python3 scripts\\copilot_hook_terminal_policy.py --event session-start",
+        "command": "python3 scripts/copilot_hook_terminal_policy.py --event session-start",
         "timeout": 10
       }
     ],
     "PreToolUse": [
       {
         "type": "command",
-        "windows": "python scripts\\copilot_hook_terminal_policy.py --event pre-tool-use",
-        "command": "python scripts/copilot_hook_terminal_policy.py --event pre-tool-use",
+        "windows": "python3 scripts\\copilot_hook_terminal_policy.py --event pre-tool-use",
+        "command": "python3 scripts/copilot_hook_terminal_policy.py --event pre-tool-use",
         "timeout": 10
       }
     ]

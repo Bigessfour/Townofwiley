@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -10,7 +18,6 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
 
 @Component({
   selector: 'app-document-upload',
-  standalone: true,
   imports: [FileUploadModule, ButtonModule, ProgressBarModule, FormsModule],
   template: `
     <div class="document-upload">
@@ -20,8 +27,9 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
         <strong>{{ sectionName() }}</strong>
       </p>
       <p class="upload-instructions">
-        Select PDF, Word, Excel, or other document files to upload to the {{ sectionName() }} section.
-        If a file is uploaded to the wrong section, use the remove action below and upload it again in the correct place.
+        Select PDF, Word, Excel, or other document files to upload to the
+        {{ sectionName() }} section. If a file is uploaded to the wrong section, use the remove
+        action below and upload it again in the correct place.
       </p>
 
       @if (statusMessage()) {
@@ -46,21 +54,24 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
         [showUploadButton]="false"
         [showCancelButton]="false"
         (onSelect)="onFileSelect($event)"
-        (onRemove)="onFileRemove($event)">
+        (onRemove)="onFileRemove($event)"
+      >
         <ng-template pTemplate="toolbar">
           <div class="flex gap-2">
             <p-button
               label="Upload Selected Files"
               icon="pi pi-upload"
               [disabled]="selectedFiles.length === 0 || isUploading()"
-              (onClick)="uploadFiles()">
+              (onClick)="uploadFiles()"
+            >
             </p-button>
             <p-button
               label="Clear All"
               icon="pi pi-times"
               type="button"
               severity="secondary"
-              (onClick)="clearFiles()">
+              (onClick)="clearFiles()"
+            >
             </p-button>
           </div>
         </ng-template>
@@ -68,7 +79,10 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
         <ng-template pTemplate="content">
           @if (selectedFiles.length === 0) {
             <div class="empty-state">
-              <i class="pi pi-file" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
+              <i
+                class="pi pi-file"
+                style="font-size: 2rem; color: var(--text-color-secondary);"
+              ></i>
               <p>Drag and drop files here or click to browse</p>
               <small>Supported formats: PDF, DOC, DOCX, XLS, XLSX, TXT (max 10MB each)</small>
             </div>
@@ -84,7 +98,8 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
                     severity="danger"
                     text
                     rounded
-                    (onClick)="removeFile(file)">
+                    (onClick)="removeFile(file)"
+                  >
                   </p-button>
                 </div>
               }
@@ -121,7 +136,8 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
                   label="Remove from website"
                   severity="danger"
                   text
-                  (onClick)="deleteDocument(doc)">
+                  (onClick)="deleteDocument(doc)"
+                >
                 </p-button>
               </div>
             }
@@ -135,161 +151,163 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
       }
     </div>
   `,
-  styles: [`
-    .document-upload {
-      max-width: 600px;
-    }
+  styles: [
+    `
+      .document-upload {
+        max-width: 600px;
+      }
 
-    .section-callout {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      margin: 0 0 1rem;
-      padding: 0.9rem 1rem;
-      border-left: 4px solid var(--primary-color);
-      border-radius: var(--border-radius);
-      background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-0));
-    }
+      .section-callout {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin: 0 0 1rem;
+        padding: 0.9rem 1rem;
+        border-left: 4px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-0));
+      }
 
-    .section-callout span {
-      color: var(--primary-color);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+      .section-callout span {
+        color: var(--primary-color);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
 
-    .section-callout strong {
-      color: var(--text-color);
-      font-size: 1rem;
-    }
+      .section-callout strong {
+        color: var(--text-color);
+        font-size: 1rem;
+      }
 
-    .upload-instructions {
-      color: var(--text-color-secondary);
-      margin-bottom: 1rem;
-    }
+      .upload-instructions {
+        color: var(--text-color-secondary);
+        margin-bottom: 1rem;
+      }
 
-    .upload-status {
-      margin: 0 0 1rem;
-      padding: 0.9rem 1rem;
-      border-radius: var(--border-radius);
-      border: 1px solid transparent;
-      line-height: 1.5;
-    }
+      .upload-status {
+        margin: 0 0 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid transparent;
+        line-height: 1.5;
+      }
 
-    .upload-status--success {
-      border-color: color-mix(in srgb, #166534 28%, transparent);
-      background: color-mix(in srgb, #dcfce7 82%, white);
-      color: #166534;
-    }
+      .upload-status--success {
+        border-color: color-mix(in srgb, #166534 28%, transparent);
+        background: color-mix(in srgb, #dcfce7 82%, white);
+        color: #166534;
+      }
 
-    .upload-status--error {
-      border-color: color-mix(in srgb, #991b1b 28%, transparent);
-      background: color-mix(in srgb, #fee2e2 85%, white);
-      color: #991b1b;
-    }
+      .upload-status--error {
+        border-color: color-mix(in srgb, #991b1b 28%, transparent);
+        background: color-mix(in srgb, #fee2e2 85%, white);
+        color: #991b1b;
+      }
 
-    .empty-state {
-      text-align: center;
-      padding: 2rem;
-      border: 2px dashed var(--surface-border);
-      border-radius: var(--border-radius);
-      color: var(--text-color-secondary);
-    }
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        border: 2px dashed var(--surface-border);
+        border-radius: var(--border-radius);
+        color: var(--text-color-secondary);
+      }
 
-    .file-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+      .file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      background: var(--surface-section);
-      border-radius: var(--border-radius);
-    }
+      .file-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: var(--surface-section);
+        border-radius: var(--border-radius);
+      }
 
-    .file-name {
-      flex: 1;
-      font-weight: 500;
-    }
+      .file-name {
+        flex: 1;
+        font-weight: 500;
+      }
 
-    .file-size {
-      color: var(--text-color-secondary);
-      font-size: 0.875rem;
-    }
+      .file-size {
+        color: var(--text-color-secondary);
+        font-size: 0.875rem;
+      }
 
-    .upload-progress {
-      padding: 1rem;
-      background: var(--surface-card);
-      border-radius: var(--border-radius);
-    }
+      .upload-progress {
+        padding: 1rem;
+        background: var(--surface-card);
+        border-radius: var(--border-radius);
+      }
 
-    .uploaded-documents-header {
-      display: grid;
-      gap: 0.25rem;
-      margin-bottom: 1rem;
-    }
+      .uploaded-documents-header {
+        display: grid;
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+      }
 
-    .uploaded-documents h4 {
-      margin: 0;
-      color: var(--text-color);
-    }
+      .uploaded-documents h4 {
+        margin: 0;
+        color: var(--text-color);
+      }
 
-    .uploaded-count {
-      margin: 0;
-      color: var(--text-color-secondary);
-      font-size: 0.875rem;
-    }
+      .uploaded-count {
+        margin: 0;
+        color: var(--text-color-secondary);
+        font-size: 0.875rem;
+      }
 
-    .document-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+      .document-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
-    .document-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem;
-      background: var(--surface-card);
-      border-radius: var(--border-radius);
-      border: 1px solid var(--surface-border);
-    }
+      .document-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: var(--surface-card);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--surface-border);
+      }
 
-    .document-info {
-      flex: 1;
-    }
+      .document-info {
+        flex: 1;
+      }
 
-    .document-link {
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: 500;
-    }
+      .document-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
 
-    .document-link:hover {
-      text-decoration: underline;
-    }
+      .document-link:hover {
+        text-decoration: underline;
+      }
 
-    .document-meta {
-      color: var(--text-color-secondary);
-      display: block;
-      margin-top: 0.25rem;
-    }
+      .document-meta {
+        color: var(--text-color-secondary);
+        display: block;
+        margin-top: 0.25rem;
+      }
 
-    .empty-documents {
-      margin: 0;
-      padding: 1rem;
-      border: 1px dashed var(--surface-border);
-      border-radius: var(--border-radius);
-      background: var(--surface-section);
-      color: var(--text-color-secondary);
-    }
-  `],
+      .empty-documents {
+        margin: 0;
+        padding: 1rem;
+        border: 1px dashed var(--surface-border);
+        border-radius: var(--border-radius);
+        background: var(--surface-section);
+        color: var(--text-color-secondary);
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentUploadComponent implements OnInit {
@@ -324,11 +342,11 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   onFileRemove(event: { file: File }) {
-    this.selectedFiles = this.selectedFiles.filter(file => file !== event.file);
+    this.selectedFiles = this.selectedFiles.filter((file) => file !== event.file);
   }
 
   removeFile(file: File) {
-    this.selectedFiles = this.selectedFiles.filter(f => f !== file);
+    this.selectedFiles = this.selectedFiles.filter((f) => f !== file);
   }
 
   clearFiles() {
@@ -421,7 +439,11 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   formatDate(date: Date): string {
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return (
+      date.toLocaleDateString() +
+      ' ' +
+      date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    );
   }
 
   private describeUploadFailure(error: unknown, stage: 'storage' | 'database'): string {
@@ -436,8 +458,7 @@ export class DocumentUploadComponent implements OnInit {
       normalizedMessage.includes('unauthorized');
 
     if (stage === 'storage') {
-      const baseMessage =
-        'The file could not be uploaded to Town document storage.';
+      const baseMessage = 'The file could not be uploaded to Town document storage.';
       return needsPermissionHelp
         ? `${baseMessage} ${this.permissionGuidance}`
         : `${baseMessage} ${rawMessage}`;

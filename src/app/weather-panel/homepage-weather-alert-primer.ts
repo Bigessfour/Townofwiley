@@ -1,10 +1,19 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  output,
+  PLATFORM_ID,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import type { HomepageWeatherAlert } from './weather-panel';
 
 const WILEY_POINT_URL = 'https://api.weather.gov/points/38.154,-102.72';
-const WILEY_FORECAST_PAGE_URL = 'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248';
+const WILEY_FORECAST_PAGE_URL =
+  'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248';
 
 interface NwsPointResponse {
   properties: {
@@ -33,6 +42,7 @@ interface NwsAlertResponse {
 export class HomepageWeatherAlertPrimer {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
   private isDestroyed = false;
   readonly activeAlertChange = output<HomepageWeatherAlert | null>();
 
@@ -41,7 +51,9 @@ export class HomepageWeatherAlertPrimer {
       this.isDestroyed = true;
     });
 
-    void this.loadAlert();
+    if (isPlatformBrowser(this.platformId)) {
+      void this.loadAlert();
+    }
   }
 
   private async loadAlert(): Promise<void> {
@@ -52,7 +64,9 @@ export class HomepageWeatherAlertPrimer {
         this.safeEmitAlert(null);
         return;
       }
-      const alertResponse = await firstValueFrom(this.http.get<NwsAlertResponse>(`https://api.weather.gov/alerts/active?zone=${zoneCode}`));
+      const alertResponse = await firstValueFrom(
+        this.http.get<NwsAlertResponse>(`https://api.weather.gov/alerts/active?zone=${zoneCode}`),
+      );
       const primary = alertResponse.features[0]?.properties;
       if (!primary) {
         this.safeEmitAlert(null);
@@ -62,8 +76,12 @@ export class HomepageWeatherAlertPrimer {
       this.safeEmitAlert({
         total,
         event: primary.event,
-        headline: (primary.headline ?? primary.description ?? primary.event).replace(/\s+/g, ' ').trim(),
-        instruction: primary.instruction ? primary.instruction.replace(/\s+/g, ' ').trim() : undefined,
+        headline: (primary.headline ?? primary.description ?? primary.event)
+          .replace(/\s+/g, ' ')
+          .trim(),
+        instruction: primary.instruction
+          ? primary.instruction.replace(/\s+/g, ' ').trim()
+          : undefined,
         severity: primary.severity,
         urgency: primary.urgency,
         forecastUrl: WILEY_FORECAST_PAGE_URL,

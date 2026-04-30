@@ -4,7 +4,12 @@
   background:
     radial-gradient(circle at 10% 0%, var(--page-glow-warm), transparent 24%),
     radial-gradient(circle at 88% 18%, var(--page-glow-cool), transparent 28%),
-    linear-gradient(180deg, var(--page-backdrop-end) 0%, var(--page-backdrop-start) 36%, var(--page-backdrop-mid) 100%);
+    linear-gradient(
+      180deg,
+      var(--page-backdrop-end) 0%,
+      var(--page-backdrop-start) 36%,
+      var(--page-backdrop-mid) 100%
+    );
 }
 
 /* ── Design System Tokens ────────────────────────────────────────────────── */
@@ -19,11 +24,11 @@
 
   /* Spacing System (8px grid) */
   --space-xs: 0.5rem; /* 8px */
-  --space-sm: 1rem;   /* 16px */
+  --space-sm: 1rem; /* 16px */
   --space-md: 1.5rem; /* 24px */
-  --space-lg: 2rem;   /* 32px */
-  --space-xl: 3rem;   /* 48px */
-  --space-2xl: 4rem;  /* 64px */
+  --space-lg: 2rem; /* 32px */
+  --space-xl: 3rem; /* 48px */
+  --space-2xl: 4rem; /* 64px */
 
   /* Shadow Hierarchy */
   --shadow-subtle: 0 4px 12px rgba(17, 36, 61, 0.08);
@@ -54,9 +59,9 @@
 
   /* Border Radius Scale */
   --radius-sm: 0.25rem; /* 4px */
-  --radius-md: 0.5rem;  /* 8px */
-  --radius-lg: 1rem;    /* 16px */
-  --radius-xl: 1.5rem;  /* 24px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.5rem; /* 24px */
   --radius-full: 9999px;
 }
 
@@ -78,14 +83,25 @@
   isolation: isolate;
   background:
     linear-gradient(180deg, var(--shimmer-base), var(--shimmer-shadow)),
-    linear-gradient(135deg, color-mix(in srgb, var(--surface-card) 96%, transparent), color-mix(in srgb, var(--surface-card) 88%, var(--p-primary-50)));
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-card) 96%, transparent),
+      color-mix(in srgb, var(--surface-card) 88%, var(--p-primary-50))
+    );
 }
 
 :host ::ng-deep .shimmer::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, var(--shimmer-overlay) 36%, var(--shimmer-highlight) 50%, var(--shimmer-overlay) 64%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--shimmer-overlay) 36%,
+    var(--shimmer-highlight) 50%,
+    var(--shimmer-overlay) 64%,
+    transparent 100%
+  );
   transform: translateX(-120%);
   animation: shimmer-slide 1.5s linear infinite;
   pointer-events: none;
@@ -195,6 +211,19 @@
   overflow: hidden;
 }
 
+.site-alert-slot {
+  margin-top: calc(var(--spacing-unit) * 1.1);
+  min-height: 9rem;
+}
+
+.site-alert--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing-unit) * 1.1);
+  padding: calc(var(--spacing-unit) * 1.1);
+}
+
 .site-alert-body {
   display: flex;
   align-items: center;
@@ -276,7 +305,11 @@
   background: var(--header-surface);
   box-shadow: 0 4px 16px rgba(17, 36, 61, 0.08);
   backdrop-filter: blur(20px);
-  transition: background-color 220ms ease, box-shadow 220ms ease, backdrop-filter 220ms ease, border-color 220ms ease;
+  transition:
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    backdrop-filter 220ms ease,
+    border-color 220ms ease;
 }
 
 .header-utility {
@@ -449,7 +482,9 @@
 .main-nav-link i {
   font-size: 0.95rem;
   color: var(--civic-blue);
-  transition: transform 180ms ease, color 180ms ease;
+  transition:
+    transform 180ms ease,
+    color 180ms ease;
 }
 
 .main-nav-link:hover,
@@ -506,7 +541,11 @@
   padding: 0.95rem 1.05rem;
   border: 1px solid var(--header-border);
   border-radius: 20px;
-  background: linear-gradient(180deg, var(--header-link-surface), color-mix(in srgb, var(--surface-card) 78%, transparent));
+  background: linear-gradient(
+    180deg,
+    var(--header-link-surface),
+    color-mix(in srgb, var(--surface-card) 78%, transparent)
+  );
   color: var(--ink-900);
   box-shadow: var(--header-link-shadow);
   text-decoration: none;
@@ -553,7 +592,11 @@
 
 .header-meta-link:hover,
 .header-meta-link:focus-visible {
-  background: linear-gradient(180deg, var(--header-link-surface-hover), color-mix(in srgb, var(--surface-card) 84%, transparent));
+  background: linear-gradient(
+    180deg,
+    var(--header-link-surface-hover),
+    color-mix(in srgb, var(--surface-card) 84%, transparent)
+  );
   border-color: var(--surface-border-strong);
 }
 
@@ -649,8 +692,14 @@
   font: inherit;
 }
 
-:host ::ng-deep .site-language-selectbutton.p-selectbutton .p-togglebutton {
-  min-height: 2.5rem;
+:host ::ng-deep .p-togglebutton.site-language-selectbutton,
+:host ::ng-deep .p-togglebutton.site-language-selectbutton .p-togglebutton-content,
+:host ::ng-deep p-togglebutton.site-language-selectbutton {
+  min-height: 44px !important;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .p-togglebutton.site-language-selectbutton {
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-full);
   font-size: var(--font-size-kicker);
@@ -659,7 +708,33 @@
   text-transform: uppercase;
 }
 
-:host ::ng-deep .site-language-selectbutton.p-selectbutton .p-togglebutton.p-selected {
+:host
+  ::ng-deep
+  .site-language-switcher
+  .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked) {
+  background: color-mix(in srgb, var(--surface-card) 94%, var(--p-surface-0));
+  color: var(--ink-900) !important;
+  border-color: color-mix(in srgb, var(--surface-border) 82%, transparent) !important;
+  box-shadow: var(--shadow-subtle);
+}
+
+:host
+  ::ng-deep
+  .site-language-switcher
+  .p-togglebutton.site-language-selectbutton
+  .p-togglebutton-content {
+  color: inherit !important;
+}
+
+:host
+  ::ng-deep
+  .site-language-switcher
+  .p-togglebutton.site-language-selectbutton
+  .p-togglebutton-label {
+  color: inherit !important;
+}
+
+:host ::ng-deep .p-togglebutton.site-language-selectbutton.p-togglebutton-checked {
   background: var(--brand-gradient-strong);
   color: var(--surface-inverse);
   border-color: transparent;
@@ -728,7 +803,6 @@
   gap: calc(var(--spacing-unit) * 2.1);
   padding-bottom: calc(var(--spacing-unit) * 4);
 }
-
 
 .weather-alert-loader {
   display: none;
@@ -890,10 +964,10 @@ h3 {
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background:
-    linear-gradient(180deg, rgba(13, 44, 84, 0.96), rgba(28, 59, 102, 0.94)),
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 28%);
-  color: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--shadow-floating);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(250, 246, 238, 0.92)),
+    radial-gradient(circle at top, rgba(13, 44, 84, 0.05), transparent 28%);
+  color: var(--ink-900);
+  box-shadow: var(--shadow-medium);
 }
 
 .landing-task-grid {
@@ -1121,7 +1195,7 @@ h3 {
 .search-note {
   margin: 0;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.84);
+  color: var(--ink-700);
 }
 
 .search-control-row {
@@ -1149,13 +1223,6 @@ h3 {
 
 :host ::ng-deep .search-control-row .search-input.p-inputtext:focus-visible {
   border-color: rgba(212, 161, 75, 0.72);
-}
-
-.search-result strong,
-.search-result span,
-.search-result small,
-.empty-state {
-  color: #fff;
 }
 
 .task-grid,
@@ -1368,7 +1435,6 @@ h3 {
   background: linear-gradient(135deg, var(--button-accent-start), var(--button-accent-end));
   border-color: transparent;
 }
-
 
 .search-result {
   display: grid;
@@ -1669,11 +1735,19 @@ h3 {
   color: var(--ink-900);
 }
 
-.calendar-tool :where(.p-datepicker-prev-button, .p-datepicker-next-button, .p-datepicker-title, .p-datepicker-select-month, .p-datepicker-select-year) {
+.calendar-tool
+  :where(
+    .p-datepicker-prev-button,
+    .p-datepicker-next-button,
+    .p-datepicker-title,
+    .p-datepicker-select-month,
+    .p-datepicker-select-year
+  ) {
   color: var(--ink-900);
 }
 
-.calendar-tool :where(.p-datepicker-day, .p-datepicker-weekday-cell, .p-datepicker-month, .p-datepicker-year) {
+.calendar-tool
+  :where(.p-datepicker-day, .p-datepicker-weekday-cell, .p-datepicker-month, .p-datepicker-year) {
   color: var(--ink-900);
 }
 
@@ -1689,7 +1763,8 @@ h3 {
   box-shadow: none;
 }
 
-.calendar-tool :where(.p-datepicker-buttonbar .p-button:hover, .p-datepicker-buttonbar .p-button:focus-visible) {
+.calendar-tool
+  :where(.p-datepicker-buttonbar .p-button:hover, .p-datepicker-buttonbar .p-button:focus-visible) {
   background: rgba(243, 247, 251, 0.98);
   color: var(--ink-900);
 }
@@ -1771,7 +1846,11 @@ h3 {
 
 .calendar-table-placeholder.shimmer {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-card) 94%, white), color-mix(in srgb, var(--surface-card-warm) 88%, white)),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-card) 94%, white),
+      color-mix(in srgb, var(--surface-card-warm) 88%, white)
+    ),
     linear-gradient(135deg, rgba(255, 255, 255, 0.72), transparent);
 }
 
@@ -1993,6 +2072,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
   padding: var(--space-xs) 0;
   border: 0;
   border-bottom: 1px solid rgba(13, 44, 84, 0.18);
@@ -2200,6 +2280,7 @@ h3 {
 .text-link {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   max-width: 100%;
   margin-top: var(--space-lg);
   color: var(--civic-blue);
@@ -2528,7 +2609,6 @@ button:not(:disabled):active,
   h1 {
     font-size: clamp(2.5rem, 13vw, 4rem);
   }
-
 }
 
 @media (max-width: 560px) {
@@ -2553,6 +2633,10 @@ button:not(:disabled):active,
   .page-shell {
     padding-left: var(--space-sm);
     padding-right: var(--space-sm);
+  }
+
+  .site-alert-slot {
+    min-height: 10.5rem;
   }
 
   .main-nav-link,
@@ -2679,6 +2763,10 @@ button:not(:disabled):active,
 @media (max-width: 640px) {
   .desktop-mega-menu {
     display: none;
+  }
+
+  :host ::ng-deep .p-megamenu.mega-menu-civic {
+    display: none !important;
   }
 
   .mobile-menu-bar {
@@ -2909,7 +2997,9 @@ button:not(:disabled):active,
   font-size: 1.5rem;
   box-shadow: var(--shadow-floating);
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .floating-chat-button:hover {
@@ -2951,7 +3041,9 @@ button:not(:disabled):active,
     font-size: var(--font-size-h3);
   }
 
-  .floating-chat-label { display: none; }
+  .floating-chat-label {
+    display: none;
+  }
 }
 
 // ── NWS Severe Weather Alert Banner ─────────────────────────────────────────
@@ -2984,7 +3076,7 @@ button:not(:disabled):active,
 /* Tighten Meetings/Calendar page layout */
 .feature-detail-stack,
 .calendar-panel {
-  gap: 1rem !important;           /* was 1.5rem+ */
+  gap: 1rem !important; /* was 1.5rem+ */
 }
 
 .calendar-header {
@@ -2998,7 +3090,7 @@ button:not(:disabled):active,
 }
 
 .panel {
-  padding: 1.4rem !important;     /* reduced from 1.7rem */
+  padding: 1.4rem !important; /* reduced from 1.7rem */
 }
 
 .calendar-tools {

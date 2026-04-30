@@ -55,6 +55,7 @@ const cmsRegion =
 const clerkSetupAwsAccountId =
   process.env.CLERK_SETUP_AWS_ACCOUNT_ID?.trim() ||
   localSecrets.clerkSetup?.awsAccountId?.trim() ||
+  localSecrets.aws?.accountId?.trim() ||
   '';
 const clerkSetupClerkName =
   process.env.CLERK_SETUP_CLERK_NAME?.trim() ||
@@ -63,6 +64,7 @@ const clerkSetupClerkName =
 const clerkSetupAmplifyAppId =
   process.env.CLERK_SETUP_AMPLIFY_APP_ID?.trim() ||
   localSecrets.clerkSetup?.amplifyAppId?.trim() ||
+  localSecrets.aws?.amplifyAppId?.trim() ||
   '';
 const clerkSetupAwsRegion =
   process.env.CLERK_SETUP_AWS_REGION?.trim() ||

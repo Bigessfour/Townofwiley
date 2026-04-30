@@ -203,11 +203,11 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_ENABLED` | `true` / `false` |
 | `LOG_ENDPOINT` | Frontend log ingest endpoint |
 | `CONTACT_UPDATE_API_ENDPOINT` | Lambda Function URL for contact updates |
-| `CLERK_SETUP_AWS_ACCOUNT_ID` | Town AWS account ID shown on the clerk setup page |
-| `CLERK_SETUP_AMPLIFY_APP_ID` | Amplify app ID used for the clerk setup links |
-| `CLERK_SETUP_AWS_REGION` | AWS region used to build clerk setup console links |
-| `CLERK_SETUP_AWS_CONSOLE_URL` | Optional direct AWS console URL for the clerk setup page |
-| `CLERK_SETUP_STUDIO_URL` | Optional direct Amplify Studio URL for the clerk setup page |
+| `CLERK_SETUP_AWS_ACCOUNT_ID` | Town AWS account ID shown on the unified `/admin` CMS hub |
+| `CLERK_SETUP_AMPLIFY_APP_ID` | Amplify app ID used for the `/admin` CMS hub links |
+| `CLERK_SETUP_AWS_REGION` | AWS region used to build `/admin` console links |
+| `CLERK_SETUP_AWS_CONSOLE_URL` | Optional direct AWS console URL for the `/admin` CMS hub |
+| `CLERK_SETUP_STUDIO_URL` | Optional direct Amplify Studio URL for the `/admin` CMS hub |
 
 If a variable is missing, `generate-runtime-config.mjs` silently falls back to an empty string; the feature that depends on it will degrade gracefully rather than break the build.
 
@@ -242,11 +242,11 @@ Homepage publishing now relies on Amplify Studio and AppSync. The old browser-lo
 Plain-language source of truth for staff:
 
 - Daily editing path: Amplify Studio Data Manager
-- Clerk handoff page: `/clerk-setup`
-- `/admin` route: read-only guide and status page only
+- Staff handoff and status page: `/admin`
+- Legacy `/clerk-setup` links redirect to `/admin` and preserve supported tab fragments
 - Non-technical instructions: `CLERK-CMS-GUIDE.md`
 
-The `/admin` page now includes a direct Amplify Studio Data Manager link plus a quick-reference copy of the clerk instructions, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
+The `/admin` page now includes the Amplify Studio Data Manager link, setup details, document publishing guidance, contact updates, and a live CMS connection test, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
 
 ## Developer Notifications
 
@@ -266,7 +266,6 @@ What it checks:
 - `https://townofwiley.gov/accessibility`
 - `https://townofwiley.gov/documents`
 - `https://townofwiley.gov/admin`
-- `https://townofwiley.gov/clerk-setup`
 - the AppSync CMS endpoint from `src/amplifyconfiguration.json`
 
 Deployment and test scripts:
@@ -302,7 +301,7 @@ Current scope:
 - Publishing surface: Amplify Studio Data Manager
 - Public read path: AppSync GraphQL API with a runtime-injected read key
 - Homepage and operations models in use: `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `EmailAlias`
-- `/admin` route: read-only operations page that points maintainers to Amplify Studio
+- `/admin` route: unified operations hub with setup details, CMS connection proof, contact updates, and Amplify Studio links
 
 Runtime configuration sources for the public CMS read path:
 

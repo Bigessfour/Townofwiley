@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.text-link,
+.calendar-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.calendar-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 0.75rem);
+}

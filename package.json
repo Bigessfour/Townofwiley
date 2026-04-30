@@ -18,7 +18,7 @@
     "test:infra:alerts": "python -m pytest infrastructure/severe-weather-signup/tests",
     "test:infra:mail": "python -m pytest infrastructure/email-alias-router/tests",
     "test:infra:backend": "python -m pytest",
-    "test:infra:monitor": "python -m unittest discover infrastructure/site-monitor/tests",
+    "test:infra:monitor": "python3 -m unittest discover infrastructure/site-monitor/tests",
     "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:smoke",
     "pretest:e2e": "npx --yes kill-port 4200 4300",
     "test:e2e": "playwright test",

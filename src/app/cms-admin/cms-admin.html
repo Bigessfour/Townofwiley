@@ -1,33 +1,32 @@
 <main class="cms-shell">
   <header class="cms-header">
     <div>
-      <p class="cms-kicker">{{ copy().kicker }}</p>
-      <h1 class="cms-title">{{ copy().title }}</h1>
-      <p class="cms-copy">{{ copy().intro }}</p>
+      <p class="cms-kicker">{{ copy().setupKicker }}</p>
+      <h1 class="cms-title">{{ copy().setupTitle }}</h1>
+      <p class="cms-copy">{{ copy().setupBody }}</p>
     </div>
 
     <div class="cms-actions">
+      <a class="cms-button primary" [href]="cmsEditUrl" target="_blank" rel="noreferrer noopener">
+        {{ copy().openCmsEditPage }}
+      </a>
       <a
         class="cms-button add"
         [href]="publicDocumentUploadFormUrl"
-        target="_blank"
-        rel="noreferrer noopener"
+        (click)="updateActiveTab('documents')"
       >
         {{ copy().openPublicDocumentUploadForm }}
       </a>
+      <a class="cms-button secondary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
+        {{ copy().openAmplify }}
+      </a>
       <a
-        class="cms-button primary"
-        [href]="cmsEditUrl"
+        class="cms-button secondary"
+        [href]="awsConsoleUrl"
         target="_blank"
         rel="noreferrer noopener"
       >
-        {{ copy().openCmsEditPage }}
-      </a>
-      <a class="cms-button secondary" [href]="clerkSetupUrl">
-        {{ copy().openSetupPage }}
-      </a>
-      <a class="cms-button secondary" [href]="studioUrl" target="_blank" rel="noreferrer noopener">
-        {{ copy().openAmplify }}
+        {{ copy().openAwsConsole }}
       </a>
       <a class="cms-link" href="/">{{ copy().returnHome }}</a>
     </div>
@@ -50,8 +49,7 @@
       <a
         class="cms-button add"
         [href]="publicDocumentUploadFormUrl"
-        target="_blank"
-        rel="noreferrer noopener"
+        (click)="updateActiveTab('documents')"
       >
         {{ copy().openPublicDocumentUploadForm }}
       </a>
@@ -85,6 +83,283 @@
       <span>{{ copy().contactsSummary }}</span>
     </article>
   </section>
+
+  <section class="cms-connection" aria-labelledby="cms-connection-heading">
+    <div>
+      <p class="cms-help-kicker">{{ copy().connectionKicker }}</p>
+      <h2 id="cms-connection-heading">{{ copy().connectionTitle }}</h2>
+      <p>{{ copy().connectionBody }}</p>
+    </div>
+
+    <div class="cms-connection-actions">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-bolt"
+        [label]="connectionTestLoading() ? copy().testingConnection : copy().testConnection"
+        [disabled]="connectionTestLoading()"
+        (click)="testConnection()"
+      >
+        {{ connectionTestLoading() ? copy().testingConnection : copy().testConnection }}
+      </button>
+      <strong
+        class="cms-connection-status"
+        [class.is-ok]="connectionTestResult()?.ok === true"
+        [class.is-error]="connectionTestResult()?.ok === false"
+      >
+        @if (connectionTestLoading()) {
+          {{ copy().testingConnection }}
+        } @else if (connectionTestResult(); as result) {
+          {{ result.ok ? copy().connectionSuccess : copy().connectionFailed }}
+        } @else {
+          {{ hasAppSyncRuntimeConfig ? copy().connectionReady : copy().connectionNotRun }}
+        }
+      </strong>
+    </div>
+
+    <ul class="cms-proof-grid">
+      <li>
+        <strong>{{ copy().endpointLabel }}:</strong> {{ maskedEndpoint() }}
+      </li>
+      <li>
+        <strong>{{ copy().regionLabel }}:</strong> {{ appSyncRegion() }}
+      </li>
+      <li>
+        <strong>{{ copy().apiKeyLabel }}:</strong>
+        {{ hasAppSyncRuntimeConfig ? copy().apiKeyPresent : copy().apiKeyMissing }}
+      </li>
+      @if (connectionTestResult(); as result) {
+        <li>
+          <strong>{{ copy().lastCheckedLabel }}:</strong> {{ result.checkedAt | date: 'medium' }}
+        </li>
+        <li>
+          <strong>{{ copy().latencyLabel }}:</strong> {{ result.latencyMs }} ms
+        </li>
+        <li>
+          <strong>{{ copy().recordCountLabel }}:</strong> {{ result.recordCount }}
+        </li>
+        @if (result.sampleTownName) {
+          <li>
+            <strong>{{ copy().sampleTownLabel }}:</strong> {{ result.sampleTownName }}
+          </li>
+        }
+      }
+    </ul>
+
+    @if (connectionTestResult()?.error; as error) {
+      <p class="cms-trouble">
+        <strong>{{ copy().troubleLabel }}:</strong> {{ copy().troubleText }} {{ error }}
+      </p>
+    }
+  </section>
+
+  <p-tabs lazy [value]="activeTab()" (valueChange)="updateActiveTab($event)">
+    <p-tablist class="cms-tabs" aria-label="CMS admin hub sections">
+      <p-tab value="setup">{{ copy().setupTab }}</p-tab>
+      <p-tab value="documents">{{ copy().documentsTab }}</p-tab>
+      <p-tab value="updates">
+        {{ copy().updatesTab }}
+        @if (contactUpdates().length > 0) {
+          <p-tag
+            [value]="contactUpdates().length.toString()"
+            severity="warn"
+            styleClass="ml-2 text-xs"
+          />
+        }
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels class="cms-tabpanels">
+      <p-tabpanel value="setup">
+        <section class="cms-help" aria-labelledby="cms-setup-heading">
+          <div class="cms-help-card cms-help-card--wide">
+            <p class="cms-help-kicker">{{ copy().setupKicker }}</p>
+            <h2 id="cms-setup-heading">{{ copy().setupDetailsTitle }}</h2>
+            <p>{{ copy().setupDetailsSubtitle }}</p>
+            <details class="cms-details">
+              <summary>{{ copy().setupDetailsTitle }}</summary>
+              <dl class="cms-setup-details">
+                @for (detail of setupDetails(); track detail.key) {
+                  <div>
+                    <dt>{{ detail.label }}</dt>
+                    <dd>{{ detail.value }}</dd>
+                    <button
+                      type="button"
+                      class="cms-copy-button"
+                      [disabled]="!detail.copyValue"
+                      (click)="copySetupValue(detail)"
+                    >
+                      {{
+                        copiedSetupKey() === detail.key ? copy().copiedLabel : copy().copyValueLabel
+                      }}
+                    </button>
+                  </div>
+                }
+              </dl>
+            </details>
+          </div>
+
+          <p-card class="setup-primeng-card" [pt]="setupCardPt">
+            <ng-template #title>{{ copy().dailyWorkflowTitle }}</ng-template>
+            <ng-template #subtitle>{{ copy().dailyWorkflowSubtitle }}</ng-template>
+            <ol class="grid gap-2">
+              @for (item of dailyChecklist(); track item) {
+                <li>{{ item }}</li>
+              }
+            </ol>
+          </p-card>
+
+          <p-card class="setup-primeng-card" [pt]="setupCardPt">
+            <ng-template #title>{{ copy().taskMapTitle }}</ng-template>
+            <ng-template #subtitle>{{ copy().taskMapSubtitle }}</ng-template>
+            <ul class="grid gap-2">
+              @for (item of taskMap(); track item.action) {
+                <li>
+                  <strong>{{ item.action }}:</strong>
+                  <p-tag [value]="item.model" severity="secondary" styleClass="ml-1" />
+                </li>
+              }
+            </ul>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="documents">
+        <section class="cms-help" aria-labelledby="cms-documents-heading">
+          <div class="cms-help-card cms-help-card--wide">
+            <p class="cms-help-kicker">{{ copy().publishingKicker }}</p>
+            <h2 id="cms-documents-heading">{{ copy().documentWorkflowTitle }}</h2>
+            <p>{{ copy().documentWorkflowSubtitle }}</p>
+            <div class="cms-actions">
+              <a
+                class="cms-button add"
+                [href]="cmsEditUrl"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                {{ copy().openCmsEditPage }}
+              </a>
+            </div>
+            <ol class="cms-help-list">
+              @for (step of documentPublishingSteps(); track step) {
+                <li>{{ step }}</li>
+              }
+            </ol>
+          </div>
+
+          <p-card class="setup-primeng-card" [pt]="setupCardPt">
+            <ng-template #title>{{ copy().documentSectionsTitle }}</ng-template>
+            <ng-template #subtitle>{{ copy().documentSectionsSubtitle }}</ng-template>
+            <ul class="grid gap-3">
+              @for (section of documentSections(); track section.sectionId) {
+                <li>
+                  <strong>{{ section.label }}:</strong>
+                  <p-tag [value]="section.sectionId" severity="secondary" styleClass="ml-1" />
+                  <p class="cms-muted">{{ section.detail }}</p>
+                </li>
+              }
+            </ul>
+          </p-card>
+
+          <p-card class="setup-primeng-card" [pt]="setupCardPt">
+            <ng-template #title>{{ copy().documentChecksTitle }}</ng-template>
+            <ng-template #subtitle>{{ copy().documentChecksSubtitle }}</ng-template>
+            <ul class="grid gap-2">
+              @for (item of documentPublishingChecks(); track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="updates">
+        <section class="cms-updates" aria-labelledby="cms-updates-heading">
+          <header class="cms-updates-header">
+            <div>
+              <h2 id="cms-updates-heading">{{ copy().contactUpdatesTitle }}</h2>
+              <p>{{ copy().contactUpdatesSubtitle }}</p>
+            </div>
+            <button
+              pButton
+              type="button"
+              [label]="copy().downloadCsvLabel"
+              icon="pi pi-download"
+              [outlined]="true"
+              (click)="downloadCSV()"
+              [disabled]="contactUpdates().length === 0"
+            >
+              {{ copy().downloadCsvLabel }}
+            </button>
+          </header>
+
+          @if (contactUpdatesLoading()) {
+            <div
+              class="setup-contact-updates-loading grid gap-3 py-4"
+              aria-busy="true"
+              aria-live="polite"
+            >
+              <p class="cms-muted text-center">{{ copy().contactUpdatesLoading }}</p>
+              <div class="grid gap-2">
+                <p-skeleton class="shimmer shimmer--compact" height="3rem" />
+                <p-skeleton class="shimmer shimmer--compact" height="3rem" />
+                <p-skeleton class="shimmer shimmer--compact" height="3rem" />
+              </div>
+            </div>
+          } @else if (contactUpdates().length === 0) {
+            <p class="text-center py-12 text-color-secondary">{{ copy().noContactUpdates }}</p>
+          } @else {
+            <p-table
+              [value]="contactUpdates()"
+              [scrollable]="true"
+              scrollHeight="600px"
+              [paginator]="true"
+              [rows]="20"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} contact updates"
+              [rowsPerPageOptions]="[10, 20, 50]"
+              sortField="timestamp"
+              [sortOrder]="-1"
+              stripedRows
+              showGridlines
+            >
+              <ng-template #caption>
+                <span class="setup-table-caption">{{ copy().contactUpdatesSubtitle }}</span>
+              </ng-template>
+              <ng-template #header>
+                <tr>
+                  <th scope="col" pSortableColumn="timestamp">
+                    Date <p-sortIcon field="timestamp" />
+                  </th>
+                  <th scope="col" pSortableColumn="fullName">
+                    Full Name <p-sortIcon field="fullName" />
+                  </th>
+                  <th scope="col" pSortableColumn="serviceAddress">
+                    Service Address <p-sortIcon field="serviceAddress" />
+                  </th>
+                  <th scope="col">PO Box</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Notes</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-update>
+                <tr>
+                  <td class="whitespace-nowrap">{{ update.timestamp | date: 'medium' }}</td>
+                  <td>{{ update.fullName }}</td>
+                  <td>{{ update.serviceAddress }}</td>
+                  <td>{{ update.poBox || '-' }}</td>
+                  <td class="whitespace-nowrap">{{ update.phone || '-' }}</td>
+                  <td>{{ update.email || '-' }}</td>
+                  <td class="max-w-xs truncate">{{ update.notes || '-' }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          }
+        </section>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 
   <section class="cms-help" aria-labelledby="cms-help-heading">
     <div class="cms-help-card">

@@ -1,4 +1,3 @@
-
 @import '@fontsource/fraunces/600.css';
 @import '@fontsource/fraunces/700.css';
 @import '@fontsource/source-sans-3/400.css';
@@ -75,7 +74,12 @@ body {
   background:
     radial-gradient(circle at top left, var(--page-glow-warm), transparent 24%),
     radial-gradient(circle at 85% 12%, var(--page-glow-cool), transparent 22%),
-    linear-gradient(180deg, var(--page-backdrop-start) 0%, var(--page-backdrop-mid) 42%, var(--page-backdrop-end) 100%);
+    linear-gradient(
+      180deg,
+      var(--page-backdrop-start) 0%,
+      var(--page-backdrop-mid) 42%,
+      var(--page-backdrop-end) 100%
+    );
 }
 
 * {
@@ -172,6 +176,7 @@ li {
 .header-meta-link {
   display: inline-grid;
   gap: 0.15rem;
+  min-width: 0;
   min-height: 3rem;
   padding: 0.8rem 1rem;
   border-radius: 20px;
@@ -350,10 +355,6 @@ li {
   gap: 0.6rem;
 }
 
-.header-meta-link {
-  min-width: 0;
-}
-
 .header-meta-link strong,
 .header-meta-link span {
   overflow: hidden;
@@ -475,8 +476,7 @@ li {
 }
 
 .hero-landing-scrim {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55));
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55));
 }
 
 .hero-landing-inner {
@@ -617,10 +617,27 @@ li {
     font-size: 3.2rem;
   }
 
-  button, .p-button {
+  button,
+  .p-button {
     min-height: 48px;
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
+  }
+
+  .text-link,
+  .contact-link,
+  .calendar-action,
+  .resident-contact-link,
+  .resident-action,
+  .accessibility-contact-link,
+  .accessibility-action,
+  .site-footer a,
+  a[class*='button'],
+  a[class*='action'] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    box-sizing: border-box;
   }
 
   h1 {
@@ -638,7 +655,8 @@ li {
     padding: calc(var(--spacing-unit) * 1.4);
   }
 
-  .card, .p-card {
+  .card,
+  .p-card {
     margin: 0.5rem 0;
   }
 
