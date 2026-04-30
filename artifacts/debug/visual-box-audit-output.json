@@ -4,7 +4,39 @@
     "route": "/",
     "width": 1280,
     "issues": [
-      "clipped text: p-togglebutton.p-ripple.p-component ES | p-togglebutton.p-ripple.p-component EN"
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n  - navigating to \"http://localhost:4200/\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/notices",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/notices\nCall log:\n  - navigating to \"http://localhost:4200/notices\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/meetings",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/meetings\nCall log:\n  - navigating to \"http://localhost:4200/meetings\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/weather",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/weather\nCall log:\n  - navigating to \"http://localhost:4200/weather\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/records",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/records\nCall log:\n  - navigating to \"http://localhost:4200/records\", waiting until \"commit\"\n"
     ]
   },
   {
@@ -12,7 +44,103 @@
     "route": "/services",
     "width": 1280,
     "issues": [
-      "h1 count 2"
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/services\nCall log:\n  - navigating to \"http://localhost:4200/services\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/documents",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/documents\nCall log:\n  - navigating to \"http://localhost:4200/documents\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/businesses",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/businesses\nCall log:\n  - navigating to \"http://localhost:4200/businesses\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/news",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/news\nCall log:\n  - navigating to \"http://localhost:4200/news\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/contact",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/contact\nCall log:\n  - navigating to \"http://localhost:4200/contact\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/accessibility",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/accessibility\nCall log:\n  - navigating to \"http://localhost:4200/accessibility\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/privacy",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/privacy\nCall log:\n  - navigating to \"http://localhost:4200/privacy\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/terms",
+    "width": 1280,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/terms\nCall log:\n  - navigating to \"http://localhost:4200/terms\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n  - navigating to \"http://localhost:4200/\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/notices",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/notices\nCall log:\n  - navigating to \"http://localhost:4200/notices\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/meetings",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/meetings\nCall log:\n  - navigating to \"http://localhost:4200/meetings\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/weather",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/weather\nCall log:\n  - navigating to \"http://localhost:4200/weather\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/records",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/records\nCall log:\n  - navigating to \"http://localhost:4200/records\", waiting until \"commit\"\n"
     ]
   },
   {
@@ -20,7 +148,95 @@
     "route": "/services",
     "width": 390,
     "issues": [
-      "h1 count 2"
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/services\nCall log:\n  - navigating to \"http://localhost:4200/services\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/documents",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/documents\nCall log:\n  - navigating to \"http://localhost:4200/documents\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/businesses",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/businesses\nCall log:\n  - navigating to \"http://localhost:4200/businesses\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/news",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/news\nCall log:\n  - navigating to \"http://localhost:4200/news\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/contact",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/contact\nCall log:\n  - navigating to \"http://localhost:4200/contact\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/accessibility",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/accessibility\nCall log:\n  - navigating to \"http://localhost:4200/accessibility\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/privacy",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/privacy\nCall log:\n  - navigating to \"http://localhost:4200/privacy\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/terms",
+    "width": 390,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/terms\nCall log:\n  - navigating to \"http://localhost:4200/terms\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "print-letter",
+    "route": "/notices",
+    "width": 816,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/notices\nCall log:\n  - navigating to \"http://localhost:4200/notices\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "print-letter",
+    "route": "/meetings",
+    "width": 816,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/meetings\nCall log:\n  - navigating to \"http://localhost:4200/meetings\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "print-letter",
+    "route": "/records",
+    "width": 816,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/records\nCall log:\n  - navigating to \"http://localhost:4200/records\", waiting until \"commit\"\n"
+    ]
+  },
+  {
+    "viewport": "print-letter",
+    "route": "/documents",
+    "width": 816,
+    "issues": [
+      "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/documents\nCall log:\n  - navigating to \"http://localhost:4200/documents\", waiting until \"commit\"\n"
     ]
   }
 ]
