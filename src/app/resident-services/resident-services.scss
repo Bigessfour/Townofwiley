@@ -4,8 +4,9 @@
 }
 
 /* Typography & Colors */
+.resident-services-header h1,
 .resident-services-header h2,
-.resident-service-card h3 {
+.resident-service-card h2 {
   margin: 0;
   color: var(--ink-900);
 }
@@ -103,11 +104,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
   padding: 0.85rem 1.35rem;
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
+  text-align: center;
   transition: all 160ms ease;
 }
 
@@ -227,6 +230,19 @@
 @media (max-width: 900px) {
   .resident-service-toggle-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .resident-contact-row,
+  .resident-action-row {
+    align-items: stretch;
+  }
+
+  .resident-contact-link,
+  .resident-action {
+    width: 100%;
+    white-space: normal;
   }
 }
 

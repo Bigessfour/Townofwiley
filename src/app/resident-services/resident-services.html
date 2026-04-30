@@ -38,7 +38,7 @@
       >
         <p class="meta-label">{{ copy().paymentMeta }}</p>
         <i [class]="'pi ' + copy().paymentIcon" aria-hidden="true"></i>
-        <h3>{{ copy().paymentTitle }}</h3>
+        <h2>{{ copy().paymentTitle }}</h2>
         <p>{{ copy().paymentBody }}</p>
 
         <div class="resident-contact-row flex flex-wrap gap-2">
@@ -123,7 +123,7 @@
                       id="cu-service-address"
                       type="text"
                       formControlName="serviceAddress"
-                      autocomplete="street-address"
+                      autocomplete="address-line1"
                     />
                     @if (
                       validationMessage(
@@ -271,7 +271,7 @@
                 id="payment-street-address"
                 type="text"
                 formControlName="streetAddress"
-                autocomplete="street-address"
+                autocomplete="address-line1"
                 [invalid]="
                   paymentForm.controls.streetAddress.invalid &&
                   paymentForm.controls.streetAddress.touched
@@ -317,7 +317,6 @@
             <button
               type="button"
               class="resident-action resident-action--secondary"
-              aria-label="Open billing help email"
               [class.is-disabled]="!paymentMailtoHref()"
               (click)="openPaymentMailto($event)"
             >
@@ -336,7 +335,7 @@
       >
         <p class="meta-label">{{ copy().issueMeta }}</p>
         <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
-        <h3>{{ copy().issueTitle }}</h3>
+        <h2>{{ copy().issueTitle }}</h2>
         <p>{{ copy().issueBody }}</p>
 
         <div class="resident-contact-row flex flex-wrap gap-2">
@@ -401,7 +400,7 @@
                 id="issue-location"
                 type="text"
                 formControlName="location"
-                autocomplete="street-address"
+                autocomplete="address-line1"
                 [invalid]="
                   issueForm.controls.location.invalid && issueForm.controls.location.touched
                 "
@@ -480,7 +479,7 @@
       >
         <p class="meta-label">{{ copy().recordsMeta }}</p>
         <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
-        <h3>{{ copy().recordsTitle }}</h3>
+        <h2>{{ copy().recordsTitle }}</h2>
         <p>{{ copy().recordsBody }}</p>
 
         <div class="resident-contact-row flex flex-wrap gap-2">

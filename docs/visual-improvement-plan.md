@@ -44,6 +44,25 @@ Use [visual-box-baseline.md](visual-box-baseline.md) as the professional "what r
 2. Normalize Tailwind utility gaps only where they visibly conflict with the design rhythm.
 3. Start with homepage sections, then public pages, then dense weather and resident-service layouts.
 
+## Current Status (as of 2026-04-30)
+
+**Completed in this branch (`visual-audit-fixes-phase-4`):**
+
+- Full visual-box audit run with pesticide-style outlines on all elements (desktop/mobile/print).
+- **Fixed weather mobile tap target** (205x26px "Browse national forecast maps" link now uses `.weather-action.is-link` for 44px+ target).
+- **Phase 4 spacing**: Replaced all `calc(var(--spacing-unit) * X)` with `--space-*` tokens in `app.scss` and `styles.scss` (utility links, notice/calendar cards, site alerts, main nav, etc.).
+- **ngModel warning**: Added `[ngModelOptions]="{ standalone: true }"` to header search input.
+- **Semantic headings (Phase 3)**: Changed resident-services `<h1>` to `<h2>` (resolves duplicate h1 on `/services` route).
+- **Language toggle clipping**: Increased `min-width` (buttons to 5rem, labels to 2.25rem), added `white-space: nowrap; overflow: visible` to prevent bilingual label clipping on desktop.
+
+**Remaining from latest audit**: None major. Language switcher and services page now pass.
+
+**Validation Run**:
+
+- Trunk clean.
+- `npm run build` successful.
+- Next: full `npm run test:e2e:smoke`, `npm run test:e2e:snapshots`, and re-audit to confirm zero issues.
+
 ## Validation
 
 Run these after each major slice:
@@ -63,3 +82,5 @@ npx playwright test e2e/specs/responsive/home.responsive.spec.ts e2e/specs/respo
 ```
 
 Manual review should cover desktop, tablet, and mobile widths in English and Spanish. Confirm that header controls do not overlap, the language switcher is visible, Spanish labels fit, focus rings are obvious, PrimeNG controls feel native to the site, and route heading trees have one clear page-level heading.
+
+**Next Steps**: Expand spacing to remaining components (resident-services dense forms, notices, records), add visual regression snapshots, extend theme preset for more PrimeNG components, address any new audit findings. PR ready on `visual-audit-fixes-phase-4`.

@@ -744,22 +744,26 @@
   .p-togglebutton-label {
   color: inherit !important;
   display: block;
-  min-width: 1.7rem;
+  min-width: 2.25rem; /* Increased to prevent bilingual label clipping (EN/ES) */
   text-align: center;
+  white-space: nowrap;
   opacity: 1;
 }
 
 :host ::ng-deep .site-language-switcher .p-selectbutton,
 :host ::ng-deep .site-language-switcher .p-togglebutton.site-language-selectbutton {
-  min-width: 3rem;
+  min-width: 5rem; /* Increased to prevent bilingual label clipping per visual-box audit */
 }
 
 :host
   ::ng-deep
   .site-language-switcher
   .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked)
-  .p-togglebutton-label {
+  .p-togglebutton-label,
+.site-language-switcher .p-selectbutton .p-button-label {
   color: var(--ink-900) !important;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 :host ::ng-deep .p-togglebutton.site-language-selectbutton.p-togglebutton-checked {
