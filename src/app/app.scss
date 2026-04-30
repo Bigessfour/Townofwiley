@@ -21,12 +21,8 @@
 /* ── Design System Tokens ────────────────────────────────────────────────── */
 
 :root {
-  /* Typography Scale (1.25 ratio, responsive with clamp) */
-  --font-size-body: clamp(0.875rem, 2vw, 1rem);
-  --font-size-kicker: clamp(0.75rem, 1.5vw, 0.875rem);
-  --font-size-h3: clamp(1.125rem, 2.5vw, 1.25rem);
-  --font-size-h2: clamp(1.5rem, 3.5vw, 1.75rem);
-  --font-size-h1: clamp(2rem, 5.5vw, 2.5rem);
+  /* Typography tokens defined globally in styles.scss (complete scale incl. h4–h6).
+     Spacing, shadows, motion, and other design tokens live here. */
 
   /* Spacing System (8px grid) */
   --space-xs: 0.5rem; /* 8px */
@@ -35,6 +31,15 @@
   --space-lg: 2rem; /* 32px */
   --space-xl: 3rem; /* 48px */
   --space-2xl: 4rem; /* 64px */
+  --section-gap: var(--space-lg);
+  --section-gap-compact: var(--space-md);
+  --section-header-gap: var(--space-sm);
+  --panel-padding: var(--space-lg);
+  --panel-padding-compact: var(--space-md);
+  --card-padding: var(--space-md);
+  --card-gap: var(--space-sm);
+  --grid-gap: var(--space-md);
+  --grid-gap-compact: var(--space-sm);
 
   /* Shadow Hierarchy */
   --shadow-subtle: 0 4px 12px rgba(17, 36, 61, 0.08);
@@ -113,7 +118,6 @@
   pointer-events: none;
 }
 
-:host ::ng-deep .p-skeleton.shimmer,
 :host ::ng-deep .shimmer.p-skeleton {
   display: block;
   border: 0;
@@ -168,7 +172,6 @@
 
   :host ::ng-deep .shimmer,
   :host ::ng-deep .shimmer::before,
-  :host ::ng-deep .p-skeleton.shimmer,
   :host ::ng-deep .shimmer.p-skeleton {
     animation: none;
   }
@@ -204,12 +207,12 @@
 .page-shell {
   max-width: 1240px;
   margin: 0 auto;
-  padding-left: calc(var(--spacing-unit) * 1.05);
-  padding-right: calc(var(--spacing-unit) * 1.05);
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
 }
 
 .site-alert {
-  margin-top: calc(var(--spacing-unit) * 1.1);
+  margin-top: var(--space-md);
   border-radius: var(--radius-xl);
   background: linear-gradient(135deg, var(--alert-banner-start), var(--alert-banner-end));
   color: var(--surface-inverse-strong);
@@ -221,8 +224,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: calc(var(--spacing-unit) * 1.1);
-  padding: calc(var(--spacing-unit) * 1.1);
+  gap: var(--grid-gap);
+  padding: var(--card-padding);
 }
 
 .site-alert-copy {
@@ -306,14 +309,14 @@
 }
 
 .header-utility {
-  padding-left: calc(var(--spacing-unit) * 1.05);
-  padding-right: calc(var(--spacing-unit) * 1.05);
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
   background: var(--header-surface-scrolled);
 }
 
 .header-main {
-  padding-left: calc(var(--spacing-unit) * 1.05);
-  padding-right: calc(var(--spacing-unit) * 1.05);
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
   background: transparent;
 }
 
@@ -349,7 +352,7 @@
 
 .town-logo strong {
   font-family: var(--font-display);
-  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  font-size: 1.75rem;
   line-height: 1;
   color: var(--ink-900);
 }
@@ -399,7 +402,7 @@
 
 .header-right {
   display: grid;
-  gap: var(--space-sm);
+  gap: var(--grid-gap-compact);
   justify-items: end;
 }
 
@@ -670,19 +673,32 @@
 }
 
 .site-language-switcher {
+  /* More prominent per Phase 2: larger touch targets, stronger visual weight, better contrast */
   display: inline-grid;
-  gap: var(--space-xs);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-xs) var(--space-sm);
   min-width: 0;
-  justify-items: end;
-  font-size: var(--header-kicker-size);
+  align-items: center;
+  justify-items: stretch;
+  padding: var(--space-sm);
+  border: 2px solid var(--surface-border-strong);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--surface-card) 96%, var(--p-surface-0));
+  box-shadow: var(--shadow-medium);
+  font-size: var(--font-size-body);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--ink-800);
+  color: var(--ink-900);
 }
 
 .site-language-label {
+  padding-inline-start: var(--space-sm);
   font: inherit;
+  color: var(--ink-900);
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: var(--font-size-body);
 }
 
 :host ::ng-deep .p-togglebutton.site-language-selectbutton,
@@ -693,22 +709,24 @@
 }
 
 :host ::ng-deep .p-togglebutton.site-language-selectbutton {
-  padding: 0.65rem var(--space-md);
+  /* Larger for Phase 2 prominence and better mobile tap targets */
+  padding: 0.75rem 1.25rem;
   border-radius: var(--radius-full);
-  font-size: var(--header-control-size);
+  font-size: var(--font-size-body);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
+  min-height: 3rem;
 }
 
 :host
   ::ng-deep
   .site-language-switcher
   .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked) {
-  background: color-mix(in srgb, var(--surface-card) 94%, var(--p-surface-0));
+  background: transparent;
   color: var(--ink-900) !important;
-  border-color: color-mix(in srgb, var(--surface-border) 82%, transparent) !important;
-  box-shadow: var(--shadow-subtle);
+  border-color: transparent !important;
+  box-shadow: none;
 }
 
 :host
@@ -725,13 +743,30 @@
   .p-togglebutton.site-language-selectbutton
   .p-togglebutton-label {
   color: inherit !important;
+  display: block;
+  min-width: 1.7rem;
+  text-align: center;
+  opacity: 1;
+}
+
+:host ::ng-deep .site-language-switcher .p-selectbutton,
+:host ::ng-deep .site-language-switcher .p-togglebutton.site-language-selectbutton {
+  min-width: 3rem;
+}
+
+:host
+  ::ng-deep
+  .site-language-switcher
+  .p-togglebutton.site-language-selectbutton:not(.p-togglebutton-checked)
+  .p-togglebutton-label {
+  color: var(--ink-900) !important;
 }
 
 :host ::ng-deep .p-togglebutton.site-language-selectbutton.p-togglebutton-checked {
   background: var(--brand-gradient-strong);
   color: var(--surface-inverse);
   border-color: transparent;
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-subtle);
 }
 
 .utility-strip {
@@ -756,7 +791,7 @@
   display: grid;
   gap: var(--space-xs);
   min-width: 12rem;
-  padding: calc(var(--spacing-unit) * 0.95) calc(var(--spacing-unit) * 1.05);
+  padding: var(--space-sm) var(--space-md);
   border: 1px solid rgba(13, 44, 84, 0.1);
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.82);
@@ -793,8 +828,8 @@
 
 .page-shell {
   display: grid;
-  gap: calc(var(--spacing-unit) * 2.1);
-  padding-bottom: calc(var(--spacing-unit) * 4);
+  gap: var(--section-gap);
+  padding-bottom: var(--space-2xl);
 }
 
 .weather-alert-loader {
@@ -803,8 +838,8 @@
 
 .fact-card {
   display: grid;
-  gap: calc(var(--spacing-unit) * 0.45);
-  padding: calc(var(--spacing-unit) * 1.1) calc(var(--spacing-unit) * 1.2);
+  gap: var(--card-gap);
+  padding: var(--card-padding);
   border: 1px solid rgba(13, 44, 84, 0.08);
   border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.82);
@@ -829,7 +864,7 @@
   color: var(--civic-rust);
   font-size: var(--font-size-kicker);
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -842,41 +877,30 @@
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
-  font-family: var(--font-display);
   color: var(--ink-900);
 }
 
-h1 {
-  margin-top: calc(var(--spacing-unit) * 0.9);
-  font-size: var(--font-size-h1);
-  line-height: 0.98;
-}
-
-h2 {
-  font-size: var(--font-size-h2);
-  line-height: 1.1;
-}
-
-h3 {
-  font-size: var(--font-size-h3);
-  line-height: 1.15;
-}
+/* Specific sizes and line-heights are defined globally in styles.scss.
+   Component-specific overrides (e.g. feature-page-shell h1 clamp) follow. */
 
 .message {
   max-width: 42rem;
-  margin: calc(var(--spacing-unit) * 1.35) 0 0;
+  margin: var(--space-md) 0 0;
   font-size: var(--font-size-h3);
-  line-height: 1.72;
+  line-height: var(--line-height-loose);
   color: var(--ink-800);
 }
 
 .subtext {
   max-width: 46rem;
-  margin: calc(var(--spacing-unit) * 0.95) 0 0;
+  margin: var(--space-sm) 0 0;
   font-size: var(--font-size-body);
-  line-height: 1.78;
+  line-height: var(--line-height-loose);
   color: var(--ink-700);
 }
 
@@ -887,13 +911,19 @@ h3 {
 }
 
 .service-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  min-height: 2.75rem;
+  padding: var(--space-xs) 0;
   flex-wrap: wrap;
 }
 
 .hero-grid,
 .content-grid {
   display: grid;
-  gap: calc(var(--spacing-unit) * 2);
+  gap: var(--section-gap);
   margin-top: 0;
 }
 
@@ -916,7 +946,7 @@ h3 {
 .support-strip,
 .panel {
   position: relative;
-  padding: calc(var(--spacing-unit) * 1.7);
+  padding: var(--panel-padding);
   border: 1px solid rgba(13, 44, 84, 0.08);
   border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.82);
@@ -937,24 +967,24 @@ h3 {
 
 .panel :where(.p-card-body) {
   display: grid;
-  gap: var(--space-lg);
-  padding: calc(var(--spacing-unit) * 1.7);
+  gap: var(--section-gap-compact);
+  padding: var(--panel-padding);
 }
 
 .support-card-body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: calc(var(--spacing-unit) * 2);
+  gap: var(--section-gap);
 }
 
 .section-divider {
-  margin: var(--space-xs) 0;
+  margin: 0;
 }
 
 .search-panel {
   display: grid;
-  gap: var(--space-lg);
-  padding: var(--space-lg);
+  gap: var(--section-gap-compact);
+  padding: var(--panel-padding);
   border-radius: var(--radius-xl);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(250, 246, 238, 0.92)),
@@ -1004,9 +1034,12 @@ h3 {
   min-height: 2rem;
 }
 
-.stay-informed-card {
+.stay-informed-card,
+.landing-shortcuts.panel,
+.feature-hub.panel {
+  /* Unified landing panels for Phase 2: tighter rhythm, consistent density */
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--section-gap-compact);
 }
 
 .support-link-card {
@@ -1015,28 +1048,61 @@ h3 {
 
 .feature-hub-copy {
   margin: 0;
-  line-height: 1.7;
+  line-height: var(--line-height-body);
   color: var(--ink-700);
 }
 
-.feature-card {
-  display: grid;
-  gap: var(--space-sm);
-  min-height: 100%;
+:is(.section-header, .landing-section-header, .feature-hub-header, .search-panel-header) {
   min-width: 0;
-  padding: calc(var(--spacing-unit) * 1.15);
-  border: 1px solid var(--surface-border);
+  gap: var(--section-header-gap);
+  /* Unified landing section header treatment for Phase 2 visual consistency */
+}
+
+:is(.section-header, .landing-section-header, .feature-hub-header, .search-panel-header) > div {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+:is(.section-header, .landing-section-header, .feature-hub-header, .search-panel-header)
+  :where(p:not(.section-kicker)) {
+  max-width: 42rem;
+  color: var(--ink-700);
+  line-height: var(--line-height-body);
+}
+
+/* Unified civic card base for Quick Tasks + Town Features (Phase 2) */
+.landing-card,
+.task-card-surface,
+.feature-card {
   border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
   box-shadow: var(--shadow-subtle);
+  transition: all var(--motion-medium) var(--motion-ease);
+}
+
+.landing-card:hover,
+.task-card-surface:hover,
+.feature-card:hover,
+.landing-card:focus-visible,
+.task-card-surface:focus-visible,
+.feature-card:focus-visible {
+  box-shadow: var(--shadow-medium);
+  border-color: var(--surface-border-strong);
+  transform: var(--lift-hover);
+}
+
+.feature-card,
+.task-card {
+  /* Unified with .landing-card base above for Phase 2 visual consistency */
+  display: grid;
+  gap: var(--card-gap);
+  min-height: 100%;
+  min-width: 0;
+  padding: var(--card-padding);
+  border: 1px solid var(--surface-border);
   color: inherit;
   text-decoration: none;
-  transition:
-    transform var(--motion-medium) var(--motion-ease),
-    border-color var(--motion-medium) var(--motion-ease),
-    box-shadow var(--motion-medium) var(--motion-ease),
-    background-color var(--motion-medium) var(--motion-ease),
-    color var(--motion-medium) var(--motion-ease);
 }
 
 .feature-card strong {
@@ -1047,7 +1113,7 @@ h3 {
 }
 
 .feature-card span {
-  line-height: 1.6;
+  line-height: var(--line-height-body);
   color: var(--ink-700);
   white-space: normal;
   overflow-wrap: anywhere;
@@ -1133,15 +1199,22 @@ h3 {
   gap: var(--space-sm);
 }
 
+.feature-page-shell h1 {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: var(--line-height-heading);
+}
+
 .feature-detail-stack {
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--section-gap-compact);
 }
 
 .detail-back-link {
   display: inline-flex;
   width: fit-content;
   align-items: center;
+  min-height: 2.75rem;
+  padding: var(--space-xs) 0;
   color: var(--civic-blue);
   font-weight: 700;
   text-decoration: none;
@@ -1187,7 +1260,7 @@ h3 {
 .search-panel-copy,
 .search-note {
   margin: 0;
-  line-height: 1.6;
+  line-height: var(--line-height-body);
   color: var(--ink-700);
 }
 
@@ -1223,18 +1296,22 @@ h3 {
 }
 
 .task-grid,
+.feature-grid,
 .service-grid,
 .contact-grid,
 .calendar-grid,
 .leadership-grid {
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--grid-gap);
+  /* Cleaner density for Phase 2 homepage unification */
 }
 
-.task-grid {
+.task-grid,
+.feature-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: var(--space-lg);
-  gap: var(--space-sm);
+  margin-top: 0;
+  gap: var(--grid-gap);
+  /* Unified grid for Quick Tasks + Town Features (Phase 2) */
 }
 
 .task-card,
@@ -1248,6 +1325,7 @@ h3 {
 }
 
 .task-card {
+  /* Unified with .feature-card for Phase 2 visual consistency */
   display: block;
   min-height: 100%;
   color: inherit;
@@ -1277,7 +1355,7 @@ h3 {
 
 :host ::ng-deep .task-card-surface .p-card-content {
   height: 100%;
-  padding: calc(var(--spacing-unit) * 1.08);
+  padding: var(--card-padding);
 }
 
 .task-card-inner {
@@ -1338,10 +1416,13 @@ h3 {
 }
 
 .task-card strong,
+.feature-card strong,
 .search-result strong,
-.service-card h3,
+.service-card h2,
 .contact-card strong {
-  font-size: var(--font-size-body);
+  font-size: var(
+    --font-size-h3
+  ); /* Consistent visual weight for card titles in unified homepage cards */
   color: var(--ink-900);
   white-space: normal;
   overflow-wrap: anywhere;
@@ -1358,7 +1439,7 @@ h3 {
 .contact-card p,
 .compliance-note,
 .site-footer p {
-  line-height: 1.6;
+  line-height: var(--line-height-body);
   color: var(--ink-700);
   white-space: normal;
   overflow-wrap: anywhere;
@@ -1500,7 +1581,7 @@ h3 {
   display: grid;
   gap: var(--space-sm);
   min-height: 100%;
-  padding: calc(var(--spacing-unit) * 1.15);
+  padding: var(--space-md);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
@@ -1641,7 +1722,7 @@ h3 {
 :host ::ng-deep .calendar-overview-card .p-card-content {
   display: grid;
   gap: var(--space-sm);
-  padding: calc(var(--spacing-unit) * 1.05) calc(var(--spacing-unit) * 1.1);
+  padding: var(--space-md);
 }
 
 :host ::ng-deep .calendar-overview-card .p-card-title {
@@ -1863,7 +1944,6 @@ h3 {
 
 .calendar-table-header-cell {
   display: inline-flex;
-  align-items: center;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
@@ -1993,7 +2073,7 @@ h3 {
   display: grid;
   gap: var(--space-sm);
   min-width: 0;
-  padding: calc(var(--spacing-unit) * 1.1);
+  padding: var(--space-md);
   border-radius: var(--radius-xl);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 251, 0.92));
   border: 1px solid rgba(13, 44, 84, 0.12);
@@ -2023,9 +2103,9 @@ h3 {
 }
 
 .calendar-source-badge.is-live {
-  background: rgba(53, 92, 63, 0.12);
-  color: #244b2f;
-  border-color: rgba(53, 92, 63, 0.18);
+  background: #183820;
+  color: #ffffff;
+  border-color: #183820;
 }
 
 .calendar-card strong {
@@ -2116,7 +2196,7 @@ h3 {
   border-top: 1px solid rgba(13, 44, 84, 0.12);
 }
 
-.service-card h3,
+.service-card h2,
 .contact-card strong {
   margin-top: var(--space-xs);
 }
@@ -2168,10 +2248,21 @@ h3 {
 }
 
 .contact-town-hall-phone {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-weight: 700;
   color: var(--civic-blue);
   text-decoration: none;
   font-size: var(--font-size-h3);
+}
+
+.fc-col-header-cell-cushion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
 /* ── PrimeNG form control anti-clipping ─────────────────────────────────────
@@ -2318,6 +2409,8 @@ h3 {
 .leadership-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: var(--space-lg);
+  padding: 0;
+  list-style: none;
 }
 
 .leadership-card {
@@ -2381,6 +2474,10 @@ h3 {
 }
 
 .footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: var(--space-xs) 0;
   color: var(--civic-blue);
   font-weight: 700;
 }
@@ -2459,7 +2556,8 @@ button:not(:disabled):active,
   }
 
   .site-language-switcher {
-    justify-items: start;
+    justify-self: start;
+    justify-items: stretch;
   }
 
   .info-buttons {
@@ -2467,9 +2565,23 @@ button:not(:disabled):active,
   }
 }
 
+@media (max-width: 1320px) {
+  .header-top {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .header-right {
+    justify-items: end;
+  }
+
+  .info-buttons {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .page-shell {
-    padding-bottom: calc(var(--spacing-unit) * 9 + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-2xl) + env(safe-area-inset-bottom, 0px));
   }
 
   .header-top {
@@ -2482,7 +2594,8 @@ button:not(:disabled):active,
 
   .utility-strip,
   .site-language-switcher {
-    justify-items: start;
+    justify-self: start;
+    justify-items: stretch;
   }
 
   .utility-strip {
@@ -2502,7 +2615,9 @@ button:not(:disabled):active,
   }
 
   .landing-notice-timeline {
-    overflow: hidden;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
   }
 
   .landing-notice-timeline .p-timeline-event-opposite {
@@ -2521,14 +2636,14 @@ button:not(:disabled):active,
   .landing-notice-timeline .p-timeline-event-content {
     min-width: 0;
     flex: 1 1 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .landing-notice-timeline .p-card,
   .landing-notice-timeline .notice-card--timeline {
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .site-alert,
@@ -2596,16 +2711,16 @@ button:not(:disabled):active,
   }
 
   .site-header {
-    padding-top: var(--space-lg);
+    padding-top: var(--space-md);
   }
 
   .hero-card,
   .panel {
-    padding-top: var(--space-lg);
+    padding-top: var(--panel-padding-compact);
   }
 
   h1 {
-    font-size: clamp(2.5rem, 13vw, 4rem);
+    font-size: var(--font-size-h1);
   }
 }
 
@@ -2767,6 +2882,62 @@ button:not(:disabled):active,
     display: none;
   }
 
+  .site-header {
+    position: relative;
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+  }
+
+  .header-main {
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+  }
+
+  .header-top {
+    gap: var(--space-sm);
+    align-items: start;
+  }
+
+  .town-logo {
+    gap: var(--space-xs);
+  }
+
+  .town-logo strong {
+    font-size: clamp(1.65rem, 7vw, 2rem);
+    line-height: var(--line-height-tight);
+  }
+
+  .header-right {
+    margin-top: 0;
+  }
+
+  .site-language-switcher {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .header-search-shell {
+    max-width: none;
+    margin-top: var(--space-xs);
+  }
+
+  .header-search-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-xs);
+  }
+
+  .header-search-row .search-input {
+    min-height: 3rem;
+  }
+
+  .search-submit {
+    width: auto;
+    min-width: 5.75rem;
+    min-height: 3rem;
+    padding-inline: var(--space-sm);
+  }
+
   :host ::ng-deep .p-megamenu.mega-menu-civic {
     display: none !important;
   }
@@ -2774,9 +2945,9 @@ button:not(:disabled):active,
   .mobile-menu-bar {
     display: flex;
     justify-content: flex-start;
-    margin: 0 auto var(--space-sm);
+    margin: 0 auto var(--space-xs);
     max-width: 1240px;
-    padding: 0 calc(var(--spacing-unit) * 1.05);
+    padding: 0 var(--space-sm);
   }
 
   .mobile-menu-button {
@@ -2819,6 +2990,21 @@ button:not(:disabled):active,
 
   .hero-landing-actions .button-cta {
     width: 100%;
+  }
+
+  .feature-page-shell h1 {
+    font-size: clamp(2rem, 8vw, 2.35rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .service-link {
+    width: 100%;
+    justify-content: center;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    background: var(--surface-overlay);
   }
 }
 
@@ -2938,6 +3124,8 @@ button:not(:disabled):active,
   .mega-menu-sub-link {
     display: inline-flex;
     align-items: center;
+    min-height: var(--header-touch);
+    padding: 0.55rem 0.85rem;
     text-decoration: none;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -2983,6 +3171,65 @@ button:not(:disabled):active,
       min-width: 0;
     }
   }
+}
+
+.header-end-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.contact-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--header-link-surface);
+  color: var(--ink-900);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--header-control-size);
+  border: 1px solid var(--header-border);
+  transition: all var(--motion-medium) var(--motion-ease);
+  min-height: var(--header-touch);
+  white-space: nowrap;
+}
+
+.contact-button:hover,
+.contact-button:focus-visible {
+  background: var(--header-link-surface-hover);
+  border-color: var(--surface-border-strong);
+  color: var(--ink-900);
+  transform: var(--lift-hover);
+}
+
+.search-group {
+  min-width: 18rem;
+}
+
+.search-group .p-inputgroup {
+  box-shadow: var(--shadow-subtle);
+}
+
+.search-group .search-input {
+  min-width: 16rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-inputgroup-addon {
+  background: transparent;
+  border: none;
+  color: var(--ink-600);
+}
+
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li > .p-menuitem-link {
+  padding: 0.75rem 1.25rem;
+  margin: 0 0.25rem;
+  border-radius: 9999px;
 }
 
 .floating-chat-button {
@@ -3082,7 +3329,7 @@ button:not(:disabled):active,
   gap: 1rem !important; /* was 1.5rem+ */
 }
 
-.calendar-header {
+.calendar-panel .calendar-header {
   gap: 1rem !important;
   grid-template-columns: 2fr 1fr;
 }

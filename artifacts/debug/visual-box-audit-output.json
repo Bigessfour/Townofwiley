@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "desktop",
+    "route": "/",
+    "width": 1280,
+    "issues": [
+      "clipped text: p-togglebutton.p-ripple.p-component ES | p-togglebutton.p-ripple.p-component EN"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/services",
+    "width": 1280,
+    "issues": [
+      "h1 count 2"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/services",
+    "width": 390,
+    "issues": [
+      "h1 count 2"
+    ]
+  }
+]

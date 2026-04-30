@@ -28,7 +28,9 @@
           <div class="site-alert-copy">
             <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
             <p class="site-alert-label">{{ alertBanner().label }}</p>
-            <h2 id="site-alert-title" class="site-alert-title">{{ alertBanner().title }}</h2>
+            <strong id="site-alert-title" class="site-alert-title">{{
+              alertBanner().title
+            }}</strong>
             <p id="site-alert-detail" class="site-alert-detail">{{ alertBanner().detail }}</p>
           </div>
 
@@ -62,111 +64,7 @@
     [class.scrolled]="headerScrolled()"
     role="banner"
   >
-    <div class="header-main">
-      <div class="header-top">
-        <a class="town-logo" routerLink="/" aria-label="Return to homepage">
-          <span class="official-badge">{{ heroContent().status }}</span>
-          <strong>{{ pageTitle() }}</strong>
-        </a>
-
-        <nav
-          class="main-nav"
-          data-testid="homepage-section-nav"
-          [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
-        >
-          <div class="main-nav-list">
-            @for (link of appCopy().navLinks; track link.label) {
-              @if (resolveAppLink(link.href, '/'); as navLink) {
-                <a
-                  class="main-nav-link"
-                  [class.is-active]="isCurrentRouteLink(navLink)"
-                  [routerLink]="navLink.path"
-                  [fragment]="navLink.fragment"
-                  [attr.aria-current]="isCurrentRouteLink(navLink) ? 'page' : null"
-                >
-                  @if (link.icon) {
-                    <i [class]="link.icon" aria-hidden="true"></i>
-                  }
-                  <span>{{ link.label }}</span>
-                </a>
-              }
-            }
-          </div>
-        </nav>
-
-        <div class="header-right">
-          <div class="site-language-switcher">
-            <label class="site-language-label" for="site-language-switcher">{{
-              appCopy().languageLabel
-            }}</label>
-            <p-selectbutton
-              inputId="site-language-switcher"
-              [options]="languageChoices()"
-              [ngModel]="siteLanguage()"
-              (ngModelChange)="updateSiteLanguage($event)"
-              [ngModelOptions]="{ standalone: true }"
-              optionLabel="label"
-              optionValue="value"
-              [allowEmpty]="false"
-              size="small"
-              styleClass="site-language-selectbutton"
-              [attr.aria-label]="appCopy().languageLabel"
-            />
-          </div>
-
-          <div class="info-buttons">
-            <a
-              class="header-meta-link"
-              routerLink="/meetings"
-              fragment="calendar"
-              (click)="openCalendar($event)"
-            >
-              <i class="pi pi-calendar" aria-hidden="true"></i>
-              <strong>{{ appCopy().meetingsQuickLinkLabel }}</strong>
-              <span>{{ appCopy().openCalendarLabel }}</span>
-            </a>
-
-            <a class="header-meta-link" routerLink="/" fragment="top-tasks">
-              <i class="pi pi-list" aria-hidden="true"></i>
-              <strong>{{ appCopy().topTasksKicker }}</strong>
-              <span>{{ appCopy().topTasksHeading }}</span>
-            </a>
-
-            <a class="header-meta-link" routerLink="/weather" (click)="trackAlertSignupClick()">
-              <i class="pi pi-bell" aria-hidden="true"></i>
-              <strong>{{ appCopy().nwsAlertLabel }}</strong>
-              <span>{{ appCopy().alertActionLabel }}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      @if (!isFeaturePageMode()) {
-        <section class="header-search-shell">
-          <form class="header-search-form" role="search" (submit)="performSearch($event)">
-            <label class="sr-only" for="site-search">{{ appCopy().searchLabel }}</label>
-            <div class="header-search-row search-control-row flex flex-wrap items-center gap-3">
-              <input
-                pInputText
-                id="site-search"
-                class="search-input"
-                type="search"
-                name="siteSearch"
-                [ngModel]="searchDraftQuery()"
-                (ngModelChange)="updateSearch($event)"
-                [placeholder]="appCopy().searchPlaceholder"
-                autocomplete="off"
-              />
-              <p-button
-                type="submit"
-                styleClass="search-submit"
-                [label]="appCopy().searchActionLabel"
-              />
-            </div>
-          </form>
-        </section>
-      }
-    </div>
+    <div class="header-main"></div>
   </header>
 
   <div class="mobile-menu-bar">
@@ -187,9 +85,16 @@
     [model]="menuItems()"
     [pt]="desktopMegaMenuPt"
     orientation="horizontal"
-    styleClass="desktop-mega-menu w-full border-none shadow-sm mega-menu-civic"
-    [style]="{ background: 'rgba(255,255,255,0.95)', 'backdrop-filter': 'blur(12px)' }"
+    styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
+    [style]="{ background: 'rgba(255,255,255,0.98)', 'backdrop-filter': 'blur(20px)' }"
+    data-testid="homepage-section-nav"
   >
+    <ng-template pTemplate="start">
+      <a class="town-logo" routerLink="/" aria-label="Return to homepage">
+        <span class="official-badge">{{ heroContent().status }}</span>
+        <strong>Town of Wiley</strong>
+      </a>
+    </ng-template>
     <ng-template #item let-item>
       @if (item.root) {
         <a
@@ -224,6 +129,51 @@
         </a>
       }
     </ng-template>
+    <ng-template pTemplate="end">
+      <div class="header-end-controls flex items-center gap-4">
+        @if (!isFeaturePageMode()) {
+          <form class="header-search-form" role="search" (submit)="performSearch($event)">
+            <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
+            <div class="header-search-row flex items-center gap-2">
+              <i class="pi pi-search text-muted" aria-hidden="true"></i>
+              <input
+                pInputText
+                id="mega-site-search"
+                class="search-input"
+                type="search"
+                [ngModel]="searchDraftQuery()"
+                (ngModelChange)="updateSearch($event)"
+                [ngModelOptions]="{ standalone: true }"
+                [placeholder]="appCopy().searchPlaceholder"
+                autocomplete="off"
+              />
+            </div>
+          </form>
+        }
+        <div class="site-language-switcher">
+          <label class="site-language-label" for="mega-language-switcher">{{
+            appCopy().languageLabel
+          }}</label>
+          <p-selectbutton
+            inputId="mega-language-switcher"
+            [options]="languageChoices()"
+            [ngModel]="siteLanguage()"
+            (ngModelChange)="updateSiteLanguage($event)"
+            [ngModelOptions]="{ standalone: true }"
+            optionLabel="label"
+            optionValue="value"
+            [allowEmpty]="false"
+            size="small"
+            styleClass="site-language-selectbutton"
+            [attr.aria-label]="appCopy().languageLabel"
+          />
+        </div>
+        <a class="contact-button" routerLink="/contact" (click)="sidebarVisible.set(false)">
+          <i class="pi pi-envelope" aria-hidden="true"></i>
+          {{ appCopy().featureTitles.contact }}
+        </a>
+      </div>
+    </ng-template>
   </p-megamenu>
 
   <p-drawer
@@ -240,41 +190,23 @@
       <p class="mobile-menu-kicker">{{ appCopy().homepageSectionsAriaLabel }}</p>
       <nav class="mobile-menu-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
         <a routerLink="/" (click)="closeMobileMenu()">{{ appCopy().homeLabel }}</a>
-        <a routerLink="/weather" (click)="closeMobileMenu()">{{
-          appCopy().featureTitles.weather
-        }}</a>
-        <a routerLink="/notices" (click)="closeMobileMenu()">{{
-          appCopy().featureTitles.notices
+        <a routerLink="/" fragment="top-tasks" (click)="closeMobileMenu()">{{
+          appCopy().menuQuickTasksLabel
         }}</a>
         <a routerLink="/meetings" (click)="closeMobileMenu()">{{
-          appCopy().featureTitles.meetings
+          appCopy().menuGovernmentLabel
         }}</a>
-        <div class="mobile-menu-group">
-          <span>{{ appCopy().featureTitles.services }}</span>
-          <a routerLink="/services" fragment="payment-help" (click)="closeMobileMenu()">{{
-            appCopy().mobileOnlinePaymentsLabel
-          }}</a>
-          <a routerLink="/services" fragment="issue-report" (click)="closeMobileMenu()">{{
-            appCopy().mobileIssueLabel
-          }}</a>
-          <a routerLink="/services" fragment="records-request" (click)="closeMobileMenu()">{{
-            appCopy().mobileRecordsLabel
-          }}</a>
-          <a routerLink="/weather" (click)="closeMobileMenu()">{{
-            appCopy().mobileWeatherAlertsLabel
-          }}</a>
-          <a routerLink="/accessibility" (click)="closeMobileMenu()">{{
-            appCopy().mobileLanguageAccessLabel
-          }}</a>
-          <a routerLink="/" fragment="search-panel" (click)="closeMobileMenu()">{{
-            appCopy().mobileSearchAllServicesLabel
-          }}</a>
-        </div>
-        <a routerLink="/records" (click)="closeMobileMenu()">{{
-          appCopy().featureTitles.records
+        <a routerLink="/services" (click)="closeMobileMenu()">{{
+          appCopy().menuServicesPermitsLabel
+        }}</a>
+        <a routerLink="/notices" (click)="closeMobileMenu()">{{
+          appCopy().menuNewsNoticesLabel
+        }}</a>
+        <a routerLink="/businesses" (click)="closeMobileMenu()">{{
+          appCopy().menuBusinessCommunityLabel
         }}</a>
         <a routerLink="/contact" (click)="closeMobileMenu()">{{
-          appCopy().featureTitles.contact
+          appCopy().menuContactHallLabel
         }}</a>
       </nav>
     </div>
@@ -383,12 +315,12 @@
             <section class="feature-detail-stack">
               <p-card class="panel service-panel" id="services">
                 <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
-                <h2>{{ appCopy().servicesHeading }}</h2>
+                <h1>{{ appCopy().servicesHeading }}</h1>
                 <section class="service-grid">
                   @for (service of serviceCards(); track service.title) {
                     <article class="service-card">
                       <p class="meta-label">{{ service.availability }}</p>
-                      <h3>{{ service.title }}</h3>
+                      <h2>{{ service.title }}</h2>
                       <p>{{ service.description }}</p>
                       @if (resolveAppLink(service.href); as serviceLink) {
                         @if (serviceLink.isInternal) {
@@ -483,7 +415,7 @@
         aria-labelledby="top-tasks-heading"
       >
         <header
-          class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
+          class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
         >
           <div>
             <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
@@ -495,7 +427,7 @@
         <p-divider styleClass="section-divider" />
 
         <section
-          class="task-grid landing-task-grid mt-0 grid gap-4 lg:grid-cols-2"
+          class="task-grid landing-task-grid mt-0 grid lg:grid-cols-2"
           aria-label="Resident shortcuts"
         >
           @for (task of topTasks(); track task.title; let taskIndex = $index) {
@@ -610,7 +542,7 @@
         aria-labelledby="search-panel-heading"
       >
         <header
-          class="search-panel-header grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
+          class="section-header search-panel-header grid lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
         >
           <div>
             <p class="section-kicker">{{ appCopy().searchKicker }}</p>
@@ -671,7 +603,7 @@
       <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">
         <p-card class="panel civic-panel" aria-labelledby="homepage-meetings-heading">
           <header
-            class="landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
+            class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
           >
             <div>
               <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
@@ -717,13 +649,13 @@
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
           <header
-            class="landing-section-header landing-notices-header grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
+            class="section-header landing-section-header landing-notices-header grid lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
           >
             <div>
               <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
               <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
             </div>
-            <a class="text-link" routerLink="/notices">View all notices</a>
+            <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
           </header>
 
           <p-timeline class="landing-notice-timeline" [value]="notices()" align="left">
@@ -743,7 +675,7 @@
 
       <section class="feature-hub panel grid gap-6" aria-labelledby="feature-hub-heading">
         <header
-          class="feature-hub-header grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end"
+          class="section-header feature-hub-header grid lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end"
         >
           <div>
             <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
@@ -755,7 +687,7 @@
         <p-divider styleClass="section-divider" />
 
         <section
-          class="feature-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          class="feature-grid grid sm:grid-cols-2 xl:grid-cols-3"
           [attr.aria-label]="appCopy().featureHubHeading"
         >
           @for (feature of homepageFeaturePages(); track feature.id) {
@@ -788,10 +720,10 @@
           [pt]="supportCardPt"
           aria-labelledby="stay-informed-heading"
         >
-          <p class="section-kicker">Stay Informed</p>
-          <h2 id="stay-informed-heading">Alerts and direct town contact</h2>
+          <p class="section-kicker">{{ appCopy().stayInformedKicker }}</p>
+          <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
           <p class="feature-hub-copy">
-            Get weather alerts, meeting information, and direct Town Hall contact in one place.
+            {{ appCopy().stayInformedBody }}
           </p>
 
           <section
@@ -827,7 +759,7 @@
             >
               <p class="meta-label">{{ appCopy().nwsAlertLabel }}</p>
               <strong>{{ appCopy().alertActionLabel }}</strong>
-              <span>Open forecast details and sign up for weather-sensitive updates.</span>
+              <span>{{ appCopy().weatherSupportDescription }}</span>
             </a>
           </section>
         </p-card>
