@@ -1594,6 +1594,7 @@ export class App {
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
     const alertBanner = this.alertBanner();
+    const weatherAlert = this.homepageWeatherAlert();
     const latestNotice = this.notices()[0];
     const nextCalendarItem = this.calendarItems()[0];
     const primaryContact = this.primaryContact();
@@ -1602,10 +1603,11 @@ export class App {
     return [
       {
         id: 'weather',
-        kicker: copy.nwsAlertLabel,
+        kicker: weatherAlert ? copy.nwsAlertLabel : copy.featureTitles.weather,
         title: copy.featureTitles.weather,
-        summary:
-          [alertBanner.title, alertBanner.detail].filter(Boolean).join(' ') || copy.alertHeadline,
+        summary: weatherAlert
+          ? [alertBanner.title, alertBanner.detail].filter(Boolean).join(' ')
+          : copy.alertHeadline,
         href: '/weather',
         showOnHomepage: true,
       },
@@ -1830,12 +1832,13 @@ export class App {
   private readonly weatherSearchItems = computed<SearchItem[]>(() => {
     const copy = this.appCopy();
     const alertBanner = this.alertBanner();
+    const weatherAlert = this.homepageWeatherAlert();
 
     return [
       {
-        title: alertBanner.title || copy.alertHeadline,
-        summary: alertBanner.detail || this.heroContent().message,
-        category: copy.nwsAlertLabel,
+        title: weatherAlert ? alertBanner.title : copy.featureTitles.weather,
+        summary: weatherAlert ? alertBanner.detail : copy.alertHeadline,
+        category: weatherAlert ? copy.nwsAlertLabel : copy.featureTitles.weather,
         href: '/weather',
         keywords: this.buildSearchKeywords(
           copy.alertHeadline,

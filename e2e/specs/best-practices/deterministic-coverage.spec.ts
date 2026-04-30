@@ -1,11 +1,57 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
-import { mockWeatherProxyRoute } from '../../support/weather-mocks';
+import { mockDirectNwsRoutes, mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 async function waitForFonts(page: Page): Promise<void> {
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
+}
+
+async function readHeaderControlMetrics(locator: Locator): Promise<
+  {
+    height: number;
+    minHeight: number;
+    fontSize: number;
+    lineHeight: number;
+    letterSpacing: string;
+  }[]
+> {
+  return locator.evaluateAll((elements) =>
+    elements.map((element) => {
+      const styles = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+
+      return {
+        height: rect.height,
+        minHeight: Number.parseFloat(styles.minHeight),
+        fontSize: Number.parseFloat(styles.fontSize),
+        lineHeight: Number.parseFloat(styles.lineHeight),
+        letterSpacing: styles.letterSpacing,
+      };
+    }),
+  );
+}
+
+function expectNormalizedHeaderMetrics(
+  metrics: {
+    height: number;
+    minHeight: number;
+    fontSize: number;
+    lineHeight: number;
+    letterSpacing: string;
+  }[],
+): void {
+  expect(metrics.length).toBeGreaterThan(0);
+
+  for (const metric of metrics) {
+    expect(metric.height).toBeGreaterThanOrEqual(44);
+    expect(metric.minHeight).toBeGreaterThanOrEqual(44);
+    expect(metric.fontSize).toBeGreaterThanOrEqual(12);
+    expect(metric.fontSize).toBeLessThanOrEqual(16);
+    expect(metric.lineHeight).toBeGreaterThanOrEqual(metric.fontSize * 1.15);
+    expect(metric.letterSpacing).toBe('normal');
+  }
 }
 
 const supportsVisualSnapshots = process.platform === 'win32';
@@ -59,6 +105,53 @@ test.describe('deterministic regression coverage', () => {
         - button "ES"
         - button "EN" [pressed]
     `);
+  });
+
+  test('keeps the default homepage free of emergency alert copy', async ({ homePage }) => {
+    await mockDirectNwsRoutes(homePage.page, []);
+    await homePage.goto();
+
+    await expect(homePage.siteAlert).toHaveCount(0);
+    await expect(homePage.page.getByText('Urgent town update')).toHaveCount(0);
+    await expect(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
+  });
+
+  test('keeps header controls on normalized desktop sizing', async ({ homePage }) => {
+    await mockDirectNwsRoutes(homePage.page, []);
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    expectNormalizedHeaderMetrics(await readHeaderControlMetrics(homePage.sectionNavLinks));
+    expectNormalizedHeaderMetrics(
+      await readHeaderControlMetrics(homePage.page.locator('.header-meta-link')),
+    );
+    expectNormalizedHeaderMetrics(
+      await readHeaderControlMetrics(
+        homePage.page.getByRole('group', { name: 'Site language' }).getByRole('button'),
+      ),
+    );
+    expectNormalizedHeaderMetrics(
+      await readHeaderControlMetrics(homePage.page.getByRole('button', { name: 'Search' })),
+    );
+  });
+
+  test('keeps header controls on normalized mobile sizing', async ({ homePage }) => {
+    await mockDirectNwsRoutes(homePage.page, []);
+    await homePage.page.setViewportSize({ width: 375, height: 667 });
+    await homePage.goto();
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.getByTestId('homepage-section-nav')).toBeHidden();
+    await expect(homePage.page.locator('.desktop-mega-menu')).toBeHidden();
+    await expect(homePage.page.locator('.mobile-menu-bar')).toBeVisible();
+    expectNormalizedHeaderMetrics(
+      await readHeaderControlMetrics(homePage.page.locator('.mobile-menu-button')),
+    );
+    expectNormalizedHeaderMetrics(
+      await readHeaderControlMetrics(
+        homePage.page.getByRole('group', { name: 'Site language' }).getByRole('button'),
+      ),
+    );
   });
 
   test('keeps the homepage hero visually stable', async ({ homePage }) => {
@@ -127,7 +220,9 @@ test.describe('deterministic regression coverage', () => {
 
     await expect(homePage.page.getByTestId('weather-current-card')).toContainText('Partly Sunny');
     await expect(homePage.page.getByRole('heading', { name: '7-day forecast' })).toBeVisible();
-    await expect(homePage.page.getByRole('heading', { name: 'Active watches, warnings, and advisories' })).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: 'Active watches, warnings, and advisories' }),
+    ).toBeVisible();
 
     await expect(homePage.page.getByTestId('weather-current-card')).toHaveScreenshot(
       'weather-current-card.png',

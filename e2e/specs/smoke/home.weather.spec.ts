@@ -4,6 +4,18 @@ import { mockDirectNwsRoutes, mockWeatherProxyRoute } from '../../support/weathe
 test.describe('homepage weather', () => {
   test.describe.configure({ timeout: 90000 });
 
+  test('does not show the homepage warning banner without active Wiley alerts', async ({
+    homePage,
+  }) => {
+    await mockDirectNwsRoutes(homePage.page, []);
+
+    await homePage.goto();
+
+    await expect(homePage.siteAlert).toHaveCount(0);
+    await expect(homePage.page.getByText('Urgent town update')).toHaveCount(0);
+    await expect(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
+  });
+
   test('elevates active Wiley alerts into the homepage warning banner', async ({
     homePage,
   }, testInfo) => {

@@ -71,11 +71,21 @@ describe('LocalizedCmsContentStore', () => {
     expect(cmsRequest.request.method).toBe('POST');
     expect(cmsRequest.request.headers.get('x-api-key')).toBe('test-public-api-key');
     expect(cmsRequest.request.body.query as string).toContain('listSiteSettings(limit: 1)');
-    expect(cmsRequest.request.body.query as string).toContain('listAnnouncements(filter: { active: { eq: true } }, limit: 50)');
-    expect(cmsRequest.request.body.query as string).toContain('listEvents(filter: { active: { eq: true } }, limit: 50)');
-    expect(cmsRequest.request.body.query as string).toContain('listBusinesses(filter: { active: { eq: true } }, limit: 100)');
-    expect(cmsRequest.request.body.query as string).toContain('listPublicDocuments(filter: { active: { eq: true } }, limit: 200)');
-    expect(cmsRequest.request.body.query as string).toContain('listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)');
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listAnnouncements(filter: { active: { eq: true } }, limit: 50)',
+    );
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listEvents(filter: { active: { eq: true } }, limit: 50)',
+    );
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listBusinesses(filter: { active: { eq: true } }, limit: 100)',
+    );
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listPublicDocuments(filter: { active: { eq: true } }, limit: 200)',
+    );
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
+    );
 
     cmsRequest.flush({
       data: {
@@ -87,10 +97,12 @@ describe('LocalizedCmsContentStore', () => {
               heroStatus: 'Official Town Website',
               heroTitle: 'Town of Wiley',
               heroMessage: 'Town notices, meetings, weather, and services.',
-              heroSubtext: 'Practical homepage for Wiley residents with fast access to key information.',
+              heroSubtext:
+                'Practical homepage for Wiley residents with fast access to key information.',
               welcomeLabel: 'Welcome Photo',
               welcomeHeading: 'Welcome to the Town of Wiley online home',
-              welcomeBody: 'Use this homepage to reach the most important town information quickly.',
+              welcomeBody:
+                'Use this homepage to reach the most important town information quickly.',
               welcomeCaption: 'Town of Wiley welcome image.',
               heroImageUrl: 'https://example.com/hero.webp',
             },
@@ -98,6 +110,17 @@ describe('LocalizedCmsContentStore', () => {
         },
         listAlertBanners: {
           items: [
+            {
+              id: 'enabled-default-banner',
+              enabled: true,
+              label: 'Town Alert',
+              title: 'Urgent town update',
+              detail:
+                'Use this banner for emergency changes, closures, or critical public information.',
+              linkLabel: 'Contact Town Hall',
+              linkHref: 'tel:+17198294974',
+              updatedAt: '2026-04-12T12:00:00Z',
+            },
             {
               id: 'disabled-banner',
               enabled: false,
@@ -124,9 +147,10 @@ describe('LocalizedCmsContentStore', () => {
           items: [
             {
               id: 'retired-launch',
-              title: 'Welcome to Wiley\'s New Website',
+              title: "Welcome to Wiley's New Website",
               date: '2026-03-30',
-              detail: 'We developed this website in house to better offer Wiley Residents quality services.',
+              detail:
+                'We developed this website in house to better offer Wiley Residents quality services.',
               priority: 0,
               active: true,
             },
@@ -323,15 +347,77 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.notices().map((notice) => notice.title)).toEqual(['Corte de agua en Main Street']);
     expect(store.notices()[0]?.date).toContain('abril');
     expect(store.events().map((event) => event.title)).toEqual(['May Council Meeting']);
-    expect(store.contacts().map((contact) => contact.label)).toEqual(['Informacion del pueblo', 'Secretaria municipal']);
-    expect(store.businesses().map((business) => business.name)).toEqual(['B Business', 'A Business']);
+    expect(store.contacts().map((contact) => contact.label)).toEqual([
+      'Informacion del pueblo',
+      'Secretaria municipal',
+    ]);
+    expect(store.businesses().map((business) => business.name)).toEqual([
+      'B Business',
+      'A Business',
+    ]);
     expect(store.publicDocuments().map((document) => document.title)).toEqual([
       'April 2026 Agenda Packet',
       'April 2026 Minutes',
     ]);
     expect(store.publicDocuments()[0]?.downloadFileName).toBe('');
     expect(store.publicDocuments()[1]?.keywords).toEqual(['minutes', 'agenda']);
-    expect(store.externalNewsLinks().map((link) => link.title)).toEqual(['Local Coverage', 'Regional Coverage']);
+    expect(store.externalNewsLinks().map((link) => link.title)).toEqual([
+      'Local Coverage',
+      'Regional Coverage',
+    ]);
+
+    httpTesting.verify();
+  });
+
+  it('does not activate an enabled CMS alert that only contains bundled fallback copy', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+
+    httpTesting.expectOne('https://cms.example.com/graphql').flush({
+      data: {
+        listSiteSettings: { items: [] },
+        listAlertBanners: {
+          items: [
+            {
+              id: 'enabled-default-banner',
+              enabled: true,
+              label: 'Town Alert',
+              title: 'Urgent town update',
+              detail:
+                'Use this banner for emergency changes, closures, or critical public information.',
+              linkLabel: 'Contact Town Hall',
+              linkHref: 'tel:+17198294974',
+              updatedAt: '2026-04-12T12:00:00Z',
+            },
+          ],
+        },
+        listAnnouncements: { items: [] },
+        listEvents: { items: [] },
+        listContacts: { items: [] },
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+      },
+    });
+
+    await Promise.resolve();
+
+    expect(store.alertBanner().enabled).toBe(false);
+    expect(store.alertBanner().title).toBe('Urgent town update');
 
     httpTesting.verify();
   });

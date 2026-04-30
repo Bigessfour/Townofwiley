@@ -897,9 +897,10 @@ export class LocalizedCmsContentStore {
     const englishFallback = DEFAULT_CMS_ALERT_BANNER;
     const localizedFallback =
       language === 'es' ? DEFAULT_CMS_ALERT_BANNER_ES : DEFAULT_CMS_ALERT_BANNER;
+    const hasIntentionalContent = this.hasIntentionalAlertContent(alertBanner);
 
     return {
-      enabled: Boolean(alertBanner?.enabled),
+      enabled: Boolean(alertBanner?.enabled) && hasIntentionalContent,
       label: this.localizeKnownText(
         alertBanner?.label,
         language,
@@ -926,6 +927,24 @@ export class LocalizedCmsContentStore {
       ),
       linkHref: this.cleanText(alertBanner?.linkHref) ?? localizedFallback.linkHref,
     };
+  }
+
+  private hasIntentionalAlertContent(alertBanner: AlertBannerRecord | undefined): boolean {
+    const title = this.cleanText(alertBanner?.title);
+    const detail = this.cleanText(alertBanner?.detail);
+
+    return [title, detail].some((value) => Boolean(value && !this.isDefaultAlertText(value)));
+  }
+
+  private isDefaultAlertText(value: string): boolean {
+    const normalizedValue = this.normalizeComparableText(value);
+
+    return [
+      DEFAULT_CMS_ALERT_BANNER.title,
+      DEFAULT_CMS_ALERT_BANNER.detail,
+      DEFAULT_CMS_ALERT_BANNER_ES.title,
+      DEFAULT_CMS_ALERT_BANNER_ES.detail,
+    ].some((fallback) => this.normalizeComparableText(fallback) === normalizedValue);
   }
 
   private normalizeAnnouncements(
@@ -1119,8 +1138,11 @@ export class LocalizedCmsContentStore {
 
   private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {
     return [...records].sort((left, right) => {
-      if (left.enabled !== right.enabled) {
-        return left.enabled ? -1 : 1;
+      const leftEnabled = Boolean(left.enabled) && this.hasIntentionalAlertContent(left);
+      const rightEnabled = Boolean(right.enabled) && this.hasIntentionalAlertContent(right);
+
+      if (leftEnabled !== rightEnabled) {
+        return leftEnabled ? -1 : 1;
       }
 
       return (right.updatedAt ?? '').localeCompare(left.updatedAt ?? '');

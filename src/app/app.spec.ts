@@ -565,13 +565,38 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.site-alert-label')?.textContent).toContain('Servicio Nacional');
-    expect(compiled.querySelector('.site-alert-title')?.textContent).toContain(
+    expect(compiled.querySelector('.site-alert--nws .site-alert-headline')?.textContent).toContain(
+      'Servicio Nacional',
+    );
+    expect(compiled.querySelector('.site-alert--nws .site-alert-title')?.textContent).toContain(
       'Severe Thunderstorm Warning',
     );
-    expect(compiled.querySelector('.site-alert-detail')?.textContent).toContain(
+    expect(compiled.querySelector('.site-alert--nws .site-alert-detail')?.textContent).toContain(
       'Severe Thunderstorm Warning issued',
     );
+  });
+
+  it('should not show emergency alert copy when NWS has no active alerts', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    httpTesting.expectOne('https://api.weather.gov/points/38.154,-102.72').flush({
+      properties: { forecastZone: 'https://api.weather.gov/zones/forecast/COZ098' },
+    });
+    await Promise.resolve();
+    httpTesting.expectOne('https://api.weather.gov/alerts/active?zone=COZ098').flush({
+      features: [],
+    });
+    await Promise.resolve();
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.site-alert--nws')).toBeNull();
+    expect(compiled.querySelector('.site-alert-slot')).toBeNull();
+    expect(compiled.textContent).not.toContain('Urgent town update');
+    expect(compiled.textContent).not.toContain('Weather alerts load here');
   });
 
   it('should render the clerk editor on the admin path', async () => {

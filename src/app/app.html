@@ -15,9 +15,9 @@
     />
   }
 
-  @if (shouldPrimeWeatherAlerts()) {
+  @if (shouldPrimeWeatherAlerts() && alertBanner().enabled) {
     <section class="site-alert-slot">
-      @if (alertBanner().enabled && (alertBanner().title || alertBanner().detail)) {
+      @if (alertBanner().title || alertBanner().detail) {
         <p-card
           class="site-alert"
           role="region"
@@ -51,22 +51,6 @@
             </a>
           </div>
         </p-card>
-      } @else {
-        <div class="site-alert site-alert--placeholder" aria-hidden="true">
-          <div class="site-alert-copy">
-            <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
-            <p class="site-alert-label">{{ appCopy().nwsAlertLabel }}</p>
-            <h2 class="site-alert-title">Weather alerts load here</h2>
-            <p class="site-alert-detail">
-              Emergency notices and severe weather updates will appear in this space.
-            </p>
-          </div>
-
-          <div class="site-alert-actions">
-            <span class="site-alert-link button-cta button-cta--ghost">Preparing alerts</span>
-            <span class="site-alert-button button-cta button-cta--ghost">Open weather</span>
-          </div>
-        </div>
       }
     </section>
   }
