@@ -5,6 +5,7 @@ const e2ePort = process.env.E2E_PORT ?? '4300';
 const baseURL = process.env.E2E_BASE_URL ?? `http://127.0.0.1:${e2ePort}`;
 const useRemoteBaseUrl = Boolean(process.env.E2E_BASE_URL);
 const angularCliBin = resolve(process.cwd(), 'node_modules/@angular/cli/bin/ng.js');
+const runtimeConfigGenerator = resolve(process.cwd(), 'scripts/generate-runtime-config.mjs');
 
 export default defineConfig({
   testDir: './e2e/specs',
@@ -32,7 +33,7 @@ export default defineConfig({
   webServer: useRemoteBaseUrl
     ? undefined
     : {
-        command: `${process.execPath} "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort}`,
+        command: `${process.execPath} "${runtimeConfigGenerator}" && ${process.execPath} "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort}`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

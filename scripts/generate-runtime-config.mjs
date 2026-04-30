@@ -6,6 +6,10 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
 const runtimeConfigPath = join(repoRoot, 'public', 'runtime-config.js');
+const DEFAULT_CLERK_NAME = 'Deb Dillon';
+const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
+const DEFAULT_AWS_REGION = 'us-east-2';
+const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 
 function readLocalSecrets() {
   if (!existsSync(localSecretsPath)) {
@@ -51,31 +55,33 @@ const cmsRegion =
   process.env.APPSYNC_CMS_REGION?.trim() ||
   localSecrets.cms?.appSync?.region?.trim() ||
   localSecrets.aws?.region?.trim() ||
-  '';
+  DEFAULT_AWS_REGION;
 const clerkSetupAwsAccountId =
   process.env.CLERK_SETUP_AWS_ACCOUNT_ID?.trim() ||
   localSecrets.clerkSetup?.awsAccountId?.trim() ||
   localSecrets.aws?.accountId?.trim() ||
-  '';
+  DEFAULT_AWS_ACCOUNT_ID;
 const clerkSetupClerkName =
   process.env.CLERK_SETUP_CLERK_NAME?.trim() ||
   localSecrets.clerkSetup?.clerkName?.trim() ||
-  'Deb Dillon';
+  DEFAULT_CLERK_NAME;
 const clerkSetupAmplifyAppId =
   process.env.CLERK_SETUP_AMPLIFY_APP_ID?.trim() ||
   localSecrets.clerkSetup?.amplifyAppId?.trim() ||
   localSecrets.aws?.amplifyAppId?.trim() ||
-  '';
+  DEFAULT_AMPLIFY_APP_ID;
 const clerkSetupAwsRegion =
   process.env.CLERK_SETUP_AWS_REGION?.trim() ||
   localSecrets.clerkSetup?.awsRegion?.trim() ||
   cmsRegion ||
   localSecrets.aws?.region?.trim() ||
-  '';
+  DEFAULT_AWS_REGION;
 const clerkSetupAwsConsoleUrl =
   process.env.CLERK_SETUP_AWS_CONSOLE_URL?.trim() ||
   localSecrets.clerkSetup?.awsConsoleUrl?.trim() ||
-  (clerkSetupAwsRegion ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/` : 'https://console.aws.amazon.com/');
+  (clerkSetupAwsRegion
+    ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
+    : 'https://console.aws.amazon.com/');
 const clerkSetupStudioUrl =
   process.env.CLERK_SETUP_STUDIO_URL?.trim() ||
   localSecrets.clerkSetup?.studioUrl?.trim() ||
@@ -101,8 +107,7 @@ const buttonPosition =
   localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
   'bottom-right';
 const logEndpoint =
-  process.env.LOG_ENDPOINT?.trim() ||
-  localSecrets.logging?.endpoint?.trim() || '';
+  process.env.LOG_ENDPOINT?.trim() || localSecrets.logging?.endpoint?.trim() || '';
 const contactUpdateApiEndpoint =
   process.env.CONTACT_UPDATE_API_ENDPOINT?.trim() ||
   localSecrets.contactUpdate?.apiEndpoint?.trim() ||

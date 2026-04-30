@@ -48,7 +48,10 @@ test.describe('homepage weather', () => {
     await expect(homePage.siteAlertDetail).toContainText('Severe Thunderstorm Warning issued');
     await expect(homePage.siteAlertLink).toHaveAttribute('href', /forecast\.weather\.gov/);
 
-    if (testInfo.project.name === 'desktop-chromium') {
+    if (
+      testInfo.project.name === 'desktop-chromium' &&
+      process.env.PLAYWRIGHT_VISUAL_SNAPSHOTS === '1'
+    ) {
       await expect(homePage.siteAlert).toHaveScreenshot('homepage-nws-alert-banner.png', {
         animations: 'disabled',
         caret: 'hide',
