@@ -6,34 +6,39 @@ cli:
 plugins:
   sources:
     - id: trunk
-      ref: v1.7.6
+      ref: v1.8.0
       uri: https://github.com/trunk-io/plugins
 runtimes:
   enabled:
-    - node@22.16.0
-    - python@3.10.8
+    - node@24.0.0 # Matches project engines and .nvmrc preference
+    - python@3.14.4
 lint:
   enabled:
-    - taplo@0.10.0
-    - actionlint@1.7.12
-    - bandit@1.9.4
-    - black@26.3.1
     - eslint@10.2.1
-    - isort@8.0.1
-    - oxipng@10.1.1
-    - ruff@0.15.12
-    - checkov@3.2.525
-    - git-diff-check
-    - markdownlint@0.48.0
-    - osv-scanner@2.3.5
     - prettier@3.8.3
-    - svgo@4.0.1
+    - markdownlint@0.48.0
+    - git-diff-check
+    - osv-scanner@2.3.5
     - trufflehog@3.95.2
+    # Security & quality (Angular/Python heavy project)
+    - grype@0.111.1
+    - checkov@3.2.526
+    - bandit@1.9.4
+    - ruff@0.15.12
+    # Additional useful linters
+    - taplo@0.10.0
     - yamllint@1.38.0
+    - svgo@4.0.1
+    - oxipng@10.1.1
 actions:
   disabled:
     - trunk-announce
-    - trunk-check-pre-push
-    - trunk-fmt-pre-commit
+    # trunk-fmt-pre-commit intentionally disabled (we prefer editor formatOnSave + manual trunk fmt)
   enabled:
     - trunk-upgrade-available
+    - trunk-check-pre-push # ← Enables pre-push hook (formats + runs checks before push to GitHub)
+
+
+# Pre-push configuration - runs on `git push`
+# This will run `trunk fmt --fix` (if safe) followed by `trunk check` before allowing the push.
+# Failures will block the push, protecting main and PRs.

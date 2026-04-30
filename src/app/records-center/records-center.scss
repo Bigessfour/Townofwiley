@@ -1,10 +1,10 @@
 :host {
   display: block;
-  margin-top: 0.5rem;           /* Consistent with other feature pages */
+  margin-top: 0.5rem; /* Consistent with other feature pages */
 }
 
-.records-center h3,
-.records-guide-card h4,
+.records-center h1,
+.records-guide-card h2,
 .records-guide-card p {
   margin: 0;
 }
@@ -12,7 +12,7 @@
 .records-center-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: 1fr;                     /* mobile first */
+  grid-template-columns: 1fr; /* mobile first */
 }
 
 .records-guide-card {
@@ -39,7 +39,7 @@
   margin-bottom: 0.75rem;
 }
 
-.records-guide-card h4 {
+.records-guide-card h2 {
   font-size: 1.35rem;
   line-height: 1.25;
   margin-bottom: 0.5rem;
@@ -63,7 +63,7 @@
   border: 1px solid var(--civic-blue);
   color: var(--civic-blue);
   transition: all 160ms ease;
-  margin-top: auto;                     /* pushes button to bottom */
+  margin-top: auto; /* pushes button to bottom */
 }
 
 .records-guide-link:hover,
@@ -88,6 +88,6 @@
 
 @media (min-width: 1024px) {
   .records-center-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));   /* keep 2 columns on large screens */
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* keep 2 columns on large screens */
   }
 }

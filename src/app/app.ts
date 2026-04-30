@@ -237,6 +237,11 @@ interface AppCopy {
   featureHubKicker: string;
   featureHubHeading: string;
   featureHubBody: string;
+  stayInformedKicker: string;
+  stayInformedHeading: string;
+  stayInformedBody: string;
+  viewAllNoticesLabel: string;
+  weatherSupportDescription: string;
   siteMetaDescription: string;
   searchKicker: string;
   searchHeading: string;
@@ -318,6 +323,13 @@ interface AppCopy {
   transparencyActions: TransparencyAction[];
   accessibilityItems: AccessibilityItem[];
   leadershipGroups: LeadershipGroup[];
+  menuQuickTasksLabel: string;
+  menuGovernmentLabel: string;
+  menuServicesPermitsLabel: string;
+  menuNewsNoticesLabel: string;
+  menuBusinessCommunityLabel: string;
+  menuContactHallLabel: string;
+  menuLeadershipLabel: string;
 }
 
 export const WEATHER_ALERT_POLICY_COPY: Record<
@@ -480,6 +492,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     featureHubHeading: 'Open the town section you need',
     featureHubBody:
       'Use these feature pages to reach weather, notices, meetings, services, records, and Town Hall contacts quickly.',
+    stayInformedKicker: 'Stay Informed',
+    stayInformedHeading: 'Alerts and direct town contact',
+    stayInformedBody:
+      'Get weather alerts, meeting information, and direct Town Hall contact in one place.',
+    viewAllNoticesLabel: 'View all notices',
+    weatherSupportDescription: 'Open forecast details and sign up for weather-sensitive updates.',
     siteMetaDescription:
       'Official Town of Wiley website for resident services, weather alerts, meetings, records, notices, and Town Hall contacts.',
     searchKicker: 'Wiley Search',
@@ -602,6 +620,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contact', href: '/contact', icon: 'pi pi-envelope' },
     ],
+    menuQuickTasksLabel: 'I Want To...',
+    menuGovernmentLabel: 'Government & Meetings',
+    menuServicesPermitsLabel: 'Services & Permits',
+    menuNewsNoticesLabel: 'News, Notices & Alerts',
+    menuBusinessCommunityLabel: 'Businesses & Community',
+    menuContactHallLabel: 'Contact & Town Hall',
+    menuLeadershipLabel: 'Leadership',
     topTasks: [
       {
         title: 'Pay utility bill',
@@ -880,6 +905,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     featureHubHeading: 'Abra la seccion del pueblo que necesita',
     featureHubBody:
       'Use estas paginas para llegar rapidamente al clima, avisos, reuniones, servicios, registros y contactos del ayuntamiento.',
+    stayInformedKicker: 'Manténgase Informado',
+    stayInformedHeading: 'Alertas y contacto directo con el ayuntamiento',
+    stayInformedBody:
+      'Obtenga alertas meteorológicas, información de reuniones y contacto directo con el Ayuntamiento en un solo lugar.',
+    viewAllNoticesLabel: 'Ver todos los avisos',
+    weatherSupportDescription:
+      'Abra los detalles del pronóstico y regístrese para actualizaciones sensibles al clima.',
     siteMetaDescription:
       'Sitio web oficial del Pueblo de Wiley para servicios a residentes, alertas del clima, reuniones, registros, avisos y contactos del ayuntamiento.',
     searchKicker: 'Busqueda de Wiley',
@@ -1002,6 +1034,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Noticias', href: '/news' },
       { label: 'Contacto', href: '/contact' },
     ],
+    menuQuickTasksLabel: 'Quiero...',
+    menuGovernmentLabel: 'Gobierno y Reuniones',
+    menuServicesPermitsLabel: 'Servicios y Permisos',
+    menuNewsNoticesLabel: 'Noticias, Avisos y Alertas',
+    menuBusinessCommunityLabel: 'Negocios y Comunidad',
+    menuContactHallLabel: 'Contacto y Ayuntamiento',
+    menuLeadershipLabel: 'Liderazgo',
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
@@ -1343,6 +1382,9 @@ export class App {
     item: {
       'aria-level': null,
     },
+    panel: {
+      class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
+    },
   };
   private readonly calendarTableState = signal<CalendarTableState>({
     first: 0,
@@ -1462,24 +1504,67 @@ export class App {
     const copy = this.appCopy();
 
     return [
-      { root: true, label: copy.homeLabel, routerLink: '/' },
       {
         root: true,
-        label: copy.featureTitles.weather,
-        routerLink: '/weather',
-        icon: 'pi pi-cloud',
+        label: copy.menuQuickTasksLabel,
+        icon: 'pi pi-list',
+        items: [
+          [
+            {
+              label: copy.mobileOnlinePaymentsLabel,
+              routerLink: ['/services'],
+              fragment: 'payment-help',
+            },
+            {
+              label: copy.mobileIssueLabel,
+              routerLink: ['/services'],
+              fragment: 'issue-report',
+            },
+            {
+              label: copy.meetingsQuickLinkLabel,
+              routerLink: '/meetings',
+              fragment: 'calendar',
+            },
+            {
+              label: copy.mobileRecordsLabel,
+              routerLink: ['/services'],
+              fragment: 'records-request',
+            },
+            {
+              label: copy.mobileSearchAllServicesLabel,
+              routerLink: ['/'],
+              fragment: 'search-panel',
+            },
+          ],
+          [
+            { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
+            { label: copy.nwsAlertLabel, routerLink: '/weather' },
+            { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
+            { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
+          ],
+        ],
       },
-      { root: true, label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
       {
         root: true,
-        label: copy.featureTitles.meetings,
-        routerLink: '/meetings',
-        icon: 'pi pi-calendar',
+        label: copy.menuGovernmentLabel,
+        icon: 'pi pi-building',
+        items: [
+          [
+            { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+            { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
+            { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
+          ],
+          [
+            { label: copy.transparencyKicker, routerLink: '/records' },
+            { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
+            { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
+          ],
+        ],
       },
       {
         root: true,
-        label: copy.featureTitles.services,
-        icon: 'pi pi-cog',
+        label: copy.menuServicesPermitsLabel,
+        icon: 'pi pi-briefcase',
         items: [
           [
             {
@@ -1493,29 +1578,40 @@ export class App {
               routerLink: ['/services'],
               fragment: 'records-request',
             },
+            { label: copy.featureTitles.services, routerLink: '/services' },
           ],
           [
-            { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
-            { label: copy.mobileLanguageAccessLabel, routerLink: '/accessibility' },
-            {
-              label: copy.mobileSearchAllServicesLabel,
-              routerLink: ['/'],
-              fragment: 'search-panel',
-            },
+            { label: copy.featureTitles.records, routerLink: '/records' },
+            { label: 'Permits & Licenses', routerLink: '/services' },
           ],
         ],
       },
       {
         root: true,
-        label: copy.featureTitles.records,
-        routerLink: '/records',
-        icon: 'pi pi-folder',
+        label: copy.menuNewsNoticesLabel,
+        icon: 'pi pi-bell',
+        items: [
+          [
+            { label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
+            { label: copy.featureTitles.news, routerLink: '/news', icon: 'pi pi-newspaper' },
+          ],
+          [
+            { label: copy.nwsAlertLabel, routerLink: '/weather' },
+            { label: copy.alertActionLabel, routerLink: '/weather' },
+          ],
+        ],
       },
       {
         root: true,
-        label: copy.featureTitles.contact,
-        routerLink: '/contact',
+        label: copy.menuBusinessCommunityLabel,
+        icon: 'pi pi-users',
+        routerLink: '/businesses',
+      },
+      {
+        root: true,
+        label: copy.menuContactHallLabel,
         icon: 'pi pi-envelope',
+        routerLink: '/contact',
       },
     ];
   });

@@ -1,7 +1,10 @@
 <section class="accessibility-support-grid grid gap-6 grid-cols-1 lg:grid-cols-2">
-  <article class="accessibility-statement-card grid gap-4 p-6 rounded-3xl" aria-labelledby="a11y-statement-heading">
+  <article
+    class="accessibility-statement-card grid gap-4 p-6 rounded-3xl"
+    aria-labelledby="a11y-statement-heading"
+  >
     <p class="meta-label">{{ copy().statementKicker }}</p>
-    <h3 id="a11y-statement-heading">{{ copy().statementTitle }}</h3>
+    <h2 id="a11y-statement-heading">{{ copy().statementTitle }}</h2>
     <p>{{ copy().statementBody }}</p>
     <ul class="accessibility-support-list grid gap-2.5 pl-5">
       @for (commitment of copy().statementCommitments; track commitment) {
@@ -10,9 +13,13 @@
     </ul>
   </article>
 
-  <article class="accessibility-report-card grid gap-4 p-6 rounded-3xl" id="barrier-report" aria-labelledby="a11y-report-heading">
+  <article
+    class="accessibility-report-card grid gap-4 p-6 rounded-3xl"
+    id="barrier-report"
+    aria-labelledby="a11y-report-heading"
+  >
     <p class="meta-label">{{ copy().reportKicker }}</p>
-    <h3 id="a11y-report-heading">{{ copy().reportTitle }}</h3>
+    <h2 id="a11y-report-heading">{{ copy().reportTitle }}</h2>
     <p>{{ copy().reportBody }}</p>
 
     <section class="accessibility-contact-row flex flex-wrap gap-2">
@@ -41,7 +48,10 @@
             type="text"
             formControlName="preferredContact"
             autocomplete="email"
-            [invalid]="reportForm.controls.preferredContact.invalid && reportForm.controls.preferredContact.touched"
+            [invalid]="
+              reportForm.controls.preferredContact.invalid &&
+              reportForm.controls.preferredContact.touched
+            "
           />
         </label>
         <label class="accessibility-field accessibility-field--wide grid gap-1">
@@ -50,7 +60,10 @@
             pInputText
             type="text"
             formControlName="pageOrDocument"
-            [invalid]="reportForm.controls.pageOrDocument.invalid && reportForm.controls.pageOrDocument.touched"
+            [invalid]="
+              reportForm.controls.pageOrDocument.invalid &&
+              reportForm.controls.pageOrDocument.touched
+            "
           />
         </label>
         <label class="accessibility-field accessibility-field--wide grid gap-1">

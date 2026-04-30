@@ -4,7 +4,7 @@
     {
       "label": "scorer eval town",
       "type": "shell",
-      "command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4-1-fast --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out",
+      "command": "web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4-1-fast --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out",
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -12,7 +12,7 @@
     {
       "label": "scorer eval town retry",
       "type": "shell",
-      "command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-2",
+      "command": "web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-2",
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -20,7 +20,7 @@
     {
       "label": "scorer eval town third",
       "type": "shell",
-      "command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-3",
+      "command": "web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-3",
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -28,7 +28,7 @@
     {
       "label": "scorer eval town fourth",
       "type": "shell",
-      "command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-4",
+      "command": "web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-4",
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -36,7 +36,7 @@
     {
       "label": "scorer eval town fifth",
       "type": "shell",
-      "command": "$env:XAI_API_KEY=[Environment]::GetEnvironmentVariable('XAI_API_KEY','Machine'); web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-5",
+      "command": "web-codegen-scorer eval --env=hello-world/config.mjs --model=grok-4 --autorater-model=grok-code-fast-1 --skip-ai-summary --limit=1 --prompt-filter=affirmation-app --skip-screenshots --output-directory=web-codegen-scorer-out-5",
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -46,10 +46,10 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/best-practices/deterministic-coverage.spec.ts e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep 'captures the homepage section navigation accessibility tree|captures the site-language accessibility group|keeps the homepage hero visually stable|keeps the weather summary card visually stable|filters external news coverage against a fixed clock|business directory snapshot|meetings calendar tab interaction'",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js test e2e/specs/best-practices/deterministic-coverage.spec.ts e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep 'captures the homepage section navigation accessibility tree|captures the site-language accessibility group|keeps the homepage hero visually stable|keeps the weather summary card visually stable|filters external news coverage against a fixed clock|business directory snapshot|meetings calendar tab interaction'",
       "isBackground": false,
       "problemMatcher": ["$playwright"],
       "group": "build"
@@ -59,10 +59,10 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' build",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js build",
       "group": "build"
     },
     {
@@ -70,10 +70,10 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' test",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js test",
       "group": "test"
     },
     {
@@ -81,16 +81,16 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/smoke --workers=1",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js test e2e/specs/smoke --workers=1",
       "group": "test"
     },
     {
       "label": "lint",
       "type": "shell",
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' lint",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js lint",
       "group": "build"
     },
     {
@@ -104,10 +104,10 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@angular/cli/bin/ng.js' serve --host 127.0.0.1 --port 4300",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4300",
       "isBackground": true,
       "problemMatcher": [
         {
@@ -131,22 +131,21 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "$env:PATH='/opt/homebrew/opt/node@24/bin;' + $env:PATH; & '/opt/homebrew/opt/node@24/bin/node' fix_ai_chat.js"
+      "command": "/opt/homebrew/opt/node@24/bin/node fix_ai_chat.js"
     },
     {
       "label": "validate weather smoke proxy",
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js'",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js",
       "args": [
-        "playwright",
         "test",
         "e2e/specs/smoke/home.weather.spec.ts",
         "--project=desktop-chromium",
@@ -162,17 +161,11 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js'",
-      "args": [
-        "playwright",
-        "test",
-        "e2e/specs/smoke",
-        "--project=desktop-chromium",
-        "--workers=1"
-      ],
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js",
+      "args": ["test", "e2e/specs/smoke", "--project=desktop-chromium", "--workers=1"],
       "isBackground": false,
       "group": "test"
     },
@@ -181,10 +174,10 @@
       "type": "shell",
       "options": {
         "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin;${env:PATH}"
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "& '/opt/homebrew/opt/node@24/bin/node' 'node_modules/@playwright/test/cli.js' test e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep \"meetings page keeps the calendar and meeting summary reachable\" --workers=1",
+      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js test e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep \"meetings page keeps the calendar and meeting summary reachable\" --workers=1",
       "isBackground": false,
       "group": "test"
     }

@@ -238,12 +238,13 @@
 
 .weather-alert-pill,
 .weather-alert-badge {
+  min-height: 2.75rem;
   padding: 0.55rem 0.85rem;
   background: color-mix(in srgb, var(--p-red-100) 80%, transparent);
   color: var(--p-red-800);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
   max-width: 100%;
 }
 
@@ -415,6 +416,7 @@
 
 .weather-action,
 .weather-action.is-link {
+  min-height: 2.75rem;
   padding: 0.8rem 1rem;
   border: 1px solid var(--surface-border);
   background: var(--surface-overlay);
@@ -622,6 +624,8 @@
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
+  margin: 0;
+  list-style: none;
   padding-bottom: 0.5rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;

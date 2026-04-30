@@ -4,11 +4,13 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
+    "editorconfig.editorconfig",
     "nrwl.angular-console",
-    "ms-vscode.vscode-typescript-next",
     "usernamehw.errorlens",
     "ryanluker.vscode-coverage-gutters",
     "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.vscode-typescript-next",
     "github.copilot",
     "github.copilot-chat",
     "amazonwebservices.aws-toolkit-vscode",
@@ -23,6 +25,7 @@
     "ms-dotnettools.csharp",
     "ms-mssql.sql",
     "mtxr.sqltools",
-    "ms-vscode.PowerShell"
+    "ms-vscode.PowerShell",
+    "codeium.codeium"
   ]
 }

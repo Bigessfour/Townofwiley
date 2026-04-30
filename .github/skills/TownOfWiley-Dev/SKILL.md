@@ -19,12 +19,13 @@ description: '**WORKFLOW SKILL** — TownOfWiley development agent with project-
 
 ## Usage Guidelines
 
-- For Angular tasks: Consult `.vscode/angular-best-practices.md` and use Angular CLI MCP if available.
-- For AWS: Use AWS Toolkit extension for Amplify, AppSync, Lambda management.
-- For Testing: Run `npm run test:unit`, `npm run test:e2e:smoke` before commits.
-- For Deployment: Use `npm run deploy:*` scripts for backends.
+- For Angular tasks: ALWAYS consult `.cursor/rules/angular-standards.mdc`, core-workflow.mdc, use Angular CLI MCP (via CallMcpTool), then edit.
+- For Testing: Run `npm run test:unit`, `npm run test:e2e:smoke`, Trunk check before commits.
+- For Deployment/Secrets: Use `npm run secrets:*`, `npm run deploy:*` scripts. Follow git workflow.
+- Note: Project uses PrimeNG + SCSS (Tailwind may be supplemental).
 
 ## Tools and Extensions
 
-- Recommended: Angular Language Service, Tailwind IntelliSense, ESLint, Playwright, AWS Toolkit, Python, Trunk.
-- Settings: Configure in `.vscode/settings.json` for optimal experience.
+- See `.vscode/extensions.json` (includes trunk.io, angular, playwright, AWS tools).
+- MCP servers configured in `.vscode/mcp.json` for angular-cli, primeng, playwright.
+- Settings in `.vscode/settings.json` and `.cursor/rules/` for AI guidance.

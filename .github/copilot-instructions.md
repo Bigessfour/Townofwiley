@@ -2,14 +2,14 @@
 
 ## Angular Best Practices Are Mandatory
 
-- For any Angular-specific task in this repository, follow [.vscode/angular-best-practices.md](../.vscode/angular-best-practices.md).
-- Treat that file as the source of truth for Angular, TypeScript, accessibility, component, state, template, and service guidance.
-- If another instruction conflicts with that file for Angular code, prefer the Angular best-practices file.
+- For any Angular-specific task in this repository, follow `.cursor/rules/angular-standards.mdc` and `.cursor/rules/core-workflow.mdc`.
+- Treat the Cursor rules (in `.cursor/rules/`) + `.instructions.md` + TownOfWiley-Dev skill as the source of truth for Angular, TypeScript, accessibility, component, state, template, and service guidance.
+- If another instruction conflicts, prefer the `.cursor/rules/angular-standards.mdc`.
 
 ## Angular Reference Bundle
 
-- For every Angular-specific prompt in this repository, consult `.vscode/llms.txt` and use `.github/skills/angular-reference/SKILL.md`.
-- Keep the reference material informational; keep code changes aligned with [.vscode/angular-best-practices.md](../.vscode/angular-best-practices.md).
+- For every Angular-specific prompt, consult `.cursor/rules/angular-standards.mdc`, root `llms.txt`, `.github/skills/angular-reference/SKILL.md`, and `.instructions.md`.
+- Keep code changes aligned with the Cursor rules and existing `src/` patterns.
 
 ## Angular MCP Required
 
@@ -36,17 +36,13 @@
 - HTTP commands that send a body or use mutating methods such as `POST`, `PUT`, `PATCH`, or `DELETE` should still require confirmation.
 - When direct shell web utilities are blocked by host policy, prefer Python `urllib` or .NET `HttpClient` as the fallback for the same diagnostic purpose.
 
-## Grok 4.20 0309 Reasoning & Tool Usage (for better "At Home" context)
+## Cursor/Grok 4.20 Tool Usage & Workflow
 
-- You are an expert AI programming assistant working in VS Code with the user.
-- When asked for your name, respond with "GitHub Copilot".
-- When asked about the model, state that you are using Grok 4.20 0309 Reasoning.
-- For any Angular task: ALWAYS start by calling `mcp_angular-cli_list_projects`, then `mcp_angular-cli_get_best_practices`.
-- Use MCP tools (Angular, PrimeNG, Microsoft Docs) before generic knowledge.
-- For complex or multi-step tasks, use the `manage_todo_list` tool to plan and track progress.
-- When editing: Read file first with `read_file`, prefer `replace_string_in_file` with 3-5 lines of surrounding context for uniqueness. Fall back to `insert_edit_into_file` only if needed. Never output codeblocks for changes — use edit tools only.
-- Use the `memory` tool to store verified repo facts in `/memories/repo/`.
-- Follow all provided tool schemas exactly, use absolute file paths, prefer large context reads.
-- Incorporate repository memories, user preferences (implementation-first progress, iterative audits), and Angular best practices.
-- Keep responses focused, use proper Markdown. Prefer implementation over prolonged planning.
-- PrimeNG + Angular 21 standalone/signals/OnPush patterns are default for UI work.
+- Follow all system instructions: Read files before editing (use Read tool), use StrReplace for precise edits with unique context (3-5+ lines), TodoWrite for complex tasks, CallMcpTool for MCP servers (angular-cli, primeng, playwright-mcp, cursor-ide-browser).
+- ALWAYS review `.cursor/rules/*.mdc` and `.instructions.md` first for this workspace.
+- For Angular tasks: Use CallMcpTool with angular-cli or primeng servers before generic edits. Prefer MCP for best practices.
+- For complex/multi-step work: Use TodoWrite tool proactively to plan/track.
+- Editing: Read first, use exact string matches in StrReplace (never guess), prefer minimal targeted changes matching existing patterns. Use CODE REFERENCES format for existing code citations.
+- Incorporate rules from `.cursor/rules/`, TownOfWiley-Dev skill, accessibility expectations, MCP priority, and git workflow (no destructive commands unless requested).
+- Keep responses focused on task. Use markdown code blocks only per tone guidelines. Prefer implementation aligned with rules.
+- Default to PrimeNG + Angular 21 standalone/signals/OnPush/native control flow, WCAG AA, Trunk formatting.

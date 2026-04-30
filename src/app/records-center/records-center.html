@@ -1,26 +1,27 @@
 <section class="records-center grid gap-6" aria-labelledby="records-center-heading">
   <p class="meta-label">{{ copy().kicker }}</p>
-  <h3 id="records-center-heading">{{ copy().title }}</h3>
+  <h1 id="records-center-heading">{{ copy().title }}</h1>
 
   <section class="records-center-grid" aria-label="Records and document guides">
     @for (guide of copy().guides; track guide.id) {
-      <article
+      <section
         class="records-guide-card"
         [attr.id]="guide.id"
         [attr.data-testid]="guide.id"
-        role="region"
-        aria-labelledby="guide-{{ guide.id }}">
-
+        aria-labelledby="guide-{{ guide.id }}"
+      >
         <i [class]="guide.icon" aria-hidden="true"></i>
         <p class="meta-label">{{ guide.kicker }}</p>
-        <h4 id="guide-{{ guide.id }}">{{ guide.title }}</h4>
+        <h2 id="guide-{{ guide.id }}">{{ guide.title }}</h2>
         <p>{{ guide.detail }}</p>
 
         @if (resolveAppLink(guide.href); as guideLink) {
           @if (guideLink.isInternal) {
-            <a class="records-guide-link"
-               [routerLink]="guideLink.path"
-               [fragment]="guideLink.fragment">
+            <a
+              class="records-guide-link"
+              [routerLink]="guideLink.path"
+              [fragment]="guideLink.fragment"
+            >
               {{ guide.cta }}
             </a>
           } @else {
@@ -29,7 +30,7 @@
             </a>
           }
         }
-      </article>
+      </section>
     }
   </section>
 </section>

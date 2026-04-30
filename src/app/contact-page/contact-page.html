@@ -1,13 +1,11 @@
 <section class="feature-detail-stack">
   <div class="panel contact-panel" id="contact">
     <p class="section-kicker">{{ copy().contactKicker }}</p>
-    <h2>{{ copy().contactHeading }}</h2>
+    <h1>{{ copy().contactHeading }}</h1>
 
     <div class="contact-town-hall-block">
       <p class="contact-town-hall-name">Wiley Town Hall</p>
-      <address class="contact-town-hall-address">
-        304 Main Street, Wiley, CO 81092
-      </address>
+      <address class="contact-town-hall-address">304 Main Street, Wiley, CO 81092</address>
       <p class="contact-town-hall-hours">Monday – Friday &nbsp;·&nbsp; 8:00 AM – 4:00 PM</p>
       <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
     </div>
@@ -31,18 +29,18 @@
       }
     </section>
 
-    <div class="leadership-grid" role="list" [attr.aria-label]="copy().leadershipAriaLabel">
+    <ul class="leadership-grid" [attr.aria-label]="copy().leadershipAriaLabel">
       @for (group of leadershipGroups(); track group.title) {
-        <article class="leadership-card" role="listitem">
-          <h3>{{ group.title }}</h3>
+        <li class="leadership-card">
+          <h2>{{ group.title }}</h2>
           <p>{{ group.detail }}</p>
           <ul class="leadership-list">
             @for (member of group.members; track member) {
               <li>{{ member }}</li>
             }
           </ul>
-        </article>
+        </li>
       }
-    </div>
+    </ul>
   </div>
 </section>

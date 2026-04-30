@@ -1,0 +1,16 @@
+---
+description: AI feature integration and security standards
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# AI Integration Standards
+
+- **Security**: Never expose model keys in client code (`src/`, environments, bundles). Use server-side proxies, secrets/, npm run secrets:* .
+- **Tool Calling**: Allowlist only safe tools. Validate all inputs/outputs. App controls execution.
+- **Robustness**: Handle non-determinism with schemas, validation, graceful fallbacks. Never let provider issues crash UI.
+- **UI**: For AI-generated content in Angular, sanitize, ensure accessibility (WCAG AA), provide user controls/retry.
+- **Separation**: Keep prompt/tool logic separate from presentation components. Use services for AI orchestration.
+- **Reference**: Follow `.github/instructions/ai-application-development.instructions.md`
+
+Prefer existing patterns. Document security boundaries for new AI features.

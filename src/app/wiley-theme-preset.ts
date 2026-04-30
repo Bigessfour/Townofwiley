@@ -51,13 +51,48 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
           950: '#18120d',
         },
         formField: {
+          background: '{surface.0}',
+          borderColor: '{surface.200}',
           hoverBorderColor: '{primary.color}',
+          focusBorderColor: '{primary.color}',
+          color: '{surface.900}',
+          placeholderColor: '{surface.600}',
         },
       },
     },
   },
   components: {
+    button: {
+      root: {
+        borderRadius: '9999px', // matches civic button-cta and language toggle style
+        gap: '0.5rem',
+        paddingX: '1.35rem',
+        paddingY: '0.95rem',
+      },
+      colorScheme: {
+        light: {
+          root: {
+            primary: {
+              background: '{primary.700}',
+              hoverBackground: '{primary.800}',
+              activeBackground: '{primary.900}',
+              borderColor: '{primary.700}',
+              hoverBorderColor: '{primary.800}',
+              activeBorderColor: '{primary.900}',
+              color: '#ffffff',
+            },
+          },
+        },
+      },
+    },
     card: {
+      root: {
+        borderRadius: '1.5rem', // matches --radius-xl in design tokens
+      },
+      body: {
+        gap: '1.5rem',
+        padding: '1.5rem',
+      },
       colorScheme: {
         light: {
           root: {
@@ -70,7 +105,26 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
         },
       },
     },
+    divider: {
+      colorScheme: {
+        light: {
+          root: {
+            borderColor: '{surface.200}',
+          },
+        },
+      },
+    },
+    inputtext: {
+      root: {
+        borderRadius: '0.5rem',
+        paddingX: '1rem',
+        paddingY: '0.75rem',
+      },
+    },
     panel: {
+      root: {
+        borderRadius: '1.5rem', // matches custom .panel, .hero-card, --radius-xl
+      },
       colorScheme: {
         light: {
           root: {
@@ -85,6 +139,20 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
         },
       },
     },
-
+    selectbutton: {
+      root: {
+        borderRadius: '9999px',
+      },
+    },
+    tabs: {
+      tab: {
+        padding: '0.875rem 1rem',
+      },
+    },
+    timeline: {
+      eventMarker: {
+        size: '0.875rem',
+      },
+    },
   },
 });

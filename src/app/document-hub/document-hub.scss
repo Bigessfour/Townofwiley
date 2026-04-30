@@ -10,6 +10,7 @@
     radial-gradient(circle at bottom left, var(--page-glow-warm), transparent 24%),
     linear-gradient(180deg, var(--page-backdrop-start) 0%, var(--page-backdrop-end) 100%);
   color: var(--ink-900);
+  overflow-x: hidden;
 }
 
 .document-hub-hero,
@@ -80,8 +81,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 2.75rem;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   background: color-mix(in srgb, var(--surface-card) 90%, var(--p-amber-50));
   border: 1px solid var(--surface-border);
 }
@@ -94,6 +97,9 @@
 
 .document-hub-button.secondary,
 .document-hub-nav-link {
+  flex: 1 1 16rem;
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
   background: var(--surface-overlay);
 }
 
@@ -285,5 +291,26 @@
   .document-card-grid,
   .document-file-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .document-hub-shell {
+    padding: 1rem;
+  }
+
+  .document-section,
+  .document-file-card,
+  .document-card,
+  .searchable-archive,
+  .featured-meeting {
+    padding: 1rem;
+  }
+
+  .document-hub-nav-link,
+  .document-hub-button,
+  .document-card-link,
+  .document-file-link {
+    width: 100%;
   }
 }

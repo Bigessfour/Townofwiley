@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+# Trunk pre-push hook for Town of Wiley
+# Runs formatting + full checks before allowing push to GitHub
+# Configured via .trunk/trunk.yaml (trunk-check-pre-push action enabled)
+
+set -e
+
+if ! command -v trunk >/dev/null 2>&1; then
+  echo "❌ Trunk CLI is required for this repository."
+  echo "   Run: trunk init  (or install via https://get.trunk.io)"
+  exit 1
+fi
+
+echo "🔧 Running Trunk pre-push hook (fmt + check)..."
+
+# Format staged and tracked files (non-blocking if changes are made)
+echo "→ Running trunk fmt..."
+git ls-files -z | xargs -0 trunk fmt
+
+# Run full quality, lint, and security checks
+echo "→ Running trunk check..."
+trunk check
+
+echo "✅ Trunk pre-push checks passed. Pushing to GitHub..."
+

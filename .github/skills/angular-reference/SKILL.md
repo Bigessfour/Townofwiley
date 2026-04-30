@@ -24,12 +24,14 @@ Use this skill when you need the repo's Angular reference bundle or an informati
 
 ## How To Use It
 
-1. Read the repository's Angular best-practices file first when making or reviewing Angular changes.
-2. Use the `.vscode/llms.txt` file for broad Angular context and reference links.
-3. Apply the repo rules to the code you are editing.
-4. Keep the implementation aligned with standalone, signals-first Angular patterns.
+1. Read `.cursor/rules/angular-standards.mdc` and `.cursor/rules/core-workflow.mdc` first for all Angular tasks.
+2. Consult root `llms.txt`, `.instructions.md`, and MCP servers for context.
+3. Apply the rules to edits; match existing `src/app/` patterns (standalone, signals, OnPush, native control flow).
+4. Prioritize MCP tools (angular-cli, primeng) and accessibility.
 
 ## Repository Files
 
-- `.vscode/llms.txt`
-- `.vscode/angular-best-practices.md`
+- `.cursor/rules/angular-standards.mdc`
+- `.cursor/rules/core-workflow.mdc`
+- `.instructions.md`
+- `.github/skills/TownOfWiley-Dev/SKILL.md`

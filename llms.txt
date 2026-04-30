@@ -5,11 +5,11 @@ This repository provides AI-development context for Angular-aware assistants and
 ## Primary Context Files
 
 - [Full repository context](./llms-full.txt)
-- [Angular best practices](./.vscode/angular-best-practices.md)
-- [Angular reference bundle](./.vscode/llms.txt)
-- [Copilot workspace instructions](./.github/copilot-instructions.md)
+- [Cursor AI Rules](./.cursor/rules/) - core-workflow.mdc (always), angular-standards.mdc, ai-integration.mdc
 - [VS Code workspace instructions](./.instructions.md)
+- [Copilot workspace instructions](./.github/copilot-instructions.md)
 - [AI application development standards](./.github/instructions/ai-application-development.instructions.md)
+- [TownOfWiley Dev Skill](./.github/skills/TownOfWiley-Dev/SKILL.md)
 
 ## Project Summary
 

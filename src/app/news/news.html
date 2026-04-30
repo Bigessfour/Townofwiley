@@ -1,4 +1,7 @@
-<section class="public-page news-page-shell grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="news-page-heading">
+<section
+  class="public-page news-page-shell grid gap-6 max-w-[1240px] mx-auto px-4 py-8"
+  aria-labelledby="news-page-heading"
+>
   <header class="public-page-header grid gap-4 max-w-[56rem]">
     <p class="section-kicker">{{ copy().pageKicker }}</p>
     <h1 id="news-page-heading">{{ copy().pageTitle }}</h1>
@@ -20,7 +23,10 @@
   }
 
   @if (remainingNotices().length) {
-    <section class="news-section news-section-local grid gap-6" aria-labelledby="recent-town-notices-heading">
+    <section
+      class="news-section news-section-local grid gap-6"
+      aria-labelledby="recent-town-notices-heading"
+    >
       <div class="news-section-header grid gap-1">
         <p class="section-kicker">{{ copy().officialKicker }}</p>
         <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
@@ -37,19 +43,25 @@
         }
       </div>
     </section>
-    } @else {
-      <section class="news-section news-section-local grid gap-6" aria-labelledby="recent-town-notices-heading">
-        <div class="news-section-header grid gap-1">
-          <p class="section-kicker">{{ copy().officialKicker }}</p>
-          <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
-          <p class="public-page-copy">{{ copy().officialCopy }}</p>
-        </div>
+  } @else {
+    <section
+      class="news-section news-section-local grid gap-6"
+      aria-labelledby="recent-town-notices-empty-heading"
+    >
+      <div class="news-section-header grid gap-1">
+        <p class="section-kicker">{{ copy().officialKicker }}</p>
+        <h2 id="recent-town-notices-empty-heading">{{ copy().officialHeading }}</h2>
+        <p class="public-page-copy">{{ copy().officialCopy }}</p>
+      </div>
 
-        <p class="public-empty-state">No current notices. Check back soon for town updates.</p>
-      </section>
+      <p class="public-empty-state">No current notices. Check back soon for town updates.</p>
+    </section>
   }
 
-  <section class="news-section news-section-external grid gap-6" aria-labelledby="external-news-heading">
+  <section
+    class="news-section news-section-external grid gap-6"
+    aria-labelledby="external-news-heading"
+  >
     <div class="news-section-header grid gap-1">
       <p class="section-kicker">{{ copy().regionalKicker }}</p>
       <h2 id="external-news-heading">{{ copy().regionalHeading }}</h2>
@@ -62,7 +74,12 @@
           <p class="meta-label">{{ item.source }}</p>
           <h3>{{ item.title }}</h3>
           <div class="public-card-actions flex flex-wrap gap-3">
-            <a [href]="item.url" target="_blank" rel="noreferrer noopener" class="button-cta button-cta--light">
+            <a
+              [href]="item.url"
+              target="_blank"
+              rel="noreferrer noopener"
+              class="button-cta button-cta--light"
+            >
               {{ copy().readArticleLabel }}
             </a>
           </div>

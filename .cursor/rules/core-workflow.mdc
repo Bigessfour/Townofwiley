@@ -1,0 +1,27 @@
+---
+description: Core Town of Wiley development workflow and standards
+alwaysApply: true
+---
+
+# Town of Wiley Core Workflow Rules
+
+## Project Context
+- Angular 21 standalone components, signals-first (input/output/computed/inject), OnPush change detection, native control flow (@if/@for/@switch), reactive forms.
+- Strict WCAG AA accessibility, semantic HTML, PrimeNG + SCSS.
+- Prefer MCP tools (angular-cli, primeng, playwright-mcp) for Angular/PrimeNG/Playwright guidance before generic knowledge.
+- Use repo-local files: .instructions.md, .github/skills/TownOfWiley-Dev/SKILL.md, .github/instructions/*.instructions.md.
+
+## Mandatory Practices
+- **Angular**: Standalone APIs, signals, OnPush, native control flow over *ngIf etc. Avoid ngClass/ngStyle; use [class] and [style] bindings. Keep templates semantic and accessible.
+- **Changes**: Minimal, match existing src/ patterns and structure. Consult MCP before editing.
+- **Formatting & Quality**: Run Trunk (trunk check --fix) before commits. Use existing npm scripts for test/build/lint.
+- **Secrets & AI**: Use `npm run secrets:*` scripts. Never commit credentials. For AI features, server-side boundaries, graceful degradation, validate outputs.
+- **Testing**: Follow Playwright standards - user-facing locators (getByRole, getByLabel), isolated tests, fixtures.
+- **Git**: Feature branches, only deployable to main. 
+
+## Always:
+- Review .vscode/settings.json, tasks.json, extensions.json for workspace config.
+- For Angular tasks start with Angular CLI MCP where possible.
+- Bilingual English/Spanish where UI text appears (use i18n patterns).
+
+Follow these before any code changes.

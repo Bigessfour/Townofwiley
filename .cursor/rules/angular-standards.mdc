@@ -1,0 +1,48 @@
+---
+description: Angular 21 standards for this Town of Wiley project
+globs: **/*.{ts,html,scss}
+alwaysApply: false
+---
+
+# Angular Standards for Town of Wiley
+
+## Core Patterns (Mandatory)
+- **Components**: Standalone, `ChangeDetectionStrategy.OnPush`, signals for inputs/outputs/state (`input()`, `output()`, `computed()`, `inject()`).
+- **Templates**: Native control flow ONLY (`@if`, `@for`, `@switch`, `@defer`). No structural directives like *ngIf.
+- **Forms**: Prefer reactive forms over template-driven.
+- **Styling**: Avoid `ngClass`/`ngStyle`. Use property bindings `[class.foo]="cond"` and `[style.prop]="value"`. Colocate SCSS with components.
+- **Accessibility**: Semantic HTML, ARIA where needed, meet WCAG AA. Review with accessibility-page and tools.
+- **Services**: Use `providedIn: 'root'`, signals for state where appropriate. Inject HttpClient, etc.
+
+## Development Workflow
+- Use Angular CLI MCP (`mcp_angular-cli_*` tools) for validation, best practices, generation before manual edits.
+- Match patterns in `src/app/` (see resident-services, weather-panel, etc.).
+- Keep components focused; extract logic to services/hooks.
+- For PrimeNG: Follow primeng MCP guidance.
+
+## Examples
+**Good component skeleton:**
+```typescript
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // ...
+})
+export class MyComponent {
+  data = input.required<Data>();
+  onSave = output<Event>();
+
+  processed = computed(() => transform(this.data()));
+}
+```
+
+**Template:**
+```html
+@if (processed(); as items) {
+  <p-card *ngFor="let item of items">...</p-card>  <!-- Use PrimeNG or native -->
+}
+```
+
+Always align with `.instructions.md` and existing codebase.

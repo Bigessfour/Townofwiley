@@ -16,8 +16,8 @@
   align-self: stretch;
 }
 
-.accessibility-statement-card h3,
-.accessibility-report-card h3 {
+.accessibility-statement-card h2,
+.accessibility-report-card h2 {
   margin: 0;
   color: var(--ink-900);
   font-size: clamp(1.15rem, 2.5vw, 1.4rem);
@@ -44,11 +44,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 2.75rem;
   padding: 0.75rem 1rem;
   border-radius: 999px;
   text-decoration: none;
   font-weight: 700;
   white-space: nowrap;
+  text-align: center;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
@@ -128,3 +130,24 @@
   width: 100%;
 }
 
+@media (max-width: 640px) {
+  :host {
+    padding: 0;
+  }
+
+  .accessibility-statement-card,
+  .accessibility-report-card {
+    padding: 1rem !important;
+    border-radius: 16px;
+  }
+
+  .accessibility-contact-row {
+    align-items: stretch;
+  }
+
+  .accessibility-contact-link,
+  .accessibility-action {
+    width: 100%;
+    white-space: normal;
+  }
+}
