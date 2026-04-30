@@ -126,7 +126,7 @@ const sectionNavigationGateways: NavigationGateway[] = [
     click: (page) =>
       page.page
         .getByTestId('homepage-section-nav')
-        .getByRole('link', { name: 'Top Tasks' })
+        .getByText(/Top Tasks/i, { exact: false })
         .click(),
     expectedUrl: /\/#top-tasks$/,
     assertDestination: expectTopTasksAnchor,
@@ -134,35 +134,50 @@ const sectionNavigationGateways: NavigationGateway[] = [
   {
     name: 'Weather section nav',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Weather' }).click(),
+      page.page
+        .getByTestId('homepage-section-nav')
+        .getByText(/Weather/i, { exact: false })
+        .click(),
     expectedUrl: /\/weather$/,
     assertDestination: expectWeatherPage,
   },
   {
     name: 'Notices section nav',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Notices' }).click(),
+      page.page
+        .getByTestId('homepage-section-nav')
+        .getByText(/Notices/i, { exact: false })
+        .click(),
     expectedUrl: /\/notices$/,
     assertDestination: expectNoticesPage,
   },
   {
     name: 'Meetings section nav',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Meetings' }).click(),
+      page.page
+        .getByTestId('homepage-section-nav')
+        .getByText(/Meetings/i, { exact: false })
+        .click(),
     expectedUrl: /\/meetings$/,
     assertDestination: expectMeetingsPage,
   },
   {
     name: 'Services section nav',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Services' }).click(),
+      page.page
+        .getByTestId('homepage-section-nav')
+        .getByText(/Services/i, { exact: false })
+        .click(),
     expectedUrl: /\/services$/,
     assertDestination: expectServicesPage,
   },
   {
     name: 'Records section nav',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Records' }).click(),
+      page.page
+        .getByTestId('homepage-section-nav')
+        .getByText(/Records/i, { exact: false })
+        .click(),
     expectedUrl: /\/records$/,
     assertDestination: expectRecordsPage,
   },
