@@ -20,6 +20,10 @@ describe('LocalizedCmsContentStore', () => {
     __TOW_RUNTIME_CONFIG_OVERRIDE__?: TestRuntimeConfig;
   };
 
+  beforeEach(() => {
+    window.localStorage.setItem('tow-site-language', 'en');
+  });
+
   afterEach(() => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;

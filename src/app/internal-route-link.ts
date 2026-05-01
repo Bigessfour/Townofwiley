@@ -15,6 +15,8 @@ const APP_ROUTE_PATHS = new Set([
   '/weather',
   '/services',
   '/records',
+  '/payments',
+  '/permits',
   '/businesses',
   '/news',
   '/contact',

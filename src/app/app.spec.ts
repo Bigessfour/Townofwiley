@@ -56,6 +56,7 @@ describe('App', () => {
   };
 
   beforeEach(async () => {
+    window.localStorage.setItem('tow-site-language', 'en');
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
       providers: [
@@ -135,15 +136,21 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(document.title).toContain('Official Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    expect(
-      compiled.querySelector('.task-card[href="/services#payment-help"]')?.textContent,
-    ).toContain('Pay utility bill');
-    expect(
-      compiled.querySelector('.task-card[href="/services#issue-report"]')?.textContent,
-    ).toContain('Report a street or utility issue');
-    expect(
-      compiled.querySelector('.task-card[href="/services#records-request"]')?.textContent,
-    ).toContain('Request records, permits, or clerk help');
+    const payTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
+      el.textContent?.includes('Pay utility bill'),
+    );
+    expect(payTaskCard).toBeTruthy();
+    expect(payTaskCard!.textContent).toContain('Pay utility bill');
+    const issueTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
+      el.textContent?.includes('Report a street or utility issue'),
+    );
+    expect(issueTaskCard).toBeTruthy();
+    expect(issueTaskCard!.textContent).toContain('Report a street or utility issue');
+    const recordsTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
+      el.textContent?.includes('Request records, permits, or clerk help'),
+    );
+    expect(recordsTaskCard).toBeTruthy();
+    expect(recordsTaskCard!.textContent).toContain('Request records, permits, or clerk help');
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
@@ -193,7 +200,7 @@ describe('App', () => {
       };
     };
 
-    const servicesMenu = component.menuItems().find((item) => item.label === 'Resident services');
+    const servicesMenu = component.menuItems().find((item) => item.label === 'Services & Permits');
 
     expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
     expect(servicesMenu).toBeDefined();
@@ -214,20 +221,19 @@ describe('App', () => {
         routerLink: ['/services'],
         fragment: 'records-request',
       },
+      {
+        label: 'Resident services',
+        routerLink: '/services',
+      },
     ]);
     expect(servicesMenu?.items?.[1]).toMatchObject([
       {
-        label: 'Weather & Emergency Alerts',
-        routerLink: '/weather',
+        label: 'Records and documents',
+        routerLink: '/records',
       },
       {
-        label: 'Language Access',
-        routerLink: '/accessibility',
-      },
-      {
-        label: 'Search All Services',
-        routerLink: ['/'],
-        fragment: 'search-panel',
+        label: 'Permits & Licenses',
+        routerLink: '/services',
       },
     ]);
   });

@@ -172,9 +172,7 @@ test.describe('visual readiness smoke', () => {
     test(`keeps public page typography readable on ${viewport.label}`, async ({ homePage }) => {
       await homePage.page.setViewportSize(viewport.size);
 
-      for (const routeContract of publicRouteContracts.filter((route) =>
-        ['/', '/weather', '/services', '/meetings', '/documents'].includes(route.path),
-      )) {
+      for (const routeContract of publicRouteContracts) {
         await homePage.page.goto(routeContract.path, { waitUntil: 'domcontentloaded' });
 
         const heading = homePage.page.getByRole('heading', { name: routeContract.heading }).first();
