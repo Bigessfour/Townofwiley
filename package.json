@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prestart": "npm run generate:runtime-config",
+    "prestart": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config",
     "start": "ng serve",
-    "prebuild": "npm run generate:runtime-config",
+    "start:polling": "node scripts/ensure-node-version.mjs && ng serve --poll=2000",
+    "serve:4300": "npx --yes kill-port 4200 4300 && npm run prestart && ng serve --host 127.0.0.1 --port 4300",
+    "prebuild": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config",
     "build": "ng build",
     "postbuild": "node scripts/generate-static-route-entrypoints.mjs",
     "watch": "ng build --watch --configuration development",
@@ -22,11 +24,14 @@
     "test:infra:backend": "python -m pytest",
     "test:infra:monitor": "python3 -m unittest discover infrastructure/site-monitor/tests",
     "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:smoke",
-    "pretest:e2e": "npx --yes kill-port 4200 4300",
+    "pretest:e2e": "node scripts/ensure-node-version.mjs && npx --yes kill-port 4200 4300 && python3 scripts/e2e_smoke_preflight.py",
+    "pretest:e2e:smoke": "node scripts/ensure-node-version.mjs && npx --yes kill-port 4200 4300 && python3 scripts/e2e_smoke_preflight.py",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:smoke": "playwright test e2e/specs/smoke --workers=1",
+    "test:e2e:preflight": "python3 scripts/e2e_smoke_preflight.py",
+    "test:e2e:smoke": "playwright test e2e/specs/smoke --project=desktop-chromium --workers=2",
+    "test:e2e:smoke:all-projects": "playwright test e2e/specs/smoke --workers=2",
     "test:e2e:snapshots": "PLAYWRIGHT_VISUAL_SNAPSHOTS=1 playwright test e2e/specs/best-practices/deterministic-coverage.spec.ts --project=desktop-chromium --workers=1",
     "test:e2e:install": "playwright install chromium",
     "perf:lighthouse:staging": "npx --yes lighthouse https://staging.townofwiley.gov --only-categories=performance,accessibility --preset=desktop --quiet --chrome-flags=\"--headless=new\"",
@@ -44,7 +49,7 @@
     "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",
     "deploy:site-monitor": "python scripts/deploy-site-monitor.py",
     "assets:hero": "node scripts/convert-hero.mjs",
-    "lint": "ng lint",
+    "lint": "node scripts/ensure-node-version.mjs && ng lint",
     "serve:ssr:townofwiley-app": "node dist/townofwiley-app/server/server.mjs",
     "build:stats": "ng build --configuration production,stats --stats-json",
     "analyze:bundle": "webpack-bundle-analyzer dist/townofwiley-app/stats.json"
@@ -64,7 +69,7 @@
   "private": true,
   "packageManager": "npm@11.6.2",
   "engines": {
-    "node": "^24.0.0 || ^22.12.0",
+    "node": "^24.0.0",
     "npm": "^11.0.0"
   },
   "dependencies": {

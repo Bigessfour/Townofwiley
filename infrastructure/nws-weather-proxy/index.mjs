@@ -1,3 +1,10 @@
+/**
+ * This handler sets Access-Control-Allow-Origin per request. If the Lambda Function URL
+ * also has CORS enabled in AWS (especially AllowOrigins: *), API Gateway can merge in a
+ * second ACAO value and browsers will block with “multiple values”. Fix: in Lambda →
+ * Configuration → Function URL → Edit CORS, clear allow origins / disable URL-level CORS
+ * so only this function’s headers apply (or use URL CORS only and remove headers here).
+ */
 const ALLOWED_ORIGINS = new Set([
   'https://townofwiley.gov',
   'https://www.townofwiley.gov',

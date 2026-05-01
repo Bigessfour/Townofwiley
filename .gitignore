@@ -29,6 +29,10 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
+# Cursor / local scratch (keep rules and skills; ignore session logs)
+.cursor/*.log
+.todo
+
 # Miscellaneous
 /.scorer-source/
 /.web-codegen-scorer/

@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TownOfWileyReadLambdaLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/TownOfWiley*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/TownOfWiley*:*",
+        "arn:aws:logs:us-east-1:570912405222:log-group:/aws/lambda/TownOfWiley*",
+        "arn:aws:logs:us-east-1:570912405222:log-group:/aws/lambda/TownOfWiley*:*"
+      ]
+    }
+  ]
+}

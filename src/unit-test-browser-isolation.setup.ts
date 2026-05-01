@@ -11,15 +11,19 @@ import { afterEach } from 'vitest';
 import { vi } from 'vitest';
 
 afterEach(() => {
-  delete (window as Window & {
-    __TOW_RUNTIME_CONFIG__?: unknown;
-    __TOW_RUNTIME_CONFIG_OVERRIDE__?: unknown;
-  }).__TOW_RUNTIME_CONFIG__;
+  delete (
+    window as Window & {
+      __TOW_RUNTIME_CONFIG__?: unknown;
+      __TOW_RUNTIME_CONFIG_OVERRIDE__?: unknown;
+    }
+  ).__TOW_RUNTIME_CONFIG__;
 
-  delete (window as Window & {
-    __TOW_RUNTIME_CONFIG__?: unknown;
-    __TOW_RUNTIME_CONFIG_OVERRIDE__?: unknown;
-  }).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  delete (
+    window as Window & {
+      __TOW_RUNTIME_CONFIG__?: unknown;
+      __TOW_RUNTIME_CONFIG_OVERRIDE__?: unknown;
+    }
+  ).__TOW_RUNTIME_CONFIG_OVERRIDE__;
 
   try {
     window.localStorage?.clear();

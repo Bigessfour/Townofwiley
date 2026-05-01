@@ -121,7 +121,10 @@ async function expectReadableTypography(
 ): Promise<void> {
   await expect(locator).toBeVisible();
   await waitForTypographyReady(locator.page());
-  await expectMeaningfulLayoutBox(locator, `typography target (${expectedFont}, ≥${minimumFontSize}px)`);
+  await expectMeaningfulLayoutBox(
+    locator,
+    `typography target (${expectedFont}, ≥${minimumFontSize}px)`,
+  );
 
   await expect(async () => {
     const typography = await getTypographyMetrics(locator);

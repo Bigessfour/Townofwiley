@@ -26,7 +26,8 @@
     "**/.angular": true
   },
   "terminal.integrated.env.osx": {
-    "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
+    "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}",
+    "E2E_NODE": "/opt/homebrew/opt/node@24/bin/node"
   },
   "terminal.integrated.env.windows": {
     "NPM_CONFIG_PREFIX": "${env:APPDATA}\\npm"
@@ -34,7 +35,7 @@
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python.defaultInterpreterPath": "/usr/bin/python3",
   "python.envFile": "${workspaceFolder}/secrets/local/.env",
-  "python.languageServer": "Pylance",
+  "python.languageServer": "Default",
   "python.logging.level": "warning",
   "python.terminal.activateEnvironment": false,
   "python.testing.pytestEnabled": true,

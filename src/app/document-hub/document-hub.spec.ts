@@ -87,10 +87,14 @@ describe('DocumentHub', () => {
     expect(compiled.querySelector('[data-testid="document-hub-title"]')?.textContent).toContain(
       DOCUMENT_HUB_TITLE_EN,
     );
-    expect(compiled.querySelector('.featured-meeting h2')?.textContent).toContain('April Council Meeting');
-    expect(Array.from(compiled.querySelectorAll('.document-file-title')).map((element) => element.textContent?.trim())).toContain(
-      'April 2026 Agenda Packet',
+    expect(compiled.querySelector('.featured-meeting h2')?.textContent).toContain(
+      'April Council Meeting',
     );
+    expect(
+      Array.from(compiled.querySelectorAll('.document-file-title')).map((element) =>
+        element.textContent?.trim(),
+      ),
+    ).toContain('April 2026 Agenda Packet');
     expect(compiled.querySelector('.document-hub-button.primary')?.textContent).toContain(
       'Open records request form',
     );

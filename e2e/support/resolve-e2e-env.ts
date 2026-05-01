@@ -30,8 +30,7 @@ export function resolveE2eEnv(): ResolvedE2eEnv {
   }
 
   const rawPort = (process.env.E2E_PORT ?? '').trim();
-  const e2ePort =
-    rawPort === '' ? '4300' : /^\d{1,5}$/.test(rawPort) ? rawPort : 'INVALID';
+  const e2ePort = rawPort === '' ? '4300' : /^\d{1,5}$/.test(rawPort) ? rawPort : 'INVALID';
 
   if (e2ePort === 'INVALID') {
     throw new Error(

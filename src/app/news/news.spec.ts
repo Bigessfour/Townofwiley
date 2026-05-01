@@ -1,6 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { type CmsExternalNewsLink, type CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  type CmsExternalNewsLink,
+  type CmsNotice,
+  LocalizedCmsContentStore,
+} from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { News } from './news';
 
@@ -49,7 +53,9 @@ describe('News', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Town News and Announcements');
-    expect(compiled.querySelector('.featured-news-card h2')?.textContent).toContain('May Council Meeting');
+    expect(compiled.querySelector('.featured-news-card h2')?.textContent).toContain(
+      'May Council Meeting',
+    );
     expect(compiled.querySelector('.featured-news-date')?.textContent).toContain('May 1, 2026');
     expect(compiled.querySelector('.news-card h3')?.textContent).toContain('Water notice');
     expect(compiled.querySelector('.news-card--external .button-cta')?.getAttribute('href')).toBe(

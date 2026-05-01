@@ -107,7 +107,7 @@
           "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
-      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4300",
+      "command": "/opt/homebrew/opt/node@24/bin/npx --yes kill-port 4200 4300; /opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4300",
       "isBackground": true,
       "problemMatcher": [
         {
@@ -120,7 +120,7 @@
           "background": {
             "activeOnStart": true,
             "beginsPattern": ".",
-            "endsPattern": "Local:\\s+http://127.0.0.1:4300"
+            "endsPattern": "Local:.*127\\.0\\.0\\.1:4300"
           }
         }
       ],
@@ -180,6 +180,24 @@
       "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js test e2e/specs/smoke/feature-pages.spec.ts --project=desktop-chromium --grep \"meetings page keeps the calendar and meeting summary reachable\" --workers=1",
       "isBackground": false,
       "group": "test"
+    },
+    {
+      "label": "e2e: smoke preflight",
+      "type": "shell",
+      "command": "${config:python.defaultInterpreterPath}",
+      "args": ["${workspaceFolder}/scripts/e2e_smoke_preflight.py"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
+        }
+      },
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
     }
   ]
 }
