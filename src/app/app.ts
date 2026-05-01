@@ -39,6 +39,7 @@ import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { AppRouteLink, getAppRouteLink } from './internal-route-link';
 import { LoggingService } from './logging.service';
+import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import { RECORDS_CENTER_COPY } from './records-center/records-center';
 import {
   CmsAlertBanner,
@@ -197,7 +198,9 @@ type FeaturePageId =
   | 'privacy'
   | 'terms'
   | 'businesses'
-  | 'news';
+  | 'news'
+  | 'payments'
+  | 'permits';
 
 type FeatureTitles = Record<FeaturePageId, string>;
 
@@ -590,6 +593,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       terms: 'Weather alert SMS terms',
       businesses: 'Business directory',
       news: 'Town news',
+      payments: 'Utility bill payment',
+      permits: 'Permits and clerk',
     },
     footerLinks: [
       { label: 'Accessibility statement', href: '/accessibility' },
@@ -1006,6 +1011,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       terms: 'Terminos de SMS para alertas del clima',
       businesses: 'Directorio de negocios',
       news: 'Noticias del pueblo',
+      payments: 'Pago de factura de servicios',
+      permits: 'Permisos y secretaria',
     },
     footerLinks: [
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
@@ -1335,6 +1342,8 @@ export class App {
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
   private readonly headerEl = viewChild<ElementRef<HTMLElement>>('headerElement');
   private readonly platformId = inject(PLATFORM_ID);
+  /** Global offline/online toasts (side effect only). */
+  private readonly offlineConnectivityNotifier = inject(OfflineConnectivityNotifier);
   private readonly initialPath =
     typeof window !== 'undefined'
       ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
@@ -1446,6 +1455,8 @@ export class App {
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
   protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
+  protected readonly isPaymentsMode = computed(() => this.currentPath() === '/payments');
+  protected readonly isPermitsMode = computed(() => this.currentPath() === '/permits');
   protected readonly isTopLevelLazyRouteMode = computed(
     () => this.isAdminMode() || this.isClerkSetupMode() || this.isDocumentHubMode(),
   );
@@ -1461,7 +1472,9 @@ export class App {
       this.isPrivacyMode() ||
       this.isTermsMode() ||
       this.isBusinessesMode() ||
-      this.isNewsMode(),
+      this.isNewsMode() ||
+      this.isPaymentsMode() ||
+      this.isPermitsMode(),
   );
   protected readonly shouldPrimeWeatherAlerts = computed(
     () =>
@@ -1797,6 +1810,22 @@ export class App {
         title: 'Town News and Announcements',
         summary: 'Latest announcements, notices, and external news about Wiley.',
         href: '/news',
+        showOnHomepage: false,
+      },
+      {
+        id: 'payments',
+        kicker: copy.servicesKicker,
+        title: copy.featureTitles.payments,
+        summary: 'Pay utility bills online through the secure Paystar flow when configured.',
+        href: '/payments',
+        showOnHomepage: false,
+      },
+      {
+        id: 'permits',
+        kicker: 'Permits',
+        title: 'Permits & Inquiries',
+        summary: 'The town does not process permits online. Contact the Town Clerk for permit questions.',
+        href: '/permits',
         showOnHomepage: false,
       },
     ];

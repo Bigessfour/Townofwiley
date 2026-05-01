@@ -417,6 +417,14 @@
             <section class="feature-detail-stack">
               <router-outlet />
             </section>
+          } @else if (isPaymentsMode()) {
+            <section class="feature-detail-stack">
+              <router-outlet />
+            </section>
+          } @else if (isPermitsMode()) {
+            <section class="feature-detail-stack">
+              <router-outlet />
+            </section>
           } @else if (isNewsMode()) {
             <section class="feature-detail-stack">
               <router-outlet />
