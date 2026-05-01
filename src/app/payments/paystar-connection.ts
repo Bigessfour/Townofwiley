@@ -2,33 +2,22 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { LoggingService } from '../logging.service';
-import { SiteLanguage } from '../site-language';
+import type { SiteLanguage } from '../site-language';
 import { RuntimePaystarConfig, getPaystarRuntimeConfig } from './paystar-config';
+import type { PaystarProxyLaunchPayload, PaystarProxyLaunchResponse } from './paystar-api-contract';
 
-export interface PaystarLaunchRequest {
-  residentName: string;
-  serviceAddress: string;
-  accountNumber?: string;   // RMS utility account number
-  amount?: number;          // bill amount in dollars; Lambda converts to cents
-  preferredContact: string;
-  accountQuestion?: string;
-  locale: SiteLanguage;
-  source: 'resident-services' | 'payments-page';
-  dueDate?: string;         // YYYY-MM-DD
-  invoiceNumber?: string;
-  billSummary?: string;
-}
+/**
+ * Town payment form payload posted to the configured `apiEndpoint` (town proxy) or used for hosted redirect.
+ * Field mapping to Paystar’s REST or Embedded flows is completed in the proxy once tenant API details exist.
+ *
+ * @see https://docs.paystar.io/
+ */
+export type PaystarLaunchRequest = PaystarProxyLaunchPayload;
 
 /** Stored offline queue shape; `timestamp` is stripped before replaying the payment. */
 export type StoredQueuedPayment = PaystarLaunchRequest & { timestamp?: string };
 
-export interface PaystarLaunchResponse {
-  provider: 'paystar';
-  mode: 'hosted' | 'api';
-  launchUrl: string;
-  referenceId?: string;
-  expiresAt?: string;
-}
+export type PaystarLaunchResponse = PaystarProxyLaunchResponse;
 
 export interface ReceiptData {
   referenceId: string;
@@ -73,7 +62,8 @@ export class PaystarConnectionService {
       const response = await firstValueFrom(
         this.http.post<PaystarLaunchResponse>(runtimeConfig.apiEndpoint, {
           ...request,
-          amountInCents: request.amount !== undefined ? Math.round(request.amount * 100) : undefined,
+          amountInCents:
+            request.amount !== undefined ? Math.round(request.amount * 100) : undefined,
         }),
       );
       this.logging.log('info', 'Paystar session created', { referenceId: response.referenceId });
@@ -83,7 +73,7 @@ export class PaystarConnectionService {
       const message = (err as { error?: { message?: string } })?.error?.message;
       throw new Error(
         message ?? 'Unable to connect to Paystar right now. Please try again or call Town Hall.',
-        { cause: err }
+        { cause: err },
       );
     }
   }
@@ -96,7 +86,9 @@ export class PaystarConnectionService {
 
     try {
       const response = await firstValueFrom(
-        this.http.get<ReceiptData>(`${runtimeConfig.apiEndpoint}/receipt/${referenceId}?locale=${locale}`),
+        this.http.get<ReceiptData>(
+          `${runtimeConfig.apiEndpoint}/receipt/${referenceId}?locale=${locale}`,
+        ),
       );
       this.logging.log('info', 'Receipt fetched', { referenceId });
       return response;
@@ -107,14 +99,18 @@ export class PaystarConnectionService {
   }
 
   async queuePaymentOffline(request: PaystarLaunchRequest): Promise<void> {
-    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as StoredQueuedPayment[];
+    const queued = JSON.parse(
+      localStorage.getItem('pendingPayments') || '[]',
+    ) as StoredQueuedPayment[];
     queued.push({ ...request, timestamp: new Date().toISOString() });
     localStorage.setItem('pendingPayments', JSON.stringify(queued));
     this.logging.log('info', 'Payment queued offline', { accountNumber: request.accountNumber });
   }
 
   async syncQueuedPayments(): Promise<void> {
-    const raw = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as StoredQueuedPayment[];
+    const raw = JSON.parse(
+      localStorage.getItem('pendingPayments') || '[]',
+    ) as StoredQueuedPayment[];
     if (raw.length === 0) return;
 
     const remaining: StoredQueuedPayment[] = [];

@@ -46,16 +46,17 @@ describe('getPaystarRuntimeConfig', () => {
         },
       },
     };
-    (window as Window & { __TOW_RUNTIME_CONFIG_OVERRIDE__?: object }).__TOW_RUNTIME_CONFIG_OVERRIDE__ =
-      {
-        payments: {
-          paystar: {
-            mode: 'api',
-            apiEndpoint: '/e2e-mock-paystar',
-            portalUrl: '',
-          },
+    (
+      window as Window & { __TOW_RUNTIME_CONFIG_OVERRIDE__?: object }
+    ).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      payments: {
+        paystar: {
+          mode: 'api',
+          apiEndpoint: '/e2e-mock-paystar',
+          portalUrl: '',
         },
-      };
+      },
+    };
 
     expect(getPaystarRuntimeConfig()).toEqual({
       provider: 'paystar',

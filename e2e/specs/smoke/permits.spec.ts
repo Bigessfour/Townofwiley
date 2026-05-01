@@ -14,10 +14,10 @@ test.describe('Permits Page', () => {
     await expect(page.getByText(/contacte directamente al Secretario/i)).toBeVisible();
 
     // Clerk contact if present
-    if (await page.locator('[href^="mailto:"]').count() > 0) {
+    if ((await page.locator('[href^="mailto:"]').count()) > 0) {
       await expect(page.locator('[href^="mailto:"]')).toBeVisible();
     }
-    if (await page.locator('[href^="tel:"]').count() > 0) {
+    if ((await page.locator('[href^="tel:"]').count()) > 0) {
       await expect(page.locator('[href^="tel:"]')).toBeVisible();
     }
 

@@ -55,7 +55,9 @@
         </div>
 
         <nav class="resident-page-links flex flex-wrap gap-3" aria-label="Payment shortcuts">
-          <a routerLink="/payments" class="resident-contact-link">{{ copy().utilityBillFormLinkLabel }}</a>
+          <a routerLink="/payments" class="resident-contact-link">{{
+            copy().utilityBillFormLinkLabel
+          }}</a>
         </nav>
 
         <!-- Optional: Update Contact Info with Clerk -->
@@ -500,8 +502,12 @@
         </div>
 
         <nav class="resident-page-links flex flex-wrap gap-3" aria-label="Permits and businesses">
-          <a routerLink="/permits" class="resident-contact-link">{{ copy().permitsClerkInfoLinkLabel }}</a>
-          <a routerLink="/businesses" class="resident-contact-link">{{ copy().businessDirectoryLinkLabel }}</a>
+          <a routerLink="/permits" class="resident-contact-link">{{
+            copy().permitsClerkInfoLinkLabel
+          }}</a>
+          <a routerLink="/businesses" class="resident-contact-link">{{
+            copy().businessDirectoryLinkLabel
+          }}</a>
         </nav>
 
         <form class="resident-form grid gap-4" [formGroup]="recordsForm">

@@ -686,6 +686,8 @@
   /* Ultra-compact per PrimeNG MegaMenu template patterns and user request.
      Uses custom button group for minimal footprint while maintaining accessibility,
      touch targets (>=44px), contrast, and professional civic appearance. */
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   min-width: 0;

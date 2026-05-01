@@ -1,5 +1,10 @@
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ApplicationConfig, ErrorHandler, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  isDevMode,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';

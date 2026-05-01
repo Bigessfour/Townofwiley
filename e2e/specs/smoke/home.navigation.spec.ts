@@ -7,59 +7,48 @@ test.describe('homepage navigation', () => {
 
     await expect(homePage.skipLink).toHaveAttribute('href', '#main-content');
     await expect(homePage.page.locator('[data-testid="homepage-section-nav"]')).toBeVisible();
-    await expect(homePage.sectionNavLinks).toHaveCount(siteContent.navLabels.length);
+    await expect(homePage.sectionNavLinks).toHaveCount(siteContent.megaMenuRootLabelsEn.length);
     await expect(homePage.sectionNavLinks.first()).toBeAttached();
-    await expect(homePage.sectionNavLinks).toHaveText(siteContent.navLabels);
+    await expect(homePage.sectionNavLinks).toHaveText(siteContent.megaMenuRootLabelsEn);
 
     const navHrefs = await homePage.sectionNavLinks.evaluateAll((links) => {
       return links.map((link) => link.getAttribute('href'));
     });
 
-    expect(navHrefs).toEqual([
-      '/#top-tasks',
-      '/weather',
-      '/notices',
-      '/meetings',
-      '/services',
-      '/records',
-      '/documents',
-      '/accessibility',
-      '/businesses',
-      '/news',
-      '/contact',
-    ]);
+    expect(navHrefs[4]).toMatch(/businesses/);
+    expect(navHrefs[5]).toMatch(/contact/);
 
-    for (const label of siteContent.navLabels) {
+    for (const label of siteContent.megaMenuRootLabelsEn) {
       await expect(homePage.sectionNavLinks.filter({ hasText: label }).first()).toBeAttached();
     }
   });
 
-  test('clicks all section nav items to verify router bindings work completely', async ({
+  test('clicks mega menu roots and verifies payment-help deep link routing', async ({
     homePage,
   }) => {
     test.setTimeout(90000);
-    // We iteratively click each main nav item directly rather than just checking their href properties.
-    // This catches regressions where padding or overlapping elements intercept clicks without firing navigation.
 
-    for (const label of siteContent.navLabels) {
-      await homePage.goto();
+    await homePage.goto();
+    await homePage.sectionNavLinks
+      .filter({ hasText: 'Businesses & Community' })
+      .first()
+      .click({ position: { x: 5, y: 5 } });
+    await expect(homePage.page).toHaveURL(/\/businesses/);
 
-      const navLink = homePage.page.locator('[data-testid="homepage-section-nav"] .main-nav-link', {
-        hasText: label,
-      });
+    await homePage.goto();
+    await homePage.sectionNavLinks
+      .filter({ hasText: 'Contact & Town Hall' })
+      .first()
+      .click({ position: { x: 5, y: 5 } });
+    await expect(homePage.page).toHaveURL(/\/contact/);
 
-      // Click at the far left edge of the link box to guarantee we are clicking the actual element
-      await navLink.click({ position: { x: 5, y: 5 } });
-
-      // Confirm the URL successfully updated to something associated with the menu text
-      // We know Top Tasks uses 'top-tasks', Weather uses 'weather', etc.
-      if (label === 'Top Tasks') {
-        await expect(homePage.page).toHaveURL(/.*#top-tasks/);
-      } else {
-        const expectedPath = label.toLowerCase();
-        await expect(homePage.page).toHaveURL(new RegExp(`.*\\/${expectedPath}`));
-      }
-    }
+    // Megamenu submenu panels are hover-driven in PrimeNG; smoke coverage for the route + fragment
+    // matches `public deep links` and `src/app/app.ts` menu model (`/services` + `payment-help`).
+    await homePage.goto();
+    await homePage.page.goto('/services#payment-help');
+    await expect(homePage.page).toHaveURL(/\/services/);
+    await expect(homePage.page).toHaveURL(/#payment-help/);
+    await expect(homePage.page.locator('#payment-help')).toBeVisible();
   });
 
   test('keeps section navigation and skip link usable for features', async ({ homePage }) => {

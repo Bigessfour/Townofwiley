@@ -40,12 +40,16 @@ async function mockPaystarApiSuccess(page: import('@playwright/test').Page): Pro
 }
 
 test.describe('Payments page', () => {
-  test('submits payment and shows receipt when Paystar API mode is enabled', async ({ homePage }) => {
+  test('submits payment and shows receipt when Paystar API mode is enabled', async ({
+    homePage,
+  }) => {
     await homePage.enablePaystarApi(MOCK_API);
     await mockPaystarApiSuccess(homePage.page);
     await homePage.page.goto('/payments');
 
-    await expect(homePage.page.getByRole('heading', { name: /Pay Your Utility Bill/i })).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: /Pay Your Utility Bill/i }),
+    ).toBeVisible();
 
     await homePage.page.getByLabel(/Resident Name/i).fill('John Doe');
     await homePage.page.getByLabel(/Service Address/i).fill('123 Main St, Wiley, CO 81092');
@@ -106,7 +110,9 @@ test.describe('Payments page', () => {
 
     await homePage.page.locator('#site-language-es').click();
 
-    await expect(homePage.page.getByRole('heading', { name: /Pague Su Factura de Servicios/i })).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: /Pague Su Factura de Servicios/i }),
+    ).toBeVisible();
     await expect(homePage.page.getByLabel(/Nombre del Residente/i)).toBeVisible();
   });
 

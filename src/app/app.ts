@@ -1824,7 +1824,8 @@ export class App {
         id: 'permits',
         kicker: 'Permits',
         title: 'Permits & Inquiries',
-        summary: 'The town does not process permits online. Contact the Town Clerk for permit questions.',
+        summary:
+          'The town does not process permits online. Contact the Town Clerk for permit questions.',
         href: '/permits',
         showOnHomepage: false,
       },

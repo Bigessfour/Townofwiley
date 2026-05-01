@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -56,9 +64,7 @@ export class PaymentFormComponent {
     this.form.valueChanges
       .pipe(
         debounceTime(500),
-        distinctUntilChanged(
-          (a, b) => JSON.stringify(a) === JSON.stringify(b),
-        ),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => this.persistPaymentDraft(value));

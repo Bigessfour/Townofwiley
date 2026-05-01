@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,9 +16,9 @@ import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { DocumentRefreshService } from '../document-refresh.service';
 import { DocumentUploadService } from '../document-upload.service';
 import {
-    DOCUMENT_ARCHIVE,
-    type DocumentArchiveSectionId,
-    type PublishedDocument,
+  DOCUMENT_ARCHIVE,
+  type DocumentArchiveSectionId,
+  type PublishedDocument,
 } from './document-archive';
 
 interface DocumentAction {
@@ -69,8 +76,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     sectionNavLabel: 'Document hub sections',
     publishedArchiveKicker: 'Published now',
     publishedArchiveHeading: 'Downloadable public files available now',
-    publishedArchiveIntro:
-      'Browse the public documents that are currently available for download.',
+    publishedArchiveIntro: 'Browse the public documents that are currently available for download.',
     openDocumentLabel: 'Open document',
     downloadDocumentLabel: 'Download file',
     updatedLabel: 'Updated',
@@ -379,11 +385,14 @@ export class DocumentHub {
     if (!term) {
       return this.sections().flatMap((s) => s.publishedDocuments);
     }
-    return this.sections().flatMap((s) => s.publishedDocuments).filter((d) =>
-      d.title.toLowerCase().includes(term) ||
-      d.summary.toLowerCase().includes(term) ||
-      d.keywords.some((k) => k.toLowerCase().includes(term))
-    );
+    return this.sections()
+      .flatMap((s) => s.publishedDocuments)
+      .filter(
+        (d) =>
+          d.title.toLowerCase().includes(term) ||
+          d.summary.toLowerCase().includes(term) ||
+          d.keywords.some((k) => k.toLowerCase().includes(term)),
+      );
   });
 
   /** Incremental render for large archives (avoids heavy DOM on first paint). */
@@ -407,23 +416,28 @@ export class DocumentHub {
   protected readonly upcomingMeeting = computed(() => {
     const language = this.siteLanguageService.currentLanguage();
     const now = Date.now();
-    const nextEvent = this.cms.events()
-      .filter(e => new Date(e.start).getTime() > now)
+    const nextEvent = this.cms
+      .events()
+      .filter((e) => new Date(e.start).getTime() > now)
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())[0];
 
     if (nextEvent) {
       const locale = language === 'es' ? 'es-US' : 'en-US';
       const datePart = new Intl.DateTimeFormat(locale, {
-        month: 'long', day: 'numeric', year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
       }).format(new Date(nextEvent.start));
       const timePart = new Intl.DateTimeFormat(locale, {
-        hour: 'numeric', minute: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
       }).format(new Date(nextEvent.start));
       const at = language === 'es' ? 'a las' : 'at';
       return {
         title: nextEvent.title,
         date: `${datePart} ${at} ${timePart}`,
-        summary: nextEvent.description ||
+        summary:
+          nextEvent.description ||
           (language === 'es'
             ? 'Consulte la agenda completa con la secretaria antes de la reunion.'
             : 'See the full agenda. Contact the clerk to be placed on the agenda.'),
@@ -452,7 +466,10 @@ export class DocumentHub {
     this.archiveDisplayLimit.update((n) => n + DocumentHub.ARCHIVE_PAGE_SIZE);
   }
 
-  protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
+  protected resolveAppLink(
+    href: string | null | undefined,
+    defaultPath = '/documents',
+  ): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
   }
 
@@ -497,7 +514,11 @@ export class DocumentHub {
   }
 
   private formatDate(date: Date): string {
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return (
+      date.toLocaleDateString() +
+      ' ' +
+      date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    );
   }
 
   private getFormatFromType(mimeType: string): string {

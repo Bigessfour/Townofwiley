@@ -198,13 +198,7 @@
   "trunk.numJobs": 4,
   "trunk.trace.server": "off",
   "cSpell.words": ["datatable", "inputnumber", "selectbutton", "togglebutton"],
-  "todo-tree.general.tags": [
-    "TODO",
-    "FIXME",
-    "BUG",
-    "HACK",
-    "NOTE"
-  ],
+  "todo-tree.general.tags": ["TODO", "FIXME", "BUG", "HACK", "NOTE"],
   "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^\\s*\\*)\\s*($TAGS).*",
   "todo-tree.regex.tags": "TODO|FIXME|BUG|HACK|NOTE",
   "todo-tree.highlights.defaultDescription": "Click to toggle visibility of the Todo Tree panel",

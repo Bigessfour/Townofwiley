@@ -1,6 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -107,8 +121,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionBody:
       'Use these forms to request payment help, report an issue, or contact the clerk without searching for the right office.',
     taskPickerLabel: 'Choose a resident task',
-    taskPickerHelp:
-      'Choose the service you need and complete the matching form below.',
+    taskPickerHelp: 'Choose the service you need and complete the matching form below.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
@@ -273,7 +286,8 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     contactUpdateNotesLabel: 'Notas adicionales (opcional)',
     contactUpdateActionLabel: 'Enviar actualizacion de contacto a la secretaria',
     contactUpdateDismissLabel: 'No gracias, omitir por ahora',
-    contactUpdateEmptyMessage: 'Complete al menos un campo para enviar una actualizacion de contacto.',
+    contactUpdateEmptyMessage:
+      'Complete al menos un campo para enviar una actualizacion de contacto.',
     contactUpdateSuccessMessage: 'Informacion de contacto enviada a la secretaria. Gracias.',
     contactUpdateSubject: 'Actualizacion de informacion de contacto del residente',
     requiredFieldMessage: 'Este campo es obligatorio.',
@@ -317,7 +331,14 @@ type ContactUpdateFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule, RouterLink, InputTextModule, MessageModule, SelectModule, TextareaModule],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    InputTextModule,
+    MessageModule,
+    SelectModule,
+    TextareaModule,
+  ],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -535,7 +556,9 @@ export class ResidentServices {
       const values = this.paymentFormValue();
       const launch = await this.paystarConnection.createLaunchRequest({
         residentName: values.name?.trim() ?? '',
-        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()].filter(Boolean).join(', '),
+        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()]
+          .filter(Boolean)
+          .join(', '),
         preferredContact: [values.phone?.trim(), values.email?.trim()].filter(Boolean).join(' / '),
         accountQuestion: values.accountQuestion?.trim() ?? '',
         locale: this.siteLanguageService.currentLanguage(),
@@ -781,6 +804,3 @@ export class ResidentServices {
     return `mailto:${recipient}?${params.toString()}`;
   }
 }
-
-
-

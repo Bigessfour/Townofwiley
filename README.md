@@ -87,7 +87,7 @@ This is a client-side routed Angular SPA. Without a catch-all rule, deep links l
 The `postbuild` script (`scripts/generate-static-route-entrypoints.mjs`) copies `index.html` into each route subdirectory **and** into `dist/.../404.html`, so the app side is handled. The hosting layer also needs to be configured once in the Amplify Console:
 
 1. Open **Amplify Console → App → Hosting → Rewrites and redirects**.
-2. Add a rule: Source `</>`  — Target `/index.html`  — Type `200 (Rewrite)`.
+2. Add a rule: Source `</>` — Target `/index.html` — Type `200 (Rewrite)`.
 3. Save and redeploy.
 
 If the distribution is custom-managed in CloudFront directly, add an **Error pages** rule: HTTP 403 → `/404.html` (response code 200), and the same for HTTP 404.
@@ -193,21 +193,21 @@ Current security hardening:
 
 Required Amplify environment variables (set in Amplify Console → App settings → Environment variables for the `main` branch):
 
-| Variable | Purpose |
-|---|---|
-| `APPSYNC_CMS_ENDPOINT` | AppSync GraphQL endpoint URL |
-| `APPSYNC_CMS_API_KEY` | AppSync public-read API key |
-| `APPSYNC_CMS_REGION` | AWS region (e.g. `us-east-2`) |
-| `EASYPEASY_CHAT_URL` | Easy-Peasy bot embed URL |
-| `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup |
-| `SEVERE_WEATHER_SIGNUP_ENABLED` | `true` / `false` |
-| `LOG_ENDPOINT` | Frontend log ingest endpoint |
-| `CONTACT_UPDATE_API_ENDPOINT` | Lambda Function URL for contact updates |
-| `CLERK_SETUP_AWS_ACCOUNT_ID` | Town AWS account ID shown on the unified `/admin` CMS hub |
-| `CLERK_SETUP_AMPLIFY_APP_ID` | Amplify app ID used for the `/admin` CMS hub links |
-| `CLERK_SETUP_AWS_REGION` | AWS region used to build `/admin` console links |
-| `CLERK_SETUP_AWS_CONSOLE_URL` | Optional direct AWS console URL for the `/admin` CMS hub |
-| `CLERK_SETUP_STUDIO_URL` | Optional direct Amplify Studio URL for the `/admin` CMS hub |
+| Variable                             | Purpose                                                     |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `APPSYNC_CMS_ENDPOINT`               | AppSync GraphQL endpoint URL                                |
+| `APPSYNC_CMS_API_KEY`                | AppSync public-read API key                                 |
+| `APPSYNC_CMS_REGION`                 | AWS region (e.g. `us-east-2`)                               |
+| `EASYPEASY_CHAT_URL`                 | Easy-Peasy bot embed URL                                    |
+| `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                        |
+| `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
+| `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
+| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates                     |
+| `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
+| `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
+| `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |
+| `CLERK_SETUP_AWS_CONSOLE_URL`        | Optional direct AWS console URL for the `/admin` CMS hub    |
+| `CLERK_SETUP_STUDIO_URL`             | Optional direct Amplify Studio URL for the `/admin` CMS hub |
 
 If a variable is missing, `generate-runtime-config.mjs` silently falls back to an empty string; the feature that depends on it will degrade gracefully rather than break the build.
 
@@ -351,13 +351,18 @@ Current implementation status:
 
 - The public payment card still supports billing-help email as the fallback path.
 - A Paystar runtime-config scaffold now exists for the resident-services payment card.
-- A small town-managed proxy scaffold now exists so the website can keep a stable launch contract while the live processor configuration is finalized.
-- The current scaffold is intentionally hosted-first because Paystar's public utility documentation clearly supports linking an existing website into a hosted payment portal, while vendor-specific secret API details are not published publicly.
+- A town-managed proxy (`infrastructure/paystar-proxy`) implements:
+  - **Hosted portal mode**: returns the configured payer portal URL (matches Paystar’s turnkey hosted portal described in their docs).
+  - **Optional REST bridge**: when `PAYSTAR_UPSTREAM_LAUNCH_URL` and `PAYSTAR_UPSTREAM_API_KEY` are set on the Lambda, the proxy POSTs a documented town-side payload to Paystar’s tenant launch endpoint and maps common response shapes to the field the Angular app expects (`launchUrl`, `referenceId`, etc.). Paths and headers should be adjusted once Paystar confirms the contract from [their documentation](https://docs.paystar.io/).
+  - **Receipt stub**: `GET .../receipt/{id}` returns **501** until `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` (must include `{id}`) and the API key are configured—aligned with Query/Events-style APIs described for integrators.
+- Paystar **hosts** the payment APIs and portals; the Town does **not** need an “AWS host for Paystar’s API” to exist. You **do** typically need an AWS (or other) **edge** component—this Lambda (or similar)—to hold **secrets**, enforce CORS, and map payloads, because the browser must not ship vendor API keys. That matches Paystar’s model of hosted portals plus REST APIs and SDKs for deeper integration ([introduction](https://docs.paystar.io/)).
 
 Traceability:
 
 - `src/app/payments/paystar-config.ts`
 - `src/app/payments/paystar-connection.ts`
+- `src/app/payments/paystar-api-contract.ts` (town proxy HTTP contract)
+- `src/app/payments/paystar-docs.ts` (links + integration phases)
 - `src/app/resident-services/resident-services.ts`
 - `infrastructure/paystar-proxy/index.mjs`
 - `docs/incomplete-items-reference.md`
@@ -366,25 +371,33 @@ Runtime configuration sources:
 
 - `PAYSTAR_MODE`
 - `PAYSTAR_PORTAL_URL`
-- `PAYSTAR_API_ENDPOINT`
-- `secrets/local/user-secrets.json -> payments.paystar`
+- `PAYSTAR_API_ENDPOINT` (browser → town API Gateway / Function URL **base**, no trailing slash; app calls `POST` base and `GET` `{base}/receipt/{id}`)
+
+**Lambda-only environment variables** (never in `public/runtime-config.js`):
+
+- `PAYSTAR_UPSTREAM_LAUNCH_URL` — full URL Paystar gives for creating a payer session or checkout (set when credentials arrive).
+- `PAYSTAR_UPSTREAM_API_KEY` — secret; prefer **AWS Secrets Manager** with a small bootstrap in Lambda, or encrypted env in Lambda configuration.
+- `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` — optional; e.g. `https://api.vendor.example/payments/{id}/receipt` for GET receipt proxying.
+
+**AWS MCP:** This Cursor workspace does not include an AWS MCP server (only browser and optional todo tools). Configure API Gateway + Lambda + secrets in the [AWS Console](https://console.aws.amazon.com/) or your usual IaC (SAM/CDK/Terraform) using the variables above.
 
 Supported modes:
 
 - `none`: keep the resident-facing payment card on staff-help fallback only
-- `hosted`: open the secure Paystar portal directly from the homepage card
-- `api`: call a town-managed endpoint first, then launch the returned Paystar URL
+- `hosted`: open the secure Paystar portal directly from the homepage card (or via proxy returning the same URL)
+- `api`: call a town-managed endpoint first; proxy either forwards to Paystar REST (when upstream env is set) or returns the hosted portal URL
 
 Recommended near-term deployment path:
 
 1. Set `PAYSTAR_MODE=hosted`.
 2. Set `PAYSTAR_PORTAL_URL` to the Town's live Paystar payment page.
-3. Redeploy Amplify so the homepage payment card exposes the secure Paystar action.
-4. Keep the proxy scaffold for a later phase if the Town wants a deeper server-side launch or receipt workflow.
+3. Point `PAYSTAR_API_ENDPOINT` at the deployed paystar-proxy base URL when you want a single CORS-safe contract; until then the site can use hosted mode without the proxy.
+4. Redeploy Amplify so the homepage payment card exposes the secure Paystar action.
+5. When Paystar provides REST details, set upstream Lambda env vars and switch to `api` mode for server-mediated launch and (later) receipts.
 
 Operational note:
 
-- The current proxy scaffold does not attempt a direct private vendor integration. It normalizes the launch contract on the Town side and can later be extended once live Paystar credentials, posting behavior, and any non-public API details are confirmed.
+- Mapping inside `mapUpstreamJsonToTownLaunchResponse` and `buildUpstreamLaunchBody` are **scaffolds**; update them to match Paystar’s tenant OpenAPI when credentials are available.
 
 ## Town Email Aliases
 
@@ -760,20 +773,25 @@ Operational note:
 This section tracks progress on completing the site's incomplete features based on the AI coding guide analysis (see `docs/townofwiley-website-completion-todos.md`). Updates will be added here as each section reaches 10/10.
 
 ### 1. Functionality/Page Features (Target: 10/10)
+
 - Specs documented in `docs/feature-completion-spec.md`.
 - Build in progress: Payments, Docs Hub, Permits/Business Directory.
 - Review pending: Tests, manual validation on staging.
 
 ### 2. Review (Target: 10/10)
+
 - Pending: Expanded checklist and audits.
 
 ### 3. Building (Target: 10/10)
+
 - Pending: Test coverage improvements.
 
 ### 4. UX/Aesthetics (Target: 10/10)
+
 - Pending: Polish and accessibility fixes.
 
 ### 5. Overall "Done" Metrics (Target: 10/10)
+
 - Pending: Full validation and log.
 
 Final validation run: Pending. Current scores: Functionality 6/10 → progressing.

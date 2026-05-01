@@ -105,8 +105,10 @@ export class HomePage {
     this.communityFacts = page.locator('.fact-card');
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
-    this.sectionNavLinks = page.locator('[data-testid="homepage-section-nav"] .main-nav-link');
-    this.searchInput = page.locator('#site-search');
+    this.sectionNavLinks = page.locator(
+      '[data-testid="homepage-section-nav"] a.mega-menu-root-link',
+    );
+    this.searchInput = page.locator('#mega-site-search');
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');

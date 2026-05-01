@@ -13,14 +13,23 @@
   </header>
 
   @if (clerkContact()) {
-    <section id="clerk-contact" class="contact-section" role="region" aria-labelledby="clerk-heading">
+    <section
+      id="clerk-contact"
+      class="contact-section"
+      role="region"
+      aria-labelledby="clerk-heading"
+    >
       <h2 id="clerk-heading">{{ lang() === 'en' ? 'Town Clerk' : 'Secretario del Pueblo' }}</h2>
       <p>{{ clerkContact()?.value }}</p>
       @if (clerkEmail()) {
-        <a [href]="'mailto:' + clerkEmail()" aria-label="Email the Town Clerk">{{ lang() === 'en' ? 'Email Clerk' : 'Email al Secretario' }}</a>
+        <a [href]="'mailto:' + clerkEmail()" aria-label="Email the Town Clerk">{{
+          lang() === 'en' ? 'Email Clerk' : 'Email al Secretario'
+        }}</a>
       }
       @if (townPhone()) {
-        <a [href]="'tel:' + townPhone()" aria-label="Call Town Hall">{{ lang() === 'en' ? 'Call' : 'Llamar' }}: {{ townPhone() }}</a>
+        <a [href]="'tel:' + townPhone()" aria-label="Call Town Hall"
+          >{{ lang() === 'en' ? 'Call' : 'Llamar' }}: {{ townPhone() }}</a
+        >
       }
     </section>
   }
@@ -28,6 +37,9 @@
   <a
     routerLink="/services"
     class="back-link"
-    [attr.aria-label]="lang() === 'en' ? 'Back to Resident Services' : 'Volver a Servicios para residentes'"
-    >{{ lang() === 'en' ? 'Back to Services' : 'Volver a Servicios' }}</a>
+    [attr.aria-label]="
+      lang() === 'en' ? 'Back to Resident Services' : 'Volver a Servicios para residentes'
+    "
+    >{{ lang() === 'en' ? 'Back to Services' : 'Volver a Servicios' }}</a
+  >
 </div>

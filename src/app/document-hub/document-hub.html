@@ -1,7 +1,9 @@
 <main class="document-hub-shell" id="main-content" tabindex="-1">
   <section class="document-hub-hero" aria-labelledby="document-hub-heading">
     <p class="document-hub-kicker">{{ copy().kicker }}</p>
-    <h1 id="document-hub-heading" class="document-hub-title" data-testid="document-hub-title">{{ copy().title }}</h1>
+    <h1 id="document-hub-heading" class="document-hub-title" data-testid="document-hub-title">
+      {{ copy().title }}
+    </h1>
     <p class="document-hub-intro">{{ copy().intro }}</p>
 
     <div class="document-hub-actions">
@@ -18,12 +20,16 @@
     <h2 id="upcoming-heading">{{ upcomingMeeting().title }}</h2>
     <p>{{ upcomingMeeting().date }}</p>
     <p>{{ upcomingMeeting().summary }}</p>
-    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href">View Agenda Packet</a>
+    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href"
+      >View Agenda Packet</a
+    >
   </section>
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
     @for (section of sections(); track section.id) {
-      <a class="document-hub-nav-link" routerLink="/documents" [fragment]="section.id">{{ section.title }}</a>
+      <a class="document-hub-nav-link" routerLink="/documents" [fragment]="section.id">{{
+        section.title
+      }}</a>
     }
   </nav>
 

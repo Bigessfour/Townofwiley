@@ -13,18 +13,14 @@ export const siteContent = {
     'Request records, permits, or clerk help',
   ],
   communityFactLabels: ['Town profile', 'Location', 'Regional access'],
-  navLabels: [
-    'Top Tasks',
-    'Weather',
-    'Notices',
-    'Meetings',
-    'Services',
-    'Records',
-    'Documents',
-    'Accessibility',
-    'Businesses',
-    'News',
-    'Contact',
+  /** English mega menu root labels (matches `APP_COPY.en` in `app.ts`). */
+  megaMenuRootLabelsEn: [
+    'I Want To...',
+    'Government & Meetings',
+    'Services & Permits',
+    'News, Notices & Alerts',
+    'Businesses & Community',
+    'Contact & Town Hall',
   ],
   serviceLabels: [
     'Online payments',

@@ -17,7 +17,11 @@ export class PermitsComponent {
 
   lang = computed(() => this.langService.currentLanguage() || 'en');
   contacts = computed(() => this.cmsStore.contacts());
-  clerkContact = computed(() => this.contacts().find(c => c.id === 'city-clerk'));
+  clerkContact = computed(() => this.contacts().find((c) => c.id === 'city-clerk'));
   clerkEmail = computed(() => this.clerkContact()?.href?.replace('mailto:', ''));
-  townPhone = computed(() => this.contacts().find(c => c.id === 'town-information')?.href?.replace('tel:', ''));
+  townPhone = computed(() =>
+    this.contacts()
+      .find((c) => c.id === 'town-information')
+      ?.href?.replace('tel:', ''),
+  );
 }

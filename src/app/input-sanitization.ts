@@ -24,8 +24,5 @@ export function sanitizePlainText(value: string, maxLength: number): string {
       return true;
     })
     .join('');
-  return withoutControls
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, Math.max(0, maxLength));
+  return withoutControls.replace(/\s+/g, ' ').trim().slice(0, Math.max(0, maxLength));
 }

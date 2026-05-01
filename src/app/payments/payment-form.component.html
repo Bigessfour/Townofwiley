@@ -28,7 +28,9 @@
             [class.error]="form.get('residentName')?.invalid && form.get('residentName')?.touched"
           />
           @if (form.get('residentName')?.invalid && form.get('residentName')?.touched) {
-            <span id="name-error" role="alert" [attr.data-translate]="'validation.required'">Required</span>
+            <span id="name-error" role="alert" [attr.data-translate]="'validation.required'"
+              >Required</span
+            >
           }
         </div>
 
@@ -52,9 +54,14 @@
             aria-describedby="account-error"
           />
           @if (form.get('accountNumber')?.invalid && form.get('accountNumber')?.touched) {
-            <span id="account-error" role="alert" [attr.data-translate]="'validation.invalidAccount'">{{
-              currentLanguage() === 'en' ? 'Invalid account number' : 'Número de cuenta inválido'
-            }}</span>
+            <span
+              id="account-error"
+              role="alert"
+              [attr.data-translate]="'validation.invalidAccount'"
+              >{{
+                currentLanguage() === 'en' ? 'Invalid account number' : 'Número de cuenta inválido'
+              }}</span
+            >
           }
         </div>
 
@@ -62,7 +69,14 @@
           <label for="amount" [attr.data-translate]="'pay.form.amount'">{{
             currentLanguage() === 'en' ? 'Amount ($)' : 'Monto ($)'
           }}</label>
-          <input id="amount" formControlName="amount" type="number" step="0.01" min="0.01" required />
+          <input
+            id="amount"
+            formControlName="amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            required
+          />
         </div>
 
         <div class="form-group">
@@ -77,12 +91,16 @@
             aria-describedby="contact-error"
           />
           @if (form.get('preferredContact')?.invalid && form.get('preferredContact')?.touched) {
-            <span id="contact-error" role="alert" [attr.data-translate]="'validation.email'">Valid email required</span>
+            <span id="contact-error" role="alert" [attr.data-translate]="'validation.email'"
+              >Valid email required</span
+            >
           }
         </div>
 
         <div class="form-group">
-          <label for="dueDate">{{ currentLanguage() === 'en' ? 'Due Date (optional)' : 'Fecha de Vencimiento (opcional)' }}</label>
+          <label for="dueDate">{{
+            currentLanguage() === 'en' ? 'Due Date (optional)' : 'Fecha de Vencimiento (opcional)'
+          }}</label>
           <input id="dueDate" formControlName="dueDate" type="date" />
         </div>
 
@@ -118,22 +136,30 @@
               {{ receiptData()!.residentName }}
             </p>
             <p>
-              <strong>{{ currentLanguage() === 'en' ? 'Amount:' : 'Monto:' }}</strong> ${{ receiptData()!.amount }}
+              <strong>{{ currentLanguage() === 'en' ? 'Amount:' : 'Monto:' }}</strong> ${{
+                receiptData()!.amount
+              }}
             </p>
             <p>
-              <strong>{{ currentLanguage() === 'en' ? 'Date:' : 'Fecha:' }}</strong> {{ receiptData()!.date }}
+              <strong>{{ currentLanguage() === 'en' ? 'Date:' : 'Fecha:' }}</strong>
+              {{ receiptData()!.date }}
             </p>
             <p>
-              <strong>{{ currentLanguage() === 'en' ? 'Status:' : 'Estado:' }}</strong> {{ receiptData()!.status }}
+              <strong>{{ currentLanguage() === 'en' ? 'Status:' : 'Estado:' }}</strong>
+              {{ receiptData()!.status }}
             </p>
             <p>
               <strong>{{ currentLanguage() === 'en' ? 'Reference:' : 'Referencia:' }}</strong>
               {{ receiptData()!.referenceId }}
             </p>
           </div>
-          <button type="button" (click)="downloadReceipt()" [attr.data-translate]="'downloadReceipt'">{{
-            currentLanguage() === 'en' ? 'Download PDF' : 'Descargar PDF'
-          }}</button>
+          <button
+            type="button"
+            (click)="downloadReceipt()"
+            [attr.data-translate]="'downloadReceipt'"
+          >
+            {{ currentLanguage() === 'en' ? 'Download PDF' : 'Descargar PDF' }}
+          </button>
           <button type="button" (click)="closeReceipt()">
             {{ currentLanguage() === 'en' ? 'Close' : 'Cerrar' }}
           </button>

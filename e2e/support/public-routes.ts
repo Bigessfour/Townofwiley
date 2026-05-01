@@ -70,7 +70,9 @@ export const publicRouteContracts: PublicRouteContract[] = [
     label: 'permits page',
     heading: /Permits & Inquiries/i,
     primaryAction: (page) =>
-      page.getByRole('link', { name: /Back to Resident Services|Volver a Servicios para residentes/i }),
+      page.getByRole('link', {
+        name: /Back to Resident Services|Volver a Servicios para residentes/i,
+      }),
   },
   {
     path: '/news',

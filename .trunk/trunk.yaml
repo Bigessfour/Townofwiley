@@ -10,11 +10,17 @@ plugins:
       uri: https://github.com/trunk-io/plugins
 runtimes:
   enabled:
+    - go@1.21.0
     - node@24.0.0 # Matches project engines and .nvmrc preference
     - python@3.14.4
 lint:
   enabled:
-    - eslint@10.2.1
+    - shfmt@3.6.0
+    - shellcheck@0.11.0
+    - black@26.3.1
+    - isort@8.0.1
+    - actionlint@1.7.8
+    - eslint@10.3.0
     - prettier@3.8.3
     - markdownlint@0.48.0
     - git-diff-check

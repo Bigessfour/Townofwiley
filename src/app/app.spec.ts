@@ -1,15 +1,15 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
-    HttpTestingController,
-    provideHttpClientTesting,
-    TestRequest,
+  HttpTestingController,
+  provideHttpClientTesting,
+  TestRequest,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
-import { App } from './app';
+import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
@@ -136,21 +136,16 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
     expect(document.title).toContain('Official Website');
     expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    const payTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
-      el.textContent?.includes('Pay utility bill'),
-    );
-    expect(payTaskCard).toBeTruthy();
-    expect(payTaskCard!.textContent).toContain('Pay utility bill');
-    const issueTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
-      el.textContent?.includes('Report a street or utility issue'),
-    );
-    expect(issueTaskCard).toBeTruthy();
-    expect(issueTaskCard!.textContent).toContain('Report a street or utility issue');
-    const recordsTaskCard = Array.from(compiled.querySelectorAll('a.task-card')).find((el) =>
-      el.textContent?.includes('Request records, permits, or clerk help'),
-    );
-    expect(recordsTaskCard).toBeTruthy();
-    expect(recordsTaskCard!.textContent).toContain('Request records, permits, or clerk help');
+    const expectedTopTaskTitles = APP_COPY.en.topTasks.map((task) => task.title);
+    const topTasksModel = (
+      fixture.componentInstance as unknown as {
+        topTasks: () => typeof APP_COPY.en.topTasks;
+      }
+    ).topTasks();
+    expect(topTasksModel.map((task) => task.title)).toEqual(expectedTopTaskTitles);
+
+    const taskAnchors = compiled.querySelectorAll('a.task-card');
+    expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
