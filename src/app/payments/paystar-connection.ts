@@ -27,6 +27,16 @@ export interface PaystarLaunchResponse {
   expiresAt?: string;
 }
 
+export interface ReceiptData {
+  referenceId: string;
+  residentName: string;
+  amount: number;
+  date: string;
+  status: 'success' | 'pending' | 'failed';
+  preferredContact: string;
+  locale: SiteLanguage;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PaystarConnectionService {
   private readonly http = inject(HttpClient);
@@ -72,6 +82,52 @@ export class PaystarConnectionService {
         message ?? 'Unable to connect to Paystar right now. Please try again or call Town Hall.',
         { cause: err }
       );
+    }
+  }
+
+  async getReceipt(referenceId: string, locale: SiteLanguage): Promise<ReceiptData> {
+    const runtimeConfig = this.getRuntimeConfig();
+    if (!runtimeConfig.apiEndpoint) {
+      throw new Error('Receipt service not available.');
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ReceiptData>(`${runtimeConfig.apiEndpoint}/receipt/${referenceId}?locale=${locale}`),
+      );
+      this.logging.log('info', 'Receipt fetched', { referenceId });
+      return response;
+    } catch (err: unknown) {
+      this.logging.log('error', 'Receipt fetch failed', { referenceId, error: String(err) });
+      throw new Error('Unable to fetch receipt. Please contact support.', { cause: err });
+    }
+  }
+
+  async queuePaymentOffline(request: PaystarLaunchRequest): Promise<void> {
+    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as PaystarLaunchRequest[];
+    queued.push({ ...request, timestamp: new Date().toISOString() });
+    localStorage.setItem('pendingPayments', JSON.stringify(queued));
+    this.logging.log('info', 'Payment queued offline', { accountNumber: request.accountNumber });
+  }
+
+  async syncQueuedPayments(): Promise<void> {
+    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as PaystarLaunchRequest[];
+    if (queued.length === 0) return;
+
+    for (const request of queued) {
+      try {
+        await this.createLaunchRequest(request);
+        // Remove from queue on success
+        const index = queued.indexOf(request);
+        queued.splice(index, 1);
+      } catch (err) {
+        this.logging.log('error', 'Offline sync failed for request', { error: String(err) });
+        // Keep in queue for retry
+      }
+    }
+    localStorage.setItem('pendingPayments', JSON.stringify(queued));
+    if (queued.length === 0) {
+      localStorage.removeItem('pendingPayments');
     }
   }
 }

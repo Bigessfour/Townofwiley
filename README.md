@@ -754,3 +754,26 @@ Operational note:
 
 - The hook requires the Trunk CLI to be installed and on `PATH`.
 - The current repo-local Trunk configuration lives in [.trunk/trunk.yaml](.trunk/trunk.yaml).
+
+## Feature Completion Progress
+
+This section tracks progress on completing the site's incomplete features based on the AI coding guide analysis (see `docs/townofwiley-website-completion-todos.md`). Updates will be added here as each section reaches 10/10.
+
+### 1. Functionality/Page Features (Target: 10/10)
+- Specs documented in `docs/feature-completion-spec.md`.
+- Build in progress: Payments, Docs Hub, Permits/Business Directory.
+- Review pending: Tests, manual validation on staging.
+
+### 2. Review (Target: 10/10)
+- Pending: Expanded checklist and audits.
+
+### 3. Building (Target: 10/10)
+- Pending: Test coverage improvements.
+
+### 4. UX/Aesthetics (Target: 10/10)
+- Pending: Polish and accessibility fixes.
+
+### 5. Overall "Done" Metrics (Target: 10/10)
+- Pending: Full validation and log.
+
+Final validation run: Pending. Current scores: Functionality 6/10 → progressing.

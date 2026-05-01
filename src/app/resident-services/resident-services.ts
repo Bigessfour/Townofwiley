@@ -13,7 +13,7 @@ import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
-type RequestType = 'records' | 'permit' | 'license' | 'clerk';
+type RequestType = 'records' | 'license' | 'clerk';
 type ServicePanelId = 'payment' | 'issue' | 'records';
 
 interface SelectOption<TValue extends string> {
