@@ -1,12 +1,13 @@
 import { test as base, expect } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
+import { resolveE2eEnv } from '../support/resolve-e2e-env';
 import { mockDirectNwsRoutes } from '../support/weather-mocks';
 
 interface TownFixtures {
   homePage: HomePage;
 }
 
-const fallbackBaseUrl = `http://127.0.0.1:${process.env.E2E_PORT ?? '4300'}`;
+const { baseURL: configuredBaseUrl } = resolveE2eEnv();
 
 export const test = base.extend<TownFixtures>({
   homePage: async ({ page, baseURL }, use) => {
@@ -47,11 +48,19 @@ export const test = base.extend<TownFixtures>({
             apiKey: '',
           },
         },
+        payments: {
+          provider: 'paystar',
+          paystar: {
+            mode: 'none',
+            portalUrl: '',
+            apiEndpoint: '',
+          },
+        },
       };
     });
 
     await mockDirectNwsRoutes(page);
-    await use(new HomePage(page, baseURL ?? fallbackBaseUrl));
+    await use(new HomePage(page, baseURL ?? configuredBaseUrl));
   },
 });
 

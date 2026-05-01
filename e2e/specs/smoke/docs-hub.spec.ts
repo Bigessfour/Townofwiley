@@ -1,6 +1,9 @@
 import type { Page } from '@playwright/test';
 
-import { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from '../../../src/app/document-hub/document-hub-titles';
+import {
+  DOCUMENT_HUB_TITLE_EN,
+  DOCUMENT_HUB_TITLE_ES,
+} from '../../../src/app/document-hub/document-hub-titles';
 import { expect, test } from '../../fixtures/town.fixture';
 
 /** Spanish copy: `localStorage` must be `es` before Angular bootstraps `SiteLanguageService`. */

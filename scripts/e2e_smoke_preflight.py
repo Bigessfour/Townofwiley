@@ -24,7 +24,9 @@ from typing import Any
 def repo_root() -> Path:
     here = Path(__file__).resolve().parent.parent
     if not (here / "package.json").is_file():
-        sys.stderr.write("e2e_smoke_preflight.py: package.json not found next to scripts/\n")
+        sys.stderr.write(
+            "e2e_smoke_preflight.py: package.json not found next to scripts/\n"
+        )
         sys.exit(2)
     return here
 
@@ -80,7 +82,10 @@ process.stdout.write(exe);
     if r.returncode != 0:
         err = (r.stderr or r.stdout or "").strip()
         hint = "Run: npx playwright install chromium  (or playwright install --with-deps chromium in CI)"
-        return False, f"Chromium executable missing or playwright-core not loadable.\n{err}\n{hint}"
+        return (
+            False,
+            f"Chromium executable missing or playwright-core not loadable.\n{err}\n{hint}",
+        )
     return True, r.stdout.strip()
 
 
@@ -98,12 +103,16 @@ def main() -> int:
         pb = (os.environ.get("PLAYWRIGHT_BROWSERS_PATH") or "").strip()
         ephemeral = pb and re.search(r"cursor-sandbox|sandbox-cache", pb, re.I)
         if not pb or ephemeral:
-            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(Path.home() / ".cache" / "ms-playwright")
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(
+                Path.home() / ".cache" / "ms-playwright"
+            )
 
     pkg = load_package_json(root)
     engines = pkg.get("engines") if isinstance(pkg.get("engines"), dict) else {}
     engines_node = engines.get("node") if isinstance(engines, dict) else None
-    allowed = allowed_node_majors(engines_node if isinstance(engines_node, str) else None)
+    allowed = allowed_node_majors(
+        engines_node if isinstance(engines_node, str) else None
+    )
 
     rows: list[tuple[str, str, bool, str]] = []
 
@@ -128,16 +137,23 @@ def main() -> int:
     fix = (
         ""
         if node_ok
-        else f"Use Node {' or '.join(str(x) for x in sorted(allowed, reverse=True))}.x (see package.json engines and .nvmrc)"
-        if allowed
-        else "Install Node.js LTS"
+        else (
+            f"Use Node {' or '.join(str(x) for x in sorted(allowed, reverse=True))}.x (see package.json engines and .nvmrc)"
+            if allowed
+            else "Install Node.js LTS"
+        )
     )
     row("node", detail, node_ok, fix)
 
     # npm
     npr = run(["npm", "-v"], cwd=root)
     npm_ok = npr.returncode == 0
-    row("npm", (npr.stdout or npr.stderr or "").strip(), npm_ok, "Install npm or fix PATH")
+    row(
+        "npm",
+        (npr.stdout or npr.stderr or "").strip(),
+        npm_ok,
+        "Install npm or fix PATH",
+    )
 
     # Critical paths
     nm = root / "node_modules"
@@ -154,17 +170,32 @@ def main() -> int:
     ]
     for p in need_dirs:
         ok = p.is_dir()
-        row(f"path:{p.relative_to(root)}", "directory" if ok else "missing", ok, "Run: npm ci")
+        row(
+            f"path:{p.relative_to(root)}",
+            "directory" if ok else "missing",
+            ok,
+            "Run: npm ci",
+        )
     for p in need_files:
         ok = p.is_file()
-        row(f"path:{p.relative_to(root)}", "file" if ok else "missing", ok, "Run: npm ci")
+        row(
+            f"path:{p.relative_to(root)}",
+            "file" if ok else "missing",
+            ok,
+            "Run: npm ci",
+        )
 
     # Optional E2E_NODE
     e2e_node = (os.environ.get("E2E_NODE") or "").strip()
     if e2e_node:
         p = Path(e2e_node)
         ok = p.is_file() and os.access(p, os.X_OK)
-        row("E2E_NODE", str(p), ok, "Point E2E_NODE at a Node binary (e.g. Homebrew node@24)")
+        row(
+            "E2E_NODE",
+            str(p),
+            ok,
+            "Point E2E_NODE at a Node binary (e.g. Homebrew node@24)",
+        )
 
     # Chromium installed for this repo's playwright-core
     chrome_ok, chrome_msg = check_chromium_executable(root)

@@ -18,6 +18,7 @@
     "fossamagna.amplify-backend-vscode",
     "ms-playwright.playwright",
     "ms-python.python",
+    "ms-python.vscode-pylance",
     "trunk.io",
     "usernamehw.auto-rename-tag",
     "christian-kohler.path-intellisense",

@@ -16,16 +16,15 @@ Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
 ## Runtime Baseline
 
-- Supported production Node lines: `24.x` preferred, `22.x` acceptable
-- Do not deploy or build on odd-numbered current releases such as `25.x`
-- This workspace was last observed on local `node v25.2.1`, so switch locally before build and test runs if you want parity with Amplify
+- **Node.js `24.x` only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **Do not use Node 22, 25, or other majors** — several tools and native deps in this repo are pinned to the 24 line.
+- Use `.nvmrc` / `.node-version` (both `24`) with `nvm`, `fnm`, or Homebrew `node@24` so your shell `node` matches CI.
 
 Recommended local workflow:
 
 ```bash
 nvm install 24
 nvm use 24
-node -v
+node -v   # should report v24.x.x
 ```
 
 ## Deployment Record

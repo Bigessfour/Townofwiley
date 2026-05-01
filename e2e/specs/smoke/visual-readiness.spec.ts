@@ -121,7 +121,10 @@ async function expectReadableTypography(
 ): Promise<void> {
   await expect(locator).toBeVisible();
   await waitForTypographyReady(locator.page());
-  await expectMeaningfulLayoutBox(locator, `typography target (${expectedFont}, ≥${minimumFontSize}px)`);
+  await expectMeaningfulLayoutBox(
+    locator,
+    `typography target (${expectedFont}, ≥${minimumFontSize}px)`,
+  );
 
   await expect(async () => {
     const typography = await getTypographyMetrics(locator);
@@ -259,10 +262,7 @@ test.describe('visual readiness smoke', () => {
 
         await expectReadableTypography(heading, 'Fraunces', viewport.minHeadingSize);
         await expectReadableTypography(body, 'Source Sans 3', 16);
-        await expectNoHorizontalOverflow(
-          homePage.page,
-          `${routeContract.label} ${viewport.label}`,
-        );
+        await expectNoHorizontalOverflow(homePage.page, `${routeContract.label} ${viewport.label}`);
       });
     }
   }
