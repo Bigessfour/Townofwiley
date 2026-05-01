@@ -1,143 +1,132 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/town.fixture';
 
-test.describe('Payments Module', () => {
-  test.beforeEach(async ({ page }) => {
-    // Ensure English locale for base tests; Spanish variant separate
-    await page.goto('/');
-    // Click payments link in resident services (assuming selector from home)
-    await page.getByRole('link', { name: /payments|pay/i }).click();
-    // Wait for payments page to load
-    await expect(page.getByRole('heading', { name: /pay your bill/i })).toBeVisible();
+const MOCK_API = '/e2e-mock-paystar';
+
+async function mockPaystarApiSuccess(page: import('@playwright/test').Page): Promise<void> {
+  await page.route(`**${MOCK_API}/receipt/**`, async (route) => {
+    const url = route.request().url();
+    const locale = new URL(url).searchParams.get('locale') ?? 'en';
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        referenceId: 'REF-E2E-1',
+        residentName: 'John Doe',
+        amount: 50,
+        date: '2026-05-01',
+        status: 'success',
+        preferredContact: 'john@example.com',
+        locale,
+      }),
+    });
   });
 
-  test('successful payment flow with receipt', async ({ page }) => {
-    // Fill form with valid data
-    await page.getByLabel(/resident name/i).fill('John Doe');
-    await page.getByLabel(/service address/i).fill('123 Main St, Wiley, CO 81092');
-    await page.getByLabel(/account number/i).fill('ACC123456');
-    await page.getByLabel(/amount/i).fill('50.00');
-    await page.getByLabel(/preferred contact/i).fill('john@example.com');
-    await page.getByLabel(/due date/i).fill('2026-06-01'); // Future date
+  await page.route(`**${MOCK_API}`, async (route) => {
+    if (route.request().method() !== 'POST') {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        provider: 'paystar',
+        mode: 'api',
+        launchUrl: '',
+        referenceId: 'REF-E2E-1',
+      }),
+    });
+  });
+}
 
-    // Submit
-    await page.getByRole('button', { name: /submit payment/i }).click();
+test.describe('Payments page', () => {
+  test('submits payment and shows receipt when Paystar API mode is enabled', async ({ homePage }) => {
+    await homePage.enablePaystarApi(MOCK_API);
+    await mockPaystarApiSuccess(homePage.page);
+    await homePage.page.goto('/payments');
 
-    // Expect loading state then success
-    await expect(page.getByText(/processing/i)).toBeVisible({ timeout: 5000 });
-    await expect(page.getByRole('alert', { name: /payment successful/i })).toBeVisible();
-    await expect(page.getByText(/error/i)).not.toBeVisible();
+    await expect(homePage.page.getByRole('heading', { name: /Pay Your Utility Bill/i })).toBeVisible();
 
-    // Receipt generation
-    await page.getByRole('button', { name: /view receipt/i }).click();
-    await expect(page.locator('#receipt-modal')).toBeVisible();
-    await expect(page.locator('#receipt-content')).toContainText('John Doe');
-    await expect(page.locator('#receipt-content')).toContainText('$50.00');
-    await expect(page.locator('#receipt-content')).toContainText('Payment confirmed');
-    // Download link works (check attribute)
-    const downloadLink = page.locator('#receipt-download');
-    await expect(downloadLink).toHaveAttribute('href', expect.stringContaining('.pdf'));
-    await expect(downloadLink).toHaveAttribute('download', 'receipt.pdf');
+    await homePage.page.getByLabel(/Resident Name/i).fill('John Doe');
+    await homePage.page.getByLabel(/Service Address/i).fill('123 Main St, Wiley, CO 81092');
+    await homePage.page.getByLabel(/^Account Number/i).fill('ACC12345');
+    await homePage.page.getByLabel(/^Amount/i).fill('50');
+    await homePage.page.getByLabel(/Preferred Contact/i).fill('john@example.com');
+
+    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
+
+    await expect(homePage.page.getByText(/Payment processed successfully/i)).toBeVisible();
+    await expect(homePage.page.locator('#receipt-content')).toContainText('John Doe');
+    await expect(homePage.page.locator('#receipt-content')).toContainText('50');
   });
 
-  test('invalid account error handling', async ({ page }) => {
-    // Fill with invalid account
-    await page.getByLabel(/resident name/i).fill('Jane Doe');
-    await page.getByLabel(/service address/i).fill('456 Elm St, Wiley, CO 81092');
-    await page.getByLabel(/account number/i).fill('INVALID123');
-    await page.getByLabel(/amount/i).fill('10.00');
-    await page.getByLabel(/preferred contact/i).fill('jane@example.com');
+  test('blocks submit and shows validation for a short account number', async ({ homePage }) => {
+    await homePage.enablePaystarApi(MOCK_API);
+    await homePage.page.goto('/payments');
 
-    // Submit
-    await page.getByRole('button', { name: /submit payment/i }).click();
+    await homePage.page.getByLabel(/Resident Name/i).fill('Jane Doe');
+    await homePage.page.getByLabel(/Service Address/i).fill('456 Elm St, Wiley, CO 81092');
+    await homePage.page.getByLabel(/^Account Number/i).fill('SHORT');
+    await homePage.page.getByLabel(/^Amount/i).fill('10');
+    await homePage.page.getByLabel(/Preferred Contact/i).fill('jane@example.com');
+    await homePage.page.getByLabel(/^Account Number/i).blur();
 
-    // Expect error without success
-    await expect(page.getByRole('alert', { name: /invalid account/i })).toBeVisible();
-    await expect(page.getByRole('alert', { name: /payment successful/i })).not.toBeVisible();
-    // Form retains invalid value
-    await expect(page.getByLabel(/account number/i)).toHaveValue('INVALID123');
-    // No receipt shown
-    await expect(page.locator('#receipt-modal')).not.toBeVisible();
+    await expect(homePage.page.getByText(/Invalid account number/i)).toBeVisible();
+    await expect(homePage.page.getByRole('button', { name: /Submit Payment/i })).toBeDisabled();
   });
 
-  test('500 server error graceful handling', async ({ page, browserName }) => {
-    // Fill valid form
-    await page.getByLabel(/resident name/i).fill('Error Test');
-    await page.getByLabel(/service address/i).fill('789 Oak St, Wiley, CO 81092');
-    await page.getByLabel(/account number/i).fill('ACC789012');
-    await page.getByLabel(/amount/i).fill('20.00');
-    await page.getByLabel(/preferred contact/i).fill('error@example.com');
-
-    // Mock 500 response for proxy
-    await page.route('**/paystar-proxy**', async route => {
-      await route.fulfill({ status: 500, body: JSON.stringify({ error: 'Server error' }) });
+  test('shows error alert with retry after Paystar API returns 500', async ({ homePage }) => {
+    await homePage.enablePaystarApi(MOCK_API);
+    await homePage.page.route(`**${MOCK_API}`, async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({ status: 500, body: JSON.stringify({ error: 'Server error' }) });
+        return;
+      }
+      await route.continue();
     });
 
-    // Submit
-    await page.getByRole('button', { name: /submit payment/i }).click();
+    await homePage.page.goto('/payments');
 
-    // Expect global error handler
-    await expect(page.getByRole('alert', { name: /server error.*try again/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /retry/i })).toBeVisible();
-    // No crash, form intact
-    await expect(page.getByLabel(/resident name/i)).toHaveValue('Error Test');
+    await homePage.page.getByLabel(/Resident Name/i).fill('Error Test');
+    await homePage.page.getByLabel(/Service Address/i).fill('789 Oak St, Wiley, CO 81092');
+    await homePage.page.getByLabel(/^Account Number/i).fill('ACC789012');
+    await homePage.page.getByLabel(/^Amount/i).fill('20');
+    await homePage.page.getByLabel(/Preferred Contact/i).fill('error@example.com');
+
+    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
+
+    await expect(homePage.page.locator('.error-alert')).toBeVisible();
+    await expect(homePage.page.getByRole('button', { name: /^Retry$/i })).toBeVisible();
   });
 
-  test('bilingual payment flow (Spanish)', async ({ page }) => {
-    // Switch to Spanish
-    await page.getByRole('button', { name: /español/i }).click();
-    await expect(page.getByText(/idioma|language/i)).toContainText(/español/i);
+  test('offers Spanish labels after switching site language', async ({ homePage }) => {
+    await homePage.enablePaystarApi(MOCK_API);
+    await mockPaystarApiSuccess(homePage.page);
+    await homePage.page.goto('/payments');
 
-    // Navigate back to payments
-    await page.goto('/payments'); // Assume route
-    await expect(page.getByRole('heading', { name: /pague su factura/i })).toBeVisible();
+    await homePage.page.locator('#site-language-es').click();
 
-    // Fill form (labels in Spanish)
-    await page.getByLabel(/nombre del residente/i).fill('Juan Pérez');
-    await page.getByLabel(/dirección del servicio/i).fill('123 Calle Principal, Wiley, CO 81092');
-    await page.getByLabel(/número de cuenta/i).fill('ACC123456');
-    await page.getByLabel(/monto/i).fill('50.00');
-    await page.getByLabel(/contacto preferido/i).fill('juan@example.com');
-
-    // Submit
-    await page.getByRole('button', { name: /enviar pago/i }).click();
-
-    // Success in Spanish
-    await expect(page.getByRole('alert', { name: /pago exitoso/i })).toBeVisible();
-
-    // Receipt in Spanish
-    await page.getByRole('button', { name: /ver recibo/i }).click();
-    await expect(page.locator('#receipt-content')).toContainText('Juan Pérez');
-    await expect(page.locator('#receipt-content')).toContainText('Pago confirmado');
-    await expect(page.locator('#receipt-content')).toContainText('recibo'); // Spanish term
+    await expect(homePage.page.getByRole('heading', { name: /Pague Su Factura de Servicios/i })).toBeVisible();
+    await expect(homePage.page.getByLabel(/Nombre del Residente/i)).toBeVisible();
   });
 
-  test('file size limit and offline queue', async ({ page }) => {
-    // Offline: Mock network disconnect during submit
-    await page.route('**/*', route => route.continue());
-    await page.setOffline(true);
+  test('queues a payment in localStorage when the browser is offline', async ({ homePage }) => {
+    await homePage.enablePaystarApi(MOCK_API);
+    await homePage.page.goto('/payments');
+    await homePage.page.context().setOffline(true);
 
-    // Fill form
-    await page.getByLabel(/resident name/i).fill('Offline User');
-    await page.getByLabel(/service address/i).fill('Offline St, Wiley, CO');
-    await page.getByLabel(/account number/i).fill('OFF123');
-    await page.getByLabel(/amount/i).fill('30.00');
-    await page.getByLabel(/preferred contact/i).fill('offline@example.com');
+    await homePage.page.getByLabel(/Resident Name/i).fill('Offline User');
+    await homePage.page.getByLabel(/Service Address/i).fill('100 Offline Rd, Wiley, CO');
+    await homePage.page.getByLabel(/^Account Number/i).fill('OFFLINE1');
+    await homePage.page.getByLabel(/^Amount/i).fill('30');
+    await homePage.page.getByLabel(/Preferred Contact/i).fill('offline@example.com');
 
-    // Submit offline
-    await page.getByRole('button', { name: /submit payment/i }).click();
+    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
 
-    // Expect queue notification
-    await expect(page.getByRole('alert', { name: /offline.*queued/i })).toBeVisible();
-    // Check localStorage for queued payment
-    const storage = await page.evaluate(() => localStorage.getItem('pendingPayments'));
-    expect(storage).toContain('OFF123');
+    await expect(homePage.page.getByText(/queued offline/i)).toBeVisible();
+    const raw = await homePage.page.evaluate(() => localStorage.getItem('pendingPayments'));
+    expect(raw).toContain('OFFLINE1');
 
-    // Reconnect and sync
-    await page.setOffline(false);
-    await page.getByRole('button', { name: /sync pending/i }).click();
-    await expect(page.getByRole('alert', { name: /synced successfully/i })).toBeVisible();
-    // localStorage cleared
-    const cleared = await page.evaluate(() => localStorage.getItem('pendingPayments'));
-    expect(cleared).toBeNull();
+    await homePage.page.context().setOffline(false);
   });
 });

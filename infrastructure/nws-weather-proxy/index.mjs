@@ -1,7 +1,11 @@
 const ALLOWED_ORIGINS = new Set([
   'https://townofwiley.gov',
   'https://www.townofwiley.gov',
+  'https://staging.townofwiley.gov',
   'http://localhost:4200',
+  'http://localhost:4300',
+  'http://127.0.0.1:4200',
+  'http://127.0.0.1:4300',
 ]);
 
 function buildCorsHeaders(requestOrigin) {

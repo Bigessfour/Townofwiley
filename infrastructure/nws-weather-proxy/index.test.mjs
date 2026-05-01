@@ -207,6 +207,16 @@ test('returns 204 for OPTIONS preflight with CORS headers', async () => {
   assert.equal(response.headers.vary, 'Origin');
 });
 
+test('OPTIONS reflects staging origin when allowlisted', async () => {
+  const response = await handler({
+    headers: { origin: 'https://staging.townofwiley.gov' },
+    requestContext: { http: { method: 'OPTIONS' } },
+  });
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(response.headers['access-control-allow-origin'], 'https://staging.townofwiley.gov');
+});
+
 test('returns 405 for unsupported methods', async () => {
   const response = await handler({ requestContext: { http: { method: 'POST' } } });
   const body = JSON.parse(response.body);

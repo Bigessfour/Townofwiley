@@ -13,11 +13,14 @@ export interface PaystarLaunchRequest {
   preferredContact: string;
   accountQuestion?: string;
   locale: SiteLanguage;
-  source: 'resident-services';
+  source: 'resident-services' | 'payments-page';
   dueDate?: string;         // YYYY-MM-DD
   invoiceNumber?: string;
   billSummary?: string;
 }
+
+/** Stored offline queue shape; `timestamp` is stripped before replaying the payment. */
+export type StoredQueuedPayment = PaystarLaunchRequest & { timestamp?: string };
 
 export interface PaystarLaunchResponse {
   provider: 'paystar';
@@ -104,30 +107,33 @@ export class PaystarConnectionService {
   }
 
   async queuePaymentOffline(request: PaystarLaunchRequest): Promise<void> {
-    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as PaystarLaunchRequest[];
+    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as StoredQueuedPayment[];
     queued.push({ ...request, timestamp: new Date().toISOString() });
     localStorage.setItem('pendingPayments', JSON.stringify(queued));
     this.logging.log('info', 'Payment queued offline', { accountNumber: request.accountNumber });
   }
 
   async syncQueuedPayments(): Promise<void> {
-    const queued = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as PaystarLaunchRequest[];
-    if (queued.length === 0) return;
+    const raw = JSON.parse(localStorage.getItem('pendingPayments') || '[]') as StoredQueuedPayment[];
+    if (raw.length === 0) return;
 
-    for (const request of queued) {
+    const remaining: StoredQueuedPayment[] = [];
+
+    for (const item of raw) {
+      const { timestamp, ...request } = item;
+      void timestamp;
       try {
         await this.createLaunchRequest(request);
-        // Remove from queue on success
-        const index = queued.indexOf(request);
-        queued.splice(index, 1);
       } catch (err) {
         this.logging.log('error', 'Offline sync failed for request', { error: String(err) });
-        // Keep in queue for retry
+        remaining.push(item);
       }
     }
-    localStorage.setItem('pendingPayments', JSON.stringify(queued));
-    if (queued.length === 0) {
+
+    if (remaining.length === 0) {
       localStorage.removeItem('pendingPayments');
+    } else {
+      localStorage.setItem('pendingPayments', JSON.stringify(remaining));
     }
   }
 }

@@ -60,6 +60,19 @@ export const publicRouteContracts: PublicRouteContract[] = [
     primaryAction: (page) => page.getByLabel('Search local businesses'),
   },
   {
+    path: '/payments',
+    label: 'payments page',
+    heading: /Pay Your Utility Bill/i,
+    primaryAction: (page) => page.getByRole('button', { name: /Submit Payment/i }),
+  },
+  {
+    path: '/permits',
+    label: 'permits page',
+    heading: /Permits & Inquiries/i,
+    primaryAction: (page) =>
+      page.getByRole('link', { name: /Back to Resident Services|Volver a Servicios para residentes/i }),
+  },
+  {
     path: '/news',
     label: 'news page',
     heading: 'Town News and Announcements',

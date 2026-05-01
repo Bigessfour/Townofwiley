@@ -1,33 +1,25 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Business Directory', () => {
-  test('searches and filters businesses, bilingual support', async ({ page }) => {
+test.describe('Business directory', () => {
+  test('search filters listings and shows an empty state', async ({ page }) => {
     await page.goto('/businesses');
 
-    // Expect heading
-    await expect(page.getByRole('heading', { name: /Business Directory/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Wiley Community Business Directory' })).toBeVisible();
 
-    // Search
-    await page.fill('[type="search"]', 'Wiley');
-    await expect(page.locator('.business-card')).toHaveCount(>0);
-    await expect(page.locator('.business-card').first()).toContainText('Wiley');
+    await page.getByLabel('Search local businesses').fill('Tempel');
+    await expect(page.locator('.public-directory-card').first()).toBeVisible();
+    await expect(page.locator('.public-directory-card').first()).toContainText('Tempel');
 
-    // Filter
-    await page.selectOption('select', 'Retail');
-    await expect(page.locator('.business-card')).toHaveCount(>0);
-    await expect(page.locator('.business-card').first()).toContainText('Retail');
+    const contactLink = page
+      .locator('.public-directory-card')
+      .first()
+      .locator('a[href^="mailto:"], a[href^="tel:"]')
+      .first();
+    await expect(contactLink).toBeVisible();
 
-    // Bilingual
-    await page.getByRole('button', { name: /español/i }).click();
-    await expect(page.getByRole('heading', { name: /Directorio de Negocios/i })).toBeVisible();
-    await page.fill('[type="search"]', 'Tienda');
-    await expect(page.locator('.business-card')).toContainText('Tienda General Wiley');
-
-    // Contact links
-    await expect(page.locator('a[href^="mailto:"]')).toBeVisible();
-
-    // No results
-    await page.fill('[type="search"]', 'nonexistent');
-    await expect(page.getByText(/No businesses found/i)).toBeVisible();
+    await page.getByLabel('Search local businesses').fill('nonexistent-search-xyz-123');
+    await expect(
+      page.getByText(/No businesses match your search/i),
+    ).toBeVisible();
   });
 });

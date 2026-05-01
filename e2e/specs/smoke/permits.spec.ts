@@ -6,10 +6,10 @@ test.describe('Permits Page', () => {
 
     // Expect heading and description
     await expect(page.getByRole('heading', { name: /Permits & Inquiries/i })).toBeVisible();
-    await expect(page.getByText(/contact the Town Clerk/i)).toBeVisible();
+    await expect(page.getByText(/contact the city or Town Clerk/i)).toBeVisible();
 
     // Spanish
-    await page.getByRole('button', { name: /español/i }).click();
+    await page.locator('#site-language-es').click();
     await expect(page.getByRole('heading', { name: /Permisos e Indagaciones/i })).toBeVisible();
     await expect(page.getByText(/contacte directamente al Secretario/i)).toBeVisible();
 
@@ -21,8 +21,10 @@ test.describe('Permits Page', () => {
       await expect(page.locator('[href^="tel:"]')).toBeVisible();
     }
 
-    // Back link
-    await page.getByRole('link', { name: /Back to Services/i }).click();
+    // Back link (label depends on site language)
+    await page
+      .getByRole('link', { name: /Back to Resident Services|Volver a Servicios para residentes/i })
+      .click();
     await expect(page).toHaveURL(/services/);
   });
 });

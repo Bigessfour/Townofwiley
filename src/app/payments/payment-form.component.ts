@@ -1,1 +1,226 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed, effect } from '@angular/core';\nimport { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';\nimport { RouterModule } from '@angular/router';\nimport { CommonModule } from '@angular/common';\nimport { PaystarConnectionService, PaystarLaunchRequest, ReceiptData } from './paystar-connection';\nimport { LoggingService } from '../logging.service';\nimport { SiteLanguage, getCurrentLanguage } from '../site-language';\n// Remove GlobalErrorHandler if not exist; use logging instead\n\n@Component({\n  selector: 'app-payment-form',\n  standalone: true,\n  imports: [CommonModule, ReactiveFormsModule, RouterModule],\n  templateUrl: './payment-form.component.html',\n  templateUrl: './payment-form.component.html',\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class PaymentFormComponent {\n  private fb = inject(FormBuilder);\n  private paystarService = inject(PaystarConnectionService);\n  private logging = inject(LoggingService);\n  // private errorHandler = inject(GlobalErrorHandlerService); // Use logging for errors\n\n  form: FormGroup;\n  currentLanguage = signal<SiteLanguage>(getCurrentLanguage());\n  loading = signal(false);\n  errorMessage = signal('');\n  successMessage = signal('');\n  receiptData = signal<ReceiptData | null>(null);\n  referenceId = signal<string | null>(null);\n\n  // Computed for validation errors\n  hasErrors = computed(() => !!this.errorMessage());\n  isSuccess = computed(() => !!this.successMessage() || !!this.receiptData());\n\n  // Form state signal\n  formState = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');\n\n  constructor() {\n    this.form = this.fb.group({\n      residentName: ['', [Validators.required, Validators.minLength(2)]],\n      serviceAddress: ['', [Validators.required]],\n      accountNumber: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{8,12}$/)]], // Example pattern\n      amount: [null, [Validators.required, Validators.min(0.01)]],\n      preferredContact: ['', [Validators.required, Validators.email]],\n      dueDate: [''],\n    });\n\n    // Effect for language change\n    effect(() => {\n      this.currentLanguage.set(getCurrentLanguage());\n      // Re-validate or update labels if needed\n    });\n\n    // Check for queued payments on init\n    this.checkOfflineQueue();\n  }\n\n  async onSubmit() {\n    if (this.form.invalid) {\n      this.errorMessage.set('Please fill all required fields correctly.');\n      this.formState.set('error');\n      return;\n    }\n\n    this.loading.set(true);\n    this.errorMessage.set('');\n    this.successMessage.set('');\n    this.formState.set('submitting');\n\n    const request: PaystarLaunchRequest = {\n      ...this.form.value,\n      locale: this.currentLanguage(),\n      source: 'payments-page',\n    };\n\n    try {\n      if ('navigator' in window && 'onLine' in navigator && !navigator.onLine) {\n        await this.paystarService.queuePaymentOffline(request);\n        this.successMessage.set('Payment queued offline. It will sync when online.');\n        this.formState.set('success');\n        return;\n      }\n\n      const response = await this.paystarService.createLaunchRequest(request);\n      this.referenceId.set(response.referenceId);\n\n      if (response.mode === 'hosted') {\n        window.location.href = response.launchUrl;\n        return;\n      }\n\n      // For API mode, show success and fetch receipt\n      this.successMessage.set('Payment processed successfully!');\n      if (response.referenceId) {\n        const receipt = await this.paystarService.getReceipt(response.referenceId, this.currentLanguage());\n        this.receiptData.set(receipt);\n      }\n      this.formState.set('success');\n    } catch (err: any) {\n      this.logging.log('error', 'Payment submission failed', { error: err.message });\n      this.logging.log('error', 'Payment error handled', { error: err.message });\n      this.errorMessage.set(err.message || 'Payment failed. Please try again.');\n      this.formState.set('error');\n    } finally {\n      this.loading.set(false);\n      // Always attempt sync if online\n      if (navigator.onLine) {\n        await this.paystarService.syncQueuedPayments();\n      }\n    }\n  }\n\n  async retry() {\n    this.formState.set('idle');\n    this.errorMessage.set('');\n    await this.paystarService.syncQueuedPayments();\n  }\n\n  async downloadReceipt() {\n    if (!this.receiptData()) return;\n\n    // Generate PDF client-side or fetch blob\n    const receiptBlob = await this.generateReceiptPDF(this.receiptData()!);\n    const url = URL.createObjectURL(receiptBlob);\n    const a = document.createElement('a');\n    a.href = url;\n    a.download = `receipt-${this.receiptData()!.referenceId}.pdf`;\n    a.click();\n    URL.revokeObjectURL(url);\n  }\n\n  private async generateReceiptPDF(data: ReceiptData): Promise<Blob> {\n    // Simple text to PDF using jsPDF or similar; assume imported\n    // For now, return a text blob as PDF placeholder\n    const content = `\nReceipt for ${data.residentName}\nAmount: $${data.amount}\nDate: ${data.date}\nStatus: ${data.status}\nContact: ${data.preferredContact}\nReference: ${data.referenceId}\n`;\n    return new Blob([content], { type: 'application/pdf' });\n  }\n\n  private async checkOfflineQueue() {\n    if (navigator.onLine) {\n      await this.paystarService.syncQueuedPayments();\n    }\n  }\n}
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { PaystarConnectionService, PaystarLaunchRequest, ReceiptData } from './paystar-connection';
+import { LoggingService } from '../logging.service';
+import { sanitizePlainText } from '../input-sanitization';
+import { SiteLanguage, SiteLanguageService } from '../site-language';
+
+@Component({
+  selector: 'app-payment-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  templateUrl: './payment-form.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PaymentFormComponent {
+  private static readonly PAYMENT_DRAFT_KEY = 'tow-payment-form-draft';
+
+  private readonly fb = inject(FormBuilder);
+  private readonly paystarService = inject(PaystarConnectionService);
+  private readonly logging = inject(LoggingService);
+  private readonly siteLanguage = inject(SiteLanguageService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly form: FormGroup;
+  readonly currentLanguage = signal<SiteLanguage>(this.siteLanguage.currentLanguage());
+  readonly loading = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly receiptData = signal<ReceiptData | null>(null);
+  readonly referenceId = signal<string | null>(null);
+
+  readonly hasErrors = computed(() => !!this.errorMessage());
+  readonly isSuccess = computed(() => !!this.successMessage() || !!this.receiptData());
+
+  readonly formState = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+  constructor() {
+    this.form = this.fb.group({
+      residentName: ['', [Validators.required, Validators.minLength(2)]],
+      serviceAddress: ['', [Validators.required]],
+      accountNumber: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{8,12}$/i)]],
+      amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
+      preferredContact: ['', [Validators.required, Validators.email]],
+      dueDate: [''],
+    });
+
+    effect(() => {
+      this.currentLanguage.set(this.siteLanguage.currentLanguage());
+    });
+
+    this.restorePaymentDraft();
+    this.form.valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(
+          (a, b) => JSON.stringify(a) === JSON.stringify(b),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((value) => this.persistPaymentDraft(value));
+
+    void this.checkOfflineQueue();
+  }
+
+  closeReceipt(): void {
+    this.receiptData.set(null);
+    this.successMessage.set('');
+    this.formState.set('idle');
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.errorMessage.set('Please fill all required fields correctly.');
+      this.formState.set('error');
+      return;
+    }
+
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.formState.set('submitting');
+
+    const raw = this.form.getRawValue();
+    const accountSanitized = sanitizePlainText(String(raw.accountNumber ?? ''), 24).replace(
+      /[^a-zA-Z0-9]/g,
+      '',
+    );
+    const request: PaystarLaunchRequest = {
+      residentName: sanitizePlainText(String(raw.residentName ?? ''), 120),
+      serviceAddress: sanitizePlainText(String(raw.serviceAddress ?? ''), 240),
+      accountNumber: accountSanitized || undefined,
+      amount: raw.amount ?? undefined,
+      preferredContact: sanitizePlainText(String(raw.preferredContact ?? ''), 254),
+      dueDate: sanitizePlainText(String(raw.dueDate ?? ''), 32) || undefined,
+      locale: this.currentLanguage(),
+      source: 'payments-page',
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine) {
+        await this.paystarService.queuePaymentOffline(request);
+        this.clearPaymentDraft();
+        this.successMessage.set('Payment queued offline. It will sync when online.');
+        this.formState.set('success');
+        return;
+      }
+
+      const response = await this.paystarService.createLaunchRequest(request);
+      this.referenceId.set(response.referenceId ?? null);
+
+      if (response.mode === 'hosted') {
+        this.clearPaymentDraft();
+        window.location.href = response.launchUrl;
+        return;
+      }
+
+      this.clearPaymentDraft();
+      this.successMessage.set('Payment processed successfully!');
+      if (response.referenceId) {
+        const receipt = await this.paystarService.getReceipt(
+          response.referenceId,
+          this.currentLanguage(),
+        );
+        this.receiptData.set(receipt);
+      }
+      this.formState.set('success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Payment failed. Please try again.';
+      this.logging.log('error', 'Payment submission failed', { error: String(err) });
+      this.errorMessage.set(message);
+      this.formState.set('error');
+    } finally {
+      this.loading.set(false);
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        await this.paystarService.syncQueuedPayments();
+      }
+    }
+  }
+
+  async retry(): Promise<void> {
+    this.formState.set('idle');
+    this.errorMessage.set('');
+    await this.paystarService.syncQueuedPayments();
+  }
+
+  async downloadReceipt(): Promise<void> {
+    const data = this.receiptData();
+    if (!data) return;
+
+    const receiptBlob = await this.generateReceiptPDF(data);
+    const url = URL.createObjectURL(receiptBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${data.referenceId}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private async generateReceiptPDF(data: ReceiptData): Promise<Blob> {
+    const content = `Receipt for ${data.residentName}
+Amount: $${data.amount}
+Date: ${data.date}
+Status: ${data.status}
+Contact: ${data.preferredContact}
+Reference: ${data.referenceId}
+`;
+    return new Blob([content], { type: 'application/pdf' });
+  }
+
+  private static isBrowserLocalStorageAvailable(): boolean {
+    try {
+      return (
+        typeof localStorage !== 'undefined' &&
+        typeof localStorage.getItem === 'function' &&
+        typeof localStorage.setItem === 'function' &&
+        typeof localStorage.removeItem === 'function'
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private async checkOfflineQueue(): Promise<void> {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      await this.paystarService.syncQueuedPayments();
+    }
+  }
+
+  private restorePaymentDraft(): void {
+    if (!PaymentFormComponent.isBrowserLocalStorageAvailable()) {
+      return;
+    }
+    const raw = localStorage.getItem(PaymentFormComponent.PAYMENT_DRAFT_KEY);
+    if (!raw) {
+      return;
+    }
+    try {
+      const draft = JSON.parse(raw) as Record<string, unknown>;
+      this.form.patchValue(draft, { emitEvent: false });
+    } catch {
+      localStorage.removeItem(PaymentFormComponent.PAYMENT_DRAFT_KEY);
+    }
+  }
+
+  private persistPaymentDraft(value: object): void {
+    if (!PaymentFormComponent.isBrowserLocalStorageAvailable()) {
+      return;
+    }
+    try {
+      localStorage.setItem(PaymentFormComponent.PAYMENT_DRAFT_KEY, JSON.stringify(value));
+    } catch {
+      // ignore quota / private mode
+    }
+  }
+
+  private clearPaymentDraft(): void {
+    if (!PaymentFormComponent.isBrowserLocalStorageAvailable()) {
+      return;
+    }
+    localStorage.removeItem(PaymentFormComponent.PAYMENT_DRAFT_KEY);
+  }
+}

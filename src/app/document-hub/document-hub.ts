@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { LocalizedCmsContentStore } from '../site-cms-content';
@@ -319,12 +321,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 
 @Component({
   selector: 'app-document-hub',
-  imports: [InputTextModule, RouterLink],
+  imports: [CommonModule, RouterLink, InputTextModule, ButtonModule],
   templateUrl: './document-hub.html',
   styleUrl: './document-hub.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentHub {
+  private static readonly ARCHIVE_PAGE_SIZE = 20;
+
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly cms = inject(LocalizedCmsContentStore);
   private readonly documentUploadService = inject(DocumentUploadService);
@@ -382,6 +386,24 @@ export class DocumentHub {
     );
   });
 
+  /** Incremental render for large archives (avoids heavy DOM on first paint). */
+  protected readonly archiveDisplayLimit = signal(DocumentHub.ARCHIVE_PAGE_SIZE);
+
+  protected readonly visibleArchiveDocuments = computed(() => {
+    const all = this.filteredDocuments();
+    return all.slice(0, this.archiveDisplayLimit());
+  });
+
+  protected readonly hasMoreArchiveDocuments = computed(
+    () => this.filteredDocuments().length > this.archiveDisplayLimit(),
+  );
+
+  protected readonly archiveLoadMoreLabel = computed(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? 'Cargar más documentos'
+      : 'Load more documents',
+  );
+
   protected readonly upcomingMeeting = computed(() => {
     const language = this.siteLanguageService.currentLanguage();
     const now = Date.now();
@@ -426,6 +448,10 @@ export class DocumentHub {
         };
   });
 
+  protected loadMoreArchive(): void {
+    this.archiveDisplayLimit.update((n) => n + DocumentHub.ARCHIVE_PAGE_SIZE);
+  }
+
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
   }
@@ -437,6 +463,12 @@ export class DocumentHub {
       this.documentRefreshService.getRefreshTrigger()();
       void this.cms.refreshContent();
       void this.resolveCmsDocumentHrefs();
+    });
+
+    effect(() => {
+      this.searchTerm();
+      this.siteLanguageService.currentLanguage();
+      this.archiveDisplayLimit.set(DocumentHub.ARCHIVE_PAGE_SIZE);
     });
   }
 

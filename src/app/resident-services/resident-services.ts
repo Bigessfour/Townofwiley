@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
@@ -75,6 +75,9 @@ interface ResidentServicesCopy {
   recordsNameLabel: string;
   recordsContactLabel: string;
   recordsActionLabel: string;
+  utilityBillFormLinkLabel: string;
+  permitsClerkInfoLinkLabel: string;
+  businessDirectoryLinkLabel: string;
   paymentSubject: string;
   issueSubject: string;
   recordsSubject: string;
@@ -152,6 +155,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsNameLabel: 'Resident or business name',
     recordsContactLabel: 'Best phone or email for reply',
     recordsActionLabel: 'Open records and permit email',
+    utilityBillFormLinkLabel: 'Full utility bill payment form',
+    permitsClerkInfoLinkLabel: 'Permits: contact the Town Clerk',
+    businessDirectoryLinkLabel: 'Community business directory',
     paymentSubject: 'Utility payment help request',
     issueSubject: 'Town issue report',
     recordsSubject: 'Records or permit request',
@@ -164,7 +170,6 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     ],
     requestTypes: [
       { value: 'records', label: 'Public records / FOIA' },
-      { value: 'permit', label: 'Permit guidance' },
       { value: 'license', label: 'License or fee question' },
       { value: 'clerk', label: 'Clerk assistance' },
     ],
@@ -239,6 +244,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsNameLabel: 'Nombre del residente o negocio',
     recordsContactLabel: 'Mejor telefono o correo para responder',
     recordsActionLabel: 'Abrir correo de registros y permisos',
+    utilityBillFormLinkLabel: 'Formulario completo de pago de servicios',
+    permitsClerkInfoLinkLabel: 'Permisos: contacte al Secretario del Pueblo',
+    businessDirectoryLinkLabel: 'Directorio de negocios locales',
     paymentSubject: 'Solicitud de ayuda para pago de servicios',
     issueSubject: 'Reporte de problema del pueblo',
     recordsSubject: 'Solicitud de registros o permiso',
@@ -251,7 +259,6 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     ],
     requestTypes: [
       { value: 'records', label: 'Registros publicos / FOIA' },
-      { value: 'permit', label: 'Orientacion sobre permisos' },
       { value: 'license', label: 'Licencia o pregunta de cuota' },
       { value: 'clerk', label: 'Ayuda de secretaria' },
     ],
@@ -310,7 +317,7 @@ type ContactUpdateFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule, InputTextModule, MessageModule, SelectModule, TextareaModule],
+  imports: [ReactiveFormsModule, RouterLink, InputTextModule, MessageModule, SelectModule, TextareaModule],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

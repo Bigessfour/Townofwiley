@@ -43,6 +43,15 @@ export const routes: Routes = [
       import('./business-directory/business-directory').then((m) => m.BusinessDirectory),
   },
   {
+    path: 'payments',
+    loadComponent: () =>
+      import('./payments/payment-form.component').then((m) => m.PaymentFormComponent),
+  },
+  {
+    path: 'permits',
+    loadComponent: () => import('./permits/permits.component').then((m) => m.PermitsComponent),
+  },
+  {
     path: 'news',
     loadComponent: () => import('./news/news').then((m) => m.News),
   },

@@ -41,7 +41,7 @@
       />
     </div>
     <div class="document-file-grid">
-      @for (document of filteredDocuments(); track document.id) {
+      @for (document of visibleArchiveDocuments(); track document.id) {
         <article class="document-file-card">
           <div class="document-file-top">
             <h4 class="document-file-title">{{ document.title }}</h4>
@@ -70,6 +70,19 @@
         </article>
       }
     </div>
+    @if (hasMoreArchiveDocuments()) {
+      <div class="archive-load-more">
+        <p-button
+          type="button"
+          styleClass="document-hub-load-more"
+          [outlined]="true"
+          (onClick)="loadMoreArchive()"
+          [attr.aria-label]="archiveLoadMoreLabel()"
+        >
+          {{ archiveLoadMoreLabel() }}
+        </p-button>
+      </div>
+    }
   </section>
 
   <section class="document-hub-sections">

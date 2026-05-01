@@ -371,6 +371,36 @@ export class HomePage {
     }, portalUrl);
   }
 
+  async enablePaystarApi(apiEndpoint = '/e2e-mock-paystar'): Promise<void> {
+    await this.page.addInitScript((endpoint) => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          payments?: {
+            paystar?: {
+              provider?: string;
+              mode?: string;
+              portalUrl?: string;
+              apiEndpoint?: string;
+            };
+          };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        payments: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.payments ?? {}),
+          paystar: {
+            provider: 'paystar',
+            mode: 'api',
+            portalUrl: '',
+            apiEndpoint: endpoint,
+          },
+        },
+      };
+    }, apiEndpoint);
+  }
+
   async sendAssistantQuestion(question: string): Promise<void> {
     await expect(this.assistantInput).toBeEnabled();
     await this.assistantInput.fill(question);
