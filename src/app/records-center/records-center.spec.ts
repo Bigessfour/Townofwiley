@@ -16,6 +16,7 @@ describe('RecordsCenter', () => {
         SiteLanguageService,
       ],
     });
+    TestBed.inject(SiteLanguageService).setLanguage('en');
     const fixture = TestBed.createComponent(RecordsCenter);
     TestBed.flushEffects();
     fixture.detectChanges();

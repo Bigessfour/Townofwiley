@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { type CmsExternalNewsLink, type CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
+import { SiteLanguageService } from '../site-language';
 import { News } from './news';
 
 describe('News', () => {
@@ -31,6 +32,7 @@ describe('News', () => {
     TestBed.configureTestingModule({
       imports: [News],
       providers: [
+        SiteLanguageService,
         {
           provide: LocalizedCmsContentStore,
           useValue: {
@@ -41,6 +43,7 @@ describe('News', () => {
       ],
     });
 
+    TestBed.inject(SiteLanguageService).setLanguage('en');
     const fixture = TestBed.createComponent(News);
     fixture.detectChanges();
 
