@@ -18,7 +18,13 @@
     "fossamagna.amplify-backend-vscode",
     "ms-playwright.playwright",
     "ms-python.python",
-    "trunk.io"
+    "trunk.io",
+    "usernamehw.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "mrmlnc.vscode-scss",
+    "rangav.vscode-thunder-client",
+    "wayou.vscode-todo-highlight",
+    "ecmel.vscode-html-css"
   ],
   "unwantedRecommendations": [
     "ms-dotnettools.csdevkit",

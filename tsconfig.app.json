@@ -6,10 +6,8 @@
     "outDir": "./out-tsc/app",
     "rootDir": "./src",
     "moduleResolution": "bundler",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts"]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.vitest.ts"]
 }

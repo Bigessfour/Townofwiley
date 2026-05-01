@@ -15,6 +15,8 @@ const APP_ROUTE_PATHS = new Set([
   '/weather',
   '/services',
   '/records',
+  '/payments',
+  '/permits',
   '/businesses',
   '/news',
   '/contact',
@@ -25,10 +27,7 @@ const APP_ROUTE_PATHS = new Set([
 
 const EXTERNAL_LINK_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
-export function getAppRouteLink(
-  href: string | null | undefined,
-  defaultPath = '/',
-): AppRouteLink {
+export function getAppRouteLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {
   const normalizedHref = href?.trim() ?? '';
 
   if (!normalizedHref) {

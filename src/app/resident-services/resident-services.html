@@ -54,6 +54,12 @@
           }
         </div>
 
+        <nav class="resident-page-links flex flex-wrap gap-3" aria-label="Payment shortcuts">
+          <a routerLink="/payments" class="resident-contact-link">{{
+            copy().utilityBillFormLinkLabel
+          }}</a>
+        </nav>
+
         <!-- Optional: Update Contact Info with Clerk -->
         @if (!hasSubmittedContactUpdate()) {
           <div class="resident-contact-update-shell grid gap-3 border-t pt-4 mt-1">
@@ -494,6 +500,15 @@
             </a>
           }
         </div>
+
+        <nav class="resident-page-links flex flex-wrap gap-3" aria-label="Permits and businesses">
+          <a routerLink="/permits" class="resident-contact-link">{{
+            copy().permitsClerkInfoLinkLabel
+          }}</a>
+          <a routerLink="/businesses" class="resident-contact-link">{{
+            copy().businessDirectoryLinkLabel
+          }}</a>
+        </nav>
 
         <form class="resident-form grid gap-4" [formGroup]="recordsForm">
           <section class="resident-form-grid grid gap-3 lg:grid-cols-2">

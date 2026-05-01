@@ -53,6 +53,7 @@
           },
           "configurations": {
             "production": {
+              "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",
@@ -94,7 +95,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "providersFile": "src/test-providers.ts"
+            "providersFile": "src/test-providers.ts",
+            "setupFiles": ["src/unit-test-browser-isolation.setup.ts"]
           }
         },
         "lint": {

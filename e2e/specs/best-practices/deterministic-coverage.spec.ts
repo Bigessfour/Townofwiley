@@ -54,9 +54,8 @@ function expectNormalizedHeaderMetrics(
   }
 }
 
-const supportsVisualSnapshots = process.platform === 'win32';
 const useVisualSnapshots =
-  supportsVisualSnapshots || process.env.PLAYWRIGHT_VISUAL_SNAPSHOTS === '1';
+  process.platform === 'win32' || process.env.PLAYWRIGHT_VISUAL_SNAPSHOTS === '1';
 
 test.describe('deterministic regression coverage', () => {
   // eslint-disable-next-line no-empty-pattern
@@ -520,7 +519,10 @@ test.describe('homepage subsection visual coverage', () => {
   });
 
   test('keeps site footer visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -533,7 +535,10 @@ test.describe('homepage subsection visual coverage', () => {
   });
 
   test('keeps section navigation visually stable', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.goto();
     await waitForFonts(homePage.page);
@@ -559,7 +564,10 @@ test.describe('static page visual coverage', () => {
   });
 
   test('privacy policy page snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.goto('/privacy', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -572,7 +580,10 @@ test.describe('static page visual coverage', () => {
   });
 
   test('terms page snapshot', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.goto('/terms', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
@@ -582,6 +593,113 @@ test.describe('static page visual coverage', () => {
       caret: 'hide',
       maxDiffPixelRatio: 0.005,
     });
+  });
+});
+
+/**
+ * Full-route shells not represented by homepage section screenshots alone.
+ * Box/layout metrics for every public path already run in `visual-readiness.spec.ts` (all `publicRouteContracts`).
+ */
+test.describe('standalone public route pixel baselines', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'desktop-chromium',
+      'These deterministic contracts are authored for the desktop baseline project.',
+    );
+  });
+
+  test('notices page shell snapshot', async ({ homePage }) => {
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
+
+    await homePage.page.goto('/notices', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-notices-page')).toHaveScreenshot(
+      'notices-page-shell.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test('meetings page shell snapshot', async ({ homePage }) => {
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
+
+    await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-meetings-page')).toHaveScreenshot(
+      'meetings-page-shell.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test('utility payment form snapshot', async ({ homePage }) => {
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
+
+    await homePage.page.goto('/payments', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-payment-form')).toHaveScreenshot(
+      'payment-form-shell.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test('permits page shell snapshot', async ({ homePage }) => {
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
+
+    await homePage.page.goto('/permits', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-permits')).toHaveScreenshot('permits-page-shell.png', {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test('business directory page desktop snapshot', async ({ homePage }) => {
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
+
+    await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
+    await waitForFonts(homePage.page);
+
+    await expect(homePage.page.locator('app-business-directory')).toHaveScreenshot(
+      'business-directory-page-desktop.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
   });
 });
 
@@ -660,7 +778,10 @@ test.describe('mobile responsive visual coverage', () => {
   });
 
   test('business directory renders correctly on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
@@ -677,7 +798,10 @@ test.describe('mobile responsive visual coverage', () => {
   });
 
   test('contact panel renders correctly on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
@@ -691,7 +815,10 @@ test.describe('mobile responsive visual coverage', () => {
   });
 
   test('news page renders correctly on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
@@ -706,7 +833,10 @@ test.describe('mobile responsive visual coverage', () => {
   });
 
   test('services panel renders correctly on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
@@ -720,7 +850,10 @@ test.describe('mobile responsive visual coverage', () => {
   });
 
   test('document hub renders correctly on mobile', async ({ homePage }) => {
-    test.skip(!supportsVisualSnapshots, 'Visual screenshot baselines are maintained on win32.');
+    test.skip(
+      !useVisualSnapshots,
+      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
+    );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
     await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });

@@ -6,9 +6,19 @@ import {
   type CmsPublicDocument,
   LocalizedCmsContentStore,
 } from '../site-cms-content';
+import { SiteLanguageService } from '../site-language';
 import { DocumentRefreshService } from '../document-refresh.service';
 import { DocumentUploadService } from '../document-upload.service';
 import { DOCUMENT_HUB_TITLE_EN, DocumentHub } from './document-hub';
+
+function siteLanguageServiceEnMock(): SiteLanguageService {
+  return {
+    currentLanguage: () => 'en',
+    isSpanish: () => false,
+    setLanguage: vi.fn(),
+    toggleLanguage: vi.fn(),
+  } as unknown as SiteLanguageService;
+}
 
 describe('DocumentHub', () => {
   beforeEach(() => {
@@ -61,6 +71,10 @@ describe('DocumentHub', () => {
           useValue: {
             resolveDocumentHref: vi.fn(async (href: string) => href),
           } as unknown as DocumentUploadService,
+        },
+        {
+          provide: SiteLanguageService,
+          useFactory: siteLanguageServiceEnMock,
         },
         DocumentRefreshService,
       ],

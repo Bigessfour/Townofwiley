@@ -8,6 +8,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'services', renderMode: RenderMode.Prerender },
   { path: 'records', renderMode: RenderMode.Prerender },
   { path: 'businesses', renderMode: RenderMode.Prerender },
+  { path: 'payments', renderMode: RenderMode.Prerender },
+  { path: 'permits', renderMode: RenderMode.Prerender },
   { path: 'news', renderMode: RenderMode.Prerender },
   { path: 'contact', renderMode: RenderMode.Prerender },
   { path: 'accessibility', renderMode: RenderMode.Prerender },

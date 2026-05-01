@@ -7,6 +7,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -18,7 +19,8 @@ import { DocumentUploadService, UploadedDocument } from '../document-upload.serv
 
 @Component({
   selector: 'app-document-upload',
-  imports: [FileUploadModule, ButtonModule, ProgressBarModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ButtonModule, FileUploadModule, ProgressBarModule],
   template: `
     <div class="document-upload">
       <h3>Upload Documents</h3>

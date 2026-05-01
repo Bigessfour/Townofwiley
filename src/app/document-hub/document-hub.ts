@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { LocalizedCmsContentStore } from '../site-cms-content';
@@ -7,10 +16,13 @@ import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { DocumentRefreshService } from '../document-refresh.service';
 import { DocumentUploadService } from '../document-upload.service';
 import {
-    DOCUMENT_ARCHIVE,
-    type DocumentArchiveSectionId,
-    type PublishedDocument,
+  DOCUMENT_ARCHIVE,
+  type DocumentArchiveSectionId,
+  type PublishedDocument,
 } from './document-archive';
+import { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
+
+export { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
 
 interface DocumentAction {
   label: string;
@@ -54,12 +66,10 @@ interface DocumentHubCopy {
   sections: DocumentSection[];
 }
 
-export const DOCUMENT_HUB_TITLE_EN = 'Public meeting, finance, and code documents';
-
 const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   en: {
     kicker: 'Public Document Hub',
-    title: 'Public meeting, finance, and code documents',
+    title: DOCUMENT_HUB_TITLE_EN,
     intro:
       'Use this page to find meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, and records request information.',
     returnHome: 'Return to homepage',
@@ -67,8 +77,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     sectionNavLabel: 'Document hub sections',
     publishedArchiveKicker: 'Published now',
     publishedArchiveHeading: 'Downloadable public files available now',
-    publishedArchiveIntro:
-      'Browse the public documents that are currently available for download.',
+    publishedArchiveIntro: 'Browse the public documents that are currently available for download.',
     openDocumentLabel: 'Open document',
     downloadDocumentLabel: 'Download file',
     updatedLabel: 'Updated',
@@ -185,7 +194,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   },
   es: {
     kicker: 'Centro publico de documentos',
-    title: 'Documentos publicos de reuniones, finanzas y codigo',
+    title: DOCUMENT_HUB_TITLE_ES,
     intro:
       'Use esta pagina para encontrar paquetes de agenda, minutas aprobadas, resumenes de presupuesto, informes anuales, ordenanzas, referencias de zonificacion e informacion para solicitar registros.',
     returnHome: 'Volver a la pagina principal',
@@ -319,12 +328,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 
 @Component({
   selector: 'app-document-hub',
-  imports: [InputTextModule, RouterLink],
+  imports: [CommonModule, RouterLink, InputTextModule, ButtonModule],
   templateUrl: './document-hub.html',
   styleUrl: './document-hub.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentHub {
+  private static readonly ARCHIVE_PAGE_SIZE = 20;
+
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly cms = inject(LocalizedCmsContentStore);
   private readonly documentUploadService = inject(DocumentUploadService);
@@ -375,33 +386,59 @@ export class DocumentHub {
     if (!term) {
       return this.sections().flatMap((s) => s.publishedDocuments);
     }
-    return this.sections().flatMap((s) => s.publishedDocuments).filter((d) =>
-      d.title.toLowerCase().includes(term) ||
-      d.summary.toLowerCase().includes(term) ||
-      d.keywords.some((k) => k.toLowerCase().includes(term))
-    );
+    return this.sections()
+      .flatMap((s) => s.publishedDocuments)
+      .filter(
+        (d) =>
+          d.title.toLowerCase().includes(term) ||
+          d.summary.toLowerCase().includes(term) ||
+          d.keywords.some((k) => k.toLowerCase().includes(term)),
+      );
   });
+
+  /** Incremental render for large archives (avoids heavy DOM on first paint). */
+  protected readonly archiveDisplayLimit = signal(DocumentHub.ARCHIVE_PAGE_SIZE);
+
+  protected readonly visibleArchiveDocuments = computed(() => {
+    const all = this.filteredDocuments();
+    return all.slice(0, this.archiveDisplayLimit());
+  });
+
+  protected readonly hasMoreArchiveDocuments = computed(
+    () => this.filteredDocuments().length > this.archiveDisplayLimit(),
+  );
+
+  protected readonly archiveLoadMoreLabel = computed(() =>
+    this.siteLanguageService.currentLanguage() === 'es'
+      ? 'Cargar más documentos'
+      : 'Load more documents',
+  );
 
   protected readonly upcomingMeeting = computed(() => {
     const language = this.siteLanguageService.currentLanguage();
     const now = Date.now();
-    const nextEvent = this.cms.events()
-      .filter(e => new Date(e.start).getTime() > now)
+    const nextEvent = this.cms
+      .events()
+      .filter((e) => new Date(e.start).getTime() > now)
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())[0];
 
     if (nextEvent) {
       const locale = language === 'es' ? 'es-US' : 'en-US';
       const datePart = new Intl.DateTimeFormat(locale, {
-        month: 'long', day: 'numeric', year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
       }).format(new Date(nextEvent.start));
       const timePart = new Intl.DateTimeFormat(locale, {
-        hour: 'numeric', minute: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
       }).format(new Date(nextEvent.start));
       const at = language === 'es' ? 'a las' : 'at';
       return {
         title: nextEvent.title,
         date: `${datePart} ${at} ${timePart}`,
-        summary: nextEvent.description ||
+        summary:
+          nextEvent.description ||
           (language === 'es'
             ? 'Consulte la agenda completa con la secretaria antes de la reunion.'
             : 'See the full agenda. Contact the clerk to be placed on the agenda.'),
@@ -426,7 +463,14 @@ export class DocumentHub {
         };
   });
 
-  protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
+  protected loadMoreArchive(): void {
+    this.archiveDisplayLimit.update((n) => n + DocumentHub.ARCHIVE_PAGE_SIZE);
+  }
+
+  protected resolveAppLink(
+    href: string | null | undefined,
+    defaultPath = '/documents',
+  ): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
   }
 
@@ -437,6 +481,12 @@ export class DocumentHub {
       this.documentRefreshService.getRefreshTrigger()();
       void this.cms.refreshContent();
       void this.resolveCmsDocumentHrefs();
+    });
+
+    effect(() => {
+      this.searchTerm();
+      this.siteLanguageService.currentLanguage();
+      this.archiveDisplayLimit.set(DocumentHub.ARCHIVE_PAGE_SIZE);
     });
   }
 
@@ -465,7 +515,11 @@ export class DocumentHub {
   }
 
   private formatDate(date: Date): string {
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return (
+      date.toLocaleDateString() +
+      ' ' +
+      date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    );
   }
 
   private getFormatFromType(mimeType: string): string {

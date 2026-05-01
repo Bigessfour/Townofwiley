@@ -105,8 +105,10 @@ export class HomePage {
     this.communityFacts = page.locator('.fact-card');
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
-    this.sectionNavLinks = page.locator('[data-testid="homepage-section-nav"] .main-nav-link');
-    this.searchInput = page.locator('#site-search');
+    this.sectionNavLinks = page.locator(
+      '[data-testid="homepage-section-nav"] a.mega-menu-root-link',
+    );
+    this.searchInput = page.locator('#mega-site-search');
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');
@@ -371,6 +373,36 @@ export class HomePage {
     }, portalUrl);
   }
 
+  async enablePaystarApi(apiEndpoint = '/e2e-mock-paystar'): Promise<void> {
+    await this.page.addInitScript((endpoint) => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          payments?: {
+            paystar?: {
+              provider?: string;
+              mode?: string;
+              portalUrl?: string;
+              apiEndpoint?: string;
+            };
+          };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        payments: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.payments ?? {}),
+          paystar: {
+            provider: 'paystar',
+            mode: 'api',
+            portalUrl: '',
+            apiEndpoint: endpoint,
+          },
+        },
+      };
+    }, apiEndpoint);
+  }
+
   async sendAssistantQuestion(question: string): Promise<void> {
     await expect(this.assistantInput).toBeEnabled();
     await this.assistantInput.fill(question);
@@ -542,15 +574,28 @@ export class HomePage {
   }
 
   private async selectPrimeSelectOption(combobox: Locator, optionLabel: string): Promise<void> {
-    await combobox.click();
+    await combobox.scrollIntoViewIfNeeded();
+    await expect(combobox).toBeVisible();
+    await this.page.keyboard.press('Escape');
+    const host = combobox.locator('xpath=ancestor::*[contains(@class,"p-select")][1]');
+    const trigger = host.getByRole('button', { name: 'dropdown trigger' });
 
-    const optionIndex = optionLabel === 'Email' || optionLabel === 'Spanish' ? 1 : 0;
-
-    for (let index = 0; index < optionIndex; index += 1) {
-      await this.page.keyboard.press('ArrowDown');
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await trigger.click({ force: true });
+        const overlay = this.page.locator('.p-select-list-container').last();
+        const choice = overlay.getByText(optionLabel, { exact: true });
+        await expect(choice).toBeVisible({ timeout: 4000 });
+        await choice.click();
+        await expect(combobox).toHaveAccessibleName(optionLabel);
+        return;
+      } catch (error) {
+        lastError = error;
+        await this.page.keyboard.press('Escape');
+      }
     }
 
-    await this.page.keyboard.press('Enter');
-    await expect(combobox).toHaveAccessibleName(optionLabel);
+    throw lastError;
   }
 }

@@ -1,0 +1,45 @@
+<div class="permits-page" role="main">
+  <header>
+    <h1 [attr.aria-label]="lang() === 'en' ? 'Permits & Inquiries' : 'Permisos e Indagaciones'">
+      {{ lang() === 'en' ? 'Permits & Inquiries' : 'Permisos e Indagaciones' }}
+    </h1>
+    <p [attr.aria-describedby]="'permits-info'">
+      {{
+        lang() === 'en'
+          ? "The Town of Wiley does not currently process permits online. For questions about building permits, zoning, or licenses, please contact the city or Town Clerk's office directly."
+          : 'El Pueblo de Wiley no procesa permisos en línea actualmente. Para preguntas sobre permisos de construcción, zonificación o licencias, por favor contacte directamente al Secretario del Pueblo.'
+      }}
+    </p>
+  </header>
+
+  @if (clerkContact()) {
+    <section
+      id="clerk-contact"
+      class="contact-section"
+      role="region"
+      aria-labelledby="clerk-heading"
+    >
+      <h2 id="clerk-heading">{{ lang() === 'en' ? 'Town Clerk' : 'Secretario del Pueblo' }}</h2>
+      <p>{{ clerkContact()?.value }}</p>
+      @if (clerkEmail()) {
+        <a [href]="'mailto:' + clerkEmail()" aria-label="Email the Town Clerk">{{
+          lang() === 'en' ? 'Email Clerk' : 'Email al Secretario'
+        }}</a>
+      }
+      @if (townPhone()) {
+        <a [href]="'tel:' + townPhone()" aria-label="Call Town Hall"
+          >{{ lang() === 'en' ? 'Call' : 'Llamar' }}: {{ townPhone() }}</a
+        >
+      }
+    </section>
+  }
+
+  <a
+    routerLink="/services"
+    class="back-link"
+    [attr.aria-label]="
+      lang() === 'en' ? 'Back to Resident Services' : 'Volver a Servicios para residentes'
+    "
+    >{{ lang() === 'en' ? 'Back to Services' : 'Volver a Servicios' }}</a
+  >
+</div>

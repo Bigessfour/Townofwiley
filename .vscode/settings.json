@@ -197,5 +197,27 @@
   "trunk.showBelowThresholdIssues": false,
   "trunk.numJobs": 4,
   "trunk.trace.server": "off",
-  "cSpell.words": ["datatable", "inputnumber", "selectbutton", "togglebutton"]
+  "cSpell.words": ["datatable", "inputnumber", "selectbutton", "togglebutton"],
+  "todo-tree.general.tags": ["TODO", "FIXME", "BUG", "HACK", "NOTE"],
+  "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^\\s*\\*)\\s*($TAGS).*",
+  "todo-tree.regex.tags": "TODO|FIXME|BUG|HACK|NOTE",
+  "todo-tree.highlights.defaultDescription": "Click to toggle visibility of the Todo Tree panel",
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "foreground": "white",
+      "background": "var(--vscode-todoTree-background--todo)"
+    },
+    "FIXME": {
+      "icon": "flame",
+      "foreground": "white",
+      "background": "var(--vscode-todoTree-background--fixme)"
+    },
+    "BUG": {
+      "icon": "bug",
+      "foreground": "white",
+      "background": "var(--vscode-todoTree-background--bug)"
+    }
+  },
+  "todo-tree.fileSupport": ["**/*.ts", "**/*.html", "**/*.scss", "**/*.md"]
 }

@@ -1,0 +1,176 @@
+<div class="payment-container" role="main">
+  <header>
+    <h1 [attr.data-translate]="'pay.bill.title'">
+      {{ currentLanguage() === 'en' ? 'Pay Your Utility Bill' : 'Pague Su Factura de Servicios' }}
+    </h1>
+    <p [attr.data-translate]="'pay.bill.description'">
+      {{
+        currentLanguage() === 'en'
+          ? 'Secure online payments via Paystar.'
+          : 'Pagos en línea seguros a través de Paystar.'
+      }}
+    </p>
+  </header>
+
+  @if (formState() === 'idle' || formState() === 'error') {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <fieldset [disabled]="loading()">
+        <div class="form-group">
+          <label for="residentName" [attr.data-translate]="'pay.form.residentName'">{{
+            currentLanguage() === 'en' ? 'Resident Name' : 'Nombre del Residente'
+          }}</label>
+          <input
+            id="residentName"
+            formControlName="residentName"
+            type="text"
+            required
+            aria-describedby="name-error"
+            [class.error]="form.get('residentName')?.invalid && form.get('residentName')?.touched"
+          />
+          @if (form.get('residentName')?.invalid && form.get('residentName')?.touched) {
+            <span id="name-error" role="alert" [attr.data-translate]="'validation.required'"
+              >Required</span
+            >
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="serviceAddress" [attr.data-translate]="'pay.form.serviceAddress'">{{
+            currentLanguage() === 'en' ? 'Service Address' : 'Dirección del Servicio'
+          }}</label>
+          <input id="serviceAddress" formControlName="serviceAddress" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label for="accountNumber" [attr.data-translate]="'pay.form.accountNumber'">{{
+            currentLanguage() === 'en' ? 'Account Number' : 'Número de Cuenta'
+          }}</label>
+          <input
+            id="accountNumber"
+            formControlName="accountNumber"
+            type="text"
+            pattern="[A-Za-z0-9]{8,12}"
+            required
+            aria-describedby="account-error"
+          />
+          @if (form.get('accountNumber')?.invalid && form.get('accountNumber')?.touched) {
+            <span
+              id="account-error"
+              role="alert"
+              [attr.data-translate]="'validation.invalidAccount'"
+              >{{
+                currentLanguage() === 'en' ? 'Invalid account number' : 'Número de cuenta inválido'
+              }}</span
+            >
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="amount" [attr.data-translate]="'pay.form.amount'">{{
+            currentLanguage() === 'en' ? 'Amount ($)' : 'Monto ($)'
+          }}</label>
+          <input
+            id="amount"
+            formControlName="amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="preferredContact" [attr.data-translate]="'pay.form.contact'">{{
+            currentLanguage() === 'en' ? 'Preferred Contact' : 'Contacto Preferido'
+          }}</label>
+          <input
+            id="preferredContact"
+            formControlName="preferredContact"
+            type="email"
+            required
+            aria-describedby="contact-error"
+          />
+          @if (form.get('preferredContact')?.invalid && form.get('preferredContact')?.touched) {
+            <span id="contact-error" role="alert" [attr.data-translate]="'validation.email'"
+              >Valid email required</span
+            >
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="dueDate">{{
+            currentLanguage() === 'en' ? 'Due Date (optional)' : 'Fecha de Vencimiento (opcional)'
+          }}</label>
+          <input id="dueDate" formControlName="dueDate" type="date" />
+        </div>
+
+        <button type="submit" [disabled]="form.invalid || loading()" [class.loading]="loading()">
+          @if (loading()) {
+            <span [attr.data-translate]="'pay.form.processing'">Processing...</span>
+          } @else {
+            <span [attr.data-translate]="'pay.form.submit'">{{
+              currentLanguage() === 'en' ? 'Submit Payment' : 'Enviar Pago'
+            }}</span>
+          }
+        </button>
+      </fieldset>
+    </form>
+  }
+
+  @if (hasErrors()) {
+    <div role="alert" class="error-alert">
+      {{ errorMessage() }}
+      <button type="button" (click)="retry()" [attr.data-translate]="'retry'">Retry</button>
+    </div>
+  }
+
+  @if (isSuccess()) {
+    <div role="status" class="success-alert">
+      {{ successMessage() }}
+      @if (receiptData()) {
+        <div id="receipt-modal" class="modal" role="dialog" aria-labelledby="receipt-title">
+          <h2 id="receipt-title">{{ currentLanguage() === 'en' ? 'Receipt' : 'Recibo' }}</h2>
+          <div id="receipt-content">
+            <p>
+              <strong>{{ currentLanguage() === 'en' ? 'Resident:' : 'Residente:' }}</strong>
+              {{ receiptData()!.residentName }}
+            </p>
+            <p>
+              <strong>{{ currentLanguage() === 'en' ? 'Amount:' : 'Monto:' }}</strong> ${{
+                receiptData()!.amount
+              }}
+            </p>
+            <p>
+              <strong>{{ currentLanguage() === 'en' ? 'Date:' : 'Fecha:' }}</strong>
+              {{ receiptData()!.date }}
+            </p>
+            <p>
+              <strong>{{ currentLanguage() === 'en' ? 'Status:' : 'Estado:' }}</strong>
+              {{ receiptData()!.status }}
+            </p>
+            <p>
+              <strong>{{ currentLanguage() === 'en' ? 'Reference:' : 'Referencia:' }}</strong>
+              {{ receiptData()!.referenceId }}
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="downloadReceipt()"
+            [attr.data-translate]="'downloadReceipt'"
+          >
+            {{ currentLanguage() === 'en' ? 'Download PDF' : 'Descargar PDF' }}
+          </button>
+          <button type="button" (click)="closeReceipt()">
+            {{ currentLanguage() === 'en' ? 'Close' : 'Cerrar' }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (formState() === 'submitting') {
+    <div class="loading-spinner" role="status" aria-live="polite">
+      <span [attr.data-translate]="'processing'">Processing your payment...</span>
+    </div>
+  }
+</div>

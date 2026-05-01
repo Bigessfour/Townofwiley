@@ -1,7 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
@@ -13,7 +27,7 @@ import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
-type RequestType = 'records' | 'permit' | 'license' | 'clerk';
+type RequestType = 'records' | 'license' | 'clerk';
 type ServicePanelId = 'payment' | 'issue' | 'records';
 
 interface SelectOption<TValue extends string> {
@@ -75,6 +89,9 @@ interface ResidentServicesCopy {
   recordsNameLabel: string;
   recordsContactLabel: string;
   recordsActionLabel: string;
+  utilityBillFormLinkLabel: string;
+  permitsClerkInfoLinkLabel: string;
+  businessDirectoryLinkLabel: string;
   paymentSubject: string;
   issueSubject: string;
   recordsSubject: string;
@@ -104,8 +121,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionBody:
       'Use these forms to request payment help, report an issue, or contact the clerk without searching for the right office.',
     taskPickerLabel: 'Choose a resident task',
-    taskPickerHelp:
-      'Choose the service you need and complete the matching form below.',
+    taskPickerHelp: 'Choose the service you need and complete the matching form below.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
@@ -152,6 +168,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsNameLabel: 'Resident or business name',
     recordsContactLabel: 'Best phone or email for reply',
     recordsActionLabel: 'Open records and permit email',
+    utilityBillFormLinkLabel: 'Full utility bill payment form',
+    permitsClerkInfoLinkLabel: 'Permits: contact the Town Clerk',
+    businessDirectoryLinkLabel: 'Community business directory',
     paymentSubject: 'Utility payment help request',
     issueSubject: 'Town issue report',
     recordsSubject: 'Records or permit request',
@@ -164,7 +183,6 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     ],
     requestTypes: [
       { value: 'records', label: 'Public records / FOIA' },
-      { value: 'permit', label: 'Permit guidance' },
       { value: 'license', label: 'License or fee question' },
       { value: 'clerk', label: 'Clerk assistance' },
     ],
@@ -239,6 +257,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsNameLabel: 'Nombre del residente o negocio',
     recordsContactLabel: 'Mejor telefono o correo para responder',
     recordsActionLabel: 'Abrir correo de registros y permisos',
+    utilityBillFormLinkLabel: 'Formulario completo de pago de servicios',
+    permitsClerkInfoLinkLabel: 'Permisos: contacte al Secretario del Pueblo',
+    businessDirectoryLinkLabel: 'Directorio de negocios locales',
     paymentSubject: 'Solicitud de ayuda para pago de servicios',
     issueSubject: 'Reporte de problema del pueblo',
     recordsSubject: 'Solicitud de registros o permiso',
@@ -251,7 +272,6 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     ],
     requestTypes: [
       { value: 'records', label: 'Registros publicos / FOIA' },
-      { value: 'permit', label: 'Orientacion sobre permisos' },
       { value: 'license', label: 'Licencia o pregunta de cuota' },
       { value: 'clerk', label: 'Ayuda de secretaria' },
     ],
@@ -266,7 +286,8 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     contactUpdateNotesLabel: 'Notas adicionales (opcional)',
     contactUpdateActionLabel: 'Enviar actualizacion de contacto a la secretaria',
     contactUpdateDismissLabel: 'No gracias, omitir por ahora',
-    contactUpdateEmptyMessage: 'Complete al menos un campo para enviar una actualizacion de contacto.',
+    contactUpdateEmptyMessage:
+      'Complete al menos un campo para enviar una actualizacion de contacto.',
     contactUpdateSuccessMessage: 'Informacion de contacto enviada a la secretaria. Gracias.',
     contactUpdateSubject: 'Actualizacion de informacion de contacto del residente',
     requiredFieldMessage: 'Este campo es obligatorio.',
@@ -310,7 +331,14 @@ type ContactUpdateFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [ReactiveFormsModule, InputTextModule, MessageModule, SelectModule, TextareaModule],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    InputTextModule,
+    MessageModule,
+    SelectModule,
+    TextareaModule,
+  ],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -528,7 +556,9 @@ export class ResidentServices {
       const values = this.paymentFormValue();
       const launch = await this.paystarConnection.createLaunchRequest({
         residentName: values.name?.trim() ?? '',
-        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()].filter(Boolean).join(', '),
+        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()]
+          .filter(Boolean)
+          .join(', '),
         preferredContact: [values.phone?.trim(), values.email?.trim()].filter(Boolean).join(' / '),
         accountQuestion: values.accountQuestion?.trim() ?? '',
         locale: this.siteLanguageService.currentLanguage(),
@@ -774,6 +804,3 @@ export class ResidentServices {
     return `mailto:${recipient}?${params.toString()}`;
   }
 }
-
-
-

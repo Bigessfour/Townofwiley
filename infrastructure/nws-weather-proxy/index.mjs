@@ -1,7 +1,11 @@
 const ALLOWED_ORIGINS = new Set([
   'https://townofwiley.gov',
   'https://www.townofwiley.gov',
+  'https://staging.townofwiley.gov',
   'http://localhost:4200',
+  'http://localhost:4300',
+  'http://127.0.0.1:4200',
+  'http://127.0.0.1:4300',
 ]);
 
 function buildCorsHeaders(requestOrigin) {
@@ -79,7 +83,7 @@ function computeSolarTimes(dateStr) {
   const year = date.getFullYear();
   const dayOfYear = Math.ceil((date - new Date(year, 0, 0)) / 86_400_000);
   const latRad = WILEY_LAT * (Math.PI / 180);
-  const declDeg = 23.45 * Math.sin((360 * (284 + dayOfYear) / 365) * (Math.PI / 180));
+  const declDeg = 23.45 * Math.sin(((360 * (284 + dayOfYear)) / 365) * (Math.PI / 180));
   const declRad = declDeg * (Math.PI / 180);
   const cosHA = -Math.tan(latRad) * Math.tan(declRad);
   const haDeg = Math.acos(Math.max(-1, Math.min(1, cosHA))) * (180 / Math.PI);
@@ -158,9 +162,13 @@ export async function handler(event) {
   const airnowApiKey = process.env.AIRNOW_API_KEY?.trim();
 
   if (!userAgent) {
-    return jsonResponse(500, {
-      error: 'NWS proxy is missing the required NWS_USER_AGENT configuration.',
-    }, requestOrigin);
+    return jsonResponse(
+      500,
+      {
+        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration.',
+      },
+      requestOrigin,
+    );
   }
 
   try {
@@ -173,9 +181,13 @@ export async function handler(event) {
       typeof forecastZoneUrl === 'string' ? forecastZoneUrl.split('/').pop()?.trim() : '';
 
     if (!forecastUrl || !zoneCode) {
-      return jsonResponse(502, {
-        error: 'NWS point response did not include the expected forecast metadata.',
-      }, requestOrigin);
+      return jsonResponse(
+        502,
+        {
+          error: 'NWS point response did not include the expected forecast metadata.',
+        },
+        requestOrigin,
+      );
     }
 
     const [forecastResponse, alertResponse, hourlyResponse, aqi] = await Promise.all([
@@ -190,30 +202,38 @@ export async function handler(event) {
     const firstPeriodDate = forecastResponse?.properties?.periods?.[0]?.startTime ?? null;
     const solar = computeSolarTimes(firstPeriodDate);
 
-    return jsonResponse(200, {
-      provider: 'nws',
-      source: 'aws-proxy',
-      locationLabel:
-        location?.city && location?.state ? `${location.city}, ${location.state}` : 'Wiley, CO',
-      updatedAt: forecastResponse?.properties?.updatedAt ?? '',
-      periods: Array.isArray(forecastResponse?.properties?.periods)
-        ? forecastResponse.properties.periods
-        : [],
-      hourlyPeriods: Array.isArray(hourlyResponse?.properties?.periods)
-        ? hourlyResponse.properties.periods.slice(0, 12)
-        : [],
-      alerts: Array.isArray(alertResponse?.features)
-        ? alertResponse.features.map((feature) => mapAlert(feature?.properties))
-        : [],
-      solar,
-      aqi,
-    }, requestOrigin);
+    return jsonResponse(
+      200,
+      {
+        provider: 'nws',
+        source: 'aws-proxy',
+        locationLabel:
+          location?.city && location?.state ? `${location.city}, ${location.state}` : 'Wiley, CO',
+        updatedAt: forecastResponse?.properties?.updatedAt ?? '',
+        periods: Array.isArray(forecastResponse?.properties?.periods)
+          ? forecastResponse.properties.periods
+          : [],
+        hourlyPeriods: Array.isArray(hourlyResponse?.properties?.periods)
+          ? hourlyResponse.properties.periods.slice(0, 12)
+          : [],
+        alerts: Array.isArray(alertResponse?.features)
+          ? alertResponse.features.map((feature) => mapAlert(feature?.properties))
+          : [],
+        solar,
+        aqi,
+      },
+      requestOrigin,
+    );
   } catch (error) {
-    return jsonResponse(502, {
-      error:
-        error instanceof Error && error.message
-          ? error.message
-          : 'Unable to reach the National Weather Service right now.',
-    }, requestOrigin);
+    return jsonResponse(
+      502,
+      {
+        error:
+          error instanceof Error && error.message
+            ? error.message
+            : 'Unable to reach the National Weather Service right now.',
+      },
+      requestOrigin,
+    );
   }
 }

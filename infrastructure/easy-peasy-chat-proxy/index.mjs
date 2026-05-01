@@ -1,10 +1,33 @@
-const corsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,POST,OPTIONS',
-  'access-control-allow-headers': 'content-type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://townofwiley.gov',
+  'https://www.townofwiley.gov',
+  'https://staging.townofwiley.gov',
+  'http://localhost:4200',
+  'http://localhost:4300',
+  'http://127.0.0.1:4200',
+  'http://127.0.0.1:4300',
+]);
 
-function jsonResponse(statusCode, body) {
+/** Limits chat prompt size to reduce proxy abuse (WAF/API limits are still recommended). */
+const MAX_MESSAGE_LENGTH = 8000;
+
+function getRequestOrigin(event) {
+  const headers = event.headers || {};
+  const origin = headers.origin ?? headers.Origin;
+  return typeof origin === 'string' ? origin.trim() : '';
+}
+
+function buildCorsHeaders(requestOrigin) {
+  const origin = ALLOWED_ORIGINS.has(requestOrigin) ? requestOrigin : 'https://townofwiley.gov';
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    vary: 'Origin',
+  };
+}
+
+function jsonResponse(statusCode, body, corsHeaders) {
   return {
     statusCode,
     headers: {
@@ -100,35 +123,50 @@ function getHistory(history) {
 }
 
 export async function handler(event) {
+  const requestOrigin = getRequestOrigin(event);
+  const cors = buildCorsHeaders(requestOrigin);
+
   if (event.requestContext?.http?.method === 'OPTIONS') {
     return {
       statusCode: 204,
-      headers: corsHeaders,
+      headers: cors,
       body: '',
     };
   }
 
   if (event.requestContext?.http?.method === 'GET') {
-    return jsonResponse(200, {
-      ok: true,
-      provider: 'easyPeasy',
-      mode: 'api-proxy',
-    });
+    return jsonResponse(
+      200,
+      {
+        ok: true,
+        provider: 'easyPeasy',
+        mode: 'api-proxy',
+      },
+      cors,
+    );
   }
 
   if (event.requestContext?.http?.method !== 'POST') {
-    return jsonResponse(405, {
-      error: 'Method not allowed.',
-    });
+    return jsonResponse(
+      405,
+      {
+        error: 'Method not allowed.',
+      },
+      cors,
+    );
   }
 
   const apiKey = process.env.EASYPEASY_API_KEY?.trim();
   const publicUrl = process.env.EASYPEASY_BOT_PUBLIC_URL?.trim();
 
   if (!apiKey || !publicUrl) {
-    return jsonResponse(500, {
-      error: 'Easy-Peasy proxy is missing required configuration.',
-    });
+    return jsonResponse(
+      500,
+      {
+        error: 'Easy-Peasy proxy is missing required configuration.',
+      },
+      cors,
+    );
   }
 
   let requestBody;
@@ -136,17 +174,35 @@ export async function handler(event) {
   try {
     requestBody = event.body ? JSON.parse(event.body) : {};
   } catch {
-    return jsonResponse(400, {
-      error: 'Request body must be valid JSON.',
-    });
+    return jsonResponse(
+      400,
+      {
+        error: 'Request body must be valid JSON.',
+      },
+      cors,
+    );
   }
 
   const message = typeof requestBody.message === 'string' ? requestBody.message.trim() : '';
 
   if (!message) {
-    return jsonResponse(400, {
-      error: 'A non-empty message is required.',
-    });
+    return jsonResponse(
+      400,
+      {
+        error: 'A non-empty message is required.',
+      },
+      cors,
+    );
+  }
+
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return jsonResponse(
+      400,
+      {
+        error: 'Message is too long.',
+      },
+      cors,
+    );
   }
 
   try {
@@ -169,31 +225,47 @@ export async function handler(event) {
     const responsePayload = safeParseJson(responseText);
 
     if (!upstreamResponse.ok) {
-      return jsonResponse(upstreamResponse.status, {
-        error:
-          isRecord(responsePayload) && typeof responsePayload.error === 'string'
-            ? responsePayload.error
-            : typeof responseText === 'string' && responseText.trim()
-              ? responseText.trim().slice(0, 400)
-              : 'Easy-Peasy returned an error.',
-      });
+      return jsonResponse(
+        upstreamResponse.status,
+        {
+          error:
+            isRecord(responsePayload) && typeof responsePayload.error === 'string'
+              ? responsePayload.error
+              : typeof responseText === 'string' && responseText.trim()
+                ? responseText.trim().slice(0, 400)
+                : 'Easy-Peasy returned an error.',
+        },
+        cors,
+      );
     }
 
     const response = extractResponseText(responsePayload, responseText);
 
     if (!response) {
-      return jsonResponse(502, {
-        error: 'Easy-Peasy returned a malformed response.',
-      });
+      return jsonResponse(
+        502,
+        {
+          error: 'Easy-Peasy returned a malformed response.',
+        },
+        cors,
+      );
     }
 
-    return jsonResponse(200, {
-      response,
-      sources: extractSources(responsePayload),
-    });
+    return jsonResponse(
+      200,
+      {
+        response,
+        sources: extractSources(responsePayload),
+      },
+      cors,
+    );
   } catch {
-    return jsonResponse(502, {
-      error: 'Unable to reach Easy-Peasy right now.',
-    });
+    return jsonResponse(
+      502,
+      {
+        error: 'Unable to reach Easy-Peasy right now.',
+      },
+      cors,
+    );
   }
 }
