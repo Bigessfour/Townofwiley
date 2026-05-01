@@ -31,34 +31,6 @@ const webServerCommand = useRemoteBaseUrl
   ? ''
   : `"${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
 
-// #region agent log
-if (process.env.TEST_WORKER_INDEX === undefined) {
-  void fetch('http://127.0.0.1:7345/ingest/eac5e3fa-05c6-4855-baef-f3904c9e52e0', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '615d74' },
-    body: JSON.stringify({
-      sessionId: '615d74',
-      hypothesisId: 'H1,H3,H4',
-      location: 'playwright.config.ts:webServer',
-      message: 'playwright parent: execPath and webServer preview',
-      data: {
-        pid: process.pid,
-        node: process.version,
-        execPath: process.execPath,
-        e2eNodeBin,
-        useRemoteBaseUrl,
-        baseURL,
-        e2ePort,
-        webServerPreview: webServerCommand.slice(0, 320),
-        webServerLen: webServerCommand.length,
-        ci: Boolean(process.env.CI),
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => undefined);
-}
-// #endregion
-
 export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   testDir: './e2e/specs',
