@@ -20,6 +20,9 @@ import {
   type DocumentArchiveSectionId,
   type PublishedDocument,
 } from './document-archive';
+import { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
+
+export { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
 
 interface DocumentAction {
   label: string;
@@ -63,12 +66,10 @@ interface DocumentHubCopy {
   sections: DocumentSection[];
 }
 
-export const DOCUMENT_HUB_TITLE_EN = 'Public meeting, finance, and code documents';
-
 const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   en: {
     kicker: 'Public Document Hub',
-    title: 'Public meeting, finance, and code documents',
+    title: DOCUMENT_HUB_TITLE_EN,
     intro:
       'Use this page to find meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, and records request information.',
     returnHome: 'Return to homepage',
@@ -193,7 +194,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
   },
   es: {
     kicker: 'Centro publico de documentos',
-    title: 'Documentos publicos de reuniones, finanzas y codigo',
+    title: DOCUMENT_HUB_TITLE_ES,
     intro:
       'Use esta pagina para encontrar paquetes de agenda, minutas aprobadas, resumenes de presupuesto, informes anuales, ordenanzas, referencias de zonificacion e informacion para solicitar registros.',
     returnHome: 'Volver a la pagina principal',
