@@ -287,6 +287,9 @@ test.describe('homepage weather', () => {
 
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
+    await expect(homePage.weatherSignupShell).toBeVisible();
+    await expect(homePage.weatherSignupLanguage).toHaveAttribute('aria-label', 'English');
+
     await homePage.chooseWeatherSignupChannel('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident', 'es');
 

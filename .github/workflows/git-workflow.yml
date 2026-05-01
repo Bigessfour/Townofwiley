@@ -1,17 +1,7 @@
 name: Site CI
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-concurrency:
-  group: site-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
 
 permissions:
   contents: read
@@ -67,7 +57,7 @@ jobs:
             [[ -z "$FILE" ]] && continue
 
             case "$FILE" in
-              src/*|public/*|package.json|package-lock.json|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|static-routes.txt)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -206,8 +196,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      - name: E2E preflight (Node toolchain, deps, Playwright Chromium)
+        run: python3 scripts/e2e_smoke_preflight.py
+
       - name: Run deterministic E2E regression suite
-        run: npx playwright test e2e/specs/smoke --project=desktop-chromium --workers=1
+        # Omit E2E_BASE_URL so Playwright starts local ng serve. Invalid org/repo variables fail fast in playwright.config (resolveE2eEnv).
+        run: npx playwright test e2e/specs/smoke --project=desktop-chromium --workers=2
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}

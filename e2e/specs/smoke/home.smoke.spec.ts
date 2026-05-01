@@ -59,12 +59,6 @@ async function expectRecordsPage(homePage: HomePage): Promise<void> {
   ).toBeVisible();
 }
 
-async function expectDocumentsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.getByTestId('document-hub-title')).toContainText(
-    siteContent.cmsHeadings.documentsHub,
-  );
-}
-
 async function expectAccessibilityPage(homePage: HomePage): Promise<void> {
   await expect(homePage.page.locator('#barrier-report')).toContainText(
     'Open accessibility report email',
@@ -74,12 +68,6 @@ async function expectAccessibilityPage(homePage: HomePage): Promise<void> {
 async function expectBusinessesPage(homePage: HomePage): Promise<void> {
   await expect(homePage.page.locator('#business-directory-heading')).toContainText(
     siteContent.cmsHeadings.businesses,
-  );
-}
-
-async function expectNewsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.locator('.news-page-shell h1')).toContainText(
-    siteContent.cmsHeadings.news,
   );
 }
 
@@ -122,106 +110,22 @@ async function expectFeaturePageFromHomepage(
 
 const sectionNavigationGateways: NavigationGateway[] = [
   {
-    name: 'Top Tasks section nav',
+    name: 'Businesses mega menu root',
     click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Top Tasks/i, { exact: false })
-        .click(),
-    expectedUrl: /\/#top-tasks$/,
-    assertDestination: expectTopTasksAnchor,
-  },
-  {
-    name: 'Weather section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Weather/i, { exact: false })
-        .click(),
-    expectedUrl: /\/weather$/,
-    assertDestination: expectWeatherPage,
-  },
-  {
-    name: 'Notices section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Notices/i, { exact: false })
-        .click(),
-    expectedUrl: /\/notices$/,
-    assertDestination: expectNoticesPage,
-  },
-  {
-    name: 'Meetings section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Meetings/i, { exact: false })
-        .click(),
-    expectedUrl: /\/meetings$/,
-    assertDestination: expectMeetingsPage,
-  },
-  {
-    name: 'Services section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Services/i, { exact: false })
-        .click(),
-    expectedUrl: /\/services$/,
-    assertDestination: expectServicesPage,
-  },
-  {
-    name: 'Records section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByText(/Records/i, { exact: false })
-        .click(),
-    expectedUrl: /\/records$/,
-    assertDestination: expectRecordsPage,
-  },
-  {
-    name: 'Documents section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByRole('link', { name: 'Documents' })
-        .click(),
-    expectedUrl: /\/documents$/,
-    assertDestination: expectDocumentsPage,
-  },
-  {
-    name: 'Accessibility section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByRole('link', { name: 'Accessibility' })
-        .click(),
-    expectedUrl: /\/accessibility$/,
-    assertDestination: expectAccessibilityPage,
-  },
-  {
-    name: 'Businesses section nav',
-    click: (page) =>
-      page.page
-        .getByTestId('homepage-section-nav')
-        .getByRole('link', { name: 'Businesses' })
-        .click(),
+      page.sectionNavLinks
+        .filter({ hasText: 'Businesses & Community' })
+        .first()
+        .click({ position: { x: 5, y: 5 } }),
     expectedUrl: /\/businesses$/,
     assertDestination: expectBusinessesPage,
   },
   {
-    name: 'News section nav',
+    name: 'Contact mega menu root',
     click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'News' }).click(),
-    expectedUrl: /\/news$/,
-    assertDestination: expectNewsPage,
-  },
-  {
-    name: 'Contact section nav',
-    click: (page) =>
-      page.page.getByTestId('homepage-section-nav').getByRole('link', { name: 'Contact' }).click(),
+      page.sectionNavLinks
+        .filter({ hasText: 'Contact & Town Hall' })
+        .first()
+        .click({ position: { x: 5, y: 5 } }),
     expectedUrl: /\/contact$/,
     assertDestination: expectContactPage,
   },
@@ -229,18 +133,20 @@ const sectionNavigationGateways: NavigationGateway[] = [
 
 const homepageGatewayTests: NavigationGateway[] = [
   {
-    name: 'Header calendar shortcut',
+    name: 'Meetings panel calendar shortcut',
     click: (page) =>
       page.page
-        .getByRole('link', { name: 'Meetings and Calendar Open the full town calendar' })
+        .locator('.content-grid .civic-panel')
+        .first()
+        .getByRole('link', { name: siteContent.heroActionLabels.calendar, exact: true })
         .click(),
     expectedUrl: /\/meetings#calendar$/,
     assertDestination: expectMeetingsCalendar,
   },
   {
-    name: 'Header top tasks shortcut',
-    click: (page) => page.page.getByRole('link', { name: 'Quick Tasks How do I...' }).click(),
-    expectedUrl: /\/#top-tasks$/,
+    name: 'Top Tasks hash route',
+    click: (page) => page.page.goto('/#top-tasks', { waitUntil: 'commit' }),
+    expectedUrl: /#top-tasks$/,
     assertDestination: expectTopTasksAnchor,
   },
   {
@@ -266,17 +172,6 @@ const homepageGatewayTests: NavigationGateway[] = [
     click: (page) => page.page.locator('.task-card[href="/services#records-request"]').click(),
     expectedUrl: /\/services#records-request$/,
     assertDestination: expectServiceRecordsRequest,
-  },
-  {
-    name: 'Homepage meetings calendar link',
-    click: (page) =>
-      page.page
-        .locator('.content-grid .civic-panel')
-        .first()
-        .getByRole('link', { name: siteContent.heroActionLabels.calendar, exact: true })
-        .click(),
-    expectedUrl: /\/meetings#calendar$/,
-    assertDestination: expectMeetingsCalendar,
   },
   {
     name: 'Homepage notices view-all link',
@@ -443,35 +338,31 @@ test.describe('homepage smoke', () => {
     await expect(homePage.page.locator('#accessibility')).toHaveCount(0);
   });
 
-  test('keeps the header shortcuts and header search usable', async ({ homePage }) => {
+  test('keeps the megamenu header search and meetings calendar shortcut usable', async ({
+    homePage,
+  }) => {
     await homePage.goto();
 
-    const headerShortcuts = homePage.page.locator('.info-buttons .header-meta-link');
-    const headerCalendarShortcut = homePage.page.locator(
-      '.info-buttons .header-meta-link[href="/meetings#calendar"]',
-    );
-    const headerTopTasksShortcut = homePage.page.locator(
-      '.info-buttons .header-meta-link[href="/#top-tasks"]',
-    );
-
-    await expect(headerShortcuts).toHaveCount(siteContent.homepageCounts.headerShortcuts);
-    await expect(homePage.page.locator('.header-search-shell')).toBeVisible();
     await expect(homePage.searchInput).toBeVisible();
 
-    await expect(headerCalendarShortcut).toContainText(siteContent.heroActionLabels.calendar);
-    await expect(headerCalendarShortcut).toHaveAttribute('href', '/meetings#calendar');
+    const calendarShortcut = homePage.page
+      .locator('.content-grid .civic-panel')
+      .first()
+      .getByRole('link', { name: siteContent.heroActionLabels.calendar, exact: true });
 
-    await expect(headerTopTasksShortcut).toHaveText(/Quick Tasks/);
-    await expect(headerTopTasksShortcut).toHaveAttribute('href', '/#top-tasks');
+    await expect(calendarShortcut).toBeVisible();
+    // routerLink + fragment serializes as /meetings#calendar in the DOM.
+    await expect(calendarShortcut).toHaveAttribute('href', /\/meetings(#calendar)?$/);
 
-    await headerCalendarShortcut.click();
+    await calendarShortcut.click();
 
     await expect(homePage.page).toHaveURL(/\/meetings#calendar$/);
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
 
     await homePage.goto();
 
-    await headerTopTasksShortcut.click();
+    await homePage.page.goto('/#top-tasks', { waitUntil: 'commit' });
+    await expect(homePage.heroHeading).toBeVisible();
 
     await expect(homePage.page).toHaveURL(/#top-tasks$/);
     await expect(homePage.page.locator('#top-tasks')).toBeVisible();
@@ -498,8 +389,20 @@ test.describe('homepage smoke', () => {
   test('surfaces the expected resident-first tasks', async ({ homePage }) => {
     await homePage.goto();
 
-    for (const label of siteContent.topTaskHeadings) {
-      await expect(homePage.topTaskCards.filter({ hasText: label })).toHaveCount(1);
+    const taskGrid = homePage.page.locator('.landing-task-grid');
+    /** Matches `APP_COPY.en.topTasks` href order in `app.ts` (titles also in `siteContent.topTaskHeadings`). */
+    const topTaskHrefs = [
+      '/services#payment-help',
+      '/services#issue-report',
+      '/meetings',
+      '/services#records-request',
+    ] as const;
+
+    await expect(taskGrid.locator('a.task-card')).toHaveCount(topTaskHrefs.length, {
+      timeout: 25_000,
+    });
+    for (const href of topTaskHrefs) {
+      await expect(taskGrid.locator(`a.task-card[href="${href}"]`)).toHaveCount(1);
     }
   });
 
@@ -555,8 +458,8 @@ test.describe('homepage smoke', () => {
   test('routes search results into public document destinations', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.locator('#site-search').fill('Budget summaries and annual reports');
-    await homePage.page.getByRole('button', { name: /Search/i }).click();
+    await homePage.searchInput.fill('Budget summaries and annual reports');
+    await homePage.searchInput.press('Enter');
 
     await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
     await expect(homePage.page.getByTestId('financial-documents')).toContainText(

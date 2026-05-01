@@ -574,15 +574,28 @@ export class HomePage {
   }
 
   private async selectPrimeSelectOption(combobox: Locator, optionLabel: string): Promise<void> {
-    await combobox.click();
+    await combobox.scrollIntoViewIfNeeded();
+    await expect(combobox).toBeVisible();
+    await this.page.keyboard.press('Escape');
+    const host = combobox.locator('xpath=ancestor::*[contains(@class,"p-select")][1]');
+    const trigger = host.getByRole('button', { name: 'dropdown trigger' });
 
-    const optionIndex = optionLabel === 'Email' || optionLabel === 'Spanish' ? 1 : 0;
-
-    for (let index = 0; index < optionIndex; index += 1) {
-      await this.page.keyboard.press('ArrowDown');
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await trigger.click({ force: true });
+        const overlay = this.page.locator('.p-select-list-container').last();
+        const choice = overlay.getByText(optionLabel, { exact: true });
+        await expect(choice).toBeVisible({ timeout: 4000 });
+        await choice.click();
+        await expect(combobox).toHaveAccessibleName(optionLabel);
+        return;
+      } catch (error) {
+        lastError = error;
+        await this.page.keyboard.press('Escape');
+      }
     }
 
-    await this.page.keyboard.press('Enter');
-    await expect(combobox).toHaveAccessibleName(optionLabel);
+    throw lastError;
   }
 }
