@@ -43,7 +43,7 @@ describe('DocumentHub', () => {
     const publicDocuments = signal<CmsPublicDocument[]>([
       {
         id: 'agenda-2026-04',
-        title: 'April 2026 Agenda Packet',
+        title: 'Council Meeting Agenda Packet',
         summary: 'Agenda packet for the April meeting.',
         sectionId: 'meeting-documents',
         status: 'Published',
@@ -94,7 +94,7 @@ describe('DocumentHub', () => {
       Array.from(compiled.querySelectorAll('.document-file-title')).map((element) =>
         element.textContent?.trim(),
       ),
-    ).toContain('April 2026 Agenda Packet');
+    ).toContain('Council Meeting Agenda Packet');
     expect(compiled.querySelector('.document-hub-button.primary')?.textContent).toContain(
       'Open records request form',
     );

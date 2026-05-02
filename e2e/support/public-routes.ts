@@ -36,8 +36,8 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/services',
     label: 'services page',
-    heading: /Start common town services online/i,
-    primaryAction: (page) => page.getByRole('button', { name: /Pay utility bill/i }),
+    heading: /Town services in one place/i,
+    primaryAction: (page) => page.getByRole('button', { name: /Pay bill, Utilities/i }),
   },
   {
     path: '/records',
@@ -82,7 +82,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/contact',
     label: 'contact page',
-    heading: /Residents should always know where to go next/i,
+    heading: /Phone, email, and next steps/i,
     primaryAction: (page) => page.locator('.contact-link[href^="mailto:"]').first(),
   },
   {

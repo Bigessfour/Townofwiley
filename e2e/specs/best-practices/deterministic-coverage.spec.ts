@@ -703,17 +703,12 @@ test.describe('subcomponent aria contracts', () => {
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.page.locator('.resident-service-picker')).toMatchAriaSnapshot(`
-      - region "Choose a resident task":
-        - paragraph: Choose the service you need and complete the matching form below.
-        - button "Pay utility bill Billing support" [pressed]:
-          - strong: Pay utility bill
-          - text: Billing support
-        - button "Report a street or utility issue Issue reporting":
-          - strong: Report a street or utility issue
-          - text: Issue reporting
-        - button "Request records, permits, or clerk help Clerk intake":
-          - strong: Request records, permits, or clerk help
-          - text: Clerk intake
+      - region "Choose a service":
+        - paragraph: Choose a card below, then complete the matching section.
+        - button "Pay bill, Utilities" [pressed]:
+        - button "Report an issue, Public works":
+        - button "Records & permits, Clerk":
+        - button "Weather alerts, Safety":
     `);
   });
 

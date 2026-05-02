@@ -14,6 +14,8 @@ import {
 const MEETINGS_COPY: MeetingsCopy = {
   calendarCopy: 'View the latest town meetings, agendas, and community events for Wiley.',
   calendarEventFallbackLocation: 'Wiley Town Hall, 304 Main Street',
+  agendaPdfButtonLabel: 'View agenda PDFs',
+  documentsHubButtonLabel: 'Browse town documents',
 };
 
 const CALENDAR_COPY: CalendarViewCopy = {
@@ -21,6 +23,9 @@ const CALENDAR_COPY: CalendarViewCopy = {
   calendarEventFallbackDetail: 'Default calendar detail',
   calendarEventFallbackLocation: 'Wiley Town Hall, 304 Main Street',
   calendarScheduledEventLabel: 'Recurring monthly',
+  calendarGoogleActionLabel: 'Add to Google Calendar',
+  calendarDownloadActionLabel: 'Download ICS',
+  calendarAgendaActionLabel: 'View agenda PDFs',
 };
 
 const FALLBACK_SEEDS: CalendarSeed[] = [
@@ -32,8 +37,8 @@ const FALLBACK_SEEDS: CalendarSeed[] = [
     location: 'Wiley Town Hall, 304 Main Street',
     recurrence: 'Recurring monthly',
     agendaNote: 'Agenda note',
-    startLocal: '20260413T180000',
-    endLocal: '20260413T190000',
+    startLocal: '20260511T180000',
+    endLocal: '20260511T190000',
     slug: 'city-council-regular-meeting',
     extraActions: [{ label: 'Call Town Hall', href: 'tel:+17198294974' }],
   },
@@ -54,8 +59,8 @@ const LIVE_EVENTS: CmsCalendarEvent[] = [
     title: 'City Council Regular Meeting',
     description: 'Monthly council meeting with published agenda packages.',
     location: 'Wiley Town Hall, 304 Main Street',
-    start: '2026-04-13T18:00:00.000Z',
-    end: '2026-04-13T19:00:00.000Z',
+    start: '2026-06-08T18:00:00.000Z',
+    end: '2026-06-08T19:00:00.000Z',
   },
 ];
 
@@ -69,8 +74,9 @@ describe('meetings page helpers', () => {
       title: 'City Council Regular Meeting',
       format: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
+      agendaPdfHref: '/documents#meeting-documents',
     });
-    expect(meetingItems[0].schedule).toContain('Apr');
+    expect(meetingItems[0].schedule).toContain('Jun');
 
     expect(calendarItems).toHaveLength(1);
     expect(calendarItems[0]).toMatchObject({
@@ -80,7 +86,11 @@ describe('meetings page helpers', () => {
       detail: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
       recurrence: 'Recurring monthly',
-      actions: [],
+    });
+    expect(calendarItems[0].actions).toHaveLength(3);
+    expect(calendarItems[0].actions[2]).toMatchObject({
+      label: 'View agenda PDFs',
+      href: '/documents#meeting-documents',
     });
     expect(calendarItems[0].startDate).toBeInstanceOf(Date);
     expect(calendarItems[0].endDate).toBeInstanceOf(Date);
@@ -90,7 +100,16 @@ describe('meetings page helpers', () => {
     const meetingItems = buildMeetingItems([], FALLBACK_MEETINGS, MEETINGS_COPY, 'en-US');
     const calendarItems = buildCalendarItems([], FALLBACK_SEEDS, CALENDAR_COPY, 'en-US');
 
-    expect(meetingItems).toEqual(FALLBACK_MEETINGS);
+    expect(meetingItems).toEqual([
+      {
+        title: 'Town meeting fallback',
+        schedule: 'Fallback schedule',
+        format: 'Fallback format',
+        location: 'Fallback location',
+        agendaPdfHref: '/documents#meeting-documents',
+        agendaButtonLabel: 'View agenda PDFs',
+      },
+    ]);
     expect(calendarItems).toHaveLength(1);
     expect(calendarItems[0]).toMatchObject({
       id: 'seed-city-council-regular-meeting-0',
@@ -101,18 +120,22 @@ describe('meetings page helpers', () => {
       location: 'Wiley Town Hall, 304 Main Street',
       recurrence: 'Recurring monthly',
       agendaNote: 'Agenda note',
-      actions: [{ label: 'Call Town Hall', href: 'tel:+17198294974' }],
     });
-    expect(calendarItems[0].startDate).toEqual(new Date(2026, 3, 13, 18, 0, 0));
-    expect(calendarItems[0].endDate).toEqual(new Date(2026, 3, 13, 19, 0, 0));
+    expect(calendarItems[0].actions).toHaveLength(4);
+    expect(calendarItems[0].actions[3]).toEqual({
+      label: 'Call Town Hall',
+      href: 'tel:+17198294974',
+    });
+    expect(calendarItems[0].startDate).toEqual(new Date(2026, 4, 11, 18, 0, 0));
+    expect(calendarItems[0].endDate).toEqual(new Date(2026, 4, 11, 19, 0, 0));
   });
 
   it('parses seed dates and formats event ranges deterministically', () => {
-    expect(parseCalendarSeedDate('20260413T180000')).toEqual(new Date(2026, 3, 13, 18, 0, 0));
+    expect(parseCalendarSeedDate('20260511T180000')).toEqual(new Date(2026, 4, 11, 18, 0, 0));
     expect(parseCalendarSeedDate('not-a-seed-date')).toEqual(new Date(0));
 
-    const start = new Date(2026, 3, 13, 18, 0, 0);
-    const sameEnd = new Date(2026, 3, 13, 18, 0, 0);
+    const start = new Date(2026, 4, 11, 18, 0, 0);
+    const sameEnd = new Date(2026, 4, 11, 18, 0, 0);
     const formatter = new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -127,7 +150,7 @@ describe('meetings page helpers', () => {
         title: 'Fallback end',
         description: '',
         location: '',
-        start: '2026-04-13T18:00:00.000Z',
+        start: '2026-05-11T18:00:00.000Z',
         end: null,
       }),
     ).toBeInstanceOf(Date);

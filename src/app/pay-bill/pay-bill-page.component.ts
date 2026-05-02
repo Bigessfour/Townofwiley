@@ -122,26 +122,26 @@ export class PayBillPageComponent {
       cardsRegionLabel: es ? 'Pago rápido y pago integrado' : 'Quick pay and embedded pay',
       heroTitle: es ? 'Pague su factura de servicios en línea' : 'Pay Your Utility Bill Online',
       heroSubtitle: es
-        ? 'Pague en línea cuando el portal esté listo o solicite acceso anticipado al nuevo flujo.'
-        : 'Pay online when the portal is ready, or request early access to the new billing flow.',
+        ? 'Pague en línea por el portal seguro, envíe una solicitud de facturación o llame al Ayuntamiento.'
+        : 'Pay online through the secure portal, submit a billing request, or call Town Hall for assistance.',
       quickPayTitle: es ? 'Pago rápido (portal alojado)' : 'Quick Pay (hosted portal)',
       quickPayBody: es
-        ? 'Abra el portal seguro de Paystar para pagar con tarjeta o cuenta bancaria cuando esté configurado.'
-        : 'Open the secure Paystar hosted portal to pay by card or bank account when configured.',
+        ? 'Use el portal alojado de Paystar para pagar con tarjeta o cuenta bancaria cuando esté activo en este sitio.'
+        : 'Use the hosted Paystar portal to pay by card or bank transfer when it is active on this site.',
       quickPayCta: es ? 'Abrir portal de pago' : 'Open payment portal',
       quickPayPlaceholderNote: es
-        ? 'Configuración pendiente: URL de demostración hasta que se establezca portalUrl en tiempo de ejecución.'
-        : 'Placeholder URL until runtime portalUrl is configured.',
+        ? 'El enlace de pago en línea se está finalizando; use el formulario siguiente o llame al Ayuntamiento.'
+        : 'The online payment link is being finalized—use the form below or call Town Hall.',
       comingSoonTitle: es ? 'Pago integrado en el sitio' : 'Embedded pay (in-site)',
-      comingSoonBadge: es ? 'Próximamente' : 'Coming soon',
+      comingSoonBadge: es ? 'En desarrollo' : 'In development',
       comingSoonBody: es
-        ? 'Estamos preparando el pago integrado con sesión de Paystar directamente en esta página.'
-        : 'We are preparing embedded Paystar session checkout directly on this page.',
-      requestEarlyAccess: es ? 'Solicitar acceso anticipado' : 'Request early access',
-      formSectionTitle: es ? 'Solicitud de acceso anticipado' : 'Early access request',
+        ? 'El pago integrado en esta página estará disponible cuando finalice la configuración con Paystar.'
+        : 'In-site checkout will be available once Paystar integration is complete.',
+      requestEarlyAccess: es ? 'Solicitar ayuda con facturación' : 'Request billing assistance',
+      formSectionTitle: es ? 'Solicitud de ayuda con facturación' : 'Billing assistance request',
       formSectionIntro: es
-        ? 'Envíe sus datos y nos pondremos en contacto cuando el nuevo portal esté disponible para su cuenta.'
-        : 'Send your details and we will reach out when the new portal is available for your account.',
+        ? 'Envíe sus datos y la secretaria municipal dará seguimiento a saldos, opciones de pago y su cuenta.'
+        : 'Submit your details and the town clerk will follow up on balances, payment options, and your account.',
       fullNameLabel: es ? 'Nombre completo' : 'Full name',
       serviceAddressLabel: es ? 'Dirección del servicio' : 'Service address',
       accountNumberLabel: es
@@ -270,6 +270,7 @@ export class PayBillPageComponent {
         notes: raw.notes,
         consentToContact: raw.consentToContact,
         locale,
+        source: 'pay-bill-page',
       });
 
       if (result.outcome === 'api-success') {

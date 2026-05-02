@@ -75,6 +75,7 @@
     <button
       type="button"
       class="mobile-menu-button"
+      pRipple
       [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
       [attr.aria-expanded]="sidebarVisible()"
       aria-controls="mobile-menu-drawer"
@@ -90,7 +91,6 @@
     [pt]="desktopMegaMenuPt"
     orientation="horizontal"
     styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
-    [style]="{ background: 'rgba(255,255,255,0.98)', 'backdrop-filter': 'blur(20px)' }"
     data-testid="homepage-section-nav"
   >
     <ng-template pTemplate="start">
@@ -176,10 +176,6 @@
             }
           </div>
         </div>
-        <a class="contact-button" routerLink="/contact" (click)="sidebarVisible.set(false)">
-          <i class="pi pi-envelope" aria-hidden="true"></i>
-          {{ appCopy().featureTitles.contact }}
-        </a>
       </div>
     </ng-template>
   </p-megamenu>
@@ -245,10 +241,10 @@
           <p class="hero-landing-message">{{ heroContent().message }}</p>
           <p class="hero-landing-subtext">{{ heroContent().subtext }}</p>
           <div class="hero-landing-actions">
-            <a class="button-cta button-cta--solid" routerLink="/services">
+            <a class="button-cta button-cta--solid" routerLink="/services" pRipple>
               {{ appCopy().heroPrimaryActionLabel }}
             </a>
-            <a class="button-cta button-cta--ghost" routerLink="/meetings">
+            <a class="button-cta button-cta--ghost" routerLink="/meetings" pRipple>
               {{ appCopy().heroSecondaryActionLabel }}
             </a>
           </div>
@@ -258,7 +254,7 @@
   }
 
   @if (homepageWeatherAlert(); as alert) {
-    @if (!nwsBannerDismissed()) {
+    @if (!nwsBannerDismissed() && !isWeatherMode()) {
       <section
         class="site-alert-slot site-alert-slot--live-nws"
         [attr.aria-label]="appCopy().nwsAlertLabel"
@@ -678,8 +674,8 @@
 
             <ng-template #content let-notice>
               <article class="notice-card notice-card--timeline">
-                <strong>{{ notice.title }}</strong>
-                <span>{{ notice.detail }}</span>
+                <p class="notice-card-title">{{ notice.title }}</p>
+                <p class="notice-card-detail">{{ notice.detail }}</p>
               </article>
             </ng-template>
           </p-timeline>

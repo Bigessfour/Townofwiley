@@ -88,7 +88,7 @@ const DEFAULT_CMS_HERO: CmsHeroContent = {
   status: 'Official Town Website',
   title: 'Town of Wiley',
   message: 'Town notices, meetings, weather, and services.',
-  subtext: 'Practical homepage for Wiley residents with fast access to key information.',
+  subtext: 'Services, meetings, and Town Hall contacts for Wiley residents.',
   welcomeLabel: '',
   welcomeHeading: 'Welcome to the Town of Wiley online home',
   welcomeBody: '',
@@ -100,7 +100,7 @@ const DEFAULT_CMS_HERO_ES: CmsHeroContent = {
   status: 'Sitio web oficial del pueblo',
   title: 'Pueblo de Wiley',
   message: 'Avisos, reuniones, clima y servicios del pueblo.',
-  subtext: 'Página práctica para residentes de Wiley con acceso rápido a información clave.',
+  subtext: 'Servicios, reuniones y contactos del Ayuntamiento para residentes de Wiley.',
   welcomeLabel: '',
   welcomeHeading: 'Bienvenidos al sitio en linea del Pueblo de Wiley',
   welcomeBody: '',
@@ -111,7 +111,8 @@ const DEFAULT_CMS_ALERT_BANNER: CmsAlertBanner = {
   enabled: false,
   label: 'Town Alert',
   title: 'Urgent town update',
-  detail: 'Use this banner for emergency changes, closures, or critical public information.',
+  detail:
+    'Important town alerts and service updates will appear here when published by town staff.',
   linkLabel: 'Contact Town Hall',
   linkHref: 'tel:+17198294974',
 };
@@ -120,7 +121,8 @@ const DEFAULT_CMS_ALERT_BANNER_ES: CmsAlertBanner = {
   enabled: false,
   label: 'Alerta del pueblo',
   title: 'Actualizacion urgente del pueblo',
-  detail: 'Use este banner para emergencias, cierres o informacion publica critica.',
+  detail:
+    'Los avisos importantes del pueblo y actualizaciones de servicios aparecerán aquí cuando el personal los publique.',
   linkLabel: 'Contactar al ayuntamiento',
   linkHref: 'tel:+17198294974',
 };
@@ -129,23 +131,23 @@ const DEFAULT_CMS_NOTICES: CmsNotice[] = [
   {
     id: 'welcome-website',
     title: 'Welcome to the Town of Wiley Official Website',
-    date: 'April 2026',
+    date: 'Recent',
     detail:
-      'Explore town services, upcoming meetings, weather updates, and public notices. Contact Town Hall at (719) 829-4974 for assistance.',
+      'Find town services, meetings, weather updates, and public notices. Call Town Hall at (719) 829-4974 for help.',
   },
   {
     id: 'upcoming-meeting',
     title: 'Town Council Meeting Scheduled',
-    date: 'April 13, 2026',
+    date: 'See calendar',
     detail:
-      'The next Town Council meeting is scheduled for April 13, 2026 at 7:00 PM at Town Hall. Agenda items include budget review and public comments.',
+      'Town Council meets on the second Monday of each month at 6:00 PM at Wiley Town Hall, 304 Main Street. Agendas post before each meeting.',
   },
   {
     id: 'weather-alerts',
     title: 'Severe Weather Alert Sign-Up Available',
     date: 'Ongoing',
     detail:
-      'Sign up for SMS weather alerts to stay informed about severe weather conditions in Wiley. Use the weather panel on the homepage.',
+      'Sign up for local weather and emergency alerts on the Weather page. You can choose email or text.',
   },
 ];
 
@@ -153,23 +155,23 @@ const DEFAULT_CMS_NOTICES_ES: CmsNotice[] = [
   {
     id: 'welcome-website',
     title: 'Bienvenido al Sitio Web Oficial del Pueblo de Wiley',
-    date: 'Abril de 2026',
+    date: 'Reciente',
     detail:
-      'Explore los servicios del pueblo, reuniones próximas, actualizaciones del clima y avisos públicos. Contacte al Ayuntamiento al (719) 829-4974 para asistencia.',
+      'Encuentre servicios del pueblo, reuniones, clima y avisos públicos. Llame al Ayuntamiento al (719) 829-4974 para ayuda.',
   },
   {
     id: 'upcoming-meeting',
     title: 'Reunión del Consejo Municipal Programada',
-    date: '13 de abril de 2026',
+    date: 'Ver calendario',
     detail:
-      'La próxima reunión del Consejo Municipal está programada para el 13 de abril de 2026 a las 7:00 PM en el Ayuntamiento. Los temas de la agenda incluyen revisión del presupuesto y comentarios públicos.',
+      'El Concejo municipal se reúne el segundo lunes de cada mes a las 6:00 PM en el Ayuntamiento de Wiley, 304 Main Street. Las agendas se publican antes de cada reunión.',
   },
   {
     id: 'weather-alerts',
     title: 'Registro Disponible para Alertas de Clima Severo',
     date: 'Continuo',
     detail:
-      'Regístrese para alertas de SMS sobre el clima para mantenerse informado sobre condiciones climáticas severas en Wiley. Use el panel del clima en la página principal.',
+      'Regístrese para alertas locales de clima y emergencias en la página del Clima. Puede elegir correo o mensaje de texto.',
   },
 ];
 
@@ -278,10 +280,14 @@ const KNOWN_CMS_TEXT_TRANSLATIONS: Record<string, string> = {
   'Use this homepage to reach the most important town information quickly, including meetings, notices, contact paths, and weather-sensitive updates.':
     'Use esta pagina principal para llegar rapidamente a la informacion mas importante del pueblo, incluidas reuniones, avisos, rutas de contacto y actualizaciones sensibles al clima.',
   'Town of Wiley welcome image.': 'Imagen de bienvenida del Pueblo de Wiley.',
+  'Services, meetings, and Town Hall contacts for Wiley residents.':
+    'Servicios, reuniones y contactos del Ayuntamiento para residentes de Wiley.',
   'Town Alert': 'Alerta del pueblo',
   'Urgent town update': 'Actualizacion urgente del pueblo',
   'Use this banner for emergency changes, closures, or critical public information.':
     'Use este banner para emergencias, cierres o informacion publica critica.',
+  'Important town alerts and service updates will appear here when published by town staff.':
+    'Los avisos importantes del pueblo y actualizaciones de servicios aparecerán aquí cuando el personal los publique.',
   'Contact Town Hall': 'Contactar al ayuntamiento',
   'Town services and notices are available here':
     'Los servicios y avisos del pueblo estan disponibles aqui',
@@ -951,6 +957,8 @@ export class LocalizedCmsContentStore {
       DEFAULT_CMS_ALERT_BANNER.detail,
       DEFAULT_CMS_ALERT_BANNER_ES.title,
       DEFAULT_CMS_ALERT_BANNER_ES.detail,
+      'Use this banner for emergency changes, closures, or critical public information.',
+      'Use este banner para emergencias, cierres o informacion publica critica.',
     ].some((fallback) => this.normalizeComparableText(fallback) === normalizedValue);
   }
 

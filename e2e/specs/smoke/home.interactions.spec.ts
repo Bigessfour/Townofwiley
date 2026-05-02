@@ -13,11 +13,11 @@ test.describe('homepage high-value interactions', () => {
     await expect(homePage.residentServicePaymentToggle).toHaveAttribute('aria-pressed', 'true');
 
     await homePage.fillResidentPaymentRequest({
-      name: 'Jordan Resident',
-      streetAddress: '210 Main Street',
+      fullName: 'Jordan Resident',
+      serviceAddress: '210 Main Street',
       phone: '(719) 829-4974',
       email: 'jordan@example.com',
-      question: 'I need to review my current utility balance before paying.',
+      notes: 'I need to review my current utility balance before paying.',
     });
 
     await expect(homePage.residentServicePaymentPortalAction).toHaveAttribute(
@@ -25,7 +25,7 @@ test.describe('homepage high-value interactions', () => {
       'https://secure.paystar.io/townofwiley',
     );
 
-    await expect(homePage.residentServicePaymentAction).toContainText('Email billing support');
+    await expect(homePage.residentServicePaymentSubmit).toBeVisible();
   });
 
   test('switches resident services to records requests and prepares the email request', async ({
@@ -45,7 +45,7 @@ test.describe('homepage high-value interactions', () => {
       details: 'Please send the most recent meeting packet and approved minutes for review.',
     });
 
-    await expect(homePage.residentServiceRecordsAction).toContainText('Open records and permit email');
+    await expect(homePage.residentServiceRecordsAction).toContainText('Send request');
     await expect(
       homePage.page.getByRole('link', { name: /Email contact · deb\.dillon@townofwiley\.gov/i }),
     ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');
@@ -68,7 +68,7 @@ test.describe('homepage high-value interactions', () => {
       details: 'A streetlight is out near the corner and should be checked.',
     });
 
-    await expect(homePage.residentServiceIssueActionButton).toContainText('Open issue report email');
+    await expect(homePage.residentServiceIssueActionButton).toContainText('Send report');
     await expect(
       homePage.page.getByRole('link', { name: /Email contact · scott\.whitman@townofwiley\.gov/i }),
     ).toHaveAttribute('href', 'mailto:scott.whitman@townofwiley.gov');
@@ -88,7 +88,9 @@ test.describe('homepage high-value interactions', () => {
       details: 'The issue report controls are not reachable with keyboard navigation.',
     });
 
-    await expect(homePage.accessibilityReportAction).toContainText('Open accessibility report email');
+    await expect(homePage.accessibilityReportAction).toContainText(
+      'Open accessibility report email',
+    );
     await expect(
       homePage.page.getByRole('link', { name: 'Email the Clerk · deb.dillon@townofwiley.gov' }),
     ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');

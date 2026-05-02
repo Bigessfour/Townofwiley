@@ -25,7 +25,140 @@
   color: color-mix(in srgb, var(--ink-900) 82%, transparent);
 }
 
-/* Service Toggle Buttons */
+/* Picker cards (p-card) */
+.resident-picker-wrap {
+  cursor: pointer;
+  border-radius: 24px;
+  outline: none;
+}
+
+.resident-picker-wrap:focus-visible {
+  outline: 3px solid rgba(13, 44, 84, 0.28);
+  outline-offset: 4px;
+}
+
+.resident-picker-wrap.is-selected ::ng-deep .resident-picker-card.p-card {
+  border-color: var(--surface-border-strong);
+  box-shadow: 0 18px 36px rgba(13, 44, 84, 0.12);
+}
+
+::ng-deep .resident-picker-card .p-card-body {
+  padding-top: 0.5rem;
+}
+
+.resident-picker-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.resident-picker-card-head > i {
+  font-size: 1.75rem;
+  color: var(--civic-blue);
+}
+
+.resident-picker-meta {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-700);
+}
+
+.resident-picker-title {
+  font-size: 1.15rem;
+  color: var(--ink-900);
+}
+
+.resident-picker-summary {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink-900) 82%, transparent);
+}
+
+/* Payment stage cards */
+.resident-pay-cards ::ng-deep .resident-pay-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resident-pay-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.resident-pay-card-head--split {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.resident-pay-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resident-pay-card--accent ::ng-deep .p-card {
+  border-color: color-mix(in srgb, var(--p-amber-500) 35%, var(--surface-border));
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--p-amber-50) 55%, var(--surface-card)),
+    var(--surface-card)
+  );
+}
+
+.resident-pay-card-actions {
+  margin-top: auto;
+}
+
+.resident-portal-form-intro {
+  margin: 0 0 1rem;
+  color: color-mix(in srgb, var(--ink-900) 82%, transparent);
+}
+
+.resident-portal-consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.75rem 1rem;
+}
+
+.resident-portal-consent label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.resident-portal-submit {
+  margin-top: 0.5rem;
+}
+
+::ng-deep .resident-service-stage-card.p-card {
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(13, 44, 84, 0.09);
+}
+
+.resident-service-stage-inner h2 {
+  margin: 0;
+  color: var(--ink-900);
+}
+
+.resident-service-stage-inner .meta-label + i {
+  font-size: 2.5rem;
+  color: var(--civic-blue);
+  margin-bottom: 0.75rem;
+}
+
+/* Service Toggle Buttons (legacy class kept if referenced) */
 .resident-service-toggle {
   border: 1px solid var(--surface-border);
   background: var(--surface-overlay);

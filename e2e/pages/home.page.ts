@@ -51,9 +51,9 @@ export class HomePage {
   readonly residentServicePaymentStreetAddress: Locator;
   readonly residentServicePaymentPhone: Locator;
   readonly residentServicePaymentEmail: Locator;
-  readonly residentServicePaymentQuestion: Locator;
   readonly residentServicePaymentPortalAction: Locator;
-  readonly residentServicePaymentAction: Locator;
+  /** Billing early-access form submit (`#billing-intake`). */
+  readonly residentServicePaymentSubmit: Locator;
   readonly residentServicePaymentStatus: Locator;
   readonly residentServiceIssuePanel: Locator;
   readonly residentServiceIssueCategory: Locator;
@@ -151,37 +151,39 @@ export class HomePage {
     this.footerLinks = page.locator('.footer-links a');
     this.residentServicesSection = page.locator('.resident-services');
     this.residentServicePicker = page.locator('.resident-service-picker');
-    this.residentServiceToggles = page.locator('.resident-service-toggle');
+    this.residentServiceToggles = page.locator('.resident-picker-wrap');
     this.residentServicePaymentToggle = page.getByRole('button', {
-      name: /Pay utility bill/i,
+      name: /Pay bill, Utilities/i,
     });
     this.residentServiceIssueToggle = page.getByRole('button', {
-      name: /Report a street or utility issue/i,
+      name: /Report an issue, Public works/i,
     });
     this.residentServiceRecordsToggle = page.getByRole('button', {
-      name: /Request records, permits, or clerk help/i,
+      name: /Records & permits, Clerk/i,
     });
     this.residentServicePaymentPanel = page.locator('#payment-help');
-    this.residentServicePaymentName = page.getByLabel('Resident name');
-    this.residentServicePaymentStreetAddress = page.getByLabel('Street address');
-    this.residentServicePaymentPhone = page.getByLabel('Phone number');
-    this.residentServicePaymentEmail = page.getByLabel('Email address');
-    this.residentServicePaymentQuestion = page.getByLabel('Billing question or amount due');
-    this.residentServicePaymentPortalAction = page.getByRole('link', {
-      name: 'Open secure Paystar payment portal',
+    const portalForm = page.locator('#billing-intake');
+    this.residentServicePaymentName = portalForm.getByLabel('Full name');
+    this.residentServicePaymentStreetAddress = portalForm.getByLabel('Service address');
+    this.residentServicePaymentPhone = portalForm.getByLabel('Phone');
+    this.residentServicePaymentEmail = portalForm.getByLabel('Email');
+    this.residentServicePaymentPortalAction = page.locator('#payment-help').getByRole('link', {
+      name: /Pay now with Paystar/i,
     });
-    this.residentServicePaymentAction = page.locator('#payment-help .resident-action--secondary');
+    this.residentServicePaymentSubmit = portalForm.getByRole('button', {
+      name: 'Submit request',
+    });
     this.residentServicePaymentStatus = page.locator('#payment-help .resident-status');
     this.residentServiceIssuePanel = page.locator('#issue-report');
     this.residentServiceIssueCategory = page.getByRole('combobox', {
       name: 'Water or sewer',
     });
-    this.residentServiceIssueName = page.getByLabel('Resident name');
+    this.residentServiceIssueName = page.locator('#issue-report').getByLabel('Your name');
     this.residentServiceIssueLocation = page.getByLabel('Location');
     this.residentServiceIssueContact = page.getByLabel('Best phone or email for follow-up');
     this.residentServiceIssueDetails = page.getByLabel('What happened');
-    this.residentServiceIssueActionButton = page.getByRole('button', {
-      name: 'Open issue report email',
+    this.residentServiceIssueActionButton = page.locator('#issue-report').getByRole('button', {
+      name: /Send report/i,
     });
     this.residentServiceIssueStatus = page.locator('#issue-report .resident-status');
     this.residentServiceRecordsPanel = page.locator('#records-request');
@@ -191,11 +193,11 @@ export class HomePage {
     this.residentServiceRecordsName = page.getByLabel('Resident or business name');
     this.residentServiceRecordsContact = page.getByLabel('Best phone or email for reply');
     this.residentServiceRecordsDeadline = page.getByLabel('Requested deadline or meeting date');
-    this.residentServiceRecordsDetails = page.getByLabel(
-      'Records, permit, or clerk request details',
-    );
-    this.residentServiceRecordsAction = page.getByRole('button', {
-      name: 'Open records and permit email',
+    this.residentServiceRecordsDetails = page
+      .locator('#records-request')
+      .getByLabel('Details', { exact: true });
+    this.residentServiceRecordsAction = page.locator('#records-request').getByRole('button', {
+      name: /Send request/i,
     });
     this.residentServiceRecordsStatus = page.locator('#records-request .resident-status');
     this.accessibilitySupportSection = page.locator('.accessibility-support-grid');
@@ -487,21 +489,32 @@ export class HomePage {
   }
 
   async fillResidentPaymentRequest(details: {
-    name: string;
-    streetAddress: string;
+    fullName: string;
+    serviceAddress: string;
     phone: string;
     email: string;
-    question: string;
+    notes?: string;
   }): Promise<void> {
-    await this.residentServicePaymentName.fill(details.name);
-    await this.residentServicePaymentStreetAddress.fill(details.streetAddress);
+    await this.residentServicePaymentName.fill(details.fullName);
+    await this.residentServicePaymentStreetAddress.fill(details.serviceAddress);
     await this.residentServicePaymentPhone.fill(details.phone);
     await this.residentServicePaymentEmail.fill(details.email);
-    await this.residentServicePaymentQuestion.fill(details.question);
+    await this.page.locator('#billing-intake').getByLabel('Preferred contact method').click();
+    await this.page.getByRole('option', { name: 'Email', exact: true }).click();
+    await this.page
+      .locator('#billing-intake')
+      .getByRole('checkbox', { name: /agree that the Town of Wiley/i })
+      .check();
+    if (details.notes) {
+      await this.page
+        .locator('#billing-intake')
+        .getByLabel(/Additional questions or details/i)
+        .fill(details.notes);
+    }
   }
 
   async fillResidentRecordsRequest(details: {
-    requestType?: 'records' | 'permit' | 'license' | 'clerk';
+    requestType?: 'records' | 'license' | 'clerk';
     name: string;
     contact: string;
     deadline?: string;
@@ -628,12 +641,9 @@ export class HomePage {
     );
   }
 
-  private getRecordsRequestTypeLabel(
-    requestType: 'records' | 'permit' | 'license' | 'clerk',
-  ): string {
+  private getRecordsRequestTypeLabel(requestType: 'records' | 'license' | 'clerk'): string {
     const requestTypeLabels = {
       records: 'Public records / FOIA',
-      permit: 'Permit guidance',
       license: 'License or fee question',
       clerk: 'Clerk assistance',
     };

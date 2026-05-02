@@ -1,3 +1,11 @@
+/**
+ * Go-Live Checklist (before promoting to production):
+ * - `ng build --configuration production` with zero warnings; bundle budgets satisfied.
+ * - Unit tests (`npm test` / Vitest) and smoke E2E pass on the release candidate.
+ * - CMS/runtime config (`__TOW_RUNTIME_CONFIG__`), Amplify env, and secrets verified for prod.
+ * - Analytics/monitoring hooks reviewed; SSL and redirects correct for the live domain.
+ * - PDFs and static assets published under `public/documents` (and archive links) match clerk uploads.
+ */
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -26,6 +34,7 @@ import { DrawerModule } from 'primeng/drawer';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
 import { MegaMenuModule } from 'primeng/megamenu';
+import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -35,6 +44,12 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import { getChatbotRuntimeConfig } from './chatbot-config';
+import {
+  createGoogleCalendarLinkForEvent,
+  createGoogleCalendarLinkForSeed,
+  createIcsDataUrlForEvent,
+  createIcsDataUrlForSeed,
+} from './calendar-public-links';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { AppRouteLink, getAppRouteLink } from './internal-route-link';
@@ -73,6 +88,9 @@ interface MeetingItem {
   agendaNote?: string;
   cta?: string;
   href?: string;
+  /** Default meeting documents / agenda PDFs section. */
+  agendaPdfHref?: string;
+  agendaButtonLabel?: string;
 }
 
 interface CalendarAction {
@@ -201,7 +219,8 @@ type FeaturePageId =
   | 'businesses'
   | 'news'
   | 'payments'
-  | 'permits';
+  | 'permits'
+  | 'documents';
 
 type FeatureTitles = Record<FeaturePageId, string>;
 
@@ -265,6 +284,15 @@ interface AppCopy {
   noticesHeading: string;
   meetingsKicker: string;
   meetingsHeading: string;
+  meetingsAgendaPdfButtonLabel: string;
+  /** Primary-button label when linking to hub from notices-oriented meeting row (fallback data). */
+  meetingsDocumentsHubButtonLabel: string;
+  meetingsTableAriaLabel: string;
+  meetingsColMeeting: string;
+  meetingsColWhen: string;
+  meetingsColLocation: string;
+  meetingsColDetails: string;
+  meetingsColActions: string;
   openCalendarLabel: string;
   calendarKicker: string;
   calendarHeading: string;
@@ -315,6 +343,11 @@ interface AppCopy {
   backHomeLabel: string;
   privacySummary: string;
   termsSummary: string;
+  /** Short blurb for /pay-bill in feature index and search metadata. */
+  paymentsFeatureSummary: string;
+  /** Kicker + summary for /documents SEO (`featurePages`). */
+  documentsHubKicker: string;
+  documentsFeatureSummary: string;
   featureTitles: FeatureTitles;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];
@@ -497,8 +530,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     topTasksBody: '',
     featureHubKicker: 'Town features',
     featureHubHeading: 'Open the town section you need',
-    featureHubBody:
-      'Use these feature pages to reach weather, notices, meetings, services, records, and Town Hall contacts quickly.',
+    featureHubBody: 'Weather, notices, meetings, services, records, and Town Hall contacts.',
     stayInformedKicker: 'Stay Informed',
     stayInformedHeading: 'Alerts and direct town contact',
     stayInformedBody:
@@ -513,8 +545,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Find permits, taxes, meetings, utilities, records, and issue reporting in one place.',
     searchPlaceholder: 'Search Wiley services... permits, taxes, meetings',
     searchActionLabel: 'Search',
-    searchNote:
-      'Use the search bar to jump to the best match, then browse the suggested shortcuts below for related resident tasks.',
+    searchNote: 'Results update as you type; use the shortcuts below for common tasks.',
     searchEmptyState:
       'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
     mobileOnlinePaymentsLabel: 'Online Payments',
@@ -527,21 +558,29 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     noticesHeading: 'News & Announcements',
     meetingsKicker: 'Town calendar',
     meetingsHeading: 'Council meetings & schedules',
+    meetingsAgendaPdfButtonLabel: 'View agenda PDFs',
+    meetingsDocumentsHubButtonLabel: 'Browse town documents',
+    meetingsTableAriaLabel: 'Upcoming meetings and schedules',
+    meetingsColMeeting: 'Meeting',
+    meetingsColWhen: 'When',
+    meetingsColLocation: 'Location',
+    meetingsColDetails: 'Details',
+    meetingsColActions: 'Actions',
     openCalendarLabel: 'Open the full town calendar',
     calendarKicker: 'Calendar',
     calendarHeading: 'Public calendar',
     calendarCopy: 'View the latest town meetings, agendas, and community events for Wiley.',
-    calendarBridgeLabel: 'Tie alerts back to notices and agendas',
+    calendarBridgeLabel: 'Notices, agendas, and meeting materials',
     calendarJumpLabel: 'Jump to a month',
     calendarJumpPlaceholder: 'Choose a month',
     calendarJumpCurrentLabel: 'Selected month:',
     calendarHelpButtonLabel: 'Calendar help',
-    calendarHelpTitle: 'How to use the calendar tools',
+    calendarHelpTitle: 'Using the calendar',
     calendarHelpBody:
-      'Choose a month to focus the calendar view. The event cards below still show the live schedule and related links.',
-    calendarHelpPointOne: 'Pick a month to move the full calendar view.',
-    calendarHelpPointTwo: 'Use the event cards for agendas, downloads, and links.',
-    calendarHelpPointThree: 'Open notices when you need agenda-linked alerts.',
+      'Select a month to focus the grid; event cards below show the current schedule and links.',
+    calendarHelpPointOne: 'Choose a month to shift the calendar view.',
+    calendarHelpPointTwo: 'Open event cards for agendas, downloads, and details.',
+    calendarHelpPointThree: 'Check Town notices for cancellations or room changes.',
     calendarHelpCloseLabel: 'Close help',
     calendarMonthTabLabel: 'Month view',
     calendarListTabLabel: 'Event list',
@@ -562,7 +601,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarPublishedEventCategory: 'Upcoming event',
     calendarGoogleActionLabel: 'Add to Google Calendar',
     calendarDownloadActionLabel: 'Download ICS',
-    calendarAgendaActionLabel: 'Agenda details',
+    calendarAgendaActionLabel: 'View agenda PDFs',
     calendarActionsAriaLabel: 'Calendar links',
     calendarLiveEventCategory: 'Community calendar',
     calendarScheduledEventLabel: 'Scheduled event',
@@ -570,22 +609,25 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Meeting details and community event information will appear here.',
     calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Digital Services',
-    servicesHeading: 'Self-service tools should reduce office calls, not add more friction',
+    servicesHeading: 'Online services for residents',
     transparencyKicker: 'Transparency',
-    transparencyHeading:
-      'Records, budgets, and notices must be easy to find and easy to understand',
+    transparencyHeading: 'Public records, budgets, and notices',
     accessibilityKicker: 'Accessibility',
-    accessibilityHeading:
-      'ADA and WCAG 2.1 AA work has to be visible in both design and operations',
+    accessibilityHeading: 'Accessible services and inclusive design',
     complianceNote:
-      'Publish an accessibility statement, keep audits recurring, and provide a direct path for alternate-format and barrier reports.',
-    contactKicker: 'Contact and Response Paths',
-    contactHeading: 'Residents should always know where to go next',
+      'Read our accessibility statement, request alternate formats, and report barriers to town staff.',
+    contactKicker: 'Contact',
+    contactHeading: 'Phone, email, and next steps',
     backHomeLabel: 'Return to homepage',
     privacySummary:
       'How the Town of Wiley uses contact information from the weather alert signup form.',
     termsSummary:
       'Message frequency, opt-out instructions, and program terms for Wiley weather alert texts.',
+    paymentsFeatureSummary:
+      'Hosted Paystar Quick Pay when available, plus a billing assistance form and Town Hall support.',
+    documentsHubKicker: 'Documents hub',
+    documentsFeatureSummary:
+      'Meeting agendas and packets, budgets and finance reports, municipal code references, searchable archives, and records materials published by the Town of Wiley.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
@@ -600,6 +642,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       news: 'Town news',
       payments: 'Utility bill payment',
       permits: 'Permits and clerk',
+      documents: 'Public documents hub',
     },
     footerLinks: [
       { label: 'Accessibility statement', href: '/accessibility' },
@@ -690,8 +733,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         recurrence: 'Recurring monthly',
         agendaNote:
           'Agenda requests: (719) 829-4974 or deb.dillon@townofwiley.gov before the meeting.',
-        startLocal: '20260413T180000',
-        endLocal: '20260413T190000',
+        startLocal: '20260511T180000',
+        endLocal: '20260511T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
         extraActions: [
           {
@@ -713,8 +756,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Town reminders include seasonal deadlines, planned closures, utility work, school-related notices when applicable, and severe weather alerts.',
         location: 'Town-wide',
         recurrence: 'Operational updates',
-        startLocal: '20260425T080000',
-        endLocal: '20260425T090000',
+        startLocal: '20260602T080000',
+        endLocal: '20260602T090000',
         slug: 'community-deadlines-service-updates',
       },
     ],
@@ -723,7 +766,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Pay your utility bill online',
         availability: 'Online payments and billing support',
         description:
-          'Pay online when the secure payment portal is available, or use the billing form to ask about your balance, payment options, or account details.',
+          'Pay online through the utility billing portal, or contact Town Hall for balance and payment options.',
         href: '/pay-bill',
         cta: 'Open utility payment options',
       },
@@ -772,42 +815,41 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'FOIA and public records',
         detail:
-          'Publish records request instructions, fee worksheets, downloadable forms, and response timelines in one clearly labeled location.',
+          'Request forms, fee schedules, and response timelines for public records are available through Town Hall and the records hub.',
       },
       {
         title: 'Agendas, minutes, and budgets',
         detail:
-          'Keep meeting packets, approved minutes, budget summaries, and annual reports searchable and downloadable in accessible formats.',
+          'Meeting packets, approved minutes, budget summaries, and annual reports are posted for download in accessible formats.',
       },
       {
         title: 'Ordinances and code information',
         detail:
-          'Give residents a straightforward way to locate municipal code, zoning references, and enforcement guidance.',
+          'Municipal code, zoning references, and related guidance are linked from the documents hub.',
       },
       {
         title: 'Project and service status updates',
         detail:
-          'Use status pages or compact dashboards to show road work, closures, utility projects, and request backlogs without forcing phone calls.',
+          'Notices and service updates cover road work, utility projects, closures, and major town operations.',
       },
     ],
     transparencyActionsLabel: 'Transparency quick actions',
     transparencyActions: [
       {
-        title: 'Open the public records request destination',
+        title: 'Public records requests',
         detail:
-          'Go to the public records destination for FOIA routing, accessible-copy follow-up, and clerk intake.',
+          'FOIA and records requests, including alternate formats, are coordinated through the clerk.',
         href: DOCUMENT_HUB_LINKS.requests,
       },
       {
-        title: 'Open meeting packets and agenda access',
+        title: 'Meeting packets and agendas',
         detail:
-          'Go straight to the public meeting-documents destination for packets, minutes, agenda timing, and calendar access.',
+          'Packets, minutes, and calendar materials are available in the meeting documents section.',
         href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
-        title: 'Browse budgets, annual reports, and code references',
-        detail:
-          'Open the finance and ordinance destinations instead of falling back to email-only guidance.',
+        title: 'Budgets and municipal code',
+        detail: 'Financial reports and code references are published in the documents hub.',
         href: DOCUMENT_HUB_LINKS.finance,
       },
     ],
@@ -815,29 +857,28 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Keyboard and screen-reader support',
         detail:
-          'Maintain logical heading order, skip links, focus states, descriptive labels, and consistent navigation on every page.',
+          'This site uses logical headings, a skip link, visible focus, and consistent navigation.',
       },
       {
         title: 'Readable contrast and resize behavior',
         detail:
-          'Keep text contrast at WCAG 2.1 AA levels and ensure content still works when text is enlarged or the page is zoomed.',
+          'Text is published to meet WCAG 2.1 AA contrast; layouts support zoom and larger text settings.',
       },
       {
         title: 'Accessible documents and media',
         detail:
-          'Provide searchable PDFs, captioned video, transcripts, alt text, and downloadable files that remain accessible over time.',
+          'Public PDFs, video, and downloads are provided with accessibility in mind; contact the clerk for alternate formats.',
       },
       {
-        title: 'Ongoing compliance operations',
+        title: 'Feedback and ongoing improvement',
         detail:
-          'Publish an accessibility statement, provide a barrier-report form, and schedule recurring audits instead of treating accessibility as a one-time project.',
+          'Use the accessibility statement to request accommodations or report barriers; the town reviews feedback on a recurring basis.',
       },
     ],
     leadershipGroups: [
       {
         title: 'Mayor and Council',
-        detail:
-          'Elected leadership should be visible near meetings and contact paths so residents can quickly identify who represents them.',
+        detail: 'Elected officials and meeting contact paths are listed below.',
         members: [
           'Mayor: Steve McKitrick',
           'Councilman: Julie Esgar',
@@ -849,8 +890,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       },
       {
         title: 'Town Administration',
-        detail:
-          'Administrative leaders should stay visible because small-town residents often need direct, role-based contacts rather than department directories.',
+        detail: 'Clerk and superintendent contacts for day-to-day town services.',
         members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
       },
     ],
@@ -886,8 +926,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     topTasksBody: '',
     featureHubKicker: 'Funciones del pueblo',
     featureHubHeading: 'Abra la seccion del pueblo que necesita',
-    featureHubBody:
-      'Use estas paginas para llegar rapidamente al clima, avisos, reuniones, servicios, registros y contactos del ayuntamiento.',
+    featureHubBody: 'Clima, avisos, reuniones, servicios, registros y contactos del Ayuntamiento.',
     stayInformedKicker: 'Manténgase Informado',
     stayInformedHeading: 'Alertas y contacto directo con el ayuntamiento',
     stayInformedBody:
@@ -904,7 +943,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     searchPlaceholder: 'Busque servicios de Wiley... permisos, impuestos, reuniones',
     searchActionLabel: 'Buscar',
     searchNote:
-      'Use la barra de busqueda para ir al mejor resultado y luego revise los accesos directos sugeridos para tareas de residentes.',
+      'Los resultados se actualizan al escribir; use los accesos directos abajo para tareas comunes.',
     searchEmptyState:
       'Todavia no hay coincidencia directa. Pruebe permisos, impuestos, reuniones, servicios, registros, clima o calles.',
     mobileOnlinePaymentsLabel: 'Pagos en linea',
@@ -917,22 +956,30 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     noticesHeading: 'Noticias y anuncios',
     meetingsKicker: 'Calendario municipal',
     meetingsHeading: 'Reuniones del concejo y cronograma',
+    meetingsAgendaPdfButtonLabel: 'Ver PDFs de la agenda',
+    meetingsDocumentsHubButtonLabel: 'Ver documentos del pueblo',
+    meetingsTableAriaLabel: 'Próximas reuniones y horarios',
+    meetingsColMeeting: 'Reunión',
+    meetingsColWhen: 'Cuándo',
+    meetingsColLocation: 'Ubicación',
+    meetingsColDetails: 'Detalles',
+    meetingsColActions: 'Acciones',
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
     calendarHeading: 'Calendario publico',
     calendarCopy:
       'Vea las últimas reuniones del pueblo, agendas y eventos comunitarios para Wiley.',
-    calendarBridgeLabel: 'Relacionar las alertas con avisos y ordenes del dia',
+    calendarBridgeLabel: 'Avisos, agendas y documentos de reunion',
     calendarJumpLabel: 'Ir a un mes',
     calendarJumpPlaceholder: 'Elija un mes',
     calendarJumpCurrentLabel: 'Mes seleccionado:',
     calendarHelpButtonLabel: 'Ayuda del calendario',
-    calendarHelpTitle: 'Como usar las herramientas del calendario',
+    calendarHelpTitle: 'Uso del calendario',
     calendarHelpBody:
-      'Elija un mes para enfocar la vista del calendario. Las tarjetas de eventos abajo siguen mostrando el horario en vivo y los enlaces relacionados.',
-    calendarHelpPointOne: 'Elija un mes para mover la vista del calendario completo.',
-    calendarHelpPointTwo: 'Use las tarjetas de eventos para agendas, descargas y enlaces.',
-    calendarHelpPointThree: 'Abra avisos cuando necesite alertas vinculadas a agendas.',
+      'Seleccione un mes para enfocar la cuadricula; las tarjetas abajo muestran el horario actual y enlaces.',
+    calendarHelpPointOne: 'Elija un mes para cambiar la vista del calendario.',
+    calendarHelpPointTwo: 'Abra las tarjetas de eventos para agendas, descargas y detalles.',
+    calendarHelpPointThree: 'Consulte los avisos del pueblo por cancelaciones o cambios de sala.',
     calendarHelpCloseLabel: 'Cerrar ayuda',
     calendarMonthTabLabel: 'Vista mensual',
     calendarListTabLabel: 'Lista de eventos',
@@ -953,7 +1000,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarPublishedEventCategory: 'Proximo evento',
     calendarGoogleActionLabel: 'Agregar a Google Calendar',
     calendarDownloadActionLabel: 'Descargar ICS',
-    calendarAgendaActionLabel: 'Detalles de la agenda',
+    calendarAgendaActionLabel: 'Ver PDFs de la agenda',
     calendarActionsAriaLabel: 'Enlaces del calendario',
     calendarLiveEventCategory: 'Calendario comunitario',
     calendarScheduledEventLabel: 'Evento programado',
@@ -961,23 +1008,25 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Los detalles de reuniones y eventos comunitarios apareceran aqui.',
     calendarEventFallbackLocation: 'Wiley, Colorado',
     servicesKicker: 'Servicios digitales',
-    servicesHeading:
-      'Las herramientas de autoservicio deben reducir llamadas a la oficina, no crear mas friccion',
+    servicesHeading: 'Servicios en linea para residentes',
     transparencyKicker: 'Transparencia',
-    transparencyHeading:
-      'Los registros, presupuestos y avisos deben ser faciles de encontrar y faciles de entender',
+    transparencyHeading: 'Registros publicos, presupuestos y avisos',
     accessibilityKicker: 'Accesibilidad',
-    accessibilityHeading:
-      'El trabajo de ADA y WCAG 2.1 AA debe verse tanto en el diseno como en la operacion',
+    accessibilityHeading: 'Servicios accesibles y diseno inclusivo',
     complianceNote:
-      'Publique una declaracion de accesibilidad, mantenga auditorias recurrentes y ofrezca una via directa para solicitar formatos alternativos y reportar barreras.',
-    contactKicker: 'Contacto y rutas de respuesta',
-    contactHeading: 'Los residentes siempre deben saber a donde ir despues',
+      'Lea nuestra declaracion de accesibilidad, solicite formatos alternativos e informe barreras al personal.',
+    contactKicker: 'Contacto',
+    contactHeading: 'Telefono, correo y siguientes pasos',
     backHomeLabel: 'Volver a la pagina principal',
     privacySummary:
       'Como usa el Pueblo de Wiley la informacion de contacto del formulario de alertas del clima.',
     termsSummary:
       'Frecuencia de mensajes, instrucciones para cancelar y terminos del programa de alertas por texto de Wiley.',
+    paymentsFeatureSummary:
+      'Pago rapido Paystar alojado cuando este activo, mas formulario de ayuda con facturacion y apoyo del Ayuntamiento.',
+    documentsHubKicker: 'Centro de documentos',
+    documentsFeatureSummary:
+      'Agendas y paquetes de reuniones, presupuestos e informes financieros, referencias del codigo municipal, archivos consultables y materiales de registros publicados por el pueblo de Wiley.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
@@ -992,6 +1041,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       news: 'Noticias del pueblo',
       payments: 'Pago de factura de servicios',
       permits: 'Permisos y secretaria',
+      documents: 'Documentos publicos',
     },
     footerLinks: [
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
@@ -1082,8 +1132,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         recurrence: 'Recurrente cada mes',
         agendaNote:
           'Solicitudes de agenda: (719) 829-4974 o deb.dillon@townofwiley.gov antes de la reunion.',
-        startLocal: '20260413T180000',
-        endLocal: '20260413T190000',
+        startLocal: '20260511T180000',
+        endLocal: '20260511T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
         extraActions: [
           {
@@ -1105,8 +1155,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Los recordatorios del pueblo incluyen fechas limite estacionales, cierres planificados, trabajos en servicios publicos, avisos relacionados con las escuelas cuando aplique y alertas meteorologicas.',
         location: 'Todo el pueblo',
         recurrence: 'Actualizaciones operativas',
-        startLocal: '20260425T080000',
-        endLocal: '20260425T090000',
+        startLocal: '20260602T080000',
+        endLocal: '20260602T090000',
         slug: 'community-deadlines-service-updates',
       },
     ],
@@ -1115,7 +1165,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         title: 'Pague su factura de servicios en línea',
         availability: 'Pagos en linea y soporte de facturacion',
         description:
-          'Pague en linea cuando el portal seguro este disponible o use el formulario de facturacion para preguntar por su saldo, opciones de pago o detalles de cuenta.',
+          'Pague en linea a traves del portal de facturacion o comuniquese con el Ayuntamiento para saldo y opciones de pago.',
         href: '/pay-bill',
         cta: 'Abrir opciones de pago de servicios',
       },
@@ -1164,42 +1214,42 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'FOIA y registros publicos',
         detail:
-          'Publique instrucciones para solicitudes de registros, tablas de cuotas, formularios descargables y tiempos de respuesta en un solo lugar claramente identificado.',
+          'Formularios de solicitud, cuadros de cuotas y plazos de respuesta estan disponibles en el Ayuntamiento y el centro de registros.',
       },
       {
         title: 'Agendas, minutas y presupuestos',
         detail:
-          'Mantenga las agendas, minutas aprobadas, resumenes de presupuesto e informes anuales en formatos accesibles, descargables y faciles de buscar.',
+          'Los paquetes de reunion, minutas aprobadas, resumenes de presupuesto e informes anuales se publican para descarga en formatos accesibles.',
       },
       {
         title: 'Ordenanzas e informacion del codigo',
         detail:
-          'Ofrezca una forma directa para localizar el codigo municipal, referencias de zonificacion y orientacion de cumplimiento.',
+          'El codigo municipal, referencias de zonificacion y orientacion relacionada enlazan desde el centro de documentos.',
       },
       {
         title: 'Actualizaciones de proyectos y estado del servicio',
         detail:
-          'Use paginas de estado o paneles compactos para mostrar obras viales, cierres, proyectos de servicios y atrasos de solicitudes sin obligar a llamar.',
+          'Los avisos y actualizaciones de servicios cubren obras viales, proyectos de servicios, cierres y operaciones principales del pueblo.',
       },
     ],
     transparencyActionsLabel: 'Acciones rapidas de transparencia',
     transparencyActions: [
       {
-        title: 'Abrir el destino publico de registros',
+        title: 'Solicitudes de registros publicos',
         detail:
-          'Vaya al destino publico de registros para la ruta FOIA, copias accesibles y solicitudes con la secretaria.',
+          'Las solicitudes FOIA y de registros, incluidos formatos alternativos, las coordina la secretaria.',
         href: DOCUMENT_HUB_LINKS.requests,
       },
       {
-        title: 'Abrir paquetes y acceso a agendas',
+        title: 'Paquetes y agendas de reunion',
         detail:
-          'Vaya directamente al destino publico de documentos de reuniones para paquetes, minutas, tiempos de agenda y acceso al calendario.',
+          'Paquetes, minutas y materiales del calendario estan en la seccion de documentos de reunion.',
         href: DOCUMENT_HUB_LINKS.meetings,
       },
       {
-        title: 'Explorar presupuestos, informes y referencias de codigo',
+        title: 'Presupuestos y codigo municipal',
         detail:
-          'Abra los destinos de finanzas y ordenanzas en lugar de depender solo del correo electronico.',
+          'Informes financieros y referencias del codigo se publican en el centro de documentos.',
         href: DOCUMENT_HUB_LINKS.finance,
       },
     ],
@@ -1207,29 +1257,27 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Soporte para teclado y lectores de pantalla',
         detail:
-          'Mantenga un orden logico de encabezados, enlaces para saltar contenido, estados de foco, etiquetas descriptivas y navegacion consistente en cada pagina.',
+          'El sitio usa encabezados logicos, enlace para saltar contenido, foco visible y navegacion consistente.',
       },
       {
         title: 'Contraste legible y comportamiento al ampliar',
-        detail:
-          'Mantenga el contraste de texto al nivel WCAG 2.1 AA y asegure que el contenido siga funcionando cuando el texto se amplie o la pagina se haga zoom.',
+        detail: 'El texto cumple contraste WCAG 2.1 AA; el diseño admite zoom y texto mas grande.',
       },
       {
         title: 'Documentos y medios accesibles',
         detail:
-          'Ofrezca PDF buscables, video con subtitulos, transcripciones, texto alternativo y archivos descargables que sigan siendo accesibles con el tiempo.',
+          'Los PDF publicos, video y descargas se publican con accesibilidad en mente; comuniquese con la secretaria para formatos alternativos.',
       },
       {
-        title: 'Operacion continua de cumplimiento',
+        title: 'Comentarios y mejora continua',
         detail:
-          'Publique una declaracion de accesibilidad, ofrezca un formulario para reportar barreras y programe auditorias recurrentes en lugar de tratar la accesibilidad como un proyecto unico.',
+          'Use la declaracion de accesibilidad para solicitar adaptaciones o informar barreras; el pueblo revisa los comentarios de forma periodica.',
       },
     ],
     leadershipGroups: [
       {
         title: 'Alcalde y concejo',
-        detail:
-          'El liderazgo electo debe verse cerca de reuniones y rutas de contacto para que los residentes identifiquen rapidamente quien los representa.',
+        detail: 'Funcionarios electos y rutas de contacto para reuniones.',
         members: [
           'Alcalde: Steve McKitrick',
           'Concejal: Julie Esgar',
@@ -1241,8 +1289,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       },
       {
         title: 'Administracion del pueblo',
-        detail:
-          'Los lideres administrativos deben seguir visibles porque los residentes de pueblos pequenos suelen necesitar contactos directos por funcion y no directorios por departamento.',
+        detail: 'Contactos de la secretaria y del superintendente para servicios cotidianos.',
         members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
       },
     ],
@@ -1287,6 +1334,7 @@ function megaMenuColumn(links: MegaMenuItem[]): MegaMenuItem[] {
     LocalizedAiChat,
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
+    Ripple,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -1786,8 +1834,7 @@ export class App {
         id: 'payments',
         kicker: copy.servicesKicker,
         title: copy.featureTitles.payments,
-        summary:
-          'Quick Pay via the hosted Paystar portal when configured, plus an early access form for the new billing experience.',
+        summary: copy.paymentsFeatureSummary,
         href: '/pay-bill',
         showOnHomepage: false,
       },
@@ -1798,6 +1845,14 @@ export class App {
         summary:
           'The town does not process permits online. Contact the Town Clerk for permit questions.',
         href: '/permits',
+        showOnHomepage: false,
+      },
+      {
+        id: 'documents',
+        kicker: copy.documentsHubKicker,
+        title: copy.featureTitles.documents,
+        summary: copy.documentsFeatureSummary,
+        href: '/documents',
         showOnHomepage: false,
       },
     ];
@@ -1824,6 +1879,9 @@ export class App {
     this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: title });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
   });
   private readonly headerScrollEffect = effect(() => {
     if (!isPlatformBrowser(this.platformId)) {
@@ -1856,6 +1914,11 @@ export class App {
     }
 
     return this.appCopy().meetings.map((m) => {
+      const copy = this.appCopy();
+      const agendaPdfHref = m.agendaPdfHref ?? DOCUMENT_HUB_LINKS.meetings;
+      const agendaButtonLabel =
+        m.href === '/notices' ? copy.meetingsDocumentsHubButtonLabel : undefined;
+
       if (m.href === '/notices' && !extraNotices) {
         return {
           title: m.title,
@@ -1863,10 +1926,12 @@ export class App {
           format: m.format,
           location: m.location,
           agendaNote: m.agendaNote,
+          agendaPdfHref,
+          agendaButtonLabel,
         };
       }
 
-      return m;
+      return { ...m, agendaPdfHref, agendaButtonLabel };
     });
   });
   protected readonly calendarItems = computed(() => {
@@ -2553,6 +2618,7 @@ export class App {
       schedule: this.formatCalendarEventDate(start, end),
       format: event.description || this.appCopy().calendarEventFallbackDetail,
       location: event.location || this.appCopy().calendarEventFallbackLocation,
+      agendaPdfHref: DOCUMENT_HUB_LINKS.meetings,
     };
   }
 
@@ -2595,77 +2661,33 @@ export class App {
   }
 
   private createGoogleCalendarLink(seed: CalendarEventSeed): string {
-    const params = new URLSearchParams({
-      action: 'TEMPLATE',
-      text: seed.title,
-      dates: `${seed.startLocal}/${seed.endLocal}`,
-      details: [seed.detail, seed.agendaNote].filter(Boolean).join(' '),
-      location: seed.location,
-      ctz: 'America/Denver',
-    });
-
-    if (seed.recurrenceRule) {
-      params.set('recur', `RRULE:${seed.recurrenceRule}`);
-    }
-
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    return createGoogleCalendarLinkForSeed(seed);
   }
 
   private createIcsLink(seed: CalendarEventSeed): string {
-    const lines = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Town of Wiley//Public Calendar//EN',
-      'CALSCALE:GREGORIAN',
-      'BEGIN:VEVENT',
-      `UID:${seed.slug}@townofwiley.gov`,
-      `DTSTAMP:${this.createUtcTimestamp()}`,
-      `SUMMARY:${this.escapeIcsText(seed.title)}`,
-      `DTSTART;TZID=America/Denver:${seed.startLocal}`,
-      `DTEND;TZID=America/Denver:${seed.endLocal}`,
-      `LOCATION:${this.escapeIcsText(seed.location)}`,
-      `DESCRIPTION:${this.escapeIcsText([seed.detail, seed.agendaNote].filter(Boolean).join(' '))}`,
-      seed.recurrenceRule ? `RRULE:${seed.recurrenceRule}` : '',
-      'END:VEVENT',
-      'END:VCALENDAR',
-    ].filter(Boolean);
-
-    return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join('\r\n'))}`;
+    return createIcsDataUrlForSeed(seed);
   }
 
   private createGoogleCalendarLinkFromEvent(event: CmsCalendarEvent, end: Date): string {
-    const params = new URLSearchParams({
-      action: 'TEMPLATE',
-      text: event.title,
-      dates: `${this.formatGoogleCalendarDate(new Date(event.start))}/${this.formatGoogleCalendarDate(end)}`,
-      details: event.description || this.appCopy().calendarEventFallbackDetail,
-      location: event.location || this.appCopy().calendarEventFallbackLocation,
-      ctz: 'America/Denver',
-    });
+    const copy = this.appCopy();
 
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    return createGoogleCalendarLinkForEvent(
+      event,
+      end,
+      copy.calendarEventFallbackDetail,
+      copy.calendarEventFallbackLocation,
+    );
   }
 
   private createIcsLinkFromEvent(event: CmsCalendarEvent, end: Date): string {
-    const start = new Date(event.start);
-    const lines = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Town of Wiley//Public Calendar//EN',
-      'CALSCALE:GREGORIAN',
-      'BEGIN:VEVENT',
-      `UID:${event.id}@townofwiley.gov`,
-      `DTSTAMP:${this.createUtcTimestamp()}`,
-      `SUMMARY:${this.escapeIcsText(event.title)}`,
-      `DTSTART:${this.formatUtcIcsDate(start)}`,
-      `DTEND:${this.formatUtcIcsDate(end)}`,
-      `LOCATION:${this.escapeIcsText(event.location || this.appCopy().calendarEventFallbackLocation)}`,
-      `DESCRIPTION:${this.escapeIcsText(event.description || this.appCopy().calendarEventFallbackDetail)}`,
-      'END:VEVENT',
-      'END:VCALENDAR',
-    ];
+    const copy = this.appCopy();
 
-    return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join('\r\n'))}`;
+    return createIcsDataUrlForEvent(
+      event,
+      end,
+      copy.calendarEventFallbackDetail,
+      copy.calendarEventFallbackLocation,
+    );
   }
 
   private resolveCalendarEventEnd(event: CmsCalendarEvent): Date {
@@ -2804,40 +2826,11 @@ export class App {
     return formatter.format(value);
   }
 
-  private formatGoogleCalendarDate(value: Date): string {
-    return value
-      .toISOString()
-      .replace(/[-:]/g, '')
-      .replace(/\.\d{3}Z$/, 'Z');
-  }
-
-  private formatUtcIcsDate(value: Date): string {
-    return value
-      .toISOString()
-      .replace(/[-:]/g, '')
-      .replace(/\.\d{3}Z$/, 'Z');
-  }
-
-  private createUtcTimestamp(): string {
-    return new Date()
-      .toISOString()
-      .replace(/[-:]/g, '')
-      .replace(/\.\d{3}Z$/, 'Z');
-  }
-
   private truncateMetaDescription(value: string): string {
     if (value.length <= App.MAX_META_DESCRIPTION_LENGTH) {
       return value;
     }
 
     return `${value.slice(0, App.MAX_META_DESCRIPTION_LENGTH - 3).trimEnd()}...`;
-  }
-
-  private escapeIcsText(value: string): string {
-    return value
-      .replace(/\\/g, '\\\\')
-      .replace(/;/g, '\\;')
-      .replace(/,/g, '\\,')
-      .replace(/\n/g, '\\n');
   }
 }

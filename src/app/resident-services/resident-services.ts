@@ -1,3 +1,4 @@
+import { ViewportScroller } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,25 +11,41 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
+  FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
+import { Ripple } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
 import { startWith } from 'rxjs';
 import { ContactUpdateService } from '../contact-update/contact-update.service';
-import { PaystarConnectionService } from '../payments/paystar-connection';
+import { BillPayService } from '../pay-bill/bill-pay.service';
+import {
+  PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL,
+  type PreferredBillPayContact,
+} from '../pay-bill/pay-bill-request';
+import { getPaystarRuntimeConfig } from '../payments/paystar-config';
 import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
+/** Allows digits, spaces, and common phone punctuation; min length enforced separately. */
+const PHONE_INPUT_PATTERN = /^[\d\s\-+().]{10,40}$/;
+
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 type RequestType = 'records' | 'license' | 'clerk';
-type ServicePanelId = 'payment' | 'issue' | 'records';
+type ServicePanelId = 'payment' | 'issue' | 'records' | 'weather';
 
 interface SelectOption<TValue extends string> {
   value: TValue;
@@ -60,17 +77,41 @@ interface ResidentServicesCopy {
   paymentIcon: string;
   issueIcon: string;
   recordsIcon: string;
-  paymentNameLabel: string;
-  paymentStreetAddressLabel: string;
-  paymentPoBoxLabel: string;
-  paymentPhoneLabel: string;
-  paymentEmailLabel: string;
-  paymentQuestionLabel: string;
-  paymentPortalActionLabel: string;
-  paymentPortalLaunchMessage: string;
-  paymentPortalErrorMessage: string;
-  paymentPortalUnavailableMessage: string;
-  paymentActionLabel: string;
+  weatherMeta: string;
+  weatherTitle: string;
+  weatherBody: string;
+  weatherIcon: string;
+  weatherCta: string;
+  payNowCardTitle: string;
+  payNowCardBody: string;
+  payNowCta: string;
+  payNowPlaceholderNote: string;
+  portalSoonTitle: string;
+  portalSoonBody: string;
+  portalSoonBadge: string;
+  requestEarlyAccessCta: string;
+  portalFormTitle: string;
+  portalFormIntro: string;
+  fullNameLabel: string;
+  serviceAddressLabel: string;
+  accountNumberLabel: string;
+  emailLabel: string;
+  phoneLabel: string;
+  preferredContactLabel: string;
+  notesLabel: string;
+  consentLabel: string;
+  submitPortalLabel: string;
+  submittingPortalLabel: string;
+  portalSuccessToastSummary: string;
+  portalSuccessToastDetail: string;
+  portalErrorToastSummary: string;
+  portalErrorToastDetail: string;
+  portalMailtoToastSummary: string;
+  portalMailtoToastDetail: string;
+  portalValidationToastSummary: string;
+  portalValidationToastDetail: string;
+  prepareMailToastSummary: string;
+  prepareMailToastDetail: string;
   issueMeta: string;
   issueTitle: string;
   issueBody: string;
@@ -79,7 +120,7 @@ interface ResidentServicesCopy {
   issueDetailsLabel: string;
   issueNameLabel: string;
   issueContactLabel: string;
-  issueActionLabel: string;
+  issueSubmitLabel: string;
   recordsMeta: string;
   recordsTitle: string;
   recordsBody: string;
@@ -88,11 +129,10 @@ interface ResidentServicesCopy {
   recordsDeadlineLabel: string;
   recordsNameLabel: string;
   recordsContactLabel: string;
-  recordsActionLabel: string;
+  recordsSubmitLabel: string;
   utilityBillFormLinkLabel: string;
   permitsClerkInfoLinkLabel: string;
   businessDirectoryLinkLabel: string;
-  paymentSubject: string;
   issueSubject: string;
   recordsSubject: string;
   issueCategories: SelectOption<IssueCategory>[];
@@ -117,61 +157,87 @@ interface ResidentServicesCopy {
 const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
   en: {
     sectionKicker: 'Resident Services',
-    sectionTitle: 'Start common town services online',
+    sectionTitle: 'Town services in one place',
     sectionBody:
-      'Use these forms to request payment help, report an issue, or contact the clerk without searching for the right office.',
-    taskPickerLabel: 'Choose a resident task',
-    taskPickerHelp: 'Choose the service you need and complete the matching form below.',
+      'Pay your utility bill, report an issue, request records or clerk help, and open weather alerts — without hunting for the right office.',
+    taskPickerLabel: 'Choose a service',
+    taskPickerHelp: 'Select a card below, then complete the matching section.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
-      'Your email app should open with a prepared message. If nothing happens, use the direct phone or email links in this card.',
+      'Your email app should open with a prepared message. If nothing happens, use the phone or email links in this section.',
     phoneFallbackLabel: 'Call Town Hall',
     emailFallbackLabel: 'Email contact',
-    paymentMeta: 'Billing support',
-    paymentTitle: 'Pay utility bill',
+    paymentMeta: 'Utilities',
+    paymentTitle: 'Pay bill',
+    paymentBody:
+      'Pay online with Paystar, or ask for billing help and early access to the full portal.',
     paymentIcon: 'pi pi-credit-card',
     issueIcon: 'pi pi-exclamation-triangle',
     recordsIcon: 'pi pi-file',
-    paymentBody:
-      'Use the secure Paystar payment path when it is configured below. If you need account help or the payment path is unavailable, send a prepared billing request to Wiley staff.',
-    paymentNameLabel: 'Resident name',
-    paymentStreetAddressLabel: 'Street address',
-    paymentPoBoxLabel: 'PO Box (optional)',
-    paymentPhoneLabel: 'Phone number',
-    paymentEmailLabel: 'Email address',
-    paymentQuestionLabel: 'Billing question or amount due',
-    paymentPortalActionLabel: 'Open secure Paystar payment portal',
-    paymentPortalLaunchMessage: 'Opening the secure Paystar payment portal.',
-    paymentPortalErrorMessage:
-      'Secure online payment is unavailable right now. Use the billing help email and Town Hall staff will help you complete your payment.',
-    paymentPortalUnavailableMessage:
-      'Online utility payment is temporarily unavailable. Use the billing help email for account help and payment instructions.',
-    paymentActionLabel: 'Email billing support',
-    issueMeta: 'Issue reporting',
-    issueTitle: 'Report a street or utility issue',
+    weatherMeta: 'Safety',
+    weatherTitle: 'Weather alerts',
+    weatherBody: 'Local forecast, advisories, and optional severe weather text alerts for Wiley.',
+    weatherIcon: 'pi pi-cloud',
+    weatherCta: 'Open weather page',
+    payNowCardTitle: 'Pay now with Paystar',
+    payNowCardBody:
+      'Pay your utility bill through the hosted Paystar portal when it is active for this site.',
+    payNowCta: 'Pay now with Paystar',
+    payNowPlaceholderNote:
+      'When runtime billing data is connected, this link will point to your live Paystar checkout.',
+    portalSoonTitle: 'Full online account portal',
+    portalSoonBody:
+      'Account history, autopay, and usage will appear here after billing data is connected.',
+    portalSoonBadge: 'Coming soon',
+    requestEarlyAccessCta: 'Request early access',
+    portalFormTitle: 'Billing help & portal early access',
+    portalFormIntro:
+      'Send your details to the clerk for billing questions, payment options, or to be notified when the full portal launches.',
+    fullNameLabel: 'Full name',
+    serviceAddressLabel: 'Service address',
+    accountNumberLabel: 'Utility account number (optional)',
+    emailLabel: 'Email',
+    phoneLabel: 'Phone',
+    preferredContactLabel: 'Preferred contact method',
+    notesLabel: 'Additional questions or details (optional)',
+    consentLabel:
+      'I agree that the Town of Wiley may contact me about billing, payment options, and portal access.',
+    submitPortalLabel: 'Submit request',
+    submittingPortalLabel: 'Sending…',
+    portalSuccessToastSummary: 'Request received',
+    portalSuccessToastDetail: 'Thank you. The town clerk will follow up within 1–2 business days.',
+    portalErrorToastSummary: 'Could not send',
+    portalErrorToastDetail: 'Please try again or use the phone or email below.',
+    portalMailtoToastSummary: 'Opening your mail app',
+    portalMailtoToastDetail: 'Complete the message to send your request to the clerk.',
+    portalValidationToastSummary: 'Check required fields',
+    portalValidationToastDetail: 'Please review the highlighted fields.',
+    prepareMailToastSummary: 'Preparing email',
+    prepareMailToastDetail: 'Your mail app will open with a draft message.',
+    issueMeta: 'Public works',
+    issueTitle: 'Report an issue',
     issueBody:
-      'Prepare a resident request for public works or town operations covering utility concerns, potholes, drainage, signage, nuisance issues, and streetlight follow-up.',
+      'Tell public works or town operations about utilities, streets, drainage, signage, nuisances, or streetlights.',
     issueCategoryLabel: 'Issue type',
     issueLocationLabel: 'Location',
     issueDetailsLabel: 'What happened',
-    issueNameLabel: 'Resident name',
+    issueNameLabel: 'Your name',
     issueContactLabel: 'Best phone or email for follow-up',
-    issueActionLabel: 'Open issue report email',
-    recordsMeta: 'Clerk intake',
-    recordsTitle: 'Request records, permits, or clerk help',
+    issueSubmitLabel: 'Send report',
+    recordsMeta: 'Clerk',
+    recordsTitle: 'Records & permits',
     recordsBody:
-      'Send a structured request for public records, meeting packets, permit guidance, or clerk assistance without starting from a blank email.',
+      'Request public records, meeting materials, permit guidance, or general clerk assistance.',
     recordsTypeLabel: 'Request type',
-    recordsDetailsLabel: 'Records, permit, or clerk request details',
-    recordsDeadlineLabel: 'Requested deadline or meeting date',
+    recordsDetailsLabel: 'Details',
+    recordsDeadlineLabel: 'Deadline or meeting date',
     recordsNameLabel: 'Resident or business name',
     recordsContactLabel: 'Best phone or email for reply',
-    recordsActionLabel: 'Open records and permit email',
-    utilityBillFormLinkLabel: 'Full utility bill payment form',
-    permitsClerkInfoLinkLabel: 'Permits: contact the Town Clerk',
-    businessDirectoryLinkLabel: 'Community business directory',
-    paymentSubject: 'Utility payment help request',
+    recordsSubmitLabel: 'Send request',
+    utilityBillFormLinkLabel: 'Dedicated pay bill page',
+    permitsClerkInfoLinkLabel: 'Permits: Town Clerk',
+    businessDirectoryLinkLabel: 'Business directory',
     issueSubject: 'Town issue report',
     recordsSubject: 'Records or permit request',
     issueCategories: [
@@ -205,62 +271,87 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
   },
   es: {
     sectionKicker: 'Servicios para residentes',
-    sectionTitle: 'Inicie servicios comunes del pueblo en linea',
+    sectionTitle: 'Servicios del pueblo en un solo lugar',
     sectionBody:
-      'Use estos formularios para solicitar ayuda con pagos, reportar un problema o contactar a la secretaria sin buscar la oficina correcta.',
-    taskPickerLabel: 'Elija un tramite para residentes',
-    taskPickerHelp:
-      'Elija el servicio que necesita y complete el formulario correspondiente abajo.',
+      'Pague su recibo, reporte un problema, solicite registros o ayuda de secretaria, y abra alertas del clima sin buscar la oficina.',
+    taskPickerLabel: 'Elija un servicio',
+    taskPickerHelp: 'Seleccione una tarjeta y complete la seccion correspondiente.',
     validationMessage:
       'Complete los campos obligatorios para que el sitio pueda preparar el mensaje con los detalles correctos.',
     mailClientMessage:
-      'Su aplicacion de correo debe abrirse con un mensaje preparado. Si no ocurre nada, use los enlaces directos de telefono o correo de esta tarjeta.',
+      'Su aplicacion de correo debe abrirse con un mensaje preparado. Si no ocurre nada, use los enlaces de telefono o correo en esta seccion.',
     phoneFallbackLabel: 'Llamar al ayuntamiento',
     emailFallbackLabel: 'Enviar correo',
-    paymentMeta: 'Soporte de facturacion',
-    paymentTitle: 'Pagar recibo de servicios',
+    paymentMeta: 'Servicios publicos',
+    paymentTitle: 'Pagar recibo',
+    paymentBody:
+      'Pague en linea con Paystar o solicite ayuda de facturacion y acceso anticipado al portal completo.',
     paymentIcon: 'pi pi-credit-card',
     issueIcon: 'pi pi-exclamation-triangle',
     recordsIcon: 'pi pi-file',
-    paymentBody:
-      'Use la ruta segura de Paystar cuando este configurada abajo. Si necesita ayuda con su cuenta o la ruta de pago no esta disponible, envie una solicitud preparada al personal de Wiley.',
-    paymentNameLabel: 'Nombre del residente',
-    paymentStreetAddressLabel: 'Direccion de calle',
-    paymentPoBoxLabel: 'Apartado postal (opcional)',
-    paymentPhoneLabel: 'Numero de telefono',
-    paymentEmailLabel: 'Correo electronico',
-    paymentQuestionLabel: 'Pregunta de facturacion o monto adeudado',
-    paymentPortalActionLabel: 'Abrir portal seguro de pago Paystar',
-    paymentPortalLaunchMessage: 'Abriendo el portal seguro de pago de Paystar.',
-    paymentPortalErrorMessage:
-      'El pago seguro en linea no esta disponible en este momento. Use el correo de ayuda de facturacion y el personal del ayuntamiento le ayudara a completar su pago.',
-    paymentPortalUnavailableMessage:
-      'El pago en linea de servicios esta temporalmente no disponible. Use el correo de ayuda de facturacion para recibir instrucciones y apoyo con su cuenta.',
-    paymentActionLabel: 'Enviar correo a soporte de facturacion',
-    issueMeta: 'Reporte de problemas',
-    issueTitle: 'Reportar un problema de calle o servicio',
+    weatherMeta: 'Seguridad',
+    weatherTitle: 'Alertas del tiempo',
+    weatherBody: 'Pronostico local, avisos y alertas opcionales por mensaje para Wiley.',
+    weatherIcon: 'pi pi-cloud',
+    weatherCta: 'Abrir pagina del clima',
+    payNowCardTitle: 'Pagar ahora con Paystar',
+    payNowCardBody:
+      'Pague su recibo de servicios a traves del portal alojado de Paystar cuando este activo.',
+    payNowCta: 'Pagar ahora con Paystar',
+    payNowPlaceholderNote:
+      'Cuando se conecten los datos de facturacion, este enlace apuntara al checkout en vivo.',
+    portalSoonTitle: 'Portal de cuenta en linea',
+    portalSoonBody:
+      'Historial de cuenta, pago automatico y uso apareceran aqui cuando se conecten los datos.',
+    portalSoonBadge: 'Proximamente',
+    requestEarlyAccessCta: 'Solicitar acceso anticipado',
+    portalFormTitle: 'Ayuda de facturacion y acceso al portal',
+    portalFormIntro:
+      'Envie sus datos a la secretaria para preguntas de facturacion, opciones de pago o aviso cuando el portal este listo.',
+    fullNameLabel: 'Nombre completo',
+    serviceAddressLabel: 'Direccion del servicio',
+    accountNumberLabel: 'Numero de cuenta de servicios (opcional)',
+    emailLabel: 'Correo electronico',
+    phoneLabel: 'Telefono',
+    preferredContactLabel: 'Metodo de contacto preferido',
+    notesLabel: 'Preguntas o detalles adicionales (opcional)',
+    consentLabel:
+      'Acepto que el Ayuntamiento de Wiley me contacte sobre facturacion, opciones de pago y acceso al portal.',
+    submitPortalLabel: 'Enviar solicitud',
+    submittingPortalLabel: 'Enviando…',
+    portalSuccessToastSummary: 'Solicitud recibida',
+    portalSuccessToastDetail: 'Gracias. La secretaria dara seguimiento en 1 a 2 dias habiles.',
+    portalErrorToastSummary: 'No se pudo enviar',
+    portalErrorToastDetail: 'Inténtelo de nuevo o use el telefono o correo abajo.',
+    portalMailtoToastSummary: 'Abriendo su correo',
+    portalMailtoToastDetail: 'Complete el mensaje para enviar la solicitud a la secretaria.',
+    portalValidationToastSummary: 'Revise los campos',
+    portalValidationToastDetail: 'Revise los campos marcados.',
+    prepareMailToastSummary: 'Preparando correo',
+    prepareMailToastDetail: 'Se abrira su aplicacion de correo con un borrador.',
+    issueMeta: 'Obras publicas',
+    issueTitle: 'Reportar un problema',
     issueBody:
-      'Prepare una solicitud para obras publicas u operaciones del pueblo sobre servicios, baches, drenaje, senalizacion, molestias y seguimiento de alumbrado.',
+      'Informe a obras publicas sobre servicios, calles, drenaje, senalizacion, molestias o alumbrado.',
     issueCategoryLabel: 'Tipo de problema',
     issueLocationLabel: 'Ubicacion',
     issueDetailsLabel: 'Que ocurrio',
-    issueNameLabel: 'Nombre del residente',
+    issueNameLabel: 'Su nombre',
     issueContactLabel: 'Mejor telefono o correo para seguimiento',
-    issueActionLabel: 'Abrir correo de reporte',
-    recordsMeta: 'Recepcion de secretaria',
-    recordsTitle: 'Solicitar registros, permisos o ayuda de secretaria',
+    issueSubmitLabel: 'Enviar reporte',
+    recordsMeta: 'Secretaria',
+    recordsTitle: 'Registros y permisos',
     recordsBody:
-      'Envie una solicitud estructurada de registros publicos, paquetes de reuniones, orientacion sobre permisos o ayuda de secretaria sin empezar desde un correo en blanco.',
+      'Solicite registros publicos, materiales de reunion, orientacion sobre permisos o ayuda general.',
     recordsTypeLabel: 'Tipo de solicitud',
-    recordsDetailsLabel: 'Detalles de registros, permiso o apoyo de secretaria',
-    recordsDeadlineLabel: 'Fecha solicitada o fecha de reunion',
+    recordsDetailsLabel: 'Detalles',
+    recordsDeadlineLabel: 'Plazo o fecha de reunion',
     recordsNameLabel: 'Nombre del residente o negocio',
     recordsContactLabel: 'Mejor telefono o correo para responder',
-    recordsActionLabel: 'Abrir correo de registros y permisos',
-    utilityBillFormLinkLabel: 'Formulario completo de pago de servicios',
-    permitsClerkInfoLinkLabel: 'Permisos: contacte al Secretario del Pueblo',
-    businessDirectoryLinkLabel: 'Directorio de negocios locales',
-    paymentSubject: 'Solicitud de ayuda para pago de servicios',
+    recordsSubmitLabel: 'Enviar solicitud',
+    utilityBillFormLinkLabel: 'Pagina dedicada de pago',
+    permitsClerkInfoLinkLabel: 'Permisos: secretaria municipal',
+    businessDirectoryLinkLabel: 'Directorio de negocios',
     issueSubject: 'Reporte de problema del pueblo',
     recordsSubject: 'Solicitud de registros o permiso',
     issueCategories: [
@@ -277,31 +368,33 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     ],
     contactUpdateToggleLabel: 'Actualizar informacion de contacto con la secretaria (opcional)',
     contactUpdateBody:
-      'Ayude a la secretaria a mantener los registros de residentes actualizados. Todos los campos son opcionales.',
+      'Ayude a la secretaria a mantener los registros actualizados. Todos los campos son opcionales.',
     contactUpdateFullNameLabel: 'Nombre completo',
     contactUpdateServiceAddressLabel: 'Direccion del servicio',
     contactUpdatePoBoxLabel: 'Apartado postal (opcional)',
     contactUpdatePhoneLabel: 'Numero de telefono',
     contactUpdateEmailLabel: 'Correo electronico',
     contactUpdateNotesLabel: 'Notas adicionales (opcional)',
-    contactUpdateActionLabel: 'Enviar actualizacion de contacto a la secretaria',
+    contactUpdateActionLabel: 'Enviar actualizacion de contacto',
     contactUpdateDismissLabel: 'No gracias, omitir por ahora',
     contactUpdateEmptyMessage:
       'Complete al menos un campo para enviar una actualizacion de contacto.',
-    contactUpdateSuccessMessage: 'Informacion de contacto enviada a la secretaria. Gracias.',
+    contactUpdateSuccessMessage: 'Informacion enviada a la secretaria. Gracias.',
     contactUpdateSubject: 'Actualizacion de informacion de contacto del residente',
     requiredFieldMessage: 'Este campo es obligatorio.',
     invalidEmailMessage: 'Ingrese un correo electronico valido.',
   },
 };
 
-type PaymentFormGroup = FormGroup<{
-  name: FormControl<string>;
-  streetAddress: FormControl<string>;
-  poBox: FormControl<string>;
-  phone: FormControl<string>;
+type PortalAccessFormGroup = FormGroup<{
+  fullName: FormControl<string>;
+  serviceAddress: FormControl<string>;
+  accountNumber: FormControl<string>;
   email: FormControl<string>;
-  accountQuestion: FormControl<string>;
+  phone: FormControl<string>;
+  preferredContactMethod: FormControl<PreferredBillPayContact | null>;
+  notes: FormControl<string>;
+  consentToContact: FormControl<boolean>;
 }>;
 
 type IssueFormGroup = FormGroup<{
@@ -334,10 +427,16 @@ type ContactUpdateFormGroup = FormGroup<{
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    CardModule,
+    ButtonModule,
     InputTextModule,
     MessageModule,
     SelectModule,
     TextareaModule,
+    CheckboxModule,
+    ToastModule,
+    TagModule,
+    Ripple,
   ],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
@@ -346,69 +445,96 @@ type ContactUpdateFormGroup = FormGroup<{
 export class ResidentServices {
   readonly contacts = input<CmsContact[]>([]);
 
+  private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly viewportScroller = inject(ViewportScroller);
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly contactUpdateService = inject(ContactUpdateService);
-  private readonly paystarConnection = inject(PaystarConnectionService);
+  private readonly billPayService = inject(BillPayService);
+  private readonly messages = inject(MessageService);
   private readonly siteLanguageService = inject(SiteLanguageService);
-  private readonly paystarRuntimeConfig = this.paystarConnection.getRuntimeConfig();
   private readonly routeFragment = toSignal(this.route.fragment, { initialValue: null });
 
   protected readonly copy = computed(
     () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
+
+  protected readonly lang = computed(() => this.siteLanguageService.currentLanguage());
+
   protected readonly activeServicePanel = signal<ServicePanelId>('payment');
-  protected readonly paymentStatus = signal<string | null>(null);
-  protected readonly issueStatus = signal<string | null>(null);
-  protected readonly recordsStatus = signal<string | null>(null);
+  protected readonly portalSubmitting = signal(false);
+  protected readonly issueSubmitting = signal(false);
+  protected readonly recordsSubmitting = signal(false);
   protected readonly contactUpdateExpanded = signal(false);
   protected readonly contactUpdateStatus = signal<string | null>(null);
   protected readonly hasSubmittedContactUpdate = signal(false);
+
   private readonly resolvedContacts = computed<CmsContact[]>(() => {
     const providedContacts = this.contacts();
     return providedContacts.length > 0 ? providedContacts : this.cmsStore.contacts();
   });
-  protected readonly servicePanels = computed<ServicePanelOption[]>(() => {
-    const copy = this.copy();
 
+  protected readonly servicePanels = computed<ServicePanelOption[]>(() => {
+    const c = this.copy();
     return [
       {
         id: 'payment',
         anchor: 'payment-help',
-        meta: copy.paymentMeta,
-        title: copy.paymentTitle,
-        summary: copy.paymentBody,
-        icon: copy.paymentIcon,
+        meta: c.paymentMeta,
+        title: c.paymentTitle,
+        summary: c.paymentBody,
+        icon: c.paymentIcon,
       },
       {
         id: 'issue',
         anchor: 'issue-report',
-        meta: copy.issueMeta,
-        title: copy.issueTitle,
-        summary: copy.issueBody,
-        icon: copy.issueIcon,
+        meta: c.issueMeta,
+        title: c.issueTitle,
+        summary: c.issueBody,
+        icon: c.issueIcon,
       },
       {
         id: 'records',
         anchor: 'records-request',
-        meta: copy.recordsMeta,
-        title: copy.recordsTitle,
-        summary: copy.recordsBody,
-        icon: copy.recordsIcon,
+        meta: c.recordsMeta,
+        title: c.recordsTitle,
+        summary: c.recordsBody,
+        icon: c.recordsIcon,
+      },
+      {
+        id: 'weather',
+        anchor: 'weather-alerts',
+        meta: c.weatherMeta,
+        title: c.weatherTitle,
+        summary: c.weatherBody,
+        icon: c.weatherIcon,
       },
     ];
   });
 
-  protected readonly paymentForm: PaymentFormGroup = new FormGroup({
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    streetAddress: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    poBox: new FormControl('', { nonNullable: true }),
-    phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    email: new FormControl('', {
-      nonNullable: true,
+  protected readonly portalAccessForm: PortalAccessFormGroup = this.fb.group({
+    fullName: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+    serviceAddress: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+    accountNumber: this.fb.nonNullable.control('', {
+      validators: [Validators.pattern(/^[A-Za-z0-9-]*$/)],
+    }),
+    email: this.fb.nonNullable.control('', {
       validators: [Validators.required, Validators.email],
     }),
-    accountQuestion: new FormControl('', { nonNullable: true }),
+    phone: this.fb.nonNullable.control('', {
+      validators: [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.pattern(PHONE_INPUT_PATTERN),
+      ],
+    }),
+    preferredContactMethod: this.fb.control<PreferredBillPayContact | null>(null, {
+      validators: [Validators.required],
+    }),
+    notes: this.fb.nonNullable.control(''),
+    consentToContact: this.fb.nonNullable.control(false, {
+      validators: [Validators.requiredTrue],
+    }),
   });
 
   protected readonly issueForm: IssueFormGroup = new FormGroup({
@@ -442,10 +568,6 @@ export class ResidentServices {
     notes: new FormControl('', { nonNullable: true }),
   });
 
-  private readonly paymentFormValue = toSignal(
-    this.paymentForm.valueChanges.pipe(startWith(this.paymentForm.getRawValue())),
-    { initialValue: this.paymentForm.getRawValue() },
-  );
   private readonly issueFormValue = toSignal(
     this.issueForm.valueChanges.pipe(startWith(this.issueForm.getRawValue())),
     { initialValue: this.issueForm.getRawValue() },
@@ -457,6 +579,32 @@ export class ResidentServices {
   private readonly contactUpdateFormValue = toSignal(
     this.contactUpdateForm.valueChanges.pipe(startWith(this.contactUpdateForm.getRawValue())),
     { initialValue: this.contactUpdateForm.getRawValue() },
+  );
+
+  protected readonly preferredContactOptions = computed(() =>
+    this.lang() === 'es'
+      ? [
+          { label: 'Correo electrónico', value: 'email' as const },
+          { label: 'Llamada telefónica', value: 'phone' as const },
+          { label: 'Mensaje de texto (SMS)', value: 'sms' as const },
+          { label: 'Correo postal', value: 'mail' as const },
+        ]
+      : [
+          { label: 'Email', value: 'email' as const },
+          { label: 'Phone call', value: 'phone' as const },
+          { label: 'Text message (SMS)', value: 'sms' as const },
+          { label: 'U.S. Mail', value: 'mail' as const },
+        ],
+  );
+
+  protected readonly quickPayHref = computed(() => {
+    const url = getPaystarRuntimeConfig().portalUrl.trim();
+    return url || PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL;
+  });
+
+  /** True when using the placeholder Paystar URL until runtime config supplies the live portal. */
+  protected readonly quickPayIsPlaceholder = computed(
+    () => !getPaystarRuntimeConfig().portalUrl.trim(),
   );
 
   protected readonly townInfoContact = computed(() => this.findContact('town-information'));
@@ -485,14 +633,7 @@ export class ResidentServices {
       this.superintendentContact()?.value ??
       'Town Operations',
   );
-  protected readonly paymentPortalHref =
-    this.paystarRuntimeConfig.mode === 'hosted' && this.paystarRuntimeConfig.portalUrl
-      ? this.paystarRuntimeConfig.portalUrl
-      : null;
-  protected readonly paymentPortalAvailable =
-    (this.paystarRuntimeConfig.mode === 'hosted' && !!this.paystarRuntimeConfig.portalUrl) ||
-    (this.paystarRuntimeConfig.mode === 'api' && !!this.paystarRuntimeConfig.apiEndpoint);
-  protected readonly paymentMailtoHref = computed(() => this.buildPaymentMailtoHref());
+
   protected readonly issueMailtoHref = computed(() => this.buildIssueMailtoHref());
   protected readonly recordsMailtoHref = computed(() => this.buildRecordsMailtoHref());
   protected readonly contactUpdateMailtoHref = computed(() => this.buildContactUpdateMailtoHref());
@@ -500,26 +641,15 @@ export class ResidentServices {
   constructor() {
     effect(() => {
       const fragment = this.routeFragment();
-
       if (fragment === 'issue-report') {
         this.activeServicePanel.set('issue');
       } else if (fragment === 'records-request') {
         this.activeServicePanel.set('records');
       } else if (fragment === 'payment-help') {
         this.activeServicePanel.set('payment');
+      } else if (fragment === 'weather-alerts') {
+        this.activeServicePanel.set('weather');
       }
-    });
-
-    this.paymentForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.paymentStatus.set(null);
-    });
-
-    this.issueForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.issueStatus.set(null);
-    });
-
-    this.recordsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.recordsStatus.set(null);
     });
 
     this.contactUpdateForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
@@ -533,55 +663,173 @@ export class ResidentServices {
     this.activeServicePanel.set(panelId);
   }
 
-  protected openPaymentMailto(event: Event): void {
-    this.handleMailtoClick(event, this.paymentForm, this.paymentMailtoHref(), this.paymentStatus);
+  /** Scroll target `id="billing-intake"` — matches resident-services modernization plan. */
+  protected scrollToBillingIntake(): void {
+    this.viewportScroller.scrollToAnchor('billing-intake');
+    document.getElementById('billing-intake')?.focus();
   }
 
-  protected async openPaystarPortal(event: Event): Promise<void> {
-    if (!this.paymentPortalAvailable) {
-      event.preventDefault();
-      this.paymentStatus.set(this.copy().paymentPortalUnavailableMessage);
+  protected portalFieldMessage(
+    controlName: keyof PortalAccessFormGroup['controls'],
+  ): string | null {
+    const control = this.portalAccessForm.controls[controlName];
+    if (!control.invalid || !control.touched) {
+      return null;
+    }
+    const es = this.lang() === 'es';
+    if (controlName === 'phone') {
+      if (control.hasError('required')) {
+        return es ? 'Campo obligatorio' : 'This field is required';
+      }
+      if (control.hasError('minlength')) {
+        return es
+          ? 'El teléfono es demasiado corto (mínimo 10 caracteres).'
+          : 'Phone number is too short (at least 10 characters).';
+      }
+      if (control.hasError('pattern')) {
+        return es
+          ? 'Use solo números y símbolos de teléfono habituales.'
+          : 'Use digits and common phone characters only.';
+      }
+    }
+    if (control.hasError('required')) {
+      return es ? 'Campo obligatorio' : 'This field is required';
+    }
+    if (control.hasError('requiredTrue')) {
+      return es ? 'Debe aceptar para continuar' : 'Consent is required to continue';
+    }
+    if (control.hasError('email')) {
+      return es ? 'Correo no válido' : 'Invalid email';
+    }
+    if (control.hasError('pattern')) {
+      return es ? 'Solo letras, números o guiones.' : 'Use only letters, numbers, or hyphens.';
+    }
+    return this.copy().portalValidationToastDetail;
+  }
+
+  async onPortalAccessSubmit(): Promise<void> {
+    if (this.portalAccessForm.invalid) {
+      this.portalAccessForm.markAllAsTouched();
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'warn',
+        summary: this.copy().portalValidationToastSummary,
+        detail: this.copy().portalValidationToastDetail,
+        life: 6000,
+      });
       return;
     }
 
-    if (this.paymentPortalHref) {
-      this.paymentStatus.set(this.copy().paymentPortalLaunchMessage);
-      return;
-    }
-
-    event.preventDefault();
-    this.paymentStatus.set(this.copy().paymentPortalLaunchMessage);
+    this.portalSubmitting.set(true);
+    const raw = this.portalAccessForm.getRawValue();
+    const locale = this.siteLanguageService.currentLanguage();
 
     try {
-      const values = this.paymentFormValue();
-      const launch = await this.paystarConnection.createLaunchRequest({
-        residentName: values.name?.trim() ?? '',
-        serviceAddress: [values.streetAddress?.trim(), values.poBox?.trim()]
-          .filter(Boolean)
-          .join(', '),
-        preferredContact: [values.phone?.trim(), values.email?.trim()].filter(Boolean).join(' / '),
-        accountQuestion: values.accountQuestion?.trim() ?? '',
-        locale: this.siteLanguageService.currentLanguage(),
+      const result = await this.billPayService.submitRequest({
+        fullName: raw.fullName,
+        serviceAddress: raw.serviceAddress,
+        accountNumber: raw.accountNumber,
+        email: raw.email,
+        phone: raw.phone,
+        preferredContactMethod: raw.preferredContactMethod!,
+        notes: raw.notes,
+        consentToContact: raw.consentToContact,
+        locale,
         source: 'resident-services',
       });
 
-      if (!launch.launchUrl) {
-        this.paymentStatus.set(this.copy().paymentPortalErrorMessage);
+      if (result.outcome === 'api-success') {
+        this.messages.add({
+          key: 'resident-services',
+          severity: 'success',
+          summary: this.copy().portalSuccessToastSummary,
+          detail: this.copy().portalSuccessToastDetail,
+          life: 8000,
+        });
+        this.portalAccessForm.reset();
+        this.portalAccessForm.patchValue({ consentToContact: false });
         return;
       }
 
-      window.location.assign(launch.launchUrl);
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'info',
+        summary: this.copy().portalMailtoToastSummary,
+        detail: this.copy().portalMailtoToastDetail,
+        life: 5000,
+      });
+      if (typeof window !== 'undefined') {
+        window.setTimeout(() => window.location.assign(result.href), 400);
+      }
     } catch {
-      this.paymentStatus.set(this.copy().paymentPortalErrorMessage);
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'error',
+        summary: this.copy().portalErrorToastSummary,
+        detail: this.copy().portalErrorToastDetail,
+        life: 8000,
+      });
+    } finally {
+      this.portalSubmitting.set(false);
     }
   }
 
-  protected openIssueMailto(event: Event): void {
-    this.handleMailtoClick(event, this.issueForm, this.issueMailtoHref(), this.issueStatus);
+  protected async submitIssueReport(): Promise<void> {
+    const href = this.issueMailtoHref();
+    if (!href) {
+      this.issueForm.markAllAsTouched();
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'warn',
+        summary: this.copy().portalValidationToastSummary,
+        detail: this.copy().portalValidationToastDetail,
+        life: 6000,
+      });
+      return;
+    }
+
+    this.issueSubmitting.set(true);
+    this.messages.add({
+      key: 'resident-services',
+      severity: 'info',
+      summary: this.copy().prepareMailToastSummary,
+      detail: this.copy().prepareMailToastDetail,
+      life: 4000,
+    });
+
+    window.setTimeout(() => {
+      window.location.assign(href);
+      this.issueSubmitting.set(false);
+    }, 400);
   }
 
-  protected openRecordsMailto(event: Event): void {
-    this.handleMailtoClick(event, this.recordsForm, this.recordsMailtoHref(), this.recordsStatus);
+  protected async submitRecordsRequest(): Promise<void> {
+    const href = this.recordsMailtoHref();
+    if (!href) {
+      this.recordsForm.markAllAsTouched();
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'warn',
+        summary: this.copy().portalValidationToastSummary,
+        detail: this.copy().portalValidationToastDetail,
+        life: 6000,
+      });
+      return;
+    }
+
+    this.recordsSubmitting.set(true);
+    this.messages.add({
+      key: 'resident-services',
+      severity: 'info',
+      summary: this.copy().prepareMailToastSummary,
+      detail: this.copy().prepareMailToastDetail,
+      life: 4000,
+    });
+
+    window.setTimeout(() => {
+      window.location.assign(href);
+      this.recordsSubmitting.set(false);
+    }, 400);
   }
 
   protected validationMessage(control: AbstractControl, fieldLabel: string): string | null {
@@ -600,23 +848,6 @@ export class ResidentServices {
     return this.copy().requiredFieldMessage;
   }
 
-  private handleMailtoClick(
-    event: Event,
-    form: PaymentFormGroup | IssueFormGroup | RecordsFormGroup,
-    href: string | null,
-    statusSignal: ReturnType<typeof signal<string | null>>,
-  ): void {
-    if (!href) {
-      event.preventDefault();
-      form.markAllAsTouched();
-      statusSignal.set(this.copy().validationMessage);
-      return;
-    }
-
-    statusSignal.set(this.copy().mailClientMessage);
-    window.location.assign(href);
-  }
-
   private findContact(id: string): CmsContact | null {
     return this.resolvedContacts().find((contact) => contact.id === id) ?? null;
   }
@@ -631,26 +862,6 @@ export class ResidentServices {
     const href = this.getContactHref(contact, 'mailto:');
 
     return href ? href.slice('mailto:'.length).trim() : '';
-  }
-
-  private buildPaymentMailtoHref(): string | null {
-    if (this.paymentForm.invalid) {
-      return null;
-    }
-
-    const values = this.paymentFormValue();
-    const recipient =
-      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
-    const copy = this.copy();
-
-    return this.buildMailtoHref(recipient, copy.paymentSubject, [
-      `${copy.paymentNameLabel}: ${values.name}`,
-      `${copy.paymentPhoneLabel}: ${values.phone}`,
-      `${copy.paymentEmailLabel}: ${values.email}`,
-      `${copy.paymentStreetAddressLabel}: ${values.streetAddress}`,
-      `${copy.paymentPoBoxLabel}: ${values.poBox || '-'}`,
-      `${copy.paymentQuestionLabel}: ${values.accountQuestion || '-'}`,
-    ]);
   }
 
   private buildIssueMailtoHref(): string | null {
@@ -711,6 +922,13 @@ export class ResidentServices {
     const href = this.contactUpdateMailtoHref();
 
     if (!href) {
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'warn',
+        summary: this.copy().portalValidationToastSummary,
+        detail: this.copy().contactUpdateEmptyMessage,
+        life: 6000,
+      });
       this.contactUpdateStatus.set(this.copy().contactUpdateEmptyMessage);
       return;
     }
@@ -732,6 +950,13 @@ export class ResidentServices {
     );
 
     if (result.outcome === 'api-success') {
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'success',
+        summary: this.copy().contactUpdateSuccessMessage,
+        detail: '',
+        life: 6000,
+      });
       this.contactUpdateStatus.set(this.copy().contactUpdateSuccessMessage);
       this.contactUpdateForm.reset();
       this.contactUpdateExpanded.set(false);
@@ -740,6 +965,13 @@ export class ResidentServices {
     } else {
       this.setContactUpdateCookie();
       this.hasSubmittedContactUpdate.set(true);
+      this.messages.add({
+        key: 'resident-services',
+        severity: 'info',
+        summary: this.copy().prepareMailToastSummary,
+        detail: this.copy().mailClientMessage,
+        life: 5000,
+      });
       this.contactUpdateStatus.set(this.copy().mailClientMessage);
       window.location.assign(result.href);
     }

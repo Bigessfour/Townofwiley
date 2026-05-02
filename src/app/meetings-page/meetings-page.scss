@@ -2,15 +2,85 @@
   display: block;
 }
 
-.text-link,
-.calendar-action {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+.meetings-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-sm, 1rem);
+  justify-content: space-between;
 }
 
-.calendar-table-actions {
+:host ::ng-deep .meetings-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+}
+
+:host ::ng-deep .meetings-table {
+  .p-datatable-tbody > tr > td {
+    vertical-align: top;
+  }
+}
+
+.meetings-cell-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 22rem;
+}
+
+.meetings-actions-cell {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm, 0.75rem);
+  align-items: center;
+}
+
+.meetings-secondary-cta {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+:host ::ng-deep .meetings-agenda-btn .p-button-label {
+  white-space: nowrap;
+}
+
+.calendar-event-stack .calendar-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.calendar-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 0.75rem);
+  align-items: center;
+  margin-top: 0.35rem;
+}
+
+:host ::ng-deep .calendar-inline-action {
+  min-height: 44px;
+}
+
+.meeting-agenda-note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--text-color) 88%, transparent);
+}
+
+.meeting-schedule,
+.meeting-location,
+.meeting-format {
+  display: inline-block;
+}
+
+.meetings-em-dash {
+  color: color-mix(in srgb, var(--text-color) 55%, transparent);
+}
+
+@media (max-width: 767px) {
+  :host ::ng-deep .meetings-table.p-datatable .p-datatable-wrapper {
+    border-radius: var(--radius-md, 0.5rem);
+  }
 }

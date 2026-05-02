@@ -585,7 +585,8 @@ describe('App', () => {
               'Frost Advisory issued May 1 at 6:56 PM MDT until May 2 at 8:00 AM MDT by NWS Pueblo CO.',
             severity: 'Minor',
             urgency: 'Expected',
-            instruction: 'Take steps now to protect tender plants from the cold.',
+            instruction:
+              'Protect sensitive plants from frost; cover or bring indoors where possible.',
           },
         },
       ],
@@ -617,7 +618,7 @@ describe('App', () => {
         'Frost Advisory issued May 2 at 9:00 PM MDT until May 3 at 8:00 AM MDT by NWS Pueblo CO.',
       severity: 'Minor',
       urgency: 'Expected',
-      instruction: 'Take steps now to protect tender plants from the cold.',
+      instruction: 'Protect sensitive plants from frost; cover or bring indoors where possible.',
       forecastUrl: 'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248',
     });
     fixture.detectChanges();

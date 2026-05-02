@@ -7,38 +7,30 @@ test.describe('forms and empty states', () => {
   }) => {
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
 
-    await homePage.residentServicePaymentAction.click();
-    await expect(homePage.residentServicePaymentStatus).toContainText(
-      'Complete the required fields',
-    );
-    await expect(homePage.residentServicePaymentPanel).toContainText(
-      'Resident name: This field is required.',
-    );
+    await homePage.residentServicePaymentSubmit.click();
+    await expect(homePage.page.getByText('Check required fields')).toBeVisible();
+    await expect(homePage.residentServicePaymentPanel).toContainText('This field is required');
 
     await homePage.fillResidentPaymentRequest({
-      name: 'Jordan Resident',
-      streetAddress: '210 Main Street',
+      fullName: 'Jordan Resident',
+      serviceAddress: '210 Main Street',
       phone: '(719) 829-4974',
       email: 'not-an-email',
-      question: 'Please confirm my utility balance.',
+      notes: 'Please confirm my utility balance.',
     });
-    await homePage.residentServicePaymentAction.click();
-    await expect(homePage.residentServicePaymentPanel).toContainText(
-      'Enter a valid email address.',
-    );
+    await homePage.residentServicePaymentSubmit.click();
+    await expect(homePage.residentServicePaymentPanel).toContainText('Invalid email');
 
     await homePage.selectResidentServicePanel('issue');
     await homePage.residentServiceIssueActionButton.click();
-    await expect(homePage.residentServiceIssueStatus).toContainText('Complete the required fields');
+    await expect(homePage.page.getByText('Please review the highlighted fields.')).toBeVisible();
     await expect(homePage.residentServiceIssuePanel).toContainText(
       'Location: This field is required.',
     );
 
     await homePage.selectResidentServicePanel('records');
     await homePage.residentServiceRecordsAction.click();
-    await expect(homePage.residentServiceRecordsStatus).toContainText(
-      'Complete the required fields',
-    );
+    await expect(homePage.page.getByText('Please review the highlighted fields.')).toBeVisible();
     await expect(homePage.residentServiceRecordsPanel).toContainText(
       'Resident or business name: This field is required.',
     );

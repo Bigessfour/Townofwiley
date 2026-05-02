@@ -1,12 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    DestroyRef,
-    inject,
-    output,
-    signal,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  output,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { PanelModule } from 'primeng/panel';
+import { Ripple } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
@@ -318,7 +319,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiLabel: 'Air Quality',
     gddLabel: 'Projected GDD',
     gddUnit: 'base 50\u00B0F, next 7 days',
-    gddTooltip: 'Growing Degree Days \u2014 a measure of heat accumulation used to predict when crops and plants will reach key growth stages. Calculated using a 50\u00B0F base temperature over the next 7-day forecast.',
+    gddTooltip:
+      'Growing Degree Days \u2014 a measure of heat accumulation used to predict when crops and plants will reach key growth stages. Calculated using a 50\u00B0F base temperature over the next 7-day forecast.',
     hourlyLabel: 'Hourly forecast',
     sevenDayLabel: '7-day forecast',
     radarLabel: 'NEXRAD Radar',
@@ -398,7 +400,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiLabel: 'Calidad del aire',
     gddLabel: 'GDD proyectados',
     gddUnit: 'base 50\u00B0F, proximos 7 dias',
-    gddTooltip: 'Grados D\u00EDa de Crecimiento \u2014 una medida de la acumulaci\u00F3n de calor que se usa para predecir cu\u00E1ndo los cultivos y plantas alcanzar\u00E1n etapas clave de desarrollo. Se calcula con una temperatura base de 50\u00B0F durante los pr\u00F3ximos 7 d\u00EDas.',
+    gddTooltip:
+      'Grados D\u00EDa de Crecimiento \u2014 una medida de la acumulaci\u00F3n de calor que se usa para predecir cu\u00E1ndo los cultivos y plantas alcanzar\u00E1n etapas clave de desarrollo. Se calcula con una temperatura base de 50\u00B0F durante los pr\u00F3ximos 7 d\u00EDas.',
     hourlyLabel: 'Pronostico por hora',
     sevenDayLabel: 'Pronostico de 7 dias',
     radarLabel: 'Radar NEXRAD',
@@ -410,7 +413,21 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 
 @Component({
   selector: 'app-weather-panel',
-  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, MessageModule, SelectModule, CardModule, TagModule, PanelModule, AccordionModule, SkeletonModule, TooltipModule],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    InputTextModule,
+    MessageModule,
+    SelectModule,
+    CardModule,
+    TagModule,
+    PanelModule,
+    AccordionModule,
+    SkeletonModule,
+    TooltipModule,
+    Ripple,
+  ],
   templateUrl: './localized-weather-panel.html',
   styleUrl: './weather-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -443,10 +460,12 @@ export class LocalizedWeatherPanel {
   protected readonly weatherSourceLabel = computed(() => {
     return this.weatherConfig.apiEndpoint ? this.copy().sourceProxy : this.copy().sourceDirect;
   });
-  protected readonly alertSignupChannelOptions = computed<SelectOption<AlertSignupChannel>[]>(() => [
-    { label: this.copy().sms, value: 'sms' },
-    { label: this.copy().email, value: 'email' },
-  ]);
+  protected readonly alertSignupChannelOptions = computed<SelectOption<AlertSignupChannel>[]>(
+    () => [
+      { label: this.copy().sms, value: 'sms' },
+      { label: this.copy().email, value: 'email' },
+    ],
+  );
   protected readonly alertSignupLanguageOptions = computed<SelectOption<AlertLanguage>[]>(() => [
     { label: this.copy().optionEnglish, value: 'en' },
     { label: this.copy().optionSpanish, value: 'es' },
@@ -504,7 +523,7 @@ export class LocalizedWeatherPanel {
     return Math.round(gdd);
   });
   protected readonly hasAlerts = computed(() => this.weatherAlerts().length > 0);
-  protected readonly accordionActiveValue = computed(() => this.hasAlerts() ? [0] : []);
+  protected readonly accordionActiveValue = computed(() => (this.hasAlerts() ? [0] : []));
   protected readonly alertSummary = computed(() => {
     const total = this.weatherAlerts().length;
 
@@ -943,4 +962,3 @@ export class LocalizedWeatherPanel {
     };
   }
 }
-

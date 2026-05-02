@@ -8,6 +8,7 @@ import { getBillPayRuntimeConfig } from './bill-pay-config';
 import type {
   BillPayRequest,
   BillPaySubmitResult,
+  BillPayIntakeSource,
   PreferredBillPayContact,
 } from './pay-bill-request';
 
@@ -23,6 +24,7 @@ export interface BillPaySubmitPayload {
   notes: string;
   consentToContact: boolean;
   locale: SiteLanguage;
+  source?: BillPayIntakeSource;
 }
 
 /**
@@ -81,7 +83,7 @@ export class BillPayService {
       notes: sanitizePlainText(payload.notes, 2000),
       consentToContact: payload.consentToContact === true,
       locale: payload.locale,
-      source: 'pay-bill-page',
+      source: payload.source ?? 'pay-bill-page',
     };
   }
 

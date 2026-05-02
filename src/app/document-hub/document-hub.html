@@ -42,6 +42,7 @@
         pInputText
         class="archive-search"
         [placeholder]="'Search agendas, minutes, or keywords...'"
+        [attr.aria-label]="'Search agendas, minutes, or keywords'"
         [value]="searchTerm()"
         (input)="searchTerm.set($any($event.target).value)"
       />

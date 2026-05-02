@@ -4,6 +4,8 @@ export const PREFERRED_BILL_PAY_CONTACT_VALUES = ['email', 'phone', 'sms', 'mail
 
 export type PreferredBillPayContact = (typeof PREFERRED_BILL_PAY_CONTACT_VALUES)[number];
 
+export type BillPayIntakeSource = 'pay-bill-page' | 'resident-services';
+
 export interface BillPayRequest {
   fullName: string;
   serviceAddress: string;
@@ -14,7 +16,7 @@ export interface BillPayRequest {
   notes: string;
   consentToContact: boolean;
   locale: SiteLanguage;
-  source: 'pay-bill-page';
+  source: BillPayIntakeSource;
 }
 
 export type BillPaySubmitResult =

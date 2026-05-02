@@ -1,15 +1,22 @@
 <section class="feature-detail-stack">
   <p-card class="panel" id="alerts">
     <ng-template pTemplate="header">
-      <p class="section-kicker">{{ copy().noticesKicker }}</p>
-      <h1>{{ copy().noticesHeading }}</h1>
+      <div class="feature-page-panel-header">
+        @if (cmsLoading()) {
+          <p-progressSpinner styleClass="feature-page-loading-spinner" aria-hidden="true" />
+        }
+        <div>
+          <p class="section-kicker">{{ copy().noticesKicker }}</p>
+          <h1>{{ copy().noticesHeading }}</h1>
+        </div>
+      </div>
     </ng-template>
     <section class="notice-grid">
       @for (notice of notices(); track notice.id) {
         <article class="notice-card">
           <p class="meta-label">{{ notice.date }}</p>
-          <strong>{{ notice.title }}</strong>
-          <span>{{ notice.detail }}</span>
+          <p class="notice-card-title">{{ notice.title }}</p>
+          <p class="notice-card-detail">{{ notice.detail }}</p>
         </article>
       }
     </section>

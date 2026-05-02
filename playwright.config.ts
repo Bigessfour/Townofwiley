@@ -26,6 +26,18 @@ if (process.env.CI) {
 }
 
 const { baseURL, useRemoteBaseUrl, e2ePort } = resolveE2eEnv();
+/** When true, do not spawn `ng serve` — use an already-running server at baseURL (e.g. `npm run serve:4300`). */
+const skipLocalWebServer =
+  process.env.E2E_SKIP_WEBSERVER === '1' || process.env.PLAYWRIGHT_SKIP_WEBSERVER === '1';
+/** First cold Angular compile often exceeds 120s; override with PLAYWRIGHT_WEB_SERVER_TIMEOUT_MS. */
+const webServerTimeoutMs = (() => {
+  const raw = (process.env.PLAYWRIGHT_WEB_SERVER_TIMEOUT_MS ?? '').trim();
+  if (/^\d+$/.test(raw)) {
+    const n = Number(raw);
+    return n >= 30_000 && n <= 900_000 ? n : 300_000;
+  }
+  return 300_000;
+})();
 /** Node binary for ensure / runtime config / ng serve. Use when Playwright runs under an unsupported Node (e.g. 25) but Node 24 is installed (matches .nvmrc / CI). */
 const e2eNodeBin = (process.env.E2E_NODE ?? '').trim() || process.execPath;
 const ensureNode = resolve(process.cwd(), 'scripts/ensure-node-version.mjs');
@@ -38,7 +50,8 @@ const pollFlag = pollMs && /^\d+$/.test(pollMs) ? ` --poll=${pollMs}` : '';
 
 const webServerCommand = useRemoteBaseUrl
   ? ''
-  : `"${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
+  : // Allow local Playwright when the active Node major differs from package.json (e.g. 25 vs ^24); `ng serve` still runs.
+    `env SKIP_NODE_VERSION_CHECK=1 "${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
 
 /** Full traces + screenshots for heal/debug runs (`PLAYWRIGHT_TRACE=on`). Default keeps artifacts on failure only. */
 function resolveTraceMode(): 'on' | 'off' | 'on-first-retry' | 'retain-on-failure' {
@@ -76,14 +89,17 @@ export default defineConfig({
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
   },
-  webServer: useRemoteBaseUrl
-    ? undefined
-    : {
-        command: webServerCommand,
-        url: baseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-      },
+  webServer:
+    useRemoteBaseUrl || skipLocalWebServer
+      ? undefined
+      : {
+          command: webServerCommand,
+          url: baseURL,
+          reuseExistingServer: !process.env.CI,
+          timeout: webServerTimeoutMs,
+          stdout: 'inherit',
+          stderr: 'inherit',
+        },
   projects: [
     {
       name: 'desktop-chromium',

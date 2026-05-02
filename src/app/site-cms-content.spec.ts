@@ -101,8 +101,7 @@ describe('LocalizedCmsContentStore', () => {
               heroStatus: 'Official Town Website',
               heroTitle: 'Town of Wiley',
               heroMessage: 'Town notices, meetings, weather, and services.',
-              heroSubtext:
-                'Practical homepage for Wiley residents with fast access to key information.',
+              heroSubtext: 'Services, meetings, and Town Hall contacts for Wiley residents.',
               welcomeLabel: 'Welcome Photo',
               welcomeHeading: 'Welcome to the Town of Wiley online home',
               welcomeBody:
@@ -282,7 +281,7 @@ describe('LocalizedCmsContentStore', () => {
             },
             {
               id: 'minutes-2026-04',
-              title: 'April 2026 Minutes',
+              title: 'Council Meeting Minutes',
               summary: 'Approved minutes for the April meeting.',
               sectionId: 'meeting-documents',
               status: 'Approved',
@@ -295,7 +294,7 @@ describe('LocalizedCmsContentStore', () => {
             },
             {
               id: 'agenda-2026-04',
-              title: 'April 2026 Agenda Packet',
+              title: 'Council Meeting Agenda Packet',
               summary: 'Agenda packet for the April meeting.',
               sectionId: 'meeting-documents',
               status: 'Published',
@@ -360,8 +359,8 @@ describe('LocalizedCmsContentStore', () => {
       'A Business',
     ]);
     expect(store.publicDocuments().map((document) => document.title)).toEqual([
-      'April 2026 Agenda Packet',
-      'April 2026 Minutes',
+      'Council Meeting Agenda Packet',
+      'Council Meeting Minutes',
     ]);
     expect(store.publicDocuments()[0]?.downloadFileName).toBe('');
     expect(store.publicDocuments()[1]?.keywords).toEqual(['minutes', 'agenda']);

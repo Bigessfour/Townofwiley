@@ -1,7 +1,16 @@
 <section class="feature-detail-stack">
-  <div class="panel contact-panel" id="contact">
-    <p class="section-kicker">{{ copy().contactKicker }}</p>
-    <h1>{{ copy().contactHeading }}</h1>
+  <p-card class="panel contact-panel" id="contact">
+    <ng-template pTemplate="header">
+      <div class="feature-page-panel-header">
+        @if (cmsLoading()) {
+          <p-progressSpinner styleClass="feature-page-loading-spinner" aria-hidden="true" />
+        }
+        <div>
+          <p class="section-kicker">{{ copy().contactKicker }}</p>
+          <h1>{{ copy().contactHeading }}</h1>
+        </div>
+      </div>
+    </ng-template>
 
     <div class="contact-town-hall-block">
       <p class="contact-town-hall-name">Wiley Town Hall</p>
@@ -13,18 +22,24 @@
     <section class="contact-grid" aria-label="Town contacts">
       @for (contact of contacts(); track contact.id) {
         <article class="contact-card">
-          <span>{{ contact.label }}</span>
+          <span class="contact-card-label">{{ contact.label }}</span>
           @if (contact.href) {
             @if (contact.linkLabel && contact.linkLabel !== contact.value) {
-              <strong>{{ contact.value }}</strong>
-              <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
+              <p class="contact-card-value-line">
+                <strong>{{ contact.value }}</strong>
+                <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
+              </p>
             } @else {
-              <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
+              <p class="contact-card-value-line">
+                <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
+              </p>
             }
           } @else {
-            <strong>{{ contact.value }}</strong>
+            <p class="contact-card-value-line">
+              <strong>{{ contact.value }}</strong>
+            </p>
           }
-          <p>{{ contact.detail }}</p>
+          <p class="contact-card-detail">{{ contact.detail }}</p>
         </article>
       }
     </section>
@@ -42,5 +57,5 @@
         </li>
       }
     </ul>
-  </div>
+  </p-card>
 </section>

@@ -1,3 +1,10 @@
+import {
+  createGoogleCalendarLinkForEvent,
+  createGoogleCalendarLinkForSeed,
+  createIcsDataUrlForEvent,
+  createIcsDataUrlForSeed,
+} from '../calendar-public-links';
+import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
 import type { CmsCalendarEvent } from '../site-cms-content';
 
 export interface MeetingItem {
@@ -8,6 +15,9 @@ export interface MeetingItem {
   agendaNote?: string;
   cta?: string;
   href?: string;
+  agendaPdfHref?: string;
+  /** When set, overrides default agenda PDF button label (e.g. notices shortcut row). */
+  agendaButtonLabel?: string;
 }
 
 export interface CalendarAction {
@@ -27,6 +37,7 @@ export interface CalendarSeed {
   agendaNote?: string;
   startLocal: string;
   endLocal: string;
+  recurrenceRule?: string;
   extraActions?: CalendarAction[];
   slug: string;
 }
@@ -48,6 +59,8 @@ export interface CalendarItem {
 export interface MeetingsCopy {
   calendarCopy: string;
   calendarEventFallbackLocation: string;
+  agendaPdfButtonLabel: string;
+  documentsHubButtonLabel: string;
 }
 
 export interface CalendarViewCopy {
@@ -55,7 +68,12 @@ export interface CalendarViewCopy {
   calendarEventFallbackDetail: string;
   calendarEventFallbackLocation: string;
   calendarScheduledEventLabel: string;
+  calendarGoogleActionLabel: string;
+  calendarDownloadActionLabel: string;
+  calendarAgendaActionLabel: string;
 }
+
+const DEFAULT_AGENDA_HREF = DOCUMENT_HUB_LINKS.meetings;
 
 export function buildMeetingItems(
   liveEvents: CmsCalendarEvent[],
@@ -63,9 +81,21 @@ export function buildMeetingItems(
   copy: MeetingsCopy,
   locale: string,
 ): MeetingItem[] {
-  return liveEvents.length > 0
-    ? liveEvents.map((event) => createMeetingItemFromEvent(event, copy, locale))
-    : fallbackMeetings;
+  if (liveEvents.length > 0) {
+    return liveEvents.map((event) => createMeetingItemFromEvent(event, copy, locale));
+  }
+
+  return fallbackMeetings.map((row) => {
+    const agendaPdfHref = row.agendaPdfHref ?? DEFAULT_AGENDA_HREF;
+    const agendaButtonLabel =
+      row.href === '/notices' ? copy.documentsHubButtonLabel : copy.agendaPdfButtonLabel;
+
+    return {
+      ...row,
+      agendaPdfHref,
+      agendaButtonLabel,
+    };
+  });
 }
 
 export function buildCalendarItems(
@@ -76,19 +106,54 @@ export function buildCalendarItems(
 ): CalendarItem[] {
   return liveEvents.length > 0
     ? liveEvents.map((event) => createCalendarItemFromEvent(event, copy, locale))
-    : fallbackSeeds.map((seed, index) => ({
-        id: `seed-${seed.slug}-${index}`,
-        title: seed.title,
-        date: seed.dateLabel,
-        category: copy.calendarPublishedEventCategory,
-        detail: seed.detail,
-        location: seed.location,
-        recurrence: seed.recurrence,
-        agendaNote: seed.agendaNote,
-        actions: seed.extraActions ?? [],
-        startDate: parseCalendarSeedDate(seed.startLocal),
-        endDate: parseCalendarSeedDate(seed.endLocal),
-      }));
+    : fallbackSeeds.map((seed, index) => createCalendarItemFromSeed(seed, index, copy));
+}
+
+function createCalendarItemFromSeed(
+  seed: CalendarSeed,
+  index: number,
+  copy: CalendarViewCopy,
+): CalendarItem {
+  const linkSeed = {
+    title: seed.title,
+    detail: seed.detail,
+    location: seed.location,
+    agendaNote: seed.agendaNote,
+    startLocal: seed.startLocal,
+    endLocal: seed.endLocal,
+    recurrenceRule: seed.recurrenceRule,
+    slug: seed.slug,
+  };
+
+  return {
+    id: `seed-${seed.slug}-${index}`,
+    title: seed.title,
+    date: seed.dateLabel,
+    category: copy.calendarPublishedEventCategory,
+    detail: seed.detail,
+    location: seed.location,
+    recurrence: seed.recurrence,
+    agendaNote: seed.agendaNote,
+    actions: [
+      {
+        label: copy.calendarGoogleActionLabel,
+        href: createGoogleCalendarLinkForSeed(linkSeed),
+        external: true,
+      },
+      {
+        label: copy.calendarDownloadActionLabel,
+        href: createIcsDataUrlForSeed(linkSeed),
+        downloadFileName: `${seed.slug}.ics`,
+      },
+      {
+        label: copy.calendarAgendaActionLabel,
+        href: DOCUMENT_HUB_LINKS.meetings,
+      },
+      ...(seed.extraActions ?? []),
+    ],
+    startDate: parseCalendarSeedDate(seed.startLocal),
+    endDate: parseCalendarSeedDate(seed.endLocal),
+  };
 }
 
 export function createMeetingItemFromEvent(
@@ -104,6 +169,7 @@ export function createMeetingItemFromEvent(
     schedule: formatCalendarEventDate(start, end, locale),
     format: event.description || copy.calendarCopy,
     location: event.location || copy.calendarEventFallbackLocation,
+    agendaPdfHref: DEFAULT_AGENDA_HREF,
   };
 }
 
@@ -123,7 +189,32 @@ export function createCalendarItemFromEvent(
     detail: event.description || copy.calendarEventFallbackDetail,
     location: event.location || copy.calendarEventFallbackLocation,
     recurrence: copy.calendarScheduledEventLabel,
-    actions: [],
+    actions: [
+      {
+        label: copy.calendarGoogleActionLabel,
+        href: createGoogleCalendarLinkForEvent(
+          event,
+          end,
+          copy.calendarEventFallbackDetail,
+          copy.calendarEventFallbackLocation,
+        ),
+        external: true,
+      },
+      {
+        label: copy.calendarDownloadActionLabel,
+        href: createIcsDataUrlForEvent(
+          event,
+          end,
+          copy.calendarEventFallbackDetail,
+          copy.calendarEventFallbackLocation,
+        ),
+        downloadFileName: `${event.id}.ics`,
+      },
+      {
+        label: copy.calendarAgendaActionLabel,
+        href: DOCUMENT_HUB_LINKS.meetings,
+      },
+    ],
     startDate: start,
     endDate: end,
   };
