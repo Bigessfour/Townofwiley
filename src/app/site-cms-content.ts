@@ -462,6 +462,13 @@ interface CmsGraphqlResponse {
   }[];
 }
 
+/**
+ * CMS coverage (Amplify Studio / AppSync `PUBLIC_CMS_QUERY`): town hero + welcome block
+ * (`listSiteSettings`), alert banners, announcements/notices, calendar events, official contacts,
+ * businesses, public documents, external news links. Content not in this query remains in bundled
+ * `APP_COPY` (e.g. section kickers/headings, static meeting fallback blurbs, calendar seeds, many
+ * labels) until modeled in CMS or `SiteSettings`.
+ */
 const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
   listSiteSettings(limit: 1) {
     items {

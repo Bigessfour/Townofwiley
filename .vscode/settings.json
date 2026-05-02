@@ -27,10 +27,15 @@
   },
   "terminal.integrated.env.osx": {
     "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}",
-    "E2E_NODE": "/opt/homebrew/opt/node@24/bin/node"
+    "E2E_NODE": "/opt/homebrew/opt/node@24/bin/node",
+    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
+  },
+  "terminal.integrated.env.linux": {
+    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "terminal.integrated.env.windows": {
-    "NPM_CONFIG_PREFIX": "${env:APPDATA}\\npm"
+    "NPM_CONFIG_PREFIX": "${env:APPDATA}\\npm",
+    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}\\.playwright-browsers"
   },
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python.defaultInterpreterPath": "/usr/bin/python3",
@@ -154,7 +159,8 @@
   "gitlens.advanced.maxListItems": 500,
   "gitlens.ai.enabled": false,
   "playwright.env": {
-    "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
+    "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}",
+    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "playwright.reuseBrowser": false,
   "playwright.showTrace": true,

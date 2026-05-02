@@ -22,6 +22,50 @@ export const siteContent = {
     'Businesses & Community',
     'Contact & Town Hall',
   ],
+  /** Mega menu end slot + search field (matches `APP_COPY.en` in `app.ts`). */
+  megaMenuChromeEn: {
+    contactCta: 'Contact Town Hall',
+    searchInputAccessibleName:
+      'Find permits, taxes, meetings, utilities, records, and issue reporting in one place.',
+  },
+  /**
+   * Mobile drawer anchors (`mobile-menu-nav` in `app.html`), EN locale.
+   * Not a 1:1 mirror of desktop `menuItems()` deep links.
+   */
+  mobileDrawerLinksEn: [
+    { label: 'Home', urlRegex: /\/$/ },
+    { label: 'I Want To...', urlRegex: /\/#top-tasks$/ },
+    { label: 'Government & Meetings', urlRegex: /\/meetings$/ },
+    { label: 'Services & Permits', urlRegex: /\/services$/ },
+    { label: 'News, Notices & Alerts', urlRegex: /\/notices$/ },
+    { label: 'Businesses & Community', urlRegex: /\/businesses$/ },
+    { label: 'Contact & Town Hall', urlRegex: /\/contact$/ },
+  ],
+  /**
+   * English labels for items inside mega menu *panels* (dropdown columns), matching `menuItems()`
+   * in `app.ts`. Used by megamenu-internal-links e2e — update when menu copy changes.
+   */
+  megaMenuPanelLinksEn: {
+    onlinePayments: 'Online Payments',
+    reportIssue: 'Report Street/Utility Issue',
+    meetingsAndCalendar: 'Meetings and Calendar',
+    permitsAndLicenses: 'Permits & Licenses',
+    searchAllServices: 'Search All Services',
+    localWeather: 'Local weather',
+    nwsAlert: 'National Weather Service Alert',
+    weatherEmergencyAlerts: 'Weather & Emergency Alerts',
+    openFullCalendar: 'Open the full town calendar',
+    meetingsAndCalendarTitle: 'Meetings and calendar',
+    calendar: 'Calendar',
+    recordsAndDocuments: 'Records and documents',
+    transparency: 'Transparency',
+    accessibilityStatement: 'Accessibility statement',
+    leadership: 'Leadership',
+    residentServices: 'Resident services',
+    townNotices: 'Town notices',
+    townNews: 'Town news',
+    signUpAlerts: 'Sign up for text or email alerts',
+  },
   serviceLabels: [
     'Online payments',
     'Street, utility, and property issue reporting',
@@ -32,7 +76,7 @@ export const siteContent = {
   ],
   homepageCounts: {
     noticeCards: 3,
-    meetingCards: 3,
+    meetingCards: 2,
     serviceCards: 6,
     headerShortcuts: 3,
   },
@@ -40,7 +84,7 @@ export const siteContent = {
     payments: 'Pay utility bill',
     issues: 'Report a street or utility issue',
     meetings: 'City Council Regular Meeting',
-    calendar: 'Meetings and Calendar',
+    calendar: 'Calendar',
     packets: 'Find meeting packets and approved minutes',
     council: 'Deb Dillon',
     accessibility: 'Keyboard and screen-reader support',

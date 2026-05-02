@@ -1,0 +1,198 @@
+$pay-navy: #0f172a;
+$pay-teal: #0d9488;
+$pay-teal-dark: #0f766e;
+$pay-surface: #f8fafc;
+
+:host {
+  display: block;
+  background: $pay-surface;
+}
+
+.pay-bill {
+  color: $pay-navy;
+  padding-bottom: 3rem;
+}
+
+.pay-bill-hero {
+  background: linear-gradient(
+    135deg,
+    $pay-navy 0%,
+    color-mix(in srgb, $pay-navy 82%, $pay-teal) 100%
+  );
+  color: #f8fafc;
+  padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
+}
+
+.pay-bill-hero-inner {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.pay-bill-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  margin: 0 0 0.75rem;
+}
+
+.pay-bill-hero h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+}
+
+.pay-bill-lead {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  opacity: 0.95;
+}
+
+.pay-bill-layout {
+  max-width: 56rem;
+  margin: -2rem auto 0;
+  padding: 0 1.25rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.pay-bill-cards {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+:host ::ng-deep .pay-bill-card.p-card {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, $pay-navy 12%, transparent);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 12px 28px rgb(15 23 42 / 0.08);
+}
+
+:host ::ng-deep .pay-bill-card--accent.p-card {
+  border-color: color-mix(in srgb, $pay-teal 35%, transparent);
+}
+
+:host ::ng-deep .pay-bill-card--wide.p-card {
+  width: 100%;
+}
+
+:host ::ng-deep .pay-bill-card--help.p-card {
+  background: color-mix(in srgb, $pay-teal 6%, #fff);
+  border-color: color-mix(in srgb, $pay-teal 22%, transparent);
+}
+
+.pay-bill-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.pay-bill-card-head--split {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pay-bill-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pay-bill-card-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pay-bill-form-intro {
+  margin-top: 0;
+  color: color-mix(in srgb, $pay-navy 72%, #64748b);
+}
+
+.pay-bill-fields {
+  display: grid;
+  gap: 1rem 1.25rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pay-bill-field {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.pay-bill-field--full {
+  grid-column: 1 / -1;
+}
+
+.pay-bill-field .required {
+  color: $pay-teal-dark;
+}
+
+.pay-bill-consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem 0.75rem;
+  align-items: start;
+}
+
+.pay-bill-consent p-message {
+  grid-column: 1 / -1;
+}
+
+.pay-bill-submit {
+  margin-top: 1.25rem;
+}
+
+.pay-bill-help-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.pay-bill-help-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.pay-bill-help-list a {
+  color: $pay-teal-dark;
+  font-weight: 600;
+}
+
+.pay-bill-help-list a:focus-visible {
+  outline: 2px solid $pay-teal;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:host ::ng-deep .pay-bill .p-button:focus-visible {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px $pay-teal;
+}

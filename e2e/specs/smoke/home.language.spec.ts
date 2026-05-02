@@ -8,7 +8,7 @@ test.describe('Language Switching', () => {
     await homePage.goto();
 
     // Switch to Spanish
-    await homePage.page.getByRole('button', { name: 'ES' }).click();
+    await homePage.clickSiteLanguage('es');
 
     // Quick validation that content changed
     // E.g. Top Tasks or heading might be translated or a lang attribute changes
@@ -19,7 +19,7 @@ test.describe('Language Switching', () => {
       });
 
     // Switch back to English
-    await homePage.page.getByRole('button', { name: 'EN' }).click();
+    await homePage.clickSiteLanguage('en');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
   });
 });

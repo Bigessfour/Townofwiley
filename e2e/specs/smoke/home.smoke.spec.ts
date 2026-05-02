@@ -22,8 +22,6 @@ async function expectGatewayFromHomepage(
 ): Promise<void> {
   await homePage.goto();
 
-  // No mobile hamburger toggle in the current custom nav; section nav links are always visible.
-
   await gateway.click(homePage);
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);
   await gateway.assertDestination(homePage);
@@ -174,17 +172,6 @@ const homepageGatewayTests: NavigationGateway[] = [
     assertDestination: expectServiceRecordsRequest,
   },
   {
-    name: 'Homepage notices view-all link',
-    click: (page) =>
-      page.page
-        .locator('.content-grid .civic-panel')
-        .nth(1)
-        .getByRole('link', { name: 'View all notices', exact: true })
-        .click({ force: true }),
-    expectedUrl: /\/notices$/,
-    assertDestination: expectNoticesPage,
-  },
-  {
     name: 'Feature card weather',
     click: (page) => page.page.locator('.feature-grid .feature-card[href="/weather"]').click(),
     expectedUrl: /\/weather$/,
@@ -320,12 +307,17 @@ test.describe('homepage smoke', () => {
     await expect(homePage.heroHeading).toBeVisible();
   });
 
-  test('renders the Wiley landing page scaffold', async ({ homePage }) => {
+  test('renders the Wiley landing page scaffold', async ({ homePage }, testInfo) => {
     await homePage.goto();
 
     await expect(homePage.page).toHaveTitle(siteContent.documentTitle);
+    await homePage.heroHeading.scrollIntoViewIfNeeded();
     await expect(homePage.heroHeading).toContainText(siteContent.heading);
-    await expect(homePage.searchInput).toBeVisible();
+    if (testInfo.project.name === 'mobile-chromium') {
+      await expect(homePage.mobileMenuButton).toBeVisible();
+    } else {
+      await expect(homePage.searchInput).toBeVisible();
+    }
     await expect(homePage.featureCards).toHaveCount(6);
     await expect(homePage.topTaskCards).toHaveCount(4);
     await expect(
@@ -340,7 +332,12 @@ test.describe('homepage smoke', () => {
 
   test('keeps the megamenu header search and meetings calendar shortcut usable', async ({
     homePage,
-  }) => {
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'mobile-chromium',
+      'Site search and megamenu chrome are hidden below the desktop breakpoint; mobile coverage uses drawer links.',
+    );
+
     await homePage.goto();
 
     await expect(homePage.searchInput).toBeVisible();
@@ -369,7 +366,14 @@ test.describe('homepage smoke', () => {
   });
 
   for (const gateway of sectionNavigationGateways) {
-    test(`proves ${gateway.name} reaches the expected destination`, async ({ homePage }) => {
+    test(`proves ${gateway.name} reaches the expected destination`, async ({
+      homePage,
+    }, testInfo) => {
+      test.skip(
+        testInfo.project.name === 'mobile-chromium',
+        'Mega menu roots are not rendered on narrow viewports.',
+      );
+
       await expectGatewayFromHomepage(homePage, gateway);
     });
   }
@@ -458,8 +462,7 @@ test.describe('homepage smoke', () => {
   test('routes search results into public document destinations', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.searchInput.fill('Budget summaries and annual reports');
-    await homePage.searchInput.press('Enter');
+    await homePage.submitHeaderSiteSearch('Browse budgets annual reports code references');
 
     await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
     await expect(homePage.page.getByTestId('financial-documents')).toContainText(

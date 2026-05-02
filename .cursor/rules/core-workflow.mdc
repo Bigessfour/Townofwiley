@@ -8,7 +8,7 @@ alwaysApply: true
 ## Project Context
 - Angular 21 standalone components, signals-first (input/output/computed/inject), OnPush change detection, native control flow (@if/@for/@switch), reactive forms.
 - Strict WCAG AA accessibility, semantic HTML, PrimeNG + SCSS.
-- Prefer MCP tools (angular-cli, primeng, playwright-mcp) for Angular/PrimeNG/Playwright guidance before generic knowledge.
+- Prefer MCP tools from [`.cursor/mcp.json`](../.cursor/mcp.json) in Cursor and [`.vscode/mcp.json`](../.vscode/mcp.json) in VS Code: **angular-cli**, **primeng**, **playwright-test** (`run-test-mcp-server`), **microsoft/playwright-mcp**, and **cursor-ide-browser** (when enabled) for Angular/PrimeNG/Playwright guidance before generic knowledge.
 - Use repo-local files: .instructions.md, .github/skills/TownOfWiley-Dev/SKILL.md, .github/instructions/*.instructions.md.
 
 ## Mandatory Practices

@@ -50,6 +50,8 @@ __screenshots__/
 __ng_tmp__/
 playwright-report/
 test-results/
+# Playwright browser binaries (local cache; see playwright.config.ts)
+.playwright-browsers/
 blob-report/
 /secrets/local/*
 !/secrets/local/.gitignore

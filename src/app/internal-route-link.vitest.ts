@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { getAppRouteLink } from './internal-route-link';
 
 describe('getAppRouteLink', () => {
-  it('treats /payments and /permits as internal app routes', () => {
+  it('treats /pay-bill, /payments, and /permits as internal app routes', () => {
+    expect(getAppRouteLink('/pay-bill')).toEqual({
+      href: '/pay-bill',
+      isInternal: true,
+      path: '/pay-bill',
+      fragment: undefined,
+    });
     expect(getAppRouteLink('/payments')).toEqual({
       href: '/payments',
       isInternal: true,

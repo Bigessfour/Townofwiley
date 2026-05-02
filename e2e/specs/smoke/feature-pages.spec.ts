@@ -31,11 +31,7 @@ test.describe('feature page coverage', () => {
 
     const meetingsPanel = homePage.page.locator('[aria-labelledby="meetings-heading"]');
 
-    await expect(meetingsPanel).toContainText('Meeting access and community updates');
-    await expect(homePage.page.getByRole('link', { name: 'Open calendar' })).toHaveAttribute(
-      'href',
-      '/meetings#calendar',
-    );
+    await expect(meetingsPanel).toContainText('Council meetings & schedules');
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
     await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
   });

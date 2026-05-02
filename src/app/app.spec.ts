@@ -7,12 +7,15 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService, type MegaMenuItem } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
-import { LocalizedWeatherPanel } from './weather-panel/localized-weather-panel';
+import {
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
+} from './weather-panel/localized-weather-panel';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
@@ -179,20 +182,7 @@ describe('App', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance as App & {
-      menuItems: () => {
-        label: string;
-        root?: boolean;
-        routerLink?: string;
-        fragment?: string;
-        url?: string;
-        items?: {
-          label: string;
-          routerLink?: string;
-          fragment?: string;
-          url?: string;
-          command?: (event: unknown) => void;
-        }[][];
-      };
+      menuItems: () => MegaMenuItem[];
     };
 
     const servicesMenu = component.menuItems().find((item) => item.label === 'Services & Permits');
@@ -200,7 +190,12 @@ describe('App', () => {
     expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
     expect(servicesMenu).toBeDefined();
     expect(servicesMenu?.items).toHaveLength(2);
-    expect(servicesMenu?.items?.[0]).toMatchObject([
+
+    /** Matches megaMenuColumn() in app.ts: each overlay column is `[{ items: leafLinks[] }]`. */
+    const firstColumnGroup = servicesMenu?.items?.[0]?.[0];
+    const secondColumnGroup = servicesMenu?.items?.[1]?.[0];
+
+    expect(firstColumnGroup?.items).toMatchObject([
       {
         label: 'Online Payments',
         routerLink: ['/services'],
@@ -221,7 +216,7 @@ describe('App', () => {
         routerLink: '/services',
       },
     ]);
-    expect(servicesMenu?.items?.[1]).toMatchObject([
+    expect(secondColumnGroup?.items).toMatchObject([
       {
         label: 'Records and documents',
         routerLink: '/records',
@@ -272,21 +267,17 @@ describe('App', () => {
     expect(command).toHaveBeenCalledWith(event);
   });
 
-  it('should expose the meetings calendar jump link on the meetings page', async () => {
+  it('should expose the meetings calendar jump link on the homepage', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/meetings');
+    await flushWeatherRequests();
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent).toContain(
-      'Open the full town calendar',
-    );
-    expect(compiled.querySelector('a.text-link[href="#calendar"]')?.textContent).toContain(
-      'Open the full town calendar',
-    );
+    const calendarJump = compiled.querySelector('a.text-link[href="/meetings#calendar"]');
+    expect(calendarJump?.textContent).toContain('Open the full town calendar');
   });
 
   it('should map published CMS events into the meetings calendar month view', async () => {
@@ -400,9 +391,7 @@ describe('App', () => {
     expect(compiled.querySelector('.meeting-card .meeting-location')?.textContent).toContain(
       'Wiley Community Park',
     );
-    expect(
-      compiled.querySelector('a.text-link[href="#calendar"]')?.textContent?.trim(),
-    ).toBeTruthy();
+    expect(compiled.querySelector('#calendar')).not.toBeNull();
   });
 
   it('should render a Paystar payment action when payment runtime config is present', async () => {
@@ -577,6 +566,65 @@ describe('App', () => {
     );
   });
 
+  it('should hide the NWS banner when dismissed and show again when the alert payload changes', async () => {
+    window.localStorage.setItem('tow-site-language', 'en');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    httpTesting.expectOne('https://api.weather.gov/points/38.154,-102.72').flush({
+      properties: { forecastZone: 'https://api.weather.gov/zones/forecast/COZ098' },
+    });
+    await Promise.resolve();
+    httpTesting.expectOne('https://api.weather.gov/alerts/active?zone=COZ098').flush({
+      features: [
+        {
+          properties: {
+            event: 'Frost Advisory',
+            headline:
+              'Frost Advisory issued May 1 at 6:56 PM MDT until May 2 at 8:00 AM MDT by NWS Pueblo CO.',
+            severity: 'Minor',
+            urgency: 'Expected',
+            instruction: 'Take steps now to protect tender plants from the cold.',
+          },
+        },
+      ],
+    });
+    await Promise.resolve();
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.site-alert--nws')).not.toBeNull();
+
+    const dismiss = compiled.querySelector(
+      'button[aria-label="Dismiss weather alert"]',
+    ) as HTMLButtonElement | null;
+    expect(dismiss).not.toBeNull();
+    dismiss!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.site-alert--nws')).toBeNull();
+
+    const inst = fixture.componentInstance as unknown as {
+      updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void;
+    };
+    inst.updateHomepageWeatherAlert({
+      total: 1,
+      event: 'Frost Advisory',
+      headline:
+        'Frost Advisory issued May 2 at 9:00 PM MDT until May 3 at 8:00 AM MDT by NWS Pueblo CO.',
+      severity: 'Minor',
+      urgency: 'Expected',
+      instruction: 'Take steps now to protect tender plants from the cold.',
+      forecastUrl: 'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248',
+    });
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.site-alert--nws')).not.toBeNull();
+  });
+
   it('should not show emergency alert copy when NWS has no active alerts', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -595,7 +643,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.site-alert--nws')).toBeNull();
-    expect(compiled.querySelector('.site-alert-slot')).toBeNull();
+    expect(compiled.querySelector('.site-alert-slot--live-nws')).toBeNull();
     expect(compiled.textContent).not.toContain('Urgent town update');
     expect(compiled.textContent).not.toContain('Weather alerts load here');
   });

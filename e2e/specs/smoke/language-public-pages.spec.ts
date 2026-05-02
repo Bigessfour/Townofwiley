@@ -4,7 +4,7 @@ test.describe('public language coverage', () => {
   test('keeps Spanish copy active across core public journeys', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.page.getByRole('button', { name: 'ES' }).click();
+    await homePage.clickSiteLanguage('es');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', 'es');
     await expect(
       homePage.page.getByRole('heading', { level: 1, name: 'Pueblo de Wiley' }),
@@ -68,7 +68,7 @@ test.describe('public language coverage', () => {
       homePage.page.getByRole('heading', { name: 'Terminos de SMS para alertas del clima' }),
     ).toBeVisible();
 
-    await homePage.page.getByRole('button', { name: 'EN' }).click();
+    await homePage.clickSiteLanguage('en');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(
       homePage.page.getByRole('heading', { name: 'Weather alert SMS terms' }),

@@ -13,8 +13,8 @@ import { publicRouteContracts, type PublicRouteContract } from '../../support/pu
  * 3. Lazy routes (most paths except `/`) replace `App` with a route component — many have **no**
  *    `#main-content` until `DocumentHub` / `role="main"` shells; `/` keeps the marketing hero
  *    **outside** `#main-content`, so the primary H1 must come from `[data-testid=homepage-hero]`.
- * 4. Typography assertions read `getComputedStyle` after **`load` + `document.fonts.ready`** and poll
- *    briefly so we never measure during the first unstyled frame (the previous CI failure mode).
+ * 4. Typography assertions read `getComputedStyle` after **`domcontentloaded` + `document.fonts.ready`**
+ *    and poll briefly so we never measure during the first unstyled frame (the previous CI failure mode).
  * 5. Before trusting font-size, we require a **non-degenerate layout box** so a wrong locator fails
  *    with a clear “layout” error instead of a confusing 1–2px font size.
  * 6. Typography matrix: **one test per (viewport × public route)** so CI reports the exact
@@ -35,7 +35,7 @@ interface TypographyMetrics {
 
 /** One place for navigation + font loading so family/size checks stay consistent. */
 async function waitForTypographyReady(page: Page): Promise<void> {
-  await page.waitForLoadState('load');
+  await page.waitForLoadState('domcontentloaded');
   await page.evaluate(() => document.fonts.ready);
 }
 
@@ -211,7 +211,12 @@ test.describe('visual readiness smoke', () => {
   for (const routeContract of publicRouteContracts) {
     test(`${routeContract.label} keeps desktop layout fundamentals intact`, async ({
       homePage,
-    }) => {
+    }, testInfo) => {
+      test.skip(
+        testInfo.project.name === 'mobile-chromium',
+        'Desktop layout fundamentals assume wide header chrome and megamenu visibility.',
+      );
+
       await homePage.page.goto(routeContract.path, { waitUntil: 'load' });
 
       const heading = await resolvePrimaryPublicHeading(homePage.page, routeContract);
@@ -255,17 +260,14 @@ test.describe('visual readiness smoke', () => {
         homePage,
       }) => {
         await homePage.page.setViewportSize(viewport.size);
-        await homePage.page.goto(routeContract.path, { waitUntil: 'load' });
+        await homePage.page.goto(routeContract.path, { waitUntil: 'domcontentloaded' });
 
         const heading = await resolvePrimaryPublicHeading(homePage.page, routeContract);
         const body = homePage.page.locator('body');
 
         await expectReadableTypography(heading, 'Fraunces', viewport.minHeadingSize);
         await expectReadableTypography(body, 'Source Sans 3', 16);
-        await expectNoHorizontalOverflow(
-          homePage.page,
-          `${routeContract.label} ${viewport.label}`,
-        );
+        await expectNoHorizontalOverflow(homePage.page, `${routeContract.label} ${viewport.label}`);
       });
     }
   }

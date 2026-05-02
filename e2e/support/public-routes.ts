@@ -13,8 +13,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/',
     label: 'landing page',
     heading: 'Town of Wiley',
-    primaryAction: (page) =>
-      page.getByLabel(/Find permits, taxes, meetings, utilities, records, and issue reporting/i),
+    primaryAction: (page) => page.getByRole('link', { name: /Explore resident services/i }),
   },
   {
     path: '/weather',
@@ -31,8 +30,8 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/meetings',
     label: 'meetings page',
-    heading: /Meeting access and community updates/i,
-    primaryAction: (page) => page.getByRole('link', { name: 'Open calendar' }),
+    heading: /Council meetings & schedules/i,
+    primaryAction: (page) => page.locator('#calendar'),
   },
   {
     path: '/services',
@@ -60,10 +59,10 @@ export const publicRouteContracts: PublicRouteContract[] = [
     primaryAction: (page) => page.getByLabel('Search local businesses'),
   },
   {
-    path: '/payments',
-    label: 'payments page',
-    heading: /Pay Your Utility Bill/i,
-    primaryAction: (page) => page.getByRole('button', { name: /Submit Payment/i }),
+    path: '/pay-bill',
+    label: 'pay bill page',
+    heading: /Pay Your Utility Bill Online/i,
+    primaryAction: (page) => page.getByRole('button', { name: /Submit request/i }),
   },
   {
     path: '/permits',

@@ -381,34 +381,21 @@ test.describe('feature panel visual coverage', () => {
 
     await expect(homePage.page.locator('[aria-labelledby="meetings-heading"]'))
       .toMatchAriaSnapshot(`
-      - paragraph: Meetings and Calendar
-      - heading "Meeting access and community updates" [level=2]
+      - paragraph: Town calendar
+      - heading "Council meetings & schedules" [level=1]
       - article:
-        - strong: Town council regular meeting
-        - text: Every second Monday at 6:00 PM
+        - strong: Town council meeting
+        - text: Second Monday each month · 6:00 PM
         - paragraph: Wiley Town Hall, 304 Main Street
-        - text: In person at Wiley Town Hall with agenda materials posted ahead of time.
-        - paragraph: Residents can call Town Hall at (719) 829-4974 or email the clerk before the meeting if they want to be placed on the agenda.
-        - link "Open calendar":
-          - /url: /meetings#calendar
+        - text: In person at Wiley Town Hall. Agendas post before each meeting.
+        - paragraph: Agenda requests: (719) 829-4974 or the town clerk before the meeting.
       - article:
-        - strong: Planning and zoning review
-        - text: First Thursday at 5:30 PM
-        - paragraph: Wiley Town Hall, 304 Main Street
-        - text: Public hearing for planning, zoning, and land use items.
-        - paragraph: Agenda packets, hearing notices, and filing deadlines should stay linked from the calendar entry.
-        - link "View meeting details":
-          - /url: /meetings#calendar
-      - article:
-        - strong: Community deadlines and service updates
-        - text: Seasonal notices and recurring town reminders
-        - paragraph: Town-wide notices and service locations
-        - text: A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.
-        - paragraph: Use this space for community items that are easier to follow on a calendar.
+        - strong: Town notices & deadlines
+        - text: Posted year-round
+        - paragraph: Town-wide
+        - text: Utility work, road closures, seasonal deadlines, and severe weather updates.
         - link "Browse notices":
           - /url: /notices
-      - link "Open the full town calendar":
-        - /url: "#calendar"
     `);
   });
 
@@ -648,17 +635,17 @@ test.describe('standalone public route pixel baselines', () => {
     );
   });
 
-  test('utility payment form snapshot', async ({ homePage }) => {
+  test('pay bill page shell snapshot', async ({ homePage }) => {
     test.skip(
       !useVisualSnapshots,
       'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
     );
 
-    await homePage.page.goto('/payments', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('app-payment-form')).toHaveScreenshot(
-      'payment-form-shell.png',
+    await expect(homePage.page.locator('app-pay-bill-page')).toHaveScreenshot(
+      'pay-bill-page-shell.png',
       {
         animations: 'disabled',
         caret: 'hide',

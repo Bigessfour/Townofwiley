@@ -23,6 +23,7 @@ test.describe('homepage accessibility', () => {
 
       const results = await new AxeBuilder({ page: homePage.page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
+        .withRules(['page-has-heading-one'])
         .disableRules(['aria-valid-attr-value', 'scrollable-region-focusable']) // Upstream PrimeNG DOM anomalies
         .analyze();
 

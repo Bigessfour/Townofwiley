@@ -43,9 +43,14 @@ export const routes: Routes = [
       import('./business-directory/business-directory').then((m) => m.BusinessDirectory),
   },
   {
-    path: 'payments',
+    path: 'pay-bill',
     loadComponent: () =>
-      import('./payments/payment-form.component').then((m) => m.PaymentFormComponent),
+      import('./pay-bill/pay-bill-page.component').then((m) => m.PayBillPageComponent),
+  },
+  {
+    path: 'payments',
+    redirectTo: 'pay-bill',
+    pathMatch: 'full',
   },
   {
     path: 'permits',

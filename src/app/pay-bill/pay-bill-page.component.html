@@ -1,0 +1,231 @@
+<p-toast key="bill-pay" position="top-right" />
+
+<main class="pay-bill" role="main">
+  <header class="pay-bill-hero" aria-labelledby="pay-bill-hero-heading">
+    <div class="pay-bill-hero-inner">
+      <p class="pay-bill-kicker">
+        <i class="pi pi-wallet" aria-hidden="true"></i>
+        {{ lang() === 'es' ? 'Servicios públicos' : 'Town utility billing' }}
+      </p>
+      <h1 id="pay-bill-hero-heading">{{ copy().heroTitle }}</h1>
+      <p class="pay-bill-lead">{{ copy().heroSubtitle }}</p>
+    </div>
+  </header>
+
+  <div class="pay-bill-layout">
+    <section class="pay-bill-cards" [attr.aria-label]="copy().cardsRegionLabel">
+      <p-card styleClass="pay-bill-card">
+        <ng-template pTemplate="header">
+          <div class="pay-bill-card-head">
+            <i class="pi pi-external-link" aria-hidden="true"></i>
+            <span>{{ copy().quickPayTitle }}</span>
+          </div>
+        </ng-template>
+        <p>{{ copy().quickPayBody }}</p>
+        @if (quickPayIsPlaceholder()) {
+          <p-message severity="info" [text]="copy().quickPayPlaceholderNote" />
+        }
+        <div class="pay-bill-card-actions">
+          <a
+            pButton
+            class="p-button-sm"
+            [href]="quickPayHref()"
+            rel="noopener noreferrer"
+            target="_blank"
+            icon="pi pi-arrow-up-right"
+            [label]="copy().quickPayCta"
+          ></a>
+        </div>
+      </p-card>
+
+      <p-card styleClass="pay-bill-card pay-bill-card--accent">
+        <ng-template pTemplate="header">
+          <div class="pay-bill-card-head pay-bill-card-head--split">
+            <span class="pay-bill-card-title">
+              <i class="pi pi-sparkles" aria-hidden="true"></i>
+              {{ copy().comingSoonTitle }}
+            </span>
+            <p-tag [value]="copy().comingSoonBadge" severity="warn" icon="pi pi-clock" />
+          </div>
+        </ng-template>
+        <!-- Embedded checkout will use Paystar Embedded Session API: https://docs.paystar.io/api-docs/embedded/overview -->
+        <p>{{ copy().comingSoonBody }}</p>
+        <div class="pay-bill-card-actions">
+          <button
+            pButton
+            type="button"
+            class="p-button-outlined p-button-sm"
+            icon="pi pi-send"
+            [label]="copy().requestEarlyAccess"
+            (click)="scrollToRequestForm()"
+          ></button>
+        </div>
+      </p-card>
+    </section>
+
+    <section
+      id="bill-pay-request"
+      class="pay-bill-form-section"
+      tabindex="-1"
+      aria-labelledby="bill-pay-form-heading"
+    >
+      <p-card styleClass="pay-bill-card pay-bill-card--wide">
+        <ng-template pTemplate="header">
+          <div class="pay-bill-card-head">
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+            <span id="bill-pay-form-heading">{{ copy().formSectionTitle }}</span>
+          </div>
+        </ng-template>
+        <p class="pay-bill-form-intro">{{ copy().formSectionIntro }}</p>
+
+        <form class="pay-bill-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+          <div class="pay-bill-fields">
+            <label class="pay-bill-field" for="bp-full-name">
+              <span
+                >{{ copy().fullNameLabel }} <span class="required" aria-hidden="true">*</span></span
+              >
+              <input
+                pInputText
+                id="bp-full-name"
+                type="text"
+                formControlName="fullName"
+                autocomplete="name"
+              />
+              @if (fieldMessage('fullName'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field" for="bp-service-address">
+              <span>
+                {{ copy().serviceAddressLabel }} <span class="required" aria-hidden="true">*</span>
+              </span>
+              <input
+                pInputText
+                id="bp-service-address"
+                type="text"
+                formControlName="serviceAddress"
+                autocomplete="street-address"
+              />
+              @if (fieldMessage('serviceAddress'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field" for="bp-account">
+              <span>{{ copy().accountNumberLabel }}</span>
+              <input
+                pInputText
+                id="bp-account"
+                type="text"
+                formControlName="accountNumber"
+                inputmode="text"
+              />
+              @if (fieldMessage('accountNumber'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field" for="bp-email">
+              <span
+                >{{ copy().emailLabel }} <span class="required" aria-hidden="true">*</span></span
+              >
+              <input
+                pInputText
+                id="bp-email"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+              />
+              @if (fieldMessage('email'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field" for="bp-phone">
+              <span
+                >{{ copy().phoneLabel }} <span class="required" aria-hidden="true">*</span></span
+              >
+              <input
+                pInputText
+                id="bp-phone"
+                type="tel"
+                formControlName="phone"
+                autocomplete="tel"
+              />
+              @if (fieldMessage('phone'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field" for="bp-preferred">
+              <span>
+                {{ copy().preferredContactLabel }}
+                <span class="required" aria-hidden="true">*</span>
+              </span>
+              <p-select
+                inputId="bp-preferred"
+                formControlName="preferredContactMethod"
+                [options]="preferredContactOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="lang() === 'es' ? 'Seleccione…' : 'Choose…'"
+                fluid
+              />
+              @if (fieldMessage('preferredContactMethod'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </label>
+
+            <label class="pay-bill-field pay-bill-field--full" for="bp-notes">
+              <span>{{ copy().notesLabel }}</span>
+              <textarea pTextarea id="bp-notes" formControlName="notes" rows="4"></textarea>
+            </label>
+
+            <div class="pay-bill-field pay-bill-field--full pay-bill-consent">
+              <p-checkbox inputId="bp-consent" formControlName="consentToContact" [binary]="true" />
+              <label for="bp-consent">{{ copy().consentLabel }}</label>
+              @if (fieldMessage('consentToContact'); as message) {
+                <p-message severity="error" [text]="message" />
+              }
+            </div>
+          </div>
+
+          <div class="pay-bill-submit">
+            <button
+              pButton
+              type="submit"
+              icon="pi pi-check"
+              [disabled]="submitting()"
+              [label]="submitting() ? copy().submittingLabel : copy().submitLabel"
+            ></button>
+          </div>
+        </form>
+      </p-card>
+    </section>
+
+    <section class="pay-bill-help" aria-labelledby="pay-bill-help-heading">
+      <p-card styleClass="pay-bill-card pay-bill-card--help">
+        <ng-template pTemplate="header">
+          <div class="pay-bill-card-head">
+            <i class="pi pi-info-circle" aria-hidden="true"></i>
+            <span id="pay-bill-help-heading">{{ copy().helpTitle }}</span>
+          </div>
+        </ng-template>
+        <p>{{ copy().helpBody }}</p>
+        <ul class="pay-bill-help-list">
+          <li>
+            <i class="pi pi-phone" aria-hidden="true"></i>
+            <span>{{ copy().helpPhoneLabel }}:</span>
+            <a href="tel:+17198294974">(719) 829-4974</a>
+          </li>
+          <li>
+            <i class="pi pi-envelope" aria-hidden="true"></i>
+            <span>{{ copy().helpEmailLabel }}:</span>
+            <a href="mailto:deb.dillon@townofwiley.gov">deb.dillon@townofwiley.gov</a>
+          </li>
+        </ul>
+      </p-card>
+    </section>
+  </div>
+</main>

@@ -1,138 +1,113 @@
 import { test, expect } from '../../fixtures/town.fixture';
 
-const MOCK_API = '/e2e-mock-paystar';
+const MOCK_BILL_PAY = '**/api/v1/bill-pay-requests';
 
-async function mockPaystarApiSuccess(page: import('@playwright/test').Page): Promise<void> {
-  await page.route(`**${MOCK_API}/receipt/**`, async (route) => {
-    const url = route.request().url();
-    const locale = new URL(url).searchParams.get('locale') ?? 'en';
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        referenceId: 'REF-E2E-1',
-        residentName: 'John Doe',
-        amount: 50,
-        date: '2026-05-01',
-        status: 'success',
-        preferredContact: 'john@example.com',
-        locale,
-      }),
-    });
-  });
-
-  await page.route(`**${MOCK_API}`, async (route) => {
+async function mockBillPaySuccess(page: import('@playwright/test').Page): Promise<void> {
+  await page.route(MOCK_BILL_PAY, async (route) => {
     if (route.request().method() !== 'POST') {
       await route.continue();
       return;
     }
     await route.fulfill({
-      status: 200,
+      status: 201,
       contentType: 'application/json',
-      body: JSON.stringify({
-        provider: 'paystar',
-        mode: 'api',
-        launchUrl: '',
-        referenceId: 'REF-E2E-1',
-      }),
+      body: JSON.stringify({ id: 'e2e-bill-pay-1' }),
     });
   });
 }
 
-test.describe('Payments page', () => {
-  test('submits payment and shows receipt when Paystar API mode is enabled', async ({
-    homePage,
-  }) => {
-    await homePage.enablePaystarApi(MOCK_API);
-    await mockPaystarApiSuccess(homePage.page);
-    await homePage.page.goto('/payments');
-
-    await expect(
-      homePage.page.getByRole('heading', { name: /Pay Your Utility Bill/i }),
-    ).toBeVisible();
-
-    await homePage.page.getByLabel(/Resident Name/i).fill('John Doe');
-    await homePage.page.getByLabel(/Service Address/i).fill('123 Main St, Wiley, CO 81092');
-    await homePage.page.getByLabel(/^Account Number/i).fill('ACC12345');
-    await homePage.page.getByLabel(/^Amount/i).fill('50');
-    await homePage.page.getByLabel(/Preferred Contact/i).fill('john@example.com');
-
-    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
-
-    await expect(homePage.page.getByText(/Payment processed successfully/i)).toBeVisible();
-    await expect(homePage.page.locator('#receipt-content')).toContainText('John Doe');
-    await expect(homePage.page.locator('#receipt-content')).toContainText('50');
-  });
-
-  test('blocks submit and shows validation for a short account number', async ({ homePage }) => {
-    await homePage.enablePaystarApi(MOCK_API);
-    await homePage.page.goto('/payments');
-
-    await homePage.page.getByLabel(/Resident Name/i).fill('Jane Doe');
-    await homePage.page.getByLabel(/Service Address/i).fill('456 Elm St, Wiley, CO 81092');
-    await homePage.page.getByLabel(/^Account Number/i).fill('SHORT');
-    await homePage.page.getByLabel(/^Amount/i).fill('10');
-    await homePage.page.getByLabel(/Preferred Contact/i).fill('jane@example.com');
-    await homePage.page.getByLabel(/^Account Number/i).blur();
-
-    await expect(homePage.page.getByText(/Invalid account number/i)).toBeVisible();
-    await expect(homePage.page.getByRole('button', { name: /Submit Payment/i })).toBeDisabled();
-  });
-
-  test('shows error alert with retry after Paystar API returns 500', async ({ homePage }) => {
-    await homePage.enablePaystarApi(MOCK_API);
-    await homePage.page.route(`**${MOCK_API}`, async (route) => {
-      if (route.request().method() === 'POST') {
-        await route.fulfill({ status: 500, body: JSON.stringify({ error: 'Server error' }) });
-        return;
-      }
+async function mockBillPayFailure(page: import('@playwright/test').Page): Promise<void> {
+  await page.route(MOCK_BILL_PAY, async (route) => {
+    if (route.request().method() !== 'POST') {
       await route.continue();
-    });
+      return;
+    }
+    await route.fulfill({ status: 500, body: JSON.stringify({ error: 'Server error' }) });
+  });
+}
 
+test.describe('Pay bill page', () => {
+  test('redirects legacy /payments to /pay-bill', async ({ homePage }) => {
     await homePage.page.goto('/payments');
-
-    await homePage.page.getByLabel(/Resident Name/i).fill('Error Test');
-    await homePage.page.getByLabel(/Service Address/i).fill('789 Oak St, Wiley, CO 81092');
-    await homePage.page.getByLabel(/^Account Number/i).fill('ACC789012');
-    await homePage.page.getByLabel(/^Amount/i).fill('20');
-    await homePage.page.getByLabel(/Preferred Contact/i).fill('error@example.com');
-
-    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
-
-    await expect(homePage.page.locator('.error-alert')).toBeVisible();
-    await expect(homePage.page.getByRole('button', { name: /^Retry$/i })).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill\/?$/);
   });
 
-  test('offers Spanish labels after switching site language', async ({ homePage }) => {
-    await homePage.enablePaystarApi(MOCK_API);
-    await mockPaystarApiSuccess(homePage.page);
-    await homePage.page.goto('/payments');
-
-    await homePage.page.locator('#site-language-es').click();
+  test('submits early access request when bill pay API is available', async ({ homePage }) => {
+    await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
+    await mockBillPaySuccess(homePage.page);
+    await homePage.page.goto('/pay-bill');
 
     await expect(
-      homePage.page.getByRole('heading', { name: /Pague Su Factura de Servicios/i }),
+      homePage.page.getByRole('heading', { name: /Pay Your Utility Bill Online/i }),
     ).toBeVisible();
-    await expect(homePage.page.getByLabel(/Nombre del Residente/i)).toBeVisible();
+
+    const form = homePage.page.locator('#bill-pay-request');
+    await form.getByLabel(/^Full name/i).fill('John Doe');
+    await form.getByLabel(/^Service address/i).fill('123 Main St, Wiley, CO 81092');
+    await form.getByLabel(/^Email/i).fill('john@example.com');
+    await form.getByLabel(/^Phone/i).fill('719-555-0100');
+    await form.locator('#bp-preferred').click();
+    await homePage.page.getByRole('option', { name: /^Email$/i }).click();
+    await form
+      .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
+      .check();
+
+    await form.getByRole('button', { name: /Submit request/i }).click();
+
+    await expect(homePage.page.locator('.p-toast-message-success')).toBeVisible();
   });
 
-  test('queues a payment in localStorage when the browser is offline', async ({ homePage }) => {
-    await homePage.enablePaystarApi(MOCK_API);
-    await homePage.page.goto('/payments');
-    await homePage.page.context().setOffline(true);
+  test('shows validation when consent checkbox is unchecked', async ({ homePage }) => {
+    await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
+    await homePage.page.goto('/pay-bill');
 
-    await homePage.page.getByLabel(/Resident Name/i).fill('Offline User');
-    await homePage.page.getByLabel(/Service Address/i).fill('100 Offline Rd, Wiley, CO');
-    await homePage.page.getByLabel(/^Account Number/i).fill('OFFLINE1');
-    await homePage.page.getByLabel(/^Amount/i).fill('30');
-    await homePage.page.getByLabel(/Preferred Contact/i).fill('offline@example.com');
+    const form = homePage.page.locator('#bill-pay-request');
+    await form.getByLabel(/^Full name/i).fill('Jane Doe');
+    await form.getByLabel(/^Service address/i).fill('456 Elm St');
+    await form.getByLabel(/^Email/i).fill('jane@example.com');
+    await form.getByLabel(/^Phone/i).fill('719-555-0200');
+    await form.locator('#bp-preferred').click();
+    await homePage.page.getByRole('option', { name: /^Phone call$/i }).click();
 
-    await homePage.page.getByRole('button', { name: /Submit Payment/i }).click();
+    await form.getByRole('button', { name: /Submit request/i }).click();
 
-    await expect(homePage.page.getByText(/queued offline/i)).toBeVisible();
-    const raw = await homePage.page.evaluate(() => localStorage.getItem('pendingPayments'));
-    expect(raw).toContain('OFFLINE1');
+    await expect(homePage.page.locator('.p-toast-message-warn')).toBeVisible();
+  });
 
-    await homePage.page.context().setOffline(false);
+  test('falls back to mail client when bill pay API returns 500', async ({ homePage }) => {
+    await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
+    await mockBillPayFailure(homePage.page);
+
+    await homePage.page.goto('/pay-bill');
+
+    const form = homePage.page.locator('#bill-pay-request');
+    await form.getByLabel(/^Full name/i).fill('Error Test');
+    await form.getByLabel(/^Service address/i).fill('789 Oak St');
+    await form.getByLabel(/^Email/i).fill('error@example.com');
+    await form.getByLabel(/^Phone/i).fill('719-555-0300');
+    await form.locator('#bp-preferred').click();
+    await homePage.page.getByRole('option', { name: /^Email$/i }).click();
+    await form
+      .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
+      .check();
+
+    await form.getByRole('button', { name: /Submit request/i }).click();
+
+    await expect(homePage.page.locator('.p-toast-message-info')).toBeVisible();
+  });
+
+  test('offers Spanish copy after switching site language', async ({ homePage }) => {
+    await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
+    await mockBillPaySuccess(homePage.page);
+    await homePage.page.goto('/pay-bill');
+
+    await homePage.clickSiteLanguage('es');
+
+    await expect(
+      homePage.page.getByRole('heading', { name: /Pague su factura de servicios en línea/i }),
+    ).toBeVisible();
+    await expect(
+      homePage.page.locator('#bill-pay-request').getByLabel(/^Nombre completo/i),
+    ).toBeVisible();
   });
 });

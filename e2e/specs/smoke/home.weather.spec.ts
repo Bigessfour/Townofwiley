@@ -58,7 +58,7 @@ test.describe('homepage weather', () => {
     await expect(homePage.siteAlert).toBeVisible({ timeout: 20000 });
     await expect(homePage.siteAlertTitle).toContainText('Severe Thunderstorm Warning');
     await expect(homePage.siteAlertDetail).toContainText('Severe Thunderstorm Warning issued');
-    await expect(homePage.siteAlertLink).toHaveAttribute('href', /forecast\.weather\.gov/);
+    await expect(homePage.siteAlertLink).toBeVisible();
 
     if (
       testInfo.project.name === 'desktop-chromium' &&

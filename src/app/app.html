@@ -15,7 +15,7 @@
     />
   }
 
-  @if (shouldPrimeWeatherAlerts() && alertBanner().enabled) {
+  @if (shouldPrimeWeatherAlerts() && alertBanner().enabled && !homepageWeatherAlert()) {
     <section class="site-alert-slot">
       @if (alertBanner().title || alertBanner().detail) {
         <p-card
@@ -258,45 +258,22 @@
   }
 
   @if (homepageWeatherAlert(); as alert) {
-    <p-card
-      class="site-alert site-alert--nws"
-      role="alert"
-      [pt]="siteAlertCardPt"
-      [attr.aria-labelledby]="'nws-alert-title'"
-      [attr.aria-describedby]="'nws-alert-detail'"
-    >
-      <ng-template pTemplate="header">
-        <div class="site-alert-copy">
-          <p class="site-alert-headline">{{ appCopy().nwsAlertLabel }}</p>
-          <h2 id="nws-alert-title" class="site-alert-title">{{ alert.event }}</h2>
-          <p id="nws-alert-detail" class="site-alert-detail">{{ alert.headline }}</p>
-          @if (alert.instruction) {
-            <p class="site-alert-instruction">{{ alert.instruction }}</p>
-          }
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="footer">
-        <div class="site-alert-actions">
-          <a
-            class="site-alert-link button-cta button-cta--ghost"
-            [attr.href]="alert.forecastUrl"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            {{ appCopy().nwsAlertLinkLabel }}
-          </a>
-
-          <a
-            class="site-alert-button button-cta button-cta--ghost"
-            routerLink="/weather"
-            (click)="trackAlertSignupClick()"
-          >
-            {{ appCopy().alertActionLabel }}
-          </a>
-        </div>
-      </ng-template>
-    </p-card>
+    @if (!nwsBannerDismissed()) {
+      <section
+        class="site-alert-slot site-alert-slot--live-nws"
+        [attr.aria-label]="appCopy().nwsAlertLabel"
+      >
+        <app-weather-alert-banner
+          [alert]="alert"
+          [kickerLabel]="appCopy().nwsAlertLabel"
+          [forecastLabel]="appCopy().nwsAlertLinkLabel"
+          [signupLabel]="appCopy().nwsAlertSignupShortLabel"
+          [dismissLabel]="appCopy().nwsWeatherAlertDismissLabel"
+          (dismissed)="nwsBannerDismissed.set(true)"
+          (signupClick)="onNwsBannerSignup()"
+        />
+      </section>
+    }
   }
 
   <main
@@ -647,8 +624,10 @@
           <div class="stack-list grid gap-3">
             @for (meeting of meetings(); track meeting.title) {
               <article class="info-row meeting-card">
-                <strong>{{ meeting.title }}</strong>
-                <span>{{ meeting.schedule }}</span>
+                <div class="meeting-card-headline">
+                  <strong>{{ meeting.title }}</strong>
+                  <span class="meeting-schedule">{{ meeting.schedule }}</span>
+                </div>
                 @if (meeting.location) {
                   <p class="meeting-location">{{ meeting.location }}</p>
                 }
@@ -686,11 +665,13 @@
                 <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
                 <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
               </div>
-              <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
+              @if (showBrowseNoticesLink()) {
+                <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
+              }
             </header>
           </ng-template>
 
-          <p-timeline class="landing-notice-timeline" [value]="notices()" align="left">
+          <p-timeline class="landing-notice-timeline" [value]="homepageNotices()" align="left">
             <ng-template #opposite let-notice>
               <span class="notice-timeline-date meta-label">{{ notice.date }}</span>
             </ng-template>
@@ -834,6 +815,7 @@
       [visible]="aiChatVisible()"
       (visibleChange)="aiChatVisible.set($event)"
       [modal]="true"
+      [blockScroll]="true"
       [closable]="true"
       header="Ask Wiley — Town Assistant"
       [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"

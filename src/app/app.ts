@@ -48,6 +48,7 @@ import {
   LocalizedCmsContentStore,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
+import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
 
@@ -225,6 +226,8 @@ interface AppCopy {
   alertActionLabel: string;
   nwsAlertLabel: string;
   nwsAlertLinkLabel: string;
+  nwsAlertSignupShortLabel: string;
+  nwsWeatherAlertDismissLabel: string;
   nwsAlertSummarySingle: string;
   nwsAlertSummaryPluralSuffix: string;
   homepageSectionsAriaLabel: string;
@@ -479,6 +482,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     alertActionLabel: 'Sign up for text or email alerts',
     nwsAlertLabel: 'National Weather Service Alert',
     nwsAlertLinkLabel: 'Open NWS forecast',
+    nwsAlertSignupShortLabel: 'Sign up for alerts',
+    nwsWeatherAlertDismissLabel: 'Dismiss weather alert',
     nwsAlertSummarySingle: '1 active NWS alert for Wiley.',
     nwsAlertSummaryPluralSuffix: 'active NWS alerts for Wiley.',
     homepageSectionsAriaLabel: 'Homepage sections',
@@ -520,8 +525,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     mobileSearchAllServicesLabel: 'Search All Services',
     noticesKicker: 'Latest Updates',
     noticesHeading: 'News & Announcements',
-    meetingsKicker: 'Meetings and Calendar',
-    meetingsHeading: 'Meeting access and community updates',
+    meetingsKicker: 'Town calendar',
+    meetingsHeading: 'Council meetings & schedules',
     openCalendarLabel: 'Open the full town calendar',
     calendarKicker: 'Calendar',
     calendarHeading: 'Public calendar',
@@ -635,7 +640,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pay utility bill',
         description: 'Pay your water and utility bills online or find payment options.',
-        href: '/services#payment-help',
+        href: '/pay-bill',
         note: 'Contact Town Hall for payment assistance.',
       },
       {
@@ -659,32 +664,17 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     meetings: [
       {
-        title: 'Town council regular meeting',
-        schedule: 'Every second Monday at 6:00 PM',
-        format: 'In person at Wiley Town Hall with agenda materials posted ahead of time.',
+        title: 'Town council meeting',
+        schedule: 'Second Monday each month · 6:00 PM',
+        format: 'In person at Wiley Town Hall. Agendas post before each meeting.',
         location: 'Wiley Town Hall, 304 Main Street',
-        agendaNote:
-          'Residents can call Town Hall at (719) 829-4974 or email the clerk before the meeting if they want to be placed on the agenda.',
-        cta: 'Open calendar',
-        href: '/meetings#calendar',
+        agendaNote: 'Agenda requests: (719) 829-4974 or the town clerk before the meeting.',
       },
       {
-        title: 'Planning and zoning review',
-        schedule: 'First Thursday at 5:30 PM',
-        format: 'Public hearing for planning, zoning, and land use items.',
-        location: 'Wiley Town Hall, 304 Main Street',
-        agendaNote:
-          'Agenda packets, hearing notices, and filing deadlines should stay linked from the calendar entry.',
-        cta: 'View meeting details',
-        href: '/meetings#calendar',
-      },
-      {
-        title: 'Community deadlines and service updates',
-        schedule: 'Seasonal notices and recurring town reminders',
-        format:
-          'A rolling summary for cleanup days, closures, utility interruptions, and other timing updates.',
-        location: 'Town-wide notices and service locations',
-        agendaNote: 'Use this space for community items that are easier to follow on a calendar.',
+        title: 'Town notices & deadlines',
+        schedule: 'Posted year-round',
+        format: 'Utility work, road closures, seasonal deadlines, and severe weather updates.',
+        location: 'Town-wide',
         cta: 'Browse notices',
         href: '/notices',
       },
@@ -695,11 +685,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         dateLabel: 'Every 2nd Monday, 6:00 PM',
         category: 'City Council',
         detail:
-          'Make this the canonical event record for agendas, minutes, livestream links, accessible attachments, cancellations, and room changes so residents know exactly where to look each month.',
+          'Each month, find agendas, minutes, livestream links, and accessible meeting materials for Wiley Town Council. Updates include cancellations, room changes, and how to take part.',
         location: 'Wiley Town Hall, 304 Main Street',
         recurrence: 'Recurring monthly',
         agendaNote:
-          'Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they wish to be placed on the agenda before the meeting opens.',
+          'Agenda requests: (719) 829-4974 or deb.dillon@townofwiley.gov before the meeting.',
         startLocal: '20260413T180000',
         endLocal: '20260413T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
@@ -716,25 +706,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         slug: 'city-council-regular-meeting',
       },
       {
-        title: 'Planning and zoning review',
-        dateLabel: 'First Thursday, 5:30 PM',
-        category: 'Hearing and land use',
-        detail:
-          'Attach hearing notices, staff reports, filing deadlines, maps, and application packets directly to the event so the process stays transparent.',
-        location: 'Wiley Town Hall, 304 Main Street',
-        recurrence: 'Recurring monthly',
-        startLocal: '20260402T173000',
-        endLocal: '20260402T183000',
-        recurrenceRule: 'FREQ=MONTHLY;BYDAY=1TH',
-        slug: 'planning-zoning-review',
-      },
-      {
-        title: 'Community deadlines and service updates',
-        dateLabel: 'Seasonal deadlines, closures, and town reminders',
+        title: 'Town notices & deadlines',
+        dateLabel: 'Community reminders and service notices',
         category: 'Community calendar',
         detail:
-          'Cleanup days, utility interruptions, school events, seasonal deadlines, and weather notices appear here as calendar items.',
-        location: 'Town-wide notices and service locations',
+          'Town reminders include seasonal deadlines, planned closures, utility work, school-related notices when applicable, and severe weather alerts.',
+        location: 'Town-wide',
         recurrence: 'Operational updates',
         startLocal: '20260425T080000',
         endLocal: '20260425T090000',
@@ -743,11 +720,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     serviceCards: [
       {
-        title: 'Pay your utility bill',
+        title: 'Pay your utility bill online',
         availability: 'Online payments and billing support',
         description:
           'Pay online when the secure payment portal is available, or use the billing form to ask about your balance, payment options, or account details.',
-        href: '/services#payment-help',
+        href: '/pay-bill',
         cta: 'Open utility payment options',
       },
       {
@@ -893,6 +870,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     alertActionLabel: 'Inscribirse para alertas por texto o correo',
     nwsAlertLabel: 'Alerta del Servicio Nacional de Meteorologia',
     nwsAlertLinkLabel: 'Abrir pronostico del SMN',
+    nwsAlertSignupShortLabel: 'Inscribirse para alertas',
+    nwsWeatherAlertDismissLabel: 'Cerrar alerta meteorologica',
     nwsAlertSummarySingle: '1 alerta activa del NWS para Wiley.',
     nwsAlertSummaryPluralSuffix: 'alertas activas del NWS para Wiley.',
     homepageSectionsAriaLabel: 'Secciones de la pagina principal',
@@ -936,8 +915,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     mobileSearchAllServicesLabel: 'Buscar todos los servicios',
     noticesKicker: 'Novedades',
     noticesHeading: 'Noticias y anuncios',
-    meetingsKicker: 'Reuniones y calendario',
-    meetingsHeading: 'Acceso a reuniones y actualizaciones comunitarias',
+    meetingsKicker: 'Calendario municipal',
+    meetingsHeading: 'Reuniones del concejo y cronograma',
     openCalendarLabel: 'Abrir el calendario completo del pueblo',
     calendarKicker: 'Calendario',
     calendarHeading: 'Calendario publico',
@@ -1051,7 +1030,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Pagar recibo de servicios',
         description: 'Pague sus recibos de agua y servicios en línea o encuentre opciones de pago.',
-        href: '/services#payment-help',
+        href: '/pay-bill',
         note: 'Contacte al Ayuntamiento para asistencia con pagos.',
       },
       {
@@ -1075,34 +1054,19 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     meetings: [
       {
-        title: 'Reunion ordinaria del concejo municipal',
-        schedule: 'Cada segundo lunes a las 6:00 PM',
+        title: 'Reunion del concejo municipal',
+        schedule: 'Segundo lunes de cada mes · 6:00 PM',
         format:
-          'Presencial en el ayuntamiento de Wiley con materiales de agenda publicados antes de la reunion.',
+          'Presencial en el ayuntamiento de Wiley. Las agendas se publican antes de cada reunion.',
         location: 'Ayuntamiento de Wiley, 304 Main Street',
-        agendaNote:
-          'Los residentes pueden llamar al ayuntamiento al (719) 829-4974 o escribir al secretario antes de la reunion si desean ser agregados a la agenda.',
-        cta: 'Abrir calendario',
-        href: '/meetings#calendar',
+        agendaNote: 'Solicitudes de agenda: (719) 829-4974 o el secretario antes de la reunion.',
       },
       {
-        title: 'Revision de planeacion y zonificacion',
-        schedule: 'Primer jueves a las 5:30 PM',
-        format: 'Audiencia publica para asuntos de planeacion, zonificacion y uso de suelo.',
-        location: 'Ayuntamiento de Wiley, 304 Main Street',
-        agendaNote:
-          'Los paquetes de agenda, avisos de audiencia y fechas limite deben permanecer vinculados desde el evento del calendario.',
-        cta: 'Ver detalles de la reunion',
-        href: '/meetings#calendar',
-      },
-      {
-        title: 'Fechas limite comunitarias y actualizaciones de servicio',
-        schedule: 'Avisos estacionales y recordatorios recurrentes del pueblo',
+        title: 'Avisos y fechas limite del pueblo',
+        schedule: 'Segun se publique',
         format:
-          'Un resumen continuo para dias de limpieza, cierres, interrupciones de servicios y otras actualizaciones de tiempo.',
-        location: 'Avisos de todo el pueblo y ubicaciones de servicio',
-        agendaNote:
-          'Use este espacio para elementos comunitarios que se siguen mejor en un calendario.',
+          'Trabajos en servicios, cierres de calles, fechas limite estacionales y alertas meteorologicas.',
+        location: 'Todo el pueblo',
         cta: 'Ver avisos',
         href: '/notices',
       },
@@ -1113,11 +1077,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         dateLabel: 'Cada segundo lunes, 6:00 PM',
         category: 'Concejo municipal',
         detail:
-          'Convierta este evento en el registro principal para agendas, minutas, transmisiones, anexos accesibles, cancelaciones y cambios de sala para que los residentes sepan donde buscar cada mes.',
+          'Cada mes encontrara agendas, minutas, enlaces de transmision y materiales accesibles para el Concejo municipal de Wiley. Los avisos incluyen cancelaciones, cambios de sala y como participar.',
         location: 'Ayuntamiento de Wiley, 304 Main Street',
         recurrence: 'Recurrente cada mes',
         agendaNote:
-          'Los residentes deben llamar al ayuntamiento al (719) 829-4974 o escribir a Deb Dillon a deb.dillon@townofwiley.gov si desean ser agregados a la agenda antes de la apertura de la reunion.',
+          'Solicitudes de agenda: (719) 829-4974 o deb.dillon@townofwiley.gov antes de la reunion.',
         startLocal: '20260413T180000',
         endLocal: '20260413T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
@@ -1134,25 +1098,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         slug: 'city-council-regular-meeting',
       },
       {
-        title: 'Revision de planeacion y zonificacion',
-        dateLabel: 'Primer jueves, 5:30 PM',
-        category: 'Audiencias y uso de suelo',
-        detail:
-          'Adjunte avisos de audiencia, reportes, fechas limite, mapas y paquetes de solicitud directamente al evento para mantener la transparencia del proceso.',
-        location: 'Ayuntamiento de Wiley, 304 Main Street',
-        recurrence: 'Recurrente cada mes',
-        startLocal: '20260402T173000',
-        endLocal: '20260402T183000',
-        recurrenceRule: 'FREQ=MONTHLY;BYDAY=1TH',
-        slug: 'planning-zoning-review',
-      },
-      {
-        title: 'Fechas limite comunitarias y actualizaciones de servicio',
-        dateLabel: 'Fechas estacionales, cierres y recordatorios del pueblo',
+        title: 'Avisos y fechas limite del pueblo',
+        dateLabel: 'Recordatorios comunitarios y avisos de servicios',
         category: 'Calendario comunitario',
         detail:
-          'Las jornadas de limpieza, interrupciones de servicios, eventos escolares, fechas limite estacionales y avisos meteorologicos aparecen aqui como elementos del calendario.',
-        location: 'Avisos del pueblo y ubicaciones de servicio',
+          'Los recordatorios del pueblo incluyen fechas limite estacionales, cierres planificados, trabajos en servicios publicos, avisos relacionados con las escuelas cuando aplique y alertas meteorologicas.',
+        location: 'Todo el pueblo',
         recurrence: 'Actualizaciones operativas',
         startLocal: '20260425T080000',
         endLocal: '20260425T090000',
@@ -1161,11 +1112,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     serviceCards: [
       {
-        title: 'Pague su recibo de servicios',
+        title: 'Pague su factura de servicios en línea',
         availability: 'Pagos en linea y soporte de facturacion',
         description:
           'Pague en linea cuando el portal seguro este disponible o use el formulario de facturacion para preguntar por su saldo, opciones de pago o detalles de cuenta.',
-        href: '/services#payment-help',
+        href: '/pay-bill',
         cta: 'Abrir opciones de pago de servicios',
       },
       {
@@ -1298,6 +1249,18 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   },
 };
 
+/**
+ * PrimeNG MegaMenu: each root column is `MegaMenuItem[]`. Overlay rows need one synthetic group per
+ * column whose `items` is a **flat** list of leaves at runtime (`createProcessedItems` iterates with
+ * `forEach` expecting `MenuItem` nodes). Typings use `MenuItem[][]`; we assert the flat list to match.
+ * A bare column `[leaf, leaf]` produces empty `submenu.items` on each row and no panel links.
+ *
+ * @see https://primeng.org/megamenu#router
+ */
+function megaMenuColumn(links: MegaMenuItem[]): MegaMenuItem[] {
+  return [{ items: links as MegaMenuItem[][] }];
+}
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -1323,6 +1286,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     RouterOutlet,
     LocalizedAiChat,
     HomepageWeatherAlertPrimer,
+    WeatherAlertBannerComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -1332,6 +1296,8 @@ export class App {
   private static readonly DEFAULT_SITE_TITLE = 'Town of Wiley';
   private static readonly MAX_META_DESCRIPTION_LENGTH = 160;
   private static readonly SEARCH_DEBOUNCE_MS = 120;
+  /** Homepage notices timeline preview count; show “view all” when `notices.length` exceeds this. */
+  private static readonly HOMEPAGE_NOTICES_PREVIEW = 3;
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
@@ -1440,6 +1406,8 @@ export class App {
   protected readonly searchDraftQuery = signal('');
   protected readonly searchQuery = signal('');
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
+  protected readonly nwsBannerDismissed = signal(false);
+  private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
@@ -1455,7 +1423,9 @@ export class App {
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
   protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
-  protected readonly isPaymentsMode = computed(() => this.currentPath() === '/payments');
+  protected readonly isPaymentsMode = computed(
+    () => this.currentPath() === '/pay-bill' || this.currentPath() === '/payments',
+  );
   protected readonly isPermitsMode = computed(() => this.currentPath() === '/permits');
   protected readonly isTopLevelLazyRouteMode = computed(
     () => this.isAdminMode() || this.isClerkSetupMode() || this.isDocumentHubMode(),
@@ -1524,7 +1494,7 @@ export class App {
         label: copy.menuQuickTasksLabel,
         icon: 'pi pi-list',
         items: [
-          [
+          megaMenuColumn([
             {
               label: copy.mobileOnlinePaymentsLabel,
               routerLink: ['/services'],
@@ -1550,13 +1520,13 @@ export class App {
               routerLink: ['/'],
               fragment: 'search-panel',
             },
-          ],
-          [
+          ]),
+          megaMenuColumn([
             { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
             { label: copy.nwsAlertLabel, routerLink: '/weather' },
             { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
             { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
-          ],
+          ]),
         ],
       },
       {
@@ -1564,16 +1534,16 @@ export class App {
         label: copy.menuGovernmentLabel,
         icon: 'pi pi-building',
         items: [
-          [
+          megaMenuColumn([
             { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
             { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
             { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
-          ],
-          [
+          ]),
+          megaMenuColumn([
             { label: copy.transparencyKicker, routerLink: '/records' },
             { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
             { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
-          ],
+          ]),
         ],
       },
       {
@@ -1581,7 +1551,7 @@ export class App {
         label: copy.menuServicesPermitsLabel,
         icon: 'pi pi-briefcase',
         items: [
-          [
+          megaMenuColumn([
             {
               label: copy.mobileOnlinePaymentsLabel,
               routerLink: ['/services'],
@@ -1594,11 +1564,11 @@ export class App {
               fragment: 'records-request',
             },
             { label: copy.featureTitles.services, routerLink: '/services' },
-          ],
-          [
+          ]),
+          megaMenuColumn([
             { label: copy.featureTitles.records, routerLink: '/records' },
             { label: 'Permits & Licenses', routerLink: '/services' },
-          ],
+          ]),
         ],
       },
       {
@@ -1606,14 +1576,14 @@ export class App {
         label: copy.menuNewsNoticesLabel,
         icon: 'pi pi-bell',
         items: [
-          [
+          megaMenuColumn([
             { label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
             { label: copy.featureTitles.news, routerLink: '/news', icon: 'pi pi-newspaper' },
-          ],
-          [
+          ]),
+          megaMenuColumn([
             { label: copy.nwsAlertLabel, routerLink: '/weather' },
             { label: copy.alertActionLabel, routerLink: '/weather' },
-          ],
+          ]),
         ],
       },
       {
@@ -1816,8 +1786,9 @@ export class App {
         id: 'payments',
         kicker: copy.servicesKicker,
         title: copy.featureTitles.payments,
-        summary: 'Pay utility bills online through the secure Paystar flow when configured.',
-        href: '/payments',
+        summary:
+          'Quick Pay via the hosted Paystar portal when configured, plus an early access form for the new billing experience.',
+        href: '/pay-bill',
         showOnHomepage: false,
       },
       {
@@ -1870,12 +1841,33 @@ export class App {
       window.removeEventListener('scroll', handleScroll);
     };
   });
-  protected readonly meetings = computed(() => {
+  protected readonly homepageNotices = computed(() =>
+    this.notices().slice(0, App.HOMEPAGE_NOTICES_PREVIEW),
+  );
+  protected readonly showBrowseNoticesLink = computed(
+    () => this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW,
+  );
+  protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();
+    const extraNotices = this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW;
 
-    return liveEvents.length
-      ? liveEvents.map((event) => this.createMeetingItemFromEvent(event))
-      : this.appCopy().meetings;
+    if (liveEvents.length) {
+      return liveEvents.map((event) => this.createMeetingItemFromEvent(event));
+    }
+
+    return this.appCopy().meetings.map((m) => {
+      if (m.href === '/notices' && !extraNotices) {
+        return {
+          title: m.title,
+          schedule: m.schedule,
+          format: m.format,
+          location: m.location,
+          agendaNote: m.agendaNote,
+        };
+      }
+
+      return m;
+    });
   });
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
@@ -2392,7 +2384,17 @@ export class App {
   }
 
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {
+    const nextKey = alert ? `${alert.event}::${alert.headline}` : null;
+    if (nextKey !== this.lastHomepageWeatherAlertDismissKey) {
+      this.nwsBannerDismissed.set(false);
+      this.lastHomepageWeatherAlertDismissKey = nextKey;
+    }
     this.homepageWeatherAlert.set(alert);
+  }
+
+  protected onNwsBannerSignup(): void {
+    this.trackAlertSignupClick();
+    void this.router.navigate(['/weather']);
   }
 
   protected updateSiteLanguage(value: SiteLanguage): void {
@@ -2551,8 +2553,6 @@ export class App {
       schedule: this.formatCalendarEventDate(start, end),
       format: event.description || this.appCopy().calendarEventFallbackDetail,
       location: event.location || this.appCopy().calendarEventFallbackLocation,
-      cta: this.appCopy().openCalendarLabel,
-      href: '/meetings#calendar',
     };
   }
 

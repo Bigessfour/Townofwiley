@@ -9,7 +9,9 @@ test.describe('Permits Page', () => {
     await expect(page.getByText(/contact the city or Town Clerk/i)).toBeVisible();
 
     // Spanish
-    await page.locator('#site-language-es').click();
+    await page.locator('#site-language-es').evaluate((btn) => {
+      (btn as HTMLButtonElement).click();
+    });
     await expect(page.getByRole('heading', { name: /Permisos e Indagaciones/i })).toBeVisible();
     await expect(page.getByText(/contacte directamente al Secretario/i)).toBeVisible();
 

@@ -2,10 +2,16 @@ import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
 
 test.describe('homepage navigation', () => {
-  test('keeps section navigation and skip link usable', async ({ homePage }) => {
+  test('keeps section navigation and skip link usable', async ({ homePage }, testInfo) => {
     await homePage.goto();
 
     await expect(homePage.skipLink).toHaveAttribute('href', '#main-content');
+
+    if (testInfo.project.name === 'mobile-chromium') {
+      await expect(homePage.mobileMenuButton).toBeVisible();
+      return;
+    }
+
     await expect(homePage.page.locator('[data-testid="homepage-section-nav"]')).toBeVisible();
     await expect(homePage.sectionNavLinks).toHaveCount(siteContent.megaMenuRootLabelsEn.length);
     await expect(homePage.sectionNavLinks.first()).toBeAttached();
@@ -25,7 +31,12 @@ test.describe('homepage navigation', () => {
 
   test('clicks mega menu roots and verifies payment-help deep link routing', async ({
     homePage,
-  }) => {
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'mobile-chromium',
+      'Mega menu roots require desktop header chrome.',
+    );
+
     test.setTimeout(90000);
 
     await homePage.goto();
@@ -182,25 +193,25 @@ test.describe('homepage navigation', () => {
 
     await homePage.goto();
 
-    // Check fonts and colors on hero/heading (design validation)
+    // Check fonts and colors on hero title (design validation)
     const headingFont = await homePage.page.evaluate(() => {
-      const el = document.querySelector('h1');
+      const el = document.querySelector('#site-hero-title');
       return el ? getComputedStyle(el).fontFamily : '';
     });
     expect(headingFont).toContain('Fraunces');
 
     const heroH1Color = await homePage.page.evaluate(() => {
-      const el = document.querySelector('h1');
+      const el = document.querySelector('#site-hero-title');
       return el ? getComputedStyle(el).color : '';
     });
     expect(heroH1Color).toBe('rgb(255, 255, 255)');
 
-    // Test language buttons toggle the site language
-    await homePage.page.getByRole('button', { name: 'EN' }).click();
+    // Test language buttons toggle the site language (IDs remain in DOM while narrow layouts hide the megamenu).
+    await homePage.clickSiteLanguage('en');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
-    await homePage.page.getByRole('button', { name: 'ES' }).click();
+    await homePage.clickSiteLanguage('es');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /es/i);
-    await homePage.page.getByRole('button', { name: 'EN' }).click();
+    await homePage.clickSiteLanguage('en');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
 
     // Test business directory buttons/logging

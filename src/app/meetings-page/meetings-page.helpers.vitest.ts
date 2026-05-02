@@ -51,11 +51,11 @@ const FALLBACK_MEETINGS = [
 const LIVE_EVENTS: CmsCalendarEvent[] = [
   {
     id: 'event-1',
-    title: 'Planning and zoning review',
-    description: 'Public hearing for land-use updates.',
+    title: 'City Council Regular Meeting',
+    description: 'Monthly council meeting with published agenda packages.',
     location: 'Wiley Town Hall, 304 Main Street',
-    start: '2026-04-02T17:30:00.000Z',
-    end: '2026-04-02T18:30:00.000Z',
+    start: '2026-04-13T18:00:00.000Z',
+    end: '2026-04-13T19:00:00.000Z',
   },
 ];
 
@@ -66,8 +66,8 @@ describe('meetings page helpers', () => {
 
     expect(meetingItems).toHaveLength(1);
     expect(meetingItems[0]).toMatchObject({
-      title: 'Planning and zoning review',
-      format: 'Public hearing for land-use updates.',
+      title: 'City Council Regular Meeting',
+      format: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
     });
     expect(meetingItems[0].schedule).toContain('Apr');
@@ -75,9 +75,9 @@ describe('meetings page helpers', () => {
     expect(calendarItems).toHaveLength(1);
     expect(calendarItems[0]).toMatchObject({
       id: 'event-1',
-      title: 'Planning and zoning review',
+      title: 'City Council Regular Meeting',
       category: 'Upcoming event',
-      detail: 'Public hearing for land-use updates.',
+      detail: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
       recurrence: 'Recurring monthly',
       actions: [],

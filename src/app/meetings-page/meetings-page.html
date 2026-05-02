@@ -7,8 +7,10 @@
     <section class="stack-list">
       @for (meeting of meetings(); track meeting.title) {
         <article class="info-row meeting-card">
-          <strong>{{ meeting.title }}</strong>
-          <span>{{ meeting.schedule }}</span>
+          <div class="meeting-card-headline">
+            <strong>{{ meeting.title }}</strong>
+            <span class="meeting-schedule">{{ meeting.schedule }}</span>
+          </div>
           @if (meeting.location) {
             <p class="meeting-location">{{ meeting.location }}</p>
           }
@@ -22,7 +24,6 @@
         </article>
       }
     </section>
-    <a class="text-link" href="#calendar">{{ copy().openCalendarLabel }}</a>
   </p-card>
 
   <p-card class="panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">

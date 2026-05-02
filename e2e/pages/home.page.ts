@@ -5,6 +5,7 @@ export class HomePage {
   readonly baseURL: string;
   readonly skipLink: Locator;
   readonly mainContent: Locator;
+  readonly mobileMenuButton: Locator;
   readonly heroHeading: Locator;
   readonly communityFacts: Locator;
   readonly featureCards: Locator;
@@ -101,6 +102,7 @@ export class HomePage {
     this.baseURL = baseURL;
     this.skipLink = page.getByRole('link', { name: 'Skip to main content' });
     this.mainContent = page.locator('#main-content');
+    this.mobileMenuButton = page.locator('button.mobile-menu-button');
     this.heroHeading = page.getByRole('heading', { level: 1, name: 'Town of Wiley' });
     this.communityFacts = page.locator('.fact-card');
     this.featureCards = page.locator('.feature-grid .feature-card');
@@ -129,8 +131,18 @@ export class HomePage {
     this.siteAlert = page.locator('.site-alert--nws');
     this.siteAlertTitle = page.locator('.site-alert--nws .site-alert-title');
     this.siteAlertDetail = page.locator('.site-alert--nws .site-alert-detail').first();
-    this.siteAlertLink = page.locator('.site-alert--nws .site-alert-link');
-    this.siteAlertButton = page.locator('.site-alert--nws .site-alert-button');
+    this.siteAlertLink = page
+      .locator('.site-alert--nws')
+      .getByRole('button', { name: /Open NWS forecast/i })
+      .or(page.locator('.site-alert--nws').getByRole('link', { name: /Open NWS forecast/i }));
+    this.siteAlertButton = page
+      .locator('.site-alert--nws')
+      .getByRole('button', { name: /Sign up for (alerts|text or email)/i })
+      .or(
+        page
+          .locator('.site-alert--nws')
+          .getByRole('link', { name: /Sign up for (alerts|text or email)/i }),
+      );
     this.noticeCards = page.locator('.notice-card');
     this.meetingCards = page.locator('.meeting-card');
     this.serviceCards = page.locator('.service-card');
@@ -199,7 +211,9 @@ export class HomePage {
       level: 1,
       name: 'Wiley Community Business Directory',
     });
-    this.businessDirectorySearchInput = page.getByLabel('Search local businesses');
+    this.businessDirectorySearchInput = page.locator(
+      '.business-directory-page input[type="search"]',
+    );
     this.businessDirectoryCards = page.locator('.public-directory-card');
     this.businessDirectoryEmptyState = page.locator('.public-empty-state');
     this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
@@ -403,6 +417,23 @@ export class HomePage {
     }, apiEndpoint);
   }
 
+  async enableBillPayApi(apiEndpoint = '/api/v1/bill-pay-requests'): Promise<void> {
+    await this.page.addInitScript((endpoint) => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          billPay?: { apiEndpoint?: string };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        billPay: {
+          apiEndpoint: endpoint,
+        },
+      };
+    }, apiEndpoint);
+  }
+
   async sendAssistantQuestion(question: string): Promise<void> {
     await expect(this.assistantInput).toBeEnabled();
     await this.assistantInput.fill(question);
@@ -509,7 +540,18 @@ export class HomePage {
   }
 
   async searchBusinessDirectory(query: string): Promise<void> {
+    await expect(this.businessDirectorySearchInput).toBeVisible();
+    await this.businessDirectorySearchInput.click();
+    await this.businessDirectorySearchInput.fill('');
     await this.businessDirectorySearchInput.fill(query);
+    await expect(this.businessDirectorySearchInput).toHaveValue(query);
+  }
+
+  async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
+    const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
+    await this.page.locator(selector).evaluate((btn) => {
+      (btn as HTMLButtonElement).click();
+    });
   }
 
   async openAssistantDialog(): Promise<void> {
@@ -520,10 +562,36 @@ export class HomePage {
   }
 
   async searchFor(query: string): Promise<void> {
-    await this.searchInput.scrollIntoViewIfNeeded();
-    await this.searchInput.fill(query);
+    await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
     await this.page.waitForSelector('.search-result, .empty-state', { timeout: 5000 });
+  }
+
+  /** Submit header search (works when `#mega-site-search` is hidden under the mobile breakpoint). */
+  async submitHeaderSiteSearch(query: string): Promise<void> {
+    await this.setMegaSiteSearchDraft(query);
+    await expect(this.searchInput).toHaveValue(query);
+    await this.page.locator('form.header-search-form').evaluate((form) => {
+      (form as HTMLFormElement).requestSubmit();
+    });
+  }
+
+  /**
+   * PrimeNG + signals: Playwright `fill()` does not reliably update `ngModel` when the control is
+   * inside `display:none` megamenu chrome; drive the draft the same way the browser does.
+   */
+  private async setMegaSiteSearchDraft(query: string): Promise<void> {
+    await this.searchInput.scrollIntoViewIfNeeded({ timeout: 2500 }).catch(() => undefined);
+    await this.page.locator('#mega-site-search').evaluate((el, q) => {
+      const input = el as HTMLInputElement;
+      try {
+        input.focus();
+      } catch {
+        /* Hidden megamenu controls may reject focus on narrow viewports. */
+      }
+      input.value = q;
+      input.dispatchEvent(new InputEvent('input', { bubbles: true, data: q }));
+    }, query);
   }
 
   async submitWeatherAlertSignup(

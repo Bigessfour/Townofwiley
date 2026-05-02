@@ -1,19 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
-import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { resolveE2eEnv } from './e2e/support/resolve-e2e-env';
 
 /**
- * Cursor/IDE sandboxes often set PLAYWRIGHT_BROWSERS_PATH to a per-session cache that
- * is empty; default to the same cache CI uses so `playwright install` is one-time per version.
+ * Local dev: keep browsers under the repo (`.playwright-browsers/`, gitignored) so
+ * `playwright install` and `playwright test` share one stable path without relying on
+ * shell profile or `~/.cache` permissions. CI leaves env unset (default cache on runner).
+ *
+ * If the environment sets PLAYWRIGHT_BROWSERS_PATH to a non-ephemeral path, it is kept.
+ * Ephemeral IDE/sandbox caches are replaced with the workspace path.
  */
+const workspaceBrowsersPath = resolve(process.cwd(), '.playwright-browsers');
 const browsersPathRaw = (process.env.PLAYWRIGHT_BROWSERS_PATH ?? '').trim();
 const browsersPathEphemeral =
   Boolean(browsersPathRaw) &&
   !process.env.CI &&
   /cursor-sandbox|sandbox-cache/i.test(browsersPathRaw);
-if (!process.env.CI && (!browsersPathRaw || browsersPathEphemeral)) {
-  process.env.PLAYWRIGHT_BROWSERS_PATH = join(homedir(), '.cache', 'ms-playwright');
+
+if (process.env.CI) {
+  // Use runner default or explicit CI env (e.g. cached path in workflow).
+} else if (browsersPathRaw && !browsersPathEphemeral) {
+  // Honor user-defined persistent location.
+} else {
+  process.env.PLAYWRIGHT_BROWSERS_PATH = workspaceBrowsersPath;
 }
 
 const { baseURL, useRemoteBaseUrl, e2ePort } = resolveE2eEnv();
@@ -31,6 +40,18 @@ const webServerCommand = useRemoteBaseUrl
   ? ''
   : `"${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
 
+/** Full traces + screenshots for heal/debug runs (`PLAYWRIGHT_TRACE=on`). Default keeps artifacts on failure only. */
+function resolveTraceMode(): 'on' | 'off' | 'on-first-retry' | 'retain-on-failure' {
+  const raw = (process.env.PLAYWRIGHT_TRACE ?? '').trim().toLowerCase();
+  if (raw === 'on' || raw === '1' || raw === 'true') {
+    return 'on';
+  }
+  if (raw === 'off' || raw === '0' || raw === 'false') {
+    return 'off';
+  }
+  return 'retain-on-failure';
+}
+
 export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   testDir: './e2e/specs',
@@ -44,7 +65,7 @@ export default defineConfig({
   },
   use: {
     baseURL,
-    trace: 'retain-on-failure',
+    trace: resolveTraceMode(),
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,

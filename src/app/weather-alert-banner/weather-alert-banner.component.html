@@ -1,0 +1,67 @@
+<p-card class="site-alert site-alert--nws" [pt]="cardPt">
+  <div
+    class="weather-alert-banner"
+    role="alert"
+    aria-live="assertive"
+    [attr.aria-labelledby]="'nws-alert-title'"
+    [attr.aria-describedby]="'nws-alert-detail'"
+    lang="en"
+  >
+    <div class="weather-alert-banner__grid">
+      <div class="weather-alert-banner__icon-wrap" aria-hidden="true">
+        <i [class]="bannerIcon() + ' weather-alert-banner__icon'"></i>
+      </div>
+
+      <div class="weather-alert-banner__copy">
+        <p class="site-alert-headline weather-alert-banner__kicker">{{ kickerLabel() }}</p>
+        <h2 id="nws-alert-title" class="site-alert-title weather-alert-banner__title">
+          {{ alert().event }}
+        </h2>
+        <p id="nws-alert-detail" class="site-alert-detail weather-alert-banner__meta">
+          {{ alert().headline }}
+        </p>
+        @if (alert().instruction) {
+          <p class="site-alert-instruction weather-alert-banner__instruction">
+            {{ alert().instruction }}
+          </p>
+        }
+      </div>
+
+      <div class="weather-alert-banner__actions">
+        <div class="weather-alert-banner__actions-top">
+          <p-button
+            type="button"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            icon="pi pi-times"
+            [ariaLabel]="dismissLabel()"
+            (onClick)="onDismiss()"
+          />
+        </div>
+
+        <div class="weather-alert-banner__buttons">
+          <p-button
+            [attr.data-testid]="'nws-banner-forecast'"
+            [attr.data-forecast-url]="alert().forecastUrl"
+            [label]="forecastLabel()"
+            icon="pi pi-external-link"
+            iconPos="left"
+            severity="danger"
+            (onClick)="openForecast()"
+          />
+          <p-button
+            [attr.data-testid]="'nws-banner-signup'"
+            [label]="signupLabel()"
+            icon="pi pi-envelope"
+            iconPos="left"
+            severity="danger"
+            [outlined]="true"
+            [rounded]="true"
+            (onClick)="onSignup()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</p-card>
