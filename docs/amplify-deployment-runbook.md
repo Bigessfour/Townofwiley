@@ -75,13 +75,13 @@ instead.
 
 ## Quick Reference: Amplify App Details
 
-| Field | Value |
-|-------|-------|
-| App ID | `d331voxr1fhoir` |
-| Production branch | `main` |
-| Region | `us-east-2` |
-| Service role | `townofwiley-amplify-service-role` |
-| Documents bucket | `townofwiley-documents-storage-main` |
+| Field             | Value                                |
+| ----------------- | ------------------------------------ |
+| App ID            | `d331voxr1fhoir`                     |
+| Production branch | `main`                               |
+| Region            | `us-east-2`                          |
+| Service role      | `townofwiley-amplify-service-role`   |
+| Documents bucket  | `townofwiley-documents-storage-main` |
 
 ## Quick Reference: GitHub Actions CI
 

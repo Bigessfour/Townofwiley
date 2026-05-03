@@ -33,18 +33,18 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -f "$HEADERS_FILE" ]]; then
+if [[ ! -f $HEADERS_FILE ]]; then
   echo "error: missing $HEADERS_FILE" >&2
   exit 1
 fi
 
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)"
-if [[ -z "$ACCOUNT" || "$ACCOUNT" == "None" ]]; then
+if [[ -z $ACCOUNT || $ACCOUNT == "None" ]]; then
   echo "error: could not resolve AWS caller (configure credentials / profile)" >&2
   exit 1
 fi
 
-if [[ "${SKIP_ACCOUNT_CHECK:-0}" != "1" && "$ACCOUNT" != "$EXPECTED_ACCOUNT" ]]; then
+if [[ ${SKIP_ACCOUNT_CHECK:-0} != "1" && $ACCOUNT != "$EXPECTED_ACCOUNT" ]]; then
   echo "error: current AWS account is $ACCOUNT (expected $EXPECTED_ACCOUNT for Town of Wiley Amplify)." >&2
   echo "  Use credentials for the Wiley account (e.g. export AWS_PROFILE=...) or set SKIP_ACCOUNT_CHECK=1 if intentional." >&2
   exit 1
