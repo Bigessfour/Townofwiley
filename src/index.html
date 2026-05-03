@@ -16,17 +16,8 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://townofwiley.gov/" />
     <meta property="og:image" content="https://townofwiley.gov/hero-wiley.webp" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HS0707W6BF"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', 'G-HS0707W6BF');
-    </script>
+    <!-- Google tag: load via same-origin script so ngsw-worker does not prefetch gtag (connect-src) -->
+    <script src="google-analytics-init.js" defer></script>
   </head>
   <body>
     <app-root></app-root>

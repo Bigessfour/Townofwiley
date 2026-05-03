@@ -44,10 +44,13 @@ fi
 
 checks=(
   "default-src 'self'"
+  'worker-src'
   'font-src'
   'data:'
   'googletagmanager'
-  "frame-src 'none'"
+  'google-analytics.com'
+  'g.doubleclick.net'
+  'frame-src https://www.googletagmanager.com'
   "object-src 'none'"
 )
 

@@ -11,9 +11,9 @@ const headerChecks = [
       'x-frame-options': /^(DENY|SAMEORIGIN)$/,
       'referrer-policy': /^strict-origin-when-cross-origin$/,
       'permissions-policy': /camera=\(\), microphone=\(\), geolocation=\(\), payment=\(\)/,
-      // font-src must allow data: (PrimeIcons); keep other baseline directives
+      // GA4 + Google Signals + SW: https://developers.google.com/tag-platform/security/guides/csp
       'content-security-policy':
-        /(?=.*default-src 'self')(?=.*font-src[^;]*data:)(?=.*frame-src 'none')(?=.*object-src 'none')(?=.*connect-src[^;]*googletagmanager)/,
+        /(?=.*default-src 'self')(?=.*worker-src[^;]*'self')(?=.*font-src[^;]*data:)(?=.*frame-src[^;]*googletagmanager)(?=.*object-src 'none')(?=.*connect-src[^;]*googletagmanager)(?=.*connect-src[^;]*google-analytics)(?=.*connect-src[^;]*doubleclick)/,
     },
   },
   {

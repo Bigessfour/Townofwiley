@@ -76,7 +76,7 @@ if [[ -z ${REMOTE_HEADERS} ]]; then
   exit 1
 fi
 # Baseline tokens must survive API round-trip (prevents silent truncation).
-for needle in "Content-Security-Policy" "googletagmanager" "font-src 'self' data:"; do
+for needle in "Content-Security-Policy" "worker-src" "googletagmanager" "g.doubleclick.net" "font-src 'self' data:" "frame-src https://www.googletagmanager.com"; do
   if ! grep -qF "${needle}" <<<"${REMOTE_HEADERS}"; then
     echo "error: remote customHeaders missing expected substring: ${needle}" >&2
     exit 1

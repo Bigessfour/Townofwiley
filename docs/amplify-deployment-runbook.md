@@ -129,7 +129,7 @@ AWS documents that **custom headers should live in `customHttp.yml` or the Ampli
 - [Custom header YAML reference](https://docs.aws.amazon.com/amplify/latest/userguide/custom-header-YAML-format.html)
 - [Migrating custom headers out of the build specification and amplify.yml](https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html)
 
-**CI enforces the migration:** `amplify.yml` must not reintroduce `customHeaders`, and [`customHttp.yml`](../customHttp.yml) must contain a CSP that satisfies baseline checks (gtag, `font-src` + `data:`, frame/object restrictions).
+**CI enforces the migration:** `amplify.yml` must not reintroduce `customHeaders`, and [`customHttp.yml`](../customHttp.yml) must contain a CSP that satisfies [Google Tag Platform / GA4 + Google Signals](https://developers.google.com/tag-platform/security/guides/csp) (script-src, connect-src, img-src, frame-src for Google hosts), plus site baselines (`worker-src 'self'` for Angular `ngsw-worker.js`, `font-src` + `data:` for PrimeIcons, `object-src 'none'`). Google Analytics loads from [`public/google-analytics-init.js`](../public/google-analytics-init.js) so the service worker does not prefetch `gtag/js` during install (those SW `fetch()` calls follow `connect-src`; see [angular#35491](https://github.com/angular/angular/issues/35491)).
 
 - `npm run verify:custom-http-yaml` — [`scripts/verify-custom-http-yaml.mjs`](../scripts/verify-custom-http-yaml.mjs) (runs on every push/PR in GitHub Actions).
 

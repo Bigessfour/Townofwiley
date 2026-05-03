@@ -3,7 +3,12 @@
  * Enforce AWS-recommended single source for Amplify Hosting headers: repo-root
  * customHttp.yml only (no customHeaders in amplify.yml).
  *
+ * CSP baselines follow Google Tag Platform (GA4 + optional Google Signals) and
+ * Angular service-worker behavior (connect-src for SW fetch; same-origin gtag init).
+ *
  * https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html
+ * https://developers.google.com/tag-platform/security/guides/csp
+ * https://angular.io/guide/service-worker-devops (CSP + SW)
  *
  * Usage: node scripts/verify-custom-http-yaml.mjs
  */
@@ -21,11 +26,55 @@ function extractCspValue(text, label) {
   return m[1];
 }
 
-function assertBaseline(csp, label) {
+function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
   const checks = [
-    [/connect-src[^;]*googletagmanager/i, 'connect-src must allow googletagmanager (gtag)'],
+    [/worker-src[^;]*'self'/, "worker-src must include 'self' (Angular ngsw-worker.js)"],
+    [
+      /script-src[^;]*\*\.googletagmanager\.com/i,
+      'script-src must allow https://*.googletagmanager.com (GA4)',
+    ],
+    [/script-src[^;]*googletagmanager\.com/i, 'script-src must allow googletagmanager.com (GA4)'],
+    [
+      /img-src[^;]*\*\.googletagmanager\.com/i,
+      'img-src must allow https://*.googletagmanager.com (GA4 beacons / pixels)',
+    ],
+    [
+      /img-src[^;]*\*\.google-analytics\.com/i,
+      'img-src must allow https://*.google-analytics.com (GA4)',
+    ],
+    [
+      /connect-src[^;]*\*\.googletagmanager\.com/i,
+      'connect-src must allow https://*.googletagmanager.com (gtag + SW fetch)',
+    ],
+    [
+      /connect-src[^;]*\*\.google-analytics\.com/i,
+      'connect-src must allow https://*.google-analytics.com (GA4 collect)',
+    ],
+    [
+      /connect-src[^;]*\*\.analytics\.google\.com/i,
+      'connect-src must allow https://*.analytics.google.com (GA4)',
+    ],
+    [
+      /connect-src[^;]*\*\.g\.doubleclick\.net/i,
+      'connect-src must allow https://*.g.doubleclick.net (Google Signals / Ads)',
+    ],
+    [
+      /connect-src[^;]*stats\.g\.doubleclick\.net/i,
+      'connect-src must allow https://stats.g.doubleclick.net (GA)',
+    ],
+    [
+      /connect-src[^;]*https:\/\/www\.google\.com/i,
+      'connect-src must allow https://www.google.com (Google beacons)',
+    ],
+    [
+      /connect-src[^;]*https:\/\/google\.com/i,
+      'connect-src must allow https://google.com (Google beacons)',
+    ],
     [/font-src[^;]*data:/, 'font-src must include data: (PrimeIcons / icomoon)'],
-    [/frame-src\s+'none'/, "frame-src must be 'none'"],
+    [
+      /frame-src[^;]*https:\/\/www\.googletagmanager\.com/i,
+      'frame-src must allow https://www.googletagmanager.com (GA4 / GTM iframes per Google CSP guide)',
+    ],
     [/object-src\s+'none'/, "object-src must be 'none'"],
   ];
   for (const [pattern, msg] of checks) {
@@ -48,6 +97,8 @@ if (/^\s*customHeaders:/m.test(amp)) {
 }
 
 const cspCustom = extractCspValue(custom, 'customHttp.yml');
-assertBaseline(cspCustom, 'customHttp.yml');
+assertGoogleAnalyticsAndSiteBaselines(cspCustom, 'customHttp.yml');
 
-console.log('OK: customHttp.yml CSP baseline satisfied; amplify.yml has no customHeaders block.');
+console.log(
+  'OK: customHttp.yml CSP matches GA4 + SW baselines; amplify.yml has no customHeaders block.',
+);
