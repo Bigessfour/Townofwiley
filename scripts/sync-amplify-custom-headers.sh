@@ -68,4 +68,21 @@ aws amplify update-app \
   --output text
 
 echo ""
+echo "Verifying remote app customHeaders include expected CSP markers..."
+REMOTE_RAW="$(aws amplify get-app --app-id "${APP_ID}" --region "${REGION}" --output json)"
+REMOTE_HEADERS="$(jq -r '.app.customHeaders // empty' <<<"${REMOTE_RAW}")"
+if [[ -z ${REMOTE_HEADERS} ]]; then
+  echo "error: get-app returned empty customHeaders (sync may have failed)" >&2
+  exit 1
+fi
+# Baseline tokens must survive API round-trip (prevents silent truncation).
+for needle in "Content-Security-Policy" "googletagmanager" "font-src 'self' data:"; do
+  if ! grep -qF "${needle}" <<<"${REMOTE_HEADERS}"; then
+    echo "error: remote customHeaders missing expected substring: ${needle}" >&2
+    exit 1
+  fi
+done
+echo "Remote customHeaders OK (CSP markers present)."
+
+echo ""
 echo "Done. Trigger a redeploy (empty commit or Amplify Console 'Redeploy this version') so CloudFront picks up header changes if they do not apply immediately."

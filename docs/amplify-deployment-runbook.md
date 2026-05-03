@@ -118,3 +118,21 @@ Amplify Hosting can store **custom HTTP headers** on the app that differ from [`
 4. Redeploy the `main` branch from the Amplify Console (or push an empty commit) if headers do not appear immediately on CloudFront.
 
 To update the policy later, edit **`amplify.yml`** and **`customHttp.yml`** together, then run `npm run amplify:sync-headers` again (or push so Amplify applies `customHttp.yml` from the repo).
+
+### Resilience (prevent header / CSP drift)
+
+AWS documents that **custom headers should live in `customHttp.yml` or the Amplify console**, and that **headers historically embedded in `amplify.yml` should be migrated out** of the buildspec to avoid split sources of truth:
+
+- [Setting custom headers](https://docs.aws.amazon.com/amplify/latest/userguide/setting-custom-headers.html)
+- [Custom header YAML reference](https://docs.aws.amazon.com/amplify/latest/userguide/custom-header-YAML-format.html)
+- [Migrating custom headers out of the build specification and amplify.yml](https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html)
+
+This repository currently keeps **`amplify.yml` `customHeaders` and root `customHttp.yml` identical** so builds and `aws amplify update-app` stay aligned. **CI enforces that parity** so a PR cannot merge with mismatched CSP strings:
+
+- `npm run verify:amplify-csp-parity` — [`scripts/verify-custom-http-csp-parity.mjs`](../scripts/verify-custom-http-csp-parity.mjs) (runs on every push/PR in GitHub Actions).
+
+After `npm run amplify:sync-headers`, the sync script **reads back** `aws amplify get-app` and fails if the returned `customHeaders` blob is missing key CSP markers (catches silent API truncation).
+
+**Weekly production probe** (scheduled workflow): [`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) curls `https://www.townofwiley.gov/` and fails if `Content-Security-Policy` is missing baseline tokens (`googletagmanager`, `font-src` + `data:`, etc.). Run manually via **Actions → Hosting headers drift watch → Run workflow**.
+
+**Operational rule:** Do not maintain a third copy of CSP in the Amplify Console **Hosting → Custom headers** editor unless it matches the repo; when `customHttp.yml` is in the repo and deployed, it **overrides** console custom headers for that deployment path—see AWS [custom headers](https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html) overview. Prefer editing the repo only, then sync + redeploy.

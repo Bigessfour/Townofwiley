@@ -21,6 +21,8 @@
     "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs infrastructure/paystar-proxy/index.test.mjs",
     "verify:nws-proxy-aws": "bash scripts/verify-nws-weather-proxy-aws.sh",
     "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
+    "verify:amplify-csp-parity": "node scripts/verify-custom-http-csp-parity.mjs",
+    "verify:live-csp-probe": "bash scripts/probe-live-hosting-csp.sh",
     "aws:configure-profile": "bash scripts/configure-aws-cli-profile.sh",
     "test:infra:alerts": "python -m pytest infrastructure/severe-weather-signup/tests",
     "test:infra:mail": "python -m pytest infrastructure/email-alias-router/tests",

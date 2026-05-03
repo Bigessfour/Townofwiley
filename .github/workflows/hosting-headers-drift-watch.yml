@@ -1,0 +1,32 @@
+# Probes production hosting for baseline security headers (CSP) so drift is caught
+# even when no code ships. Complements scripts/verify-custom-http-csp-parity.mjs
+# (repo file parity) and e2e/specs/smoke/live-hosting-headers.spec.ts (full header set).
+#
+# AWS context: custom headers can be set in the Amplify console, in customHttp.yml
+# (repo), or historically in amplify.yml — see:
+# https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html
+name: Hosting headers drift watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly Monday 15:00 UTC (~business hours US Mountain for triage)
+    - cron: 0 15 * * 1
+
+permissions:
+  contents: read
+
+jobs:
+  probe-production-csp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Fetch production CSP and verify baseline
+        shell: bash
+        env:
+          PRIMARY_URL: https://www.townofwiley.gov/
+          FALLBACK_URL: https://townofwiley.gov/
+        run: bash scripts/probe-live-hosting-csp.sh

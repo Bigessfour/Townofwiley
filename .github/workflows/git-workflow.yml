@@ -13,6 +13,17 @@ env:
   NG_CLI_ANALYTICS: 'false'
 
 jobs:
+  # Always run: blocks PRs that edit only one of amplify.yml / customHttp.yml CSP strings.
+  custom-headers-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify Amplify CSP parity (amplify.yml vs customHttp.yml)
+        run: node scripts/verify-custom-http-csp-parity.mjs
+
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -57,7 +68,7 @@ jobs:
             [[ -z "$FILE" ]] && continue
 
             case "$FILE" in
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|angular.json|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|angular.json|amplify.yml|customHttp.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-csp-parity.mjs|scripts/sync-amplify-custom-headers.sh|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/hosting-headers-drift-watch.yml)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;

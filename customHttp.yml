@@ -1,5 +1,5 @@
 # App-level custom headers for AWS Amplify Hosting (YAML spec).
-# Overrides narrower headers set in the Amplify Console. Keep in sync with amplify.yml `customHeaders`.
+# CSP must match amplify.yml `customHeaders` — CI: npm run verify:amplify-csp-parity
 # https://docs.aws.amazon.com/amplify/latest/userguide/custom-header-YAML-format.html
 customHeaders:
   - pattern: '**/*'
