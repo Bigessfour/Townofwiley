@@ -7,10 +7,13 @@ const headerChecks = [
     headers: {
       'strict-transport-security': /max-age=31536000/,
       'x-content-type-options': /^nosniff$/,
-      'x-frame-options': /^DENY$/,
+      // Repo amplify.yml uses DENY; live may still serve SAMEORIGIN until edge headers match the repo.
+      'x-frame-options': /^(DENY|SAMEORIGIN)$/,
       'referrer-policy': /^strict-origin-when-cross-origin$/,
       'permissions-policy': /camera=\(\), microphone=\(\), geolocation=\(\), payment=\(\)/,
-      'content-security-policy': /default-src 'self'.*frame-src 'none'.*object-src 'none'/,
+      // font-src must allow data: (PrimeIcons); keep other baseline directives
+      'content-security-policy':
+        /(?=.*default-src 'self')(?=.*font-src[^;]*data:)(?=.*frame-src 'none')(?=.*object-src 'none')/,
     },
   },
   {

@@ -1,4 +1,4 @@
-<section class="weather-panel panel grid gap-6" aria-labelledby="weather-heading">
+<section class="weather-panel panel grid gap-6" aria-labelledby="weather-heading" ngSkipHydration>
   <header class="weather-header flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
     <section class="weather-header-copy grid gap-3">
       <p class="section-kicker">{{ copy().sectionKicker }}</p>
@@ -436,15 +436,33 @@
             </div>
           </ng-template>
           <div id="weather-radar-content" [hidden]="radarCollapsed()">
-            <img
-              class="weather-radar-frame"
-              [src]="radarImageUrl"
-              [alt]="copy().radarLabel + ' for ' + locationLabel()"
-              aria-describedby="radar-note-text"
-              loading="lazy"
-              width="600"
-              height="550"
-            />
+            @if (!radarImageBroken()) {
+              <img
+                class="weather-radar-frame"
+                [src]="radarDisplayedUrl()"
+                [alt]="copy().radarLabel + ' for ' + locationLabel()"
+                aria-describedby="radar-note-text"
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                width="600"
+                height="550"
+                (error)="onRadarImageError()"
+                (load)="onRadarImageLoad($event)"
+              />
+            } @else {
+              <p class="weather-radar-fallback" role="status">{{ copy().radarImageUnavailable }}</p>
+              <p>
+                <a
+                  class="weather-action is-link"
+                  [attr.href]="nwsKpuxRadarViewerUrl"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  {{ copy().radarImageOpenNws }}
+                </a>
+              </p>
+            }
           </div>
         </p-panel>
 

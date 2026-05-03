@@ -25,6 +25,10 @@ import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { readWeatherRuntimeConfig } from './weather-runtime-config';
 
+/** NWS RIDGE standard animated loop and single-frame fallback (same site, KPUX Pueblo). */
+const NWS_KPUX_RADAR_LOOP_GIF = 'https://radar.weather.gov/ridge/standard/KPUX_loop.gif';
+const NWS_KPUX_RADAR_STATIC_GIF = 'https://radar.weather.gov/ridge/standard/KPUX_0.gif';
+
 const WILEY_POINT_URL = 'https://api.weather.gov/points/38.154,-102.72';
 const WILEY_FORECAST_PAGE_URL =
   'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248';
@@ -236,6 +240,8 @@ interface WeatherCopy {
   radarNote: string;
   showRadar: string;
   hideRadar: string;
+  radarImageUnavailable: string;
+  radarImageOpenNws: string;
 }
 
 const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
@@ -317,6 +323,9 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     radarNote: 'KPUX Pueblo radar \u2014 covers Prowers County',
     showRadar: 'Show radar',
     hideRadar: 'Hide radar',
+    radarImageUnavailable:
+      'The animated radar image could not be loaded. Try the official NWS radar viewer instead.',
+    radarImageOpenNws: 'Open NWS radar for KPUX (Pueblo)',
   },
   es: {
     sectionKicker: 'Clima local',
@@ -398,6 +407,9 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     radarNote: 'Radar KPUX Pueblo \u2014 cubre el condado de Prowers',
     showRadar: 'Mostrar radar',
     hideRadar: 'Ocultar radar',
+    radarImageUnavailable:
+      'No se pudo cargar la imagen animada del radar. Pruebe el visor oficial del NWS.',
+    radarImageOpenNws: 'Abrir el radar del NWS para KPUX (Pueblo)',
   },
 };
 
@@ -443,6 +455,8 @@ export class LocalizedWeatherPanel {
 
   protected readonly weatherGovUrl = WILEY_FORECAST_PAGE_URL;
   protected readonly forecastMapsUrl = NWS_FORECAST_MAPS_URL;
+  /** Official WRH page for the KPUX radar site when embedded GIFs fail. */
+  protected readonly nwsKpuxRadarViewerUrl = 'https://www.weather.gov/wrh/timeseries?site=KPUX';
   readonly activeAlertChange = output<HomepageWeatherAlert | null>();
   protected readonly copy = computed(
     () => WEATHER_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -562,7 +576,10 @@ export class LocalizedWeatherPanel {
     return this.isAlertSignupSubmitting() ? this.copy().submitting : this.copy().submit;
   });
 
-  protected readonly radarImageUrl = 'https://radar.weather.gov/ridge/standard/KPUX_loop.gif';
+  /** Current radar GIF URL (loop, then static fallback on error). */
+  protected readonly radarDisplayedUrl = signal(NWS_KPUX_RADAR_LOOP_GIF);
+  /** True after loop and static GIF both fail to render. */
+  protected readonly radarImageBroken = signal(false);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -590,6 +607,24 @@ export class LocalizedWeatherPanel {
 
   protected toggleRadarPanel(): void {
     this.radarCollapsed.update((value) => !value);
+  }
+
+  protected onRadarImageError(): void {
+    if (this.radarDisplayedUrl() === NWS_KPUX_RADAR_LOOP_GIF) {
+      this.radarDisplayedUrl.set(NWS_KPUX_RADAR_STATIC_GIF);
+      return;
+    }
+    this.radarImageBroken.set(true);
+  }
+
+  protected onRadarImageLoad(event: Event): void {
+    const img = event.target;
+
+    if (!(img instanceof HTMLImageElement) || img.naturalWidth > 0) {
+      return;
+    }
+
+    this.onRadarImageError();
   }
 
   protected updateAlertSignupChannel(value: string): void {
@@ -907,5 +942,4 @@ export class LocalizedWeatherPanel {
         : this.englishDateTimeFormatter
     ).format(new Date(value));
   }
-
 }

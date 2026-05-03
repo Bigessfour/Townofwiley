@@ -17,7 +17,9 @@ frontend:
     paths:
       - node_modules/**/*
   customHeaders:
-    # Security headers applied to all responses
+    # Security headers applied to all responses (Amplify Hosting). If the same paths also have
+    # custom headers in the Amplify Console, reconcile them so production does not drift from this file.
+    # PrimeIcons (pi pi-*) load embedded icomoon fonts via data: URLs — font-src must include `data:`.
     - pattern: '**/*'
       headers:
         - key: 'Strict-Transport-Security'
