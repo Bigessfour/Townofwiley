@@ -71,31 +71,29 @@
     [class.scrolled]="headerScrolled()"
     role="banner"
   >
-    <div class="header-main"></div>
-  </header>
+    <div class="header-main">
+      <div class="mobile-menu-bar">
+        <button
+          type="button"
+          class="mobile-menu-button"
+          pRipple
+          [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
+          [attr.aria-expanded]="sidebarVisible()"
+          [attr.aria-controls]="sidebarVisible() ? 'mobile-menu-drawer' : null"
+          (click)="openMobileMenu()"
+        >
+          <i class="pi pi-bars" aria-hidden="true"></i>
+          <span>{{ appCopy().mobileMenuLabel }}</span>
+        </button>
+      </div>
 
-  <div class="mobile-menu-bar">
-    <button
-      type="button"
-      class="mobile-menu-button"
-      pRipple
-      [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
-      [attr.aria-expanded]="sidebarVisible()"
-      [attr.aria-controls]="sidebarVisible() ? 'mobile-menu-drawer' : null"
-      (click)="openMobileMenu()"
-    >
-      <i class="pi pi-bars" aria-hidden="true"></i>
-      <span>{{ appCopy().mobileMenuLabel }}</span>
-    </button>
-  </div>
-
-  <p-megamenu
-    [model]="menuItems()"
-    [pt]="desktopMegaMenuPt"
-    orientation="horizontal"
-    styleClass="desktop-mega-menu mega-menu-civic border-none shadow-sm"
-    data-testid="homepage-section-nav"
-  >
+      <p-megamenu
+        [model]="menuItems()"
+        [pt]="desktopMegaMenuPt"
+        orientation="horizontal"
+        styleClass="desktop-mega-menu mega-menu-civic border-none shadow-sm"
+        data-testid="homepage-section-nav"
+      >
     <ng-template pTemplate="start">
       <a class="town-logo" routerLink="/" aria-label="Return to homepage">
         <span class="official-badge">{{ heroContent().status }}</span>
@@ -237,7 +235,9 @@
         </div>
       </div>
     </ng-template>
-  </p-megamenu>
+      </p-megamenu>
+    </div>
+  </header>
 
   @if (sidebarVisible()) {
     <p-drawer

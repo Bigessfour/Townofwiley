@@ -1,6 +1,40 @@
 import { defineConfig, devices } from '@playwright/test';
+import os from 'node:os';
 import { resolve } from 'node:path';
 import { resolveE2eEnv } from './e2e/support/resolve-e2e-env';
+
+/**
+ * Playwright appends `-arm64` to the mac host key only when `os.cpus()[].model` includes
+ * `"Apple"`. In sandboxes/CI, `cpus()` can be empty, so the host becomes `mac15` and
+ * browser paths point at `chrome-headless-shell-mac-x64` while installs use `mac-arm64`.
+ */
+function ensurePlaywrightDarwinArm64Host(): void {
+  if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+    return;
+  }
+  if (process.env.PLAYWRIGHT_HOST_PLATFORM_OVERRIDE?.trim()) {
+    return;
+  }
+  const ver = os
+    .release()
+    .split('.')
+    .map((a) => parseInt(a, 10));
+  const darwinMajor = ver[0] ?? 0;
+  let host: string;
+  if (darwinMajor < 18) {
+    host = 'mac10.13';
+  } else if (darwinMajor === 18) {
+    host = 'mac10.14';
+  } else if (darwinMajor === 19) {
+    host = 'mac10.15';
+  } else {
+    const lastStableMacMajor = 15;
+    host = `mac${Math.min(darwinMajor - 9, lastStableMacMajor)}-arm64`;
+  }
+  process.env.PLAYWRIGHT_HOST_PLATFORM_OVERRIDE = host;
+}
+
+ensurePlaywrightDarwinArm64Host();
 
 /**
  * Local dev: keep browsers under the repo (`.playwright-browsers/`, gitignored) so

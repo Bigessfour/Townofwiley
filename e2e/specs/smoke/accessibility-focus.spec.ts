@@ -113,13 +113,14 @@ test.describe('accessibility and focus behavior', () => {
 
     await homePage.goto();
 
-    const spanishButton = homePage.page.getByRole('button', { name: 'ES' });
+    const nav = homePage.page.getByTestId('homepage-section-nav');
+    const spanishButton = nav.locator('#site-language-es');
     await spanishButton.focus();
     await expect(spanishButton).toBeFocused();
     await homePage.page.keyboard.press('Enter');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', 'es');
 
-    const englishButton = homePage.page.getByRole('button', { name: 'EN' });
+    const englishButton = nav.locator('#site-language-en');
     await englishButton.focus();
     await expect(englishButton).toBeFocused();
     await homePage.page.keyboard.press('Space');

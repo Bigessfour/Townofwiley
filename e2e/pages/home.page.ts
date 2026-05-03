@@ -11,6 +11,8 @@ export class HomePage {
   readonly featureCards: Locator;
   readonly topTaskCards: Locator;
   readonly sectionNavLinks: Locator;
+  /** Desktop mega menu host (`p-megamenu`); scope header chrome to avoid strict-mode clashes with other `ES`/`EN` controls. */
+  readonly sectionNav: Locator;
   readonly searchInput: Locator;
   readonly searchResults: Locator;
   readonly weatherPanel: Locator;
@@ -110,7 +112,8 @@ export class HomePage {
     this.sectionNavLinks = page.locator(
       '[data-testid="homepage-section-nav"] .mega-menu-root-link',
     );
-    this.searchInput = page.locator('#mega-site-search');
+    this.sectionNav = page.getByTestId('homepage-section-nav');
+    this.searchInput = this.sectionNav.locator('#mega-site-search');
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');
@@ -562,7 +565,7 @@ export class HomePage {
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
     const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    await this.page.locator(selector).evaluate((btn) => {
+    await this.sectionNav.locator(selector).evaluate((btn) => {
       (btn as HTMLButtonElement).click();
     });
   }
@@ -584,7 +587,7 @@ export class HomePage {
   async submitHeaderSiteSearch(query: string): Promise<void> {
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
-    await this.page.locator('form.header-search-form').evaluate((form) => {
+    await this.sectionNav.locator('form.header-search-form').evaluate((form) => {
       (form as HTMLFormElement).requestSubmit();
     });
   }
@@ -595,7 +598,7 @@ export class HomePage {
    */
   private async setMegaSiteSearchDraft(query: string): Promise<void> {
     await this.searchInput.scrollIntoViewIfNeeded({ timeout: 2500 }).catch(() => undefined);
-    await this.page.locator('#mega-site-search').evaluate((el, q) => {
+    await this.searchInput.evaluate((el, q) => {
       const input = el as HTMLInputElement;
       try {
         input.focus();
