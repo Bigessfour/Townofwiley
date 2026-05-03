@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Curl production (or E2E_BASE_URL) and verify CSP contains required tokens so
 # hosting drift (narrower Console policy, failed sync, stale edge) is detected in CI.
+# Intermittent 504 on index.html or googletagmanager.com is a gateway/upstream timeout,
+# unrelated to CSP grammar — retry or check Amplify/CloudFront; npm run verify:live-csp-vs-repo
+# compares the full header string to customHttp.yml after fixes.
 #
 # Usage:
 #   bash scripts/probe-live-hosting-csp.sh
@@ -42,6 +45,21 @@ if [[ -z ${CSP} ]]; then
   exit 1
 fi
 
+# Plan: verify-live-csp — Angular ngsw-worker fetch() for gtag/js is governed by connect-src.
+CONNECT_SRC="$(printf '%s' "${CSP}" | perl -ne 'if (/connect-src\s+([^;]+)/i) { print $1; exit }')"
+if [[ -z ${CONNECT_SRC} ]]; then
+  echo "error: could not parse connect-src from CSP on ${BASE}" >&2
+  exit 1
+fi
+if [[ ${CONNECT_SRC} != *googletagmanager* ]]; then
+  echo "error: connect-src must include googletagmanager (gtag loader + ngsw-worker safeFetch)" >&2
+  exit 1
+fi
+if ! printf '%s\n' "${CONNECT_SRC}" | grep -Fq '*.googletagmanager.com'; then
+  echo "error: connect-src must include https://*.googletagmanager.com (GA4 / Tag Manager)" >&2
+  exit 1
+fi
+
 checks=(
   "default-src 'self'"
   'worker-src'
@@ -58,8 +76,9 @@ for token in "${checks[@]}"; do
   if [[ ${CSP} != *"${token}"* ]]; then
     echo "error: CSP on ${BASE} missing expected token: ${token}" >&2
     echo "CSP (truncated): ${CSP:0:400}..." >&2
+    echo "hint: if repo customHttp.yml includes this token, run npm run amplify:sync-headers (Wiley AWS) then redeploy Amplify." >&2
     exit 1
   fi
 done
 
-echo "OK: ${BASE} returned Content-Security-Policy with baseline tokens."
+echo "OK: ${BASE} returned Content-Security-Policy with baseline tokens (including connect-src for gtag + SW)."

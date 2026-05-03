@@ -23,6 +23,7 @@
     "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
     "verify:custom-http-yaml": "node scripts/verify-custom-http-yaml.mjs",
     "verify:live-csp-probe": "bash scripts/probe-live-hosting-csp.sh",
+    "verify:live-csp-vs-repo": "node scripts/compare-live-csp-to-repo.mjs",
     "aws:configure-profile": "bash scripts/configure-aws-cli-profile.sh",
     "test:infra:alerts": "python -m pytest infrastructure/severe-weather-signup/tests",
     "test:infra:mail": "python -m pytest infrastructure/email-alias-router/tests",
