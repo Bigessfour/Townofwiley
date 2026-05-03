@@ -1,5 +1,38 @@
+import type { ConsoleMessage, Page } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
+
+function isAngularHydrationDiagnosticFailure(text: string): boolean {
+  if (/\bNG050[0-9]\b/i.test(text)) {
+    return true;
+  }
+  if (/\bhydration\b/i.test(text) && /\b(mismatch|mismatched|failed|error)\b/i.test(text)) {
+    return true;
+  }
+  return false;
+}
+
+function attachAngularHydrationDiagnosticCollectors(page: Page): string[] {
+  const signals: string[] = [];
+  const onConsole = (msg: ConsoleMessage) => {
+    if (msg.type() !== 'error' && msg.type() !== 'warning') {
+      return;
+    }
+    const text = msg.text();
+    if (isAngularHydrationDiagnosticFailure(text)) {
+      signals.push(`[console.${msg.type()}] ${text}`);
+    }
+  };
+  const onPageError = (err: Error) => {
+    const blob = `${err.message}\n${err.stack ?? ''}`;
+    if (isAngularHydrationDiagnosticFailure(blob)) {
+      signals.push(`[pageerror] ${err.message}`);
+    }
+  };
+  page.on('console', onConsole);
+  page.on('pageerror', onPageError);
+  return signals;
+}
 
 test.describe('feature page coverage', () => {
   test.describe.configure({ timeout: 90000 });
@@ -37,6 +70,27 @@ test.describe('feature page coverage', () => {
     await expect(meetingRows).toHaveCount(siteContent.homepageCounts.meetingCards, {
       timeout: 20000,
     });
+  });
+
+  test('meetings calendar: FullCalendar renders and notices bridge uses in-app navigation', async ({
+    homePage,
+  }) => {
+    const hydrationSignals = attachAngularHydrationDiagnosticCollectors(homePage.page);
+
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+
+    const calendarRegion = homePage.page.locator('#calendar');
+    await expect(calendarRegion).toBeVisible({ timeout: 20000 });
+    await expect(calendarRegion.locator('.fc')).toBeVisible({ timeout: 30000 });
+
+    const noticesBridge = calendarRegion.getByRole('link', {
+      name: /Notices, agendas, and meeting materials/i,
+    });
+    await expect(noticesBridge).toBeVisible();
+    await noticesBridge.click();
+
+    await expect(homePage.page).toHaveURL(/\/notices$/);
+    expect(hydrationSignals).toEqual([]);
   });
 
   test('meetings table agenda affordance routes to document hub meeting section', async ({

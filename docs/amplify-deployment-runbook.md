@@ -121,6 +121,8 @@ If production CSP is narrower than the repo (for example `font-src 'self'` witho
 
 To change headers or CSP, edit **`customHttp.yml` only**, merge to `main`, then either wait for the Amplify build (which ships `customHttp.yml` from the repo root) or run `npm run amplify:sync-headers` to push the same YAML to the app immediately.
 
+**Local `ng serve` CSP parity:** After changing CSP in `customHttp.yml`, run `npm run sync:angular-serve-csp` so `angular.json` `serve.options.headers` stays identical to the hosting policy (the dev server applies that header on every response). `npm run verify:custom-http-yaml` fails if they drift.
+
 ### Resilience (prevent header / CSP drift)
 
 AWS documents that **custom headers should live in `customHttp.yml` or the Amplify console**, and that **headers historically embedded in `amplify.yml` should be migrated out** of the buildspec:

@@ -81,6 +81,12 @@ npm run test:e2e:ui
 npm run test:e2e:trace   # PLAYWRIGHT_TRACE=on + Node --trace-warnings (full traces per test)
 ```
 
+Optional **cow embed / easy-peasy embed path** (not part of default smoke): set `TOW_E2E_CHATBOT_EMBED=1` to run [`e2e/specs/smoke/cow-embed-loader.spec.ts`](specs/smoke/cow-embed-loader.spec.ts) (stubs `chat.min.js`, asserts `/cow-video-popup.js` loads without real chat secrets).
+
+```bash
+TOW_E2E_CHATBOT_EMBED=1 npm run test:e2e -- e2e/specs/smoke/cow-embed-loader.spec.ts
+```
+
 Set `PLAYWRIGHT_TRACE=on` (or `off`) to override default `retain-on-failure` behavior from [`playwright.config.ts`](../playwright.config.ts).
 
 ## Local vs Remote Runs

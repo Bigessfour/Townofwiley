@@ -82,6 +82,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "headers": {
+              "Content-Security-Policy": "default-src 'self'; worker-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://bots.easy-peasy.ai; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: https://*.google-analytics.com https://*.googletagmanager.com; media-src 'self' data: blob: https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com; connect-src 'self' https://*.appsync-api.us-east-2.amazonaws.com wss://*.appsync-realtime-api.us-east-2.amazonaws.com https://cognito-idp.us-east-2.amazonaws.com https://cognito-identity.us-east-2.amazonaws.com https://cognito-sync.us-east-2.amazonaws.com https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com https://api.weather.gov https://alerts.weather.gov https://radar.weather.gov https://*.lambda-url.us-east-2.on.aws https://www.googletagmanager.com https://*.googletagmanager.com https://www.google.com https://google.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.g.doubleclick.net https://stats.g.doubleclick.net https://bots.easy-peasy.ai wss://bots.easy-peasy.ai; font-src 'self' data:; frame-src https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "townofwiley-app:build:production"

@@ -13,45 +13,16 @@
     <!-- Apple touch icon: iOS ignores SVG; fallback to favicon until a PNG is available -->
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg?v=2" />
     <meta name="theme-color" content="#0f172a" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               worker-src 'self';
-               connect-src 'self'
-                 https://api.weather.gov
-                 https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com
-                 wss://*.appsync-realtime-api.us-east-2.amazonaws.com
-                 https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws
-                 https://a5wbyzz6iiawupk3xwpozdy5ji0awggh.lambda-url.us-east-2.on.aws
-                 https://www.googletagmanager.com
-                 https://www.google-analytics.com
-                 https://*.googletagmanager.com;
-               script-src 'self' 'unsafe-inline' 'unsafe-eval'
-                 https://www.googletagmanager.com
-                 https://www.google-analytics.com;
-               img-src 'self' data:
-                 https://api.weather.gov
-                 https://radar.weather.gov
-                 https://www.weather.gov
-                 https://forecast.weather.gov
-                 https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com
-                 https://www.googletagmanager.com
-                 https://*.googletagmanager.com
-                 https://ssl.gstatic.com
-                 https://*.google-analytics.com;
-               style-src 'self' 'unsafe-inline' https://www.googletagmanager.com;
-               font-src 'self' data:;
-               frame-src https://www.googletagmanager.com;"
-    />
+    <!-- CSP: Amplify customHttp.yml (repo SSOT). No meta CSP — avoids conflicting with production headers. -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://townofwiley.gov/" />
     <meta property="og:image" content="https://townofwiley.gov/hero-wiley.webp" />
     <!-- Google tag: load via same-origin script so ngsw-worker does not prefetch gtag (connect-src) -->
-    <script src="google-analytics-init.js" defer></script>
+    <script src="/google-analytics-init.js" defer></script>
   </head>
   <body>
     <app-root></app-root>
-    <script src="runtime-config.js" defer></script>
-    <script src="easy-peasy-loader.js" defer></script>
+    <script src="/runtime-config.js" defer></script>
+    <script src="/easy-peasy-loader.js" defer></script>
   </body>
 </html>

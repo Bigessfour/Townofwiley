@@ -22,6 +22,7 @@
     "verify:nws-proxy-aws": "bash scripts/verify-nws-weather-proxy-aws.sh",
     "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
     "verify:custom-http-yaml": "node scripts/verify-custom-http-yaml.mjs",
+    "sync:angular-serve-csp": "node scripts/sync-angular-serve-csp.mjs",
     "verify:live-csp-probe": "bash scripts/probe-live-hosting-csp.sh",
     "verify:live-csp-vs-repo": "node scripts/compare-live-csp-to-repo.mjs",
     "aws:configure-profile": "bash scripts/configure-aws-cli-profile.sh",

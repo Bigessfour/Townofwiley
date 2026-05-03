@@ -14,17 +14,9 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { extractCspValueFromCustomHttpText } from './lib/custom-http-csp.mjs';
 
 const root = join(import.meta.dirname, '..');
-
-function extractCspValue(text, label) {
-  const re = /['"]Content-Security-Policy['"]\s*\n\s*value:\s*"([^"]*)"/;
-  const m = text.match(re);
-  if (!m) {
-    throw new Error(`${label}: could not find Content-Security-Policy value: "..." line`);
-  }
-  return m[1];
-}
 
 function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
   const checks = [
@@ -41,6 +33,13 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
     [
       /img-src[^;]*\*\.google-analytics\.com/i,
       'img-src must allow https://*.google-analytics.com (GA4)',
+    ],
+    [/media-src[^;]*'self'/, "media-src must include 'self' (local video assets)"],
+    [/media-src[^;]*data:/, 'media-src must include data: (inline / data URLs if used)'],
+    [/media-src[^;]*blob:/, 'media-src must include blob: (MediaSource / blob playback if used)'],
+    [
+      /media-src[^;]*townofwiley-documents-storage\.s3\.us-east-2\.amazonaws\.com/i,
+      'media-src must allow documents bucket (remote cow welcome / hosted media)',
     ],
     [
       /connect-src[^;]*\*\.googletagmanager\.com/i,
@@ -96,9 +95,26 @@ if (/^\s*customHeaders:/m.test(amp)) {
   process.exit(1);
 }
 
-const cspCustom = extractCspValue(custom, 'customHttp.yml');
+const cspCustom = extractCspValueFromCustomHttpText(custom, 'customHttp.yml');
 assertGoogleAnalyticsAndSiteBaselines(cspCustom, 'customHttp.yml');
 
+const angularPath = join(root, 'angular.json');
+const angular = JSON.parse(readFileSync(angularPath, 'utf8'));
+const serveCsp =
+  angular?.projects?.['townofwiley-app']?.architect?.serve?.options?.headers?.[
+    'Content-Security-Policy'
+  ];
+if (!serveCsp) {
+  throw new Error(
+    'angular.json: missing projects.townofwiley-app.architect.serve.options.headers.Content-Security-Policy — run `npm run sync:angular-serve-csp` after editing customHttp.yml.',
+  );
+}
+if (serveCsp !== cspCustom) {
+  throw new Error(
+    'angular.json dev-server CSP does not match customHttp.yml — run `npm run sync:angular-serve-csp`.',
+  );
+}
+
 console.log(
-  'OK: customHttp.yml CSP matches GA4 + SW baselines; amplify.yml has no customHeaders block.',
+  'OK: customHttp.yml CSP matches GA4 + SW baselines; amplify.yml has no customHeaders block; angular serve CSP matches customHttp.yml.',
 );

@@ -75,7 +75,7 @@
     const cowScript = document.createElement('script');
     const cowVideoMp4Src = chatbotConfig.cowVideoMp4Url || chatbotConfig.cowVideoUrl || '/videos/cow-welcome.mp4';
 
-    cowScript.src = 'cow-video-popup.js';
+    cowScript.src = '/cow-video-popup.js';
     cowScript.dataset.towChatbot = 'cow-popup';
     cowScript.dataset.buttonPosition = chatbotConfig.buttonPosition || 'bottom-right';
     cowScript.dataset.videoSrc = cowVideoMp4Src;
