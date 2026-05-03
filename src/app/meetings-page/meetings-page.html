@@ -2,9 +2,6 @@
   <p-card class="panel meetings-main-panel" aria-labelledby="meetings-heading">
     <ng-template pTemplate="header">
       <div class="meetings-panel-header">
-        @if (cmsLoading()) {
-          <p-progressSpinner styleClass="meetings-loading-spinner" aria-hidden="true" />
-        }
         <div>
           <p class="section-kicker">{{ copy().meetingsKicker }}</p>
           <h1 id="meetings-heading">{{ copy().meetingsHeading }}</h1>
@@ -12,73 +9,81 @@
       </div>
     </ng-template>
 
-    <p-table
-      class="meetings-table"
-      [value]="meetings()"
-      [responsiveLayout]="'scroll'"
-      [tableStyle]="{ 'min-width': '52rem' }"
-      [attr.aria-label]="copy().meetingsTableAriaLabel"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col">{{ copy().meetingsColMeeting }}</th>
-          <th scope="col">{{ copy().meetingsColWhen }}</th>
-          <th scope="col">{{ copy().meetingsColLocation }}</th>
-          <th scope="col">{{ copy().meetingsColDetails }}</th>
-          <th scope="col">{{ copy().meetingsColActions }}</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-meeting>
-        <tr>
-          <td>
-            <div class="meetings-cell-title">
-              <strong>{{ meeting.title }}</strong>
-              @if (meeting.agendaNote) {
-                <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
+    @if (cmsLoading()) {
+      <div class="meetings-table-skeleton" aria-live="polite" aria-busy="true">
+        @for (_ of [0, 1, 2, 3, 4]; track $index) {
+          <p-skeleton height="3.25rem" width="100%" borderRadius="12px" styleClass="mb-2" />
+        }
+      </div>
+    } @else {
+      <p-table
+        class="meetings-table"
+        [value]="meetings()"
+        [responsiveLayout]="'scroll'"
+        [tableStyle]="{ 'min-width': '52rem' }"
+        [attr.aria-label]="copy().meetingsTableAriaLabel"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col">{{ copy().meetingsColMeeting }}</th>
+            <th scope="col">{{ copy().meetingsColWhen }}</th>
+            <th scope="col">{{ copy().meetingsColLocation }}</th>
+            <th scope="col">{{ copy().meetingsColDetails }}</th>
+            <th scope="col">{{ copy().meetingsColActions }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-meeting>
+          <tr>
+            <td>
+              <div class="meetings-cell-title">
+                <strong>{{ meeting.title }}</strong>
+                @if (meeting.agendaNote) {
+                  <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
+                }
+              </div>
+            </td>
+            <td>
+              <span class="meeting-schedule">{{ meeting.schedule }}</span>
+            </td>
+            <td>
+              @if (meeting.location) {
+                <span class="meeting-location">{{ meeting.location }}</span>
+              } @else {
+                <span class="meetings-em-dash">—</span>
               }
-            </div>
-          </td>
-          <td>
-            <span class="meeting-schedule">{{ meeting.schedule }}</span>
-          </td>
-          <td>
-            @if (meeting.location) {
-              <span class="meeting-location">{{ meeting.location }}</span>
-            } @else {
-              <span class="meetings-em-dash">—</span>
-            }
-          </td>
-          <td>
-            <small class="meeting-format">{{ meeting.format }}</small>
-          </td>
-          <td>
-            <div class="meetings-actions-cell">
-              @if (meeting.agendaPdfHref; as agendaHref) {
-                @if (isMeetingDocumentsLink(agendaHref)) {
-                  <p-button
-                    styleClass="meetings-agenda-btn"
-                    [outlined]="true"
-                    icon="pi pi-file-pdf"
-                    [label]="meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
-                    [routerLink]="['/documents']"
-                    fragment="meeting-documents"
-                  />
-                } @else {
-                  <a class="text-link" [attr.href]="agendaHref">{{
-                    meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel
+            </td>
+            <td>
+              <small class="meeting-format">{{ meeting.format }}</small>
+            </td>
+            <td>
+              <div class="meetings-actions-cell">
+                @if (meeting.agendaPdfHref; as agendaHref) {
+                  @if (isMeetingDocumentsLink(agendaHref)) {
+                    <p-button
+                      styleClass="meetings-agenda-btn"
+                      [outlined]="true"
+                      icon="pi pi-file-pdf"
+                      [label]="meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
+                      [routerLink]="['/documents']"
+                      fragment="meeting-documents"
+                    />
+                  } @else {
+                    <a class="text-link" [attr.href]="agendaHref">{{
+                      meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel
+                    }}</a>
+                  }
+                }
+                @if (meeting.cta && meeting.href) {
+                  <a class="text-link meetings-secondary-cta" [attr.href]="meeting.href">{{
+                    meeting.cta
                   }}</a>
                 }
-              }
-              @if (meeting.cta && meeting.href) {
-                <a class="text-link meetings-secondary-cta" [attr.href]="meeting.href">{{
-                  meeting.cta
-                }}</a>
-              }
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
   </p-card>
 
   <p-card class="panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">
@@ -91,93 +96,102 @@
         </section>
       </header>
     </ng-template>
-    @if (isBrowser()) {
-      <full-calendar [options]="calendarOptions()"></full-calendar>
-    }
-    <section class="stack-list calendar-event-stack">
-      @for (item of calendarItems(); track item.id) {
-        <article class="info-row calendar-card">
-          <strong>{{ item.title }}</strong>
-          <span>{{ item.date }}</span>
-          <p>{{ item.detail }}</p>
-          <small>{{ item.location }} · {{ item.recurrence }}</small>
-          @if (item.agendaNote) {
-            <p class="meeting-agenda-note">{{ item.agendaNote }}</p>
-          }
-          @if (item.actions.length > 0) {
-            <div
-              class="calendar-action-buttons"
-              [attr.aria-label]="copy().calendarActionsAriaLabel"
-            >
-              @for (action of item.actions; track calendarActionTrackKey(action, $index)) {
-                @if (action.href.startsWith('tel:')) {
-                  <a
-                    pButton
-                    pRipple
-                    type="button"
-                    class="p-button-text calendar-inline-action"
-                    [attr.href]="action.href"
-                  >
-                    {{ action.label }}
-                  </a>
-                } @else if (action.href.startsWith('mailto:')) {
-                  <a
-                    pButton
-                    pRipple
-                    type="button"
-                    class="p-button-text calendar-inline-action"
-                    [attr.href]="action.href"
-                  >
-                    {{ action.label }}
-                  </a>
-                } @else if (action.downloadFileName) {
-                  <a
-                    pButton
-                    pRipple
-                    type="button"
-                    class="p-button-outlined calendar-inline-action"
-                    [attr.href]="action.href"
-                    [attr.download]="action.downloadFileName"
-                  >
-                    {{ action.label }}
-                  </a>
-                } @else if (action.external) {
-                  <a
-                    pButton
-                    pRipple
-                    type="button"
-                    class="p-button-outlined calendar-inline-action"
-                    [attr.href]="action.href"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {{ action.label }}
-                  </a>
-                } @else if (isMeetingDocumentsLink(action.href)) {
-                  <p-button
-                    styleClass="meetings-agenda-btn calendar-agenda-btn"
-                    [outlined]="true"
-                    icon="pi pi-file-pdf"
-                    [label]="copy().meetingsAgendaPdfButtonLabel"
-                    [routerLink]="['/documents']"
-                    fragment="meeting-documents"
-                  />
-                } @else {
-                  <a
-                    pButton
-                    pRipple
-                    type="button"
-                    class="p-button-outlined calendar-inline-action"
-                    [attr.href]="action.href"
-                  >
-                    {{ action.label }}
-                  </a>
-                }
-              }
-            </div>
-          }
-        </article>
+    @if (cmsLoading()) {
+      <div class="calendar-panel-skeleton" aria-live="polite" aria-busy="true">
+        <p-skeleton width="100%" height="18rem" borderRadius="16px" styleClass="mb-4" />
+        @for (_ of [0, 1, 2]; track $index) {
+          <p-skeleton height="5.5rem" width="100%" borderRadius="14px" styleClass="mb-3" />
+        }
+      </div>
+    } @else {
+      @if (isBrowser()) {
+        <full-calendar [options]="calendarOptions()"></full-calendar>
       }
-    </section>
+      <section class="stack-list calendar-event-stack">
+        @for (item of calendarItems(); track item.id) {
+          <article class="info-row calendar-card">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.date }}</span>
+            <p>{{ item.detail }}</p>
+            <small>{{ item.location }} · {{ item.recurrence }}</small>
+            @if (item.agendaNote) {
+              <p class="meeting-agenda-note">{{ item.agendaNote }}</p>
+            }
+            @if (item.actions.length > 0) {
+              <div
+                class="calendar-action-buttons"
+                [attr.aria-label]="copy().calendarActionsAriaLabel"
+              >
+                @for (action of item.actions; track calendarActionTrackKey(action, $index)) {
+                  @if (action.href.startsWith('tel:')) {
+                    <a
+                      pButton
+                      pRipple
+                      type="button"
+                      class="p-button-text calendar-inline-action"
+                      [attr.href]="action.href"
+                    >
+                      {{ action.label }}
+                    </a>
+                  } @else if (action.href.startsWith('mailto:')) {
+                    <a
+                      pButton
+                      pRipple
+                      type="button"
+                      class="p-button-text calendar-inline-action"
+                      [attr.href]="action.href"
+                    >
+                      {{ action.label }}
+                    </a>
+                  } @else if (action.downloadFileName) {
+                    <a
+                      pButton
+                      pRipple
+                      type="button"
+                      class="p-button-outlined calendar-inline-action"
+                      [attr.href]="action.href"
+                      [attr.download]="action.downloadFileName"
+                    >
+                      {{ action.label }}
+                    </a>
+                  } @else if (action.external) {
+                    <a
+                      pButton
+                      pRipple
+                      type="button"
+                      class="p-button-outlined calendar-inline-action"
+                      [attr.href]="action.href"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {{ action.label }}
+                    </a>
+                  } @else if (isMeetingDocumentsLink(action.href)) {
+                    <p-button
+                      styleClass="meetings-agenda-btn calendar-agenda-btn"
+                      [outlined]="true"
+                      icon="pi pi-file-pdf"
+                      [label]="copy().meetingsAgendaPdfButtonLabel"
+                      [routerLink]="['/documents']"
+                      fragment="meeting-documents"
+                    />
+                  } @else {
+                    <a
+                      pButton
+                      pRipple
+                      type="button"
+                      class="p-button-outlined calendar-inline-action"
+                      [attr.href]="action.href"
+                    >
+                      {{ action.label }}
+                    </a>
+                  }
+                }
+              </div>
+            }
+          </article>
+        }
+      </section>
+    }
   </p-card>
 </section>

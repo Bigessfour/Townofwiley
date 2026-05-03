@@ -18,6 +18,7 @@ async function getTouchTargetIssues(page: Page): Promise<TouchTargetIssue[]> {
       '[role="combobox"]',
       'a.main-nav-link',
       'a.mega-menu-root-link',
+      'button.mega-menu-root-link',
       'a.task-card',
       'a.feature-card',
       'a[class*="button"]',

@@ -1,6 +1,9 @@
 <p-toast position="top-right" />
 
 @if (isTopLevelLazyRouteMode()) {
+  <a class="skip-link" href="#main-content" (click)="focusMainContent($event)">{{
+    appCopy().skipLinkLabel
+  }}</a>
   <router-outlet />
 } @else {
   <a class="skip-link" href="#main-content" (click)="focusMainContent($event)">
@@ -78,7 +81,7 @@
       pRipple
       [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
       [attr.aria-expanded]="sidebarVisible()"
-      aria-controls="mobile-menu-drawer"
+      [attr.aria-controls]="sidebarVisible() ? 'mobile-menu-drawer' : null"
       (click)="openMobileMenu()"
     >
       <i class="pi pi-bars" aria-hidden="true"></i>
@@ -90,7 +93,7 @@
     [model]="menuItems()"
     [pt]="desktopMegaMenuPt"
     orientation="horizontal"
-    styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
+    styleClass="desktop-mega-menu mega-menu-civic border-none shadow-sm"
     data-testid="homepage-section-nav"
   >
     <ng-template pTemplate="start">
@@ -135,11 +138,12 @@
             }
           </a>
         } @else {
-          <a
+          <button
+            type="button"
             pRipple
             class="mega-menu-root-link"
-            href="#"
-            (click)="$event.preventDefault(); item.command ? item.command($event) : null"
+            tabindex="-1"
+            (click)="item.command ? item.command($event) : null"
           >
             @if (item.icon) {
               <i [class]="item.icon" aria-hidden="true"></i>
@@ -148,7 +152,7 @@
             @if (item.items) {
               <i class="pi pi-angle-down" aria-hidden="true"></i>
             }
-          </a>
+          </button>
         }
       } @else {
         @if (item.routerLink) {
@@ -189,11 +193,11 @@
       }
     </ng-template>
     <ng-template pTemplate="end">
-      <div class="header-end-controls flex items-center gap-4">
+      <div class="header-end-controls">
         @if (!isFeaturePageMode()) {
           <form class="header-search-form" role="search" (submit)="performSearch($event)">
             <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
-            <div class="header-search-row flex items-center gap-2">
+            <div class="header-search-row">
               <i class="pi pi-search text-muted" aria-hidden="true"></i>
               <input
                 pInputText
@@ -211,7 +215,7 @@
         }
         <div class="site-language-switcher" [attr.aria-label]="appCopy().languageLabel">
           <div
-            class="site-language-toggle flex flex-row gap-1"
+            class="site-language-toggle"
             role="group"
             [attr.aria-label]="appCopy().languageLabel"
           >
@@ -235,41 +239,48 @@
     </ng-template>
   </p-megamenu>
 
-  <p-drawer
-    id="mobile-menu-drawer"
-    [(visible)]="sidebarVisible"
-    position="left"
-    styleClass="mobile-menu-drawer"
-    [modal]="true"
-    [dismissible]="true"
-    [showCloseIcon]="true"
-    (onHide)="closeMobileMenu()"
-  >
-    <div class="mobile-menu-drawer-content">
-      <p class="mobile-menu-kicker">{{ appCopy().homepageSectionsAriaLabel }}</p>
-      <nav class="mobile-menu-nav" [attr.aria-label]="appCopy().homepageSectionsAriaLabel">
-        <a routerLink="/" (click)="closeMobileMenu()">{{ appCopy().homeLabel }}</a>
-        <a routerLink="/" fragment="top-tasks" (click)="closeMobileMenu()">{{
-          appCopy().menuQuickTasksLabel
-        }}</a>
-        <a routerLink="/meetings" (click)="closeMobileMenu()">{{
-          appCopy().menuGovernmentLabel
-        }}</a>
-        <a routerLink="/services" (click)="closeMobileMenu()">{{
-          appCopy().menuServicesPermitsLabel
-        }}</a>
-        <a routerLink="/notices" (click)="closeMobileMenu()">{{
-          appCopy().menuNewsNoticesLabel
-        }}</a>
-        <a routerLink="/businesses" (click)="closeMobileMenu()">{{
-          appCopy().menuBusinessCommunityLabel
-        }}</a>
-        <a routerLink="/contact" (click)="closeMobileMenu()">{{
-          appCopy().menuContactHallLabel
-        }}</a>
-      </nav>
-    </div>
-  </p-drawer>
+  @if (sidebarVisible()) {
+    <p-drawer
+      id="mobile-menu-drawer"
+      [(visible)]="sidebarVisible"
+      [pt]="mobileDrawerPt"
+      position="left"
+      styleClass="mobile-menu-drawer"
+      [modal]="true"
+      [dismissible]="true"
+      [showCloseIcon]="true"
+      [header]="appCopy().homepageSectionsAriaLabel"
+      [ariaCloseLabel]="appCopy().mobileMenuDrawerCloseLabel"
+      (onHide)="closeMobileMenu()"
+    >
+      <div class="mobile-menu-drawer-content">
+        <nav
+          class="mobile-menu-nav"
+          [attr.aria-labelledby]="'mobile-menu-drawer-title'"
+        >
+          <a routerLink="/" (click)="closeMobileMenu()">{{ appCopy().homeLabel }}</a>
+          <a routerLink="/" fragment="top-tasks" (click)="closeMobileMenu()">{{
+            appCopy().menuQuickTasksLabel
+          }}</a>
+          <a routerLink="/meetings" (click)="closeMobileMenu()">{{
+            appCopy().menuGovernmentLabel
+          }}</a>
+          <a routerLink="/services" (click)="closeMobileMenu()">{{
+            appCopy().menuServicesPermitsLabel
+          }}</a>
+          <a routerLink="/notices" (click)="closeMobileMenu()">{{
+            appCopy().menuNewsNoticesLabel
+          }}</a>
+          <a routerLink="/businesses" (click)="closeMobileMenu()">{{
+            appCopy().menuBusinessCommunityLabel
+          }}</a>
+          <a routerLink="/contact" (click)="closeMobileMenu()">{{
+            appCopy().menuContactHallLabel
+          }}</a>
+        </nav>
+      </div>
+    </p-drawer>
+  }
 
   @if (!isFeaturePageMode() && !isNotFoundMode()) {
     <section
@@ -679,39 +690,54 @@
             </header>
           </ng-template>
 
-          <div class="stack-list grid gap-3">
-            @for (meeting of meetings(); track meeting.title) {
-              <article class="info-row meeting-card">
-                <div class="meeting-card-headline">
-                  <strong>{{ meeting.title }}</strong>
-                  <span class="meeting-schedule">{{ meeting.schedule }}</span>
+          @if (cmsContentLoading()) {
+            <div
+              class="civic-panel-body-skeleton stack-list grid gap-3"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              @for (_ of [0, 1, 2]; track $index) {
+                <div class="info-row meeting-card" aria-hidden="true">
+                  <p-skeleton width="72%" height="1.1rem" styleClass="mb-2" />
+                  <p-skeleton width="44%" height="0.85rem" />
                 </div>
-                @if (meeting.location) {
-                  <p class="meeting-location">{{ meeting.location }}</p>
-                }
-                <small>{{ meeting.format }}</small>
-                @if (meeting.agendaNote) {
-                  <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
-                }
-                @if (meeting.cta && meeting.href) {
-                  @if (resolveAppLink(meeting.href); as homepageMeetingLink) {
-                    @if (homepageMeetingLink.isInternal) {
-                      <a
-                        class="text-link"
-                        [routerLink]="homepageMeetingLink.path"
-                        [fragment]="homepageMeetingLink.fragment"
-                        >{{ meeting.cta }}</a
-                      >
-                    } @else {
-                      <a class="text-link" [attr.href]="homepageMeetingLink.href">{{
-                        meeting.cta
-                      }}</a>
+              }
+            </div>
+          } @else {
+            <div class="stack-list grid gap-3">
+              @for (meeting of meetings(); track meeting.title) {
+                <article class="info-row meeting-card">
+                  <div class="meeting-card-headline">
+                    <strong>{{ meeting.title }}</strong>
+                    <span class="meeting-schedule">{{ meeting.schedule }}</span>
+                  </div>
+                  @if (meeting.location) {
+                    <p class="meeting-location">{{ meeting.location }}</p>
+                  }
+                  <small>{{ meeting.format }}</small>
+                  @if (meeting.agendaNote) {
+                    <p class="meeting-agenda-note">{{ meeting.agendaNote }}</p>
+                  }
+                  @if (meeting.cta && meeting.href) {
+                    @if (resolveAppLink(meeting.href); as homepageMeetingLink) {
+                      @if (homepageMeetingLink.isInternal) {
+                        <a
+                          class="text-link"
+                          [routerLink]="homepageMeetingLink.path"
+                          [fragment]="homepageMeetingLink.fragment"
+                          >{{ meeting.cta }}</a
+                        >
+                      } @else {
+                        <a class="text-link" [attr.href]="homepageMeetingLink.href">{{
+                          meeting.cta
+                        }}</a>
+                      }
                     }
                   }
-                }
-              </article>
-            }
-          </div>
+                </article>
+              }
+            </div>
+          }
         </p-card>
 
         <p-card class="panel civic-panel" id="alerts" aria-labelledby="homepage-notices-heading">
@@ -729,18 +755,34 @@
             </header>
           </ng-template>
 
-          <p-timeline class="landing-notice-timeline" [value]="homepageNotices()" align="left">
-            <ng-template #opposite let-notice>
-              <span class="notice-timeline-date meta-label">{{ notice.date }}</span>
-            </ng-template>
+          @if (cmsContentLoading()) {
+            <div
+              class="landing-notice-skeleton grid gap-4"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              @for (_ of [0, 1, 2]; track $index) {
+                <div class="notice-card-skeleton grid gap-2" aria-hidden="true">
+                  <p-skeleton width="6.5rem" height="0.75rem" />
+                  <p-skeleton width="88%" height="1rem" />
+                  <p-skeleton width="100%" height="0.9rem" />
+                </div>
+              }
+            </div>
+          } @else {
+            <p-timeline class="landing-notice-timeline" [value]="homepageNotices()" align="left">
+              <ng-template #opposite let-notice>
+                <span class="notice-timeline-date meta-label">{{ notice.date }}</span>
+              </ng-template>
 
-            <ng-template #content let-notice>
-              <article class="notice-card notice-card--timeline">
-                <p class="notice-card-title">{{ notice.title }}</p>
-                <p class="notice-card-detail">{{ notice.detail }}</p>
-              </article>
-            </ng-template>
-          </p-timeline>
+              <ng-template #content let-notice>
+                <article class="notice-card notice-card--timeline">
+                  <p class="notice-card-title">{{ notice.title }}</p>
+                  <p class="notice-card-detail">{{ notice.detail }}</p>
+                </article>
+              </ng-template>
+            </p-timeline>
+          }
         </p-card>
       </section>
 
@@ -803,7 +845,11 @@
             class="support-link-grid grid gap-4 md:grid-cols-2"
             [attr.aria-label]="appCopy().topTasksHeading"
           >
-            @if (primaryContact(); as primaryContact) {
+            @if (cmsContentLoading()) {
+              <div class="support-link-skeleton" aria-live="polite" aria-busy="true">
+                <p-skeleton height="5.5rem" width="100%" borderRadius="18px" />
+              </div>
+            } @else if (primaryContact(); as primaryContact) {
               @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
                 @if (supportContactLink.isInternal) {
                   <a
@@ -840,7 +886,7 @@
     }
 
     <footer class="site-footer">
-      <div class="footer-links flex flex-wrap gap-6 items-center justify-center">
+      <div class="footer-links">
         @for (link of appCopy().footerLinks; track link.label) {
           @if (resolveAppLink(link.href); as footerLink) {
             @if (footerLink.isInternal) {
@@ -869,18 +915,20 @@
       <span class="floating-chat-label" aria-hidden="true">Ask Wiley</span>
     </button>
 
-    <p-dialog
-      [visible]="aiChatVisible()"
-      (visibleChange)="aiChatVisible.set($event)"
-      [modal]="true"
-      [blockScroll]="true"
-      [closable]="true"
-      header="Ask Wiley — Town Assistant"
-      [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"
-      styleClass="ai-chat-dialog"
-      appendTo="body"
-    >
-      <app-ai-chat />
-    </p-dialog>
+    @if (aiChatVisible()) {
+      <p-dialog
+        [visible]="aiChatVisible()"
+        (visibleChange)="aiChatVisible.set($event)"
+        [modal]="true"
+        [blockScroll]="true"
+        [closable]="true"
+        header="Ask Wiley — Town Assistant"
+        [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"
+        styleClass="ai-chat-dialog"
+        appendTo="body"
+      >
+        <app-ai-chat />
+      </p-dialog>
+    }
   }
 }

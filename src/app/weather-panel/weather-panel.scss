@@ -710,7 +710,8 @@
 
 .weather-accordion-header {
   width: 100%;
-  min-height: 2.25rem;
+  min-height: var(--touch-target-min);
+  box-sizing: border-box;
 }
 
 /* ── Radar section ───────────────────────────────────── */

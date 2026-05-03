@@ -3,12 +3,16 @@
     <ng-template pTemplate="header">
       <div class="feature-page-panel-header">
         @if (cmsLoading()) {
-          <p-progressSpinner styleClass="feature-page-loading-spinner" aria-hidden="true" />
+          <div class="grid gap-2" aria-live="polite" aria-busy="true">
+            <p-skeleton width="9rem" height="0.75rem" />
+            <p-skeleton width="90%" height="1.85rem" borderRadius="8px" />
+          </div>
+        } @else {
+          <div>
+            <p class="section-kicker">{{ copy().contactKicker }}</p>
+            <h1>{{ copy().contactHeading }}</h1>
+          </div>
         }
-        <div>
-          <p class="section-kicker">{{ copy().contactKicker }}</p>
-          <h1>{{ copy().contactHeading }}</h1>
-        </div>
       </div>
     </ng-template>
 
@@ -19,30 +23,43 @@
       <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
     </div>
 
-    <section class="contact-grid" aria-label="Town contacts">
-      @for (contact of contacts(); track contact.id) {
-        <article class="contact-card">
-          <span class="contact-card-label">{{ contact.label }}</span>
-          @if (contact.href) {
-            @if (contact.linkLabel && contact.linkLabel !== contact.value) {
-              <p class="contact-card-value-line">
-                <strong>{{ contact.value }}</strong>
-                <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
-              </p>
+    @if (cmsLoading()) {
+      <section class="contact-grid" aria-label="Town contacts" aria-live="polite" aria-busy="true">
+        @for (_ of [0, 1, 2, 3]; track $index) {
+          <article class="contact-card" aria-hidden="true">
+            <p-skeleton width="42%" height="0.7rem" styleClass="mb-2" />
+            <p-skeleton width="92%" height="1rem" styleClass="mb-2" />
+            <p-skeleton width="100%" height="0.85rem" styleClass="mb-2" />
+            <p-skeleton width="88%" height="0.8rem" />
+          </article>
+        }
+      </section>
+    } @else {
+      <section class="contact-grid" aria-label="Town contacts">
+        @for (contact of contacts(); track contact.id) {
+          <article class="contact-card">
+            <span class="contact-card-label">{{ contact.label }}</span>
+            @if (contact.href) {
+              @if (contact.linkLabel && contact.linkLabel !== contact.value) {
+                <p class="contact-card-value-line">
+                  <strong>{{ contact.value }}</strong>
+                  <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
+                </p>
+              } @else {
+                <p class="contact-card-value-line">
+                  <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
+                </p>
+              }
             } @else {
               <p class="contact-card-value-line">
-                <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
+                <strong>{{ contact.value }}</strong>
               </p>
             }
-          } @else {
-            <p class="contact-card-value-line">
-              <strong>{{ contact.value }}</strong>
-            </p>
-          }
-          <p class="contact-card-detail">{{ contact.detail }}</p>
-        </article>
-      }
-    </section>
+            <p class="contact-card-detail">{{ contact.detail }}</p>
+          </article>
+        }
+      </section>
+    }
 
     <ul class="leadership-grid" [attr.aria-label]="copy().leadershipAriaLabel">
       @for (group of leadershipGroups(); track group.title) {

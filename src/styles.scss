@@ -75,12 +75,37 @@
   --hero-text: var(--surface-inverse);
   --hero-scrim-dark: rgba(15, 23, 42, 0.78);
   --hero-shadow: rgba(0, 0, 0, 0.32);
+  /* Touch targets: WCAG 2.5.5 (44px min); comfortable 48px for primary actions. */
+  --touch-target-min: 2.75rem;
+  --touch-target-comfortable: 3rem;
+  /* In-page anchors / skip link: clear sticky header + mobile bar or mega menu bar. */
+  --sticky-stack-offset: clamp(3.5rem, 10vh + 2rem, 6.5rem);
   line-height: var(--line-height-body);
+}
+
+@media (min-width: 641px) {
+  :root {
+    --sticky-stack-offset: clamp(5.75rem, 12vh + 3rem, 12rem);
+  }
 }
 
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+}
+
+/* Fragment / skip-link targets: clear sticky header + mega menu (toast inset uses the same token). */
+main[id],
+section[id],
+article[id],
+h1[id],
+h2[id],
+h3[id],
+h4[id],
+h5[id],
+h6[id],
+p-card[id] {
+  scroll-margin-top: var(--sticky-stack-offset);
 }
 
 body {
@@ -104,6 +129,13 @@ body {
       var(--page-backdrop-mid) 42%,
       var(--page-backdrop-end) 100%
     );
+}
+
+/* PrimeNG Toast sets inline top: 20px — offset so messages clear mega menu / header controls. */
+.p-toast.p-toast-top-right,
+.p-toast.p-toast-top-left,
+.p-toast.p-toast-top-center {
+  top: max(0.75rem, var(--sticky-stack-offset)) !important;
 }
 
 .contact-town-hall-phone,
@@ -297,6 +329,7 @@ li {
     overflow: visible !important;
     background: #fff !important;
     color: #111 !important;
+    scroll-padding-top: 0 !important;
   }
 
   *,
@@ -502,8 +535,9 @@ li {
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  min-height: 2.2rem;
+  min-height: var(--touch-target-min);
   padding: 0.5rem 0.95rem;
+  box-sizing: border-box;
   border-radius: 999px;
   background: var(--surface-overlay);
   box-shadow:
@@ -645,7 +679,8 @@ li {
 }
 
 .site-language-button {
-  min-height: 2.1rem;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
   padding: 0.35rem 0.75rem;
   border: 0;
   border-radius: 999px;
@@ -656,6 +691,7 @@ li {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  box-sizing: border-box;
 }
 
 .site-language-button.is-active {
@@ -759,8 +795,8 @@ li {
   }
 
   .main-nav-link {
-    min-height: 2.1rem;
-    padding: 0.35rem 0.55rem;
+    min-height: var(--touch-target-min);
+    padding: 0.5rem 0.85rem;
     font-size: 0.78rem;
   }
 
@@ -792,6 +828,7 @@ li {
   .main-nav-link {
     width: 100%;
     justify-content: center;
+    min-height: var(--touch-target-comfortable);
   }
 
   .official-badge {
@@ -825,9 +862,25 @@ li {
 
   button,
   .p-button {
-    min-height: 48px;
+    min-height: var(--touch-target-comfortable);
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
+  }
+
+  .p-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    box-sizing: border-box;
+    padding-inline: 0.75rem;
+  }
+
+  .p-inputtext:not(textarea),
+  .p-password-input {
+    min-height: var(--touch-target-min);
+    box-sizing: border-box;
   }
 
   .text-link,
@@ -842,7 +895,7 @@ li {
   a[class*='action'] {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--touch-target-min);
     box-sizing: border-box;
   }
 

@@ -2,23 +2,32 @@
   <p-card class="panel" id="alerts">
     <ng-template pTemplate="header">
       <div class="feature-page-panel-header">
-        @if (cmsLoading()) {
-          <p-progressSpinner styleClass="feature-page-loading-spinner" aria-hidden="true" />
-        }
         <div>
           <p class="section-kicker">{{ copy().noticesKicker }}</p>
           <h1>{{ copy().noticesHeading }}</h1>
         </div>
       </div>
     </ng-template>
-    <section class="notice-grid">
-      @for (notice of notices(); track notice.id) {
-        <article class="notice-card">
-          <p class="meta-label">{{ notice.date }}</p>
-          <p class="notice-card-title">{{ notice.title }}</p>
-          <p class="notice-card-detail">{{ notice.detail }}</p>
-        </article>
-      }
-    </section>
+    @if (cmsLoading()) {
+      <section class="notice-grid notice-grid--skeleton" aria-live="polite" aria-busy="true">
+        @for (_ of [0, 1, 2, 3]; track $index) {
+          <article class="notice-card notice-card--skeleton" aria-hidden="true">
+            <p-skeleton width="5.5rem" height="0.75rem" styleClass="mb-2" />
+            <p-skeleton width="90%" height="1.05rem" styleClass="mb-2" />
+            <p-skeleton width="100%" height="0.95rem" />
+          </article>
+        }
+      </section>
+    } @else {
+      <section class="notice-grid">
+        @for (notice of notices(); track notice.id) {
+          <article class="notice-card">
+            <p class="meta-label">{{ notice.date }}</p>
+            <p class="notice-card-title">{{ notice.title }}</p>
+            <p class="notice-card-detail">{{ notice.detail }}</p>
+          </article>
+        }
+      </section>
+    }
   </p-card>
 </section>

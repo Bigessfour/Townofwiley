@@ -10,9 +10,14 @@
   justify-content: space-between;
 }
 
-:host ::ng-deep .meetings-loading-spinner {
-  width: 2rem;
-  height: 2rem;
+.meetings-table-skeleton,
+.calendar-panel-skeleton {
+  padding: 0.25rem 0 0.5rem;
+}
+
+.calendar-panel-skeleton {
+  display: flex;
+  flex-direction: column;
 }
 
 :host ::ng-deep .meetings-table {
@@ -60,7 +65,9 @@
 }
 
 :host ::ng-deep .calendar-inline-action {
-  min-height: 44px;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  box-sizing: border-box;
 }
 
 .meeting-agenda-note {

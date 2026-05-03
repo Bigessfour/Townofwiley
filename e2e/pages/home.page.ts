@@ -108,7 +108,7 @@ export class HomePage {
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
     this.sectionNavLinks = page.locator(
-      '[data-testid="homepage-section-nav"] a.mega-menu-root-link',
+      '[data-testid="homepage-section-nav"] .mega-menu-root-link',
     );
     this.searchInput = page.locator('#mega-site-search');
     this.searchResults = page.locator('.search-result');

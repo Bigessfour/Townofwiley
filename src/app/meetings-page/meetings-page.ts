@@ -5,7 +5,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SkeletonModule } from 'primeng/skeleton';
 import { Ripple } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { APP_COPY } from '../app';
@@ -26,7 +26,7 @@ import {
     ButtonModule,
     CardModule,
     FullCalendarModule,
-    ProgressSpinnerModule,
+    SkeletonModule,
     Ripple,
     RouterLink,
     TableModule,

@@ -3,23 +3,45 @@
   "index": "/index.html",
   "assetGroups": [
     {
-      "name": "app-core",
+      "name": "app",
       "installMode": "prefetch",
-      "updateMode": "prefetch",
       "resources": {
-        "files": ["/favicon.svg", "/index.html", "/*.css", "/*.js"]
+        "files": [
+          "/favicon.ico",
+          "/favicon.svg",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
       }
     },
     {
-      "name": "static-assets",
+      "name": "assets",
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": ["/**/*.(svg|cur|jpg|jpeg|png|webp|avif|woff2|ico|json|webmanifest|txt|js|css)"]
+        "files": [
+          "/assets/**",
+          "/*.(svg|png|jpg|jpeg|gif|webp)"
+        ]
       }
     }
   ],
   "dataGroups": [
+    {
+      "name": "google-tag-manager",
+      "urls": [
+        "https://www.googletagmanager.com/**",
+        "https://www.google-analytics.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 20,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
     {
       "name": "runtime-config",
       "urls": ["/runtime-config.js"],

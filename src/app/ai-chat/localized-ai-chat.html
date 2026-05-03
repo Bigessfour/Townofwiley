@@ -93,9 +93,22 @@
                     @for (link of message.links; track link.href) {
                       @if (resolveAppLink(link.href); as assistantLink) {
                         @if (assistantLink.isInternal) {
-                          <a [routerLink]="assistantLink.path" [fragment]="assistantLink.fragment" class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline">{{ link.label }}</a>
+                          <a
+                            [routerLink]="assistantLink.path"
+                            [fragment]="assistantLink.fragment"
+                            class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline"
+                            [attr.aria-label]="link.label?.trim() ? null : (link.href + ' (link)')"
+                            >{{ link.label?.trim() ? link.label : link.href }}</a
+                          >
                         } @else {
-                          <a [attr.href]="assistantLink.href" target="_blank" rel="noopener" class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline">{{ link.label }}</a>
+                          <a
+                            [attr.href]="assistantLink.href"
+                            target="_blank"
+                            rel="noopener"
+                            class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline"
+                            [attr.aria-label]="link.label?.trim() ? null : (link.href + ' (opens in new tab)')"
+                            >{{ link.label?.trim() ? link.label : link.href }}</a
+                          >
                         }
                       }
                     }

@@ -16,7 +16,7 @@ Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
 ## Runtime Baseline
 
-- **Node.js `24.x` only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **Do not use Node 22, 25, or other majors** — several tools and native deps in this repo are pinned to the 24 line.
+- **Node.js `24.x` only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.0.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). **Do not use Node 22, 25, or other majors** — odd majors and Node 25+ have caused toolchain and native dependency issues with this stack.
 - Use `.nvmrc` / `.node-version` (both `24`) with `nvm`, `fnm`, or Homebrew `node@24` so your shell `node` matches CI.
 
 Recommended local workflow:

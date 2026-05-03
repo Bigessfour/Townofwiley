@@ -42,6 +42,7 @@ describe('News', () => {
           useValue: {
             notices,
             externalNewsLinks,
+            isLoading: signal(false),
           } as unknown as LocalizedCmsContentStore,
         },
       ],

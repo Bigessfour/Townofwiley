@@ -27,7 +27,7 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     );
   });
 
-  test('exposes menubar container with six root links', async ({ homePage }) => {
+  test('exposes menubar container with six root menu controls', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
     await expect(nav).toBeVisible();

@@ -239,6 +239,8 @@ interface AppCopy {
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
   mobileMenuLabel: string;
+  /** Close control in the mobile navigation drawer header. */
+  mobileMenuDrawerCloseLabel: string;
   meetingsQuickLinkLabel: string;
   siteAlertAriaLabel: string;
   alertHeadline: string;
@@ -513,6 +515,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuDrawerCloseLabel: 'Close menu',
     meetingsQuickLinkLabel: 'Meetings and Calendar',
     siteAlertAriaLabel: 'Town alert banner',
     alertHeadline: 'Severe weather and service alerts for Wiley, 81092',
@@ -911,6 +914,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuDrawerCloseLabel: 'Cerrar menú',
     meetingsQuickLinkLabel: 'Reuniones y calendario',
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
     alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
@@ -1311,6 +1315,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
  * column whose `items` is a **flat** list of leaves at runtime (`createProcessedItems` iterates with
  * `forEach` expecting `MenuItem` nodes). Typings use `MenuItem[][]`; we assert the flat list to match.
  * A bare column `[leaf, leaf]` produces empty `submenu.items` on each row and no panel links.
+ * Deeper `p-megamenu-grid` / `p-megamenu-col-*` nesting is produced by the library from this shape;
+ * removing the wrapper is not supported without switching to a different nav component.
  *
  * @see https://primeng.org/megamenu#router
  */
@@ -1413,12 +1419,17 @@ export class App {
     content: { class: 'task-card-content' },
   };
   protected readonly desktopMegaMenuPt = {
-    item: {
-      'aria-level': null,
-    },
     panel: {
       class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
     },
+    itemIcon: { 'aria-hidden': 'true' },
+    submenuIcon: { 'aria-hidden': 'true' },
+    buttonIcon: { 'aria-hidden': 'true' },
+  };
+  /** Drawer title id must match `mobile-menu-nav` aria-labelledby in app.html. */
+  protected readonly mobileDrawerPt = {
+    title: { id: 'mobile-menu-drawer-title' },
+    root: { 'aria-labelledby': 'mobile-menu-drawer-title' },
   };
   private readonly calendarTableState = signal<CalendarTableState>({
     first: 0,
@@ -2232,7 +2243,10 @@ export class App {
     }
 
     queueMicrotask(() => {
-      this.mainContent()?.nativeElement.focus();
+      const fromViewChild = this.mainContent()?.nativeElement;
+      const fromDom =
+        typeof document !== 'undefined' ? document.getElementById('main-content') : null;
+      (fromViewChild ?? fromDom)?.focus();
     });
   }
   protected readonly searchResults = computed(() => {

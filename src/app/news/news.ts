@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -65,7 +66,7 @@ const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
 
 @Component({
   selector: 'app-news',
-  imports: [CardModule],
+  imports: [CardModule, SkeletonModule],
   templateUrl: './news.html',
   styleUrl: './news.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +79,7 @@ export class News {
     () => NEWS_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
   protected readonly newsItems = this.cms.notices;
+  protected readonly cmsLoading = this.cms.isLoading;
   protected readonly externalLinks = computed<ExternalLink[]>(() => {
     const cmsLinks = this.cms.externalNewsLinks();
     if (cmsLinks.length > 0) {
