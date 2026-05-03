@@ -49,7 +49,7 @@ export const routes: Routes = [
   },
   {
     path: 'payments',
-    redirectTo: 'pay-bill',
+    redirectTo: '/pay-bill',
     pathMatch: 'full',
   },
   {
@@ -77,5 +77,13 @@ export const routes: Routes = [
     path: 'terms',
     loadComponent: () => import('./terms-page/terms-page').then((m) => m.TermsPage),
   },
+  /**
+   * Empty path must exist so `app.routes.server.ts` `{ path: '' }` prerender matches `provideRouter`
+   * (bootstrap component is already `App`; this route is registry parity for SSR, not a second shell).
+   */
   { path: '', component: App, pathMatch: 'full' },
+  {
+    path: '**',
+    loadComponent: () => import('./not-found/not-found').then((m) => m.NotFoundComponent),
+  },
 ];

@@ -152,13 +152,14 @@ export class HomePage {
     this.residentServicesSection = page.locator('.resident-services');
     this.residentServicePicker = page.locator('.resident-service-picker');
     this.residentServiceToggles = page.locator('.resident-picker-wrap');
-    this.residentServicePaymentToggle = page.getByRole('button', {
+    const residentServicesRoot = page.locator('#resident-services');
+    this.residentServicePaymentToggle = residentServicesRoot.getByRole('button', {
       name: /Pay bill, Utilities/i,
     });
-    this.residentServiceIssueToggle = page.getByRole('button', {
+    this.residentServiceIssueToggle = residentServicesRoot.getByRole('button', {
       name: /Report an issue, Public works/i,
     });
-    this.residentServiceRecordsToggle = page.getByRole('button', {
+    this.residentServiceRecordsToggle = residentServicesRoot.getByRole('button', {
       name: /Records & permits, Clerk/i,
     });
     this.residentServicePaymentPanel = page.locator('#payment-help');
@@ -192,10 +193,8 @@ export class HomePage {
     });
     this.residentServiceRecordsName = page.getByLabel('Resident or business name');
     this.residentServiceRecordsContact = page.getByLabel('Best phone or email for reply');
-    this.residentServiceRecordsDeadline = page.getByLabel('Requested deadline or meeting date');
-    this.residentServiceRecordsDetails = page
-      .locator('#records-request')
-      .getByLabel('Details', { exact: true });
+    this.residentServiceRecordsDeadline = page.getByLabel('Deadline or meeting date');
+    this.residentServiceRecordsDetails = page.locator('#records-details');
     this.residentServiceRecordsAction = page.locator('#records-request').getByRole('button', {
       name: /Send request/i,
     });
@@ -499,7 +498,8 @@ export class HomePage {
     await this.residentServicePaymentStreetAddress.fill(details.serviceAddress);
     await this.residentServicePaymentPhone.fill(details.phone);
     await this.residentServicePaymentEmail.fill(details.email);
-    await this.page.locator('#billing-intake').getByLabel('Preferred contact method').click();
+    const billingIntake = this.page.locator('#billing-intake');
+    await billingIntake.locator('.p-select').first().click();
     await this.page.getByRole('option', { name: 'Email', exact: true }).click();
     await this.page
       .locator('#billing-intake')

@@ -23,6 +23,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { readWeatherRuntimeConfig } from './weather-runtime-config';
 
 const WILEY_POINT_URL = 'https://api.weather.gov/points/38.154,-102.72';
 const WILEY_FORECAST_PAGE_URL =
@@ -40,17 +41,6 @@ type AlertSignupFeedbackTone = 'success' | 'error';
 interface SelectOption<TValue extends string> {
   label: string;
   value: TValue;
-}
-
-interface RuntimeAlertSignupConfig {
-  enabled: boolean;
-  apiEndpoint: string;
-}
-
-interface RuntimeWeatherConfig {
-  apiEndpoint: string;
-  allowBrowserFallback: boolean;
-  alertSignup: RuntimeAlertSignupConfig;
 }
 
 interface NwsPointResponse {
@@ -436,7 +426,7 @@ export class LocalizedWeatherPanel {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
   private readonly siteLanguageService = inject(SiteLanguageService);
-  private readonly weatherConfig = this.getWeatherRuntimeConfig();
+  private readonly weatherConfig = readWeatherRuntimeConfig();
   private isDestroyed = false;
   private readonly englishDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -918,47 +908,4 @@ export class LocalizedWeatherPanel {
     ).format(new Date(value));
   }
 
-  private getWeatherRuntimeConfig(): RuntimeWeatherConfig {
-    const runtimeWindow =
-      typeof window === 'undefined'
-        ? undefined
-        : (window as Window & {
-            __TOW_RUNTIME_CONFIG__?: {
-              weather?: {
-                apiEndpoint?: string;
-                allowBrowserFallback?: boolean;
-                alertSignup?: {
-                  enabled?: boolean;
-                  apiEndpoint?: string;
-                };
-              };
-            };
-            __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-              weather?: {
-                apiEndpoint?: string;
-                allowBrowserFallback?: boolean;
-                alertSignup?: {
-                  enabled?: boolean;
-                  apiEndpoint?: string;
-                };
-              };
-            };
-          });
-    const weatherConfig = {
-      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG__?.weather ?? {}),
-      ...(runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
-    };
-
-    return {
-      apiEndpoint: typeof weatherConfig.apiEndpoint === 'string' ? weatherConfig.apiEndpoint : '',
-      allowBrowserFallback: weatherConfig.allowBrowserFallback !== false,
-      alertSignup: {
-        enabled: weatherConfig.alertSignup?.enabled !== false,
-        apiEndpoint:
-          typeof weatherConfig.alertSignup?.apiEndpoint === 'string'
-            ? weatherConfig.alertSignup.apiEndpoint
-            : '',
-      },
-    };
-  }
 }

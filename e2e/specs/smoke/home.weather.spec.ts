@@ -375,4 +375,30 @@ test.describe('homepage weather', () => {
       'https://alerts.example.com/unsubscribe?token=existing-token',
     );
   });
+
+  test('surfaces API error text and re-enables signup after subscription POST fails', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+    await homePage.page.route('**/mock-alert-signup/subscriptions', async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Signup service unavailable' }),
+      });
+    });
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.weatherSignupShell).toBeVisible();
+    await homePage.chooseWeatherSignupChannel('email');
+    await homePage.submitWeatherAlertSignup('failcase@example.com');
+
+    await expect(homePage.weatherSignupStatus).toContainText('Signup service unavailable');
+    await expect(homePage.weatherSignupSubmitButton).toBeEnabled();
+    await expect(homePage.weatherSignupSubmitButton).toContainText(/Sign up for alerts/i);
+  });
 });

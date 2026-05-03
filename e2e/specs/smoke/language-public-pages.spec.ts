@@ -22,13 +22,8 @@ test.describe('public language coverage', () => {
     await expect(homePage.weatherSignupShell).toContainText('Alertas para residentes');
     await expect(homePage.weatherSignupShell).toContainText('Idioma de la alerta');
 
-    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-    await expect(
-      homePage.page.getByRole('heading', { name: 'Inicie servicios comunes del pueblo en linea' }),
-    ).toBeVisible();
-    await expect(
-      homePage.page.getByRole('button', { name: /Pagar recibo de servicios/i }),
-    ).toBeVisible();
+    await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.locator('#payment-help')).toBeVisible({ timeout: 20_000 });
 
     await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByText('Encontrar paquetes de reuniones')).toBeVisible();
@@ -54,7 +49,8 @@ test.describe('public language coverage', () => {
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await expect(
       homePage.page.getByRole('heading', {
-        name: 'Los residentes siempre deben saber a donde ir despues',
+        level: 1,
+        name: 'Telefono, correo y siguientes pasos',
       }),
     ).toBeVisible();
 

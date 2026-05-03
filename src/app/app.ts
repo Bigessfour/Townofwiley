@@ -52,7 +52,7 @@ import {
 } from './calendar-public-links';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
-import { AppRouteLink, getAppRouteLink } from './internal-route-link';
+import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import { LoggingService } from './logging.service';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import { RECORDS_CENTER_COPY } from './records-center/records-center';
@@ -341,6 +341,10 @@ interface AppCopy {
   contactKicker: string;
   contactHeading: string;
   backHomeLabel: string;
+  /** Document title segment when no route matches (404). */
+  notFoundBrowserTitle: string;
+  /** Meta description on 404 shell. */
+  notFoundMetaDescription: string;
   privacySummary: string;
   termsSummary: string;
   /** Short blurb for /pay-bill in feature index and search metadata. */
@@ -619,6 +623,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactKicker: 'Contact',
     contactHeading: 'Phone, email, and next steps',
     backHomeLabel: 'Return to homepage',
+    notFoundBrowserTitle: 'Page not found',
+    notFoundMetaDescription:
+      'That page is not on this site. Use the homepage or resident services to find what you need.',
     privacySummary:
       'How the Town of Wiley uses contact information from the weather alert signup form.',
     termsSummary:
@@ -1017,7 +1024,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Lea nuestra declaracion de accesibilidad, solicite formatos alternativos e informe barreras al personal.',
     contactKicker: 'Contacto',
     contactHeading: 'Telefono, correo y siguientes pasos',
-    backHomeLabel: 'Volver a la pagina principal',
+    backHomeLabel: 'Volver a la página principal',
+    notFoundBrowserTitle: 'Página no encontrada',
+    notFoundMetaDescription:
+      'Esa página no está en este sitio. Use la página principal o los servicios para residentes.',
     privacySummary:
       'Como usa el Pueblo de Wiley la informacion de contacto del formulario de alertas del clima.',
     termsSummary:
@@ -1400,7 +1410,6 @@ export class App {
     footer: { class: 'support-card-footer' },
   };
   protected readonly taskCardPt = {
-    title: { class: 'task-card-title' },
     content: { class: 'task-card-content' },
   };
   protected readonly desktopMegaMenuPt = {
@@ -1494,6 +1503,20 @@ export class App {
       this.isPaymentsMode() ||
       this.isPermitsMode(),
   );
+  /** Unknown in-app URL: show wildcard route in main outlet (not admin/document clerk shell). */
+  protected readonly isNotFoundMode = computed(() => {
+    if (this.isTopLevelLazyRouteMode()) {
+      return false;
+    }
+
+    const path = this.currentPath();
+
+    if (path === '/' || path === '') {
+      return false;
+    }
+
+    return !isPathRegisteredAppRoute(path);
+  });
   protected readonly shouldPrimeWeatherAlerts = computed(
     () =>
       !this.isAdminMode() &&
@@ -1509,6 +1532,11 @@ export class App {
   protected readonly pageTitle = computed(() => this.heroContent().title);
   protected readonly browserTitle = computed(() => {
     const siteTitle = this.pageTitle()?.trim() || App.DEFAULT_SITE_TITLE;
+
+    if (this.isNotFoundMode()) {
+      return `${this.appCopy().notFoundBrowserTitle} | ${siteTitle}`;
+    }
+
     const featureTitle = this.currentFeaturePage()?.title?.trim();
 
     if (!featureTitle || featureTitle === siteTitle) {
@@ -1518,6 +1546,10 @@ export class App {
     return `${featureTitle} | ${siteTitle}`;
   });
   protected readonly browserDescription = computed(() => {
+    if (this.isNotFoundMode()) {
+      return this.truncateMetaDescription(this.appCopy().notFoundMetaDescription);
+    }
+
     const featurePage = this.currentFeaturePage();
 
     if (!featurePage) {

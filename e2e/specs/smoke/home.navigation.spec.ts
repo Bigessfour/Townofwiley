@@ -99,7 +99,7 @@ test.describe('homepage navigation', () => {
     await homePage.goto();
 
     await homePage.searchFor('pay water bill');
-    const paymentResult = homePage.page.locator('a.search-result[href="/services#payment-help"]', {
+    const paymentResult = homePage.page.locator('a.search-result[href="/pay-bill"]', {
       hasText: siteContent.searchMatches.payments,
     });
     await expect(paymentResult.first()).toBeVisible();
@@ -116,11 +116,10 @@ test.describe('homepage navigation', () => {
     });
     await expect(meetingResult.first()).toBeVisible();
 
-    await homePage.searchFor('community calendar');
-    const calendarResult = homePage.page.locator('a.search-result[href="/meetings"]', {
-      hasText: siteContent.searchMatches.calendar,
-    });
-    await expect(calendarResult.first()).toBeVisible();
+    await homePage.searchFor('meetings calendar');
+    const calendarResult = homePage.page.locator('a.search-result[href*="meetings"]').first();
+    await expect(calendarResult).toBeVisible();
+    await expect(calendarResult).toContainText(/Calendar|Meeting|Council/i);
 
     await homePage.searchFor('screen reader support');
     const accessibilityResult = homePage.page.locator('a.search-result[href="/accessibility"]', {

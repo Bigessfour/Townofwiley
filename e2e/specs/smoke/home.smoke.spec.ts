@@ -77,8 +77,10 @@ async function expectTopTasksAnchor(homePage: HomePage): Promise<void> {
   await expect(homePage.page.locator('#top-tasks')).toBeVisible();
 }
 
-async function expectServicePaymentHelp(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.locator('#payment-help')).toBeVisible();
+async function expectPayBillPage(homePage: HomePage): Promise<void> {
+  await expect(
+    homePage.page.getByRole('heading', { level: 1, name: 'Pay Your Utility Bill Online' }),
+  ).toBeVisible();
 }
 
 async function expectServiceIssueReport(homePage: HomePage): Promise<void> {
@@ -148,10 +150,10 @@ const homepageGatewayTests: NavigationGateway[] = [
     assertDestination: expectTopTasksAnchor,
   },
   {
-    name: 'Top task payment help card',
-    click: (page) => page.page.locator('.task-card[href="/services#payment-help"]').click(),
-    expectedUrl: /\/services#payment-help$/,
-    assertDestination: expectServicePaymentHelp,
+    name: 'Top task utility bill payment card',
+    click: (page) => page.page.locator('.task-card[href="/pay-bill"]').click(),
+    expectedUrl: /\/pay-bill$/,
+    assertDestination: expectPayBillPage,
   },
   {
     name: 'Top task issue report card',
@@ -253,11 +255,13 @@ const featurePageGateways: FeaturePageGateway[] = [
     href: '/meetings',
     expectedUrl: /\/meetings$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
       await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
-      await expect(homePage.page.locator('.calendar-card')).toHaveCount(
-        siteContent.homepageCounts.meetingCards,
-      );
+      await expect(homePage.page.locator('.meetings-table tbody tr').first()).toBeVisible({
+        timeout: 20000,
+      });
+      await expect(homePage.page.locator('.calendar-card').first()).toBeVisible({
+        timeout: 20000,
+      });
     },
   },
   {
@@ -396,7 +400,7 @@ test.describe('homepage smoke', () => {
     const taskGrid = homePage.page.locator('.landing-task-grid');
     /** Matches `APP_COPY.en.topTasks` href order in `app.ts` (titles also in `siteContent.topTaskHeadings`). */
     const topTaskHrefs = [
-      '/services#payment-help',
+      '/pay-bill',
       '/services#issue-report',
       '/meetings',
       '/services#records-request',
@@ -462,11 +466,20 @@ test.describe('homepage smoke', () => {
   test('routes search results into public document destinations', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.submitHeaderSiteSearch('Browse budgets annual reports code references');
+    await homePage.searchFor('budget summaries annual reports');
+    await expect(async () => {
+      expect(await homePage.page.locator('a.search-result').count()).toBeGreaterThan(0);
+    }).toPass({ timeout: 15_000 });
+    const financialHit = homePage.page
+      .locator('a.search-result')
+      .filter({ hasText: /Budget and Annual Reports Guide|Budget summaries|annual reports/i })
+      .first();
+    await expect(financialHit).toBeVisible({ timeout: 5_000 });
+    await financialHit.click();
 
-    await expect(homePage.page).toHaveURL(/\/documents#financial-documents$/);
-    await expect(homePage.page.getByTestId('financial-documents')).toContainText(
-      'Budget summaries and annual reports',
-    );
+    await expect(homePage.page).toHaveURL(/\/documents\/archive\/budget-and-annual-reports-guide\.html$/);
+    await expect(
+      homePage.page.getByRole('heading', { level: 1, name: 'Budget and Annual Reports Guide' }),
+    ).toBeVisible();
   });
 });

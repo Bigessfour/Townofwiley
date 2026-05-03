@@ -1,5 +1,20 @@
 import type { Page } from '@playwright/test';
 
+/**
+ * Playwright stubs for api.weather.gov used by the SPA browser-direct path
+ * (`LocalizedWeatherPanel.loadWeatherFromBrowser`, `HomepageWeatherAlertPrimer` when
+ * `weather.apiEndpoint` is unset). When the proxy URL is set at runtime, the primer
+ * loads alerts from the same proxy response as the weather panel.
+ *
+ * Aligns with the NWS API flow documented at
+ * https://www.weather.gov/documentation/services-web-api — in order:
+ * 1) GET `/points/{lat},{lon}` → read `properties.forecast` and `properties.forecastZone`
+ * 2) GET forecast URL from the point response (grid forecast)
+ * 3) GET `/alerts/active?zone={zoneId}` where zoneId is the last segment of `forecastZone`
+ *
+ * Production traffic should prefer the AWS NWS proxy (`NWS_USER_AGENT` on upstream
+ * fetches per NWS “Authentication”); these mocks only shape JSON for deterministic E2E.
+ */
 interface MockForecastPeriod {
   name: string;
   startTime: string;

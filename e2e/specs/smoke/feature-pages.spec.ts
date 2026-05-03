@@ -33,7 +33,49 @@ test.describe('feature page coverage', () => {
 
     await expect(meetingsPanel).toContainText('Council meetings & schedules');
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
-    await expect(homePage.meetingCards).toHaveCount(siteContent.homepageCounts.meetingCards);
+    const meetingRows = homePage.page.locator('.meetings-table tbody tr');
+    await expect(meetingRows).toHaveCount(siteContent.homepageCounts.meetingCards, {
+      timeout: 20000,
+    });
+  });
+
+  test('meetings table agenda affordance routes to document hub meeting section', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page.locator('.meetings-table tbody tr').first()).toBeVisible({
+      timeout: 20000,
+    });
+
+    const meetingsTable = homePage.page.locator('.meetings-table');
+    const agendaControl = meetingsTable.locator('p-button').filter({ hasText: /View agenda PDFs/i }).first();
+
+    await expect(agendaControl).toBeVisible({ timeout: 20000 });
+    await agendaControl.click();
+
+    await expect(homePage.page).toHaveURL(/\/documents/);
+    await expect(homePage.page).toHaveURL(/meeting-documents/);
+  });
+
+  test('calendar list exposes Google Calendar and ICS actions with stable targets', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
+
+    const calendarRegion = homePage.page.locator('#calendar');
+
+    const googleAction = calendarRegion
+      .getByRole('link', { name: /Add to Google Calendar/i })
+      .first();
+
+    await expect(googleAction).toBeVisible({ timeout: 20000 });
+    await expect(googleAction).toHaveAttribute('href', /calendar\.google\.com/);
+    await expect(googleAction).toHaveAttribute('target', '_blank');
+
+    const icsAction = calendarRegion.getByRole('link', { name: /Download ICS/i }).first();
+    await expect(icsAction).toBeVisible();
+    await expect(icsAction).toHaveAttribute('href', /^data:text\/calendar/);
   });
 
   test('documents page keeps the document hub and archive link visible', async ({ homePage }) => {

@@ -55,6 +55,11 @@ test-results/
 blob-report/
 /secrets/local/*
 !/secrets/local/.gitignore
+
+# Never commit AWS CLI key material; use ~/.aws/ (see scripts/configure-aws-cli-profile.sh).
+/.aws/
+aws-credentials.local
+*.aws-credentials.local
 scripts/__pycache__/
 *.pyc
 .vitest-attachments/

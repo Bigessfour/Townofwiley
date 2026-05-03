@@ -64,7 +64,7 @@
   <header
     #headerElement
     class="site-header"
-    [class.is-feature-page]="isFeaturePageMode()"
+    [class.is-feature-page]="isFeaturePageMode() || isNotFoundMode()"
     [class.scrolled]="headerScrolled()"
     role="banner"
   >
@@ -101,36 +101,91 @@
     </ng-template>
     <ng-template #item let-item>
       @if (item.root) {
-        <a
-          pRipple
-          class="mega-menu-root-link"
-          [routerLink]="item.routerLink"
-          [fragment]="item.fragment"
-          [attr.href]="item.url"
-          (click)="item.command ? item.command($event) : null"
-        >
-          @if (item.icon) {
-            <i [class]="item.icon" aria-hidden="true"></i>
-          }
-          <span>{{ item.label }}</span>
-          @if (item.items) {
-            <i class="pi pi-angle-down" aria-hidden="true"></i>
-          }
-        </a>
+        @if (item.routerLink) {
+          <a
+            pRipple
+            class="mega-menu-root-link"
+            [routerLink]="item.routerLink"
+            [fragment]="item.fragment"
+            (click)="item.command ? item.command($event) : null"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+            @if (item.items) {
+              <i class="pi pi-angle-down" aria-hidden="true"></i>
+            }
+          </a>
+        } @else if (item.url) {
+          <a
+            pRipple
+            class="mega-menu-root-link"
+            [attr.href]="item.url"
+            [attr.target]="item.target ?? null"
+            [attr.rel]="item.target === '_blank' ? 'noopener noreferrer' : null"
+            (click)="item.command ? item.command($event) : null"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+            @if (item.items) {
+              <i class="pi pi-angle-down" aria-hidden="true"></i>
+            }
+          </a>
+        } @else {
+          <a
+            pRipple
+            class="mega-menu-root-link"
+            href="#"
+            (click)="$event.preventDefault(); item.command ? item.command($event) : null"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+            @if (item.items) {
+              <i class="pi pi-angle-down" aria-hidden="true"></i>
+            }
+          </a>
+        }
       } @else {
-        <a
-          pRipple
-          class="mega-menu-sub-link"
-          [routerLink]="item.routerLink"
-          [fragment]="item.fragment"
-          [attr.href]="item.url"
-          (click)="activateMegaMenuItem(item, $event)"
-        >
-          @if (item.icon) {
-            <i [class]="item.icon" aria-hidden="true"></i>
-          }
-          <span>{{ item.label }}</span>
-        </a>
+        @if (item.routerLink) {
+          <a
+            pRipple
+            class="mega-menu-sub-link"
+            [routerLink]="item.routerLink"
+            [fragment]="item.fragment"
+            (click)="activateMegaMenuItem(item, $event)"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+          </a>
+        } @else if (item.url) {
+          <a
+            pRipple
+            class="mega-menu-sub-link"
+            [attr.href]="item.url"
+            [attr.target]="item.target ?? null"
+            [attr.rel]="item.target === '_blank' ? 'noopener noreferrer' : null"
+            (click)="activateMegaMenuItem(item, $event)"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+          </a>
+        } @else {
+          <span class="mega-menu-sub-link mega-menu-sub-link--inert">
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span>{{ item.label }}</span>
+          </span>
+        }
       }
     </ng-template>
     <ng-template pTemplate="end">
@@ -216,7 +271,7 @@
     </div>
   </p-drawer>
 
-  @if (!isFeaturePageMode()) {
+  @if (!isFeaturePageMode() && !isNotFoundMode()) {
     <section
       class="hero-landing hero"
       aria-labelledby="site-hero-title"
@@ -274,12 +329,19 @@
 
   <main
     class="page-shell"
-    [class.is-feature-page]="isFeaturePageMode()"
+    [class.is-feature-page]="isFeaturePageMode() || isNotFoundMode()"
     id="main-content"
     #mainContent
     tabindex="-1"
   >
-    @if (isFeaturePageMode()) {
+    @if (isNotFoundMode()) {
+      <section class="feature-page-shell">
+        <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
+        <section class="feature-detail-stack">
+          <router-outlet />
+        </section>
+      </section>
+    } @else if (isFeaturePageMode()) {
       @if (currentFeaturePage(); as featurePage) {
         <section class="feature-page-shell">
           <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
@@ -432,103 +494,103 @@
               @if (taskLink.isInternal) {
                 <a class="task-card" [routerLink]="taskLink.path" [fragment]="taskLink.fragment">
                   <p-card styleClass="task-card-surface" [pt]="taskCardPt">
-                    <div class="task-card-inner">
-                      <span class="task-card-icon" aria-hidden="true">
-                        @switch (taskIndex) {
-                          @case (0) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M4 7.5h16" />
-                              <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                              <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
-                              <path d="M9 12h6" />
-                            </svg>
+                    <ng-template pTemplate="content">
+                      <div class="task-card-inner">
+                        <span class="task-card-icon" aria-hidden="true">
+                          @switch (taskIndex) {
+                            @case (0) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M4 7.5h16" />
+                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
+                                <path d="M9 12h6" />
+                              </svg>
+                            }
+                            @case (1) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M12 20v-7" />
+                                <path d="M8 17l4 3 4-3" />
+                                <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
+                              </svg>
+                            }
+                            @case (2) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <rect x="4" y="5" width="16" height="15" rx="2" />
+                                <path d="M8 3v4" />
+                                <path d="M16 3v4" />
+                                <path d="M4 10h16" />
+                                <path d="M8 14h3" />
+                              </svg>
+                            }
+                            @default {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M7 4h8l4 4v12H7z" />
+                                <path d="M15 4v4h4" />
+                                <path d="M10 13h6" />
+                                <path d="M10 17h4" />
+                              </svg>
+                            }
                           }
-                          @case (1) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M12 20v-7" />
-                              <path d="M8 17l4 3 4-3" />
-                              <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
-                            </svg>
-                          }
-                          @case (2) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <rect x="4" y="5" width="16" height="15" rx="2" />
-                              <path d="M8 3v4" />
-                              <path d="M16 3v4" />
-                              <path d="M4 10h16" />
-                              <path d="M8 14h3" />
-                            </svg>
-                          }
-                          @default {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M7 4h8l4 4v12H7z" />
-                              <path d="M15 4v4h4" />
-                              <path d="M10 13h6" />
-                              <path d="M10 17h4" />
-                            </svg>
-                          }
-                        }
-                      </span>
+                        </span>
 
-                      <ng-template pTemplate="title">
                         <div class="task-card-copy">
                           <strong>{{ task.title }}</strong>
                           <span>{{ task.description }}</span>
                           <small>{{ task.note }}</small>
                         </div>
-                      </ng-template>
-                    </div>
+                      </div>
+                    </ng-template>
                   </p-card>
                 </a>
               } @else {
                 <a class="task-card" [attr.href]="taskLink.href">
                   <p-card styleClass="task-card-surface" [pt]="taskCardPt">
-                    <div class="task-card-inner">
-                      <span class="task-card-icon" aria-hidden="true">
-                        @switch (taskIndex) {
-                          @case (0) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M4 7.5h16" />
-                              <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                              <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
-                              <path d="M9 12h6" />
-                            </svg>
+                    <ng-template pTemplate="content">
+                      <div class="task-card-inner">
+                        <span class="task-card-icon" aria-hidden="true">
+                          @switch (taskIndex) {
+                            @case (0) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M4 7.5h16" />
+                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                <path d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9" />
+                                <path d="M9 12h6" />
+                              </svg>
+                            }
+                            @case (1) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M12 20v-7" />
+                                <path d="M8 17l4 3 4-3" />
+                                <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
+                              </svg>
+                            }
+                            @case (2) {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <rect x="4" y="5" width="16" height="15" rx="2" />
+                                <path d="M8 3v4" />
+                                <path d="M16 3v4" />
+                                <path d="M4 10h16" />
+                                <path d="M8 14h3" />
+                              </svg>
+                            }
+                            @default {
+                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M7 4h8l4 4v12H7z" />
+                                <path d="M15 4v4h4" />
+                                <path d="M10 13h6" />
+                                <path d="M10 17h4" />
+                              </svg>
+                            }
                           }
-                          @case (1) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M12 20v-7" />
-                              <path d="M8 17l4 3 4-3" />
-                              <path d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z" />
-                            </svg>
-                          }
-                          @case (2) {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <rect x="4" y="5" width="16" height="15" rx="2" />
-                              <path d="M8 3v4" />
-                              <path d="M16 3v4" />
-                              <path d="M4 10h16" />
-                              <path d="M8 14h3" />
-                            </svg>
-                          }
-                          @default {
-                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                              <path d="M7 4h8l4 4v12H7z" />
-                              <path d="M15 4v4h4" />
-                              <path d="M10 13h6" />
-                              <path d="M10 17h4" />
-                            </svg>
-                          }
-                        }
-                      </span>
+                        </span>
 
-                      <ng-template pTemplate="title">
                         <div class="task-card-copy">
                           <strong>{{ task.title }}</strong>
                           <span>{{ task.description }}</span>
                           <small>{{ task.note }}</small>
                         </div>
-                      </ng-template>
-                    </div>
+                      </div>
+                    </ng-template>
                   </p-card>
                 </a>
               }

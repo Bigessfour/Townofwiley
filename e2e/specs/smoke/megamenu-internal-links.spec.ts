@@ -24,7 +24,8 @@ const L = siteContent.megaMenuPanelLinksEn;
 async function openMegaMenuPanel(page: Page, rootLabel: string) {
   const nav = page.getByTestId('homepage-section-nav');
   await nav.getByRole('menuitem', { name: rootLabel }).click();
-  const panel = page.locator('.desktop-mega-menu .p-megamenu-overlay').filter({ visible: true });
+  // Scope to the active root item: several overlays can exist in the DOM; `visible: true` alone is not unique.
+  const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
   await expect(panel).toBeVisible({ timeout: 10_000 });
   return panel;
 }

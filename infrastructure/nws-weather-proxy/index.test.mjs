@@ -154,6 +154,11 @@ test('proxies the NWS forecast and alert payloads with the configured headers', 
   assert.equal(body.alerts[0].event, 'High Wind Warning');
   assert.equal(fetchCalls.length, 4);
   assert.equal(fetchCalls[0].options.headers['user-agent'], process.env.NWS_USER_AGENT);
+  assert.equal(
+    fetchCalls[0].options.headers.accept,
+    'application/geo+json',
+    'NWS recommends GeoJSON; see https://www.weather.gov/documentation/services-web-api',
+  );
   assert.equal(fetchCalls[0].options.headers['api-key'], 'test-api-key');
 
   // New fields

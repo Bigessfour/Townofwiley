@@ -34,6 +34,7 @@
             target="_blank"
             icon="pi pi-arrow-up-right"
             [label]="copy().quickPayCta"
+            [attr.aria-label]="copy().quickPayCta"
           ></a>
         </div>
       </p-card>
@@ -57,6 +58,7 @@
             class="p-button-outlined p-button-sm"
             icon="pi pi-send"
             [label]="copy().requestEarlyAccess"
+            [attr.aria-label]="copy().requestEarlyAccess"
             (click)="scrollToRequestForm()"
           ></button>
         </div>
@@ -198,6 +200,7 @@
               icon="pi pi-check"
               [disabled]="submitting()"
               [label]="submitting() ? copy().submittingLabel : copy().submitLabel"
+              [attr.aria-label]="submitting() ? copy().submittingLabel : copy().submitLabel"
             ></button>
           </div>
         </form>

@@ -68,10 +68,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/permits',
     label: 'permits page',
     heading: /Permits & Inquiries/i,
-    primaryAction: (page) =>
-      page.getByRole('link', {
-        name: /Back to Resident Services|Volver a Servicios para residentes/i,
-      }),
+    primaryAction: (page) => page.locator('.permits-page a.back-link'),
   },
   {
     path: '/news',

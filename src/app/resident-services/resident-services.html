@@ -241,6 +241,7 @@
                 target="_blank"
                 icon="pi pi-arrow-up-right"
                 [label]="copy().payNowCta"
+                [attr.aria-label]="copy().payNowCta"
               ></a>
             </div>
           </p-card>
@@ -264,6 +265,7 @@
                 class="p-button-outlined p-button-sm"
                 icon="pi pi-send"
                 [label]="copy().requestEarlyAccessCta"
+                [attr.aria-label]="copy().requestEarlyAccessCta"
                 (click)="scrollToBillingIntake()"
               ></button>
             </div>
@@ -426,6 +428,9 @@
                   [label]="
                     portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
                   "
+                  [attr.aria-label]="
+                    portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
+                  "
                 ></button>
               </div>
             </form>
@@ -574,6 +579,7 @@
                 type="submit"
                 icon="pi pi-send"
                 [label]="copy().issueSubmitLabel"
+                [attr.aria-label]="copy().issueSubmitLabel"
                 [loading]="issueSubmitting()"
               ></button>
             </footer>
@@ -717,6 +723,7 @@
                 type="submit"
                 icon="pi pi-send"
                 [label]="copy().recordsSubmitLabel"
+                [attr.aria-label]="copy().recordsSubmitLabel"
                 [loading]="recordsSubmitting()"
               ></button>
             </footer>
@@ -738,6 +745,7 @@
               class="p-button-sm"
               icon="pi pi-cloud"
               [label]="copy().weatherCta"
+              [attr.aria-label]="copy().weatherCta"
             ></a>
           </div>
         </div>

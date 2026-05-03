@@ -573,7 +573,8 @@ TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)
 
 AWS account and hosting identifiers that future maintainers will need:
 
-- AWS account ID: `570912405222`
+- **Town of Wiley** AWS account ID: **`570912405222`** (production site, Town Lambdas, IAM user `copilot`)
+- **Code Platoon** AWS account ID: **`388691194728`** (separate from Town; wrong profile → `NoSuchEntity` for `copilot` in IAM)
 - AWS region: `us-east-2`
 - Amplify app ID: `d331voxr1fhoir`
 - Amplify app name: `Townofwiley`
@@ -612,6 +613,22 @@ Production recommendation:
 2. Set `NWS_USER_AGENT` on that function.
 3. Set `NWS_PROXY_ENDPOINT` in Amplify so the Angular app uses the AWS proxy instead of direct browser requests.
 4. Leave browser fallback enabled only if you want a safety net during rollout.
+
+Homepage NWS alert banner:
+
+- `HomepageWeatherAlertPrimer` uses the same `weather.apiEndpoint` as the weather panel when it is set (so the banner respects the AWS proxy and NWS `User-Agent` policy). If the proxy fails and `allowBrowserFallback` is true, it falls back to the public `api.weather.gov` chain. In development builds, proxy or NWS failures log a single `console.warn` from `[HomepageWeatherAlertPrimer]` to aid debugging.
+
+Verify the deployed Lambda (requires AWS CLI credentials for account **570912405222**, region **us-east-2**):
+
+```bash
+export AWS_PROFILE=steve
+export NWS_WEATHER_LAMBDA_FUNCTION_NAME='your-nws-proxy-lambda-name'
+./scripts/verify-nws-weather-proxy-aws.sh
+```
+
+Use a **different** `AWS_PROFILE` only when working in **Code Platoon** (**`388691194728`**); Town of Wiley tooling expects account **`570912405222`**.
+
+The script checks caller identity, `NWS_USER_AGENT`, and lists [function URL configs](https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors). If your CLI profile points at another account, the script warns so you can switch profiles before trusting the output.
 
 ## Severe Weather Signup Backend
 

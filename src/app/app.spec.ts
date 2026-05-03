@@ -229,13 +229,10 @@ describe('App', () => {
   });
 
   it('should keep non-core public routes lazy-loaded', () => {
-    const eagerRoutePaths = new Set(['']);
-
-    expect(
-      routes
-        .filter((route) => !eagerRoutePaths.has(route.path ?? ''))
-        .every((route) => route.loadComponent),
-    ).toBe(true);
+    const lazyLeafRoutes = routes.filter(
+      (route) => route.path !== '' && route.redirectTo == null,
+    );
+    expect(lazyLeafRoutes.every((route) => Boolean(route.loadComponent))).toBe(true);
   });
 
   it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {
@@ -385,12 +382,12 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.meeting-card strong')?.textContent).toContain(
-      'Spring Cleanup Day',
+    const meetingTitle = compiled.querySelector(
+      '.meetings-table tbody tr .meetings-cell-title strong',
     );
-    expect(compiled.querySelector('.meeting-card .meeting-location')?.textContent).toContain(
-      'Wiley Community Park',
-    );
+    expect(meetingTitle?.textContent ?? '').toContain('Spring Cleanup Day');
+    const meetingLocation = compiled.querySelector('.meetings-table tbody tr .meeting-location');
+    expect(meetingLocation?.textContent ?? '').toContain('Wiley Community Park');
     expect(compiled.querySelector('#calendar')).not.toBeNull();
   });
 
@@ -412,10 +409,11 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const paystarAction = compiled.querySelector(
-      '#payment-help .payment-direct-action',
+      '#payment-help .resident-pay-card-actions a[href="https://secure.paystar.io/townofwiley"]',
     ) as HTMLAnchorElement | null;
 
-    expect(paystarAction?.textContent).toContain('Open secure Paystar payment portal');
+    expect(paystarAction).not.toBeNull();
+    expect(paystarAction?.textContent ?? '').toContain('Pay now with Paystar');
     expect(paystarAction?.getAttribute('href')).toBe('https://secure.paystar.io/townofwiley');
   });
 
@@ -526,10 +524,18 @@ describe('App', () => {
   it('should elevate active NWS alerts into the homepage banner', async () => {
     window.localStorage.setItem('tow-site-language', 'es');
 
+    // Force the browser NWS chain so this test exercises api.weather.gov parsing
+    // independent of the production proxy path.
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      weather: {
+        apiEndpoint: '',
+        allowBrowserFallback: true,
+      },
+    };
+
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    // The HomepageWeatherAlertPrimer always calls NWS directly (not the proxy).
     httpTesting.expectOne('https://api.weather.gov/points/38.154,-102.72').flush({
       properties: { forecastZone: 'https://api.weather.gov/zones/forecast/COZ098' },
     });
@@ -566,8 +572,71 @@ describe('App', () => {
     );
   });
 
+  it('should elevate active NWS alerts into the homepage banner from the configured proxy', async () => {
+    window.localStorage.setItem('tow-site-language', 'es');
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const proxyPayload = {
+      locationLabel: 'Wiley, CO',
+      updatedAt: '2026-03-22T12:57:10+00:00',
+      periods: [
+        {
+          name: 'Today',
+          startTime: '2026-03-22T09:00:00-06:00',
+          isDaytime: true,
+          temperature: 67,
+          temperatureUnit: 'F',
+          probabilityOfPrecipitation: { value: 1 },
+          windSpeed: '15 to 20 mph',
+          windDirection: 'NE',
+          icon: 'https://api.weather.gov/icons/land/day/bkn?size=medium',
+          shortForecast: 'Partly Sunny',
+          detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+        },
+      ],
+      alerts: [
+        {
+          event: 'Severe Thunderstorm Warning',
+          headline: 'Severe Thunderstorm Warning issued March 22 at 7:15 PM MDT.',
+          severity: 'Severe',
+          urgency: 'Immediate',
+          instruction: 'Move indoors and stay away from windows until the storm passes.',
+          expires: '2026-03-22T20:00:00-06:00',
+        },
+      ],
+    };
+
+    for (const req of httpTesting.match('/api/weather/nws')) {
+      req.flush(proxyPayload);
+    }
+    await Promise.resolve();
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.site-alert--nws .site-alert-headline')?.textContent).toContain(
+      'Servicio Nacional',
+    );
+    expect(compiled.querySelector('.site-alert--nws .site-alert-title')?.textContent).toContain(
+      'Severe Thunderstorm Warning',
+    );
+    expect(compiled.querySelector('.site-alert--nws .site-alert-detail')?.textContent).toContain(
+      'Severe Thunderstorm Warning issued',
+    );
+  });
+
   it('should hide the NWS banner when dismissed and show again when the alert payload changes', async () => {
     window.localStorage.setItem('tow-site-language', 'en');
+
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      weather: {
+        apiEndpoint: '',
+        allowBrowserFallback: true,
+      },
+    };
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -627,6 +696,13 @@ describe('App', () => {
   });
 
   it('should not show emergency alert copy when NWS has no active alerts', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      weather: {
+        apiEndpoint: '',
+        allowBrowserFallback: true,
+      },
+    };
+
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
@@ -804,8 +880,9 @@ describe('App', () => {
   /**
    * Flush pending weather HTTP request(s) after detectChanges().
    *
-   * By default the test suite configures the proxy endpoint so the component
-   * makes a single GET /api/weather/nws request.  This helper detects whether
+   * By default the test suite configures the proxy endpoint so the weather panel
+   * and homepage alert primer each issue GET /api/weather/nws (primer uses the proxy
+   * when configured, matching production).
    * the proxy or the multi-step NWS direct chain is active and handles both.
    *
    * For the "fall back" scenario: the test manually flushes the proxy with a

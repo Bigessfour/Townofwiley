@@ -23,14 +23,18 @@ test.describe('forms and empty states', () => {
 
     await homePage.selectResidentServicePanel('issue');
     await homePage.residentServiceIssueActionButton.click();
-    await expect(homePage.page.getByText('Please review the highlighted fields.')).toBeVisible();
+    await expect(
+      homePage.page.getByText('Please review the highlighted fields.').first(),
+    ).toBeVisible();
     await expect(homePage.residentServiceIssuePanel).toContainText(
       'Location: This field is required.',
     );
 
     await homePage.selectResidentServicePanel('records');
     await homePage.residentServiceRecordsAction.click();
-    await expect(homePage.page.getByText('Please review the highlighted fields.')).toBeVisible();
+    await expect(
+      homePage.page.getByText('Please review the highlighted fields.').first(),
+    ).toBeVisible();
     await expect(homePage.residentServiceRecordsPanel).toContainText(
       'Resident or business name: This field is required.',
     );

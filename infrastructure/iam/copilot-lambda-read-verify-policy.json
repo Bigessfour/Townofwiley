@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListFunctionsForNameDiscovery",
+      "Effect": "Allow",
+      "Action": ["lambda:ListFunctions"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadTownOfWileyLambdaConfigAndFunctionUrl",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetFunction",
+        "lambda:ListFunctionUrlConfigs"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:570912405222:function:TownOfWiley*"
+    }
+  ]
+}

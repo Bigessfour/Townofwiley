@@ -14,7 +14,7 @@ const chrome = siteContent.megaMenuChromeEn;
 async function openMegaMenuPanel(page: Page, rootLabel: string) {
   const nav = page.getByTestId('homepage-section-nav');
   await nav.getByRole('menuitem', { name: rootLabel }).click();
-  const panel = page.locator('.desktop-mega-menu .p-megamenu-overlay').filter({ visible: true });
+  const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
   await expect(panel).toBeVisible({ timeout: 10_000 });
   return panel;
 }
@@ -111,8 +111,10 @@ test.describe('mega menu chrome and roots (desktop)', () => {
 
     await input.fill('pay water bill');
     await input.press('Enter');
-    await expect(homePage.page).toHaveURL(/\/services#payment-help$/);
-    await expect(homePage.page.locator('#payment-help')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/);
+    await expect(
+      homePage.page.getByRole('heading', { level: 1, name: 'Pay Your Utility Bill Online' }),
+    ).toBeVisible();
   });
 
   test('end slot: language toggles update aria-pressed and document lang', async ({ homePage }) => {
@@ -134,13 +136,12 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', /en/i);
   });
 
-  test('end slot: Contact Town Hall button navigates to contact', async ({ homePage }) => {
+  test('Contact & Town Hall mega menu root navigates to contact', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
-    const cta = nav.locator('a.contact-button');
-    await expect(cta).toContainText(chrome.contactCta);
-    await expect(cta).toHaveAttribute('href', /\/contact$/);
-    await cta.click();
+    const contactRoot = nav.getByRole('link', { name: roots[5], exact: true });
+    await expect(contactRoot).toHaveAttribute('href', /\/contact$/);
+    await contactRoot.click();
     await expect(homePage.page).toHaveURL(/\/contact$/);
   });
 

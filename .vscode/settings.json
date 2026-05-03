@@ -182,7 +182,7 @@
   "github.copilot.chat.agentDebugLog.fileLogging.maxRetainedSessionLogs": 12,
   "github.copilot.chat.agentDebugLog.fileLogging.maxSessionLogSizeMB": 25,
   "aws.telemetry": false,
-  "aws.profile": "copilot",
+  "aws.profile": "steve",
   "aws.region": "us-east-2",
   "aws.cloudformation.completion.enabled": true,
   "aws.cloudformation.diagnostics.cfnLint.enabled": true,
