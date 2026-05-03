@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Push custom HTTP headers to AWS Amplify Hosting (app-level), matching amplify.yml / infra/amplify-custom-headers.json.
+# Push custom HTTP headers to AWS Amplify Hosting (app-level), matching customHttp.yml / amplify.yml.
 # This fixes CSP drift when the Amplify Console has a narrower policy than the repo (e.g. font-src missing data:).
 #
 # Prerequisites:
 #   - AWS CLI v2
 #   - Credentials for account 570912405222 (Town of Wiley). Example:
-#       export AWS_PROFILE=townofwiley
+#       export AWS_PROFILE=root-login   # after: aws login --profile root-login
 #   - jq (brew install jq)
+#
+# Payload: root customHttp.yml (YAML). Amplify UpdateApp validates YAML, not JSON.
 #
 # Usage:
 #   ./scripts/sync-amplify-custom-headers.sh
@@ -15,7 +17,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-HEADERS_FILE="${ROOT}/infra/amplify-custom-headers.json"
+# Amplify UpdateApp expects customHeaders as YAML (see custom header YAML reference), not JSON.
+HEADERS_FILE="${ROOT}/customHttp.yml"
 EXPECTED_ACCOUNT="${TOW_AMPLIFY_ACCOUNT_ID:-570912405222}"
 APP_ID="${AMPLIFY_APP_ID:-d331voxr1fhoir}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-2}}"
@@ -47,14 +50,19 @@ if [[ "${SKIP_ACCOUNT_CHECK:-0}" != "1" && "$ACCOUNT" != "$EXPECTED_ACCOUNT" ]];
   exit 1
 fi
 
-# Amplify API expects customHeaders as a single-line JSON string (same shape as list-apps output).
-COMPACT="$(jq -c . <"$HEADERS_FILE")"
+# Pass YAML via --cli-input-json so CSP single-quotes and newlines are not mangled by the shell.
+CLI_INPUT="$(mktemp)"
+trap 'rm -f "$CLI_INPUT"' EXIT
+
+jq -n \
+  --arg id "$APP_ID" \
+  --rawfile raw "$HEADERS_FILE" \
+  '{appId: $id, customHeaders: $raw}' >"$CLI_INPUT"
 
 echo "Updating Amplify app $APP_ID in $REGION (account $ACCOUNT)..."
 aws amplify update-app \
-  --app-id "$APP_ID" \
+  --cli-input-json "file://$CLI_INPUT" \
   --region "$REGION" \
-  --custom-headers "$COMPACT" \
   --output json \
   --query 'app.{appId:appId,name:name,customHeaders:customHeaders}' \
   --output text

@@ -113,8 +113,8 @@ Amplify Hosting can store **custom HTTP headers** on the app that differ from [`
    npm run amplify:sync-headers
    ```
 
-   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`infra/amplify-custom-headers.json`](../infra/amplify-custom-headers.json) (kept in sync with `amplify.yml`) and calls `aws amplify update-app --custom-headers …`.
+   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads the repo-root [`customHttp.yml`](../customHttp.yml) (YAML; keep in sync with `amplify.yml`) and calls `aws amplify update-app --cli-input-json` so CSP values with single quotes are not truncated.
 
 4. Redeploy the `main` branch from the Amplify Console (or push an empty commit) if headers do not appear immediately on CloudFront.
 
-To update the policy later, edit **`amplify.yml`** and **`infra/amplify-custom-headers.json`** together, then run `npm run amplify:sync-headers` again.
+To update the policy later, edit **`amplify.yml`** and **`customHttp.yml`** together, then run `npm run amplify:sync-headers` again (or push so Amplify applies `customHttp.yml` from the repo).
