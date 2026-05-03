@@ -20,6 +20,7 @@
     "audit:done:local": "npm run lint && npm run test:vitest && npm run test:coverage && npm run build && npm run test:e2e:smoke",
     "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs infrastructure/paystar-proxy/index.test.mjs",
     "verify:nws-proxy-aws": "bash scripts/verify-nws-weather-proxy-aws.sh",
+    "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
     "aws:configure-profile": "bash scripts/configure-aws-cli-profile.sh",
     "test:infra:alerts": "python -m pytest infrastructure/severe-weather-signup/tests",
     "test:infra:mail": "python -m pytest infrastructure/email-alias-router/tests",

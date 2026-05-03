@@ -97,3 +97,24 @@ GitHub Actions CI failures block the pull request; Amplify failures do not block
 but they do take the live site offline, so they must be fixed immediately.
 
 See `docs/git-workflow.md` for the full CI policy and path-based trigger rules.
+
+---
+
+## Sync app-level custom headers (CSP) with the repo
+
+Amplify Hosting can store **custom HTTP headers** on the app that differ from [`amplify.yml`](amplify.yml). If production CSP is narrower (for example `font-src 'self'` without `data:`), PrimeIcons and other assets break in the browser even though the repo is correct.
+
+1. Use AWS credentials for account **570912405222** (same account as `amplify/team-provider-info.json`).
+2. Install **jq** (`brew install jq`).
+3. From the repo root:
+
+   ```bash
+   export AWS_PROFILE=your-wiley-profile   # or SSO login for 570912405222
+   npm run amplify:sync-headers
+   ```
+
+   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`infra/amplify-custom-headers.json`](../infra/amplify-custom-headers.json) (kept in sync with `amplify.yml`) and calls `aws amplify update-app --custom-headers …`.
+
+4. Redeploy the `main` branch from the Amplify Console (or push an empty commit) if headers do not appear immediately on CloudFront.
+
+To update the policy later, edit **`amplify.yml`** and **`infra/amplify-custom-headers.json`** together, then run `npm run amplify:sync-headers` again.
