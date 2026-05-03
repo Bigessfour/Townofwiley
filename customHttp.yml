@@ -1,6 +1,8 @@
-# App-level custom headers for AWS Amplify Hosting (YAML spec).
-# CSP must match amplify.yml `customHeaders` — CI: npm run verify:amplify-csp-parity
+# Single source of truth for Amplify Hosting HTTP headers (AWS customHttp.yml).
+# PrimeIcons (pi pi-*) use embedded icomoon fonts via data: URLs — font-src must include data:.
+# CI: npm run verify:custom-http-yaml
 # https://docs.aws.amazon.com/amplify/latest/userguide/custom-header-YAML-format.html
+# https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html
 customHeaders:
   - pattern: '**/*'
     headers:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Push custom HTTP headers to AWS Amplify Hosting (app-level), matching customHttp.yml / amplify.yml.
-# This fixes CSP drift when the Amplify Console has a narrower policy than the repo (e.g. font-src missing data:).
+# Push custom HTTP headers to AWS Amplify Hosting (app-level) from repo-root customHttp.yml.
+# Repo customHttp.yml is the single source of truth (customHeaders removed from amplify.yml per AWS).
 #
 # Prerequisites:
 #   - AWS CLI v2

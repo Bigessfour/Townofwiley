@@ -1,5 +1,5 @@
 # Probes production hosting for baseline security headers (CSP) so drift is caught
-# even when no code ships. Complements scripts/verify-custom-http-csp-parity.mjs
+# Complements scripts/verify-custom-http-yaml.mjs (repo) and e2e live header checks.
 # (repo file parity) and e2e/specs/smoke/live-hosting-headers.spec.ts (full header set).
 #
 # AWS context: custom headers can be set in the Amplify console, in customHttp.yml

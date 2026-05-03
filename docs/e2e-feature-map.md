@@ -4,11 +4,11 @@ This document ties major Town of Wiley web behavior to hosting, backends, and Pl
 
 ## Hosting and delivery
 
-| Layer                        | Role                                                                                                                                                                                    | Resident-visible outcome                          |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **AWS Amplify**              | Builds the Angular app from `amplify.yml` (`npm ci`, `npm run build`), serves static assets from `dist/townofwiley-app/browser`, injects branch env vars, applies CSP and cache headers | Site HTML, JS bundles, `public/runtime-config.js` |
-| **CloudFront / Amplify CDN** | Edge delivery of static files                                                                                                                                                           | Fast page loads                                   |
-| **Angular SSR / prerender**  | `app.routes.server.ts` prerenders listed public routes (including `/`, `/services`, `/payments`, `/permits`, `/businesses`, documents, records, etc.)                                   | SEO-friendly shells; client hydrates              |
+| Layer                        | Role                                                                                                                                                                                                                   | Resident-visible outcome                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **AWS Amplify**              | Builds the Angular app from `amplify.yml` (`npm ci`, `npm run build`), serves static assets from `dist/townofwiley-app/browser`, injects branch env vars; hosting headers (CSP, cache) from repo-root `customHttp.yml` | Site HTML, JS bundles, `public/runtime-config.js` |
+| **CloudFront / Amplify CDN** | Edge delivery of static files                                                                                                                                                                                          | Fast page loads                                   |
+| **Angular SSR / prerender**  | `app.routes.server.ts` prerenders listed public routes (including `/`, `/services`, `/payments`, `/permits`, `/businesses`, documents, records, etc.)                                                                  | SEO-friendly shells; client hydrates              |
 
 ## Runtime configuration
 

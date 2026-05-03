@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
- * Fail if Content-Security-Policy in amplify.yml (customHeaders for all paths)
- * and repo-root customHttp.yml differ. Prevents Amplify header drift between
- * buildspec headers and app-level customHeaders (see AWS migrate-custom-headers guidance).
+ * Enforce AWS-recommended single source for Amplify Hosting headers: repo-root
+ * customHttp.yml only (no customHeaders in amplify.yml).
  *
- * Usage: node scripts/verify-custom-http-csp-parity.mjs
+ * https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html
+ *
+ * Usage: node scripts/verify-custom-http-yaml.mjs
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -37,19 +38,16 @@ function assertBaseline(csp, label) {
 const amp = readFileSync(join(root, 'amplify.yml'), 'utf8');
 const custom = readFileSync(join(root, 'customHttp.yml'), 'utf8');
 
-const cspAmp = extractCspValue(amp, 'amplify.yml');
-const cspCustom = extractCspValue(custom, 'customHttp.yml');
-
-assertBaseline(cspAmp, 'amplify.yml');
-assertBaseline(cspCustom, 'customHttp.yml');
-
-if (cspAmp !== cspCustom) {
+if (/^\s*customHeaders:/m.test(amp)) {
   console.error(
-    'error: Content-Security-Policy values differ between amplify.yml and customHttp.yml.\n' +
-      'Edit both files to use the same CSP string, then run `npm run amplify:sync-headers` after merge.\n' +
-      'AWS recommends managing hosting headers via customHttp.yml (see docs/amplify-deployment-runbook.md).',
+    'error: amplify.yml must not define customHeaders.\n' +
+      'Per AWS, use repo-root customHttp.yml only, then deploy and run npm run amplify:sync-headers as needed.\n' +
+      'https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html',
   );
   process.exit(1);
 }
 
-console.log('OK: amplify.yml and customHttp.yml Content-Security-Policy values match.');
+const cspCustom = extractCspValue(custom, 'customHttp.yml');
+assertBaseline(cspCustom, 'customHttp.yml');
+
+console.log('OK: customHttp.yml CSP baseline satisfied; amplify.yml has no customHeaders block.');
