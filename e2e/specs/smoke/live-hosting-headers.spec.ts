@@ -13,7 +13,7 @@ const headerChecks = [
       'permissions-policy': /camera=\(\), microphone=\(\), geolocation=\(\), payment=\(\)/,
       // font-src must allow data: (PrimeIcons); keep other baseline directives
       'content-security-policy':
-        /(?=.*default-src 'self')(?=.*font-src[^;]*data:)(?=.*frame-src 'none')(?=.*object-src 'none')/,
+        /(?=.*default-src 'self')(?=.*font-src[^;]*data:)(?=.*frame-src 'none')(?=.*object-src 'none')(?=.*connect-src[^;]*googletagmanager)/,
     },
   },
   {
