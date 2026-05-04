@@ -126,7 +126,7 @@
     "eslint": "^10.0.3",
     "jsdom": "^27.1.0",
     "playwright": "^1.59.1",
-    "postcss": "^8.5.12",
+    "postcss": "^8.5.14",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.4",
     "tailwindcss-primeui": "^0.6.1",
