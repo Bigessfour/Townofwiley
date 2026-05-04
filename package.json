@@ -111,7 +111,7 @@
     "@angular/cli": "21.2.9",
     "@angular/compiler-cli": "21.2.11",
     "@angular/platform-browser-dynamic": "21.2.11",
-    "@applitools/eyes-playwright": "^1.47.0",
+    "@applitools/eyes-playwright": "^1.47.1",
     "@axe-core/cli": "^4.11.3",
     "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",
