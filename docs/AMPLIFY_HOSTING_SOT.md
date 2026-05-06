@@ -82,6 +82,8 @@ CI guards:
 - [`scripts/probe-live-hosting-csp.sh`](../scripts/probe-live-hosting-csp.sh) compares the deployed CSP to the repo file.
 - [`e2e/specs/smoke/live-hosting-headers.spec.ts`](../e2e/specs/smoke/live-hosting-headers.spec.ts) asserts the headers on `E2E_BASE_URL` when set.
 
+**Drift from `customHttp.yml` (staging/prod CSP looks stale vs local `ng serve`):** Amplify persists `customHeaders` on the Hosting app (`aws amplify get-app`). The repo expects full GA4/SW-aligned CSP (see [`customHttp.yml`](../customHttp.yml)). If the CLI shows an older CSP (for example missing `worker-src`, `*.googletagmanager.com`, `frame-src`, or Doubleclick/Google `connect-src` entries), operators with Wiley IAM access should run **`npm run amplify:sync-headers`** (see [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh)), using `AWS_PROFILE` / `AWS_REGION=us-east-2`. Then optionally **Redeploy** the `main` branch in the Amplify Console if edge headers do not update within a short window.
+
 ---
 
 ## 4. Runtime config provenance (`/runtime-config.js`)
