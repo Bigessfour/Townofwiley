@@ -37,6 +37,18 @@ The required rewrite rule (Amplify Console → App settings → Rewrites and red
 This is the AWS-recommended SPA fallback regex (see Amplify Hosting docs:
 [Single page apps and rewrites](https://docs.aws.amazon.com/amplify/latest/userguide/redirects.html#redirects-for-single-page-web-apps-spa)).
 
+**Apply or repair via AWS CLI** (Town of Wiley account, `AWS_PROFILE` with access to app `d331voxr1fhoir`, region `us-east-2`; does **not** overwrite `customHeaders`):
+
+```bash
+# From repo root (uses absolute file:// path):
+npm run amplify:sync-spa-rewrites
+
+# Or:
+./scripts/sync-amplify-spa-rules.sh
+```
+
+Source of truth for that JSON array is [`scripts/amplify-spa-rewrite-rules.json`](../scripts/amplify-spa-rewrite-rules.json): (1) SPA regex above rewriting to `/index.html` with `200`, (2) optional `/404.html` → `/index.html` `200` for a clean Angular shell on missing static files.
+
 Routes that must hard-refresh on production:
 
 - `/`

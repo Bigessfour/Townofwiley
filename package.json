@@ -21,6 +21,7 @@
     "test:infra": "node --test infrastructure/nws-weather-proxy/index.test.mjs infrastructure/paystar-proxy/index.test.mjs",
     "verify:nws-proxy-aws": "bash scripts/verify-nws-weather-proxy-aws.sh",
     "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
+    "amplify:sync-spa-rewrites": "bash scripts/sync-amplify-spa-rules.sh",
     "verify:custom-http-yaml": "node scripts/verify-custom-http-yaml.mjs",
     "sync:angular-serve-csp": "node scripts/sync-angular-serve-csp.mjs",
     "verify:live-csp-probe": "bash scripts/probe-live-hosting-csp.sh",
