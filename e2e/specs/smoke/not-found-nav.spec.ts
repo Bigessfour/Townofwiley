@@ -22,6 +22,44 @@ test.describe('not found (404) navigation', () => {
     await expect(homePage.heroHeading).toBeVisible();
   });
 
+  test('English 404 page exposes both CTAs (home + services) with working navigation', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto(UNKNOWN_PATH);
+    await expect(homePage.page.getByTestId('not-found-page')).toBeVisible({ timeout: 15_000 });
+
+    const servicesCta = homePage.page
+      .getByTestId('not-found-page')
+      .getByRole('link', { name: /browse resident services/i });
+    await expect(servicesCta).toBeVisible();
+    await servicesCta.click();
+    await expect(homePage.page).toHaveURL(/\/services$/);
+  });
+
+  test('Spanish 404 page renders translated heading and both CTAs', async ({ homePage }) => {
+    await homePage.page.goto('/');
+    await homePage.clickSiteLanguage('es');
+
+    await homePage.page.goto(UNKNOWN_PATH);
+    await expect(homePage.page.getByTestId('not-found-page')).toBeVisible({ timeout: 15_000 });
+    await expect(
+      homePage.page.getByRole('heading', { name: /página no encontrada/i }),
+    ).toBeVisible();
+
+    const homeCta = homePage.page
+      .getByTestId('not-found-page')
+      .getByRole('link', { name: /volver a la página principal/i });
+    const servicesCta = homePage.page
+      .getByTestId('not-found-page')
+      .getByRole('link', { name: /ver servicios para residentes/i });
+
+    await expect(homeCta).toBeVisible();
+    await expect(servicesCta).toBeVisible();
+
+    await servicesCta.click();
+    await expect(homePage.page).toHaveURL(/\/services$/);
+  });
+
   test('desktop megamenu remains usable from a 404 page', async ({ homePage }) => {
     test.skip(
       test.info().project.name !== 'desktop-chromium',

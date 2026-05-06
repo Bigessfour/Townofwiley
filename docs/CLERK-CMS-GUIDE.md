@@ -32,9 +32,9 @@ The admin page shows the Studio links, setup details, document publishing guide,
 
 Bookmark both of these links in your browser now. You will use them every time.
 
-| Link | What it is |
-| --- | --- |
-| [Studio Home](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home) | Starting page for Amplify Studio |
+| Link                                                                                                                    | What it is                         |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| [Studio Home](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home)  | Starting page for Amplify Studio   |
 | [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data) | Where you edit all website content |
 
 ### Step 5 — Log in for the first time
@@ -59,6 +59,7 @@ Start here if you are not sure where to go: https://townofwiley.gov/admin
 The admin page is a guide and status page. It proves whether the public website can reach the CMS, but the actual content edits still happen in Amplify Studio Data Manager.
 
 **Do not** try to edit the website from:
+
 - The `/admin` page itself — use its Data Manager button to open the real editor
 - Code files — leave those alone entirely
 - Any other tool
@@ -81,17 +82,17 @@ When you save a record in Data Manager, the website automatically shows the new 
 
 Every piece of content on the website lives in one of these models in Data Manager.
 
-| What you are updating | Open this model |
-| --- | --- |
-| Homepage title, welcome text, and hero photo | `SiteSettings` |
-| Emergency banner shown at the top of the homepage | `AlertBanner` |
-| Public notices, closures, and general announcements | `Announcement` |
-| Meetings, hearings, and calendar events | `Event` |
-| Staff contact cards for names, phones, and emails | `OfficialContact` |
-| Business directory listings | `Business` |
-| Public document archive for forms, guides, and downloads | `PublicDocument` |
-| External news links shown on the /news page | `ExternalNewsLink` |
-| Town email forwarding rules for behind-the-scenes delivery | `EmailAlias` |
+| What you are updating                                      | Open this model    |
+| ---------------------------------------------------------- | ------------------ |
+| Homepage title, welcome text, and hero photo               | `SiteSettings`     |
+| Emergency banner shown at the top of the homepage          | `AlertBanner`      |
+| Public notices, closures, and general announcements        | `Announcement`     |
+| Meetings, hearings, and calendar events                    | `Event`            |
+| Staff contact cards for names, phones, and emails          | `OfficialContact`  |
+| Business directory listings                                | `Business`         |
+| Public document archive for forms, guides, and downloads   | `PublicDocument`   |
+| External news links shown on the /news page                | `ExternalNewsLink` |
+| Town email forwarding rules for behind-the-scenes delivery | `EmailAlias`       |
 
 ---
 
@@ -112,6 +113,26 @@ Use this for closures, reminders, utility updates, and general public notices.
 9. (Optional) Paste a public photo web address into **imageUrl** if you have a relevant photo.
 10. Click **Save**.
 11. Open https://townofwiley.gov/news in a new browser tab, refresh it, and confirm the notice appears.
+
+### Post a town newsletter (long-form update on /news)
+
+Use this when the Clerk publishes a column or multi-paragraph update that should appear in the **Town newsletter** section instead of the short bulletin cards.
+
+1. Open **Announcement** in Data Manager and create or edit a record.
+2. Fill **title** and **detail** as usual (detail can be long; use a blank line between paragraphs for separate blocks on the website).
+3. Set **announcementKind** to `newsletter` (after the next backend deploy that adds this field—see the engineering team if the field is not visible yet).
+4. Set **active** to **true** and save.
+5. Refresh `https://townofwiley.gov/news` and confirm the entry appears under **Newsletter from Town Hall**.
+
+Short utility notices should leave **announcementKind** blank so they stay in **Current Wiley Updates**.
+
+### Add or refresh regional news links (Wiley / Prowers coverage)
+
+Outside stories are **ExternalNewsLink** records, not automatic web crawling. Staff adds links to articles that mention Wiley, CO, or Prowers County; they appear under **Stories mentioning Wiley or Prowers County**.
+
+1. Open **ExternalNewsLink** in Data Manager.
+2. Create a record with **title**, **url**, **source** (e.g. newspaper name), **active** true, and **displayOrder** if you need a fixed order.
+3. Save and confirm on `/news`.
 
 ### Remove or archive a notice
 
@@ -283,11 +304,13 @@ After saving any change:
 ### Notice titles
 
 Good:
+
 - `Water service interruption on Main Street`
 - `Town Hall closing early Friday, April 10`
 - `City Council meeting rescheduled to 7:00 PM`
 
 Avoid:
+
 - All caps — `WATER OUTAGE`
 - Vague titles — `Update` or `Important notice`
 - Internal abbreviations residents would not recognize
@@ -309,14 +332,14 @@ Example:
 
 ## Part 7 — If Something Does Not Work
 
-| Problem | What to do |
-| --- | --- |
-| Cannot log in to Amplify Studio | Ask for a new invitation email from your IT contact |
-| Data Manager shows "Access denied" | Your account permissions need updating — ask for help |
-| Saved a record but nothing changed after 30 seconds | Hold Shift and press F5 to force-refresh, then check again |
-| You updated email forwarding but mail still goes to the wrong place | The routing function may need to re-sync — ask for help |
-| Not sure which model to open | Check the table in Part 3 of this guide |
-| Hero photo does not appear after saving the URL | Make sure the URL starts with `https://` and opens without any login |
+| Problem                                                             | What to do                                                           |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Cannot log in to Amplify Studio                                     | Ask for a new invitation email from your IT contact                  |
+| Data Manager shows "Access denied"                                  | Your account permissions need updating — ask for help                |
+| Saved a record but nothing changed after 30 seconds                 | Hold Shift and press F5 to force-refresh, then check again           |
+| You updated email forwarding but mail still goes to the wrong place | The routing function may need to re-sync — ask for help              |
+| Not sure which model to open                                        | Check the table in Part 3 of this guide                              |
+| Hero photo does not appear after saving the URL                     | Make sure the URL starts with `https://` and opens without any login |
 
 ---
 

@@ -132,6 +132,10 @@ export class PayBillPageComponent {
       quickPayPlaceholderNote: es
         ? 'El enlace de pago en línea se está finalizando; use el formulario siguiente o llame al Ayuntamiento.'
         : 'The online payment link is being finalized—use the form below or call Town Hall.',
+      quickPayUnavailableNote: es
+        ? 'El portal de pagos en línea aún no está disponible en este sitio. Use el formulario de abajo, llame al Ayuntamiento o envíe un correo a la secretaria municipal.'
+        : 'The online payment portal is not yet active on this site. Use the form below, call Town Hall, or email the town clerk to pay your bill.',
+      quickPayUnavailableLabel: es ? 'Portal no disponible' : 'Portal unavailable',
       comingSoonTitle: es ? 'Pago integrado en el sitio' : 'Embedded pay (in-site)',
       comingSoonBadge: es ? 'En desarrollo' : 'In development',
       comingSoonBody: es
@@ -190,6 +194,10 @@ export class PayBillPageComponent {
   protected readonly quickPayIsPlaceholder = computed(
     () => !getPaystarRuntimeConfig().portalUrl.trim(),
   );
+
+  protected readonly paystarMode = computed(() => getPaystarRuntimeConfig().mode);
+
+  protected readonly quickPayDisabled = computed(() => this.paystarMode() === 'none');
 
   constructor() {
     effect(() => {

@@ -72,7 +72,7 @@ test.describe('homepage weather', () => {
     }
 
     await homePage.siteAlertButton.click();
-    await expect(homePage.page).toHaveURL(/\/weather$/);
+    await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup/);
     await expect(homePage.weatherSignupShell).toBeVisible();
   });
 
@@ -374,6 +374,45 @@ test.describe('homepage weather', () => {
       'href',
       'https://alerts.example.com/unsubscribe?token=existing-token',
     );
+  });
+
+  test('renders bilingual fallback markup when optional weather blocks (solar/AQI/hourly) are missing', async ({
+    homePage,
+  }) => {
+    await homePage.enableWeatherProxy('/mock-weather-no-optional-blocks');
+
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather-no-optional-blocks', {
+      locationLabel: 'Wiley, CO',
+      updatedAt: '2026-03-22T12:57:10+00:00',
+      periods: [
+        {
+          name: 'Today',
+          startTime: '2026-03-22T09:00:00-06:00',
+          isDaytime: true,
+          temperature: 67,
+          temperatureUnit: 'F',
+          probabilityOfPrecipitation: { value: 1 },
+          windSpeed: '15 to 20 mph',
+          windDirection: 'NE',
+          icon: null,
+          shortForecast: 'Partly Sunny',
+          detailedForecast: 'Partly sunny, with a high near 67. Northeast wind 15 to 20 mph.',
+        },
+      ],
+      alerts: [],
+    });
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
+
+    const solarFallback = homePage.page.getByTestId('solar-unavailable');
+    const aqiFallback = homePage.page.getByTestId('aqi-unavailable');
+    const hourlyFallback = homePage.page.getByTestId('hourly-unavailable');
+
+    await expect(solarFallback).toContainText(/Sunrise|amanecer/i);
+    await expect(aqiFallback).toContainText(/air quality|calidad del aire/i);
+    await expect(hourlyFallback).toContainText(/Hourly forecast|pronostico por hora/i);
   });
 
   test('surfaces API error text and re-enables signup after subscription POST fails', async ({

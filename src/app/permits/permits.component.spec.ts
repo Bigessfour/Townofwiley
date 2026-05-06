@@ -45,30 +45,50 @@ describe('PermitsComponent', () => {
     return { fixture, root: fixture.nativeElement as HTMLElement };
   }
 
-  it('renders permit messaging and clerk section when CMS includes clerk', () => {
+  it('renders structured English copy and clerk section when CMS includes clerk', () => {
     const { root } = mount([clerk, townInfo]);
 
-    expect(root.querySelector('h1')?.textContent?.trim()).toContain('Permits');
-    expect(root.textContent).toMatch(/city or Town Clerk|Town Clerk/);
-    expect(root.textContent).toContain('Deb Dillon');
+    expect(root.querySelector('.section-kicker')?.textContent).toContain('Town Hall services');
+    expect(root.querySelector('h1')?.textContent).toContain('Permits & Inquiries');
+    expect(root.querySelector('.feature-hub-copy')?.textContent).toContain(
+      'does not currently process permits online',
+    );
+    expect(root.querySelector('#clerk-heading')?.textContent).toContain('Town Clerk');
+    expect(root.querySelector('.clerk-name')?.textContent).toContain('Deb Dillon');
     expect(root.querySelector('a[href^="mailto:"]')?.getAttribute('href')).toBe(
       'mailto:clerk@town.test',
     );
+    expect(root.querySelector('a[href^="tel:"]')?.getAttribute('href')).toBe('tel:+17198294974');
+    expect(root.querySelector('[data-testid="permits-clerk-fallback"]')).toBeNull();
   });
 
-  it('omits clerk section when city-clerk contact is absent', () => {
+  it('shows the bilingual fallback message when the city-clerk contact is missing', () => {
     const { root } = mount([{ ...townInfo, id: 'other-contact' }]);
-
+    const fallback = root.querySelector('[data-testid="permits-clerk-fallback"]');
     expect(root.querySelector('#clerk-contact')).toBeNull();
+    expect(fallback).toBeTruthy();
+    expect(fallback?.textContent).toContain('contact information is being updated');
   });
 
-  it('shows Spanish headings when site language is Spanish', () => {
+  it('renders Spanish copy when site language is es', () => {
     const { fixture } = mount([clerk]);
     TestBed.inject(SiteLanguageService).setLanguage('es');
     TestBed.flushEffects();
     fixture.detectChanges();
-
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('h1')?.textContent).toContain('Permisos');
+    expect(root.querySelector('.section-kicker')?.textContent).toContain(
+      'Servicios del Ayuntamiento',
+    );
+    expect(root.querySelector('h1')?.textContent).toContain('Permisos e Indagaciones');
+  });
+
+  it('renders the Spanish fallback message when clerk is missing and language is es', () => {
+    const { fixture } = mount([{ ...townInfo, id: 'other-contact' }]);
+    TestBed.inject(SiteLanguageService).setLanguage('es');
+    TestBed.flushEffects();
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const fallback = root.querySelector('[data-testid="permits-clerk-fallback"]');
+    expect(fallback?.textContent).toContain('Secretario se esta actualizando');
   });
 });

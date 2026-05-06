@@ -1,17 +1,17 @@
 <section class="public-page business-directory-page grid gap-6 max-w-[1240px] mx-auto px-4 py-8" aria-labelledby="business-directory-heading">
   <header class="public-page-header grid gap-4 max-w-[56rem]">
-    <p class="section-kicker">Wiley Business Directory</p>
-    <h1 id="business-directory-heading">{{ title }}</h1>
-    <p class="public-page-copy">
-      Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.
-    </p>
+    <p class="section-kicker">{{ copy().kicker }}</p>
+    <h1 id="business-directory-heading">{{ copy().heading }}</h1>
+    <p class="public-page-copy">{{ copy().intro }}</p>
 
     @if (filteredBusinessCount() > 0) {
-      <p class="business-directory-count meta-label">{{ filteredBusinessCount() }} businesses</p>
+      <p class="business-directory-count meta-label">
+        {{ filteredBusinessCount() }} {{ copy().countSuffix }}
+      </p>
     }
 
     <label class="public-search-field grid gap-2 max-w-[28rem]">
-      <span>Search local businesses</span>
+      <span>{{ copy().searchLabel }}</span>
       <p-iconfield class="public-search-input">
         <p-inputicon class="pi pi-search" />
         <input
@@ -19,20 +19,24 @@
           type="search"
           [value]="directoryQuery()"
           (input)="updateDirectoryQuery($any($event.target).value)"
-          placeholder="Search by business name, service, address, or phone"
+          [placeholder]="copy().searchPlaceholder"
           autocomplete="off"
         />
       </p-iconfield>
     </label>
   </header>
 
-  @if (filteredBusinesses().length) {
+  @if (cmsLoading()) {
+    <p class="public-empty-state" role="status" aria-live="polite" aria-busy="true">
+      {{ copy().loadingState }}
+    </p>
+  } @else if (filteredBusinesses().length) {
     <div class="public-card-grid directory-card-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-2 sm:px-0">
       @for (business of filteredBusinesses(); track business.name) {
         <article class="public-card public-directory-card grid gap-4 p-6 sm:p-5 rounded-2xl h-full">
           <div class="public-card-header grid gap-3 grid-cols-[minmax(0,1fr)_auto] items-start">
             <div>
-              <p class="meta-label">Wiley business</p>
+              <p class="meta-label">{{ copy().metaLabel }}</p>
               <h2>{{ business.name }}</h2>
             </div>
 
@@ -67,10 +71,10 @@
           </div>
 
           <div class="public-card-body grid gap-3">
-            <p class="public-card-copy">{{ business.description || 'Local Wiley business listing.' }}</p>
+            <p class="public-card-copy">{{ business.description || copy().fallbackDescription }}</p>
             <dl class="directory-details">
               <div>
-                <dt>Phone</dt>
+                <dt>{{ copy().phoneLabel }}</dt>
                 <dd>
                   @if (getPhoneHref(business.phone); as phoneHref) {
                     <div class="directory-contact-actions">
@@ -82,7 +86,7 @@
                         [href]="phoneHref"
                         (click)="logging.buttonClick('business-call', business.name)"
                       >
-                        Call
+                        {{ copy().callLabel }}
                       </a>
                     </div>
                   } @else {
@@ -91,7 +95,7 @@
                 </dd>
               </div>
               <div>
-                <dt>Address</dt>
+                <dt>{{ copy().addressLabel }}</dt>
                 <dd>
                   <a
                     class="directory-address-link"
@@ -115,14 +119,22 @@
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                Visit website
+                {{ copy().visitWebsiteLabel }}
               </a>
             }
           </div>
         </article>
       }
     </div>
+  } @else if (hasActiveSearch()) {
+    <p class="public-empty-state">
+      {{ copy().filteredEmptyPrefix }}<button
+        type="button"
+        (click)="updateDirectoryQuery('')"
+        class="text-link"
+      >{{ copy().filteredEmptyClearLink }}</button>{{ copy().filteredEmptySuffix }}
+    </p>
   } @else {
-    <p class="public-empty-state">No businesses match your search. Try a different word or <button type="button" (click)="updateDirectoryQuery('')" class="text-link">clear the search</button>.</p>
+    <p class="public-empty-state" role="status">{{ copy().noBusinessesEmptyState }}</p>
   }
 </section>

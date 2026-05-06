@@ -25,11 +25,21 @@
   color: color-mix(in srgb, var(--ink-900) 82%, transparent);
 }
 
-/* Picker cards (p-card) */
+/* Picker cards (p-card) — rendered as native <button> for full a11y semantics */
 .resident-picker-wrap {
   cursor: pointer;
   border-radius: 24px;
   outline: none;
+  /* Reset native button chrome so the inner p-card surface remains the visual */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  width: 100%;
+  display: block;
 }
 
 .resident-picker-wrap:focus-visible {

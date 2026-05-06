@@ -392,6 +392,7 @@ interface AnnouncementRecord {
   title: string;
   date?: string | null;
   detail: string;
+  announcementKind?: string | null;
   priority?: number | null;
   imageUrl?: string | null;
   active: boolean;
@@ -510,6 +511,7 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       title
       date
       detail
+      announcementKind
       priority
       imageUrl
       active
@@ -978,6 +980,11 @@ export class LocalizedCmsContentStore {
       .filter((record) => record.id && record.title && record.detail)
       .filter((record) => !this.isRetiredLaunchNotice(record.title, record.detail))
       .filter((record) => {
+        const kind = (this.cleanText(record.announcementKind) ?? '').toLowerCase();
+        if (kind === 'newsletter') {
+          return true;
+        }
+
         if (!record.date) {
           return true;
         }
@@ -989,6 +996,7 @@ export class LocalizedCmsContentStore {
       .map((record) => {
         const englishFallback = DEFAULT_NOTICE_MAP.en.get(record.id);
         const localizedFallback = DEFAULT_NOTICE_MAP[language].get(record.id);
+        const kind = (this.cleanText(record.announcementKind) ?? '').toLowerCase();
 
         return {
           id: record.id,
@@ -1010,6 +1018,7 @@ export class LocalizedCmsContentStore {
             englishFallback?.detail,
             localizedFallback?.detail,
           ),
+          type: kind === 'newsletter' ? ('newsletter' as const) : ('notice' as const),
           imageUrl: record.imageUrl ?? undefined,
         };
       });

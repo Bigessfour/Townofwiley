@@ -655,6 +655,38 @@ li {
   padding: 0.95rem 0.25rem 0;
 }
 
+.public-empty-state {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background: rgba(19, 59, 99, 0.04);
+  border: 1px dashed rgba(19, 59, 99, 0.18);
+  color: var(--ink-700);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Governance metadata line on legal/accessibility pages. */
+.policy-last-updated {
+  margin: 0.5rem 0 1rem;
+  color: var(--ink-700);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+/* Visually-hidden utility for screen-reader-only content. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .site-language-switcher {
   justify-self: end;
   justify-items: end;

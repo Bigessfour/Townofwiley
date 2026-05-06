@@ -206,6 +206,12 @@
   top: var(--space-sm);
 }
 
+.skip-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 0.35rem var(--focus-ring-glow);
+}
+
 .site-header,
 .site-alert,
 .page-shell {
@@ -1031,6 +1037,22 @@ h6 {
   margin-top: 0;
 }
 
+/* Reserves space for @defer below-the-fold sections to limit layout shift */
+.homepage-defer-placeholder {
+  min-height: 12rem;
+  border-radius: var(--radius-xl);
+  border: 1px dashed rgba(13, 44, 84, 0.12);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.homepage-defer-placeholder--feature-hub {
+  min-height: 18rem;
+}
+
+.homepage-defer-placeholder--support {
+  min-height: 14rem;
+}
+
 .civic-panel {
   display: grid;
   gap: var(--space-lg);
@@ -1464,6 +1486,22 @@ h6 {
   gap: var(--space-sm);
   min-width: 0;
   padding-right: calc(var(--space-lg) + 0.35rem);
+  /* Explicit colors so titles/descriptions never inherit an unintended shell color */
+  color: var(--ink-700);
+}
+
+.task-card-copy strong {
+  color: var(--ink-900);
+}
+
+.task-card-copy span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.task-card-copy small {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .task-card strong,
@@ -3262,6 +3300,18 @@ button:not(:disabled):active,
     cursor: pointer;
     text-align: inherit;
     width: auto;
+  }
+
+  /* PrimeNG can reset outline; reinforce keyboard focus for root + flyout links */
+  .p-menuitem-link:focus-visible,
+  button.mega-menu-root-link:focus-visible,
+  a.mega-menu-root-link:focus-visible,
+  a.mega-menu-sub-link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring);
+    outline-offset: 3px;
+    box-shadow:
+      0 0 0 0.15rem color-mix(in srgb, var(--surface-card) 88%, transparent),
+      0 0 0 0.45rem var(--focus-ring-glow);
   }
 
   .p-megamenu-panel .mega-menu-sub-link {

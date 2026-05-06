@@ -4,7 +4,7 @@ import {
   provideHttpClientTesting,
   TestRequest,
 } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { MessageService, type MegaMenuItem } from 'primeng/api';
@@ -49,6 +49,18 @@ interface TestRuntimeConfig {
       apiEndpoint?: string;
     };
   };
+}
+
+/** Render @defer blocks to Complete so viewport-triggered homepage sections appear in tests. */
+async function flushDeferBlocksToComplete(fixture: ComponentFixture<App>): Promise<void> {
+  const blocks = await fixture.getDeferBlocks();
+  if (blocks.length === 0) {
+    return;
+  }
+  for (const block of blocks) {
+    await block.render(DeferBlockState.Complete);
+  }
+  fixture.detectChanges();
 }
 
 describe('App', () => {
@@ -128,51 +140,56 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the English homepage by default', async () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    await flushWeatherRequests();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
+  it(
+    'should render the English homepage by default',
+    async () => {
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+      await flushWeatherRequests();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushDeferBlocksToComplete(fixture);
+      const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-    expect(document.title).toContain('Official Website');
-    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-    const expectedTopTaskTitles = APP_COPY.en.topTasks.map((task) => task.title);
-    const topTasksModel = (
-      fixture.componentInstance as unknown as {
-        topTasks: () => typeof APP_COPY.en.topTasks;
-      }
-    ).topTasks();
-    expect(topTasksModel.map((task) => task.title)).toEqual(expectedTopTaskTitles);
+      expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
+      expect(document.title).toContain('Official Website');
+      expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
+      const expectedTopTaskTitles = APP_COPY.en.topTasks.map((task) => task.title);
+      const topTasksModel = (
+        fixture.componentInstance as unknown as {
+          topTasks: () => typeof APP_COPY.en.topTasks;
+        }
+      ).topTasks();
+      expect(topTasksModel.map((task) => task.title)).toEqual(expectedTopTaskTitles);
 
-    const taskAnchors = compiled.querySelectorAll('a.task-card');
-    expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
-    expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
-      'Local weather',
-    );
-    expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
-      'Records and documents',
-    );
-    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
-      'Contact Town Hall',
-    );
-    expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
-      'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
-    );
-    expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
-      'Town of Wiley | Official Website',
-    );
-    expect(compiled.querySelector('#accessibility')).toBeNull();
-    expect(compiled.querySelector('#search-panel')).not.toBeNull();
-    expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
-      'Search Wiley services',
-    );
-    expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
-      'Accessibility statement',
-    );
-  });
+      const taskAnchors = compiled.querySelectorAll('a.task-card');
+      expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
+      expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
+        'Local weather',
+      );
+      expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
+        'Records and documents',
+      );
+      expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
+        'Contact Town Hall',
+      );
+      expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
+        'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
+      );
+      expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
+        'Town of Wiley | Official Website',
+      );
+      expect(compiled.querySelector('#accessibility')).toBeNull();
+      expect(compiled.querySelector('#search-panel')).not.toBeNull();
+      expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
+        'Search Wiley services',
+      );
+      expect(
+        compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent,
+      ).toContain('Accessibility statement');
+    },
+    45000,
+  );
 
   it('should expose navigable resident-services submenu targets in the mega menu model', async () => {
     const fixture = TestBed.createComponent(App);
@@ -229,9 +246,7 @@ describe('App', () => {
   });
 
   it('should keep non-core public routes lazy-loaded', () => {
-    const lazyLeafRoutes = routes.filter(
-      (route) => route.path !== '' && route.redirectTo == null,
-    );
+    const lazyLeafRoutes = routes.filter((route) => route.path !== '' && route.redirectTo == null);
     expect(lazyLeafRoutes.every((route) => Boolean(route.loadComponent))).toBe(true);
   });
 

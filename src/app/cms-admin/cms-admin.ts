@@ -87,6 +87,7 @@ interface CmsAdminCopy {
   testingConnection: string;
   connectionSuccess: string;
   connectionFailed: string;
+  connectionFailureGuidance: string;
   connectionReady: string;
   connectionNotRun: string;
   lastCheckedLabel: string;
@@ -217,6 +218,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     testingConnection: 'Testing connection...',
     connectionSuccess: 'Connected',
     connectionFailed: 'Connection failed',
+    connectionFailureGuidance:
+      'The CMS could not be reached. The public site continues to show the most recent saved snapshot, but new edits in Amplify Studio will not appear until this connection is restored. Confirm the Amplify environment variables and redeploy, then re-run this test.',
     connectionReady: 'Ready to test',
     connectionNotRun: 'Not tested yet',
     lastCheckedLabel: 'Last checked',
@@ -261,7 +264,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     bannerHidden: 'Banner is hidden in Amplify Studio',
     bannerSummary: 'Controlled by the AlertBanner model in Amplify Studio.',
     noticesKicker: 'Notices',
-    noticesSummary: 'These come from the Announcement model.',
+    noticesSummary:
+      'These come from the Announcement model. Use announcementKind `newsletter` for the long-form Town newsletter block on /news.',
     noticesCountSuffix: 'notice cards',
     eventsKicker: 'Events',
     eventsSummary: 'These drive the live homepage calendar when staff-published events exist.',
@@ -292,7 +296,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapItems: [
       'SiteSettings: homepage title and welcome text',
       'AlertBanner: emergency banner',
-      'Announcement: notice cards',
+      'Announcement: bulletin notices and Town newsletter entries',
       'Event: meetings and calendar items',
       'OfficialContact: public contact cards',
       'Business: business directory entries',
@@ -319,9 +323,10 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       },
       {
         model: 'Announcement',
-        summary: 'Public notices, closures, and alerts.',
+        summary: 'Public notices, closures, and long newsletter posts.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
-        notes: 'Use the priority field to control display order.',
+        notes:
+          'Set announcementKind to `newsletter` for the /news newsletter section; leave blank for short bulletin notices. Use priority to control order.',
       },
       {
         model: 'Event',
@@ -448,6 +453,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     testingConnection: 'Probando conexion...',
     connectionSuccess: 'Conectado',
     connectionFailed: 'Fallo la conexion',
+    connectionFailureGuidance:
+      'No se pudo contactar el CMS. El sitio publico sigue mostrando la captura mas reciente, pero las nuevas ediciones en Amplify Studio no apareceran hasta que se restablezca la conexion. Revise las variables de entorno de Amplify, vuelva a desplegar y pruebe de nuevo.',
     connectionReady: 'Listo para probar',
     connectionNotRun: 'Aun no probado',
     lastCheckedLabel: 'Ultima revision',
@@ -492,7 +499,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     bannerHidden: 'El banner esta oculto en Amplify Studio',
     bannerSummary: 'Controlado por el modelo AlertBanner en Amplify Studio.',
     noticesKicker: 'Avisos',
-    noticesSummary: 'Estos provienen del modelo Announcement.',
+    noticesSummary:
+      'Estos provienen del modelo Announcement. Use announcementKind `newsletter` para el bloque largo del boletin en /news.',
     noticesCountSuffix: 'tarjetas de avisos',
     eventsKicker: 'Eventos',
     eventsSummary:
@@ -524,7 +532,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapItems: [
       'SiteSettings: titulo de la pagina principal y texto de bienvenida',
       'AlertBanner: banner de emergencia',
-      'Announcement: tarjetas de avisos',
+      'Announcement: avisos breves y entradas del boletin del pueblo',
       'Event: reuniones y elementos del calendario',
       'OfficialContact: tarjetas de contacto publico',
       'Business: entradas del directorio de negocios',
@@ -551,9 +559,10 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       },
       {
         model: 'Announcement',
-        summary: 'Avisos publicos, cierres y alertas.',
+        summary: 'Avisos publicos, cierres y publicaciones largas del boletin.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
-        notes: 'Use el campo priority para controlar el orden.',
+        notes:
+          'Configure announcementKind en `newsletter` para la seccion de boletin en /news; dejelo en blanco para avisos breves. Use priority para el orden.',
       },
       {
         model: 'Event',

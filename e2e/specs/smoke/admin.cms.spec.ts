@@ -49,4 +49,45 @@ test.describe('cms admin', () => {
     ).toBeVisible({ timeout: 20000 });
     await expect(homePage.page.getByText('meeting-documents')).toBeVisible();
   });
+
+  test('preserves the legacy /clerk-setup#setup deep link to the admin setup tab', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/clerk-setup#setup', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#setup$/);
+    await expect(homePage.page.getByRole('tab', { name: 'Setup & credentials' })).toBeVisible();
+  });
+
+  test('preserves the legacy /clerk-setup#updates deep link to the contact updates tab', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/clerk-setup#updates', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(homePage.page.getByRole('tab', { name: 'Contact updates' })).toBeVisible();
+  });
+
+  test('opens directly to the documents tab when /admin#documents is loaded', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#documents$/);
+    await expect(
+      homePage.page.getByRole('heading', { name: 'Supported document workflow' }),
+    ).toBeVisible({ timeout: 20000 });
+  });
+
+  test('opens directly to the contact updates tab when /admin#updates is loaded', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(homePage.page.getByRole('tab', { name: 'Contact updates' })).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: 'Resident Contact Updates' }),
+    ).toBeVisible({ timeout: 20000 });
+  });
 });

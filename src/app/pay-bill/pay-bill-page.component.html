@@ -22,20 +22,40 @@
           </div>
         </ng-template>
         <p>{{ copy().quickPayBody }}</p>
-        @if (quickPayIsPlaceholder()) {
+        @if (quickPayDisabled()) {
+          <p-message
+            severity="warn"
+            [text]="copy().quickPayUnavailableNote"
+            data-testid="pay-bill-portal-unavailable"
+          />
+        } @else if (quickPayIsPlaceholder()) {
           <p-message severity="info" [text]="copy().quickPayPlaceholderNote" />
         }
         <div class="pay-bill-card-actions">
-          <a
-            pButton
-            class="p-button-sm"
-            [href]="quickPayHref()"
-            rel="noopener noreferrer"
-            target="_blank"
-            icon="pi pi-arrow-up-right"
-            [label]="copy().quickPayCta"
-            [attr.aria-label]="copy().quickPayCta"
-          ></a>
+          @if (quickPayDisabled()) {
+            <button
+              pButton
+              type="button"
+              class="p-button-sm p-button-outlined"
+              icon="pi pi-ban"
+              [disabled]="true"
+              [label]="copy().quickPayUnavailableLabel"
+              [attr.aria-label]="copy().quickPayUnavailableLabel"
+              data-testid="pay-bill-portal-cta-disabled"
+            ></button>
+          } @else {
+            <a
+              pButton
+              class="p-button-sm"
+              [href]="quickPayHref()"
+              rel="noopener noreferrer"
+              target="_blank"
+              icon="pi pi-arrow-up-right"
+              [label]="copy().quickPayCta"
+              [attr.aria-label]="copy().quickPayCta"
+              data-testid="pay-bill-portal-cta"
+            ></a>
+          }
         </div>
       </p-card>
 

@@ -78,6 +78,7 @@ describe('LocalizedCmsContentStore', () => {
     expect(cmsRequest.request.body.query as string).toContain(
       'listAnnouncements(filter: { active: { eq: true } }, limit: 50)',
     );
+    expect(cmsRequest.request.body.query as string).toContain('announcementKind');
     expect(cmsRequest.request.body.query as string).toContain(
       'listEvents(filter: { active: { eq: true } }, limit: 50)',
     );

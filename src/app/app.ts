@@ -184,6 +184,8 @@ interface PolicyPageCopy {
   title: string;
   intro: string;
   items: PolicyItem[];
+  lastUpdatedLabel: string;
+  lastUpdatedDate: string;
 }
 
 interface LeadershipGroup {
@@ -284,8 +286,10 @@ interface AppCopy {
   mobileSearchAllServicesLabel: string;
   noticesKicker: string;
   noticesHeading: string;
+  noticesEmptyState: string;
   meetingsKicker: string;
   meetingsHeading: string;
+  meetingsEmptyState: string;
   meetingsAgendaPdfButtonLabel: string;
   /** Primary-button label when linking to hub from notices-oriented meeting row (fallback data). */
   meetingsDocumentsHubButtonLabel: string;
@@ -340,8 +344,11 @@ interface AppCopy {
   accessibilityKicker: string;
   accessibilityHeading: string;
   complianceNote: string;
+  accessibilityLastReviewedLabel: string;
+  accessibilityLastReviewedDate: string;
   contactKicker: string;
   contactHeading: string;
+  contactEmptyState: string;
   backHomeLabel: string;
   /** Document title segment when no route matches (404). */
   notFoundBrowserTitle: string;
@@ -382,6 +389,8 @@ export const WEATHER_ALERT_POLICY_COPY: Record<
 > = {
   en: {
     privacy: {
+      lastUpdatedLabel: 'Last updated',
+      lastUpdatedDate: 'May 6, 2026',
       kicker: 'Privacy',
       title: 'Weather alert privacy notice',
       intro:
@@ -410,6 +419,8 @@ export const WEATHER_ALERT_POLICY_COPY: Record<
       ],
     },
     terms: {
+      lastUpdatedLabel: 'Last updated',
+      lastUpdatedDate: 'May 6, 2026',
       kicker: 'SMS Terms',
       title: 'Weather alert SMS terms',
       intro:
@@ -440,6 +451,8 @@ export const WEATHER_ALERT_POLICY_COPY: Record<
   },
   es: {
     privacy: {
+      lastUpdatedLabel: 'Ultima actualizacion',
+      lastUpdatedDate: '6 de mayo de 2026',
       kicker: 'Privacidad',
       title: 'Aviso de privacidad para alertas del clima',
       intro:
@@ -468,6 +481,8 @@ export const WEATHER_ALERT_POLICY_COPY: Record<
       ],
     },
     terms: {
+      lastUpdatedLabel: 'Ultima actualizacion',
+      lastUpdatedDate: '6 de mayo de 2026',
       kicker: 'Terminos SMS',
       title: 'Terminos de SMS para alertas del clima',
       intro:
@@ -563,8 +578,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     mobileSearchAllServicesLabel: 'Search All Services',
     noticesKicker: 'Latest Updates',
     noticesHeading: 'News & Announcements',
+    noticesEmptyState:
+      'No public notices are posted right now. Check back soon, or call Town Hall at (719) 829-4974 for current updates.',
     meetingsKicker: 'Town calendar',
     meetingsHeading: 'Council meetings & schedules',
+    meetingsEmptyState:
+      'No upcoming meetings are scheduled in the calendar yet. Town Council meets the second Monday of each month at 6:00 PM at Wiley Town Hall.',
     meetingsAgendaPdfButtonLabel: 'View agenda PDFs',
     meetingsDocumentsHubButtonLabel: 'Browse town documents',
     meetingsTableAriaLabel: 'Upcoming meetings and schedules',
@@ -623,8 +642,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityHeading: 'Accessible services and inclusive design',
     complianceNote:
       'Read our accessibility statement, request alternate formats, and report barriers to town staff.',
+    accessibilityLastReviewedLabel: 'Last reviewed',
+    accessibilityLastReviewedDate: 'May 6, 2026',
     contactKicker: 'Contact',
     contactHeading: 'Phone, email, and next steps',
+    contactEmptyState:
+      'Town Hall directory is loading. If contacts do not appear, call (719) 829-4974 or email the Town Clerk for help.',
     backHomeLabel: 'Return to homepage',
     notFoundBrowserTitle: 'Page not found',
     notFoundMetaDescription:
@@ -965,8 +988,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     mobileSearchAllServicesLabel: 'Buscar todos los servicios',
     noticesKicker: 'Novedades',
     noticesHeading: 'Noticias y anuncios',
+    noticesEmptyState:
+      'No hay avisos publicos en este momento. Vuelva pronto o llame al Ayuntamiento al (719) 829-4974 para conocer las actualizaciones.',
     meetingsKicker: 'Calendario municipal',
     meetingsHeading: 'Reuniones del concejo y cronograma',
+    meetingsEmptyState:
+      'Aun no hay reuniones programadas en el calendario. El Concejo se reune el segundo lunes de cada mes a las 6:00 PM en el Ayuntamiento de Wiley.',
     meetingsAgendaPdfButtonLabel: 'Ver PDFs de la agenda',
     meetingsDocumentsHubButtonLabel: 'Ver documentos del pueblo',
     meetingsTableAriaLabel: 'Próximas reuniones y horarios',
@@ -1026,8 +1053,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityHeading: 'Servicios accesibles y diseno inclusivo',
     complianceNote:
       'Lea nuestra declaracion de accesibilidad, solicite formatos alternativos e informe barreras al personal.',
+    accessibilityLastReviewedLabel: 'Ultima revision',
+    accessibilityLastReviewedDate: '6 de mayo de 2026',
     contactKicker: 'Contacto',
     contactHeading: 'Telefono, correo y siguientes pasos',
+    contactEmptyState:
+      'El directorio del Ayuntamiento esta cargando. Si los contactos no aparecen, llame al (719) 829-4974 o escriba a la Secretaria del Pueblo.',
     backHomeLabel: 'Volver a la página principal',
     notFoundBrowserTitle: 'Página no encontrada',
     notFoundMetaDescription:
@@ -2505,7 +2536,10 @@ export class App {
 
   protected onNwsBannerSignup(): void {
     this.trackAlertSignupClick();
-    void this.router.navigate(['/weather']);
+    const anchorId = 'weather-alert-signup';
+    void this.router.navigate(['/weather'], { fragment: anchorId }).then(() => {
+      this.scheduleFragmentScrollWithRetry(`#${anchorId}`);
+    });
   }
 
   protected updateSiteLanguage(value: SiteLanguage): void {
@@ -2582,6 +2616,31 @@ export class App {
     window.setTimeout(() => {
       this.scrollToFragment(fragment);
     }, 0);
+  }
+
+  /**
+   * Weather signup may render after runtime config resolves; retry so the anchor exists before scrolling.
+   */
+  private scheduleFragmentScrollWithRetry(fragment: string, maxAttempts = 12): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
+
+    let attempts = 0;
+
+    const attempt = () => {
+      attempts += 1;
+      const target = document.querySelector<HTMLElement>(fragment);
+      if (target) {
+        this.scrollToFragment(fragment);
+        return;
+      }
+      if (attempts < maxAttempts) {
+        window.setTimeout(attempt, 100);
+      }
+    };
+
+    window.setTimeout(attempt, 0);
   }
 
   private scrollToFragment(fragment: string, fallbackFragment?: string): void {

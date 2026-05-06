@@ -5,6 +5,9 @@
       <h1>{{ copy().title }}</h1>
     </ng-template>
     <p class="feature-hub-copy">{{ copy().intro }}</p>
+    <p class="policy-last-updated meta-label" data-testid="terms-last-updated">
+      {{ copy().lastUpdatedLabel }}: {{ copy().lastUpdatedDate }}
+    </p>
     <div class="stack-list">
       @for (item of copy().items; track item.title) {
         <article class="info-row">

@@ -21,10 +21,57 @@ async function expectGatewayFromHomepage(
   gateway: NavigationGateway,
 ): Promise<void> {
   await homePage.goto();
+  await triggerHomepageViewportDefers(homePage);
 
   await gateway.click(homePage);
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);
   await gateway.assertDestination(homePage);
+}
+
+/**
+ * Ensures Angular `@defer (on viewport)` blocks see their placeholders intersect
+ * the viewport, then waits for hydrated content (feature-hub, support-strip).
+ * Uses `waitForFunction` polling so narrow viewports / slow SSR still get steady
+ * `scrollIntoView` + incremental `scrollBy` retries without racing DOM swaps.
+ */
+async function triggerHomepageViewportDefers(homePage: HomePage): Promise<void> {
+  const deferTimeoutMs = 35_000;
+
+  await homePage.page.waitForFunction(
+    () => {
+      document
+        .querySelector('.homepage-defer-placeholder--feature-hub')
+        ?.scrollIntoView({ block: 'end', inline: 'nearest' });
+      const hub = Boolean(document.querySelector('.feature-hub'));
+      if (!hub) {
+        window.scrollBy({ top: Math.max(320, innerHeight * 0.85), behavior: 'instant' });
+      }
+      return Boolean(document.querySelector('.feature-hub'));
+    },
+    { timeout: deferTimeoutMs, polling: 220 },
+  );
+  await expect(homePage.page.locator('.feature-hub')).toBeVisible({ timeout: 5_000 });
+
+  await homePage.page.waitForFunction(
+    () => {
+      const ph = document.querySelector('.homepage-defer-placeholder--support');
+      const strip = document.querySelector('.support-strip');
+      if (strip) {
+        strip.scrollIntoView({ block: 'end', inline: 'nearest' });
+      } else {
+        ph?.scrollIntoView({ block: 'end', inline: 'nearest' });
+      }
+      const ready = Boolean(document.querySelector('.support-strip'));
+      if (!ready) {
+        window.scrollBy({ top: Math.max(240, innerHeight * 0.85), behavior: 'instant' });
+      }
+      return Boolean(document.querySelector('.support-strip'));
+    },
+    { timeout: deferTimeoutMs, polling: 220 },
+  );
+  await expect(homePage.page.locator('.support-strip')).toBeVisible({ timeout: 5_000 });
+
+  await homePage.page.evaluate(() => window.scrollTo(0, 0));
 }
 
 async function expectWeatherPage(homePage: HomePage): Promise<void> {
@@ -96,6 +143,7 @@ async function expectFeaturePageFromHomepage(
   gateway: FeaturePageGateway,
 ): Promise<void> {
   await homePage.goto();
+  await triggerHomepageViewportDefers(homePage);
 
   const featureGrid = homePage.page.getByRole('region', { name: siteContent.featureHubHeading });
   const featureCard = featureGrid.locator(`.feature-card[href="${gateway.href}"]`);
@@ -311,6 +359,26 @@ test.describe('homepage smoke', () => {
     await expect(homePage.heroHeading).toBeVisible();
   });
 
+  test('renders the deferred feature-hub and support-strip after the homepage scrolls into view', async ({
+    homePage,
+  }) => {
+    await homePage.goto();
+
+    await triggerHomepageViewportDefers(homePage);
+
+    const featureHub = homePage.page.locator('.feature-hub');
+    await expect(featureHub).toBeVisible();
+    await expect(homePage.page.locator('#feature-hub-heading')).toBeVisible();
+    await expect(homePage.featureCards.first()).toBeVisible();
+
+    const supportStrip = homePage.page.locator('.support-strip');
+    await expect(supportStrip).toBeVisible({ timeout: 15_000 });
+    await expect(homePage.page.locator('#stay-informed-heading')).toBeVisible();
+    await expect(homePage.page.locator('.support-link-card[href="/weather"]')).toBeVisible();
+
+    await expect(homePage.page.locator('.homepage-defer-placeholder--feature-hub')).toHaveCount(0);
+  });
+
   test('renders the Wiley landing page scaffold', async ({ homePage }, testInfo) => {
     await homePage.goto();
 
@@ -322,6 +390,7 @@ test.describe('homepage smoke', () => {
     } else {
       await expect(homePage.searchInput).toBeVisible();
     }
+    await triggerHomepageViewportDefers(homePage);
     await expect(homePage.featureCards).toHaveCount(6);
     await expect(homePage.topTaskCards).toHaveCount(4);
     await expect(
@@ -418,6 +487,7 @@ test.describe('homepage smoke', () => {
     await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
+    await triggerHomepageViewportDefers(homePage);
     await homePage.page.locator('.feature-grid .feature-card[href="/weather"]').click();
 
     await expect(homePage.page).toHaveURL(/\/weather$/);
@@ -428,6 +498,7 @@ test.describe('homepage smoke', () => {
   test('opens the public document hub from the records feature page', async ({ homePage }) => {
     await homePage.goto();
 
+    await triggerHomepageViewportDefers(homePage);
     await homePage.page.locator('.feature-grid .feature-card[href="/records"]').click();
     await homePage.page
       .getByTestId('records-guide-packets')

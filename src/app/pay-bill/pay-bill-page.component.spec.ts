@@ -9,6 +9,31 @@ import { BillPayService } from './bill-pay.service';
 import { PayBillPageComponent } from './pay-bill-page.component';
 
 describe('PayBillPageComponent', () => {
+  interface RuntimeShape {
+    payments?: { provider?: string; paystar?: { mode?: string; portalUrl?: string } };
+  }
+
+  function setRuntimePaystarMode(mode: 'none' | 'hosted' | 'api', portalUrl = ''): void {
+    const w = window as Window & {
+      __TOW_RUNTIME_CONFIG__?: RuntimeShape;
+      __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeShape;
+    };
+    w.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      payments: { provider: 'paystar', paystar: { mode, portalUrl } },
+    };
+  }
+
+  function clearRuntimePaystarOverride(): void {
+    const w = window as Window & {
+      __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeShape;
+    };
+    delete w.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  }
+
+  afterEach(() => {
+    clearRuntimePaystarOverride();
+  });
+
   function setup() {
     const billPay = {
       submitRequest: vi.fn().mockResolvedValue({ outcome: 'api-success' as const }),
@@ -61,5 +86,41 @@ describe('PayBillPageComponent', () => {
         locale: 'en',
       }),
     );
+  });
+
+  it('disables the portal CTA and shows a bilingual fallback when Paystar mode is "none"', () => {
+    setRuntimePaystarMode('none');
+    const { fixture, component } = setup();
+    fixture.detectChanges();
+
+    expect(component['quickPayDisabled']()).toBe(true);
+
+    const root = fixture.nativeElement as HTMLElement;
+    const disabledCta = root.querySelector<HTMLButtonElement>(
+      '[data-testid="pay-bill-portal-cta-disabled"]',
+    );
+    const fallbackMessage = root.querySelector('[data-testid="pay-bill-portal-unavailable"]');
+
+    expect(disabledCta).not.toBeNull();
+    expect(disabledCta?.disabled).toBe(true);
+    expect(fallbackMessage).not.toBeNull();
+    expect(fallbackMessage?.textContent ?? '').toMatch(/portal|portal/i);
+    expect(root.querySelector('[data-testid="pay-bill-portal-cta"]')).toBeNull();
+  });
+
+  it('keeps the portal CTA active when Paystar mode is "hosted"', () => {
+    setRuntimePaystarMode('hosted', 'https://secure.paystar.io/pay/townofwiley-utility');
+    const { fixture, component } = setup();
+    fixture.detectChanges();
+
+    expect(component['quickPayDisabled']()).toBe(false);
+
+    const root = fixture.nativeElement as HTMLElement;
+    const activeCta = root.querySelector<HTMLAnchorElement>(
+      '[data-testid="pay-bill-portal-cta"]',
+    );
+    expect(activeCta).not.toBeNull();
+    expect(activeCta?.getAttribute('href')).toContain('paystar.io');
+    expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).toBeNull();
   });
 });

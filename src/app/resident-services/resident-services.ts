@@ -14,19 +14,11 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { TagModule } from 'primeng/tag';
-import { TextareaModule } from 'primeng/textarea';
 import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { startWith } from 'rxjs';
@@ -39,6 +31,10 @@ import {
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
 import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { ResidentIssuePanel } from './panels/issue-panel';
+import { ResidentPaymentPanel } from './panels/payment-panel';
+import { ResidentRecordsPanel } from './panels/records-panel';
+import { ResidentWeatherPanel } from './panels/weather-panel';
 
 /** Allows digits, spaces, and common phone punctuation; min length enforced separately. */
 const PHONE_INPUT_PATTERN = /^[\d\s\-+().]{10,40}$/;
@@ -425,18 +421,13 @@ type ContactUpdateFormGroup = FormGroup<{
 @Component({
   selector: 'app-resident-services',
   imports: [
-    ReactiveFormsModule,
-    RouterLink,
     CardModule,
-    ButtonModule,
-    InputTextModule,
-    MessageModule,
-    SelectModule,
-    TextareaModule,
-    CheckboxModule,
     ToastModule,
-    TagModule,
     Ripple,
+    ResidentIssuePanel,
+    ResidentPaymentPanel,
+    ResidentRecordsPanel,
+    ResidentWeatherPanel,
   ],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
@@ -637,6 +628,15 @@ export class ResidentServices {
   protected readonly issueMailtoHref = computed(() => this.buildIssueMailtoHref());
   protected readonly recordsMailtoHref = computed(() => this.buildRecordsMailtoHref());
   protected readonly contactUpdateMailtoHref = computed(() => this.buildContactUpdateMailtoHref());
+
+  /** Stable references for child panels that need callable inputs. */
+  protected readonly boundValidationMessage = (
+    control: AbstractControl,
+    fieldLabel: string,
+  ): string | null => this.validationMessage(control, fieldLabel);
+  protected readonly boundPortalFieldMessage = (
+    controlName: keyof PortalAccessFormGroup['controls'],
+  ): string | null => this.portalFieldMessage(controlName);
 
   constructor() {
     effect(() => {

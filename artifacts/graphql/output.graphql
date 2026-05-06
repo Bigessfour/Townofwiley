@@ -18,10 +18,12 @@ type AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam {
 
 type Announcement @aws_api_key @aws_cognito_user_pools @aws_iam {
   active: Boolean!
+  announcementKind: String
   createdAt: AWSDateTime!
   date: AWSDate
   detail: String!
   id: ID!
+  imageUrl: AWSURL
   priority: Int
   title: String!
   updatedAt: AWSDateTime!
@@ -82,24 +84,75 @@ type ModelSiteSettingsConnection @aws_api_key @aws_cognito_user_pools @aws_iam {
 }
 
 type Mutation {
-  createAlertBanner(condition: ModelAlertBannerConditionInput, input: CreateAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
-  createAnnouncement(condition: ModelAnnouncementConditionInput, input: CreateAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
-  createEmailAlias(condition: ModelEmailAliasConditionInput, input: CreateEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
-  createEvent(condition: ModelEventConditionInput, input: CreateEventInput!): Event @aws_cognito_user_pools @aws_iam
-  createOfficialContact(condition: ModelOfficialContactConditionInput, input: CreateOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
-  createSiteSettings(condition: ModelSiteSettingsConditionInput, input: CreateSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
-  deleteAlertBanner(condition: ModelAlertBannerConditionInput, input: DeleteAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
-  deleteAnnouncement(condition: ModelAnnouncementConditionInput, input: DeleteAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
-  deleteEmailAlias(condition: ModelEmailAliasConditionInput, input: DeleteEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
-  deleteEvent(condition: ModelEventConditionInput, input: DeleteEventInput!): Event @aws_cognito_user_pools @aws_iam
-  deleteOfficialContact(condition: ModelOfficialContactConditionInput, input: DeleteOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
-  deleteSiteSettings(condition: ModelSiteSettingsConditionInput, input: DeleteSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
-  updateAlertBanner(condition: ModelAlertBannerConditionInput, input: UpdateAlertBannerInput!): AlertBanner @aws_cognito_user_pools @aws_iam
-  updateAnnouncement(condition: ModelAnnouncementConditionInput, input: UpdateAnnouncementInput!): Announcement @aws_cognito_user_pools @aws_iam
-  updateEmailAlias(condition: ModelEmailAliasConditionInput, input: UpdateEmailAliasInput!): EmailAlias @aws_cognito_user_pools @aws_iam
-  updateEvent(condition: ModelEventConditionInput, input: UpdateEventInput!): Event @aws_cognito_user_pools @aws_iam
-  updateOfficialContact(condition: ModelOfficialContactConditionInput, input: UpdateOfficialContactInput!): OfficialContact @aws_cognito_user_pools @aws_iam
-  updateSiteSettings(condition: ModelSiteSettingsConditionInput, input: UpdateSiteSettingsInput!): SiteSettings @aws_cognito_user_pools @aws_iam
+  createAlertBanner(
+    condition: ModelAlertBannerConditionInput
+    input: CreateAlertBannerInput!
+  ): AlertBanner @aws_cognito_user_pools @aws_iam
+  createAnnouncement(
+    condition: ModelAnnouncementConditionInput
+    input: CreateAnnouncementInput!
+  ): Announcement @aws_cognito_user_pools @aws_iam
+  createEmailAlias(
+    condition: ModelEmailAliasConditionInput
+    input: CreateEmailAliasInput!
+  ): EmailAlias @aws_cognito_user_pools @aws_iam
+  createEvent(condition: ModelEventConditionInput, input: CreateEventInput!): Event
+    @aws_cognito_user_pools
+    @aws_iam
+  createOfficialContact(
+    condition: ModelOfficialContactConditionInput
+    input: CreateOfficialContactInput!
+  ): OfficialContact @aws_cognito_user_pools @aws_iam
+  createSiteSettings(
+    condition: ModelSiteSettingsConditionInput
+    input: CreateSiteSettingsInput!
+  ): SiteSettings @aws_cognito_user_pools @aws_iam
+  deleteAlertBanner(
+    condition: ModelAlertBannerConditionInput
+    input: DeleteAlertBannerInput!
+  ): AlertBanner @aws_cognito_user_pools @aws_iam
+  deleteAnnouncement(
+    condition: ModelAnnouncementConditionInput
+    input: DeleteAnnouncementInput!
+  ): Announcement @aws_cognito_user_pools @aws_iam
+  deleteEmailAlias(
+    condition: ModelEmailAliasConditionInput
+    input: DeleteEmailAliasInput!
+  ): EmailAlias @aws_cognito_user_pools @aws_iam
+  deleteEvent(condition: ModelEventConditionInput, input: DeleteEventInput!): Event
+    @aws_cognito_user_pools
+    @aws_iam
+  deleteOfficialContact(
+    condition: ModelOfficialContactConditionInput
+    input: DeleteOfficialContactInput!
+  ): OfficialContact @aws_cognito_user_pools @aws_iam
+  deleteSiteSettings(
+    condition: ModelSiteSettingsConditionInput
+    input: DeleteSiteSettingsInput!
+  ): SiteSettings @aws_cognito_user_pools @aws_iam
+  updateAlertBanner(
+    condition: ModelAlertBannerConditionInput
+    input: UpdateAlertBannerInput!
+  ): AlertBanner @aws_cognito_user_pools @aws_iam
+  updateAnnouncement(
+    condition: ModelAnnouncementConditionInput
+    input: UpdateAnnouncementInput!
+  ): Announcement @aws_cognito_user_pools @aws_iam
+  updateEmailAlias(
+    condition: ModelEmailAliasConditionInput
+    input: UpdateEmailAliasInput!
+  ): EmailAlias @aws_cognito_user_pools @aws_iam
+  updateEvent(condition: ModelEventConditionInput, input: UpdateEventInput!): Event
+    @aws_cognito_user_pools
+    @aws_iam
+  updateOfficialContact(
+    condition: ModelOfficialContactConditionInput
+    input: UpdateOfficialContactInput!
+  ): OfficialContact @aws_cognito_user_pools @aws_iam
+  updateSiteSettings(
+    condition: ModelSiteSettingsConditionInput
+    input: UpdateSiteSettingsInput!
+  ): SiteSettings @aws_cognito_user_pools @aws_iam
 }
 
 type OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam {
@@ -115,19 +168,48 @@ type OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam {
 }
 
 type Query {
-  emailAliasByAddress(aliasAddress: AWSEmail!, filter: ModelEmailAliasFilterInput, limit: Int, nextToken: String, sortDirection: ModelSortDirection): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
+  emailAliasByAddress(
+    aliasAddress: AWSEmail!
+    filter: ModelEmailAliasFilterInput
+    limit: Int
+    nextToken: String
+    sortDirection: ModelSortDirection
+  ): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
   getAlertBanner(id: ID!): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam
   getAnnouncement(id: ID!): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam
   getEmailAlias(id: ID!): EmailAlias @aws_cognito_user_pools @aws_iam
   getEvent(id: ID!): Event @aws_api_key @aws_cognito_user_pools @aws_iam
   getOfficialContact(id: ID!): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam
   getSiteSettings(id: ID!): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam
-  listAlertBanners(filter: ModelAlertBannerFilterInput, limit: Int, nextToken: String): ModelAlertBannerConnection @aws_api_key @aws_cognito_user_pools @aws_iam
-  listAnnouncements(filter: ModelAnnouncementFilterInput, limit: Int, nextToken: String): ModelAnnouncementConnection @aws_api_key @aws_cognito_user_pools @aws_iam
-  listEmailAliases(filter: ModelEmailAliasFilterInput, limit: Int, nextToken: String): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
-  listEvents(filter: ModelEventFilterInput, limit: Int, nextToken: String): ModelEventConnection @aws_api_key @aws_cognito_user_pools @aws_iam
-  listOfficialContacts(filter: ModelOfficialContactFilterInput, limit: Int, nextToken: String): ModelOfficialContactConnection @aws_api_key @aws_cognito_user_pools @aws_iam
-  listSiteSettings(filter: ModelSiteSettingsFilterInput, limit: Int, nextToken: String): ModelSiteSettingsConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listAlertBanners(
+    filter: ModelAlertBannerFilterInput
+    limit: Int
+    nextToken: String
+  ): ModelAlertBannerConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listAnnouncements(
+    filter: ModelAnnouncementFilterInput
+    limit: Int
+    nextToken: String
+  ): ModelAnnouncementConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listEmailAliases(
+    filter: ModelEmailAliasFilterInput
+    limit: Int
+    nextToken: String
+  ): ModelEmailAliasConnection @aws_cognito_user_pools @aws_iam
+  listEvents(filter: ModelEventFilterInput, limit: Int, nextToken: String): ModelEventConnection
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+  listOfficialContacts(
+    filter: ModelOfficialContactFilterInput
+    limit: Int
+    nextToken: String
+  ): ModelOfficialContactConnection @aws_api_key @aws_cognito_user_pools @aws_iam
+  listSiteSettings(
+    filter: ModelSiteSettingsFilterInput
+    limit: Int
+    nextToken: String
+  ): ModelSiteSettingsConnection @aws_api_key @aws_cognito_user_pools @aws_iam
 }
 
 type SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam {
@@ -152,24 +234,93 @@ type SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam {
 }
 
 type Subscription {
-  onCreateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createAlertBanner"])
-  onCreateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createAnnouncement"])
-  onCreateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createEmailAlias"])
-  onCreateEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createEvent"])
-  onCreateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createOfficialContact"])
-  onCreateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createSiteSettings"])
-  onDeleteAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteAlertBanner"])
-  onDeleteAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteAnnouncement"])
-  onDeleteEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteEmailAlias"])
-  onDeleteEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteEvent"])
-  onDeleteOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteOfficialContact"])
-  onDeleteSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteSiteSettings"])
-  onUpdateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateAlertBanner"])
-  onUpdateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateAnnouncement"])
-  onUpdateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateEmailAlias"])
-  onUpdateEvent(filter: ModelSubscriptionEventFilterInput): Event @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateEvent"])
-  onUpdateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateOfficialContact"])
-  onUpdateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings @aws_api_key @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateSiteSettings"])
+  onCreateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createAlertBanner"])
+  onCreateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createAnnouncement"])
+  onCreateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createEmailAlias"])
+  onCreateEvent(filter: ModelSubscriptionEventFilterInput): Event
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createEvent"])
+  onCreateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createOfficialContact"])
+  onCreateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["createSiteSettings"])
+  onDeleteAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteAlertBanner"])
+  onDeleteAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteAnnouncement"])
+  onDeleteEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteEmailAlias"])
+  onDeleteEvent(filter: ModelSubscriptionEventFilterInput): Event
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteEvent"])
+  onDeleteOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteOfficialContact"])
+  onDeleteSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["deleteSiteSettings"])
+  onUpdateAlertBanner(filter: ModelSubscriptionAlertBannerFilterInput): AlertBanner
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateAlertBanner"])
+  onUpdateAnnouncement(filter: ModelSubscriptionAnnouncementFilterInput): Announcement
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateAnnouncement"])
+  onUpdateEmailAlias(filter: ModelSubscriptionEmailAliasFilterInput): EmailAlias
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateEmailAlias"])
+  onUpdateEvent(filter: ModelSubscriptionEventFilterInput): Event
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateEvent"])
+  onUpdateOfficialContact(filter: ModelSubscriptionOfficialContactFilterInput): OfficialContact
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateOfficialContact"])
+  onUpdateSiteSettings(filter: ModelSubscriptionSiteSettingsFilterInput): SiteSettings
+    @aws_api_key
+    @aws_cognito_user_pools
+    @aws_iam
+    @aws_subscribe(mutations: ["updateSiteSettings"])
 }
 
 enum ModelAttributeTypes {

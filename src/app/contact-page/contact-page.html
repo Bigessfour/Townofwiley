@@ -34,6 +34,8 @@
           </article>
         }
       </section>
+    } @else if (contacts().length === 0) {
+      <p class="public-empty-state" role="status">{{ copy().contactEmptyState }}</p>
     } @else {
       <section class="contact-grid" aria-label="Town contacts">
         @for (contact of contacts(); track contact.id) {

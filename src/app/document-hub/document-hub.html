@@ -14,15 +14,25 @@
     </div>
   </section>
 
+  @if (hrefResolutionError()) {
+    <p
+      class="public-empty-state document-hub-resolution-error"
+      role="alert"
+      data-testid="document-hub-resolution-error"
+    >
+      {{ copy().resolutionErrorMessage }}
+    </p>
+  }
+
   <!-- Featured upcoming meeting -->
   <section class="featured-meeting" aria-labelledby="upcoming-heading">
-    <p class="document-hub-kicker">Upcoming</p>
+    <p class="document-hub-kicker">{{ copy().upcomingKicker }}</p>
     <h2 id="upcoming-heading">{{ upcomingMeeting().title }}</h2>
     <p>{{ upcomingMeeting().date }}</p>
     <p>{{ upcomingMeeting().summary }}</p>
-    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href"
-      >View Agenda Packet</a
-    >
+    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href">{{
+      copy().viewAgendaPacketLabel
+    }}</a>
   </section>
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
@@ -36,13 +46,13 @@
   <!-- Searchable archive for historical agendas -->
   <section class="searchable-archive">
     <div class="archive-header">
-      <p class="document-hub-kicker">Historical Archive</p>
-      <h3>Search previous agendas and minutes</h3>
+      <p class="document-hub-kicker">{{ copy().historicalArchiveKicker }}</p>
+      <h3>{{ copy().historicalArchiveHeading }}</h3>
       <input
         pInputText
         class="archive-search"
-        [placeholder]="'Search agendas, minutes, or keywords...'"
-        [attr.aria-label]="'Search agendas, minutes, or keywords'"
+        [placeholder]="copy().archiveSearchPlaceholder"
+        [attr.aria-label]="copy().archiveSearchAriaLabel"
         [value]="searchTerm()"
         (input)="searchTerm.set($any($event.target).value)"
       />

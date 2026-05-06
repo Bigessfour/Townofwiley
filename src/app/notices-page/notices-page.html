@@ -18,6 +18,8 @@
           </article>
         }
       </section>
+    } @else if (notices().length === 0) {
+      <p class="public-empty-state" role="status">{{ copy().noticesEmptyState }}</p>
     } @else {
       <section class="notice-grid">
         @for (notice of notices(); track notice.id) {

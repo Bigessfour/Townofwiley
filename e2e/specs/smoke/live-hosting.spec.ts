@@ -23,6 +23,36 @@ test.describe('live hosting readiness', () => {
     });
   }
 
+  test('serves /admin as a hard-refreshable live route', async ({ page }) => {
+    const response = await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+
+    expect(response?.ok(), '/admin response should be OK').toBe(true);
+    await expect(
+      page
+        .getByRole('heading', { name: /Town of Wiley Content Management/i })
+        .first(),
+    ).toBeVisible({ timeout: 20000 });
+
+    const reload = await page.reload({ waitUntil: 'domcontentloaded' });
+    expect(reload?.ok(), '/admin reload response should be OK').toBe(true);
+    await expect(
+      page
+        .getByRole('heading', { name: /Town of Wiley Content Management/i })
+        .first(),
+    ).toBeVisible({ timeout: 20000 });
+  });
+
+  test('preserves the legacy /clerk-setup deep link to /admin on live hosting', async ({
+    page,
+  }) => {
+    const response = await page.goto('/clerk-setup#documents', {
+      waitUntil: 'domcontentloaded',
+    });
+
+    expect(response?.ok(), '/clerk-setup response should be OK').toBe(true);
+    await expect(page).toHaveURL(/\/admin#documents$/);
+  });
+
   test('serves browser runtime config and critical public assets', async ({ request }) => {
     const runtimeConfig = await request.get('/runtime-config.js');
     expect(runtimeConfig.ok(), 'runtime-config.js should be hosted').toBe(true);

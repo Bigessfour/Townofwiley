@@ -15,6 +15,8 @@
           <p-skeleton height="3.25rem" width="100%" borderRadius="12px" styleClass="mb-2" />
         }
       </div>
+    } @else if (meetings().length === 0) {
+      <p class="public-empty-state" role="status">{{ copy().meetingsEmptyState }}</p>
     } @else {
       <p-table
         class="meetings-table"

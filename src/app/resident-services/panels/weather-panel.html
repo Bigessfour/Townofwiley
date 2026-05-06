@@ -1,0 +1,19 @@
+<p-card id="weather-alerts" styleClass="resident-service-stage-card">
+  <div class="resident-service-stage-inner grid gap-4">
+    <p class="meta-label">{{ copy().weatherMeta }}</p>
+    <i [class]="'pi ' + copy().weatherIcon" aria-hidden="true"></i>
+    <h2>{{ copy().weatherTitle }}</h2>
+    <p>{{ copy().weatherBody }}</p>
+    <div class="resident-action-row">
+      <a
+        pButton
+        pRipple
+        routerLink="/weather"
+        class="p-button-sm"
+        icon="pi pi-cloud"
+        [label]="copy().weatherCta"
+        [attr.aria-label]="copy().weatherCta"
+      ></a>
+    </div>
+  </div>
+</p-card>

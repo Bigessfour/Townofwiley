@@ -1,0 +1,151 @@
+<p-card id="issue-report" styleClass="resident-service-stage-card">
+  <div class="resident-service-stage-inner grid gap-4">
+    <p class="meta-label">{{ copy().issueMeta }}</p>
+    <i [class]="'pi ' + copy().issueIcon" aria-hidden="true"></i>
+    <h2>{{ copy().issueTitle }}</h2>
+    <p>{{ copy().issueBody }}</p>
+
+    <div class="resident-contact-row flex flex-wrap gap-2">
+      @if (townHallPhoneHref()) {
+        <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
+          {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+        </a>
+      }
+      @if (superintendentEmailHref()) {
+        <a class="resident-contact-link" [attr.href]="superintendentEmailHref()">
+          {{ copy().emailFallbackLabel }} · {{ superintendentEmailLabel() }}
+        </a>
+      }
+    </div>
+
+    <form
+      class="resident-form grid gap-4"
+      [formGroup]="issueForm()"
+      (ngSubmit)="onSubmit()"
+    >
+      <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+        <label for="issue-category" class="resident-field grid gap-1">
+          <span>{{ copy().issueCategoryLabel }}</span>
+          <p-select
+            inputId="issue-category"
+            formControlName="category"
+            [options]="copy().issueCategories"
+            optionLabel="label"
+            optionValue="value"
+            [invalid]="
+              issueForm().controls.category.invalid && issueForm().controls.category.touched
+            "
+            fluid
+          />
+          @if (
+            validationMessage()(issueForm().controls.category, copy().issueCategoryLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="issue-name" class="resident-field grid gap-1">
+          <span>
+            {{ copy().issueNameLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <input
+            pInputText
+            id="issue-name"
+            type="text"
+            formControlName="name"
+            autocomplete="name"
+            [invalid]="issueForm().controls.name.invalid && issueForm().controls.name.touched"
+          />
+          @if (
+            validationMessage()(issueForm().controls.name, copy().issueNameLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="issue-location" class="resident-field resident-field--wide grid gap-1">
+          <span>
+            {{ copy().issueLocationLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <input
+            pInputText
+            id="issue-location"
+            type="text"
+            formControlName="location"
+            autocomplete="address-line1"
+            [invalid]="
+              issueForm().controls.location.invalid && issueForm().controls.location.touched
+            "
+          />
+          @if (
+            validationMessage()(issueForm().controls.location, copy().issueLocationLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="issue-contact" class="resident-field resident-field--wide grid gap-1">
+          <span>
+            {{ copy().issueContactLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <input
+            pInputText
+            id="issue-contact"
+            type="email"
+            formControlName="preferredContact"
+            autocomplete="email"
+            [invalid]="
+              issueForm().controls.preferredContact.invalid &&
+              issueForm().controls.preferredContact.touched
+            "
+          />
+          @if (
+            validationMessage()(
+              issueForm().controls.preferredContact,
+              copy().issueContactLabel
+            );
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="issue-details" class="resident-field resident-field--wide grid gap-1">
+          <span>
+            {{ copy().issueDetailsLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <textarea
+            pTextarea
+            id="issue-details"
+            rows="4"
+            formControlName="details"
+            [invalid]="
+              issueForm().controls.details.invalid && issueForm().controls.details.touched
+            "
+          ></textarea>
+          @if (
+            validationMessage()(issueForm().controls.details, copy().issueDetailsLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+      </section>
+
+      <footer class="resident-action-row grid gap-3">
+        <button
+          pButton
+          pRipple
+          type="submit"
+          icon="pi pi-send"
+          [label]="copy().issueSubmitLabel"
+          [attr.aria-label]="copy().issueSubmitLabel"
+          [loading]="issueSubmitting()"
+        ></button>
+      </footer>
+    </form>
+  </div>
+</p-card>

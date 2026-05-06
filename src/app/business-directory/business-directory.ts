@@ -4,6 +4,72 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { LoggingService } from '../logging.service';
 import { type CmsBusiness, LocalizedCmsContentStore } from '../site-cms-content';
+import { type SiteLanguage, SiteLanguageService } from '../site-language';
+
+interface BusinessDirectoryCopy {
+  kicker: string;
+  heading: string;
+  intro: string;
+  countSuffix: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  metaLabel: string;
+  phoneLabel: string;
+  addressLabel: string;
+  callLabel: string;
+  visitWebsiteLabel: string;
+  fallbackDescription: string;
+  filteredEmptyPrefix: string;
+  filteredEmptyClearLink: string;
+  filteredEmptySuffix: string;
+  loadingState: string;
+  noBusinessesEmptyState: string;
+}
+
+const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
+  en: {
+    kicker: 'Wiley Business Directory',
+    heading: 'Wiley Community Business Directory',
+    intro:
+      'Discover and support local Wiley businesses with direct contact details, addresses, and website links when they are available.',
+    countSuffix: 'businesses',
+    searchLabel: 'Search local businesses',
+    searchPlaceholder: 'Search by business name, service, address, or phone',
+    metaLabel: 'Wiley business',
+    phoneLabel: 'Phone',
+    addressLabel: 'Address',
+    callLabel: 'Call',
+    visitWebsiteLabel: 'Visit website',
+    fallbackDescription: 'Local Wiley business listing.',
+    filteredEmptyPrefix: 'No businesses match your search. Try a different word or ',
+    filteredEmptyClearLink: 'clear the search',
+    filteredEmptySuffix: '.',
+    loadingState: 'Loading the Wiley business directory…',
+    noBusinessesEmptyState:
+      'No businesses are listed yet. To add or update a listing, contact Town Hall at (719) 829-4974.',
+  },
+  es: {
+    kicker: 'Directorio de Negocios de Wiley',
+    heading: 'Directorio Comunitario de Negocios de Wiley',
+    intro:
+      'Descubra y apoye a los negocios locales de Wiley con detalles de contacto, direcciones y enlaces a sitios web cuando esten disponibles.',
+    countSuffix: 'negocios',
+    searchLabel: 'Buscar negocios locales',
+    searchPlaceholder: 'Buscar por nombre, servicio, direccion o telefono',
+    metaLabel: 'Negocio de Wiley',
+    phoneLabel: 'Telefono',
+    addressLabel: 'Direccion',
+    callLabel: 'Llamar',
+    visitWebsiteLabel: 'Visitar sitio web',
+    fallbackDescription: 'Negocio local de Wiley.',
+    filteredEmptyPrefix: 'Ningun negocio coincide con su busqueda. Pruebe otra palabra o ',
+    filteredEmptyClearLink: 'borre la busqueda',
+    filteredEmptySuffix: '.',
+    loadingState: 'Cargando el directorio de negocios de Wiley…',
+    noBusinessesEmptyState:
+      'Aun no hay negocios listados. Para agregar o actualizar una ficha, llame al Ayuntamiento al (719) 829-4974.',
+  },
+};
 
 function getVerifiedWebsite(url?: string | null): string | undefined {
   if (!url) {
@@ -127,8 +193,14 @@ const FALLBACK_BUSINESSES: Business[] = [
 export class BusinessDirectory {
   protected readonly logging = inject(LoggingService);
   private readonly cms = inject(LocalizedCmsContentStore);
+  private readonly siteLanguageService = inject(SiteLanguageService);
   protected readonly directoryQuery = signal('');
   protected readonly failedLogoNames = signal<Set<string>>(new Set());
+
+  protected readonly cmsLoading = this.cms.isLoading;
+  protected readonly copy = computed(
+    () => BUSINESS_DIRECTORY_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
 
   protected readonly businesses = computed<Business[]>(() => {
     const cmsBusinesses = this.cms.businesses().map(mapCmsBusiness);
@@ -164,7 +236,9 @@ export class BusinessDirectory {
 
   protected readonly filteredBusinessCount = computed(() => this.filteredBusinesses().length);
 
-  protected readonly title = 'Wiley Community Business Directory';
+  protected readonly hasAnyBusinesses = computed(() => this.businesses().length > 0);
+
+  protected readonly hasActiveSearch = computed(() => this.directoryQuery().trim().length > 0);
 
   protected updateDirectoryQuery(value: string): void {
     this.directoryQuery.set(value);

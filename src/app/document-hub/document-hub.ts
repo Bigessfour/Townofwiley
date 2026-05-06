@@ -63,6 +63,13 @@ interface DocumentHubCopy {
   downloadDocumentLabel: string;
   updatedLabel: string;
   formatLabel: string;
+  upcomingKicker: string;
+  viewAgendaPacketLabel: string;
+  historicalArchiveKicker: string;
+  historicalArchiveHeading: string;
+  archiveSearchPlaceholder: string;
+  archiveSearchAriaLabel: string;
+  resolutionErrorMessage: string;
   sections: DocumentSection[];
 }
 
@@ -82,6 +89,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     downloadDocumentLabel: 'Download file',
     updatedLabel: 'Updated',
     formatLabel: 'Format',
+    upcomingKicker: 'Upcoming',
+    viewAgendaPacketLabel: 'View Agenda Packet',
+    historicalArchiveKicker: 'Historical Archive',
+    historicalArchiveHeading: 'Search previous agendas and minutes',
+    archiveSearchPlaceholder: 'Search agendas, minutes, or keywords...',
+    archiveSearchAriaLabel: 'Search agendas, minutes, or keywords',
+    resolutionErrorMessage:
+      'Some document links could not be loaded. Refresh the page or contact the Town Clerk at (719) 829-4974 if the problem persists.',
     sections: [
       {
         id: 'records-requests',
@@ -208,6 +223,14 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     downloadDocumentLabel: 'Descargar archivo',
     updatedLabel: 'Actualizado',
     formatLabel: 'Formato',
+    upcomingKicker: 'Proximamente',
+    viewAgendaPacketLabel: 'Ver paquete de agenda',
+    historicalArchiveKicker: 'Archivo historico',
+    historicalArchiveHeading: 'Buscar agendas y minutas anteriores',
+    archiveSearchPlaceholder: 'Buscar agendas, minutas o palabras clave...',
+    archiveSearchAriaLabel: 'Buscar agendas, minutas o palabras clave',
+    resolutionErrorMessage:
+      'Algunos enlaces de documentos no se pudieron cargar. Actualice la pagina o llame a la Secretaria al (719) 829-4974 si el problema persiste.',
     sections: [
       {
         id: 'records-requests',
@@ -342,6 +365,7 @@ export class DocumentHub {
   private readonly documentRefreshService = inject(DocumentRefreshService);
 
   protected readonly resolvedCmsDocumentHrefs = signal<Record<string, string>>({});
+  protected readonly hrefResolutionError = signal(false);
 
   protected readonly copy = computed(
     () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -500,9 +524,11 @@ export class DocumentHub {
       );
 
       this.resolvedCmsDocumentHrefs.set(Object.fromEntries(hrefEntries));
+      this.hrefResolutionError.set(false);
     } catch (error) {
       console.error('Failed to resolve CMS document links:', error);
       this.resolvedCmsDocumentHrefs.set({});
+      this.hrefResolutionError.set(true);
     }
   }
 

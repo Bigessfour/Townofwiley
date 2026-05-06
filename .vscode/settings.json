@@ -40,7 +40,7 @@
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python.defaultInterpreterPath": "/usr/bin/python3",
   "python.envFile": "${workspaceFolder}/secrets/local/.env",
-  "python.languageServer": "Default",
+  "python.languageServer": "None",
   "python.logging.level": "warning",
   "python.terminal.activateEnvironment": false,
   "python.testing.pytestEnabled": true,

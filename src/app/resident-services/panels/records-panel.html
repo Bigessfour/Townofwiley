@@ -1,0 +1,146 @@
+<p-card id="records-request" styleClass="resident-service-stage-card">
+  <div class="resident-service-stage-inner grid gap-4">
+    <p class="meta-label">{{ copy().recordsMeta }}</p>
+    <i [class]="'pi ' + copy().recordsIcon" aria-hidden="true"></i>
+    <h2>{{ copy().recordsTitle }}</h2>
+    <p>{{ copy().recordsBody }}</p>
+
+    <div class="resident-contact-row flex flex-wrap gap-2">
+      @if (townHallPhoneHref()) {
+        <a class="resident-contact-link" [attr.href]="townHallPhoneHref()">
+          {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
+        </a>
+      }
+      @if (clerkEmailHref()) {
+        <a class="resident-contact-link" [attr.href]="clerkEmailHref()">
+          {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
+        </a>
+      }
+    </div>
+
+    <nav class="resident-page-links flex flex-wrap gap-3" aria-label="Permits and businesses">
+      <a routerLink="/permits" class="resident-contact-link">{{
+        copy().permitsClerkInfoLinkLabel
+      }}</a>
+      <a routerLink="/businesses" class="resident-contact-link">{{
+        copy().businessDirectoryLinkLabel
+      }}</a>
+    </nav>
+
+    <form
+      class="resident-form grid gap-4"
+      [formGroup]="recordsForm()"
+      (ngSubmit)="onSubmit()"
+    >
+      <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
+        <label for="records-type" class="resident-field grid gap-1">
+          <span>{{ copy().recordsTypeLabel }}</span>
+          <p-select
+            inputId="records-type"
+            formControlName="requestType"
+            [options]="copy().requestTypes"
+            optionLabel="label"
+            optionValue="value"
+            [invalid]="
+              recordsForm().controls.requestType.invalid &&
+              recordsForm().controls.requestType.touched
+            "
+            fluid
+          />
+          @if (
+            validationMessage()(recordsForm().controls.requestType, copy().recordsTypeLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="records-name" class="resident-field grid gap-1">
+          <span>
+            {{ copy().recordsNameLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <input
+            pInputText
+            id="records-name"
+            type="text"
+            formControlName="name"
+            autocomplete="name"
+            [invalid]="
+              recordsForm().controls.name.invalid && recordsForm().controls.name.touched
+            "
+          />
+          @if (
+            validationMessage()(recordsForm().controls.name, copy().recordsNameLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="records-contact" class="resident-field resident-field--wide grid gap-1">
+          <span>
+            {{ copy().recordsContactLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <input
+            pInputText
+            id="records-contact"
+            type="email"
+            formControlName="preferredContact"
+            autocomplete="email"
+            [invalid]="
+              recordsForm().controls.preferredContact.invalid &&
+              recordsForm().controls.preferredContact.touched
+            "
+          />
+          @if (
+            validationMessage()(
+              recordsForm().controls.preferredContact,
+              copy().recordsContactLabel
+            );
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+        <label for="records-deadline" class="resident-field resident-field--wide grid gap-1">
+          <span>{{ copy().recordsDeadlineLabel }}</span>
+          <input pInputText id="records-deadline" type="text" formControlName="deadline" />
+        </label>
+        <label for="records-details" class="resident-field resident-field--wide grid gap-1">
+          <span>
+            {{ copy().recordsDetailsLabel }}
+            <span class="required" aria-hidden="true">*</span>
+          </span>
+          <textarea
+            pTextarea
+            id="records-details"
+            rows="4"
+            formControlName="details"
+            [invalid]="
+              recordsForm().controls.details.invalid &&
+              recordsForm().controls.details.touched
+            "
+          ></textarea>
+          @if (
+            validationMessage()(recordsForm().controls.details, copy().recordsDetailsLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
+        </label>
+      </section>
+
+      <footer class="resident-action-row grid gap-3">
+        <button
+          pButton
+          pRipple
+          type="submit"
+          icon="pi pi-send"
+          [label]="copy().recordsSubmitLabel"
+          [attr.aria-label]="copy().recordsSubmitLabel"
+          [loading]="recordsSubmitting()"
+        ></button>
+      </footer>
+    </form>
+  </div>
+</p-card>

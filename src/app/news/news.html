@@ -50,6 +50,35 @@
       </div>
     </section>
   } @else {
+    @if (newsletterItems().length) {
+      <section
+        class="news-section news-section-newsletter grid gap-6"
+        aria-labelledby="town-newsletter-heading"
+      >
+        <div class="news-section-header grid gap-1">
+          <p class="section-kicker">{{ copy().newsletterKicker }}</p>
+          <h2 id="town-newsletter-heading">{{ copy().newsletterHeading }}</h2>
+          <p class="public-page-copy">{{ copy().newsletterCopy }}</p>
+        </div>
+
+        @for (item of newsletterItems(); track item.id) {
+          <p-card class="newsletter-item-card public-card" [pt]="newsCardPt">
+            <ng-template pTemplate="header">
+              <p class="meta-label">{{ item.date }}</p>
+              <h3>{{ item.title }}</h3>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <div class="newsletter-body">
+                @for (block of newsletterParagraphs(item.detail); track $index) {
+                  <p class="newsletter-body__para">{{ block }}</p>
+                }
+              </div>
+            </ng-template>
+          </p-card>
+        }
+      </section>
+    }
+
     @if (featuredNotice(); as featuredNotice) {
       <p-card class="featured-news-card" [pt]="newsCardPt">
         <ng-template pTemplate="header">
@@ -61,7 +90,7 @@
           <p>{{ featuredNotice.detail }}</p>
         </ng-template>
         <ng-template pTemplate="footer">
-          <a href="/notices" class="button-cta button-cta--light featured-news-link">
+          <a routerLink="/notices" class="button-cta button-cta--light featured-news-link">
             {{ copy().readArticleLabel }}
           </a>
         </ng-template>
@@ -93,7 +122,7 @@
           }
         </div>
       </section>
-    } @else {
+    } @else if (!featuredNotice()) {
       <section
         class="news-section news-section-local grid gap-6"
         aria-labelledby="recent-town-notices-empty-heading"
@@ -104,7 +133,7 @@
           <p class="public-page-copy">{{ copy().officialCopy }}</p>
         </div>
 
-        <p class="public-empty-state">No current notices. Check back soon for town updates.</p>
+        <p class="public-empty-state">{{ officialEmptyMessage() }}</p>
       </section>
     }
   }
@@ -135,6 +164,7 @@
                 class="button-cta button-cta--light"
               >
                 {{ copy().readArticleLabel }}
+                <span class="visually-hidden">({{ copy().externalLinkSuffixLabel }})</span>
               </a>
             </div>
           </ng-template>

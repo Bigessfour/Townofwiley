@@ -146,10 +146,21 @@
       }
     </ul>
 
-    @if (connectionTestResult()?.error; as error) {
-      <p class="cms-trouble">
-        <strong>{{ copy().troubleLabel }}:</strong> {{ copy().troubleText }} {{ error }}
-      </p>
+    @if (connectionTestResult(); as result) {
+      @if (!result.ok) {
+        <p
+          class="cms-trouble cms-connection-guidance"
+          role="alert"
+          data-testid="cms-connection-failure-guidance"
+        >
+          {{ copy().connectionFailureGuidance }}
+        </p>
+      }
+      @if (result.error) {
+        <p class="cms-trouble">
+          <strong>{{ copy().troubleLabel }}:</strong> {{ copy().troubleText }} {{ result.error }}
+        </p>
+      }
     }
   </section>
 

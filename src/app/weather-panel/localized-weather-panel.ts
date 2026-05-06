@@ -242,6 +242,9 @@ interface WeatherCopy {
   hideRadar: string;
   radarImageUnavailable: string;
   radarImageOpenNws: string;
+  solarUnavailable: string;
+  aqiUnavailable: string;
+  hourlyUnavailable: string;
 }
 
 const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
@@ -326,6 +329,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     radarImageUnavailable:
       'The animated radar image could not be loaded. Try the official NWS radar viewer instead.',
     radarImageOpenNws: 'Open NWS radar for KPUX (Pueblo)',
+    solarUnavailable: 'Sunrise, sunset, and daylight times are temporarily unavailable.',
+    aqiUnavailable: 'Air quality data is temporarily unavailable from EPA AirNow.',
+    hourlyUnavailable:
+      'Hourly forecast data is temporarily unavailable. The seven-day forecast below is still current.',
   },
   es: {
     sectionKicker: 'Clima local',
@@ -410,6 +417,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     radarImageUnavailable:
       'No se pudo cargar la imagen animada del radar. Pruebe el visor oficial del NWS.',
     radarImageOpenNws: 'Abrir el radar del NWS para KPUX (Pueblo)',
+    solarUnavailable: 'Las horas de amanecer, atardecer y luz del dia no estan disponibles.',
+    aqiUnavailable: 'Los datos de calidad del aire de EPA AirNow no estan disponibles.',
+    hourlyUnavailable:
+      'El pronostico por hora no esta disponible. El pronostico de 7 dias mas abajo sigue actualizado.',
   },
 };
 

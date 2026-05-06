@@ -38,6 +38,17 @@ test.describe('Pay bill page', () => {
     await expect(homePage.page).toHaveURL(/\/pay-bill\/?$/);
   });
 
+  test('preserves /payments redirect after switching to Spanish', async ({ homePage }) => {
+    await homePage.page.goto('/');
+    await homePage.clickSiteLanguage('es');
+
+    await homePage.page.goto('/payments');
+    await expect(homePage.page).toHaveURL(/\/pay-bill\/?$/);
+    await expect(
+      homePage.page.getByRole('heading', { name: /Pague su factura de servicios en línea/i }),
+    ).toBeVisible({ timeout: 30000 });
+  });
+
   test('submits early access request when bill pay API is available', async ({ homePage }) => {
     await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
     await mockBillPaySuccess(homePage.page);
@@ -117,27 +128,33 @@ test.describe('Pay bill page', () => {
 });
 
 test.describe('pay bill without bill pay API configured', () => {
-  test('shows Quick Pay placeholder when portal URL is not configured', async ({ homePage }) => {
+  test('shows the disabled portal CTA fallback when no Paystar mode is configured', async ({
+    homePage,
+  }) => {
     await gotoPayBillFormReady(homePage.page);
 
     await expect(
       homePage.page.getByRole('heading', { name: /Pay Your Utility Bill Online/i }),
     ).toBeVisible();
-    await expect(
-      homePage.page.getByText(/online payment link is being finalized/i),
-    ).toBeVisible();
-    await expect(homePage.page.getByRole('link', { name: /Open payment portal/i })).toBeVisible();
+    await expect(homePage.page.getByTestId('pay-bill-portal-unavailable')).toBeVisible();
+    await expect(homePage.page.getByTestId('pay-bill-portal-unavailable')).toContainText(
+      /online payment portal is not yet active/i,
+    );
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta-disabled')).toBeVisible();
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta-disabled')).toBeDisabled();
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta')).toHaveCount(0);
   });
 
-  test('shows Quick Pay placeholder in Spanish after switching site language', async ({
+  test('shows the disabled portal CTA fallback in Spanish after switching site language', async ({
     homePage,
   }) => {
     await gotoPayBillFormReady(homePage.page);
     await homePage.clickSiteLanguage('es');
 
-    await expect(
-      homePage.page.getByText(/El enlace de pago en línea se está finalizando/i),
-    ).toBeVisible();
+    await expect(homePage.page.getByTestId('pay-bill-portal-unavailable')).toContainText(
+      /El portal de pagos en línea aún no está disponible/i,
+    );
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta-disabled')).toBeDisabled();
   });
 
   test('billing assistance uses mailto path and does not POST when API endpoint is absent', async ({

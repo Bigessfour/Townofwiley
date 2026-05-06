@@ -1,4 +1,4 @@
-<section class="weather-panel panel grid gap-6" aria-labelledby="weather-heading" ngSkipHydration>
+<section class="weather-panel panel grid gap-6" aria-labelledby="weather-heading">
   <header class="weather-header flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
     <section class="weather-header-copy grid gap-3">
       <p class="section-kicker">{{ copy().sectionKicker }}</p>
@@ -50,29 +50,38 @@
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
     }
 
-    @if (solarTimes() || aqiData() || forecastGdd() > 0) {
-      <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
-        @if (solarTimes(); as solar) {
-          <div class="atglance-card">
-            <span class="meta-label">{{ copy().sunriseLabel }}</span>
-            <strong>{{ solar.sunrise }}</strong>
-          </div>
-          <div class="atglance-card">
-            <span class="meta-label">{{ copy().sunsetLabel }}</span>
-            <strong>{{ solar.sunset }}</strong>
-          </div>
-          <div class="atglance-card">
-            <span class="meta-label">{{ copy().photoperiodLabel }}</span>
-            <strong>{{ solar.photoperiod }}</strong>
-          </div>
-        }
-        @if (aqiData(); as aqi) {
-          <div class="atglance-card">
-            <span class="meta-label">{{ copy().aqiLabel }}</span>
-            <p-tag [value]="aqi.category" [severity]="aqiSeverityClass(aqi.category)" />
-          </div>
-        }
-        @if (forecastGdd() > 0) {
+    <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
+      @if (solarTimes(); as solar) {
+        <div class="atglance-card">
+          <span class="meta-label">{{ copy().sunriseLabel }}</span>
+          <strong>{{ solar.sunrise }}</strong>
+        </div>
+        <div class="atglance-card">
+          <span class="meta-label">{{ copy().sunsetLabel }}</span>
+          <strong>{{ solar.sunset }}</strong>
+        </div>
+        <div class="atglance-card">
+          <span class="meta-label">{{ copy().photoperiodLabel }}</span>
+          <strong>{{ solar.photoperiod }}</strong>
+        </div>
+      } @else {
+        <div class="atglance-card atglance-card--unavailable" data-testid="solar-unavailable">
+          <span class="meta-label">{{ copy().sunriseLabel }}</span>
+          <small class="atglance-unavailable">{{ copy().solarUnavailable }}</small>
+        </div>
+      }
+      @if (aqiData(); as aqi) {
+        <div class="atglance-card">
+          <span class="meta-label">{{ copy().aqiLabel }}</span>
+          <p-tag [value]="aqi.category" [severity]="aqiSeverityClass(aqi.category)" />
+        </div>
+      } @else {
+        <div class="atglance-card atglance-card--unavailable" data-testid="aqi-unavailable">
+          <span class="meta-label">{{ copy().aqiLabel }}</span>
+          <small class="atglance-unavailable">{{ copy().aqiUnavailable }}</small>
+        </div>
+      }
+      @if (forecastGdd() > 0) {
           <div class="atglance-card">
             <span class="meta-label gdd-label-row">
               {{ copy().gddLabel }}
@@ -90,8 +99,7 @@
             <small class="atglance-unit">{{ copy().gddUnit }}</small>
           </div>
         }
-      </section>
-    }
+    </section>
 
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
       <section
@@ -162,11 +170,11 @@
           </p-card>
         }
 
-        @if (hourlyPeriods().length > 0) {
-          <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
-            <h3 id="weather-hourly-heading" class="meta-label weather-section-label">
-              {{ copy().hourlyLabel }}
-            </h3>
+        <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
+          <h3 id="weather-hourly-heading" class="meta-label weather-section-label">
+            {{ copy().hourlyLabel }}
+          </h3>
+          @if (hourlyPeriods().length > 0) {
             <ul class="weather-hourly-scroll" [attr.aria-label]="copy().hourlyLabel">
               @for (h of hourlyPeriods(); track h.timeLabel) {
                 <li class="weather-hourly-card" [class.is-night]="!h.isDaytime">
@@ -178,8 +186,16 @@
                 </li>
               }
             </ul>
-          </section>
-        }
+          } @else {
+            <p
+              class="public-empty-state weather-hourly-unavailable"
+              role="status"
+              data-testid="hourly-unavailable"
+            >
+              {{ copy().hourlyUnavailable }}
+            </p>
+          }
+        </section>
 
         @if (sevenDayPeriods().length > 0) {
           <section aria-labelledby="weather-sevenday-heading">
@@ -281,6 +297,7 @@
 
         @if (isAlertSignupEnabled()) {
           <section
+            id="weather-alert-signup"
             class="weather-signup-shell"
             aria-labelledby="weather-signup-heading"
             data-testid="weather-signup-shell"
