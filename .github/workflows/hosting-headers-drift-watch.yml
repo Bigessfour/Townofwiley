@@ -10,8 +10,8 @@ name: Hosting headers drift watch
 on:
   workflow_dispatch:
   schedule:
-    # Weekly Monday 15:00 UTC (~business hours US Mountain for triage)
-    - cron: 0 15 * * 1
+    # Daily 14:00 UTC — catches live CSP / edge drift quickly (complements CloudTrail→EventBridge on UpdateApp)
+    - cron: 0 14 * * *
 
 permissions:
   contents: read

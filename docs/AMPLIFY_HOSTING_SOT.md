@@ -119,3 +119,7 @@ Before merging changes that touch hosting:
 2. Run `npm run lint` and the targeted `live-hosting*.spec.ts` against a staging URL when applicable.
 3. Update this file with any new origin, rewrite, or runtime-config key.
 4. After deploy, hit `/admin#documents`, `/clerk-setup#documents`, and a couple of public deep links via hard refresh to confirm the SPA fallback rewrite is intact.
+
+## 7. AWS logging and alerts (Hosting API changes)
+
+Amplify emits **CloudTrail management events** for `amplify.amazonaws.com` (including **`UpdateApp`**, which carries **customHeaders** changes). To get **notifications** when Hosting metadata changes, enable **CloudTrail → EventBridge** and a rule on **`UpdateApp` / `UpdateBranch`** targeting **SNS** (or Chatbot). The repo runbook with step-by-step patterns is **[`AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md`](AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md)**. Complement that with the **daily** GitHub Actions CSP probe ([`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml)) so **live** CSP regressions are caught even when API calls are expected.
