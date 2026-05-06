@@ -265,7 +265,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     bannerSummary: 'Controlled by the AlertBanner model in Amplify Studio.',
     noticesKicker: 'Notices',
     noticesSummary:
-      'These come from the Announcement model. Use announcementKind `newsletter` for the long-form Town newsletter block on /news.',
+      'These come from the Announcement model. Use announcementKind `newsletter` for the long-form Town newsletter block on /news; the newest active newsletter record (with `attachmentKey` set to a `documents/newsletter/...` PDF) renders inline.',
     noticesCountSuffix: 'notice cards',
     eventsKicker: 'Events',
     eventsSummary: 'These drive the live homepage calendar when staff-published events exist.',
@@ -296,7 +296,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapItems: [
       'SiteSettings: homepage title and welcome text',
       'AlertBanner: emergency banner',
-      'Announcement: bulletin notices and Town newsletter entries',
+      'Announcement: bulletin notices and Town newsletter entries (set attachmentKey to display a PDF inline on /news)',
       'Event: meetings and calendar items',
       'OfficialContact: public contact cards',
       'Business: business directory entries',
@@ -326,7 +326,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         summary: 'Public notices, closures, and long newsletter posts.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes:
-          'Set announcementKind to `newsletter` for the /news newsletter section; leave blank for short bulletin notices. Use priority to control order.',
+          'Set announcementKind to `newsletter` for the /news newsletter section; leave blank for short bulletin notices. Use priority to control order. Paste the S3 storage key (e.g. `documents/newsletter/2026-05-newsletter.pdf`) into `attachmentKey` to render the PDF inline on /news. Only the latest active newsletter is shown.',
       },
       {
         model: 'Event',
@@ -500,7 +500,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     bannerSummary: 'Controlado por el modelo AlertBanner en Amplify Studio.',
     noticesKicker: 'Avisos',
     noticesSummary:
-      'Estos provienen del modelo Announcement. Use announcementKind `newsletter` para el bloque largo del boletin en /news.',
+      'Estos provienen del modelo Announcement. Use announcementKind `newsletter` para el bloque largo del boletin en /news; el registro mas reciente con `attachmentKey` apuntando a un PDF en `documents/newsletter/...` se mostrara en linea.',
     noticesCountSuffix: 'tarjetas de avisos',
     eventsKicker: 'Eventos',
     eventsSummary:
@@ -532,7 +532,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapItems: [
       'SiteSettings: titulo de la pagina principal y texto de bienvenida',
       'AlertBanner: banner de emergencia',
-      'Announcement: avisos breves y entradas del boletin del pueblo',
+      'Announcement: avisos breves y entradas del boletin del pueblo (configure attachmentKey para mostrar un PDF en linea en /news)',
       'Event: reuniones y elementos del calendario',
       'OfficialContact: tarjetas de contacto publico',
       'Business: entradas del directorio de negocios',
@@ -562,7 +562,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         summary: 'Avisos publicos, cierres y publicaciones largas del boletin.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes:
-          'Configure announcementKind en `newsletter` para la seccion de boletin en /news; dejelo en blanco para avisos breves. Use priority para el orden.',
+          'Configure announcementKind en `newsletter` para la seccion de boletin en /news; dejelo en blanco para avisos breves. Use priority para el orden. Pegue la clave de almacenamiento S3 (por ejemplo `documents/newsletter/2026-05-newsletter.pdf`) en `attachmentKey` para mostrar el PDF en linea en /news. Solo se muestra el boletin activo mas reciente.',
       },
       {
         model: 'Event',
@@ -643,6 +643,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
   templateUrl: './cms-admin.html',
   styleUrl: './cms-admin.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /**
+   * Outbound Amplify/AWS Console anchors use fragment URLs (`#/.../studio/...`).
+   * With `provideClientHydration(withEventReplay())`, delegated click replay on the SSR
+   * shell could prevent normal browser navigation—clerk-visible buttons appeared "dead".
+   * Opt this route out so native `<a href target="_blank">` works reliably (see NG8108 /
+   * hydration docs: https://angular.dev/extended-diagnostics/NG8108).
+   */
+  host: {
+    ngSkipHydration: '',
+  },
   imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule, SkeletonModule],
 })
 export class CmsAdmin {
@@ -839,6 +849,12 @@ export class CmsAdmin {
             detail:
               'Formularios de registros, seguimiento de secretaria y guia de registros publicos.',
           },
+          {
+            label: 'Boletin del pueblo',
+            sectionId: 'newsletter',
+            detail:
+              'PDFs mensuales del boletin del pueblo. Suba el archivo a `documents/newsletter/<archivo>.pdf` y pegue esa clave en el campo attachmentKey del registro Announcement (con announcementKind=`newsletter`).',
+          },
         ]
       : [
           {
@@ -860,6 +876,12 @@ export class CmsAdmin {
             label: 'Records & Requests',
             sectionId: 'records-requests',
             detail: 'Records request forms, clerk follow-up files, and public records guidance.',
+          },
+          {
+            label: 'Town Newsletter',
+            sectionId: 'newsletter',
+            detail:
+              'Monthly Town newsletter PDFs. Upload to `documents/newsletter/<file>.pdf` and paste that key into the Announcement record\u2019s attachmentKey (announcementKind=`newsletter`). The latest active record renders inline on /news.',
           },
         ],
   );

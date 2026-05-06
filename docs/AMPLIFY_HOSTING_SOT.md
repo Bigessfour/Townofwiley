@@ -30,9 +30,9 @@ must rewrite every unknown path to `/index.html` so deep links and hard refreshe
 
 The required rewrite rule (Amplify Console → App settings → Rewrites and redirects):
 
-| Source                                                           | Target           | Type                  |
-| ---------------------------------------------------------------- | ---------------- | --------------------- |
-| `</^[^.]+$\|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|xml\|webmanifest\|webp)$)([^.]+$)/>` | `/index.html`     | `200 (Rewrite)`        |
+| Source                                                                                                                     | Target        | Type            |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------- |
+| `</^[^.]+$\|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|xml\|webmanifest\|webp)$)([^.]+$)/>` | `/index.html` | `200 (Rewrite)` |
 
 This is the AWS-recommended SPA fallback regex (see Amplify Hosting docs:
 [Single page apps and rewrites](https://docs.aws.amazon.com/amplify/latest/userguide/redirects.html#redirects-for-single-page-web-apps-spa)).
@@ -75,7 +75,7 @@ All HTTP headers are managed in the repo at [`customHttp.yml`](../customHttp.yml
 - `Content-Security-Policy` — single source of truth for allowed origins. Notable origins:
   - **Self / Amplify**: default-src 'self'.
   - **AppSync (CMS)**: `https://*.appsync-api.us-east-2.amazonaws.com`, `wss://*.appsync-realtime-api.us-east-2.amazonaws.com`.
-  - **S3 documents bucket**: `https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com` (connect-src + media-src).
+  - **S3 documents bucket**: `https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com` (connect-src + media-src + frame-src — the last so the `/news` newsletter PDF iframe can render presigned URLs; see [`docs/CMS_NEWSLETTER.md`](CMS_NEWSLETTER.md)).
   - **NWS weather**: `https://api.weather.gov`, `https://alerts.weather.gov`, `https://radar.weather.gov`.
   - **Lambda function URLs**: `https://*.lambda-url.us-east-2.on.aws` (weather proxy + alert signup).
   - **Google Analytics 4 / GTM**: `https://www.googletagmanager.com`, `https://www.google-analytics.com`, etc.

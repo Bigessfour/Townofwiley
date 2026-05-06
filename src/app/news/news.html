@@ -50,7 +50,7 @@
       </div>
     </section>
   } @else {
-    @if (newsletterItems().length) {
+    @if (latestNewsletter(); as newsletter) {
       <section
         class="news-section news-section-newsletter grid gap-6"
         aria-labelledby="town-newsletter-heading"
@@ -61,21 +61,50 @@
           <p class="public-page-copy">{{ copy().newsletterCopy }}</p>
         </div>
 
-        @for (item of newsletterItems(); track item.id) {
-          <p-card class="newsletter-item-card public-card" [pt]="newsCardPt">
-            <ng-template pTemplate="header">
-              <p class="meta-label">{{ item.date }}</p>
-              <h3>{{ item.title }}</h3>
-            </ng-template>
-            <ng-template pTemplate="content">
+        <p-card class="newsletter-item-card public-card" [pt]="newsCardPt">
+          <ng-template pTemplate="header">
+            <p class="meta-label">{{ newsletter.date }}</p>
+            <h3>{{ newsletter.title }}</h3>
+          </ng-template>
+          <ng-template pTemplate="content">
+            @if (trustedNewsletterUrl(); as src) {
+              <iframe
+                class="newsletter-pdf-frame"
+                data-testid="newsletter-pdf-frame"
+                [src]="src"
+                [title]="copy().newsletterIframeTitle + ': ' + newsletter.title"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              ></iframe>
+            } @else {
               <div class="newsletter-body">
-                @for (block of newsletterParagraphs(item.detail); track $index) {
+                @if (newsletter.attachmentKey && newsletterHrefError()) {
+                  <p class="newsletter-body__para newsletter-body__para--error">
+                    {{ copy().pdfFallbackCopy }}
+                  </p>
+                }
+                @for (block of newsletterParagraphs(newsletter.detail); track $index) {
                   <p class="newsletter-body__para">{{ block }}</p>
                 }
               </div>
+            }
+          </ng-template>
+          @if (resolvedNewsletterHref(); as href) {
+            <ng-template pTemplate="footer">
+              <a
+                [href]="href"
+                target="_blank"
+                rel="noreferrer noopener"
+                class="button-cta button-cta--light newsletter-download-link"
+                data-testid="newsletter-download-link"
+              >
+                {{ copy().openPdfLabel }}
+                <span class="visually-hidden">({{ copy().externalLinkSuffixLabel }})</span>
+              </a>
             </ng-template>
-          </p-card>
-        }
+          }
+        </p-card>
       </section>
     }
 

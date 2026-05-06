@@ -7,10 +7,17 @@ export interface CmsNotice {
   id: string;
   title: string;
   date: string;
+  /** Sortable ISO/AWSDate string from the source record; useful when `date` is a localized label. */
+  rawDate?: string;
   detail: string;
   body?: string; // multi-paragraph newsletter content, newline-separated
   type?: 'notice' | 'newsletter';
   imageUrl?: string;
+  /**
+   * Optional Amplify storage key (e.g. `documents/newsletter/<file>.pdf`) for newsletter PDFs.
+   * Resolved to a presigned URL by the consuming component via DocumentUploadService.
+   */
+  attachmentKey?: string;
 }
 
 export interface CmsHeroContent {
@@ -393,6 +400,7 @@ interface AnnouncementRecord {
   date?: string | null;
   detail: string;
   announcementKind?: string | null;
+  attachmentKey?: string | null;
   priority?: number | null;
   imageUrl?: string | null;
   active: boolean;
@@ -512,6 +520,7 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       date
       detail
       announcementKind
+      attachmentKey
       priority
       imageUrl
       active
@@ -1018,8 +1027,10 @@ export class LocalizedCmsContentStore {
             englishFallback?.detail,
             localizedFallback?.detail,
           ),
+          rawDate: this.cleanText(record.date) ?? undefined,
           type: kind === 'newsletter' ? ('newsletter' as const) : ('notice' as const),
           imageUrl: record.imageUrl ?? undefined,
+          attachmentKey: this.cleanText(record.attachmentKey) ?? undefined,
         };
       });
 

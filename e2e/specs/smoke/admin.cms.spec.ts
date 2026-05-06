@@ -90,4 +90,25 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: 'Resident Contact Updates' }),
     ).toBeVisible({ timeout: 20000 });
   });
+
+  test('lists the Town newsletter section and Announcement attachmentKey guidance', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
+
+    // Documents tab guidance lists the new newsletter sectionId tag.
+    await expect(homePage.page.getByText('Town Newsletter', { exact: false })).toBeVisible({
+      timeout: 20000,
+    });
+    await expect(homePage.page.getByText('newsletter', { exact: true }).first()).toBeVisible();
+    await expect(
+      homePage.page.getByText('documents/newsletter/', { exact: false }).first(),
+    ).toBeVisible();
+
+    // Announcement CRUD card calls out attachmentKey for the inline /news PDF.
+    const announcementCard = homePage.page.locator(':is(article, section, div)', {
+      has: homePage.page.getByRole('heading', { name: 'Announcement' }),
+    });
+    await expect(announcementCard.first()).toContainText('attachmentKey');
+  });
 });

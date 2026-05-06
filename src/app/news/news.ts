@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
+import { DocumentUploadService } from '../document-upload.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -18,6 +28,9 @@ interface NewsCopy {
   newsletterKicker: string;
   newsletterHeading: string;
   newsletterCopy: string;
+  newsletterIframeTitle: string;
+  openPdfLabel: string;
+  pdfFallbackCopy: string;
   featuredKicker: string;
   officialKicker: string;
   officialHeading: string;
@@ -41,6 +54,10 @@ const NEWS_COPY: Record<SiteLanguage, NewsCopy> = {
     newsletterKicker: 'Town newsletter',
     newsletterHeading: 'Newsletter from Town Hall',
     newsletterCopy: 'Long-form updates prepared by the Town Clerk for Wiley residents.',
+    newsletterIframeTitle: 'Town newsletter PDF',
+    openPdfLabel: 'Open newsletter PDF in a new tab',
+    pdfFallbackCopy:
+      'A PDF version of this newsletter is not yet attached. Read the summary above or check back soon.',
     featuredKicker: 'Featured town notice',
     officialKicker: 'Official Town Notices',
     officialHeading: 'Current Wiley Updates',
@@ -65,6 +82,10 @@ const NEWS_COPY: Record<SiteLanguage, NewsCopy> = {
     newsletterHeading: 'Boletin del Ayuntamiento',
     newsletterCopy:
       'Actualizaciones extensas preparadas por la Secretaria municipal para residentes de Wiley.',
+    newsletterIframeTitle: 'Boletin del pueblo en PDF',
+    openPdfLabel: 'Abrir el boletin en PDF en una pestana nueva',
+    pdfFallbackCopy:
+      'Aun no se ha adjuntado una version PDF de este boletin. Lea el resumen arriba o regrese pronto.',
     featuredKicker: 'Aviso destacado del pueblo',
     officialKicker: 'Avisos oficiales del pueblo',
     officialHeading: 'Actualizaciones actuales de Wiley',
@@ -101,6 +122,8 @@ const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
 export class News {
   private readonly cms = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly documentUploadService = inject(DocumentUploadService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly copy = computed(
     () => NEWS_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -110,6 +133,25 @@ export class News {
   protected readonly newsletterItems = computed(() =>
     this.newsItems().filter((item) => item.type === 'newsletter'),
   );
+  /**
+   * Only the latest active newsletter renders on /news. Records are already sorted by
+   * `priority` ASC in the store, so the head of the list is the clerk-curated current issue.
+   * `rawDate` (AWSDate) is a tiebreaker so a clerk who only edits dates still gets the newest.
+   */
+  protected readonly latestNewsletter = computed(() => {
+    const newsletters = this.newsletterItems();
+    if (!newsletters.length) {
+      return null;
+    }
+    return [...newsletters].sort((left, right) => {
+      const leftDate = left.rawDate ?? '';
+      const rightDate = right.rawDate ?? '';
+      if (leftDate && rightDate && leftDate !== rightDate) {
+        return rightDate.localeCompare(leftDate);
+      }
+      return 0;
+    })[0];
+  });
   protected readonly noticeItems = computed(() =>
     this.newsItems().filter((item) => item.type !== 'newsletter'),
   );
@@ -117,7 +159,7 @@ export class News {
   protected readonly remainingNotices = computed(() => this.noticeItems().slice(1));
   protected readonly officialEmptyMessage = computed(() => {
     const messages = this.copy();
-    return this.newsletterItems().length
+    return this.latestNewsletter()
       ? messages.officialEmptyWithNewsletterOnly
       : messages.officialEmptyState;
   });
@@ -135,6 +177,21 @@ export class News {
     footer: { class: 'news-card-footer' },
   };
 
+  protected readonly resolvedNewsletterHref = signal<string | null>(null);
+  protected readonly trustedNewsletterUrl = signal<SafeResourceUrl | null>(null);
+  protected readonly newsletterHrefError = signal(false);
+
+  constructor() {
+    // Kick off resolution synchronously so initial render can render the iframe as soon as the
+    // presigned URL resolves, mirroring DocumentHub's resolveCmsDocumentHrefs() boot path.
+    void this.refreshNewsletterHref(untracked(() => this.latestNewsletter()?.attachmentKey));
+    // React to subsequent newsletter changes (clerk publishes a newer issue, language toggles).
+    effect(() => {
+      const key = this.latestNewsletter()?.attachmentKey;
+      void this.refreshNewsletterHref(key);
+    });
+  }
+
   /** Split CMS detail on blank lines; single blocks still render as one paragraph. */
   protected newsletterParagraphs(detail: string): string[] {
     const blocks = detail
@@ -146,5 +203,26 @@ export class News {
     }
     const trimmed = detail.trim();
     return trimmed ? [trimmed] : [];
+  }
+
+  private async refreshNewsletterHref(rawKey: string | null | undefined): Promise<void> {
+    const key = rawKey?.trim();
+    if (!key) {
+      this.resolvedNewsletterHref.set(null);
+      this.trustedNewsletterUrl.set(null);
+      this.newsletterHrefError.set(false);
+      return;
+    }
+    try {
+      const url = await this.documentUploadService.resolveDocumentHref(key);
+      this.resolvedNewsletterHref.set(url);
+      this.trustedNewsletterUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+      this.newsletterHrefError.set(false);
+    } catch (error) {
+      console.error('Failed to resolve newsletter PDF link:', error);
+      this.resolvedNewsletterHref.set(null);
+      this.trustedNewsletterUrl.set(null);
+      this.newsletterHrefError.set(true);
+    }
   }
 }

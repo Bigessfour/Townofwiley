@@ -61,6 +61,12 @@ type Announcement
   Set to `newsletter` to show under Town newsletter on /news; omit or use `notice` for bulletin-style notices.
   """
   announcementKind: String
+  """
+  Optional Amplify storage key (e.g. `documents/newsletter/2026-05-newsletter.pdf`)
+  of the newsletter PDF to display inline on /news. Only used when
+  announcementKind is `newsletter`. The latest active record (highest date) wins.
+  """
+  attachmentKey: String
   priority: Int
   imageUrl: AWSURL
   active: Boolean!
