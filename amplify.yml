@@ -1,14 +1,14 @@
 # Hosting HTTP headers (CSP, HSTS, cache-control): repo-root customHttp.yml (SSOT).
 # If Amplify Console `get-app` CSP drifts from that file after manual edits or an old deploy,
-# run: AWS_PROFILE=<wiley-profile> AWS_REGION=us-east-2 npm run amplify:sync-headers
+# run: AWS_PROFILE=townofwiley AWS_REGION=us-east-2 npm run amplify:sync-headers
 # Docs: docs/AMPLIFY_HOSTING_SOT.md (section 3). https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html
 version: 1
 frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 24
-        - nvm use 24
+        - nvm install 24.15.0
+        - nvm use 24.15.0
         - npm ci
     build:
       commands:

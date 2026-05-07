@@ -51,7 +51,10 @@
   <div class="assistant-window grid gap-4">
     @if (isConfigured) {
       <p-fieldset [legend]="copy().promptsLabel" styleClass="assistant-prompts-shell">
-        <div class="assistant-prompts flex flex-wrap gap-2" [attr.aria-label]="copy().promptsAriaLabel">
+        <div
+          class="assistant-prompts flex flex-wrap gap-2"
+          [attr.aria-label]="copy().promptsAriaLabel"
+        >
           @for (prompt of starterPrompts(); track prompt) {
             <p-chip
               [label]="prompt"
@@ -65,9 +68,13 @@
 
     <p-panel styleClass="assistant-thread">
       <ng-template pTemplate="header">
-        <div class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between w-full">
+        <div
+          class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between w-full"
+        >
           <div>
-            <p class="assistant-thread-kicker m-0 text-sm opacity-80">{{ copy().conversationKicker }}</p>
+            <p class="assistant-thread-kicker m-0 text-sm opacity-80">
+              {{ copy().conversationKicker }}
+            </p>
             <h4 class="assistant-thread-title m-0 text-lg">{{ copy().conversationTitle }}</h4>
           </div>
           <p class="assistant-thread-status m-0 text-sm font-semibold opacity-90">
@@ -76,10 +83,21 @@
         </div>
       </ng-template>
 
-      <p-scrollPanel #messagesContainer styleClass="assistant-messages-scroll pr-2" [style.height]="'350px'">
+      <p-scrollPanel
+        #messagesContainer
+        styleClass="assistant-messages-scroll pr-2"
+        [style.height]="'350px'"
+      >
         <div class="assistant-messages-container grid gap-4">
           @for (message of messages(); track $index) {
-            <p-card [styleClass]="message.role === 'user' ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none' : 'assistant-message surface-100 border-none'" [pt]="messageCardPt">
+            <p-card
+              [styleClass]="
+                message.role === 'user'
+                  ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none'
+                  : 'assistant-message surface-100 border-none'
+              "
+              [pt]="messageCardPt"
+            >
               <ng-template pTemplate="header">
                 <span class="assistant-role block text-xs font-semibold mb-2 opacity-70">{{
                   message.role === 'user' ? copy().userRole : copy().assistantRole
@@ -89,7 +107,9 @@
                 <p class="m-0 line-height-3">{{ message.content }}</p>
 
                 @if (message.links?.length) {
-                  <div class="assistant-links flex flex-wrap gap-2 mt-3 pt-3 border-top-1 surface-border">
+                  <div
+                    class="assistant-links flex flex-wrap gap-2 mt-3 pt-3 border-top-1 surface-border"
+                  >
                     @for (link of message.links; track link.href) {
                       @if (resolveAppLink(link.href); as assistantLink) {
                         @if (assistantLink.isInternal) {
@@ -97,8 +117,8 @@
                             [routerLink]="assistantLink.path"
                             [fragment]="assistantLink.fragment"
                             class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline"
-                            [attr.aria-label]="link.label?.trim() ? null : (link.href + ' (link)')"
-                            >{{ link.label?.trim() ? link.label : link.href }}</a
+                            [attr.aria-label]="link.label.trim() ? null : link.href + ' (link)'"
+                            >{{ link.label.trim() ? link.label : link.href }}</a
                           >
                         } @else {
                           <a
@@ -106,8 +126,10 @@
                             target="_blank"
                             rel="noopener"
                             class="p-button p-button-sm p-button-text p-button-secondary text-primary font-semibold text-sm no-underline"
-                            [attr.aria-label]="link.label?.trim() ? null : (link.href + ' (opens in new tab)')"
-                            >{{ link.label?.trim() ? link.label : link.href }}</a
+                            [attr.aria-label]="
+                              link.label.trim() ? null : link.href + ' (opens in new tab)'
+                            "
+                            >{{ link.label.trim() ? link.label : link.href }}</a
                           >
                         }
                       }

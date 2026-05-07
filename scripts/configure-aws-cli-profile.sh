@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Configure a named AWS CLI profile for Town of Wiley (account 570912405222).
-# Default local profile name: steve (see .vscode/settings.json "aws.profile"; bracket [steve] in ~/.aws/credentials).
+# Default local profile name: townofwiley (see .vscode/settings.json "aws.profile"; [townofwiley] in ~/.aws/credentials).
 # Keys come from IAM (e.g. user copilot in account 570912405222). Code Platoon is 388691194728 — use a separate ~/.aws profile for each account.
 #
 # Best practice: credentials only under ~/.aws/ with chmod 600 — never in the git repo.
@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-readonly PROFILE="${AWS_PROFILE_NAME:-steve}"
+readonly PROFILE="${AWS_PROFILE_NAME:-townofwiley}"
 readonly REGION="${AWS_DEFAULT_REGION:-us-east-2}"
 readonly EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-570912405222}"
 
@@ -36,7 +36,7 @@ else
   exit 1
 fi
 
-if [[ -z "${AK// /}" || -z "${SK// /}" ]]; then
+if [[ -z ${AK// /} || -z ${SK// /} ]]; then
   echo "Error: access key ID and secret access key are required." >&2
   exit 1
 fi
@@ -49,7 +49,7 @@ aws configure set region "${REGION}" --profile "${PROFILE}"
 unset AK SK
 
 for f in "${HOME}/.aws/credentials" "${HOME}/.aws/config"; do
-  if [[ -f "${f}" ]]; then
+  if [[ -f ${f} ]]; then
     chmod 600 "${f}"
   fi
 done
@@ -63,7 +63,7 @@ if command -v jq >/dev/null 2>&1; then
 else
   ACC=""
 fi
-if [[ -n "${ACC}" && "${ACC}" != "null" && "${ACC}" != "${EXPECTED_ACCOUNT}" ]]; then
+if [[ -n ${ACC} && ${ACC} != "null" && ${ACC} != "${EXPECTED_ACCOUNT}" ]]; then
   echo ""
   echo "Warning: expected AWS account ${EXPECTED_ACCOUNT}; got ${ACC}. Check the access key belongs to Town of Wiley." >&2
 fi

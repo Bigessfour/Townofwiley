@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Enforces package.json engines.node so local dev matches CI (.nvmrc / GitHub Actions Node 24).
- * Supports caret majors (^24.0.0) and bounded ranges (>=24.0.0 <25.0.0). Node 25+ is rejected.
- * Set SKIP_NODE_VERSION_CHECK=1 to bypass temporarily.
+ * Enforces package.json engines.node so local dev matches CI (.nvmrc / GitHub Actions / Amplify).
+ * Supports caret majors (^24.0.0) and bounded ranges (>=24.15.0 <25.0.0). Node 25+ is rejected.
+ * Set SKIP_NODE_VERSION_CHECK=1 only for emergencies — Node 25+ breaks this toolchain; use Node 24 LTS instead.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

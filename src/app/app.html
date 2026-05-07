@@ -174,9 +174,8 @@
               <a
                 pRipple
                 class="mega-menu-sub-link"
-                [routerLink]="item.routerLink"
-                [fragment]="item.fragment"
-                (click)="activateMegaMenuItem(item, $event)"
+                [attr.href]="megaMenuLeafHref(item)"
+                (click)="onMegaMenuLeafClick(item, $event)"
               >
                 @if (item.icon) {
                   <i [class]="item.icon" aria-hidden="true"></i>

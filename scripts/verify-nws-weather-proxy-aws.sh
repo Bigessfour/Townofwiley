@@ -4,11 +4,11 @@
 #   - Lambda function URLs (CORS / invocation): https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors
 #   - NWS API (User-Agent, formats, points→forecast flow): https://www.weather.gov/documentation/services-web-api
 #
-# IAM user "copilot" keys are usually stored under the CLI profile configured for this repo (default: steve).
+# IAM user "copilot" keys are usually stored under the CLI profile configured for this repo (default: townofwiley).
 # Use whichever ~/.aws profile resolves to account 570912405222.
 #
 # Usage (Town of Wiley production account 570912405222, region us-east-2):
-#   export AWS_PROFILE=steve   # must be keys for account 570912405222 (e.g. copilot user)
+#   export AWS_PROFILE=townofwiley   # must resolve to account 570912405222 (e.g. copilot user)
 #   export NWS_WEATHER_LAMBDA_FUNCTION_NAME='your-nws-proxy-function-name'
 #   ./scripts/verify-nws-weather-proxy-aws.sh
 #
@@ -24,21 +24,21 @@ set -euo pipefail
 
 REGION="${NWS_PROXY_AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-2}}"
 EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-570912405222}"
-FN="${NWS_WEATHER_LAMBDA_FUNCTION_NAME:-}"
+FN="${NWS_WEATHER_LAMBDA_FUNCTION_NAME-}"
 
 echo "== NWS weather proxy AWS verification (region: ${REGION}) =="
 
 CALLER_ACCOUNT="$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)"
-if [[ -z "${CALLER_ACCOUNT}" || "${CALLER_ACCOUNT}" == "None" ]]; then
+if [[ -z ${CALLER_ACCOUNT} || ${CALLER_ACCOUNT} == "None" ]]; then
   echo "Error: aws sts get-caller-identity failed. Configure AWS CLI credentials." >&2
   exit 1
 fi
 echo "Caller AWS account: ${CALLER_ACCOUNT}"
-if [[ "${CALLER_ACCOUNT}" != "${EXPECTED_ACCOUNT}" ]]; then
+if [[ ${CALLER_ACCOUNT} != "${EXPECTED_ACCOUNT}" ]]; then
   echo "Warning: Expected account ${EXPECTED_ACCOUNT} (Town of Wiley). Use the correct AWS_PROFILE if this is wrong." >&2
 fi
 
-if [[ -z "${FN}" ]]; then
+if [[ -z ${FN} ]]; then
   echo "Error: Set NWS_WEATHER_LAMBDA_FUNCTION_NAME to the Lambda that runs infrastructure/nws-weather-proxy/index.mjs." >&2
   echo "  Example: export NWS_WEATHER_LAMBDA_FUNCTION_NAME='TownOfWileyNwsWeather'" >&2
   exit 2
@@ -50,14 +50,14 @@ LAST_STATUS="$(aws lambda get-function-configuration --function-name "${FN}" --r
 echo "  State: ${STATE}  LastUpdateStatus: ${LAST_STATUS}"
 
 UA="$(aws lambda get-function-configuration --function-name "${FN}" --region "${REGION}" --query 'Environment.Variables.NWS_USER_AGENT' --output text)"
-if [[ -z "${UA}" || "${UA}" == "None" ]]; then
+if [[ -z ${UA} || ${UA} == "None" ]]; then
   echo "Error: NWS_USER_AGENT is missing or empty on the function. NWS requires a User-Agent; the handler returns 500 without it." >&2
   exit 3
 fi
 echo "  NWS_USER_AGENT is set (length ${#UA} chars)."
 
 API_KEY_SET="$(aws lambda get-function-configuration --function-name "${FN}" --region "${REGION}" --query 'Environment.Variables.NWS_API_KEY' --output text)"
-if [[ -n "${API_KEY_SET}" && "${API_KEY_SET}" != "None" ]]; then
+if [[ -n ${API_KEY_SET} && ${API_KEY_SET} != "None" ]]; then
   echo "  NWS_API_KEY is set (optional; NWS documents this as a future direction)."
 else
   echo "  NWS_API_KEY is unset (OK — NWS currently requires User-Agent; api-key is optional)."
@@ -72,7 +72,7 @@ echo "Function URL config(s) (AWS-managed CORS must not fight handler CORS — s
 aws lambda list-function-url-configs --function-name "${FN}" --region "${REGION}" --output table || true
 
 FURL_JSON="$(aws lambda list-function-url-configs --function-name "${FN}" --region "${REGION}" --output json 2>/dev/null || true)"
-if command -v jq >/dev/null 2>&1 && [[ -n "${FURL_JSON}" ]]; then
+if command -v jq >/dev/null 2>&1 && [[ -n ${FURL_JSON} ]]; then
   echo ""
   echo "Function URL detail (first config):"
   echo "${FURL_JSON}" | jq '.FunctionUrlConfigs[0] | {FunctionUrl, AuthType, Cors}' 2>/dev/null || true
@@ -85,7 +85,7 @@ if command -v jq >/dev/null 2>&1 && [[ -n "${FURL_JSON}" ]]; then
     echo "  Ref: https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors" >&2
   fi
   FUN_URL="$(echo "${FURL_JSON}" | jq -r '.FunctionUrlConfigs[0].FunctionUrl // empty' 2>/dev/null)"
-  if [[ -n "${FUN_URL}" && "${NWS_VERIFY_SKIP_CURL:-}" != "1" ]] && command -v curl >/dev/null 2>&1; then
+  if [[ -n ${FUN_URL} && ${NWS_VERIFY_SKIP_CURL-} != "1" ]] && command -v curl >/dev/null 2>&1; then
     echo ""
     echo "Live HTTP check (GET with Origin: https://www.townofwiley.gov) — expect 200 and JSON with provider nws:"
     HDR_FILE="$(mktemp)"
@@ -94,15 +94,15 @@ if command -v jq >/dev/null 2>&1 && [[ -n "${FURL_JSON}" ]]; then
       "${FUN_URL}" || true)"
     echo "  HTTP status: ${HTTP_CODE}"
     ACAO_COUNT="0"
-    if [[ -f "${HDR_FILE}" ]]; then
+    if [[ -f ${HDR_FILE} ]]; then
       ACAO_COUNT="$(grep -ci '^access-control-allow-origin:' "${HDR_FILE}" 2>/dev/null || echo 0)"
     fi
     echo "  access-control-allow-origin header lines: ${ACAO_COUNT}"
-    if [[ "${ACAO_COUNT}" =~ ^[0-9]+$ ]] && [[ "${ACAO_COUNT}" -gt 1 ]]; then
+    if [[ ${ACAO_COUNT} =~ ^[0-9]+$ ]] && [[ ${ACAO_COUNT} -gt 1 ]]; then
       echo "  WARNING: Multiple Access-Control-Allow-Origin lines — browsers may reject (see live-audit artifacts)." >&2
     fi
     rm -f "${HDR_FILE}"
-  elif [[ -n "${FUN_URL}" && "${NWS_VERIFY_SKIP_CURL:-}" != "1" ]]; then
+  elif [[ -n ${FUN_URL} && ${NWS_VERIFY_SKIP_CURL-} != "1" ]]; then
     echo "(Install curl for an automatic GET check of ${FUN_URL})"
   fi
 fi

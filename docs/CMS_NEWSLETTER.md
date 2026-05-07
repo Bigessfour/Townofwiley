@@ -54,7 +54,7 @@ from the documents bucket via `frame-src https://townofwiley-documents-storage.s
 If the bucket name ever changes, update `customHttp.yml` and run:
 
 ```bash
-AWS_PROFILE=root-login AWS_REGION=us-east-2 npm run amplify:sync-headers
+AWS_PROFILE=townofwiley AWS_REGION=us-east-2 npm run amplify:sync-headers
 ```
 
 so the deployed Amplify customHeaders match the repo SOT. See

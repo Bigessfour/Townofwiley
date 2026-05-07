@@ -16,15 +16,26 @@ Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
 ## Runtime Baseline
 
-- **Node.js `24.x` only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.0.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). **Do not use Node 22, 25, or other majors** — odd majors and Node 25+ have caused toolchain and native dependency issues with this stack.
-- Use `.nvmrc` / `.node-version` (both `24`) with `nvm`, `fnm`, or Homebrew `node@24` so your shell `node` matches CI.
+- **Node.js `24.x` LTS only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.15.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). Repo files pin **`24.15.0`** (`.nvmrc`, `.node-version`, **`volta`**, **`mise.toml`**, **asdf** `.tool-versions`). **Do not use Node 22, 23, 25+, or odd majors** — Node 25+ has caused toolchain and native dependency issues with this stack.
+- Use `nvm install && nvm use` (reads `.nvmrc`), **`mise install`**, **Volta**, **asdf**, or Homebrew **`node@24`** so your shell `node` matches CI.
 
-Recommended local workflow:
+**Homebrew (recommended on macOS)** — install the LTS keg and make it the default `node` (the top-level `node` formula tracks the latest major, often v25+):
 
 ```bash
-nvm install 24
-nvm use 24
-node -v   # should report v24.x.x
+brew install node@24
+brew unlink node       # only if `node -v` shows v25+ from /opt/homebrew/bin/node
+brew link --overwrite --force node@24
+hash -r
+node -v   # expect v24.15.0 (matches .nvmrc)
+```
+
+If Homebrew relinks `node` to a newer major after `brew upgrade`, run **`brew unlink node && brew link --overwrite --force node@24`** again.
+
+**nvm / fnm** (from repo root, reads `.nvmrc`):
+
+```bash
+nvm install && nvm use
+node -v   # v24.15.0 (or any 24.x satisfying engines)
 ```
 
 ## Deployment Record
@@ -37,31 +48,33 @@ node -v   # should report v24.x.x
 - Repository: `https://github.com/Bigessfour/Townofwiley`
 - Default domain: `d331voxr1fhoir.amplifyapp.com`
 - Production branch: `main`
+- **AWS account:** only **`570912405222`** (Town of Wiley). Workspace and docs default to **`AWS_PROFILE=townofwiley`** (see `.vscode/settings.json`; Code Platoon **`388691194728`** is out of scope for this repo).
+- Build logs: stored automatically per job (**Hosting → Builds**). Enable **Build notifications** plus CloudWatch retention for CodeBuild-/Amplify-related log groups in `us-east-2` (`docs/AMPLIFY_HOSTING_SOT.md` § **1.a**).
 - Build command: `npm run build`
 - Build output: `dist/townofwiley-app/browser`
-- Node runtime for Amplify builds: `24.x`
+- Node runtime for Amplify builds: **`24.15.0`** (`amplify.yml` `nvm install` / `nvm use`)
 
-Amplify build spec:
+Amplify build spec (see repo [`amplify.yml`](amplify.yml) for the canonical file):
 
 ```yml
 version: 1
 frontend:
-	phases:
-		preBuild:
-			commands:
-				- nvm install 24
-				- nvm use 24
-				- npm ci
-		build:
-			commands:
-				- npm run build
-	artifacts:
-		baseDirectory: dist/townofwiley-app/browser
-		files:
-			- "**/*"
-	cache:
-		paths:
-			- node_modules/**/*
+  phases:
+    preBuild:
+      commands:
+        - nvm install 24.15.0
+        - nvm use 24.15.0
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist/townofwiley-app/browser
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
 ```
 
 Current public domain details:
@@ -621,12 +634,12 @@ Homepage NWS alert banner:
 Verify the deployed Lambda (requires AWS CLI credentials for account **570912405222**, region **us-east-2**):
 
 ```bash
-export AWS_PROFILE=steve
+export AWS_PROFILE=townofwiley
 export NWS_WEATHER_LAMBDA_FUNCTION_NAME='your-nws-proxy-lambda-name'
 ./scripts/verify-nws-weather-proxy-aws.sh
 ```
 
-Use a **different** `AWS_PROFILE` only when working in **Code Platoon** (**`388691194728`**); Town of Wiley tooling expects account **`570912405222`**.
+This repository assumes **`townofwiley`** → **`570912405222`**. Use other profiles (**e.g. Code Platoon `388691194728`**) **outside** this workspace default; do not reuse them as the Wiley site profile.
 
 The script checks caller identity, `NWS_USER_AGENT`, and lists [function URL configs](https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors). If your CLI profile points at another account, the script warns so you can switch profiles before trusting the output.
 

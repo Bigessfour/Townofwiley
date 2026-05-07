@@ -73,6 +73,19 @@ instead.
 
 ---
 
+## Amplify build logs (always on; notifications are not)
+
+Hosting builds **already save** full console output per job (**Hosting → Builds**). There is no repo switch to enable that.
+
+Operators should verify in the Amplify Console:
+
+1. **Hosting → Build notifications** — at least one recipient for **`main`** (or **All branches**), success and failure, so alerts include a link to the job transcript ([AWS docs](https://docs.aws.amazon.com/amplify/latest/userguide/notifications.html)).
+2. **CloudWatch Logs** — locate CodeBuild-/Amplify-related **log groups** in `us-east-2`, set **retention**, and confirm IAM allows the Wiley team read access.
+
+More detail lives in **`docs/AMPLIFY_HOSTING_SOT.md` § 1.a (Build logs — capture and alerting)**.
+
+---
+
 ## Quick Reference: Amplify App Details
 
 | Field             | Value                                |
@@ -111,7 +124,7 @@ If production CSP is narrower than the repo (for example `font-src 'self'` witho
 3. From the repo root:
 
    ```bash
-   export AWS_PROFILE=your-wiley-profile   # or SSO login for 570912405222
+   export AWS_PROFILE=townofwiley   # must resolve to 570912405222 (workspace default)
    npm run amplify:sync-headers
    ```
 

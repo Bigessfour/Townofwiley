@@ -381,6 +381,10 @@ interface AppCopy {
   menuBusinessCommunityLabel: string;
   menuContactHallLabel: string;
   menuLeadershipLabel: string;
+  /** Column heading in the mega menu under menuQuickTasksLabel (services/tasks side). */
+  menuQuickTasksServicesColumnLabel: string;
+  /** Column heading in the mega menu under menuQuickTasksLabel (weather/calendar side). */
+  menuQuickTasksWeatherColumnLabel: string;
 }
 
 export const WEATHER_ALERT_POLICY_COPY: Record<
@@ -712,6 +716,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuBusinessCommunityLabel: 'Businesses & Community',
     menuContactHallLabel: 'Contact & Town Hall',
     menuLeadershipLabel: 'Leadership',
+    menuQuickTasksServicesColumnLabel: 'Popular shortcuts',
+    menuQuickTasksWeatherColumnLabel: 'Weather & calendar',
     topTasks: [
       {
         title: 'Pay utility bill',
@@ -1121,6 +1127,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuBusinessCommunityLabel: 'Negocios y Comunidad',
     menuContactHallLabel: 'Contacto y Ayuntamiento',
     menuLeadershipLabel: 'Liderazgo',
+    menuQuickTasksServicesColumnLabel: 'Atajos populares',
+    menuQuickTasksWeatherColumnLabel: 'Clima y calendario',
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
@@ -1350,9 +1358,18 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
  * removing the wrapper is not supported without switching to a different nav component.
  *
  * @see https://primeng.org/megamenu#router
+ *
+ * Optionally set `columnLabel` so PrimeNG emits a `.p-megamenu-submenu-label` for that column’s group row.
  */
-function megaMenuColumn(links: MegaMenuItem[]): MegaMenuItem[] {
-  return [{ items: links as MegaMenuItem[][] }];
+function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuItem[] {
+  const row: MegaMenuItem = {
+    items: links as MegaMenuItem[][],
+  };
+  const trimmed = columnLabel?.trim();
+  if (trimmed) {
+    row.label = trimmed;
+  }
+  return [row];
 }
 
 @Component({
@@ -1616,39 +1633,45 @@ export class App {
         label: copy.menuQuickTasksLabel,
         icon: 'pi pi-list',
         items: [
-          megaMenuColumn([
-            {
-              label: copy.mobileOnlinePaymentsLabel,
-              routerLink: ['/services'],
-              fragment: 'payment-help',
-            },
-            {
-              label: copy.mobileIssueLabel,
-              routerLink: ['/services'],
-              fragment: 'issue-report',
-            },
-            {
-              label: copy.meetingsQuickLinkLabel,
-              routerLink: '/meetings',
-              fragment: 'calendar',
-            },
-            {
-              label: copy.mobileRecordsLabel,
-              routerLink: ['/services'],
-              fragment: 'records-request',
-            },
-            {
-              label: copy.mobileSearchAllServicesLabel,
-              routerLink: ['/'],
-              fragment: 'search-panel',
-            },
-          ]),
-          megaMenuColumn([
-            { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
-            { label: copy.nwsAlertLabel, routerLink: '/weather' },
-            { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
-            { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
-          ]),
+          megaMenuColumn(
+            [
+              {
+                label: copy.mobileOnlinePaymentsLabel,
+                routerLink: ['/services'],
+                fragment: 'payment-help',
+              },
+              {
+                label: copy.mobileIssueLabel,
+                routerLink: ['/services'],
+                fragment: 'issue-report',
+              },
+              {
+                label: copy.meetingsQuickLinkLabel,
+                routerLink: '/meetings',
+                fragment: 'calendar',
+              },
+              {
+                label: copy.mobileRecordsLabel,
+                routerLink: ['/services'],
+                fragment: 'records-request',
+              },
+              {
+                label: copy.mobileSearchAllServicesLabel,
+                routerLink: ['/'],
+                fragment: 'search-panel',
+              },
+            ],
+            copy.menuQuickTasksServicesColumnLabel,
+          ),
+          megaMenuColumn(
+            [
+              { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
+              { label: copy.nwsAlertLabel, routerLink: '/weather' },
+              { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
+              { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
+            ],
+            copy.menuQuickTasksWeatherColumnLabel,
+          ),
         ],
       },
       {
@@ -1737,6 +1760,58 @@ export class App {
     event.preventDefault();
     event.stopPropagation();
     item.command(event);
+  }
+
+  /** Serialized href for mega menu subtrees built as plain `<a href>` so middle-click/new-tab keeps working. */
+  protected megaMenuLeafHref(item: MegaMenuItem): string {
+    const rl = item.routerLink;
+    if (rl == null) {
+      return '/';
+    }
+
+    const commands = Array.isArray(rl) ? rl : [rl];
+    const extras =
+      item.fragment != null && item.fragment !== '' ? { fragment: item.fragment } : undefined;
+
+    return this.router.serializeUrl(this.router.createUrlTree(commands, extras));
+  }
+
+  /**
+   * Flyout submenu links used `activateMegaMenuItem`, which returned early unless `command` was set—so clicks
+   * were swallowed in production hydration/event-replay setups. Navigate imperatively here (same UX as RouterLink).
+   */
+  protected onMegaMenuLeafClick(item: MegaMenuItem, event: MouseEvent): void {
+    if (item.command) {
+      event.preventDefault();
+      event.stopPropagation();
+      item.command(event);
+      return;
+    }
+
+    if (item.routerLink == null) {
+      return;
+    }
+
+    const allowBrowserDefaultNavigation =
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey;
+
+    if (allowBrowserDefaultNavigation) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const commands = Array.isArray(item.routerLink) ? item.routerLink : [item.routerLink];
+    const extras =
+      item.fragment != null && item.fragment !== '' ? { fragment: item.fragment } : undefined;
+
+    void this.router.navigate(commands, extras);
   }
 
   private navigateTo(path: string, fragment?: string): void {

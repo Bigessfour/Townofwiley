@@ -5,7 +5,7 @@
 # Prerequisites:
 #   - AWS CLI v2
 #   - Credentials for account 570912405222 (Town of Wiley). Example:
-#       export AWS_PROFILE=root-login   # after: aws login --profile root-login
+#       export AWS_PROFILE=townofwiley   # must resolve to account 570912405222 (see .vscode/settings.json)
 #   - jq (brew install jq)
 #
 # Payload: root customHttp.yml (YAML). Amplify UpdateApp validates YAML, not JSON.
@@ -76,7 +76,8 @@ if [[ -z ${REMOTE_HEADERS} ]]; then
   exit 1
 fi
 # Baseline tokens must survive API round-trip (prevents silent truncation).
-for needle in "Content-Security-Policy" "worker-src" "googletagmanager" "g.doubleclick.net" "font-src 'self' data:" "frame-src https://www.googletagmanager.com"; do
+# frame-src includes 'self' before GTM; match CSP as written in repo customHttp.yml
+for needle in "Content-Security-Policy" "worker-src" "googletagmanager" "g.doubleclick.net" "font-src 'self' data:" "frame-src 'self' https://www.googletagmanager.com"; do
   if ! grep -qF "${needle}" <<<"${REMOTE_HEADERS}"; then
     echo "error: remote customHeaders missing expected substring: ${needle}" >&2
     exit 1

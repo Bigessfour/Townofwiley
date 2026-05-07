@@ -140,56 +140,52 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it(
-    'should render the English homepage by default',
-    async () => {
-      const fixture = TestBed.createComponent(App);
-      fixture.detectChanges();
-      await flushWeatherRequests();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      await flushDeferBlocksToComplete(fixture);
-      const compiled = fixture.nativeElement as HTMLElement;
+  it('should render the English homepage by default', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await flushDeferBlocksToComplete(fixture);
+    const compiled = fixture.nativeElement as HTMLElement;
 
-      expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
-      expect(document.title).toContain('Official Website');
-      expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
-      const expectedTopTaskTitles = APP_COPY.en.topTasks.map((task) => task.title);
-      const topTasksModel = (
-        fixture.componentInstance as unknown as {
-          topTasks: () => typeof APP_COPY.en.topTasks;
-        }
-      ).topTasks();
-      expect(topTasksModel.map((task) => task.title)).toEqual(expectedTopTaskTitles);
+    expect(compiled.querySelector('h1')?.textContent).toContain('Town of Wiley');
+    expect(document.title).toContain('Official Website');
+    expect(compiled.querySelector('#top-tasks h2')?.textContent).toContain('How do I');
+    const expectedTopTaskTitles = APP_COPY.en.topTasks.map((task) => task.title);
+    const topTasksModel = (
+      fixture.componentInstance as unknown as {
+        topTasks: () => typeof APP_COPY.en.topTasks;
+      }
+    ).topTasks();
+    expect(topTasksModel.map((task) => task.title)).toEqual(expectedTopTaskTitles);
 
-      const taskAnchors = compiled.querySelectorAll('a.task-card');
-      expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
-      expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
-        'Local weather',
-      );
-      expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
-        'Records and documents',
-      );
-      expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
-        'Contact Town Hall',
-      );
-      expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
-        'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
-      );
-      expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
-        'Town of Wiley | Official Website',
-      );
-      expect(compiled.querySelector('#accessibility')).toBeNull();
-      expect(compiled.querySelector('#search-panel')).not.toBeNull();
-      expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
-        'Search Wiley services',
-      );
-      expect(
-        compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent,
-      ).toContain('Accessibility statement');
-    },
-    45000,
-  );
+    const taskAnchors = compiled.querySelectorAll('a.task-card');
+    expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
+    expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
+      'Local weather',
+    );
+    expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
+      'Records and documents',
+    );
+    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
+      'Contact Town Hall',
+    );
+    expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
+      'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
+    );
+    expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
+      'Town of Wiley | Official Website',
+    );
+    expect(compiled.querySelector('#accessibility')).toBeNull();
+    expect(compiled.querySelector('#search-panel')).not.toBeNull();
+    expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
+      'Search Wiley services',
+    );
+    expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
+      'Accessibility statement',
+    );
+  }, 45000);
 
   it('should expose navigable resident-services submenu targets in the mega menu model', async () => {
     const fixture = TestBed.createComponent(App);
@@ -277,6 +273,64 @@ describe('App', () => {
     expect(stopPropagation).toHaveBeenCalledTimes(1);
     expect(command).toHaveBeenCalledTimes(1);
     expect(command).toHaveBeenCalledWith(event);
+  });
+
+  it('should navigate on mega menu leaf click when routerLink is set without command', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    const component = fixture.componentInstance as App & {
+      onMegaMenuLeafClick: (item: MegaMenuItem, event: MouseEvent) => void;
+    };
+
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+    });
+    vi.spyOn(event, 'preventDefault');
+    vi.spyOn(event, 'stopPropagation');
+
+    component.onMegaMenuLeafClick(
+      { label: 'Test', routerLink: ['/services'], fragment: 'payment-help' },
+      event,
+    );
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/services'], { fragment: 'payment-help' });
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not programmatically navigate on mega menu leaf click when Ctrl is held', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    const component = fixture.componentInstance as App & {
+      onMegaMenuLeafClick: (item: MegaMenuItem, event: MouseEvent) => void;
+    };
+
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: true,
+    });
+
+    component.onMegaMenuLeafClick({ label: 'Test', routerLink: ['/weather'] }, event);
+
+    expect(navigateSpy).not.toHaveBeenCalled();
   });
 
   it('should expose the meetings calendar jump link on the homepage', async () => {

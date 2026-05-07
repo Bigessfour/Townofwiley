@@ -13,13 +13,67 @@ update this file in the same PR.
 
 Amplify executes the build defined in [`amplify.yml`](../amplify.yml). The relevant facts:
 
-- **Node version**: pinned to `nvm install 24` in the `preBuild` phase so Amplify and local builds use the same major.
+- **Node version**: pinned to **`24.15.0`** via `nvm install 24.15.0` / `nvm use 24.15.0` in `preBuild`, matching `.nvmrc` and CI. **Node 25+ is unsupported** for this stack.
 - **Install**: `npm ci`.
 - **Build command**: `npm run build` (which runs the Angular `ng build` configured in `angular.json`).
 - **Artifact `baseDirectory`**: `dist/townofwiley-app/browser` — Amplify uploads everything under this folder to its CDN. This is the SPA static-asset root: `index.html`, hashed `*.js`/`*.css` bundles, and the `assets/` tree.
 - **Build cache**: `node_modules/**/*` is cached between builds.
 
 If the artifact root ever moves (for example after an Angular major upgrade that changes the output folder), update both `amplify.yml` and this section.
+
+### 1.b Why `serve:prodlike` can look “perfect” but **townofwiley.gov** does not
+
+Those are **not the same runtime**. `ng serve --configuration=production` still runs a **dev server** from disk, without Amplify’s CDN, custom headers, or the **exact** build-time environment.
+
+| Factor                  | Local prod-like                                                                                             | Live Amplify (`townofwiley.gov`)                                                                                                                                                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`runtime-config.js`** | Written by `prestart` / `prebuild` using **local** `secrets/local/user-secrets.json` and your shell **env** | Written at **Amplify build** time from **Amplify Console → Environment variables** ([`scripts/generate-runtime-config.mjs`](../scripts/generate-runtime-config.mjs)). Missing or wrong vars ⇒ different CMS, Paystar, chat, weather proxies, feature flags. |
+| **Service worker**      | **Off** while `ng serve` runs (`isDevMode()` is true) → no offline cache of old bundles                     | **On** for real production builds (`provideServiceWorker` in [`src/app/app.config.ts`](../src/app/app.config.ts)). Stale cache can make the public site look **one or more deploys behind**.                                                                |
+| **CSP / headers**       | Optional; `angular.json` **serve** CSP is not guaranteed to match Amplify                                   | Repo SSOT [`customHttp.yml`](../customHttp.yml) (must be synced to hosting). Stricter **connect-src** / **frame-src** can block APIs or embeds that work locally.                                                                                           |
+| **What’s deployed**     | Your **current working tree**                                                                               | Whatever **last succeeded** on **`main`** for app `d331voxr1fhoir`. Unmerged PRs or failed builds mean production lags your laptop.                                                                                                                         |
+
+**Quick parity checks (operators):**
+
+1. Amplify **Hosting → Builds**: last **main** job succeeded; note the **commit**.
+2. Browser (production): **hard reload** or DevTools → Application → **Clear storage** (or unregister **Service Workers** for the site) and retry.
+3. Compare **`/runtime-config.js`** on production with your local `public/runtime-config.js` (same **keys** shape; **never** paste secrets into tickets).
+4. Confirm **custom headers** in Console match repo: `npm run amplify:sync-headers` after changing [`customHttp.yml`](../customHttp.yml).
+
+To approximate “static prod” without `ng serve`, after `npm run build` you can serve **`dist/townofwiley-app/browser`** with a static server and still expect **no** service-worker behavior unless you mimic registration—so it is not a full Amplify twin either.
+
+### 1.a Build logs — capture and alerting (operator checklist)
+
+**Nothing in `amplify.yml` turns logs “on.”** Amplify Hosting records a full transcript for every frontend build automatically. You retrieve it under **Hosting → Builds** → select the job (**Download**, or inline viewer). Optionally use the API (`aws amplify list-jobs` / `aws amplify get-job`; some payloads include step **log URLs**).
+
+**Correct AWS account (Town of Wiley website):** The hosting app **`d331voxr1fhoir`** lives in **AWS account `570912405222`** (**`57…`**). This repository pins **`townofwiley`** as the CLI profile (`~/.aws/` + `.vscode/settings.json` + terminal `AWS_PROFILE`). Code Platoon and other workloads use **`38…`** and must **never** occupy that Wiley profile slot. Wrong profile ⇒ **`amplify list-apps`** empty and unrelated CloudWatch noise. Confirm identity before CLI or Console ops:
+
+```bash
+AWS_PROFILE=townofwiley aws sts get-caller-identity   # Account must be Town of Wiley 570912405222 (57… prefix)
+AWS_PROFILE=townofwiley AWS_REGION=us-east-2 aws amplify list-apps --output table --query 'apps[*].[name,appId]'
+```
+
+**Recommended settings so logs are reachable and actionable:**
+
+| Setting                               | Where                                                                                                                  | Why                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Build notifications**               | Amplify Console → **Hosting → Build notifications** → **Manage notifications**                                         | Email (SNS-managed) when a branch build **succeeds or fails**, with links back to the failing job ([AWS docs: build notifications](https://docs.aws.amazon.com/amplify/latest/userguide/notifications.html)). Treat this as mandatory for whoever owns deployments.                                                                                                                                                                            |
+| **Build logs ≠ CloudWatch (WEB SPA)** | `aws amplify get-job …` **`steps[].logUrl`** → presigned **`log.txt`** in **`aws-amplify-prod-*-*-artifacts`** buckets | Amplify Hosting **frontend** transcripts are **artifact URLs**, **not** a customer-managed CloudWatch Logs stream AWS turns on via Console. Searching CW for **`CODEBUILD`** / **`d331`** often finds **Amplify Backend Lambdas** only (set **retention** on those—for example **`/aws/lambda/amplify-townofwiley-main--…`** already had **30d** retention in May 2026). Do **not** expect a turnkey “Amplify CW build logs” checkbox for SPA. |
+| **SSR Compute logs** (if ever used)   | Amplify Console → **Monitoring → Hosting compute logs**                                                                | Applies only when using Amplify **SSR Hosting compute**, not static export. See [Monitoring with CloudWatch](https://docs.aws.amazon.com/amplify/latest/userguide/monitoring-with-cloudwatch.html).                                                                                                                                                                                                                                            |
+
+**Optional central archive:** Route **`Amplify Deployment Status Change`** from EventBridge (`source: aws.amplify`) to SNS, Slack, Lambda, etc., to stash **job id / branch / status** and a Console URL whenever a deployment finishes ([EventBridge amplify events](https://docs.aws.amazon.com/eventbridge/latest/ref/events-ref-amplify.html)).
+
+**Parallel record:** GitHub Actions **`npm run build`** on merges also captures **`prebuild`** (including **`generate-runtime-config.mjs`**) and **`postbuild`** (`generate-static-route-entrypoints.mjs`) in workflow logs—not a substitute for Amplify’s artifact deploy, but a second transcript when CI runs.
+
+**CLI: pull the latest main BUILD log locally** (after `AWS_PROFILE=townofwiley` works):
+
+```bash
+bash scripts/fetch-amplify-build-log.sh | tail -80
+JOB_ID=190 bash scripts/fetch-amplify-build-log.sh > /tmp/main-job-190-build.txt
+```
+
+Links expire quickly; rerun the script after ~1 h.
+
+**Duplicating transcripts into CloudWatch yourself:** Amplify doesn’t automate this for SPA WEB. Typical pattern an operator adds is **EventBridge (`Amplify Deployment Status Change`) → Lambda**: `amplify get-job` → **`curl`** each **`logUrl`** → **`PutLogEvents`** to a repo-owned log group (for example **`/townofwiley/amplify-hosted/Townofwiley-main`**) with **`logs:PutLogEvents`** on the Lambda role—not maintained in-repo today unless you explicitly add IaC/Lambda later.
 
 ---
 

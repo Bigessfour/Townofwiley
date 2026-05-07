@@ -11,7 +11,7 @@ plugins:
 runtimes:
   enabled:
     - go@1.21.0
-    - node@24.0.0 # Matches project engines and .nvmrc preference
+    - node@24.15.0 # Matches package.json volta, .nvmrc, and CI (Node 25+ unsupported)
     - python@3.14.4
 lint:
   enabled:

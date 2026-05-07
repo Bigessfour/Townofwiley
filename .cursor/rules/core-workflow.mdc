@@ -12,12 +12,20 @@ alwaysApply: true
 - Use repo-local files: .instructions.md, .github/skills/TownOfWiley-Dev/SKILL.md, .github/instructions/*.instructions.md.
 
 ## Mandatory Practices
+- **Node.js**: Use **24.x LTS only** — repo pins **`24.15.0`** (`.nvmrc`, Volta/mise/asdf configs, Amplify + GitHub Actions). **Node 25+ is unsupported** (toolchain/native-deps issues). Avoid `SKIP_NODE_VERSION_CHECK` except emergencies.
 - **Angular**: Standalone APIs, signals, OnPush, native control flow over *ngIf etc. Avoid ngClass/ngStyle; use [class] and [style] bindings. Keep templates semantic and accessible.
 - **Changes**: Minimal, match existing src/ patterns and structure. Consult MCP before editing.
 - **Formatting & Quality**: Run Trunk (trunk check --fix) before commits. Use existing npm scripts for test/build/lint.
 - **Secrets & AI**: Use `npm run secrets:*` scripts. Never commit credentials. For AI features, server-side boundaries, graceful degradation, validate outputs.
 - **Testing**: Follow Playwright standards - user-facing locators (getByRole, getByLabel), isolated tests, fixtures.
 - **Git**: Feature branches, only deployable to main. 
+
+## AWS (Town of Wiley only in this workspace)
+- **Account `570912405222` (`57…`).** Workspace defaults: `.vscode/settings.json` uses **`aws.profile` `townofwiley`** and sets **`AWS_PROFILE=townofwiley`** in integrated terminals. Configure `[profile townofwiley]` under `~/.aws/` for Wiley IAM credentials (or SSO/assume-role to `570912405222`). Code Platoon / other accounts (**`388…`**) belong in separate profiles (**not** repo defaults).
+
+## Cursor agent terminal (Town of Wiley)
+- If Agent terminal sessions are **read-only**, **stall**, or **ignore input**, turn on **Legacy Terminal Tool**: **Cursor → Settings → Cursor Settings → Chat → Inline Editing & Terminal → Legacy Terminal Tool** (then reload the window if needed). This is a Cursor-side switch, not `angular.json`.
+- Agent-invoked shells may **not** inherit `.vscode/settings.json` **`terminal.integrated.env`**. On macOS + Homebrew, prefix commands with **`PATH="/opt/homebrew/opt/node@24/bin:$PATH"`** (Intel Homebrew: `/usr/local/opt/node@24/bin`) so **`ensure-node-version`** sees **Node 24**; integrated terminals launched from Cursor already prepend this on macOS.
 
 ## Always:
 - Review .vscode/settings.json, tasks.json, extensions.json for workspace config.

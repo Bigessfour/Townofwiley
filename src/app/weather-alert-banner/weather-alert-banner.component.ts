@@ -18,6 +18,13 @@ import type { HomepageWeatherAlert } from '../weather-panel/localized-weather-pa
   templateUrl: './weather-alert-banner.component.html',
   styleUrl: './weather-alert-banner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /**
+   * PrimeNG card/button subtrees plus `provideClientHydration(withEventReplay())` sometimes mis-match the SSR DOM
+   * in production-only ways; opting out keeps the banner + actions rendering like `ng serve` (matches cms-admin anchors).
+   */
+  host: {
+    ngSkipHydration: '',
+  },
 })
 export class WeatherAlertBannerComponent {
   private readonly platformId = inject(PLATFORM_ID);

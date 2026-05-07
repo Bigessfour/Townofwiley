@@ -26,14 +26,17 @@
     "**/.angular": true
   },
   "terminal.integrated.env.osx": {
+    "AWS_PROFILE": "townofwiley",
     "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}",
     "E2E_NODE": "/opt/homebrew/opt/node@24/bin/node",
     "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "terminal.integrated.env.linux": {
+    "AWS_PROFILE": "townofwiley",
     "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "terminal.integrated.env.windows": {
+    "AWS_PROFILE": "townofwiley",
     "NPM_CONFIG_PREFIX": "${env:APPDATA}\\npm",
     "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}\\.playwright-browsers"
   },
@@ -182,7 +185,7 @@
   "github.copilot.chat.agentDebugLog.fileLogging.maxRetainedSessionLogs": 12,
   "github.copilot.chat.agentDebugLog.fileLogging.maxSessionLogSizeMB": 25,
   "aws.telemetry": false,
-  "aws.profile": "steve",
+  "aws.profile": "townofwiley",
   "aws.region": "us-east-2",
   "aws.cloudformation.completion.enabled": true,
   "aws.cloudformation.diagnostics.cfnLint.enabled": true,

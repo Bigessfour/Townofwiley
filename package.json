@@ -6,6 +6,7 @@
     "prestart": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config",
     "start": "ng serve",
     "start:polling": "node scripts/ensure-node-version.mjs && ng serve --poll=2000",
+    "serve:prodlike": "npm run prestart && ng serve --configuration=production",
     "serve:4300": "npx --yes kill-port 4200 4300 && npm run prestart && ng serve --host 127.0.0.1 --port 4300",
     "prebuild": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config",
     "build": "ng build",
@@ -22,6 +23,7 @@
     "verify:nws-proxy-aws": "bash scripts/verify-nws-weather-proxy-aws.sh",
     "amplify:sync-headers": "bash scripts/sync-amplify-custom-headers.sh",
     "amplify:sync-spa-rewrites": "bash scripts/sync-amplify-spa-rules.sh",
+    "amplify:fetch-build-log": "bash scripts/fetch-amplify-build-log.sh",
     "verify:custom-http-yaml": "node scripts/verify-custom-http-yaml.mjs",
     "sync:angular-serve-csp": "node scripts/sync-angular-serve-csp.mjs",
     "verify:live-csp-probe": "bash scripts/probe-live-hosting-csp.sh",
@@ -79,8 +81,11 @@
   "private": true,
   "packageManager": "npm@11.6.2",
   "engines": {
-    "node": ">=24.0.0 <25.0.0",
+    "node": ">=24.15.0 <25.0.0",
     "npm": "^11.0.0"
+  },
+  "volta": {
+    "node": "24.15.0"
   },
   "dependencies": {
     "@angular/animations": "21.2.11",

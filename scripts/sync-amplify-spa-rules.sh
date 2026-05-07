@@ -2,11 +2,11 @@
 # Push Amplify Hosting SPA rewrites from repo JSON (customRules), same as Console
 # "Rewrites and redirects". Does not change customHeaders — run amplify:sync-headers separately.
 #
-# Prerequisites: AWS CLI v2, Wiley credentials (e.g. export AWS_PROFILE=root-login).
+# Prerequisites: AWS CLI v2, Wiley credentials (workspace default AWS_PROFILE=townofwiley → account 570912405222).
 #
 # Usage:
 #   ./scripts/sync-amplify-spa-rules.sh
-#   AMPLIFY_APP_ID=d331voxr1fhoir AWS_REGION=us-east-2 AWS_PROFILE=root-login ./scripts/sync-amplify-spa-rules.sh
+#   AMPLIFY_APP_ID=d331voxr1fhoir AWS_REGION=us-east-2 AWS_PROFILE=townofwiley ./scripts/sync-amplify-spa-rules.sh
 
 set -euo pipefail
 
@@ -15,7 +15,7 @@ RULES_JSON="${ROOT}/scripts/amplify-spa-rewrite-rules.json"
 APP_ID="${AMPLIFY_APP_ID:-d331voxr1fhoir}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-2}}"
 
-if [[ ! -f "${RULES_JSON}" ]]; then
+if [[ ! -f ${RULES_JSON} ]]; then
   echo "error: missing ${RULES_JSON}" >&2
   exit 1
 fi
