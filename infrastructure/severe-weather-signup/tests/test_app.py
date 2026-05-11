@@ -571,12 +571,39 @@ class SevereWeatherBackendTests(unittest.TestCase):
       {
         'requestContext': {'http': {'method': 'OPTIONS'}},
         'rawPath': '/subscriptions',
+        'headers': {'origin': 'https://www.townofwiley.gov'},
       },
     )
 
     self.assertEqual(response['statusCode'], 204)
     self.assertIn('access-control-allow-origin', response['headers'])
-    self.assertEqual(response['headers']['access-control-allow-origin'], '*')
+    self.assertEqual(response['headers']['access-control-allow-origin'], 'https://www.townofwiley.gov')
+    self.assertEqual(response['headers'].get('vary'), 'Origin')
+
+  def test_options_without_origin_uses_fallback_acao(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'OPTIONS'}},
+        'rawPath': '/subscriptions',
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 204)
+    self.assertEqual(response['headers']['access-control-allow-origin'], 'https://townofwiley.gov')
+
+  def test_options_disallowed_origin_does_not_echo_origin(self) -> None:
+    backend = build_backend()
+    response = backend.handle(
+      {
+        'requestContext': {'http': {'method': 'OPTIONS'}},
+        'rawPath': '/subscriptions',
+        'headers': {'origin': 'https://evil.example'},
+      },
+    )
+
+    self.assertEqual(response['statusCode'], 204)
+    self.assertEqual(response['headers']['access-control-allow-origin'], 'https://townofwiley.gov')
 
   def test_health_endpoint_returns_service_info(self) -> None:
     backend = build_backend()
