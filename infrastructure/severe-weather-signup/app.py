@@ -27,11 +27,21 @@ DEFAULT_ALLOWED_ZIP_CODE = '81092'
 DEFAULT_ALERT_ZONE_CODE = 'COZ098'
 DEFAULT_NOTIFICATION_NAME = 'Town of Wiley Alerts'
 SUPPORTED_ALERT_LANGUAGES = {LANGUAGE_EN, LANGUAGE_ES}
-DEFAULT_CORS_HEADERS = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,POST,OPTIONS',
-  'access-control-allow-headers': 'content-type',
-}
+# Reflect Origin when allowlisted; otherwise a single safe default (never '*') so Lambda Function URL
+# CORS in AWS cannot merge a second ACAO value. See infrastructure/nws-weather-proxy/index.mjs.
+ALLOWED_ORIGINS = frozenset(
+  {
+    'https://townofwiley.gov',
+    'https://www.townofwiley.gov',
+    'https://staging.townofwiley.gov',
+    'http://localhost:4200',
+    'http://localhost:4300',
+    'http://127.0.0.1:4200',
+    'http://127.0.0.1:4300',
+  },
+)
+CANONICAL_ORIGIN_BY_LOWER = {origin.lower(): origin for origin in ALLOWED_ORIGINS}
+DEFAULT_CORS_FALLBACK_ORIGIN = 'https://townofwiley.gov'
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -457,7 +467,7 @@ class SevereWeatherBackend:
     if method == 'OPTIONS':
       return {
         'statusCode': 204,
-        'headers': DEFAULT_CORS_HEADERS,
+        'headers': build_cors_headers(event),
         'body': '',
       }
 
@@ -471,6 +481,7 @@ class SevereWeatherBackend:
           'signupChannels': [EMAIL_CHANNEL, SMS_CHANNEL],
           'signupLanguages': sorted(SUPPORTED_ALERT_LANGUAGES),
         },
+        request_event=event,
       )
 
     if method == 'POST' and path.endswith('/subscriptions'):
@@ -488,19 +499,19 @@ class SevereWeatherBackend:
     if method == 'POST' and path.endswith('/log'):
       return self._handle_log(event)
 
-    return json_response(404, {'error': 'Route not found.'})
+    return json_response(404, {'error': 'Route not found.'}, request_event=event)
 
   def _handle_log(self, event: dict[str, Any]) -> dict[str, Any]:
     try:
       payload = parse_json_body(event)
     except ValueError:
-      return json_response(400, {'error': 'Invalid JSON body.'})
+      return json_response(400, {'error': 'Invalid JSON body.'}, request_event=event)
 
     level = str(payload.get('level', 'info')).strip().lower()
     message = str(payload.get('message', '')).strip()[:500]
 
     if not message:
-      return json_response(400, {'error': 'message is required.'})
+      return json_response(400, {'error': 'message is required.'}, request_event=event)
 
     LOGGER.info(
       json.dumps(
@@ -516,23 +527,23 @@ class SevereWeatherBackend:
       ),
     )
 
-    return json_response(200, {'ok': True})
+    return json_response(200, {'ok': True}, request_event=event)
 
   def _handle_developer_test(self, event: dict[str, Any]) -> dict[str, Any]:
     developer_test_token = self._resolve_developer_test_token()
 
     if not developer_test_token:
-      return json_response(404, {'error': 'Developer test route is disabled.'})
+      return json_response(404, {'error': 'Developer test route is disabled.'}, request_event=event)
 
     provided_token = request_header(event, 'x-townofwiley-test-token')
 
     if provided_token != developer_test_token:
-      return json_response(403, {'error': 'Invalid developer test token.'})
+      return json_response(403, {'error': 'Invalid developer test token.'}, request_event=event)
 
     try:
       payload = parse_json_body(event)
     except ValueError as error:
-      return json_response(400, {'error': str(error)})
+      return json_response(400, {'error': str(error)}, request_event=event)
 
     preferred_language = normalize_alert_language(payload.get('preferredLanguage', LANGUAGE_EN))
     zip_code = str(payload.get('zipCode', self._config.allowed_zip_code)).strip() or self._config.allowed_zip_code
@@ -580,7 +591,11 @@ class SevereWeatherBackend:
       destinations_sent.append({'channel': channel, 'destination': normalized_destination})
 
     if not destinations_sent:
-      return json_response(400, {'error': 'Provide at least one emailDestination or smsDestination.'})
+      return json_response(
+        400,
+        {'error': 'Provide at least one emailDestination or smsDestination.'},
+        request_event=event,
+      )
 
     return json_response(
       200,
@@ -588,6 +603,7 @@ class SevereWeatherBackend:
         'message': 'Developer-only test alert sent.',
         'destinationsSent': destinations_sent,
       },
+      request_event=event,
     )
 
   def _create_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
@@ -605,7 +621,7 @@ class SevereWeatherBackend:
         status_code=400,
         error=str(error),
       )
-      return json_response(400, {'error': str(error)})
+      return json_response(400, {'error': str(error)}, request_event=event)
 
     channel = str(payload.get('channel', '')).strip().lower()
     destination = str(payload.get('destination', '')).strip()
@@ -623,7 +639,7 @@ class SevereWeatherBackend:
         status_code=400,
         error=str(error),
       )
-      return json_response(400, {'error': str(error)})
+      return json_response(400, {'error': str(error)}, request_event=event)
     zip_code = str(payload.get('zipCode', self._config.allowed_zip_code)).strip()
 
     if zip_code != self._config.allowed_zip_code:
@@ -644,6 +660,7 @@ class SevereWeatherBackend:
         {
           'error': f'This signup is currently limited to ZIP code {self._config.allowed_zip_code}.',
         },
+        request_event=event,
       )
 
     try:
@@ -661,7 +678,7 @@ class SevereWeatherBackend:
         status_code=400,
         error=str(error),
       )
-      return json_response(400, {'error': str(error)})
+      return json_response(400, {'error': str(error)}, request_event=event)
 
     existing = self._subscription_store.find_existing_subscription(channel, subscriber_key)
     request_base_url = build_request_base_url(event, self._config.public_api_base_url)
@@ -696,6 +713,7 @@ class SevereWeatherBackend:
             ),
             'unsubscribeUrl': unsubscribe_url,
           },
+          request_event=event,
         )
 
       try:
@@ -720,7 +738,7 @@ class SevereWeatherBackend:
           error=str(error),
           existing_status=PENDING_STATUS,
         )
-        return json_response(502, {'error': str(error)})
+        return json_response(502, {'error': str(error)}, request_event=event)
 
       log_signup_attempt(
         method=method,
@@ -740,6 +758,7 @@ class SevereWeatherBackend:
         {
           'message': 'A fresh confirmation message was sent for the existing pending subscription.',
         },
+        request_event=event,
       )
 
     subscription_id = str(uuid.uuid4())
@@ -785,7 +804,7 @@ class SevereWeatherBackend:
         status_code=502,
         error=str(error),
       )
-      return json_response(502, {'error': str(error)})
+      return json_response(502, {'error': str(error)}, request_event=event)
 
     self._subscription_store.save_subscription(item)
 
@@ -809,18 +828,27 @@ class SevereWeatherBackend:
           preferred_language,
         ),
       },
+      request_event=event,
     )
 
   def _confirm_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
     token = query_param(event, 'token')
 
     if not token:
-      return html_response(400, render_status_page('Missing token', 'The confirmation link is incomplete.'))
+      return html_response(
+        400,
+        render_status_page('Missing token', 'The confirmation link is incomplete.'),
+        request_event=event,
+      )
 
     item = self._subscription_store.find_by_token('confirmationToken', token)
 
     if not item:
-      return html_response(404, render_status_page('Link not found', 'The confirmation token could not be matched.'))
+      return html_response(
+        404,
+        render_status_page('Link not found', 'The confirmation token could not be matched.'),
+        request_event=event,
+      )
 
     if item['status'] != ACTIVE_STATUS:
       item = self._subscription_store.update_subscription_status(item['subscriptionId'], ACTIVE_STATUS) or item
@@ -834,18 +862,27 @@ class SevereWeatherBackend:
           item.get('preferredLanguage', LANGUAGE_EN),
         ),
       ),
+      request_event=event,
     )
 
   def _unsubscribe_subscription(self, event: dict[str, Any]) -> dict[str, Any]:
     token = query_param(event, 'token')
 
     if not token:
-      return html_response(400, render_status_page('Missing token', 'The unsubscribe link is incomplete.'))
+      return html_response(
+        400,
+        render_status_page('Missing token', 'The unsubscribe link is incomplete.'),
+        request_event=event,
+      )
 
     item = self._subscription_store.find_by_token('unsubscribeToken', token)
 
     if not item:
-      return html_response(404, render_status_page('Link not found', 'The unsubscribe token could not be matched.'))
+      return html_response(
+        404,
+        render_status_page('Link not found', 'The unsubscribe token could not be matched.'),
+        request_event=event,
+      )
 
     self._subscription_store.update_subscription_status(item['subscriptionId'], UNSUBSCRIBED_STATUS)
 
@@ -858,6 +895,7 @@ class SevereWeatherBackend:
           item.get('preferredLanguage', LANGUAGE_EN),
         ),
       ),
+      request_event=event,
     )
 
   def _handle_scheduled_event(self) -> dict[str, Any]:
@@ -1126,6 +1164,21 @@ def request_header(event: dict[str, Any], name: str) -> str:
   return str(value).strip() if value else ''
 
 
+def build_cors_headers(event: dict[str, Any] | None) -> dict[str, str]:
+  origin_raw = request_header(event, 'Origin') if event else ''
+  allow = DEFAULT_CORS_FALLBACK_ORIGIN
+  if origin_raw:
+    canonical = CANONICAL_ORIGIN_BY_LOWER.get(origin_raw.lower())
+    if canonical is not None:
+      allow = canonical
+  return {
+    'access-control-allow-origin': allow,
+    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-headers': 'content-type,x-townofwiley-test-token',
+    'vary': 'Origin',
+  }
+
+
 def normalize_destination(channel: str, destination: str) -> tuple[str, str]:
   if channel == EMAIL_CHANNEL:
     return normalize_email(destination)
@@ -1304,9 +1357,15 @@ def secrets_token() -> str:
   return uuid.uuid4().hex + uuid.uuid4().hex
 
 
-def json_response(status_code: int, body: dict[str, Any], extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
+def json_response(
+  status_code: int,
+  body: dict[str, Any],
+  *,
+  request_event: dict[str, Any] | None = None,
+  extra_headers: dict[str, str] | None = None,
+) -> dict[str, Any]:
   headers = {
-    **DEFAULT_CORS_HEADERS,
+    **build_cors_headers(request_event),
     'content-type': 'application/json; charset=utf-8',
   }
 
@@ -1320,11 +1379,16 @@ def json_response(status_code: int, body: dict[str, Any], extra_headers: dict[st
   }
 
 
-def html_response(status_code: int, body: str) -> dict[str, Any]:
+def html_response(
+  status_code: int,
+  body: str,
+  *,
+  request_event: dict[str, Any] | None = None,
+) -> dict[str, Any]:
   return {
     'statusCode': status_code,
     'headers': {
-      **DEFAULT_CORS_HEADERS,
+      **build_cors_headers(request_event),
       'content-type': 'text/html; charset=utf-8',
     },
     'body': body,

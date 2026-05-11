@@ -175,6 +175,8 @@ Override mechanism for E2E and dev: tests can set `window.__TOW_RUNTIME_CONFIG_O
 - **S3 documents bucket**: `townofwiley-documents-storage` in `us-east-2`. Resolved at runtime by `DocumentUploadService.resolveDocumentHref`.
 - **Lambda function URLs**: weather proxy and alert signup, both behind `https://*.lambda-url.us-east-2.on.aws` (allowed in the connect-src CSP origin).
 
+**Lambda Function URL → CORS (severe weather alert signup):** The handler in [`infrastructure/severe-weather-signup/app.py`](../infrastructure/severe-weather-signup/app.py) emits a single `Access-Control-Allow-Origin` (allowlisted origins, `Vary: Origin`), matching the pattern documented at the top of [`infrastructure/nws-weather-proxy/index.mjs`](../infrastructure/nws-weather-proxy/index.mjs). In AWS Console → Lambda → **Configuration → Function URL → CORS**, do **not** layer a second ACAO (for example `*` plus a site origin); either disable URL-level CORS so only the function’s headers apply, or align URL CORS with that single header—otherwise browsers report multiple `Access-Control-Allow-Origin` values and block the call.
+
 ---
 
 ## 6. Update checklist
