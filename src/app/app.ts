@@ -39,6 +39,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TimelineModule } from 'primeng/timeline';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
@@ -548,7 +549,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageSectionsAriaLabel: 'Homepage sections',
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
-    heroAlt: 'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    heroAlt:
+      'Wiley Town Hall at 304 Main Street in Wiley, Colorado, with the eastern plains and open sky in the background.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -958,7 +960,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroAlt:
-      'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
+      'Ayuntamiento de Wiley en 304 Main Street, Wiley, Colorado, con las llanuras orientales y un cielo despejado al fondo.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
     heroSecondaryActionLabel: 'Ver reuniones y avisos',
     topTasksKicker: 'Tareas rapidas',
@@ -1388,6 +1390,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     TimelineModule,
     SkeletonModule,
     TableModule,
+    TagModule,
     TabsModule,
     ToolbarModule,
     ToastModule,

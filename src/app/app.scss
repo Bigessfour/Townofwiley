@@ -886,6 +886,7 @@
 .hero-label,
 .eyebrow,
 .section-kicker,
+p-tag.section-kicker-tag,
 .meta-label {
   margin: 0;
   color: var(--civic-rust);
@@ -893,6 +894,27 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+:host ::ng-deep p-tag.section-kicker-tag.p-tag {
+  align-self: start;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--civic-rust) 10%, var(--surface-card));
+  border: 1px solid color-mix(in srgb, var(--civic-rust) 24%, transparent);
+  color: var(--civic-rust);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+:host ::ng-deep p-tag.section-kicker-tag .p-tag-label {
+  line-height: 1.25;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
 }
 
 .status {
@@ -2592,21 +2614,30 @@ h6 {
 }
 
 .footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
+  gap: var(--space-md, 1.5rem);
+  column-gap: var(--space-md, 1.5rem);
+  row-gap: var(--space-md, 1.5rem);
+}
+
+.footer-links li {
+  list-style: none;
 }
 
 .footer-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min, 2.75rem);
+  min-width: var(--touch-target-min, 2.75rem);
   box-sizing: border-box;
-  padding: var(--space-xs) var(--space-sm);
+  padding: var(--space-xs, 0.5rem) var(--space-sm, 1rem);
   color: var(--civic-blue);
   font-weight: 700;
 }
@@ -2933,13 +2964,20 @@ button:not(:disabled):active,
 
 .hero-landing-media img {
   object-fit: cover;
-  object-position: 58% 40%;
+  /* Balanced focal point for town / plains photography (tune per CMS default image). */
+  object-position: 50% 42%;
 }
 
 .hero-landing-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.55) 100%);
+  /* Slightly warmer base-to-navy scrim for readable type without flattening the photo. */
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(15, 23, 42, 0.42) 52%,
+    rgba(28, 22, 18, 0.58) 100%
+  );
   z-index: 1;
 }
 
@@ -2952,6 +2990,17 @@ button:not(:disabled):active,
   min-height: 34rem;
   padding: var(--space-xl) clamp(1.25rem, 4vw, 3.5rem);
   text-align: left;
+}
+
+@media (min-width: 960px) {
+  .hero-landing-inner {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero-landing-copy {
+    margin-inline: auto;
+  }
 }
 
 .hero-landing-copy {

@@ -367,7 +367,12 @@
             <section class="feature-detail-stack">
               <p-card class="panel service-panel" id="services">
                 <ng-template pTemplate="header">
-                  <p class="section-kicker">{{ appCopy().servicesKicker }}</p>
+                  <p-tag
+                    class="section-kicker-tag"
+                    [value]="appCopy().servicesKicker"
+                    severity="secondary"
+                    [rounded]="true"
+                  />
                   <h1>{{ appCopy().servicesHeading }}</h1>
                 </ng-template>
                 <section class="service-grid">
@@ -402,7 +407,12 @@
             <section class="feature-detail-stack">
               <p-card class="panel" id="records">
                 <ng-template pTemplate="header">
-                  <p class="section-kicker">{{ appCopy().transparencyKicker }}</p>
+                  <p-tag
+                    class="section-kicker-tag"
+                    [value]="appCopy().transparencyKicker"
+                    severity="secondary"
+                    [rounded]="true"
+                  />
                   <h2>{{ appCopy().transparencyHeading }}</h2>
                 </ng-template>
                 <div class="stack-list">
@@ -482,7 +492,12 @@
           class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
         >
           <div>
-            <p class="section-kicker">{{ appCopy().topTasksKicker }}</p>
+            <p-tag
+              class="section-kicker-tag"
+              [value]="appCopy().topTasksKicker"
+              severity="secondary"
+              [rounded]="true"
+            />
             <h2 id="top-tasks-heading">{{ appCopy().topTasksHeading }}</h2>
           </div>
           <p class="feature-hub-copy">{{ appCopy().topTasksBody }}</p>
@@ -634,7 +649,12 @@
           class="section-header search-panel-header grid lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
         >
           <div>
-            <p class="section-kicker">{{ appCopy().searchKicker }}</p>
+            <p-tag
+              class="section-kicker-tag"
+              [value]="appCopy().searchKicker"
+              severity="secondary"
+              [rounded]="true"
+            />
             <h2 id="search-panel-heading">{{ appCopy().searchHeading }}</h2>
           </div>
           <p class="search-panel-copy">{{ appCopy().searchLabel }}</p>
@@ -696,7 +716,12 @@
               class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
             >
               <div>
-                <p class="section-kicker">{{ appCopy().meetingsKicker }}</p>
+                <p-tag
+                  class="section-kicker-tag"
+                  [value]="appCopy().meetingsKicker"
+                  severity="secondary"
+                  [rounded]="true"
+                />
                 <h2 id="homepage-meetings-heading">{{ appCopy().meetingsHeading }}</h2>
               </div>
               <a class="text-link" routerLink="/meetings" fragment="calendar">{{
@@ -761,7 +786,12 @@
               class="section-header landing-section-header landing-notices-header grid lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
             >
               <div>
-                <p class="section-kicker">{{ appCopy().noticesKicker }}</p>
+                <p-tag
+                  class="section-kicker-tag"
+                  [value]="appCopy().noticesKicker"
+                  severity="secondary"
+                  [rounded]="true"
+                />
                 <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
               </div>
               @if (showBrowseNoticesLink()) {
@@ -803,7 +833,12 @@
             class="section-header feature-hub-header grid lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end"
           >
             <div>
-              <p class="section-kicker">{{ appCopy().featureHubKicker }}</p>
+              <p-tag
+                class="section-kicker-tag"
+                [value]="appCopy().featureHubKicker"
+                severity="secondary"
+                [rounded]="true"
+              />
               <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
             </div>
             <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
@@ -853,7 +888,12 @@
             aria-labelledby="stay-informed-heading"
           >
             <ng-template pTemplate="header">
-              <p class="section-kicker">{{ appCopy().stayInformedKicker }}</p>
+              <p-tag
+                class="section-kicker-tag"
+                [value]="appCopy().stayInformedKicker"
+                severity="secondary"
+                [rounded]="true"
+              />
               <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
             </ng-template>
             <p class="feature-hub-copy">
@@ -911,19 +951,23 @@
     }
 
     <footer class="site-footer">
-      <div class="footer-links">
-        @for (link of appCopy().footerLinks; track link.label) {
-          @if (resolveAppLink(link.href); as footerLink) {
-            @if (footerLink.isInternal) {
-              <a [routerLink]="footerLink.path" [fragment]="footerLink.fragment">{{
-                link.label
-              }}</a>
-            } @else {
-              <a [attr.href]="footerLink.href">{{ link.label }}</a>
+      <nav class="footer-links-nav" aria-label="Footer links">
+        <ul class="footer-links">
+          @for (link of appCopy().footerLinks; track link.label) {
+            @if (resolveAppLink(link.href); as footerLink) {
+              <li>
+                @if (footerLink.isInternal) {
+                  <a [routerLink]="footerLink.path" [fragment]="footerLink.fragment">{{
+                    link.label
+                  }}</a>
+                } @else {
+                  <a [attr.href]="footerLink.href">{{ link.label }}</a>
+                }
+              </li>
             }
           }
-        }
-      </div>
+        </ul>
+      </nav>
       <p>&copy; {{ currentYear }} {{ pageTitle() }}</p>
     </footer>
   </main>

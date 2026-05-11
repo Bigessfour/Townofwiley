@@ -2,11 +2,18 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import {
   ApplicationConfig,
   ErrorHandler,
+  inject,
   isDevMode,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import {
+  isActive,
+  provideRouter,
+  Router,
+  withInMemoryScrolling,
+  withViewTransitions,
+} from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
@@ -28,6 +35,24 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
+      }),
+      withViewTransitions({
+        onViewTransitionCreated: ({ transition }) => {
+          const router = inject(Router);
+          const targetUrl = router.currentNavigation()?.finalUrl;
+          if (!targetUrl) {
+            return;
+          }
+          const onlyFragmentOrQueryChanged = isActive(targetUrl, router, {
+            paths: 'exact',
+            matrixParams: 'exact',
+            fragment: 'ignored',
+            queryParams: 'ignored',
+          });
+          if (onlyFragmentOrQueryChanged()) {
+            transition.skipTransition();
+          }
+        },
       }),
     ),
     providePrimeNG({

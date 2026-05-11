@@ -960,3 +960,19 @@ li {
     grid-template-columns: 1fr;
   }
 }
+
+/* Angular Router view transitions — rules must live in global styles (see angular.dev/guide/routing/route-transition-animations). */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01ms !important;
+  }
+}
