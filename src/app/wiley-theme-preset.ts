@@ -1,7 +1,7 @@
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
-/** Town of Wiley — Aura preset: deep navy brand, teal CTAs, cool neutral surfaces. */
+/** Town of Wiley — Aura preset: deep navy brand, teal CTAs, slightly warm neutral surfaces. */
 export const WILEY_THEME_PRESET = definePreset(Aura, {
   semantic: {
     primary: {
@@ -38,10 +38,10 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
           focusColor: '{primary.950}',
         },
         surface: {
-          0: '#ffffff',
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
+          0: '#fffdfb',
+          50: '#faf6f0',
+          100: '#f1ebe3',
+          200: '#e6dfd6',
           300: '#cbd5e1',
           400: '#94a3b8',
           500: '#64748b',

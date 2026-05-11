@@ -39,6 +39,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TimelineModule } from 'primeng/timeline';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
@@ -548,7 +549,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageSectionsAriaLabel: 'Homepage sections',
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
-    heroAlt: 'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    heroAlt:
+      'Sunlit photograph of Wiley, Colorado on the eastern plains, showing the town beneath a wide open sky.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -958,7 +960,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroAlt:
-      'Camino de entrada a Wiley, Colorado, con el letrero del limite de la ciudad junto a la carretera.',
+      'Fotografia iluminada por el sol de Wiley, Colorado en las llanuras orientales, con el pueblo bajo un cielo amplio.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
     heroSecondaryActionLabel: 'Ver reuniones y avisos',
     topTasksKicker: 'Tareas rapidas',
@@ -1388,6 +1390,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     TimelineModule,
     SkeletonModule,
     TableModule,
+    TagModule,
     TabsModule,
     ToolbarModule,
     ToastModule,
