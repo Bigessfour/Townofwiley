@@ -13,7 +13,7 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('link', { name: 'Open Amplify Studio Data Manager' }).first(),
     ).toHaveAttribute(
       'href',
-      /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/home\?region=us-east-2#\/d331voxr1fhoir\/main\/studio\/data/,
+      /^https:\/\/us-east-2\.admin\.amplifyapp\.com\/admin\/d331voxr1fhoir\/main\/home$/,
     );
     await expect(homePage.page.getByText('CMS Connection Status')).toBeVisible();
     await expect(homePage.page.getByRole('tab', { name: 'Setup & credentials' })).toBeVisible();

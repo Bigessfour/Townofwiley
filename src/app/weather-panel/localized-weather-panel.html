@@ -46,10 +46,25 @@
       </div>
     </output>
   } @else {
-    @if (loadError()) {
+    @if (loadError() && !hasForecastPayload()) {
+      <div class="weather-outage-callout weather-status is-error" role="alert">
+        <p class="weather-outage-callout__text m-0">{{ loadError() }}</p>
+        <p class="weather-outage-callout__actions m-0 mt-3">
+          <a
+            class="weather-action is-link"
+            [attr.href]="weatherGovUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {{ copy().openForecast }}
+          </a>
+        </p>
+      </div>
+    } @else if (loadError()) {
       <p class="weather-status is-error" aria-live="polite">{{ loadError() }}</p>
     }
 
+    @if (!(loadError() && !hasForecastPayload())) {
     <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
       @if (solarTimes(); as solar) {
         <div class="atglance-card">
@@ -100,8 +115,10 @@
           </div>
         }
     </section>
+    }
 
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
+      @if (!(loadError() && !hasForecastPayload())) {
       <section
         class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]"
         aria-labelledby="weather-current-heading"
@@ -223,13 +240,20 @@
           </section>
         }
       </section>
+      }
 
       <aside
         class="weather-alerts flex flex-col gap-4 xl:flex-[0.95]"
-        aria-labelledby="weather-alerts-heading"
+        [attr.aria-labelledby]="
+          loadError() && !hasForecastPayload() ? null : 'weather-alerts-heading'
+        "
+        [attr.aria-label]="
+          loadError() && !hasForecastPayload() ? copy().asideLandmarkDuringForecastOutage : null
+        "
         aria-live="polite"
         aria-atomic="false"
       >
+        @if (!(loadError() && !hasForecastPayload())) {
         <p-panel
           styleClass="weather-alerts-panel"
           [pt]="{ header: { class: 'weather-alerts-header-host' } }"
@@ -294,6 +318,7 @@
             </div>
           }
         </p-panel>
+        }
 
         @if (isAlertSignupEnabled()) {
           <section

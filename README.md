@@ -257,6 +257,10 @@ Plain-language source of truth for staff:
 - Staff handoff and status page: `/admin`
 - Legacy `/clerk-setup` links redirect to `/admin` and preserve supported tab fragments
 - Non-technical instructions: `CLERK-CMS-GUIDE.md`
+- Model and route matrix (engineering): `docs/CMS-MODEL-ROUTE-MATRIX.md`
+- AWS / Studio operations checklist: `docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`
+- Verify CMS in Studio + live site: `docs/CMS-VERIFY-STUDIO.md`
+- Build-time check that the public GraphQL query matches schema auth: `npm run verify:public-cms-query` (also runs in `prebuild`)
 
 The `/admin` page now includes the Amplify Studio Data Manager link, setup details, document publishing guidance, contact updates, and a live CMS connection test, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
 
@@ -562,6 +566,7 @@ Required runtime settings:
 - Optional Amplify environment variable: `NWS_ALLOW_BROWSER_FALLBACK`
 - Lambda environment variable: `NWS_USER_AGENT`
 - Optional Lambda environment variable: `NWS_API_KEY`
+- Optional Lambda retry tuning (see `infrastructure/nws-weather-proxy/index.mjs`): `NWS_RETRY_MAX_ATTEMPTS` (default `4`, min 2 max 8), `NWS_RETRY_BASE_MS` (default `1000`, exponential backoff base), `NWS_RETRY_MAX_DELAY_MS` (default `20000`, cap per wait including `Retry-After` for 429)
 
 Current resident-facing weather UI behavior:
 
@@ -597,7 +602,7 @@ AWS account and hosting identifiers that future maintainers will need:
 Expected runtime behavior:
 
 1. If `NWS_PROXY_ENDPOINT` is set, the weather panel uses the AWS proxy.
-2. If the proxy fails and browser fallback is enabled, the site retries against public `api.weather.gov`.
+2. If the proxy fails and browser fallback is enabled, the site retries against public `api.weather.gov` (with exponential backoff and `Retry-After` on 429, same policy as the Lambda proxy).
 3. If the proxy fails and browser fallback is disabled, the site shows an error state and links residents to the full forecast page.
 
 Common failure points and what to verify:

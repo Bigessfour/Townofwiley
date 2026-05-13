@@ -51,6 +51,10 @@ import {
   createIcsDataUrlForEvent,
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
+import {
+  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+} from './leadership-roster-group-ids';
 import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
@@ -62,6 +66,8 @@ import {
   CmsCalendarEvent,
   CmsContact,
   LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
@@ -189,7 +195,12 @@ interface PolicyPageCopy {
   lastUpdatedDate: string;
 }
 
-interface LeadershipGroup {
+export interface LeadershipGroup {
+  /**
+   * Stable key for `LeadershipRosterEntry.groupId` in Amplify Studio; drives which CMS lines
+   * replace this group's `members` on /contact when rows exist.
+   */
+  groupId: string;
   title: string;
   detail: string;
   members: string[];
@@ -918,6 +929,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     leadershipGroups: [
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Mayor and Council',
         detail: 'Elected officials and meeting contact paths are listed below.',
         members: [
@@ -930,6 +942,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         ],
       },
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Town Administration',
         detail: 'Clerk and superintendent contacts for day-to-day town services.',
         members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
@@ -1331,6 +1344,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     leadershipGroups: [
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Alcalde y concejo',
         detail: 'Funcionarios electos y rutas de contacto para reuniones.',
         members: [
@@ -1343,6 +1357,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         ],
       },
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Administracion del pueblo',
         detail: 'Contactos de la secretaria y del superintendente para servicios cotidianos.',
         members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
@@ -1833,14 +1848,14 @@ export class App {
   ]);
   protected readonly primaryContact = computed<CmsContact | null>(() => {
     return (
-      this.contacts().find((contact) => contact.id === 'town-information') ??
+      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION) ??
       this.contacts()[0] ??
       null
     );
   });
   protected readonly clerkContact = computed<CmsContact | null>(() => {
     return (
-      this.contacts().find((contact) => contact.id === 'city-clerk') ?? this.contacts()[1] ?? null
+      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK) ?? this.contacts()[1] ?? null
     );
   });
   protected readonly alertBanner = computed<CmsAlertBanner>(() => {

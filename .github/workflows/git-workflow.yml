@@ -68,7 +68,7 @@ jobs:
             [[ -z "$FILE" ]] && continue
 
             case "$FILE" in
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify.yml|customHttp.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/hosting-headers-drift-watch.yml)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|customHttp.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/hosting-headers-drift-watch.yml)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;

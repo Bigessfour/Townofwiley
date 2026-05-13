@@ -1,6 +1,8 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { EnvironmentProviders, Provider } from '@angular/core';
+
+import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './app/nws-api-http.interceptor';
 
 const globalScope = globalThis as typeof globalThis & {
 	global?: typeof globalThis;
@@ -58,6 +60,9 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
 	});
 }
 
-const testProviders: (Provider | EnvironmentProviders)[] = [provideHttpClient(), provideHttpClientTesting()];
+const testProviders: (Provider | EnvironmentProviders)[] = [
+	provideHttpClient(withInterceptors([nwsApiHttpInterceptor, nwsApiRetryInterceptor])),
+	provideHttpClientTesting(),
+];
 
 export default testProviders;

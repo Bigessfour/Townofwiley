@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
 export interface CmsNotice {
@@ -416,6 +417,15 @@ interface OfficialContactRecord {
   displayOrder?: number | null;
 }
 
+interface LeadershipRosterEntryRecord {
+  id: string;
+  groupId: string;
+  displayOrder?: number | null;
+  lineEn?: string | null;
+  lineEs?: string | null;
+  active: boolean;
+}
+
 interface EventRecord {
   id: string;
   title: string;
@@ -471,6 +481,7 @@ interface CmsGraphqlResponse {
     listBusinesses?: CmsGraphqlList<BusinessRecord>;
     listPublicDocuments?: CmsGraphqlList<PublicDocumentRecord>;
     listExternalNewsLinks?: CmsGraphqlList<ExternalNewsLinkRecord>;
+    listLeadershipRosterEntries?: CmsGraphqlList<LeadershipRosterEntryRecord>;
   };
   errors?: {
     message?: string;
@@ -480,9 +491,9 @@ interface CmsGraphqlResponse {
 /**
  * CMS coverage (Amplify Studio / AppSync `PUBLIC_CMS_QUERY`): town hero + welcome block
  * (`listSiteSettings`), alert banners, announcements/notices, calendar events, official contacts,
- * businesses, public documents, external news links. Content not in this query remains in bundled
- * `APP_COPY` (e.g. section kickers/headings, static meeting fallback blurbs, calendar seeds, many
- * labels) until modeled in CMS or `SiteSettings`.
+ * leadership roster lines for /contact, businesses, public documents, external news links. Content
+ * not in this query remains in bundled `APP_COPY` (e.g. section kickers/headings, static meeting
+ * fallback blurbs, calendar seeds, many labels) until modeled in CMS or `SiteSettings`.
  */
 const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
   listSiteSettings(limit: 1) {
@@ -586,6 +597,16 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       displayOrder
     }
   }
+  listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      groupId
+      displayOrder
+      lineEn
+      lineEs
+      active
+    }
+  }
 }`;
 
 const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
@@ -595,6 +616,10 @@ const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
     }
   }
 }`;
+
+/** Stable Dynamo `id` on `OfficialContact` rows required by shell, permits, and services. */
+export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
+export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
 
 @Injectable({
   providedIn: 'root',
@@ -622,6 +647,7 @@ export class LocalizedCmsContentStore {
   private readonly businessRecordsState = signal<BusinessRecord[]>([]);
   private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
   private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
+  private readonly leadershipRosterRecordsState = signal<LeadershipRosterEntryRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
     this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
   );
@@ -647,6 +673,13 @@ export class LocalizedCmsContentStore {
   );
   readonly externalNewsLinks = computed(() =>
     this.normalizeExternalNewsLinks(this.externalNewsLinkRecordsState()),
+  );
+  /** Localized roster lines keyed by `groupId` (`mayor-council`, `town-administration`). */
+  readonly leadershipRosterLinesByGroup = computed(() =>
+    this.normalizeLeadershipRosterByGroup(
+      this.leadershipRosterRecordsState(),
+      this.siteLanguage(),
+    ),
   );
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
@@ -829,6 +862,11 @@ export class LocalizedCmsContentStore {
           (item): item is ExternalNewsLinkRecord => Boolean(item),
         ),
       );
+      this.leadershipRosterRecordsState.set(
+        (response.data?.listLeadershipRosterEntries?.items ?? []).filter(
+          (item): item is LeadershipRosterEntryRecord => Boolean(item),
+        ),
+      );
       this.loadState.set('studio');
     } catch (error) {
       this.applyFallbackContent();
@@ -846,6 +884,7 @@ export class LocalizedCmsContentStore {
     this.businessRecordsState.set([]);
     this.publicDocumentRecordsState.set([]);
     this.externalNewsLinkRecordsState.set([]);
+    this.leadershipRosterRecordsState.set([]);
   }
 
   private normalizeHero(
@@ -1169,6 +1208,53 @@ export class LocalizedCmsContentStore {
       }))
       .sort((a, b) => a.displayOrder - b.displayOrder)
       .map((r) => ({ id: r.id, title: r.title, url: r.url, source: r.source }));
+  }
+
+  private normalizeLeadershipRosterByGroup(
+    records: LeadershipRosterEntryRecord[],
+    language: SiteLanguage,
+  ): ReadonlyMap<string, readonly string[]> {
+    const prepared = records
+      .filter((record) => Boolean(record.active))
+      .map((record) => {
+        const groupId = (this.cleanText(record.groupId) ?? '').toLowerCase();
+        const lineEn = this.cleanText(record.lineEn);
+        const lineEs = this.cleanText(record.lineEs);
+        const line = language === 'es' ? (lineEs ?? lineEn) : (lineEn ?? lineEs);
+        const displayOrder =
+          typeof record.displayOrder === 'number' ? record.displayOrder : Number.MAX_SAFE_INTEGER;
+
+        return {
+          id: record.id.trim(),
+          groupId,
+          displayOrder,
+          line,
+        };
+      })
+      .filter(
+        (row) =>
+          row.id &&
+          row.groupId &&
+          row.line &&
+          LEADERSHIP_ROSTER_GROUP_IDS.has(row.groupId),
+      )
+      .sort((left, right) => {
+        if (left.displayOrder !== right.displayOrder) {
+          return left.displayOrder - right.displayOrder;
+        }
+
+        return left.id.localeCompare(right.id);
+      });
+
+    const map = new Map<string, string[]>();
+
+    for (const row of prepared) {
+      const bucket = map.get(row.groupId) ?? [];
+      bucket.push(row.line!);
+      map.set(row.groupId, bucket);
+    }
+
+    return map;
   }
 
   private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {

@@ -108,6 +108,27 @@ type OfficialContact
   displayOrder: Int
 }
 
+type LeadershipRosterEntry
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  """
+  Section key for /contact roster bullets. Use `mayor-council` or `town-administration`
+  (see `leadership-roster-group-ids.ts` in the web app).
+  """
+  groupId: String!
+  displayOrder: Int
+  lineEn: String!
+  lineEs: String!
+  active: Boolean!
+}
+
 type EmailAlias
   @model
   @auth(

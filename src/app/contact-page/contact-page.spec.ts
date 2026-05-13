@@ -7,16 +7,27 @@ import { ContactPage } from './contact-page';
 interface ContactPageStore {
   contacts: ReturnType<typeof signal<CmsContact[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
+  leadershipRosterLinesByGroup: ReturnType<
+    typeof signal<ReadonlyMap<string, readonly string[]>>
+  >;
 }
 
-function configure(store: ContactPageStore, language: 'en' | 'es' = 'en') {
+function configure(
+  store: Omit<ContactPageStore, 'leadershipRosterLinesByGroup'> &
+    Partial<Pick<ContactPageStore, 'leadershipRosterLinesByGroup'>>,
+  language: 'en' | 'es' = 'en',
+) {
+  const fullStore: ContactPageStore = {
+    leadershipRosterLinesByGroup: signal(new Map<string, readonly string[]>()),
+    ...store,
+  };
   TestBed.configureTestingModule({
     imports: [ContactPage],
     providers: [
       SiteLanguageService,
       {
         provide: LocalizedCmsContentStore,
-        useValue: store as unknown as LocalizedCmsContentStore,
+        useValue: fullStore as unknown as LocalizedCmsContentStore,
       },
     ],
   });
@@ -98,5 +109,21 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.public-empty-state')).toBeNull();
     expect(el.querySelector('.contact-card-label')?.textContent).toContain('Town Hall');
+  });
+
+  it('replaces Mayor and Council roster bullets from CMS when rows exist', () => {
+    const rosterMap = new Map<string, readonly string[]>([
+      ['mayor-council', ['Mayor: From CMS', 'Councilman: From CMS']],
+    ]);
+    const fixture = configure({
+      contacts: signal<CmsContact[]>([]),
+      isLoading: signal(false),
+      leadershipRosterLinesByGroup: signal(rosterMap),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const mayorList = el.querySelector('.leadership-card .leadership-list');
+    expect(
+      [...(mayorList?.querySelectorAll('li') ?? [])].map((li) => li.textContent?.trim()),
+    ).toEqual(['Mayor: From CMS', 'Councilman: From CMS']);
   });
 });

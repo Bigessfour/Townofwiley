@@ -86,7 +86,7 @@ const clerkSetupStudioUrl =
   process.env.CLERK_SETUP_STUDIO_URL?.trim() ||
   localSecrets.clerkSetup?.studioUrl?.trim() ||
   (clerkSetupAwsRegion && clerkSetupAmplifyAppId
-    ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/home?region=${clerkSetupAwsRegion}#/${clerkSetupAmplifyAppId}/main/studio/home`
+    ? `https://${clerkSetupAwsRegion}.admin.amplifyapp.com/admin/${clerkSetupAmplifyAppId}/main/home`
     : clerkSetupAwsConsoleUrl);
 const severeWeatherSignupEnabled =
   process.env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'

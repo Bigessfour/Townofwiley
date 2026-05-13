@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -11,6 +11,7 @@ import { MessageService, type MegaMenuItem } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
+import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import {
   LocalizedWeatherPanel,
@@ -75,7 +76,7 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([nwsApiHttpInterceptor, nwsApiRetryInterceptor])),
         provideHttpClientTesting(),
         provideRouter(routes),
         provideAnimations(),
@@ -829,7 +830,7 @@ describe('App', () => {
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
         studioUrl:
-          'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home',
+          'https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home',
       },
     };
 

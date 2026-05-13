@@ -29,7 +29,12 @@ import {
   type PreferredBillPayContact,
 } from '../pay-bill/pay-bill-request';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
-import { CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  CmsContact,
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+} from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { ResidentIssuePanel } from './panels/issue-panel';
 import { ResidentPaymentPanel } from './panels/payment-panel';
@@ -598,8 +603,8 @@ export class ResidentServices {
     () => !getPaystarRuntimeConfig().portalUrl.trim(),
   );
 
-  protected readonly townInfoContact = computed(() => this.findContact('town-information'));
-  protected readonly clerkContact = computed(() => this.findContact('city-clerk'));
+  protected readonly townInfoContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION));
+  protected readonly clerkContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK));
   protected readonly superintendentContact = computed(() =>
     this.findContact('town-superintendent'),
   );

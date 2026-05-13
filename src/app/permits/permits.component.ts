@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
-import { LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+} from '../site-cms-content';
 import { type SiteLanguage, SiteLanguageService } from '../site-language';
 
 interface PermitsCopy {
@@ -66,14 +70,14 @@ export class PermitsComponent {
   );
   protected readonly contacts = computed(() => this.cmsStore.contacts());
   protected readonly clerkContact = computed(() =>
-    this.contacts().find((c) => c.id === 'city-clerk'),
+    this.contacts().find((c) => c.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
   );
   protected readonly clerkEmail = computed(() =>
     this.clerkContact()?.href?.replace('mailto:', ''),
   );
   protected readonly townPhone = computed(() =>
     this.contacts()
-      .find((c) => c.id === 'town-information')
+      .find((c) => c.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION)
       ?.href?.replace('tel:', ''),
   );
 }

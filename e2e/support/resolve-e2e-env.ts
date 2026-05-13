@@ -11,6 +11,9 @@ const REMOTE_URL = /^https?:\/\/.+/i;
  * Single source of truth for Playwright base URL and local dev server port.
  * Hardens against empty or typo env values that previously produced broken baseURL
  * and made every test fail (e.g. E2E_BASE_URL="", E2E_PORT="").
+ *
+ * Optional: `E2E_ASSERT_LIVE_CMS=true` with a valid `E2E_BASE_URL` runs live AppSync checks
+ * in `e2e/specs/smoke/live-hosting.spec.ts` (skipped by default).
  */
 export function resolveE2eEnv(): ResolvedE2eEnv {
   const rawBase = process.env.E2E_BASE_URL;

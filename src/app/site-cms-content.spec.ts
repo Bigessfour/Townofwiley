@@ -91,6 +91,9 @@ describe('LocalizedCmsContentStore', () => {
     expect(cmsRequest.request.body.query as string).toContain(
       'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
     );
+    expect(cmsRequest.request.body.query as string).toContain(
+      'listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50)',
+    );
 
     cmsRequest.flush({
       data: {
@@ -336,6 +339,18 @@ describe('LocalizedCmsContentStore', () => {
             },
           ],
         },
+        listLeadershipRosterEntries: {
+          items: [
+            {
+              id: 'lr-1',
+              groupId: 'mayor-council',
+              displayOrder: 1,
+              lineEn: 'Mayor: From CMS',
+              lineEs: 'Alcalde: Desde CMS',
+              active: true,
+            },
+          ],
+        },
       },
     });
 
@@ -369,6 +384,7 @@ describe('LocalizedCmsContentStore', () => {
       'Local Coverage',
       'Regional Coverage',
     ]);
+    expect(store.leadershipRosterLinesByGroup().get('mayor-council')).toEqual(['Alcalde: Desde CMS']);
 
     httpTesting.verify();
   });
@@ -411,7 +427,8 @@ describe('LocalizedCmsContentStore', () => {
         },
         listAnnouncements: { items: [] },
         listEvents: { items: [] },
-        listContacts: { items: [] },
+        listOfficialContacts: { items: [] },
+        listLeadershipRosterEntries: { items: [] },
         listBusinesses: { items: [] },
         listPublicDocuments: { items: [] },
         listExternalNewsLinks: { items: [] },
