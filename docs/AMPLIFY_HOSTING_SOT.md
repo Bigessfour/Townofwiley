@@ -13,7 +13,7 @@ update this file in the same PR.
 
 Amplify executes the build defined in [`amplify.yml`](../amplify.yml). The relevant facts:
 
-- **Node version**: pinned to **`24.15.0`** via `nvm install 24.15.0` / `nvm use 24.15.0` in `preBuild`, matching `.nvmrc` and CI. **Node 25+ is unsupported** for this stack.
+- **Node version**: pinned to **`24.16.0`** via `nvm install 24.16.0` / `nvm use 24.16.0` in `preBuild`, matching `.nvmrc` and CI. See [`NODE_VERSION.md`](NODE_VERSION.md). **Node 25+ is unsupported** for this stack.
 - **Install**: `npm ci`.
 - **Build command**: `npm run build` (which runs the Angular `ng build` configured in `angular.json`).
 - **Artifact `baseDirectory`**: `dist/townofwiley-app/browser` — Amplify uploads everything under this folder to its CDN. This is the SPA static-asset root: `index.html`, hashed `*.js`/`*.css` bundles, and the `assets/` tree.

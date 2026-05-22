@@ -85,7 +85,7 @@ for (const viewport of viewports) {
         if (screenshotTargets.has(`${viewport.name}:${route}`)) {
           const safeRoute = route === '/' ? 'home' : route.slice(1).replaceAll('/', '-');
           await page.screenshot({
-            path: `artifacts/debug/visual-box-${viewport.name}-${safeRoute}.png`,
+            path: `archive/artifacts/debug/visual-box-${viewport.name}-${safeRoute}.png`,
             fullPage: false,
           });
         }
@@ -325,6 +325,6 @@ for (const route of printRoutes) {
 }
 
 const output = `${JSON.stringify(findings, null, 2)}\n`;
-await writeFile('artifacts/debug/visual-box-audit-output.json', output);
+await writeFile('archive/artifacts/debug/visual-box-audit-output.json', output);
 console.log(output);
 process.exit(0);

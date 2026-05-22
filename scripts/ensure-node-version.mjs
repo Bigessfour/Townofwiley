@@ -39,6 +39,13 @@ const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const range = typeof pkg.engines?.node === 'string' ? pkg.engines.node : '';
 const allowed = allowedNodeMajors(range);
 
+let pinned = '';
+try {
+  pinned = readFileSync(join(repoRoot, '.nvmrc'), 'utf8').trim();
+} catch {
+  pinned = '';
+}
+
 if (allowed.size === 0) {
   console.warn('[ensure-node-version] No engines.node majors parsed; skipping check.');
   process.exit(0);
@@ -56,9 +63,15 @@ if (!allowed.has(major)) {
       `[ensure-node-version] Node ${process.version} is not supported.`,
       `This repo targets Node ${span} (see package.json "engines", .nvmrc, and README).`,
       'Node 25+ is excluded due to toolchain and native dependency issues.',
-      'Examples: nvm install 24 && nvm use   ·   fnm use 24   ·   PATH with node@24 before other installs.',
+      pinned
+        ? `Pinned patch: ${pinned} (.nvmrc) — run: nvm install ${pinned} && nvm use ${pinned}`
+        : '',
+      'Windows: .\\scripts\\setup-repo-node.ps1  ·  macOS: PATH with node@24 before Cursor node',
+      'Policy: docs/NODE_VERSION.md',
       'Or once: SKIP_NODE_VERSION_CHECK=1 npm start',
-    ].join('\n'),
+    ]
+      .filter(Boolean)
+      .join('\n'),
   );
   process.exit(1);
 }

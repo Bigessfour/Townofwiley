@@ -46,11 +46,11 @@ Run `npx playwright init-agents --loop copilot -c playwright.config.ts --prompts
 
 Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, **microsoft/playwright-mcp**, **playwright-test**.
 
-| Server                     | When to use it                                                                                                                                 |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`playwright-test`**      | **Pre-push / CI parity** — `test_run`, `test_list`, planner/generator/healer. Runs against [`playwright.config.ts`](../playwright.config.ts). |
+| Server                         | When to use it                                                                                                                                        |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`playwright-test`**          | **Pre-push / CI parity** — `test_run`, `test_list`, planner/generator/healer. Runs against [`playwright.config.ts`](../playwright.config.ts).         |
 | **`microsoft/playwright-mcp`** | **Ad-hoc browsing** — explore staging, click flows, mock APIs. Uses [`playwright-mcp.config.json`](../playwright-mcp.config.json). Not a test runner. |
-| `angular-cli`, `primeng`   | Framework docs and scaffolding.                                                                                                                |
+| `angular-cli`, `primeng`       | Framework docs and scaffolding.                                                                                                                       |
 
 **MCP `test_run` example** (same scope as CI smoke):
 
@@ -73,15 +73,15 @@ CI installs browsers for Copilot agent jobs via [`.github/workflows/copilot-setu
 
 Run from **Terminal → Run Task…** ([`.vscode/tasks.json`](../.vscode/tasks.json)):
 
-| Task | Purpose |
-| ---- | ------- |
-| **e2e: install browsers** | `npm run test:e2e:install` — required once per machine/upgrade |
-| **e2e: smoke (CI parity)** | Same as `npm run test:e2e:smoke` / MCP `test_run` on `e2e/specs/smoke` |
-| **e2e: pre-push (preflight + smoke)** | Python preflight then smoke — quick gate before push |
-| **e2e: serve :4300** | Background `ng serve` for MCP exploration |
-| **e2e: smoke (reuse running server)** | Smoke with `E2E_SKIP_WEBSERVER=1` after serve is up |
+| Task                                       | Purpose                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| **e2e: install browsers**                  | `npm run test:e2e:install` — required once per machine/upgrade            |
+| **e2e: smoke (CI parity)**                 | Same as `npm run test:e2e:smoke` / MCP `test_run` on `e2e/specs/smoke`    |
+| **e2e: pre-push (preflight + smoke)**      | Python preflight then smoke — quick gate before push                      |
+| **e2e: serve :4300**                       | Background `ng serve` for MCP exploration                                 |
+| **e2e: smoke (reuse running server)**      | Smoke with `E2E_SKIP_WEBSERVER=1` after serve is up                       |
 | **e2e: MCP local loop (serve then smoke)** | Compound: serve → reuse-server smoke when Playwright `webServer` is flaky |
-| **e2e: init Playwright agents** | `npm run e2e:init-agents` after `@playwright/test` bumps |
+| **e2e: init Playwright agents**            | `npm run e2e:init-agents` after `@playwright/test` bumps                  |
 
 Tasks use **`npm`** scripts so they work on Windows and macOS (integrated terminal env supplies `E2E_NODE` / `PLAYWRIGHT_BROWSERS_PATH` where configured).
 
