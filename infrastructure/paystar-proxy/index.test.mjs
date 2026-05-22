@@ -144,6 +144,36 @@ test('returns 500 when the hosted paystar portal is not configured', async () =>
   }
 });
 
+test('POST with sessionType payment returns 501 until embedded env is configured', async () => {
+  delete process.env.PAYSTAR_EMBEDDED_GATEWAY_BASE_URL;
+  delete process.env.PAYSTAR_BUSINESS_UNIT_SLUG;
+  delete process.env.PAYSTAR_UPSTREAM_API_KEY;
+  delete process.env.PAYSTAR_UPSTREAM_LAUNCH_URL;
+  delete process.env.PAYSTAR_PORTAL_URL;
+
+  const response = await handler(
+    withOrigin({
+      requestContext: { http: { method: 'POST', path: '/launch' } },
+      body: JSON.stringify({
+        sessionType: 'payment',
+        residentName: 'Pat Citizen',
+        serviceAddress: '10 Oak St',
+        preferredContact: 'pat@example.com',
+        locale: 'en',
+        source: 'pay-bill-page',
+        amount: 42.5,
+      }),
+    }),
+  );
+  const body = JSON.parse(response.body);
+
+  assert.equal(response.statusCode, 501);
+  assert.match(body.error, /Paystar Embedded API is not configured/);
+  assert.equal(body.documentation, 'https://docs.paystar.io/api/embedded/');
+  assert.equal(body.sessionType, 'payment');
+  assert.equal(body.upstreamPath, '/integrations/embedded/initiate');
+});
+
 test('uses default CORS origin for unknown browser origins', async () => {
   const originalPortalUrl = process.env.PAYSTAR_PORTAL_URL;
   process.env.PAYSTAR_PORTAL_URL = 'https://secure.paystar.io/townofwiley';

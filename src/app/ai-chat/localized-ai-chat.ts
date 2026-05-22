@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -181,7 +190,16 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
 
 @Component({
   selector: 'app-ai-chat',
-  imports: [ButtonModule, CardModule, ChipModule, FieldsetModule, InputTextModule, PanelModule, RouterLink, ScrollPanelModule],
+  imports: [
+    ButtonModule,
+    CardModule,
+    ChipModule,
+    FieldsetModule,
+    InputTextModule,
+    PanelModule,
+    RouterLink,
+    ScrollPanelModule,
+  ],
   templateUrl: './localized-ai-chat.html',
   styleUrl: './ai-chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

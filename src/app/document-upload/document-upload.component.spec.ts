@@ -92,9 +92,9 @@ describe('DocumentUploadComponent', () => {
   });
 
   it('uploads files, creates the public document record, and refreshes the list', async () => {
-    uploadService.getDocuments.mockResolvedValueOnce([existingDocument]).mockResolvedValueOnce([
-      uploadedDocument,
-    ]);
+    uploadService.getDocuments
+      .mockResolvedValueOnce([existingDocument])
+      .mockResolvedValueOnce([uploadedDocument]);
 
     const fixture = await createFixture();
     const component = fixture.componentInstance;

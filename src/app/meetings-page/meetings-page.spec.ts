@@ -30,21 +30,15 @@ function configure(store: MeetingsPageStore, language: 'en' | 'es' = 'en') {
 }
 
 describe('MeetingsPage', () => {
-  it(
-    'renders the page heading and kicker (English)',
-    () => {
-      const fixture = configure({
-        events: signal<CmsCalendarEvent[]>([]),
-        isLoading: signal(false),
-      });
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('h1')?.textContent).toContain(APP_COPY.en.meetingsHeading);
-      expect(el.querySelector('.section-kicker')?.textContent).toContain(
-        APP_COPY.en.meetingsKicker,
-      );
-    },
-    45000,
-  );
+  it('renders the page heading and kicker (English)', () => {
+    const fixture = configure({
+      events: signal<CmsCalendarEvent[]>([]),
+      isLoading: signal(false),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('h1')?.textContent).toContain(APP_COPY.en.meetingsHeading);
+    expect(el.querySelector('.section-kicker')?.textContent).toContain(APP_COPY.en.meetingsKicker);
+  }, 45000);
 
   it('renders Spanish heading and column copy', () => {
     const fixture = configure(
@@ -76,9 +70,7 @@ describe('MeetingsPage', () => {
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.meetings-table')).toBeTruthy();
-    expect(el.querySelector('h1')?.textContent).toContain(
-      APP_COPY.en.meetingsHeading,
-    );
+    expect(el.querySelector('h1')?.textContent).toContain(APP_COPY.en.meetingsHeading);
   });
 
   it('exposes bilingual empty-state copy used by the empty branch', () => {

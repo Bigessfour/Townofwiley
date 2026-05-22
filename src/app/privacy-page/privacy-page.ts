@@ -11,5 +11,7 @@ import { SiteLanguageService } from '../site-language';
 })
 export class PrivacyPage {
   private readonly siteLanguageService = inject(SiteLanguageService);
-  protected readonly copy = computed(() => WEATHER_ALERT_POLICY_COPY[this.siteLanguageService.currentLanguage() || 'en'].privacy);
+  protected readonly copy = computed(
+    () => WEATHER_ALERT_POLICY_COPY[this.siteLanguageService.currentLanguage() || 'en'].privacy,
+  );
 }

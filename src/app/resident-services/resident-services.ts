@@ -9,13 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
@@ -594,9 +588,7 @@ export class ResidentServices {
         ],
   );
 
-  protected readonly quickPayState = computed(() =>
-    resolveQuickPayHref(getPaystarRuntimeConfig()),
-  );
+  protected readonly quickPayState = computed(() => resolveQuickPayHref(getPaystarRuntimeConfig()));
 
   protected readonly quickPayHref = computed(() => this.quickPayState().href ?? '');
 

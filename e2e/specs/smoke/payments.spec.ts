@@ -197,7 +197,9 @@ test.describe('pay bill without bill pay API configured', () => {
 
     await expect(homePage.page.locator('.p-toast-message-info')).toBeVisible();
     await expect(homePage.page.getByText(/Opening your mail app/i)).toBeVisible();
-    await expect(homePage.page.getByText(/Complete the message to send your request/i)).toBeVisible();
+    await expect(
+      homePage.page.getByText(/Complete the message to send your request/i),
+    ).toBeVisible();
     expect(billPayPostCount).toBe(0);
   });
 });

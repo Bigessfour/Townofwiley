@@ -102,9 +102,7 @@ describe('ResidentPaymentPanel', () => {
     fixture.componentRef.setInput('quickPayHref', 'https://example.com/pay');
     fixture.componentRef.setInput('quickPayIsPlaceholder', false);
     fixture.componentRef.setInput('quickPayDisabled', false);
-    fixture.componentRef.setInput('preferredContactOptions', [
-      { value: 'email', label: 'Email' },
-    ]);
+    fixture.componentRef.setInput('preferredContactOptions', [{ value: 'email', label: 'Email' }]);
     fixture.componentRef.setInput('lang', 'en');
     fixture.componentRef.setInput('portalFieldMessage', () => null);
     fixture.componentRef.setInput('validationMessage', () => null);
@@ -138,7 +136,8 @@ describe('ResidentPaymentPanel', () => {
     fixture.componentInstance.submitPortal.subscribe(() => {
       submitted += 1;
     });
-    fixture.nativeElement.querySelector('form.resident-portal-form')
+    fixture.nativeElement
+      .querySelector('form.resident-portal-form')
       ?.dispatchEvent(new Event('submit'));
     expect(submitted).toBe(1);
   });

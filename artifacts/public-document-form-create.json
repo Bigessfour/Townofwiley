@@ -73,14 +73,7 @@
           "required": true,
           "fileUploaderConfig": {
             "accessLevel": "public",
-            "acceptedFileTypes": [
-              ".pdf",
-              ".doc",
-              ".docx",
-              ".xls",
-              ".xlsx",
-              ".txt"
-            ],
+            "acceptedFileTypes": [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"],
             "showThumbnails": false,
             "isResumable": true,
             "maxFileCount": 1,

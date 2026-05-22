@@ -7,7 +7,9 @@ import { expect, test } from '../../fixtures/town.fixture';
 const UNKNOWN_PATH = '/tow-e2e-not-found-route-404-test';
 
 test.describe('not found (404) navigation', () => {
-  test('unknown path shows not-found content and home link navigates to /', async ({ homePage }) => {
+  test('unknown path shows not-found content and home link navigates to /', async ({
+    homePage,
+  }) => {
     await homePage.page.goto(UNKNOWN_PATH);
     await expect(homePage.page.getByTestId('not-found-page')).toBeVisible({ timeout: 15_000 });
     await expect(
@@ -68,7 +70,10 @@ test.describe('not found (404) navigation', () => {
 
     await homePage.page.goto(UNKNOWN_PATH);
     await expect(homePage.page.getByTestId('homepage-section-nav')).toBeVisible();
-    await homePage.page.getByTestId('homepage-section-nav').getByRole('menuitem', { name: /I Want To/i }).click();
+    await homePage.page
+      .getByTestId('homepage-section-nav')
+      .getByRole('menuitem', { name: /I Want To/i })
+      .click();
     const panel = homePage.page
       .getByTestId('homepage-section-nav')
       .locator('li.p-megamenu-item-active')

@@ -43,7 +43,9 @@ const NOT_FOUND_COPY: Record<
         <ng-template pTemplate="footer">
           <div class="flex flex-wrap gap-4">
             <a routerLink="/" class="button-cta button-cta--solid">{{ copy().homeCta }}</a>
-            <a routerLink="/services" class="button-cta button-cta--ghost">{{ copy().servicesCta }}</a>
+            <a routerLink="/services" class="button-cta button-cta--ghost">{{
+              copy().servicesCta
+            }}</a>
           </div>
         </ng-template>
       </p-card>

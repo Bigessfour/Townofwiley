@@ -184,9 +184,7 @@ export class PayBillPageComponent {
     };
   });
 
-  protected readonly quickPayState = computed(() =>
-    resolveQuickPayHref(getPaystarRuntimeConfig()),
-  );
+  protected readonly quickPayState = computed(() => resolveQuickPayHref(getPaystarRuntimeConfig()));
 
   protected readonly quickPayHref = computed(() => this.quickPayState().href ?? '');
 

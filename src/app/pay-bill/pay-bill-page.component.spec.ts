@@ -116,9 +116,7 @@ describe('PayBillPageComponent', () => {
     expect(component['quickPayDisabled']()).toBe(false);
 
     const root = fixture.nativeElement as HTMLElement;
-    const activeCta = root.querySelector<HTMLAnchorElement>(
-      '[data-testid="pay-bill-portal-cta"]',
-    );
+    const activeCta = root.querySelector<HTMLAnchorElement>('[data-testid="pay-bill-portal-cta"]');
     expect(activeCta).not.toBeNull();
     expect(activeCta?.getAttribute('href')).toContain('paystar.io');
     expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).toBeNull();

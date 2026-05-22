@@ -103,7 +103,10 @@ test.describe('feature page coverage', () => {
     });
 
     const meetingsTable = homePage.page.locator('.meetings-table');
-    const agendaControl = meetingsTable.locator('p-button').filter({ hasText: /View agenda PDFs/i }).first();
+    const agendaControl = meetingsTable
+      .locator('p-button')
+      .filter({ hasText: /View agenda PDFs/i })
+      .first();
 
     await expect(agendaControl).toBeVisible({ timeout: 20000 });
     await agendaControl.click();

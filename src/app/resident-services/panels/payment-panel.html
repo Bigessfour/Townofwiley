@@ -40,9 +40,7 @@
         <span>{{ copy().contactUpdateToggleLabel }}</span>
         <i
           [class]="
-            contactUpdateExpanded()
-              ? 'pi pi-chevron-up ml-auto'
-              : 'pi pi-chevron-down ml-auto'
+            contactUpdateExpanded() ? 'pi pi-chevron-up ml-auto' : 'pi pi-chevron-down ml-auto'
           "
           aria-hidden="true"
         ></i>
@@ -375,12 +373,7 @@
 
           <label for="rs-portal-notes" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().notesLabel }}</span>
-            <textarea
-              pTextarea
-              id="rs-portal-notes"
-              formControlName="notes"
-              rows="4"
-            ></textarea>
+            <textarea pTextarea id="rs-portal-notes" formControlName="notes" rows="4"></textarea>
           </label>
 
           <div class="resident-field resident-field--wide resident-portal-consent grid gap-2">
@@ -403,9 +396,7 @@
             type="submit"
             icon="pi pi-check"
             [loading]="portalSubmitting()"
-            [label]="
-              portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
-            "
+            [label]="portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel"
             [attr.aria-label]="
               portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
             "

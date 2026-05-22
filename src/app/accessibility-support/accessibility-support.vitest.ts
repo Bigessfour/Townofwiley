@@ -57,8 +57,16 @@ function createHarness(): AccessibilitySupportHarness {
     emailFallbackLabel: 'Email the Clerk',
     reportSubject: 'Accessibility barrier report',
   });
-  component.townInfoContact = () => ({ href: 'tel:7198294974', value: 'Town Hall', linkLabel: 'Town Hall' });
-  component.clerkContact = () => ({ href: 'mailto:deb.dillon@townofwiley.gov', value: 'Town Clerk', linkLabel: 'Email the Clerk' });
+  component.townInfoContact = () => ({
+    href: 'tel:7198294974',
+    value: 'Town Hall',
+    linkLabel: 'Town Hall',
+  });
+  component.clerkContact = () => ({
+    href: 'mailto:deb.dillon@townofwiley.gov',
+    value: 'Town Clerk',
+    linkLabel: 'Email the Clerk',
+  });
   component.status = createSignalMock<string | null>(null);
   component.statusTone = createSignalMock<'error' | 'info'>('info');
   component.accessibilityMailtoHref = () => null;
@@ -107,7 +115,8 @@ describe('AccessibilitySupport', () => {
     const component = createHarness();
     const event = { preventDefault: vi.fn() } as unknown as Event;
 
-    component.accessibilityMailtoHref = () => 'mailto:deb.dillon@townofwiley.gov?subject=Accessibility+barrier+report';
+    component.accessibilityMailtoHref = () =>
+      'mailto:deb.dillon@townofwiley.gov?subject=Accessibility+barrier+report';
 
     component.openAccessibilityMailto(event);
 

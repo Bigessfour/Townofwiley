@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,12 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { Ripple } from 'primeng/ripple';
 
-export type IssueCategory =
-  | 'water'
-  | 'street'
-  | 'streetlight'
-  | 'property'
-  | 'other';
+export type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 
 export type IssueFormGroup = FormGroup<{
   category: FormControl<IssueCategory>;
@@ -67,9 +57,8 @@ export class ResidentIssuePanel {
   readonly townHallPhoneLabel = input<string>('');
   readonly superintendentEmailHref = input<string | null>(null);
   readonly superintendentEmailLabel = input<string>('');
-  readonly validationMessage = input.required<
-    (control: AbstractControl, fieldLabel: string) => string | null
-  >();
+  readonly validationMessage =
+    input.required<(control: AbstractControl, fieldLabel: string) => string | null>();
 
   readonly submitIssue = output<void>();
 

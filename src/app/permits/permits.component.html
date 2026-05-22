@@ -12,11 +12,7 @@
     <p class="feature-hub-copy">{{ copy().intro }}</p>
 
     @if (clerkContact()) {
-      <section
-        id="clerk-contact"
-        class="contact-section"
-        aria-labelledby="clerk-heading"
-      >
+      <section id="clerk-contact" class="contact-section" aria-labelledby="clerk-heading">
         <h2 id="clerk-heading">{{ copy().clerkSectionHeading }}</h2>
         <p class="clerk-name">{{ clerkContact()?.value }}</p>
         <div class="permits-actions">

@@ -33,7 +33,7 @@ test.describe('Main Page Visual Test', () => {
   test('Verify Homepage layout', async ({ page }) => {
     // Navigate to local or production
     await page.goto('/');
-    
+
     // Check the whole window view visually
     await eyes.check('Homepage Full Window', Target.window().fully());
   });

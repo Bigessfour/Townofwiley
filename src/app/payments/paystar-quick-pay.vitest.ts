@@ -54,7 +54,9 @@ describe('resolveQuickPayHref', () => {
   });
 
   it('trims whitespace from portalUrl', () => {
-    expect(resolveQuickPayHref(cfg({ mode: 'hosted', portalUrl: '  https://pay.example/  ' }))).toEqual({
+    expect(
+      resolveQuickPayHref(cfg({ mode: 'hosted', portalUrl: '  https://pay.example/  ' })),
+    ).toEqual({
       href: 'https://pay.example/',
       isPlaceholder: false,
       disabled: false,

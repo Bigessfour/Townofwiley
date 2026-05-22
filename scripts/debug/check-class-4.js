@@ -6,7 +6,11 @@ const { chromium } = require('playwright');
   await page.waitForTimeout(1000);
   const layout = await page.evaluate(() => {
     const end = document.querySelector('.p-megamenu-end');
-    const children = Array.from(end.firstElementChild.children).map(c => ({ tag: c.tagName, cls: c.className, h: c.getBoundingClientRect().height }));
+    const children = Array.from(end.firstElementChild.children).map((c) => ({
+      tag: c.tagName,
+      cls: c.className,
+      h: c.getBoundingClientRect().height,
+    }));
     return children;
   });
   console.dir(layout);

@@ -13,11 +13,11 @@ Amplify Hosting control-plane calls are recorded as **management events** with `
 
 Relevant API names to watch (non-exhaustive):
 
-| Event name      | Why it matters                          |
-| --------------- | --------------------------------------- |
-| `UpdateApp`     | **Custom headers / CSP**, custom rules  |
-| `UpdateBranch`  | Branch env vars (runtime-config inputs) |
-| `CreateApp` / `DeleteApp` | Rare; high impact               |
+| Event name                | Why it matters                          |
+| ------------------------- | --------------------------------------- |
+| `UpdateApp`               | **Custom headers / CSP**, custom rules  |
+| `UpdateBranch`            | Branch env vars (runtime-config inputs) |
+| `CreateApp` / `DeleteApp` | Rare; high impact                       |
 
 ## 2. EventBridge: alert on `UpdateApp` (and optional `UpdateBranch`)
 

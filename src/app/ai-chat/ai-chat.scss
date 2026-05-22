@@ -206,8 +206,13 @@
 }
 
 @media (max-width: 640px) {
-  .assistant-shell { padding: 0.85rem; }
-  .assistant-messages { height: 14rem !important; }
-  .assistant-entry-row { grid-template-columns: 1fr; }
+  .assistant-shell {
+    padding: 0.85rem;
+  }
+  .assistant-messages {
+    height: 14rem !important;
+  }
+  .assistant-entry-row {
+    grid-template-columns: 1fr;
+  }
 }
-
