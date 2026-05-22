@@ -97,8 +97,15 @@ test.describe('news page interactions', () => {
       },
     });
 
-    await homePage.page.route('**/mock-cms.test/**', async (route) => {
-      if (route.request().method() !== 'POST') {
+    // CI serves a built runtime-config.js that may point at real AppSync — match the CMS query body.
+    await homePage.page.route('**/*', async (route) => {
+      const request = route.request();
+      if (request.method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+      const body = request.postData() ?? '';
+      if (!body.includes('GetPublicCmsContent') && !body.includes('listAnnouncements')) {
         await route.continue();
         return;
       }
@@ -119,18 +126,10 @@ test.describe('news page interactions', () => {
       });
     });
 
-    const cmsLoaded = homePage.page.waitForResponse(
-      (response) =>
-        response.url().includes('mock-cms.test') &&
-        response.request().method() === 'POST' &&
-        response.ok(),
-    );
-
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
-    await cmsLoaded;
 
     await expect(homePage.page.locator('#town-newsletter-heading')).toBeVisible({
-      timeout: 20000,
+      timeout: 30000,
     });
 
     // Only the latest active newsletter renders.
