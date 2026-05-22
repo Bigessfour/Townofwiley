@@ -34,6 +34,10 @@ updates:
       - dependency-name: '@angular/*'
         update-types:
           - version-update:semver-patch
+      # Repo pins Node 24.x (.nvmrc); @types/node 25+ mismatches runtime.
+      - dependency-name: '@types/node'
+        update-types:
+          - version-update:semver-major
     labels:
       - 'dependencies'
       - 'automated'

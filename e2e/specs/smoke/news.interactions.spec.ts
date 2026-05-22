@@ -59,53 +59,59 @@ test.describe('news page interactions', () => {
       [mockCmsEndpoint, 'da2-newsletter-test-key'],
     );
 
-    await homePage.page.route(mockCmsEndpoint, async (route) => {
+    const cmsMockBody = JSON.stringify({
+      data: {
+        listSiteSettings: { items: [] },
+        listAlertBanners: { items: [] },
+        listAnnouncements: {
+          items: [
+            {
+              id: 'newsletter-april-2026',
+              title: 'April 2026 Newsletter',
+              date: '2026-04-01',
+              detail: 'Older newsletter content.',
+              announcementKind: 'newsletter',
+              attachmentKey: 'https://newsletter-mock.test/2026-04-newsletter.pdf',
+              priority: 2,
+              imageUrl: null,
+              active: true,
+            },
+            {
+              id: 'newsletter-may-2026',
+              title: 'May 2026 Newsletter',
+              date: '2026-05-06',
+              detail: 'Latest newsletter content.',
+              announcementKind: 'newsletter',
+              attachmentKey: mockNewsletterUrl,
+              priority: 1,
+              imageUrl: null,
+              active: true,
+            },
+          ],
+        },
+        listEvents: { items: [] },
+        listOfficialContacts: { items: [] },
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+      },
+    });
+
+    await homePage.page.route('**/mock-cms.test/**', async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          data: {
-            listSiteSettings: { items: [] },
-            listAlertBanners: { items: [] },
-            listAnnouncements: {
-              items: [
-                {
-                  id: 'newsletter-april-2026',
-                  title: 'April 2026 Newsletter',
-                  date: '2026-04-01',
-                  detail: 'Older newsletter content.',
-                  announcementKind: 'newsletter',
-                  attachmentKey: 'https://newsletter-mock.test/2026-04-newsletter.pdf',
-                  priority: 2,
-                  imageUrl: null,
-                  active: true,
-                },
-                {
-                  id: 'newsletter-may-2026',
-                  title: 'May 2026 Newsletter',
-                  date: '2026-05-06',
-                  detail: 'Latest newsletter content.',
-                  announcementKind: 'newsletter',
-                  attachmentKey: mockNewsletterUrl,
-                  priority: 1,
-                  imageUrl: null,
-                  active: true,
-                },
-              ],
-            },
-            listEvents: { items: [] },
-            listOfficialContacts: { items: [] },
-            listBusinesses: { items: [] },
-            listPublicDocuments: { items: [] },
-            listExternalNewsLinks: { items: [] },
-          },
-        }),
+        body: cmsMockBody,
       });
     });
 
     // Stub the PDF responses with a tiny valid header so the iframe load doesn't surface a network
     // error in the headless browser (content shape does not matter for the assertions).
-    await homePage.page.route('https://newsletter-mock.test/**.pdf', async (route) => {
+    await homePage.page.route('https://newsletter-mock.test/**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/pdf',
@@ -113,7 +119,19 @@ test.describe('news page interactions', () => {
       });
     });
 
+    const cmsLoaded = homePage.page.waitForResponse(
+      (response) =>
+        response.url().includes('mock-cms.test') &&
+        response.request().method() === 'POST' &&
+        response.ok(),
+    );
+
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+    await cmsLoaded;
+
+    await expect(homePage.page.locator('#town-newsletter-heading')).toBeVisible({
+      timeout: 20000,
+    });
 
     // Only the latest active newsletter renders.
     await expect(homePage.page.locator('.newsletter-item-card')).toHaveCount(1);

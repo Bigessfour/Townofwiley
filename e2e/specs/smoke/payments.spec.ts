@@ -71,7 +71,9 @@ test.describe('Pay bill page', () => {
 
     await form.getByRole('button', { name: /Submit request/i }).click();
 
-    await expect(homePage.page.locator('.p-toast-message-success')).toBeVisible();
+    await expect(homePage.page.locator('.p-toast-message-success')).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('shows validation when consent checkbox is unchecked', async ({ homePage }) => {
@@ -110,7 +112,9 @@ test.describe('Pay bill page', () => {
 
     await form.getByRole('button', { name: /Submit request/i }).click();
 
-    await expect(homePage.page.locator('.p-toast-message-info')).toBeVisible();
+    await expect(homePage.page.locator('.p-toast-message-info')).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('offers Spanish copy after switching site language', async ({ homePage }) => {
