@@ -1,5 +1,18 @@
 # Copilot Instructions
 
+## Node.js (mandatory for this repo)
+
+- **Runtime:** Node **24.x LTS only** (`Krypton`). **Never** use Node 22, 23, 25+, or odd majors for npm/build/test in this workspace.
+- **Pinned patch:** Read [`.nvmrc`](../.nvmrc) (currently **`24.16.0`**) — same version as Amplify (`amplify.yml`) and GitHub Actions (`NODE_VERSION`). This is an **exact CI/deploy pin**, not “ignore nodejs.org LTS.” When [nodejs.org](https://nodejs.org/en/blog/release/) ships a newer **24.x LTS patch**, bump all pin files in one PR (see checklist in [`docs/NODE_VERSION.md`](../docs/NODE_VERSION.md)).
+- **`package.json` `engines.node`:** `>=24.15.0 <25.0.0` — local **24.15.x** still passes `ensure-node-version`; prefer **`nvm use`** / **`mise install`** so `node -v` matches `.nvmrc`.
+- **Why we cited 24.15.0 before:** That was the lock when PR #30 / Amplify last greened; **24.16.0** is the current Active LTS patch (May 2026). The repo upgrades the **pin** deliberately; it does not auto-track “latest 24” on every machine.
+- **Before npm scripts:** `node scripts/ensure-node-version.mjs` (runs via `prestart` / `prebuild` / `pretest:e2e:smoke`).
+- **Windows / Cursor agents:** `nvm use` alone is often **not enough** — Cursor’s `node.exe` can win on `PATH`. Run **`.\scripts\setup-repo-node.ps1`** from repo root, or `$env:Path = "$env:NVM_SYMLINK;$env:Path"` after `nvm use`. VS Code sets `PATH` with `NVM_SYMLINK` first in [`.vscode/settings.json`](../.vscode/settings.json) for integrated terminals only.
+- **macOS agents:** `PATH="/opt/homebrew/opt/node@24/bin:$PATH"` before npm (see `.cursor/rules/core-workflow.mdc`).
+- **Cleanup:** On nvm-windows, uninstall unused majors (`nvm uninstall 25.2.1`, old 24.14.x) after `24.16.0` is active — see [`docs/NODE_VERSION.md`](../docs/NODE_VERSION.md).
+- **Docker fallback:** `docker pull node:24-slim` then mount the repo and run npm scripts (`node -v` → v24.16.0) — see **Docker** in [`docs/NODE_VERSION.md`](../docs/NODE_VERSION.md) when host PATH cannot be fixed quickly.
+- **Emergency only:** `SKIP_NODE_VERSION_CHECK=1` — does not fix PATH; use Node 24 LTS instead.
+
 ## Angular Best Practices Are Mandatory
 
 - For any Angular-specific task in this repository, follow `.cursor/rules/angular-standards.mdc` and `.cursor/rules/core-workflow.mdc`.

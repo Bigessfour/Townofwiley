@@ -23,7 +23,7 @@ This repository provides AI-development context for Angular-aware assistants and
 - Angular CLI MCP server via `.vscode/mcp.json`
 - PrimeNG MCP server via `.vscode/mcp.json`
 - Vitest MCP server via `.vscode/mcp.json`
-- Web Codegen Scorer via `hello-world/config.mjs`
+- Web Codegen Scorer via `archive/hello-world/config.mjs` (non-production; see `archive/README.md`)
 - AI Feature agent via `.github/agents/ai-feature.agent.md`
 
 ## Notes

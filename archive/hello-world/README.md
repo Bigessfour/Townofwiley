@@ -20,11 +20,11 @@ This directory is the scorer environment for the Town of Wiley Angular app.
 ## Current Eval Setup
 
 ```text
-web-codegen-scorer eval --env=hello-world/config.mjs --model=<supported-xai-model> --prompt-filter=affirmation-app
+web-codegen-scorer eval --env=archive/hello-world/config.mjs --model=<supported-xai-model> --prompt-filter=affirmation-app
 ```
 
 ## Notes
 
-- `hello-world/` is the scorer configuration surface.
+- `archive/hello-world/` is the scorer configuration surface (not deployed).
 - `.web-codegen-scorer/` is generated output and report data.
 - `src/` is the code being evaluated.

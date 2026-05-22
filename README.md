@@ -16,8 +16,8 @@ Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
 ## Runtime Baseline
 
-- **Node.js `24.x` LTS only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.15.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). Repo files pin **`24.15.0`** (`.nvmrc`, `.node-version`, **`volta`**, **`mise.toml`**, **asdf** `.tool-versions`). **Do not use Node 22, 23, 25+, or odd majors** — Node 25+ has caused toolchain and native dependency issues with this stack.
-- Use `nvm install && nvm use` (reads `.nvmrc`), **`mise install`**, **Volta**, **asdf**, or Homebrew **`node@24`** so your shell `node` matches CI.
+- **Node.js `24.x` LTS only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.15.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). Repo files pin **`24.16.0`** (`.nvmrc`, `.node-version`, **`volta`**, **`mise.toml`**, **asdf** `.tool-versions`) — see **[`docs/NODE_VERSION.md`](docs/NODE_VERSION.md)** for why the pin is an exact patch (not “whatever LTS says today”). **Do not use Node 22, 23, 25+, or odd majors** — Node 25+ has caused toolchain and native dependency issues with this stack.
+- Use `nvm install && nvm use` (reads `.nvmrc`), **`mise install`**, **Volta**, **asdf**, Homebrew **`node@24`**, Windows **`.\scripts\setup-repo-node.ps1`**, or **Docker `node:24-slim`** (see [`docs/NODE_VERSION.md`](docs/NODE_VERSION.md) § Docker) so your shell `node` matches CI.
 
 **Homebrew (recommended on macOS)** — install the LTS keg and make it the default `node` (the top-level `node` formula tracks the latest major, often v25+):
 
@@ -26,7 +26,7 @@ brew install node@24
 brew unlink node       # only if `node -v` shows v25+ from /opt/homebrew/bin/node
 brew link --overwrite --force node@24
 hash -r
-node -v   # expect v24.15.0 (matches .nvmrc)
+node -v   # expect v24.16.0 (matches .nvmrc)
 ```
 
 If Homebrew relinks `node` to a newer major after `brew upgrade`, run **`brew unlink node && brew link --overwrite --force node@24`** again.
@@ -35,7 +35,7 @@ If Homebrew relinks `node` to a newer major after `brew upgrade`, run **`brew un
 
 ```bash
 nvm install && nvm use
-node -v   # v24.15.0 (or any 24.x satisfying engines)
+node -v   # v24.16.0 (or any 24.15+ satisfying engines)
 ```
 
 ## Deployment Record
@@ -52,7 +52,7 @@ node -v   # v24.15.0 (or any 24.x satisfying engines)
 - Build logs: stored automatically per job (**Hosting → Builds**). Enable **Build notifications** plus CloudWatch retention for CodeBuild-/Amplify-related log groups in `us-east-2` (`docs/AMPLIFY_HOSTING_SOT.md` § **1.a**).
 - Build command: `npm run build`
 - Build output: `dist/townofwiley-app/browser`
-- Node runtime for Amplify builds: **`24.15.0`** (`amplify.yml` `nvm install` / `nvm use`)
+- Node runtime for Amplify builds: **`24.16.0`** (`amplify.yml` `nvm install` / `nvm use`)
 
 Amplify build spec (see repo [`amplify.yml`](amplify.yml) for the canonical file):
 
@@ -62,8 +62,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 24.15.0
-        - nvm use 24.15.0
+        - nvm install 24.16.0
+        - nvm use 24.16.0
         - npm ci
     build:
       commands:
@@ -351,6 +351,8 @@ Traceability:
 - `src/app/document-hub/document-archive.ts`
 - `src/app/document-hub/document-hub.ts`
 - `src/app/records-center/records-center.ts`
+- [`docs/README.md`](docs/README.md) — documentation index and current status
+- `docs/post-development-inventory.md` — post-build audit and AP remediation log
 - `docs/town-document-publishing-guide.md`
 - `src/app/app.ts`
 - `docs/incomplete-items-reference.md`
@@ -799,7 +801,7 @@ Operational note:
 
 ## Feature Completion Progress
 
-This section tracks progress on completing the site's incomplete features based on the AI coding guide analysis (see `docs/townofwiley-website-completion-todos.md`). Updates will be added here as each section reaches 10/10.
+This section tracks post-build remediation. **Source of truth:** [`docs/post-development-inventory.md`](docs/post-development-inventory.md) and [`docs/README.md`](docs/README.md). AP-03 (Paystar placeholder) merged 2026-05-22.
 
 ### 1. Functionality/Page Features (Target: 10/10)
 

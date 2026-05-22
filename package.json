@@ -85,7 +85,7 @@
     "npm": "^11.0.0"
   },
   "volta": {
-    "node": "24.15.0"
+    "node": "24.16.0"
   },
   "dependencies": {
     "@angular/animations": "21.2.11",

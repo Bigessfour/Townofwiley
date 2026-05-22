@@ -2,7 +2,7 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 
 (async () => {
-  const screenshotPath = path.resolve('artifacts/debug/screenshot.png');
+  const screenshotPath = path.resolve('archive/artifacts/debug/screenshot.png');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.setViewportSize({ width: 1280, height: 800 });

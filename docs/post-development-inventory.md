@@ -1,8 +1,9 @@
 # Post-Development Inventory — Town of Wiley
 
-**Generated:** 2026-05-22  
+**Generated:** 2026-05-22 · **Last updated:** 2026-05-22 (sync: AP-02a/c, AP-24a, Node 24.16.0 pin)  
 **Purpose:** Map what exists in this repo after a whole-product build, then guide review and next actions.  
-**Related:** [e2e-feature-map.md](./e2e-feature-map.md), [incomplete-items-reference.md](./incomplete-items-reference.md), [feature-completion-spec.md](./feature-completion-spec.md), [review-checklist.md](./review-checklist.md), [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md)
+**Doc index:** [docs/README.md](./README.md)  
+**Related:** [e2e-feature-map.md](./e2e-feature-map.md), [NODE_VERSION.md](./NODE_VERSION.md), [incomplete-items-reference.md](./incomplete-items-reference.md), [feature-completion-spec.md](./feature-completion-spec.md), [review-checklist.md](./review-checklist.md), [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md)
 
 **Product identity:** Primary deliverable is **townofwiley.gov** (Angular municipal site). **“Wiley Widget”** in-repo means the resident assistant UX: **Ask Wiley** (`LocalizedAiChat`), optional **Easy Peasy** embed (`public/easy-peasy-loader.js`), and the **cow welcome popup** (`public/cow-video-popup.js`). There is no separate npm package named “Wiley Widget.”
 
@@ -10,16 +11,17 @@
 
 ## Executive summary
 
-| Area                         | Status in repo                                                    |
-| ---------------------------- | ----------------------------------------------------------------- |
-| Public SPA + prerender       | Shipped — routes, bilingual UI, smoke E2E                         |
-| CMS (AppSync + S3)           | Shipped — read via API key; staff workflows via Studio + `/admin` |
-| Weather + alert signup       | Shipped — NWS proxy + large Python signup backend                 |
-| Paystar / bill pay           | Partial — UI + proxy scaffold; production tenant wiring ops-owned |
-| Budget import / calculations | **Not present** — guides + search only                            |
-| Online permits               | **Not present** — informational page only                         |
-| Bill pay persistence API     | **Not present** — mailto or optional HTTP POST                    |
-| Monolithic homepage          | `app.ts` ~3,000 lines — maintainability risk                      |
+| Area                         | Status in repo                                                                                                    |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Public SPA + prerender       | Shipped — routes, bilingual UI, smoke E2E                                                                         |
+| CMS (AppSync + S3)           | Shipped — read via API key; staff workflows via Studio + `/admin`                                                 |
+| Weather + alert signup       | Shipped — NWS proxy + large Python signup backend                                                                 |
+| Paystar / bill pay           | AP-03 **merged**; AP-02a/c + AP-24a **in repo** (hosted-only docs/E2E); ops: `portalUrl` + formal Path A sign-off |
+| Node.js toolchain            | Pin **24.16.0** (`.nvmrc`, Amplify, GHA); policy [`NODE_VERSION.md`](./NODE_VERSION.md)                           |
+| Budget import / calculations | **Not present** — guides + search only                                                                            |
+| Online permits               | **Not present** — informational page only                                                                         |
+| Bill pay persistence API     | **Not present** — mailto or optional HTTP POST                                                                    |
+| Monolithic homepage          | `app.ts` ~3,000 lines — maintainability risk                                                                      |
 
 ---
 
@@ -27,22 +29,22 @@
 
 ### Main folders
 
-| Path              | Role                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------- |
-| `src/`            | Angular 21 app (`townofwiley-app`)                                                                |
-| `public/`         | Static assets, generated `runtime-config.js`, document archive HTML, chat loaders                 |
-| `amplify/`        | AppSync GraphQL, Cognito, S3 `documents`                                                          |
-| `infrastructure/` | Lambdas/proxies (NWS, Paystar, weather signup, contact updates, chat, email router, site monitor) |
-| `scripts/`        | Runtime config, deploy, CSP/header sync, secrets CLI                                              |
-| `e2e/`            | Playwright smoke + responsive + a11y                                                              |
-| `docs/`           | Runbooks and checklists (this file)                                                               |
-| `hello-world/`    | Web codegen scorer only — **not production**                                                      |
-| `bot-training/`   | Ask Wiley knowledge model (content, not runtime)                                                  |
+| Path                   | Role                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| `src/`                 | Angular 21 app (`townofwiley-app`)                                                                |
+| `public/`              | Static assets, generated `runtime-config.js`, document archive HTML, chat loaders                 |
+| `amplify/`             | AppSync GraphQL, Cognito, S3 `documents`                                                          |
+| `infrastructure/`      | Lambdas/proxies (NWS, Paystar, weather signup, contact updates, chat, email router, site monitor) |
+| `scripts/`             | Runtime config, deploy, CSP/header sync, secrets CLI                                              |
+| `e2e/`                 | Playwright smoke + responsive + a11y                                                              |
+| `docs/`                | Runbooks and checklists (this file)                                                               |
+| `archive/hello-world/` | Web codegen scorer only — **not production** (see `archive/README.md`)                            |
+| `bot-training/`        | Ask Wiley knowledge model (content, not runtime)                                                  |
 
 ### Tech stack
 
 - **Frontend:** Angular 21, standalone + signals + OnPush, PrimeNG 21, Tailwind 4
-- **Hosting:** AWS Amplify → CloudFront → `townofwiley.gov` (account `570912405222`, app `d331voxr1fhoir`, Node 24.15.0)
+- **Hosting:** AWS Amplify → CloudFront → `townofwiley.gov` (account `570912405222`, app `d331voxr1fhoir`, Node **24.16.0**)
 - **CMS:** Amplify AppSync (public API key read) + S3 `townofwiley-documents-storage`
 - **Config:** `scripts/generate-runtime-config.mjs` → `public/runtime-config.js`
 - **Tests:** Vitest, `ng test`, Playwright smoke, Python infra tests
@@ -142,7 +144,7 @@
 - **Placeholder Paystar URL** when runtime config missing
 - **Spanish CMS** via manual translation map, not model fields
 - **Cow / Easy Peasy E2E** off by default (`TOW_E2E_CHATBOT_EMBED=1`)
-- **`hello-world/`**, **`.generated/`**, **`artifacts/debug/`** not product code
+- **`archive/hello-world/`**, **`archive/artifacts/`**, **`.generated/`** not product code (see `archive/README.md`)
 
 ---
 
@@ -233,7 +235,7 @@ Prioritized for a volunteer/clerk + developer team. Adjust owners and dates loca
 | 13  | **CMS i18n strategy**            | Product | Language fields in GraphQL vs expanded translation map vs English-only CMS    |
 | 14  | **Centralize error logging**     | Dev     | Reduce raw `console.error` in upload/CMS paths; use `LoggingService`          |
 | 15  | **Lighthouse staging**           | Dev     | `npm run perf:lighthouse:staging` before major releases                       |
-| 16  | **Applitools / visual baseline** | Dev     | Optional gate; artifacts in `artifacts/debug/`                                |
+| 16  | **Applitools / visual baseline** | Dev     | Optional gate; artifacts in `archive/artifacts/debug/`                        |
 | 17  | **Records/issue tracking**       | Product | If mailto insufficient, spec Dynamo + clerk notification Lambda (new feature) |
 
 ### Explicitly out of scope unless requested
@@ -609,16 +611,16 @@ npm run test:coverage   # Vitest coverage report (src/**/*.vitest.ts only)
 
 ### Summary
 
-| Priority | Theme                        | Representative finding                                                                                                                                     |
-| -------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0**   | Payments misrepresented      | `PaystarConnectionService` (API launch, offline queue, receipts) is **not called** from any production component; docs/E2E imply API mode from the browser |
-| **P0**   | PII without client hardening | `ContactUpdateService` and mailto builders send **unsanitized** form text; review endpoint **silently returns `[]`** on failure                            |
-| **P0**   | Trust-breaking placeholders  | Hosted Paystar links fall back to a **generic placeholder URL** even when `mode !== 'none'`                                                                |
-| **P1**   | Dead / unwired code          | Offline payment queue, `getReceipt`, `cms-content.ts` re-export barrel, `enablePaystarApi` E2E helper unused                                               |
-| **P1**   | Silent failures              | `DocumentUploadService.getDocuments` returns `[]` on list errors; per-key URL failures skipped in loop                                                     |
-| **P2**   | Duplication & monolith       | Duplicate mailto/contact helpers; `app.ts` + `resident-services.ts` + `pay-bill-page` Paystar URL logic; 3k-line homepage                                  |
-| **P2**   | Docs vs code drift           | `docs/e2e-feature-map.md` states browser posts to Paystar via `PaystarConnectionService` — **inaccurate today**                                            |
-| **P3**   | Low-value / cosmetic         | `forecastGdd` on weather page; `hello-world/` scorer tree; committed debug `artifacts/`                                                                    |
+| Priority | Theme                        | Representative finding                                                                                                                                      |
+| -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P0**   | Payments misrepresented      | `PaystarConnectionService` (API launch, offline queue, receipts) is **not called** from any production component; docs/E2E imply API mode from the browser  |
+| **P0**   | PII without client hardening | `ContactUpdateService` and mailto builders send **unsanitized** form text; review endpoint **silently returns `[]`** on failure                             |
+| **P0**   | Trust-breaking placeholders  | ~~Hosted Paystar placeholder URL~~ **Remediated AP-03** — CTA disabled when `portalUrl` empty; verify on prod deploy                                        |
+| **P1**   | Dead / unwired code          | Offline payment queue, `getReceipt`, `cms-content.ts` re-export barrel; ~~`enablePaystarApi`~~ **removed AP-24a**                                           |
+| **P1**   | Silent failures              | `DocumentUploadService.getDocuments` returns `[]` on list errors; per-key URL failures skipped in loop                                                      |
+| **P2**   | Duplication & monolith       | Duplicate mailto/contact helpers; `app.ts` + `resident-services.ts` + `pay-bill-page` Paystar URL logic; 3k-line homepage                                   |
+| **P2**   | Docs vs code drift           | ~~Paystar row in `e2e-feature-map.md`~~ **Remediated AP-02a** — documents hosted `resolveQuickPayHref` only; `PaystarConnectionService` still unwired in UI |
+| **P3**   | Low-value / cosmetic         | `forecastGdd` on weather page; `archive/hello-world/` scorer tree; committed debug `archive/artifacts/`                                                     |
 
 ---
 
@@ -628,16 +630,16 @@ npm run test:coverage   # Vitest coverage report (src/**/*.vitest.ts only)
 
 **Files:** `src/app/payments/paystar-connection.ts` — `createLaunchRequest`, `getReceipt`, `queuePaymentOffline`, `syncQueuedPayments`
 
-**Finding:** Grep across `src/` shows **no component or service injects `PaystarConnectionService`**. Production payment UX uses only:
+**Finding:** Grep across `src/` shows **no component or service injects `PaystarConnectionService`**. Production payment UX uses **`resolveQuickPayHref()`** (`src/app/payments/paystar-quick-pay.ts`) from:
 
-- `getPaystarRuntimeConfig()` in `src/app/resident-services/resident-services.ts` (`quickPayHref`, `quickPayIsPlaceholder`)
-- Same pattern in `src/app/pay-bill/pay-bill-page.component.ts`
+- `src/app/resident-services/resident-services.ts` (`quickPayState` computed)
+- `src/app/pay-bill/pay-bill-page.component.ts`
 
-Residents get an **`<a href>` to hosted portal** (or placeholder), not in-app Paystar API launch. The proxy (`infrastructure/paystar-proxy/`) and Vitest error tests exercise code that **never runs in the shipped UI**.
+Residents get a **hosted portal `<a href>`** when `portalUrl` is set, or a **disabled CTA** when unset (AP-03). In-app Paystar API launch and offline queue remain **unimplemented** in UI. The proxy (`infrastructure/paystar-proxy/`) and Vitest tests exercise code that **does not run in the shipped UI**.
 
-**Impact:** Operators may believe `mode: 'api'` enables checkout; it does not. E2E helper `enablePaystarApi()` in `e2e/pages/home.page.ts` is **never used** in smoke specs. Offline toast copy in `OfflineConnectivityNotifier` (“form submissions will sync”) implies `syncQueuedPayments()` — **also never invoked**.
+**Impact:** Operators may believe `mode: 'api'` enables checkout; it does not. ~~E2E `enablePaystarApi()`~~ **removed (AP-24a).** Offline toast copy in `OfflineConnectivityNotifier` (“form submissions will sync”) still implies `syncQueuedPayments()` — **not invoked** (AP-08).
 
-**Doc drift:** `docs/e2e-feature-map.md` row for Paystar should be corrected when this is wired or removed.
+**Doc drift:** **Remediated AP-02a** — `docs/e2e-feature-map.md` documents hosted-only behavior. **Remaining:** deprecate or delete `PaystarConnectionService` after clerk confirms Path A (AP-02b/d).
 
 ---
 
@@ -766,14 +768,14 @@ Residents get an **`<a href>` to hosted portal** (or placeholder), not in-app Pa
 
 #### 12. Unused or effectively dead exports
 
-| Item                                          | Evidence                                                                             |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `src/app/cms-content.ts`                      | Re-exports `LocalizedCmsContentStore`; **no imports** from `./cms-content` elsewhere |
-| `PaystarConnectionService` + offline queue    | No callers in `src/` (see P0)                                                        |
-| `e2e/pages/home.page.ts` — `enablePaystarApi` | Defined, **zero spec references**                                                    |
-| `infrastructure/contact-update-lambda/`       | Deployed path exists; **no `index.test.mjs`** in `npm run test:infra`                |
-| `infrastructure/contact-updates-review/`      | Same                                                                                 |
-| `infrastructure/easy-peasy-chat-proxy/`       | Same                                                                                 |
+| Item                                              | Evidence                                                                                              |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `src/app/cms-content.ts`                          | Re-exports `LocalizedCmsContentStore`; **no imports** from `./cms-content` elsewhere                  |
+| `PaystarConnectionService` + offline queue        | No callers in `src/` (see P0)                                                                         |
+| ~~`e2e/pages/home.page.ts` — `enablePaystarApi`~~ | **Removed 2026-05-22 (AP-24a)** — use `enablePaystarHostedWithoutPortal` / `enablePaystarPortal` only |
+| `infrastructure/contact-update-lambda/`           | Deployed path exists; **no `index.test.mjs`** in `npm run test:infra`                                 |
+| `infrastructure/contact-updates-review/`          | Same                                                                                                  |
+| `infrastructure/easy-peasy-chat-proxy/`           | Same                                                                                                  |
 
 ---
 
@@ -806,9 +808,9 @@ Residents get an **`<a href>` to hosted portal** (or placeholder), not in-app Pa
 
 | Path                                | Role                                                                                    |
 | ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `hello-world/`                      | Web codegen scorer prompts (per `hello-world/README.md`) — not town site                |
+| `archive/hello-world/`              | Web codegen scorer prompts (per `archive/hello-world/README.md`) — not town site        |
 | `.generated/easy-peasy-chat-proxy/` | Generated proxy copy                                                                    |
-| `artifacts/debug/`                  | Visual audit PNGs, temp HTML — should not ship to residents; verify git tracking policy |
+| `archive/artifacts/debug/`          | Visual audit PNGs, temp HTML — should not ship to residents; verify git tracking policy |
 
 ---
 
@@ -884,43 +886,43 @@ These are **heuristics**, not proof of origin:
 
 Issues are numbered **AP-** (action plan) for tracking. Cross-refs: **Q-** (Phase 3), Phase 1 step **#**.
 
-| ID    | Risk       | Issue / gap                                                                                                                    | Primary evidence                                | Key files / systems                                                 |
-| ----- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------- |
-| AP-01 | **High**   | Production `runtime-config.js` not verified against Amplify env and secrets                                                    | Phase 1 §7; Phase 1 step #1                     | `scripts/generate-runtime-config.mjs`, Amplify console              |
-| AP-02 | **High**   | **Paystar API / offline queue / receipts unwired** — `PaystarConnectionService` unused; docs/E2E imply browser API             | Phase 3 P0 #1; Q-1; Phase 2                     | `paystar-connection.ts`, `e2e-feature-map.md`                       |
-| AP-03 | **High**   | ~~**Placeholder Paystar URL**~~ **Fixed in repo (2026-05-22)** — CTA disabled when `portalUrl` empty; verify after prod deploy | Phase 3 P0 #2; Q-2                              | `paystar-quick-pay.ts`, `pay-bill-page`, `resident-services`        |
-| AP-04 | **High**   | **Bill-pay backend absent** — intake is mailto or optional POST only; success path untested in prod                            | Phase 1; `bill-pay.service.ts` comment; Phase 2 | `bill-pay.service.ts`, infra (not in repo)                          |
-| AP-05 | **High**   | **Contact-update review Lambda** may be publicly scannable; PII at risk                                                        | Phase 3 P0 #3; Q-4; Phase 1 step #3             | `contact-updates-review/index.mjs`, `cms-admin.ts`                  |
-| AP-06 | **High**   | Contact updates **not sanitized** on client; Lambda only allowlist + string slice                                              | Phase 3 P0 #3; Q-3; Phase 2                     | `contact-update.service.ts`, `contact-update-lambda/`               |
-| AP-07 | **High**   | Admin contact tab **silent failure** (`getAllUpdates` → `[]`)                                                                  | Phase 3 P0 #3; Phase 2                          | `contact-update-review.service.ts`                                  |
-| AP-08 | **High**   | **Misleading offline copy** (“submissions will sync”) with no `syncQueuedPayments`                                             | Phase 3 P0 #1; Q-5                              | `offline-connectivity.service.ts`                                   |
-| AP-09 | **High**   | Mock/test archive HTML discoverable via search (trust)                                                                         | Phase 1 docs; Q-10; Phase 1 step #6             | `public/documents/archive/`, `document-archive.ts`, `app.ts` search |
-| AP-10 | **Medium** | Paystar **hosted** go-live: confirm real `portalUrl` / mode; staging smoke                                                     | Phase 1 step #2; Phase 2 E2E mocks only         | `paystar-config.ts`, `paystar-proxy/`                               |
-| AP-11 | **Medium** | Paystar proxy **upstream JSON mapping** is guessed; receipt **501**                                                            | Phase 3; Phase 1 step #8; Phase 2               | `infrastructure/paystar-proxy/index.mjs`                            |
-| AP-12 | **Medium** | **No CI tests** for contact-update write/review Lambdas                                                                        | Phase 2; Q-7                                    | `contact-update-lambda/`, `contact-updates-review/`                 |
-| AP-13 | **Medium** | **BillPay sanitization** (account strip, lengths) untested                                                                     | Phase 2; Phase 3 P0 #4                          | `bill-pay.service.ts`, `input-sanitization.ts`                      |
-| AP-14 | **Medium** | Document upload: **list errors → `[]`**, partial URL failures skipped                                                          | Phase 3 §6; Q-6                                 | `document-upload.service.ts`                                        |
-| AP-15 | **Medium** | Upload **rollback** can orphan S3 if delete fails after CMS failure                                                            | Phase 3 §6                                      | `document-upload.component.ts`                                      |
-| AP-16 | **Medium** | **WAF / rate limits** on public Lambda URLs not in repo                                                                        | Phase 1 feature-completion-spec; step #10       | AWS console / API Gateway                                           |
-| AP-17 | **Medium** | **S3 upload AV / metadata** policy not implemented                                                                             | Phase 1 step #11                                | S3 / Amplify storage                                                |
-| AP-18 | **Medium** | Severe-weather signup: **prod Lambda URL** not in browser CI path                                                              | Phase 2                                         | `localized-weather-panel.ts`, deploy scripts                        |
-| AP-19 | **Medium** | **AppSync API key** in client; rotation/runbook gap                                                                            | Phase 1 §4; Phase 1 review §D                   | `amplify-config.ts`, `site-cms-content.ts`                          |
-| AP-20 | **Medium** | CMS Spanish via **manual map** — untranslated Studio strings leak to ES UI                                                     | Phase 3 §7                                      | `site-cms-content.ts` `KNOWN_CMS_TEXT_TRANSLATIONS`                 |
-| AP-21 | **Medium** | **`LoggingService` vs `console.error`** split — ops blind spots                                                                | Phase 3 §10                                     | upload/CMS/news/review services                                     |
-| AP-22 | **Medium** | **`LocalizedAiChat`** — bare catch, no unit tests; embed path weak in CI                                                       | Phase 2; Phase 3 §9                             | `localized-ai-chat.ts`, `cow-embed-loader.spec.ts`                  |
-| AP-23 | **Medium** | Global error handler toast **English-only**                                                                                    | Phase 3 §11                                     | `global-error-handler.ts`                                           |
-| AP-24 | **Medium** | E2E **`enablePaystarApi` dead helper**; false confidence from Paystar vitest                                                   | Phase 3 §12                                     | `e2e/pages/home.page.ts`, `paystar-connection.vitest.ts`            |
-| AP-25 | **Medium** | Production config drift: **hardcoded Cognito/AppSync** defaults                                                                | Phase 3 §7                                      | `amplify-config.ts`                                                 |
-| AP-26 | **Low**    | Dead export **`cms-content.ts`** barrel (unused)                                                                               | Phase 3 Q-9                                     | `cms-content.ts`                                                    |
-| AP-27 | **Low**    | Duplicate **mailto / contact helpers** across components                                                                       | Phase 3 §13                                     | `resident-services.ts`, `accessibility-support.ts`                  |
-| AP-28 | **Low**    | **`app.ts` monolith** (~3k lines) — regression and review cost                                                                 | Phase 1 §5; Phase 3 §14                         | `app.ts`                                                            |
-| AP-29 | **Low**    | Split homepage search/calendar into modules (no behavior change)                                                               | Phase 1 step #12; Phase 2                       | `app.ts`, `meetings-page.helpers.ts`                                |
-| AP-30 | **Low**    | **`hello-world/`**, **`artifacts/debug/`**, **`.generated/`** clutter / policy                                                 | Phase 3 §15                                     | repo hygiene                                                        |
-| AP-31 | **Low**    | Lighthouse / perf staging gate optional                                                                                        | Phase 1 step #15                                | `npm run perf:lighthouse:staging`                                   |
-| AP-32 | **Low**    | Applitools / visual baseline optional                                                                                          | Phase 1 step #16                                | `e2e/specs/applitools/`                                             |
-| AP-33 | **Low**    | Reconcile **`incomplete-items-reference.md`** “Done When” vs shipped reality                                                   | Phase 3 §15                                     | `docs/incomplete-items-reference.md`                                |
-| AP-34 | **Low**    | **`forecastGdd`** display — clarify non-official if kept                                                                       | Phase 3 §8                                      | `localized-weather-panel.ts`                                        |
-| AP-35 | **Low**    | Future product: records/issue **tracking API** (mailto-only today)                                                             | Phase 1 out of scope                            | `resident-services.ts`                                              |
+| ID    | Risk       | Issue / gap                                                                                                                                 | Primary evidence                                | Key files / systems                                                 |
+| ----- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| AP-01 | **High**   | Production `runtime-config.js` not verified against Amplify env and secrets                                                                 | Phase 1 §7; Phase 1 step #1                     | `scripts/generate-runtime-config.mjs`, Amplify console              |
+| AP-02 | **High**   | **Paystar API unwired** — `PaystarConnectionService` unused in UI; **docs/E2E aligned (AP-02a/c)**; deprecate/delete service pending Path A | Phase 3 P0 #1; Q-1; Phase 2                     | `paystar-connection.ts`, `e2e-feature-map.md`                       |
+| AP-03 | **High**   | ~~**Placeholder Paystar URL**~~ **Fixed in repo (2026-05-22)** — CTA disabled when `portalUrl` empty; verify after prod deploy              | Phase 3 P0 #2; Q-2                              | `paystar-quick-pay.ts`, `pay-bill-page`, `resident-services`        |
+| AP-04 | **High**   | **Bill-pay backend absent** — intake is mailto or optional POST only; success path untested in prod                                         | Phase 1; `bill-pay.service.ts` comment; Phase 2 | `bill-pay.service.ts`, infra (not in repo)                          |
+| AP-05 | **High**   | **Contact-update review Lambda** may be publicly scannable; PII at risk                                                                     | Phase 3 P0 #3; Q-4; Phase 1 step #3             | `contact-updates-review/index.mjs`, `cms-admin.ts`                  |
+| AP-06 | **High**   | Contact updates **not sanitized** on client; Lambda only allowlist + string slice                                                           | Phase 3 P0 #3; Q-3; Phase 2                     | `contact-update.service.ts`, `contact-update-lambda/`               |
+| AP-07 | **High**   | Admin contact tab **silent failure** (`getAllUpdates` → `[]`)                                                                               | Phase 3 P0 #3; Phase 2                          | `contact-update-review.service.ts`                                  |
+| AP-08 | **High**   | **Misleading offline copy** (“submissions will sync”) with no `syncQueuedPayments`                                                          | Phase 3 P0 #1; Q-5                              | `offline-connectivity.service.ts`                                   |
+| AP-09 | **High**   | Mock/test archive HTML discoverable via search (trust)                                                                                      | Phase 1 docs; Q-10; Phase 1 step #6             | `public/documents/archive/`, `document-archive.ts`, `app.ts` search |
+| AP-10 | **Medium** | Paystar **hosted** go-live: confirm real `portalUrl` / mode; staging smoke                                                                  | Phase 1 step #2; Phase 2 E2E mocks only         | `paystar-config.ts`, `paystar-proxy/`                               |
+| AP-11 | **Medium** | Paystar proxy **upstream JSON mapping** is guessed; receipt **501**                                                                         | Phase 3; Phase 1 step #8; Phase 2               | `infrastructure/paystar-proxy/index.mjs`                            |
+| AP-12 | **Medium** | **No CI tests** for contact-update write/review Lambdas                                                                                     | Phase 2; Q-7                                    | `contact-update-lambda/`, `contact-updates-review/`                 |
+| AP-13 | **Medium** | **BillPay sanitization** (account strip, lengths) untested                                                                                  | Phase 2; Phase 3 P0 #4                          | `bill-pay.service.ts`, `input-sanitization.ts`                      |
+| AP-14 | **Medium** | Document upload: **list errors → `[]`**, partial URL failures skipped                                                                       | Phase 3 §6; Q-6                                 | `document-upload.service.ts`                                        |
+| AP-15 | **Medium** | Upload **rollback** can orphan S3 if delete fails after CMS failure                                                                         | Phase 3 §6                                      | `document-upload.component.ts`                                      |
+| AP-16 | **Medium** | **WAF / rate limits** on public Lambda URLs not in repo                                                                                     | Phase 1 feature-completion-spec; step #10       | AWS console / API Gateway                                           |
+| AP-17 | **Medium** | **S3 upload AV / metadata** policy not implemented                                                                                          | Phase 1 step #11                                | S3 / Amplify storage                                                |
+| AP-18 | **Medium** | Severe-weather signup: **prod Lambda URL** not in browser CI path                                                                           | Phase 2                                         | `localized-weather-panel.ts`, deploy scripts                        |
+| AP-19 | **Medium** | **AppSync API key** in client; rotation/runbook gap                                                                                         | Phase 1 §4; Phase 1 review §D                   | `amplify-config.ts`, `site-cms-content.ts`                          |
+| AP-20 | **Medium** | CMS Spanish via **manual map** — untranslated Studio strings leak to ES UI                                                                  | Phase 3 §7                                      | `site-cms-content.ts` `KNOWN_CMS_TEXT_TRANSLATIONS`                 |
+| AP-21 | **Medium** | **`LoggingService` vs `console.error`** split — ops blind spots                                                                             | Phase 3 §10                                     | upload/CMS/news/review services                                     |
+| AP-22 | **Medium** | **`LocalizedAiChat`** — bare catch, no unit tests; embed path weak in CI                                                                    | Phase 2; Phase 3 §9                             | `localized-ai-chat.ts`, `cow-embed-loader.spec.ts`                  |
+| AP-23 | **Medium** | Global error handler toast **English-only**                                                                                                 | Phase 3 §11                                     | `global-error-handler.ts`                                           |
+| AP-24 | **Medium** | ~~**`enablePaystarApi` dead helper**~~ **AP-24a done**; vitest on `PaystarConnectionService` still gives false confidence (AP-24b open)     | Phase 3 §12                                     | `paystar-connection.vitest.ts`                                      |
+| AP-25 | **Medium** | Production config drift: **hardcoded Cognito/AppSync** defaults                                                                             | Phase 3 §7                                      | `amplify-config.ts`                                                 |
+| AP-26 | **Low**    | Dead export **`cms-content.ts`** barrel (unused)                                                                                            | Phase 3 Q-9                                     | `cms-content.ts`                                                    |
+| AP-27 | **Low**    | Duplicate **mailto / contact helpers** across components                                                                                    | Phase 3 §13                                     | `resident-services.ts`, `accessibility-support.ts`                  |
+| AP-28 | **Low**    | **`app.ts` monolith** (~3k lines) — regression and review cost                                                                              | Phase 1 §5; Phase 3 §14                         | `app.ts`                                                            |
+| AP-29 | **Low**    | Split homepage search/calendar into modules (no behavior change)                                                                            | Phase 1 step #12; Phase 2                       | `app.ts`, `meetings-page.helpers.ts`                                |
+| AP-30 | **Low**    | ~~Repo clutter~~ **Addressed 2026-05-22** — `archive/` for non-production paths; see `archive/README.md`                                    | Phase 3 §15                                     | `archive/`, `.gitignore`                                            |
+| AP-31 | **Low**    | Lighthouse / perf staging gate optional                                                                                                     | Phase 1 step #15                                | `npm run perf:lighthouse:staging`                                   |
+| AP-32 | **Low**    | Applitools / visual baseline optional                                                                                                       | Phase 1 step #16                                | `e2e/specs/applitools/`                                             |
+| AP-33 | **Low**    | Reconcile **`incomplete-items-reference.md`** “Done When” vs shipped reality                                                                | Phase 3 §15                                     | `docs/incomplete-items-reference.md`                                |
+| AP-34 | **Low**    | **`forecastGdd`** display — clarify non-official if kept                                                                                    | Phase 3 §8                                      | `localized-weather-panel.ts`                                        |
+| AP-35 | **Low**    | Future product: records/issue **tracking API** (mailto-only today)                                                                          | Phase 1 out of scope                            | `resident-services.ts`                                              |
 
 **Explicitly deferred (not in 4-week plan unless leadership reprioritizes):** budget import, online permits, full in-app CMS editor, Paystar in-app API unless AP-02 decision is “wire now.”
 
@@ -934,16 +936,16 @@ Protect **money → PII → honest public content → integrations → maintaina
 
 **Goal:** No resident or clerk is misled about payments; no exposed PII; production config known.
 
-| Order | AP IDs       | Deliverable                                                                                                                                                           | Owners       |
-| ----- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| 1     | AP-01        | Runbook entry: prod/staging `runtime-config.js` values documented; Amplify env matches `generate-runtime-config` inputs                                               | DevOps       |
-| 2     | AP-03, AP-10 | **Paystar decision memo** (hosted-only vs defer API): fix placeholder link (disable CTA or require real `portalUrl`); verify hosted URL on staging                    | Clerk + Dev  |
-| 3     | AP-02        | **Implement or delete** `PaystarConnectionService` path: if hosted-only, remove dead code + fix `e2e-feature-map.md`; if API later, do not enable in prod until wired | Dev          |
-| 4     | AP-04        | **Bill-pay decision**: deploy `bill-pay-requests` API **or** label UI “email clerk only” and remove mock E2E assumption                                               | Clerk + Dev  |
-| 5     | AP-05, AP-07 | IAM on review Lambda; admin UI shows load error (not empty table)                                                                                                     | DevOps + Dev |
-| 6     | AP-06        | `sanitizePlainText` on contact-update POST; mirror Lambda validation tests                                                                                            | Dev          |
-| 7     | AP-09        | Clerk removes or labels mock archive; drop from search index if removed                                                                                               | Clerk + Dev  |
-| 8     | AP-08        | Fix offline toast **or** remove “will sync” language                                                                                                                  | Dev          |
+| Order | AP IDs       | Deliverable                                                                                                                                                                                               | Owners       |
+| ----- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 1     | AP-01        | Runbook entry: prod/staging `runtime-config.js` values documented; Amplify env matches `generate-runtime-config` inputs                                                                                   | DevOps       |
+| 2     | AP-03, AP-10 | **Paystar decision memo** (hosted-only vs defer API): fix placeholder link (disable CTA or require real `portalUrl`); verify hosted URL on staging                                                        | Clerk + Dev  |
+| 3     | AP-02        | **Partial 2026-05-22:** AP-02a/c + AP-24a merged in branch `ap-02a-paystar-docs-e2e-cleanup` (commit `59d601a`). **Remaining:** AP-02b/d after clerk Path A — deprecate/delete `PaystarConnectionService` | Dev + Clerk  |
+| 4     | AP-04        | **Bill-pay decision**: deploy `bill-pay-requests` API **or** label UI “email clerk only” and remove mock E2E assumption                                                                                   | Clerk + Dev  |
+| 5     | AP-05, AP-07 | IAM on review Lambda; admin UI shows load error (not empty table)                                                                                                                                         | DevOps + Dev |
+| 6     | AP-06        | `sanitizePlainText` on contact-update POST; mirror Lambda validation tests                                                                                                                                | Dev          |
+| 7     | AP-09        | Clerk removes or labels mock archive; drop from search index if removed                                                                                                                                   | Clerk + Dev  |
+| 8     | AP-08        | Fix offline toast **or** remove “will sync” language                                                                                                                                                      | Dev          |
 
 #### Week 1 exit criteria
 
@@ -964,7 +966,7 @@ Protect **money → PII → honest public content → integrations → maintaina
 | 2     | AP-11               | Paystar proxy: document tenant JSON sample; update `mapUpstreamJsonToTownLaunchResponse` or keep hosted-only     | Dev + vendor |
 | 3     | AP-14, AP-15, AP-21 | Document upload: surface list/resolve errors in UI; `LoggingService` on failures; test `getDocuments` error path | Dev          |
 | 4     | AP-18               | Manual or scripted check: alert signup against deployed severe-weather API (not only mocks)                      | DevOps       |
-| 5     | AP-24               | Remove or use `enablePaystarApi`; align Paystar E2E with AP-02 decision                                          | Dev          |
+| 5     | AP-24               | ~~Remove `enablePaystarApi`~~ **Done (AP-24a)**; AP-24b rename vitest suite for hosted-only reality              | Dev          |
 | 6     | AP-22               | `LocalizedAiChat`: log failures; minimal vitest for `parseBotResponse` / error path                              | Dev          |
 | 7     | AP-16, AP-17        | Ops tickets: WAF/throttle on Function URLs; S3 upload policy (can complete in AWS without app deploy)            | DevOps       |
 
@@ -972,7 +974,7 @@ Protect **money → PII → honest public content → integrations → maintaina
 
 - [ ] `npm run test:infra` includes contact-update tests (extend script if needed).
 - [ ] Admin upload/list shows error state when S3/CMS fails.
-- [ ] Paystar behavior documented in `e2e-feature-map.md` matches code after AP-02.
+- [x] Paystar behavior documented in `e2e-feature-map.md` matches code after AP-02a _(2026-05-22; confirm after PR merge to `main`)_.
 
 ---
 
@@ -1004,7 +1006,7 @@ Protect **money → PII → honest public content → integrations → maintaina
 | ----- | ------------------- | ------------------------------------------------------------------------------------------ | ------- |
 | 1     | AP-27, AP-28, AP-29 | Extract shared `mailto`/contact helper; optional first slice out of `app.ts` (search only) | Dev     |
 | 2     | AP-26               | Delete unused `cms-content.ts` or add lint rule                                            | Dev     |
-| 3     | AP-30               | `.gitignore` / docs: `artifacts/debug` policy; clarify `hello-world` not deployed          | Dev     |
+| 3     | AP-30               | **Done 2026-05-22** — `archive/` folder; `archive/README.md`; paths updated in docs        | Dev     |
 | 4     | AP-31, AP-32        | Optional: Lighthouse staging + Applitools/nightly embed (`TOW_E2E_CHATBOT_EMBED=1`)        | Dev     |
 | 5     | AP-34               | Weather copy: label GDD as informal estimate if retained                                   | Content |
 | 6     | AP-35               | Backlog ticket only if mailto volume warrants records API                                  | Product |
@@ -1066,14 +1068,34 @@ These block clean implementation; record outcomes in this file or a linked issue
 
 ### Remediation progress log
 
-| AP ID | Slice    | Status      | PR / notes                                                                             |
-| ----- | -------- | ----------- | -------------------------------------------------------------------------------------- |
-| AP-01 | AP-01a   | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`        |
-| AP-01 | AP-01b   | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                  |
-| AP-01 | AP-01c   | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…” |
-| AP-03 | AP-03a–d | **Done**    | `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + E2E `payments.spec.ts` |
-| AP-02 | All      | **Blocked** | Awaiting Path A (hosted-only) vs Path B (wire API) decision                            |
-| AP-10 | —        | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                            |
+| AP ID | Slice    | Status      | PR / notes                                                                                                                                                                                                                                                                                                                                                       |
+| ----- | -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AP-01 | AP-01a   | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`                                                                                                                                                                                                                                                                                  |
+| AP-01 | AP-01b   | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                                                                                                                                                                                                                                                                                            |
+| AP-01 | AP-01c   | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…”                                                                                                                                                                                                                                                                            |
+| AP-03 | AP-03a–d | **Done**    | PR [#30](https://github.com/Bigessfour/Townofwiley/pull/30) merged 2026-05-22: `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + `payments.spec.ts` (`enablePaystarHostedWithoutPortal`); CI [26311705310](https://github.com/Bigessfour/Townofwiley/actions/runs/26311705310) green (prior fail 26305712397 was newsletter E2E — fixed `294e566`) |
+| AP-02 | AP-02a   | **Done**    | `docs/e2e-feature-map.md`: hosted portal `href` via `resolveQuickPayHref`; no `PaystarConnectionService` in production UI — commit `59d601a` on branch `ap-02a-paystar-docs-e2e-cleanup` (open PR to `main`)                                                                                                                                                     |
+| AP-02 | AP-02c   | **Done**    | Removed dead `enablePaystarApi` from `e2e/pages/home.page.ts` — same commit                                                                                                                                                                                                                                                                                      |
+| AP-02 | AP-02b,d | **Open**    | Path A: `@deprecated` or legacy-move `PaystarConnectionService`; trim `paystar-connection.vitest.ts` — pending formal hosted-only clerk sign-off                                                                                                                                                                                                                 |
+| AP-02 | All      | **Blocked** | Path A doc/E2E slices done; **Path B** (wire API) still awaits leadership decision                                                                                                                                                                                                                                                                               |
+| AP-24 | AP-24a   | **Done**    | Same commit as AP-02a/c — removed unused `enablePaystarApi` E2E helper                                                                                                                                                                                                                                                                                           |
+| —     | Node pin | **Done**    | Bumped pin **24.15.0 → 24.16.0** (`.nvmrc`, Amplify, GHA, Volta/mise); [`NODE_VERSION.md`](./NODE_VERSION.md), `scripts/setup-repo-node.ps1`, `.github/copilot-instructions.md` — same branch as AP-02a (not yet on `main`)                                                                                                                                      |
+| AP-10 | —        | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                                                                                                                                                                                                                                                                                                      |
+| AP-30 | —        | **Done**    | `archive/` housekeeping — `hello-world/`, `artifacts/` moved; `docs/README.md` index                                                                                                                                                                                                                                                                             |
+
+**Next recommended slice (2026-05-22):** **AP-06a** — contact-update sanitization (highest PII risk, no external decision). Ops parallel: **AP-10** + **AP-01b** (real `PAYSTAR_PORTAL_URL`, verify `/runtime-config.js`). After clerk **Path A** confirmation: **AP-02b/d**.
+
+### Open pull requests (2026-05-22)
+
+| PR / branch                                                                                                        | Type                                                     | Disposition                                                           |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------- |
+| Branch `ap-02a-paystar-docs-e2e-cleanup` (`59d601a`)                                                               | AP-02a/c, AP-24a, Node 24.16.0 pin                       | **Open PR to `main`** — vitest green locally; smoke via CI after push |
+| [#28](https://github.com/Bigessfour/Townofwiley/pull/28)                                                           | Feature (weather CORS, leadership roster, CI classifier) | **Rebase** onto `main`; conflicts; not Dependabot                     |
+| [#31](https://github.com/Bigessfour/Townofwiley/pull/31), [#32](https://github.com/Bigessfour/Townofwiley/pull/32) | Dependabot — `actions/setup-node` / `checkout` v6        | **Merge** — updates `copilot-setup-steps.yml` only                    |
+| [#33](https://github.com/Bigessfour/Townofwiley/pull/33)                                                           | Dependabot — PrimeNG patch                               | **Merge** when smoke green                                            |
+| [#29](https://github.com/Bigessfour/Townofwiley/pull/29)                                                           | Dependabot — aws-amplify minor                           | **Merge** after smoke; spot-check `/admin`                            |
+| [#24](https://github.com/Bigessfour/Townofwiley/pull/24)                                                           | Dependabot — testing group                               | **Merge** when smoke green                                            |
+| [#26](https://github.com/Bigessfour/Townofwiley/pull/26), [#27](https://github.com/Bigessfour/Townofwiley/pull/27) | Dependabot — Tailwind 4.3.0                              | **Close or rebase** — stale smoke failures (May 11)                   |
 
 **Legend — test strategy:**
 
@@ -1105,12 +1127,12 @@ _Ops-first; no app refactor required._
 
 #### Path A — Hosted-only (remove dead API surface)
 
-| Slice  | Work                                                                                                                                                                | Proven correct                                              | Tests                                           | Strategy                       | CI               |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- | ------------------------------ | ---------------- |
-| AP-02a | Update `docs/e2e-feature-map.md`: browser uses portal `href` only, not `PaystarConnectionService` POST                                                              | Doc matches `rg PaystarConnectionService src/` → no injects | None                                            | N/A                            | Docs PR          |
-| AP-02b | Mark `PaystarConnectionService` methods `queuePaymentOffline`, `syncQueuedPayments`, `getReceipt` as `@deprecated` or move to `paystar-connection.legacy.ts` unused | Build passes; no imports from `src/app` except vitest       | Delete or skip vitest cases for removed methods | Refactor + test (shrink tests) | `test:vitest`    |
-| AP-02c | Remove dead `enablePaystarApi` from `e2e/pages/home.page.ts` **or** guard with comment + `test.skip`                                                                | No references in smoke specs                                | E2E grep                                        | Refactor                       | `test:e2e:smoke` |
-| AP-02d | Trim `paystar-connection.vitest.ts` to only exported helpers still used (if any remain) or delete file                                                              | Vitest count matches reality                                | Delete or skip vitest cases for removed methods | Test-around                    | `test:vitest`    |
+| Slice  | Work                                                                                                                                                                | Proven correct                                              | Tests                                           | Strategy                       | CI                  |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- | ------------------------------ | ------------------- |
+| AP-02a | Update `docs/e2e-feature-map.md`: browser uses portal `href` only, not `PaystarConnectionService` POST                                                              | Doc matches `rg PaystarConnectionService src/` → no injects | None                                            | N/A                            | **Done 2026-05-22** |
+| AP-02b | Mark `PaystarConnectionService` methods `queuePaymentOffline`, `syncQueuedPayments`, `getReceipt` as `@deprecated` or move to `paystar-connection.legacy.ts` unused | Build passes; no imports from `src/app` except vitest       | Delete or skip vitest cases for removed methods | Refactor + test (shrink tests) | `test:vitest`       |
+| AP-02c | Remove dead `enablePaystarApi` from `e2e/pages/home.page.ts` **or** guard with comment + `test.skip`                                                                | No references in smoke specs                                | E2E grep                                        | Refactor                       | **Done 2026-05-22** |
+| AP-02d | Trim `paystar-connection.vitest.ts` to only exported helpers still used (if any remain) or delete file                                                              | Vitest count matches reality                                | Delete or skip vitest cases for removed methods | Test-around                    | `test:vitest`       |
 
 #### Path B — Wire API (only if product commits)
 
@@ -1339,10 +1361,10 @@ _One file per PR._
 
 ### AP-24 — Paystar E2E/helper alignment (Medium)
 
-| Slice  | Work                                                         | Proven correct             | Tests | Strategy    | CI               |
-| ------ | ------------------------------------------------------------ | -------------------------- | ----- | ----------- | ---------------- |
-| AP-24a | Same PR as AP-02a/AP-02c — remove or wire `enablePaystarApi` | No dead exports            | grep  | Refactor    | `test:e2e:smoke` |
-| AP-24b | Rename vitest suite to match hosted-only reality             | Suite name documents scope | —     | Test-around | `test:vitest`    |
+| Slice  | Work                                                         | Proven correct             | Tests | Strategy    | CI                  |
+| ------ | ------------------------------------------------------------ | -------------------------- | ----- | ----------- | ------------------- |
+| AP-24a | Same PR as AP-02a/AP-02c — remove or wire `enablePaystarApi` | No dead exports            | grep  | Refactor    | **Done 2026-05-22** |
+| AP-24b | Rename vitest suite to match hosted-only reality             | Suite name documents scope | —     | Test-around | `test:vitest`       |
 
 ---
 
@@ -1366,7 +1388,8 @@ Week 1 PRs:
   AP-06a → AP-06b → AP-06c → AP-06d     (contact sanitize)
   AP-07a → AP-07b                         (admin errors)
   AP-09b → AP-09c                         (mock archive; AP-09a clerk parallel)
-  AP-02a + AP-02b/c/d OR AP-02 Path B     (after decision)
+  AP-02a + AP-02c + AP-24a                (done — branch ap-02a-paystar-docs-e2e-cleanup)
+  AP-02b + AP-02d OR AP-02 Path B          (after clerk decision)
   AP-04b OR AP-04c                        (after decision)
   AP-05a → AP-05b → AP-05c               (ops + app; may span week 2)
 
@@ -1595,7 +1618,7 @@ Proxy converts `amount` → `Charges[0].Amount` in cents.
 | AP-03 | Placeholder `portalUrl` until PS-E5                                                                               |
 | AP-10 | Hosted portal fallback until embedded live                                                                        |
 | AP-11 | Replace `mapUpstreamJsonToTownLaunchResponse` guesses with `mapEmbeddedEnvelopeToTownLaunch` once tenant confirms |
-| AP-24 | E2E uses `sessionType: 'payment'` instead of dead `enablePaystarApi` REST-only helper                             |
+| AP-24 | ~~`enablePaystarApi`~~ removed (AP-24a); optional: E2E for embedded `sessionType: 'payment'` if Path B            |
 
 ### Document maintenance (Phase 6)
 

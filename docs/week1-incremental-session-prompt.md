@@ -1,6 +1,8 @@
 # Week 1 incremental session prompt (AP-01, AP-03, AP-10, AP-02)
 
-Use this prompt in Cursor (or with a coding agent) after attaching `docs/post-development-inventory.md`.  
+**Last updated:** 2026-05-22
+Use this prompt in Cursor (or with a coding agent) after attaching `docs/post-development-inventory.md`.
+**AP-03:** merged to `main` (PR #30) — verify on deployed hosts; do not re-implement.
 **Out of scope for this session:** AP-04 (bill-pay backend), AP-05–AP-09, and large refactors.
 
 ---
@@ -26,11 +28,11 @@ We recently completed a full post-development audit (see the attached document `
 
 ### Priority order (this session)
 
-| Order | ID | Intent |
-| ----- | -- | ------ |
-| 1 | **AP-01b/c** | Verify and document production/staging `runtime-config.js` (AP-01a runbook already done—execute it, do not rewrite) |
-| 2 | **AP-03 + AP-10** | Verify deployed Paystar UX (code fix merged); confirm go-live config when clerk has a real portal URL |
-| 3 | **AP-02** | Decision only: Path A (hosted-only) vs Path B (wire API)—no implementation until I choose |
+| Order | ID                | Intent                                                                                                              |
+| ----- | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1     | **AP-01b/c**      | Verify and document production/staging `runtime-config.js` (AP-01a runbook already done—execute it, do not rewrite) |
+| 2     | **AP-03 + AP-10** | **Verify only** deployed Paystar UX (PR #30 on `main`); set `PAYSTAR_PORTAL_URL` when clerk has URL                 |
+| 3     | **AP-02**         | Decision only: Path A (hosted-only) vs Path B (wire API)—no implementation until I choose                           |
 
 **Explicitly out of scope:** AP-04 (bill-pay API vs mailto-only). Do not start AP-05–AP-09 unless I reprioritize.
 
@@ -110,13 +112,13 @@ Review `PaystarConnectionService` (`src/app/payments/paystar-connection.ts`), `i
 
 Present **Path A vs Path B** with pros/cons and recommended default (**Path A — hosted-only** per Phase 5):
 
-| | Path A — Hosted-only | Path B — Wire API |
-| - | -------------------- | ----------------- |
-| Work | Deprecate/remove unwired service surface; fix doc drift (AP-02a–d, AP-24) | Inject service in pay-bill/payment panel; wire offline queue (AP-02b′–d′) |
-| Tests | Shrink/remove `paystar-connection.vitest.ts` for dead methods | Add vitest + `enablePaystarApi` in `payments.spec.ts` |
-| E2E | Align `e2e-feature-map.md`: portal `href` only | Mock API launch in smoke |
-| Docs | Update feature map; no “browser POST via PaystarConnectionService” | Document API + queue behavior |
-| Risk | Low; matches current production UX | Higher; must fix **AP-08** offline copy (“submissions will sync”) in `offline-connectivity.service.ts` |
+|       | Path A — Hosted-only                                                      | Path B — Wire API                                                                                      |
+| ----- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Work  | Deprecate/remove unwired service surface; fix doc drift (AP-02a–d, AP-24) | Inject service in pay-bill/payment panel; wire offline queue (AP-02b′–d′)                              |
+| Tests | Shrink/remove `paystar-connection.vitest.ts` for dead methods             | Add vitest + `enablePaystarApi` in `payments.spec.ts`                                                  |
+| E2E   | Align `e2e-feature-map.md`: portal `href` only                            | Mock API launch in smoke                                                                               |
+| Docs  | Update feature map; no “browser POST via PaystarConnectionService”        | Document API + queue behavior                                                                          |
+| Risk  | Low; matches current production UX                                        | Higher; must fix **AP-08** offline copy (“submissions will sync”) in `offline-connectivity.service.ts` |
 
 **Related (note in memo, do not implement without my say-so):**
 
@@ -129,12 +131,12 @@ Present **Path A vs Path B** with pros/cons and recommended default (**Path A �
 
 ### Reference map (audit)
 
-| Slice | Doc anchor |
-| ----- | ---------- |
+| Slice | Doc anchor                                                             |
+| ----- | ---------------------------------------------------------------------- |
 | AP-01 | Phase 5 § AP-01; Phase 1 step #1; `docs/amplify-deployment-runbook.md` |
-| AP-03 | Phase 3 P0 #2; Phase 5 § AP-03; `paystar-quick-pay.ts` |
-| AP-10 | Phase 4 AP-10; Phase 1 step #2 |
-| AP-02 | Phase 3 P0 #1; Phase 5 § AP-02 Path A/B |
-| AP-08 | Phase 4 AP-08 (Path B dependency) |
+| AP-03 | Phase 3 P0 #2; Phase 5 § AP-03; `paystar-quick-pay.ts`                 |
+| AP-10 | Phase 4 AP-10; Phase 1 step #2                                         |
+| AP-02 | Phase 3 P0 #1; Phase 5 § AP-02 Path A/B                                |
+| AP-08 | Phase 4 AP-08 (Path B dependency)                                      |
 
 Be precise, keep changes minimal and verifiable, and treat **deployed behavior** as the source of truth for AP-03/AP-10.
