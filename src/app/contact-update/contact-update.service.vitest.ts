@@ -1,4 +1,4 @@
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ContactUpdateService } from './contact-update.service';
 import { TestBed } from '@angular/core/testing';
@@ -55,6 +55,35 @@ describe('ContactUpdateService (Unit)', () => {
       'warn',
       expect.stringContaining('Lambda failed'),
       expect.anything(),
+    );
+  });
+
+  it('POSTs a sanitized payload when the API is configured', async () => {
+    const { service, http } = setup();
+    const postSpy = vi.spyOn(http, 'post').mockReturnValue(of({}));
+
+    const request = {
+      fullName: 'Hostile\u0000Name',
+      serviceAddress: '123 Main',
+      poBox: '',
+      phone: '555-1212',
+      email: 'test@example.com',
+      notes: 'x'.repeat(1200),
+      locale: 'en' as const,
+      source: 'payment-panel' as const,
+    };
+
+    const result = await service.submitUpdate(request, 'mailto:test@wiley.gov');
+
+    expect(result.outcome).toBe('api-success');
+    expect(postSpy).toHaveBeenCalledWith(
+      'https://api.wiley.gov/update',
+      expect.objectContaining({
+        fullName: 'HostileName',
+        notes: 'x'.repeat(1000),
+        locale: 'en',
+        source: 'payment-panel',
+      }),
     );
   });
 

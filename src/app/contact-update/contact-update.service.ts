@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { LoggingService } from '../logging.service';
 import { SiteLanguage } from '../site-language';
 import { getContactUpdateRuntimeConfig } from './contact-update-config';
+import { sanitizeContactUpdateRequest } from './contact-update-sanitize';
 
 export interface ContactUpdateRequest {
   fullName: string;
@@ -36,6 +37,7 @@ export class ContactUpdateService {
     request: ContactUpdateRequest,
     mailtoFallback: string,
   ): Promise<ContactUpdateResult> {
+    const payload = sanitizeContactUpdateRequest(request);
     const { apiEndpoint } = getContactUpdateRuntimeConfig();
 
     if (!apiEndpoint) {
@@ -43,8 +45,8 @@ export class ContactUpdateService {
     }
 
     try {
-      await firstValueFrom(this.http.post(apiEndpoint, request));
-      this.logging.log('info', 'Contact update submitted', { source: request.source });
+      await firstValueFrom(this.http.post(apiEndpoint, payload));
+      this.logging.log('info', 'Contact update submitted', { source: payload.source });
       return { outcome: 'api-success' };
     } catch (err: unknown) {
       this.logging.log('warn', 'Contact update Lambda failed, using mailto fallback', {
