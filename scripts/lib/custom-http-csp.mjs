@@ -17,7 +17,9 @@ export function extractCspValueFromCustomHttpText(text, label = 'customHttp.yml'
 /**
  * @param {string} [repoRoot]
  */
-export function extractCspValueFromCustomHttpFile(repoRoot = join(import.meta.dirname, '..', '..')) {
+export function extractCspValueFromCustomHttpFile(
+  repoRoot = join(import.meta.dirname, '..', '..'),
+) {
   const text = readFileSync(join(repoRoot, 'customHttp.yml'), 'utf8');
   return extractCspValueFromCustomHttpText(text);
 }

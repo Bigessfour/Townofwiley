@@ -58,7 +58,11 @@ export const handler = async (event) => {
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Invalid JSON' }),
+    };
   }
 
   // Strip any keys not in the allowlist (prevent injection into email/DDB)

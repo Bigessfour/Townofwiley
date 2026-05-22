@@ -1,11 +1,21 @@
 /**
  * Contract between the Angular app and the town-managed Paystar proxy (e.g. API Gateway + Lambda).
- * This is not the vendor’s private OpenAPI — shapes follow our UX and can be remapped inside the proxy
- * once Paystar documents request/response fields for your tenant.
+ * Embedded Session API types live in `paystar-embedded-contract.ts`.
  *
- * Public product overview (hosted portal, REST, webhooks, Embedded SDK): https://docs.paystar.io/
+ * @see https://docs.paystar.io/
+ * @see https://docs.paystar.io/api/embedded/
  */
 import type { SiteLanguage } from '../site-language';
+
+export {
+  PAYSTAR_EMBEDDED_DOCS_URL,
+  PAYSTAR_EMBEDDED_OPENAPI_URL,
+  PAYSTAR_EMBEDDED_GATEWAY_BASES,
+  PAYSTAR_EMBEDDED_SESSION_ROUTES,
+  PAYSTAR_EMBEDDED_SESSION_PLAN,
+  type PaystarEmbeddedSessionType,
+  type PaystarProxyEmbeddedSessionRequest,
+} from './paystar-embedded-contract';
 
 /**
  * Public Paystar product documentation (no auth). Use for staff-facing links and proxy error payloads.
@@ -17,15 +27,19 @@ export const PAYSTAR_PUBLIC_DOCS_URL = 'https://docs.paystar.io/';
 export const PAYSTAR_INTEGRATION_PHASES = [
   'hosted_portal',
   'town_proxy_launch',
-  'upstream_rest_launch',
+  'paystar_embedded_sessions',
+  'upstream_rest_launch_legacy',
   'receipt_query',
   'webhooks_ingest',
-  'embedded_sdk',
+  'embedded_sdk_ui',
 ] as const;
 
 export type PaystarIntegrationPhase = (typeof PAYSTAR_INTEGRATION_PHASES)[number];
 
-/** Body the browser sends to `payments.paystar.apiEndpoint` (POST). */
+/**
+ * Body the browser sends to `payments.paystar.apiEndpoint` (POST).
+ * For Embedded API, include `sessionType` (see `PaystarProxyEmbeddedSessionRequest`).
+ */
 export interface PaystarProxyLaunchPayload {
   residentName: string;
   serviceAddress: string;

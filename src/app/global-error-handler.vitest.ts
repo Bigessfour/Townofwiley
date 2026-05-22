@@ -13,7 +13,7 @@ describe('GlobalErrorHandler', () => {
       providers: [
         { provide: LoggingService, useValue: mockLogging },
         { provide: MessageService, useValue: mockMessageService },
-      ]
+      ],
     });
 
     const handler = TestBed.inject(GlobalErrorHandler);
@@ -21,13 +21,19 @@ describe('GlobalErrorHandler', () => {
     const testError = new Error('Test backend exploded');
     handler.handleError(testError);
 
-    expect(mockLogging.log).toHaveBeenCalledWith('error', 'Uncaught application error', expect.objectContaining({ message: 'Test backend exploded' }));
-    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'error',
-      summary: 'Unexpected Error',
-      detail: expect.stringContaining('contact the Town Hall'),
-      life: 10000,
-    }));
+    expect(mockLogging.log).toHaveBeenCalledWith(
+      'error',
+      'Uncaught application error',
+      expect.objectContaining({ message: 'Test backend exploded' }),
+    );
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        summary: 'Unexpected Error',
+        detail: expect.stringContaining('contact the Town Hall'),
+        life: 10000,
+      }),
+    );
   });
 
   it('handles non-Error objects safely', () => {
@@ -38,14 +44,18 @@ describe('GlobalErrorHandler', () => {
       providers: [
         { provide: LoggingService, useValue: mockLogging },
         { provide: MessageService, useValue: mockMessageService },
-      ]
+      ],
     });
 
     const handler = TestBed.inject(GlobalErrorHandler);
 
     handler.handleError('A string error');
 
-    expect(mockLogging.log).toHaveBeenCalledWith('error', 'Uncaught application error', expect.objectContaining({ message: 'A string error' }));
+    expect(mockLogging.log).toHaveBeenCalledWith(
+      'error',
+      'Uncaught application error',
+      expect.objectContaining({ message: 'A string error' }),
+    );
     expect(mockMessageService.add).toHaveBeenCalled(); // Friendly message still shown
   });
 });

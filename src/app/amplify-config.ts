@@ -12,7 +12,8 @@ interface AppRuntimeConfig {
 const runtimeConfig =
   typeof window === 'undefined'
     ? undefined
-    : ((window as Window & { __TOW_RUNTIME_CONFIG__?: AppRuntimeConfig }).__TOW_RUNTIME_CONFIG__ ?? undefined);
+    : ((window as Window & { __TOW_RUNTIME_CONFIG__?: AppRuntimeConfig }).__TOW_RUNTIME_CONFIG__ ??
+      undefined);
 const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
 
 Amplify.configure({

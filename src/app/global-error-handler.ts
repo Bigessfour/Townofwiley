@@ -46,7 +46,8 @@ export class GlobalErrorHandler implements ErrorHandler {
     this.messageService.add({
       severity: 'error',
       summary: 'Unexpected Error',
-      detail: 'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
+      detail:
+        'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
       life: 10000,
       closable: true,
     });

@@ -8,7 +8,11 @@ const STORAGE_KEY = 'tow-site-language';
 
 function createLanguageService() {
   TestBed.configureTestingModule({
-    providers: [provideZonelessChangeDetection(), { provide: DOCUMENT, useValue: document }, SiteLanguageService],
+    providers: [
+      provideZonelessChangeDetection(),
+      { provide: DOCUMENT, useValue: document },
+      SiteLanguageService,
+    ],
   });
 
   return { service: TestBed.inject(SiteLanguageService) };

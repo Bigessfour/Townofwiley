@@ -7,7 +7,7 @@ import { LoggingService } from '../logging.service';
 import testProviders from '../../test-providers';
 
 vi.mock('./contact-update-config', () => ({
-  getContactUpdateRuntimeConfig: vi.fn(() => ({ apiEndpoint: 'https://api.wiley.gov/update' }))
+  getContactUpdateRuntimeConfig: vi.fn(() => ({ apiEndpoint: 'https://api.wiley.gov/update' })),
 }));
 
 describe('ContactUpdateService (Unit)', () => {
@@ -16,20 +16,22 @@ describe('ContactUpdateService (Unit)', () => {
       providers: [
         ...testProviders,
         ContactUpdateService,
-        { provide: LoggingService, useValue: { log: vi.fn() } }
-      ]
+        { provide: LoggingService, useValue: { log: vi.fn() } },
+      ],
     });
 
     const service = TestBed.inject(ContactUpdateService);
     const http = TestBed.inject(HttpClient);
     const logging = TestBed.inject(LoggingService);
-    
+
     return { service, http, logging };
   };
 
   it('falls back to mailto outcome on API failure', async () => {
     const { service, http, logging } = setup();
-    const postSpy = vi.spyOn(http, 'post').mockReturnValue(throwError(() => new Error('Lambda timeout')));
+    const postSpy = vi
+      .spyOn(http, 'post')
+      .mockReturnValue(throwError(() => new Error('Lambda timeout')));
 
     const request = {
       fullName: 'Test User',
@@ -49,7 +51,11 @@ describe('ContactUpdateService (Unit)', () => {
       expect(result.href).toBe('mailto:test@wiley.gov');
     }
     expect(postSpy).toHaveBeenCalled();
-    expect(logging.log).toHaveBeenCalledWith('warn', expect.stringContaining('Lambda failed'), expect.anything());
+    expect(logging.log).toHaveBeenCalledWith(
+      'warn',
+      expect.stringContaining('Lambda failed'),
+      expect.anything(),
+    );
   });
 
   it('immediately uses mailto if no apiEndpoint configured', async () => {

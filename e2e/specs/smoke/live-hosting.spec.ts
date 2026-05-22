@@ -28,17 +28,13 @@ test.describe('live hosting readiness', () => {
 
     expect(response?.ok(), '/admin response should be OK').toBe(true);
     await expect(
-      page
-        .getByRole('heading', { name: /Town of Wiley Content Management/i })
-        .first(),
+      page.getByRole('heading', { name: /Town of Wiley Content Management/i }).first(),
     ).toBeVisible({ timeout: 20000 });
 
     const reload = await page.reload({ waitUntil: 'domcontentloaded' });
     expect(reload?.ok(), '/admin reload response should be OK').toBe(true);
     await expect(
-      page
-        .getByRole('heading', { name: /Town of Wiley Content Management/i })
-        .first(),
+      page.getByRole('heading', { name: /Town of Wiley Content Management/i }).first(),
     ).toBeVisible({ timeout: 20000 });
   });
 

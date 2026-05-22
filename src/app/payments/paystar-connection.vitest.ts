@@ -12,31 +12,38 @@ describe('PaystarConnectionService error-to-mailbox flow', () => {
       providers: [
         ...testProviders,
         PaystarConnectionService,
-        { provide: LoggingService, useValue: { log: vi.fn() } }
-      ]
+        { provide: LoggingService, useValue: { log: vi.fn() } },
+      ],
     });
 
     const service = TestBed.inject(PaystarConnectionService);
     const http = TestBed.inject(HttpClient);
     const logging = TestBed.inject(LoggingService);
-    
+
     return { service, http, logging };
   };
 
   it('throws descriptive error on API failure', async () => {
     const { service, http, logging } = setup();
-    vi.spyOn(service, 'getRuntimeConfig').mockReturnValue({ provider: 'paystar', portalUrl: '', mode: 'api', apiEndpoint: '/api/v1/paystar' });
+    vi.spyOn(service, 'getRuntimeConfig').mockReturnValue({
+      provider: 'paystar',
+      portalUrl: '',
+      mode: 'api',
+      apiEndpoint: '/api/v1/paystar',
+    });
 
-    vi.spyOn(http, 'post').mockReturnValue(throwError(() => ({ 
-      error: { message: 'Account not found' } 
-    })));
+    vi.spyOn(http, 'post').mockReturnValue(
+      throwError(() => ({
+        error: { message: 'Account not found' },
+      })),
+    );
 
     const request: PaystarLaunchRequest = {
       residentName: 'Wiley Resident',
       serviceAddress: '100 Broadway',
       preferredContact: '719-555-0199',
       locale: 'en',
-      source: 'resident-services'
+      source: 'resident-services',
     };
 
     await expect(service.createLaunchRequest(request)).rejects.toThrow('Account not found');
@@ -45,10 +52,17 @@ describe('PaystarConnectionService error-to-mailbox flow', () => {
 
   it('throws default error message when API fails without detail', async () => {
     const { service, http } = setup();
-    vi.spyOn(service, 'getRuntimeConfig').mockReturnValue({ provider: 'paystar', portalUrl: '', mode: 'api', apiEndpoint: '/api/v1/paystar' });
+    vi.spyOn(service, 'getRuntimeConfig').mockReturnValue({
+      provider: 'paystar',
+      portalUrl: '',
+      mode: 'api',
+      apiEndpoint: '/api/v1/paystar',
+    });
 
     vi.spyOn(http, 'post').mockReturnValue(throwError(() => new Error('Unknown')));
 
-    await expect(service.createLaunchRequest({} as unknown as PaystarLaunchRequest)).rejects.toThrow('Unable to connect to Paystar');
+    await expect(
+      service.createLaunchRequest({} as unknown as PaystarLaunchRequest),
+    ).rejects.toThrow('Unable to connect to Paystar');
   });
 });

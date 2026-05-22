@@ -124,9 +124,7 @@ describe('DocumentHub', () => {
     expect(compiled.querySelector('.archive-header h3')?.textContent).toContain(
       'Search previous agendas',
     );
-    expect(
-      compiled.querySelector('[data-testid="document-hub-resolution-error"]'),
-    ).toBeNull();
+    expect(compiled.querySelector('[data-testid="document-hub-resolution-error"]')).toBeNull();
   });
 
   it('renders Spanish copy when site language is es', async () => {
@@ -138,9 +136,7 @@ describe('DocumentHub', () => {
     expect(el.querySelector('.featured-meeting .document-hub-kicker')?.textContent).toContain(
       'Proximamente',
     );
-    expect(el.querySelector('.archive-header h3')?.textContent).toContain(
-      'Buscar agendas',
-    );
+    expect(el.querySelector('.archive-header h3')?.textContent).toContain('Buscar agendas');
   });
 
   it('shows a bilingual error state when document href resolution fails', async () => {

@@ -38,10 +38,7 @@ describe('NoticesPage', () => {
   });
 
   it('renders the page heading and kicker (Spanish)', () => {
-    const fixture = configure(
-      { notices: signal<CmsNotice[]>([]), isLoading: signal(false) },
-      'es',
-    );
+    const fixture = configure({ notices: signal<CmsNotice[]>([]), isLoading: signal(false) }, 'es');
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Noticias y anuncios');
     expect(el.querySelector('.section-kicker')?.textContent).toContain('Novedades');
@@ -70,10 +67,7 @@ describe('NoticesPage', () => {
   });
 
   it('renders bilingual empty state when CMS returns no notices (Spanish)', () => {
-    const fixture = configure(
-      { notices: signal<CmsNotice[]>([]), isLoading: signal(false) },
-      'es',
-    );
+    const fixture = configure({ notices: signal<CmsNotice[]>([]), isLoading: signal(false) }, 'es');
     const el = fixture.nativeElement as HTMLElement;
     const empty = el.querySelector('.public-empty-state');
     expect(empty).toBeTruthy();

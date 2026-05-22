@@ -135,9 +135,7 @@ describe('ResidentServices', () => {
     const initiallyPressedIndex = pickerButtons.findIndex(
       (button) => button.getAttribute('aria-pressed') === 'true',
     );
-    const targetIndex = pickerButtons.findIndex(
-      (_, index) => index !== initiallyPressedIndex,
-    );
+    const targetIndex = pickerButtons.findIndex((_, index) => index !== initiallyPressedIndex);
     pickerButtons[targetIndex].click();
     fixture.detectChanges();
 

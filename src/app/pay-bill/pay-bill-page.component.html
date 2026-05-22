@@ -23,13 +23,19 @@
         </ng-template>
         <p>{{ copy().quickPayBody }}</p>
         @if (quickPayDisabled()) {
-          <p-message
-            severity="warn"
-            [text]="copy().quickPayUnavailableNote"
-            data-testid="pay-bill-portal-unavailable"
-          />
-        } @else if (quickPayIsPlaceholder()) {
-          <p-message severity="info" [text]="copy().quickPayPlaceholderNote" />
+          @if (quickPayIsPlaceholder()) {
+            <p-message
+              severity="info"
+              [text]="copy().quickPayPlaceholderNote"
+              data-testid="pay-bill-portal-placeholder"
+            />
+          } @else {
+            <p-message
+              severity="warn"
+              [text]="copy().quickPayUnavailableNote"
+              data-testid="pay-bill-portal-unavailable"
+            />
+          }
         }
         <div class="pay-bill-card-actions">
           @if (quickPayDisabled()) {

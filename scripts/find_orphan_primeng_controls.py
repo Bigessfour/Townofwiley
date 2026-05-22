@@ -56,7 +56,9 @@ PRIMENG_MODULE_SELECTORS: dict[str, list[str]] = {
 }
 
 TEMPLATE_URL_RE = re.compile(r"templateUrl\s*:\s*['\"](?P<url>[^'\"]+)['\"]")
-TEMPLATE_INLINE_RE = re.compile(r"template\s*:\s*`(?P<template>[\s\S]*?)`", re.MULTILINE)
+TEMPLATE_INLINE_RE = re.compile(
+    r"template\s*:\s*`(?P<template>[\s\S]*?)`", re.MULTILINE
+)
 IMPORTS_ARRAY_RE = re.compile(r"imports\s*:\s*\[(?P<imports>[\s\S]*?)\]", re.MULTILINE)
 PRIMENG_IMPORT_STATEMENT_RE = re.compile(
     r"^import\s+(?:type\s+)?(?P<clause>[\s\S]+?)\s+from\s+['\"](?P<source>primeng/[^'\"]+)['\"]\s*;?\s*$",
@@ -106,7 +108,9 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def resolve_template_path(ts_path: Path, source_text: str) -> tuple[str | None, str | None]:
+def resolve_template_path(
+    ts_path: Path, source_text: str
+) -> tuple[str | None, str | None]:
     template_inline = TEMPLATE_INLINE_RE.search(source_text)
     if template_inline:
         return None, template_inline.group("template")
@@ -208,7 +212,11 @@ def analyze_file(ts_path: Path) -> FileReport | None:
 
         selectors = selectors_for_module(symbol)
         wired_in_imports = symbol in imports_block
-        selectors_found = selectors_found_in_template(template_text, selectors) if template_text else []
+        selectors_found = (
+            selectors_found_in_template(template_text, selectors)
+            if template_text
+            else []
+        )
 
         if wired_in_imports and selectors_found:
             status = "wired"
@@ -235,18 +243,34 @@ def analyze_file(ts_path: Path) -> FileReport | None:
 
 
 def iter_source_files(root: Path) -> Iterable[Path]:
-    ignored_parts = {"node_modules", "dist", "test-results", "playwright-report", "__pycache__"}
+    ignored_parts = {
+        "node_modules",
+        "dist",
+        "test-results",
+        "playwright-report",
+        "__pycache__",
+    }
     for pattern in ("src/**/*.ts", "src/**/*.html"):
         for path in root.glob(pattern):
-            if any(part in ignored_parts or part.startswith("__") for part in path.parts):
+            if any(
+                part in ignored_parts or part.startswith("__") for part in path.parts
+            ):
                 continue
             yield path
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Audit PrimeNG controls for orphaned imports.")
-    parser.add_argument("--root", default=".", help="Repository root to scan (default: current directory).")
-    parser.add_argument("--json", action="store_true", help="Emit JSON instead of a text report.")
+    parser = argparse.ArgumentParser(
+        description="Audit PrimeNG controls for orphaned imports."
+    )
+    parser.add_argument(
+        "--root",
+        default=".",
+        help="Repository root to scan (default: current directory).",
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Emit JSON instead of a text report."
+    )
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -267,7 +291,9 @@ def main() -> int:
         payload = [
             {
                 "file": report.file,
-                "findings": [dataclasses.asdict(finding) for finding in report.findings],
+                "findings": [
+                    dataclasses.asdict(finding) for finding in report.findings
+                ],
             }
             for report in reports
         ]
@@ -275,12 +301,18 @@ def main() -> int:
         return 0
 
     total = sum(len(report.findings) for report in reports)
-    wired = sum(1 for report in reports for finding in report.findings if finding.status == "wired")
+    wired = sum(
+        1
+        for report in reports
+        for finding in report.findings
+        if finding.status == "wired"
+    )
     orphans = [
         finding
         for report in reports
         for finding in report.findings
-        if finding.status in {"orphan-import", "unused-import", "template-usage-without-import"}
+        if finding.status
+        in {"orphan-import", "unused-import", "template-usage-without-import"}
     ]
 
     print(f"Scanned {root}")
@@ -292,7 +324,11 @@ def main() -> int:
         print()
         print("Potentially orphaned or miswired PrimeNG controls:")
         for finding in orphans:
-            selector_list = ", ".join(finding.selectors_found) if finding.selectors_found else "(no matching selectors found)"
+            selector_list = (
+                ", ".join(finding.selectors_found)
+                if finding.selectors_found
+                else "(no matching selectors found)"
+            )
             template_file = finding.template_file or "(inline template or none)"
             print(
                 f"- {finding.file}: {finding.symbol} from {finding.module} -> {finding.status}; "

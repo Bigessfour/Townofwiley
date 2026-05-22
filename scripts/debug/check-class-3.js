@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
   const layout = await page.evaluate(() => {
     return {
       start: document.querySelector('.p-megamenu-start').getBoundingClientRect().toJSON(),
-      end: document.querySelector('.p-megamenu-end').getBoundingClientRect().toJSON()
+      end: document.querySelector('.p-megamenu-end').getBoundingClientRect().toJSON(),
     };
   });
   console.dir(layout);

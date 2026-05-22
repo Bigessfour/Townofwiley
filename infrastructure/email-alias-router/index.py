@@ -1,4 +1,3 @@
 from app import handler
 
-
-__all__ = ['handler']
+__all__ = ["handler"]

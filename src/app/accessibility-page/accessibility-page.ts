@@ -15,7 +15,9 @@ export class AccessibilityPage {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
 
-  protected readonly copy = computed(() => APP_COPY[this.siteLanguageService.currentLanguage() || 'en']);
+  protected readonly copy = computed(
+    () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly accessibilityItems = computed(() => this.copy().accessibilityItems);
 }

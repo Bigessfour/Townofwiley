@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -66,9 +61,8 @@ export class ResidentRecordsPanel {
   readonly townHallPhoneLabel = input<string>('');
   readonly clerkEmailHref = input<string | null>(null);
   readonly clerkEmailLabel = input<string>('');
-  readonly validationMessage = input.required<
-    (control: AbstractControl, fieldLabel: string) => string | null
-  >();
+  readonly validationMessage =
+    input.required<(control: AbstractControl, fieldLabel: string) => string | null>();
 
   readonly submitRecords = output<void>();
 

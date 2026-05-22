@@ -68,9 +68,7 @@ export class PermitsComponent {
   protected readonly clerkContact = computed(() =>
     this.contacts().find((c) => c.id === 'city-clerk'),
   );
-  protected readonly clerkEmail = computed(() =>
-    this.clerkContact()?.href?.replace('mailto:', ''),
-  );
+  protected readonly clerkEmail = computed(() => this.clerkContact()?.href?.replace('mailto:', ''));
   protected readonly townPhone = computed(() =>
     this.contacts()
       .find((c) => c.id === 'town-information')

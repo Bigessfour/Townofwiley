@@ -22,10 +22,7 @@
       ],
       "sourceMaps": true,
       "smartStep": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "sourceMapPathOverrides": {
         "webpack:///./*": "${webRoot}/*",
         "webpack:///*": "${webRoot}/*",
@@ -56,10 +53,7 @@
       ],
       "sourceMaps": true,
       "smartStep": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "justMyCode": true
     },
     {
@@ -86,9 +80,7 @@
   "compounds": [
     {
       "name": "Town Site: Start + Debug",
-      "configurations": [
-        "Town Site: Launch + Debug (Chrome)"
-      ]
+      "configurations": ["Town Site: Launch + Debug (Chrome)"]
     }
   ]
 }

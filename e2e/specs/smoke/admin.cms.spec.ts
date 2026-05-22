@@ -96,13 +96,15 @@ test.describe('cms admin', () => {
   }) => {
     await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
 
-    // Documents tab guidance lists the new newsletter sectionId tag.
-    await expect(homePage.page.getByText('Town Newsletter', { exact: false })).toBeVisible({
-      timeout: 20000,
-    });
-    await expect(homePage.page.getByText('newsletter', { exact: true }).first()).toBeVisible();
+    // Documents tab guidance lists the newsletter sectionId and S3 path (EN + ES copy duplicates labels).
+    await expect(
+      homePage.page.getByRole('heading', { name: 'Supported document workflow' }),
+    ).toBeVisible({ timeout: 20000 });
     await expect(
       homePage.page.getByText('documents/newsletter/', { exact: false }).first(),
+    ).toBeVisible();
+    await expect(
+      homePage.page.getByText(/announcementKind.*newsletter/i).first(),
     ).toBeVisible();
 
     // Announcement CRUD card calls out attachmentKey for the inline /news PDF.

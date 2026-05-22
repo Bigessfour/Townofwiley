@@ -8,6 +8,6 @@ const { chromium } = require('playwright');
     const list = document.querySelector('.p-megamenu-root-list');
     return window.getComputedStyle(list).flexDirection;
   });
-  console.log("direction is: " + dir);
+  console.log('direction is: ' + dir);
   await browser.close();
 })();

@@ -4,7 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'app-clerk-setup-redirect',
   template: `
-    <main id="main-content" class="clerk-setup-redirect" tabindex="-1" aria-labelledby="clerk-setup-redirect-title">
+    <main
+      id="main-content"
+      class="clerk-setup-redirect"
+      tabindex="-1"
+      aria-labelledby="clerk-setup-redirect-title"
+    >
       <p class="clerk-setup-redirect__eyebrow">Legacy clerk setup</p>
       <h1 id="clerk-setup-redirect-title">Redirecting to the CMS admin hub</h1>
       <p>

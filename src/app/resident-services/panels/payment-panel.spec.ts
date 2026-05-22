@@ -53,6 +53,8 @@ const COPY = {
   payNowCardBody: 'Pay your utility bill',
   payNowCta: 'Pay now',
   payNowPlaceholderNote: 'Placeholder',
+  payNowUnavailableNote: 'Unavailable',
+  payNowUnavailableLabel: 'Portal unavailable',
   portalSoonTitle: 'Portal soon',
   portalSoonBody: 'Coming soon',
   portalSoonBadge: 'Coming soon',
@@ -99,9 +101,8 @@ describe('ResidentPaymentPanel', () => {
     fixture.componentRef.setInput('hasSubmittedContactUpdate', false);
     fixture.componentRef.setInput('quickPayHref', 'https://example.com/pay');
     fixture.componentRef.setInput('quickPayIsPlaceholder', false);
-    fixture.componentRef.setInput('preferredContactOptions', [
-      { value: 'email', label: 'Email' },
-    ]);
+    fixture.componentRef.setInput('quickPayDisabled', false);
+    fixture.componentRef.setInput('preferredContactOptions', [{ value: 'email', label: 'Email' }]);
     fixture.componentRef.setInput('lang', 'en');
     fixture.componentRef.setInput('portalFieldMessage', () => null);
     fixture.componentRef.setInput('validationMessage', () => null);
@@ -116,13 +117,27 @@ describe('ResidentPaymentPanel', () => {
     expect(el.querySelector('a[href="https://example.com/pay"]')).toBeTruthy();
   });
 
+  it('disables the Paystar portal link when quick pay is unavailable', () => {
+    const fixture = setUp();
+    fixture.componentRef.setInput('quickPayHref', '');
+    fixture.componentRef.setInput('quickPayIsPlaceholder', true);
+    fixture.componentRef.setInput('quickPayDisabled', true);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-testid="resident-pay-portal-cta"]')).toBeNull();
+    expect(el.querySelector('[data-testid="resident-pay-portal-cta-disabled"]')).toBeTruthy();
+    expect(el.querySelector('[data-testid="resident-pay-portal-placeholder"]')).toBeTruthy();
+  });
+
   it('emits submitPortal when the portal form is submitted', () => {
     const fixture = setUp();
     let submitted = 0;
     fixture.componentInstance.submitPortal.subscribe(() => {
       submitted += 1;
     });
-    fixture.nativeElement.querySelector('form.resident-portal-form')
+    fixture.nativeElement
+      .querySelector('form.resident-portal-form')
       ?.dispatchEvent(new Event('submit'));
     expect(submitted).toBe(1);
   });

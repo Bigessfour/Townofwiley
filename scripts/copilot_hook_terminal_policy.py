@@ -3,7 +3,6 @@ import json
 import re
 import sys
 
-
 READ_ONLY_METHODS = {"GET", "HEAD", "OPTIONS"}
 HTTP_URL_RE = re.compile(r"https?://", re.IGNORECASE)
 TERMINAL_TOOL_NAMES = {"run_in_terminal", "runCommands", "terminal", "terminal_command"}

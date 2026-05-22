@@ -82,7 +82,11 @@
 }
 
 .directory-logo-link--fallback {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--surface-card) 84%, var(--p-primary-50)), var(--surface-overlay));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--surface-card) 84%, var(--p-primary-50)),
+    var(--surface-overlay)
+  );
 }
 
 .directory-logo-fallback-text {

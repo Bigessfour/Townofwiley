@@ -78,14 +78,14 @@
     },
     {
       "label": "test:e2e:smoke",
-      "type": "shell",
-      "options": {
-        "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
-        }
-      },
-      "command": "/opt/homebrew/opt/node@24/bin/node node_modules/@playwright/test/cli.js test e2e/specs/smoke --workers=1",
-      "group": "test"
+      "type": "npm",
+      "script": "test:e2e:smoke",
+      "problemMatcher": ["$playwright"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
     },
     {
       "label": "lint",
@@ -192,6 +192,110 @@
           "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
         }
       },
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: install browsers",
+      "type": "npm",
+      "script": "test:e2e:install",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: smoke (CI parity)",
+      "detail": "Same as GitHub Actions smoke — desktop-chromium, 2 workers. Use before push or after playwright-test MCP test_run.",
+      "type": "npm",
+      "script": "test:e2e:smoke",
+      "problemMatcher": ["$playwright"],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: serve :4300",
+      "detail": "Start ng serve for MCP exploration or reuse-server smoke runs.",
+      "type": "npm",
+      "script": "serve:4300",
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "owner": "custom",
+          "fileLocation": "absolute",
+          "pattern": {
+            "regexp": "^(.*)$",
+            "message": 1
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "127\\.0\\.0\\.1:4300"
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "e2e: smoke (reuse running server)",
+      "detail": "Run smoke with E2E_SKIP_WEBSERVER=1 — start e2e: serve :4300 first.",
+      "type": "shell",
+      "command": "npm run test:e2e:smoke",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "E2E_SKIP_WEBSERVER": "1"
+        }
+      },
+      "problemMatcher": ["$playwright"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: init Playwright agents",
+      "detail": "Refresh playwright-test-* Copilot agent templates after @playwright/test upgrades.",
+      "type": "npm",
+      "script": "e2e:init-agents",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: pre-push (preflight + smoke)",
+      "dependsOn": ["e2e: smoke preflight", "e2e: smoke (CI parity)"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "e2e: MCP local loop (serve then smoke)",
+      "detail": "Background serve on :4300, then smoke with reuse-server — mirrors stable MCP test_run when webServer is flaky.",
+      "dependsOn": ["e2e: serve :4300", "e2e: smoke (reuse running server)"],
+      "dependsOrder": "sequence",
       "problemMatcher": [],
       "group": "test",
       "presentation": {

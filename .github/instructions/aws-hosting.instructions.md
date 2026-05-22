@@ -1,12 +1,13 @@
 ---
-description: "Use when managing AWS hosting elements for this repo, including Amplify builds, CloudFormation, IAM, S3, AppSync, and deployment troubleshooting."
-name: "AWS Hosting Standards"
+description: 'Use when managing AWS hosting elements for this repo, including Amplify builds, CloudFormation, IAM, S3, AppSync, and deployment troubleshooting.'
+name: 'AWS Hosting Standards'
 applyTo:
-  - "amplify/**"
-  - "amplify.yml"
-  - "src/app/amplify-config.ts"
-  - "docs/amplify-*.md"
+  - 'amplify/**'
+  - 'amplify.yml'
+  - 'src/app/amplify-config.ts'
+  - 'docs/amplify-*.md'
 ---
+
 # AWS Hosting Standards
 
 - Use the repository runbooks in `docs/` first, especially the Amplify deployment guide.

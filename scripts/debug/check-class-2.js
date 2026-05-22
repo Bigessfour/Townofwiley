@@ -7,7 +7,12 @@ const { chromium } = require('playwright');
   const dir = await page.evaluate(() => {
     const el = document.querySelector('.p-megamenu');
     const computed = window.getComputedStyle(el);
-    return { display: computed.display, flexDirection: computed.flexDirection, alignItems: computed.alignItems, width: computed.width };
+    return {
+      display: computed.display,
+      flexDirection: computed.flexDirection,
+      alignItems: computed.alignItems,
+      width: computed.width,
+    };
   });
   console.log(dir);
   await browser.close();

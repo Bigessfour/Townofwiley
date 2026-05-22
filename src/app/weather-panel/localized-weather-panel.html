@@ -82,23 +82,23 @@
         </div>
       }
       @if (forecastGdd() > 0) {
-          <div class="atglance-card">
-            <span class="meta-label gdd-label-row">
-              {{ copy().gddLabel }}
-              <button
-                type="button"
-                class="gdd-info-button"
-                [attr.aria-label]="copy().gddTooltip"
-                [pTooltip]="copy().gddTooltip"
-                tooltipPosition="top"
-              >
-                <i class="pi pi-info-circle" aria-hidden="true"></i>
-              </button>
-            </span>
-            <strong>{{ forecastGdd() }}</strong>
-            <small class="atglance-unit">{{ copy().gddUnit }}</small>
-          </div>
-        }
+        <div class="atglance-card">
+          <span class="meta-label gdd-label-row">
+            {{ copy().gddLabel }}
+            <button
+              type="button"
+              class="gdd-info-button"
+              [attr.aria-label]="copy().gddTooltip"
+              [pTooltip]="copy().gddTooltip"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-info-circle" aria-hidden="true"></i>
+            </button>
+          </span>
+          <strong>{{ forecastGdd() }}</strong>
+          <small class="atglance-unit">{{ copy().gddUnit }}</small>
+        </div>
+      }
     </section>
 
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">

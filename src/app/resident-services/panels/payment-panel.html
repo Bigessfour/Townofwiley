@@ -40,9 +40,7 @@
         <span>{{ copy().contactUpdateToggleLabel }}</span>
         <i
           [class]="
-            contactUpdateExpanded()
-              ? 'pi pi-chevron-up ml-auto'
-              : 'pi pi-chevron-down ml-auto'
+            contactUpdateExpanded() ? 'pi pi-chevron-up ml-auto' : 'pi pi-chevron-down ml-auto'
           "
           aria-hidden="true"
         ></i>
@@ -179,21 +177,48 @@
         </div>
       </ng-template>
       <p>{{ copy().payNowCardBody }}</p>
-      @if (quickPayIsPlaceholder()) {
-        <p-message severity="info" [text]="copy().payNowPlaceholderNote" />
+      @if (quickPayDisabled()) {
+        @if (quickPayIsPlaceholder()) {
+          <p-message
+            severity="info"
+            [text]="copy().payNowPlaceholderNote"
+            data-testid="resident-pay-portal-placeholder"
+          />
+        } @else {
+          <p-message
+            severity="warn"
+            [text]="copy().payNowUnavailableNote"
+            data-testid="resident-pay-portal-unavailable"
+          />
+        }
       }
       <div class="resident-pay-card-actions">
-        <a
-          pButton
-          pRipple
-          class="p-button-sm"
-          [href]="quickPayHref()"
-          rel="noopener noreferrer"
-          target="_blank"
-          icon="pi pi-arrow-up-right"
-          [label]="copy().payNowCta"
-          [attr.aria-label]="copy().payNowCta"
-        ></a>
+        @if (quickPayDisabled()) {
+          <button
+            pButton
+            pRipple
+            type="button"
+            class="p-button-sm p-button-outlined"
+            icon="pi pi-ban"
+            [disabled]="true"
+            [label]="copy().payNowUnavailableLabel"
+            [attr.aria-label]="copy().payNowUnavailableLabel"
+            data-testid="resident-pay-portal-cta-disabled"
+          ></button>
+        } @else {
+          <a
+            pButton
+            pRipple
+            class="p-button-sm"
+            [href]="quickPayHref()"
+            rel="noopener noreferrer"
+            target="_blank"
+            icon="pi pi-arrow-up-right"
+            [label]="copy().payNowCta"
+            [attr.aria-label]="copy().payNowCta"
+            data-testid="resident-pay-portal-cta"
+          ></a>
+        }
       </div>
     </p-card>
 
@@ -348,12 +373,7 @@
 
           <label for="rs-portal-notes" class="resident-field resident-field--wide grid gap-1">
             <span>{{ copy().notesLabel }}</span>
-            <textarea
-              pTextarea
-              id="rs-portal-notes"
-              formControlName="notes"
-              rows="4"
-            ></textarea>
+            <textarea pTextarea id="rs-portal-notes" formControlName="notes" rows="4"></textarea>
           </label>
 
           <div class="resident-field resident-field--wide resident-portal-consent grid gap-2">
@@ -376,9 +396,7 @@
             type="submit"
             icon="pi pi-check"
             [loading]="portalSubmitting()"
-            [label]="
-              portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
-            "
+            [label]="portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel"
             [attr.aria-label]="
               portalSubmitting() ? copy().submittingPortalLabel : copy().submitPortalLabel
             "

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { getAppRouteLink, isPathRegisteredAppRoute, normalizeAppRoutePath } from './internal-route-link';
+import {
+  getAppRouteLink,
+  isPathRegisteredAppRoute,
+  normalizeAppRoutePath,
+} from './internal-route-link';
 
 describe('normalizeAppRoutePath', () => {
   it('strips query strings and trailing slashes', () => {

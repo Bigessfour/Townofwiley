@@ -548,7 +548,9 @@ test.describe('homepage smoke', () => {
     await expect(financialHit).toBeVisible({ timeout: 5_000 });
     await financialHit.click();
 
-    await expect(homePage.page).toHaveURL(/\/documents\/archive\/budget-and-annual-reports-guide\.html$/);
+    await expect(homePage.page).toHaveURL(
+      /\/documents\/archive\/budget-and-annual-reports-guide\.html$/,
+    );
     await expect(
       homePage.page.getByRole('heading', { level: 1, name: 'Budget and Annual Reports Guide' }),
     ).toBeVisible();

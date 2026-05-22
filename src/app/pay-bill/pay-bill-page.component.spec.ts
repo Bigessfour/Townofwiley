@@ -116,11 +116,25 @@ describe('PayBillPageComponent', () => {
     expect(component['quickPayDisabled']()).toBe(false);
 
     const root = fixture.nativeElement as HTMLElement;
-    const activeCta = root.querySelector<HTMLAnchorElement>(
-      '[data-testid="pay-bill-portal-cta"]',
-    );
+    const activeCta = root.querySelector<HTMLAnchorElement>('[data-testid="pay-bill-portal-cta"]');
     expect(activeCta).not.toBeNull();
     expect(activeCta?.getAttribute('href')).toContain('paystar.io');
     expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).toBeNull();
+  });
+
+  it('disables the portal CTA without a placeholder href when hosted mode has no portalUrl', () => {
+    setRuntimePaystarMode('hosted');
+    const { fixture, component } = setup();
+    fixture.detectChanges();
+
+    expect(component['quickPayDisabled']()).toBe(true);
+    expect(component['quickPayIsPlaceholder']()).toBe(true);
+    expect(component['quickPayHref']()).toBe('');
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('[data-testid="pay-bill-portal-cta"]')).toBeNull();
+    expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="pay-bill-portal-placeholder"]')).not.toBeNull();
+    expect(root.textContent ?? '').not.toContain('townofwiley-utility');
   });
 });

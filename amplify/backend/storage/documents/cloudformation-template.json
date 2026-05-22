@@ -44,19 +44,9 @@
         "CorsConfiguration": {
           "CorsRules": [
             {
-              "AllowedHeaders": [
-                "*"
-              ],
-              "AllowedMethods": [
-                "GET",
-                "PUT",
-                "POST",
-                "DELETE",
-                "HEAD"
-              ],
-              "AllowedOrigins": [
-                "*"
-              ]
+              "AllowedHeaders": ["*"],
+              "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+              "AllowedOrigins": ["*"]
             }
           ]
         }
@@ -76,29 +66,20 @@
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-              ],
+              "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
               "Resource": {
                 "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3Bucket}/*"
               }
             },
             {
               "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
+              "Action": ["s3:ListBucket"],
               "Resource": {
                 "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3Bucket}"
               },
               "Condition": {
                 "StringLike": {
-                  "s3:prefix": [
-                    "documents/*",
-                    "documents/"
-                  ]
+                  "s3:prefix": ["documents/*", "documents/"]
                 }
               }
             }
@@ -120,27 +101,20 @@
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": [
-                "s3:GetObject"
-              ],
+              "Action": ["s3:GetObject"],
               "Resource": {
                 "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3Bucket}/*"
               }
             },
             {
               "Effect": "Allow",
-              "Action": [
-                "s3:ListBucket"
-              ],
+              "Action": ["s3:ListBucket"],
               "Resource": {
                 "Fn::Sub": "arn:${AWS::Partition}:s3:::${S3Bucket}"
               },
               "Condition": {
                 "StringLike": {
-                  "s3:prefix": [
-                    "documents/*",
-                    "documents/"
-                  ]
+                  "s3:prefix": ["documents/*", "documents/"]
                 }
               }
             }

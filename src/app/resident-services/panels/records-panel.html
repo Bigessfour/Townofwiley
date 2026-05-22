@@ -27,11 +27,7 @@
       }}</a>
     </nav>
 
-    <form
-      class="resident-form grid gap-4"
-      [formGroup]="recordsForm()"
-      (ngSubmit)="onSubmit()"
-    >
+    <form class="resident-form grid gap-4" [formGroup]="recordsForm()" (ngSubmit)="onSubmit()">
       <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
         <label for="records-type" class="resident-field grid gap-1">
           <span>{{ copy().recordsTypeLabel }}</span>
@@ -65,9 +61,7 @@
             type="text"
             formControlName="name"
             autocomplete="name"
-            [invalid]="
-              recordsForm().controls.name.invalid && recordsForm().controls.name.touched
-            "
+            [invalid]="recordsForm().controls.name.invalid && recordsForm().controls.name.touched"
           />
           @if (
             validationMessage()(recordsForm().controls.name, copy().recordsNameLabel);
@@ -117,8 +111,7 @@
             rows="4"
             formControlName="details"
             [invalid]="
-              recordsForm().controls.details.invalid &&
-              recordsForm().controls.details.touched
+              recordsForm().controls.details.invalid && recordsForm().controls.details.touched
             "
           ></textarea>
           @if (

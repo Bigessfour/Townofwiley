@@ -67,7 +67,14 @@ export class LoggingService {
       referrer: document.referrer || undefined,
       build: this.getRuntimeConfig()?.build,
     };
-    const consoleMethod = level === 'debug' ? 'debug' : level === 'warn' ? 'warn' : level === 'error' ? 'error' : 'info';
+    const consoleMethod =
+      level === 'debug'
+        ? 'debug'
+        : level === 'warn'
+          ? 'warn'
+          : level === 'error'
+            ? 'error'
+            : 'info';
     console[consoleMethod](entry);
 
     const endpoint = this.getRuntimeConfig()?.logging?.endpoint?.trim();
@@ -120,6 +127,7 @@ export class LoggingService {
       return undefined;
     }
 
-    return (window as Window & { __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape }).__TOW_RUNTIME_CONFIG__;
+    return (window as Window & { __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape })
+      .__TOW_RUNTIME_CONFIG__;
   }
 }

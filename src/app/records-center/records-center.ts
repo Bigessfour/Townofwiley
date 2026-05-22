@@ -129,7 +129,10 @@ export class RecordsCenter {
     () => RECORDS_CENTER_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
 
-  protected resolveAppLink(href: string | null | undefined, defaultPath = '/documents'): AppRouteLink {
+  protected resolveAppLink(
+    href: string | null | undefined,
+    defaultPath = '/documents',
+  ): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
   }
 }
