@@ -1,7 +1,8 @@
 # Post-Development Inventory — Town of Wiley
 
-**Generated:** 2026-05-22  
+**Generated:** 2026-05-22 · **Last updated:** 2026-05-22  
 **Purpose:** Map what exists in this repo after a whole-product build, then guide review and next actions.  
+**Doc index:** [docs/README.md](./README.md)  
 **Related:** [e2e-feature-map.md](./e2e-feature-map.md), [incomplete-items-reference.md](./incomplete-items-reference.md), [feature-completion-spec.md](./feature-completion-spec.md), [review-checklist.md](./review-checklist.md), [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md)
 
 **Product identity:** Primary deliverable is **townofwiley.gov** (Angular municipal site). **“Wiley Widget”** in-repo means the resident assistant UX: **Ask Wiley** (`LocalizedAiChat`), optional **Easy Peasy** embed (`public/easy-peasy-loader.js`), and the **cow welcome popup** (`public/cow-video-popup.js`). There is no separate npm package named “Wiley Widget.”
@@ -15,7 +16,7 @@
 | Public SPA + prerender       | Shipped — routes, bilingual UI, smoke E2E                         |
 | CMS (AppSync + S3)           | Shipped — read via API key; staff workflows via Studio + `/admin` |
 | Weather + alert signup       | Shipped — NWS proxy + large Python signup backend                 |
-| Paystar / bill pay           | Partial — UI + proxy scaffold; production tenant wiring ops-owned |
+| Paystar / bill pay           | AP-03 **merged** (no placeholder href); ops: real `portalUrl` + AP-02 decision |
 | Budget import / calculations | **Not present** — guides + search only                            |
 | Online permits               | **Not present** — informational page only                         |
 | Bill pay persistence API     | **Not present** — mailto or optional HTTP POST                    |
@@ -36,7 +37,7 @@
 | `scripts/`        | Runtime config, deploy, CSP/header sync, secrets CLI                                              |
 | `e2e/`            | Playwright smoke + responsive + a11y                                                              |
 | `docs/`           | Runbooks and checklists (this file)                                                               |
-| `hello-world/`    | Web codegen scorer only — **not production**                                                      |
+| `archive/hello-world/` | Web codegen scorer only — **not production** (see `archive/README.md`)                     |
 | `bot-training/`   | Ask Wiley knowledge model (content, not runtime)                                                  |
 
 ### Tech stack
@@ -142,7 +143,7 @@
 - **Placeholder Paystar URL** when runtime config missing
 - **Spanish CMS** via manual translation map, not model fields
 - **Cow / Easy Peasy E2E** off by default (`TOW_E2E_CHATBOT_EMBED=1`)
-- **`hello-world/`**, **`.generated/`**, **`artifacts/debug/`** not product code
+- **`archive/hello-world/`**, **`archive/artifacts/`**, **`.generated/`** not product code (see `archive/README.md`)
 
 ---
 
@@ -233,7 +234,7 @@ Prioritized for a volunteer/clerk + developer team. Adjust owners and dates loca
 | 13  | **CMS i18n strategy**            | Product | Language fields in GraphQL vs expanded translation map vs English-only CMS    |
 | 14  | **Centralize error logging**     | Dev     | Reduce raw `console.error` in upload/CMS paths; use `LoggingService`          |
 | 15  | **Lighthouse staging**           | Dev     | `npm run perf:lighthouse:staging` before major releases                       |
-| 16  | **Applitools / visual baseline** | Dev     | Optional gate; artifacts in `artifacts/debug/`                                |
+| 16  | **Applitools / visual baseline** | Dev     | Optional gate; artifacts in `archive/artifacts/debug/`                                |
 | 17  | **Records/issue tracking**       | Product | If mailto insufficient, spec Dynamo + clerk notification Lambda (new feature) |
 
 ### Explicitly out of scope unless requested
@@ -618,7 +619,7 @@ npm run test:coverage   # Vitest coverage report (src/**/*.vitest.ts only)
 | **P1**   | Silent failures              | `DocumentUploadService.getDocuments` returns `[]` on list errors; per-key URL failures skipped in loop                                                     |
 | **P2**   | Duplication & monolith       | Duplicate mailto/contact helpers; `app.ts` + `resident-services.ts` + `pay-bill-page` Paystar URL logic; 3k-line homepage                                  |
 | **P2**   | Docs vs code drift           | `docs/e2e-feature-map.md` states browser posts to Paystar via `PaystarConnectionService` — **inaccurate today**                                            |
-| **P3**   | Low-value / cosmetic         | `forecastGdd` on weather page; `hello-world/` scorer tree; committed debug `artifacts/`                                                                    |
+| **P3**   | Low-value / cosmetic         | `forecastGdd` on weather page; `archive/hello-world/` scorer tree; committed debug `archive/artifacts/`                                                                    |
 
 ---
 
@@ -806,9 +807,9 @@ Residents get an **`<a href>` to hosted portal** (or placeholder), not in-app Pa
 
 | Path                                | Role                                                                                    |
 | ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `hello-world/`                      | Web codegen scorer prompts (per `hello-world/README.md`) — not town site                |
+| `archive/hello-world/`                      | Web codegen scorer prompts (per `archive/hello-world/README.md`) — not town site        |
 | `.generated/easy-peasy-chat-proxy/` | Generated proxy copy                                                                    |
-| `artifacts/debug/`                  | Visual audit PNGs, temp HTML — should not ship to residents; verify git tracking policy |
+| `archive/artifacts/debug/`                  | Visual audit PNGs, temp HTML — should not ship to residents; verify git tracking policy |
 
 ---
 
@@ -915,7 +916,7 @@ Issues are numbered **AP-** (action plan) for tracking. Cross-refs: **Q-** (Phas
 | AP-27 | **Low**    | Duplicate **mailto / contact helpers** across components                                                                       | Phase 3 §13                                     | `resident-services.ts`, `accessibility-support.ts`                  |
 | AP-28 | **Low**    | **`app.ts` monolith** (~3k lines) — regression and review cost                                                                 | Phase 1 §5; Phase 3 §14                         | `app.ts`                                                            |
 | AP-29 | **Low**    | Split homepage search/calendar into modules (no behavior change)                                                               | Phase 1 step #12; Phase 2                       | `app.ts`, `meetings-page.helpers.ts`                                |
-| AP-30 | **Low**    | **`hello-world/`**, **`artifacts/debug/`**, **`.generated/`** clutter / policy                                                 | Phase 3 §15                                     | repo hygiene                                                        |
+| AP-30 | **Low**    | ~~Repo clutter~~ **Addressed 2026-05-22** — `archive/` for non-production paths; see `archive/README.md`                                       | Phase 3 §15                                     | `archive/`, `.gitignore`                                            |
 | AP-31 | **Low**    | Lighthouse / perf staging gate optional                                                                                        | Phase 1 step #15                                | `npm run perf:lighthouse:staging`                                   |
 | AP-32 | **Low**    | Applitools / visual baseline optional                                                                                          | Phase 1 step #16                                | `e2e/specs/applitools/`                                             |
 | AP-33 | **Low**    | Reconcile **`incomplete-items-reference.md`** “Done When” vs shipped reality                                                   | Phase 3 §15                                     | `docs/incomplete-items-reference.md`                                |
@@ -1004,7 +1005,7 @@ Protect **money → PII → honest public content → integrations → maintaina
 | ----- | ------------------- | ------------------------------------------------------------------------------------------ | ------- |
 | 1     | AP-27, AP-28, AP-29 | Extract shared `mailto`/contact helper; optional first slice out of `app.ts` (search only) | Dev     |
 | 2     | AP-26               | Delete unused `cms-content.ts` or add lint rule                                            | Dev     |
-| 3     | AP-30               | `.gitignore` / docs: `artifacts/debug` policy; clarify `hello-world` not deployed          | Dev     |
+| 3     | AP-30               | **Done 2026-05-22** — `archive/` folder; `archive/README.md`; paths updated in docs      | Dev     |
 | 4     | AP-31, AP-32        | Optional: Lighthouse staging + Applitools/nightly embed (`TOW_E2E_CHATBOT_EMBED=1`)        | Dev     |
 | 5     | AP-34               | Weather copy: label GDD as informal estimate if retained                                   | Content |
 | 6     | AP-35               | Backlog ticket only if mailto volume warrants records API                                  | Product |
@@ -1071,9 +1072,25 @@ These block clean implementation; record outcomes in this file or a linked issue
 | AP-01 | AP-01a   | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`        |
 | AP-01 | AP-01b   | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                  |
 | AP-01 | AP-01c   | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…” |
-| AP-03 | AP-03a–d | **Done**    | `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + E2E `payments.spec.ts` |
-| AP-02 | All      | **Blocked** | Awaiting Path A (hosted-only) vs Path B (wire API) decision                            |
+| AP-03 | AP-03a–d | **Done**    | PR [#30](https://github.com/Bigessfour/Townofwiley/pull/30) merged 2026-05-22: `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + `payments.spec.ts` (`enablePaystarHostedWithoutPortal`); CI [26311705310](https://github.com/Bigessfour/Townofwiley/actions/runs/26311705310) green (prior fail 26305712397 was newsletter E2E — fixed `294e566`) |
+| AP-02 | AP-02a   | **Done**    | `docs/e2e-feature-map.md`: hosted portal `href` via `resolveQuickPayHref`; no `PaystarConnectionService` in production UI |
+| AP-02 | AP-02c   | **Done**    | Removed dead `enablePaystarApi` from `e2e/pages/home.page.ts` |
+| AP-02 | AP-02b,d | **Open**    | Path A service deprecation / vitest trim — pending formal hosted-only clerk sign-off |
+| AP-02 | All      | **Blocked** | AP-02a/c done (de-facto hosted-only docs/E2E); Path B (wire API) still awaits leadership decision |
+| AP-24 | AP-24a   | **Done**    | Same PR as AP-02a/c — removed unused `enablePaystarApi` E2E helper |
 | AP-10 | —        | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                            |
+| AP-30 | —        | **Done**    | `archive/` housekeeping — `hello-world/`, `artifacts/` moved; `docs/README.md` index   |
+
+### Open pull requests (2026-05-22)
+
+| PR | Type | Disposition |
+| -- | ---- | ----------- |
+| [#28](https://github.com/Bigessfour/Townofwiley/pull/28) | Feature (weather CORS, leadership roster, CI classifier) | **Rebase** onto `main`; conflicts; not Dependabot |
+| [#31](https://github.com/Bigessfour/Townofwiley/pull/31), [#32](https://github.com/Bigessfour/Townofwiley/pull/32) | Dependabot — `actions/setup-node` / `checkout` v6 | **Merge** — updates `copilot-setup-steps.yml` only |
+| [#33](https://github.com/Bigessfour/Townofwiley/pull/33) | Dependabot — PrimeNG patch | **Merge** when smoke green |
+| [#29](https://github.com/Bigessfour/Townofwiley/pull/29) | Dependabot — aws-amplify minor | **Merge** after smoke; spot-check `/admin` |
+| [#24](https://github.com/Bigessfour/Townofwiley/pull/24) | Dependabot — testing group | **Merge** when smoke green |
+| [#26](https://github.com/Bigessfour/Townofwiley/pull/26), [#27](https://github.com/Bigessfour/Townofwiley/pull/27) | Dependabot — Tailwind 4.3.0 | **Close or rebase** — stale smoke failures (May 11) |
 
 **Legend — test strategy:**
 
