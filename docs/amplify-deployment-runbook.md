@@ -157,9 +157,9 @@ npm run generate:runtime-config
 
 **Evidence log (paste in PR or ops ticket):** date, verifier, branch, Amplify job id, `build.gitSha`, Paystar `mode` + whether `portalUrl` is set (not the URL itself if sensitive), CMS/weather endpoints non-empty yes/no.
 
-After any Amplify env change: **redeploy `main`**, then ask clerks/residents to **hard-refresh** so browsers load the new `/runtime-config.js`.
+After any Amplify env change: **redeploy `main`**, then ask clerks/residents to **hard-refresh** so browsers load the new `/runtime-config.js`. Clerk-facing steps: [`docs/CLERK-CMS-GUIDE.md`](CLERK-CMS-GUIDE.md) § “When IT changes payment or other website settings.”
 
-See also [`docs/AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md) §4.
+See also [`docs/AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md) §4. Agent session prompt (Week 1 AP-01/02/03/10): [`docs/week1-incremental-session-prompt.md`](week1-incremental-session-prompt.md).
 
 ---
 

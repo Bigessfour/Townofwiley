@@ -1070,7 +1070,7 @@ These block clean implementation; record outcomes in this file or a linked issue
 | ----- | -------- | ----------- | -------------------------------------------------------------------------------------- |
 | AP-01 | AP-01a   | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`        |
 | AP-01 | AP-01b   | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                  |
-| AP-01 | AP-01c   | **Open**    | Add clerk hard-refresh line to `CLERK-CMS-GUIDE.md`                                    |
+| AP-01 | AP-01c   | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…” |
 | AP-03 | AP-03a–d | **Done**    | `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + E2E `payments.spec.ts` |
 | AP-02 | All      | **Blocked** | Awaiting Path A (hosted-only) vs Path B (wire API) decision                            |
 | AP-10 | —        | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                            |
@@ -1095,7 +1095,7 @@ _Ops-first; no app refactor required._
 | ------ | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------- |
 | AP-01a | Document expected keys in `docs/amplify-deployment-runbook.md` (`cms`, `payments.paystar`, `weather`, `contactUpdate`, `billPay`) | Checklist matches `scripts/generate-runtime-config.mjs` output shape | None in repo                                       | N/A (docs)                                    | **Done 2026-05-22**        |
 | AP-01b | Compare Amplify branch env vars to generated `public/runtime-config.js` on staging after deploy                                   | Diff shows no missing Paystar/CMS/weather endpoints                  | Optional script: curl staging `/runtime-config.js` | Test-around (manual assertion log in runbook) | **Open** — ops manual step |
-| AP-01c | Add one line to `CLERK-CMS-GUIDE.md`: “after env change, redeploy + hard-refresh”                                                 | Clerk steps reproducible                                             | None                                               | N/A                                           | **Open**                   |
+| AP-01c | Clerk section: after Amplify env change, redeploy `main` + hard-refresh (`CLERK-CMS-GUIDE.md`)                                    | Clerk steps reproducible                                             | None                                               | N/A                                           | **Done 2026-05-22**        |
 
 ---
 

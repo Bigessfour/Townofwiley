@@ -10,11 +10,17 @@
     },
     "microsoft/playwright-mcp": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["-y", "@playwright/mcp@1.59.1", "--config", "playwright-mcp.config.json"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": ".playwright-browsers"
+      }
     },
     "playwright-test": {
       "command": "npx",
-      "args": ["playwright", "run-test-mcp-server"]
+      "args": ["-y", "playwright", "run-test-mcp-server"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": ".playwright-browsers"
+      }
     }
   }
 }

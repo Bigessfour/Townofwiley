@@ -1,3 +1,4 @@
+import { type Route } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
 
 test.describe('news page interactions', () => {
@@ -97,8 +98,7 @@ test.describe('news page interactions', () => {
       },
     });
 
-    // CI serves a built runtime-config.js that may point at real AppSync — match the CMS query body.
-    await homePage.page.route('**/*', async (route) => {
+    const fulfillCmsGraphql = async (route: Route) => {
       const request = route.request();
       if (request.method() !== 'POST') {
         await route.continue();
@@ -114,7 +114,13 @@ test.describe('news page interactions', () => {
         contentType: 'application/json',
         body: cmsMockBody,
       });
-    });
+    };
+
+    // Mock endpoint from the init-script override (local + CI when override wins).
+    await homePage.page.route(`${mockCmsEndpoint}**`, fulfillCmsGraphql);
+    // CI may still POST to the real AppSync URL from runtime-config.js before/without override.
+    await homePage.page.route('**/*graphql*', fulfillCmsGraphql);
+    await homePage.page.route('**/*.appsync-api.*.amazonaws.com/**', fulfillCmsGraphql);
 
     // Stub the PDF responses with a tiny valid header so the iframe load doesn't surface a network
     // error in the headless browser (content shape does not matter for the assertions).
@@ -126,7 +132,19 @@ test.describe('news page interactions', () => {
       });
     });
 
+    const cmsLoaded = homePage.page.waitForResponse(
+      (response) => {
+        if (response.request().method() !== 'POST') {
+          return false;
+        }
+        const body = response.request().postData() ?? '';
+        return body.includes('GetPublicCmsContent') || body.includes('listAnnouncements');
+      },
+      { timeout: 30000 },
+    );
+
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+    await cmsLoaded;
 
     await expect(homePage.page.locator('#town-newsletter-heading')).toBeVisible({
       timeout: 30000,

@@ -72,8 +72,16 @@ const webServerTimeoutMs = (() => {
   }
   return 300_000;
 })();
-/** Node binary for ensure / runtime config / ng serve. Use when Playwright runs under an unsupported Node (e.g. 25) but Node 24 is installed (matches .nvmrc / CI). */
-const e2eNodeBin = (process.env.E2E_NODE ?? '').trim() || process.execPath;
+/**
+ * Node binary for ensure / runtime config / ng serve.
+ * Cursor/agent shells often expose `process.execPath` as the IDE helper Node (not repo .nvmrc).
+ * Prefer E2E_NODE, then npm's active binary, then PATH `NODE`.
+ */
+const e2eNodeBin =
+  (process.env.E2E_NODE ?? '').trim() ||
+  (process.env.npm_node_execpath ?? '').trim() ||
+  (process.env.NODE ?? '').trim() ||
+  process.execPath;
 const ensureNode = resolve(process.cwd(), 'scripts/ensure-node-version.mjs');
 const angularCliBin = resolve(process.cwd(), 'node_modules/@angular/cli/bin/ng.js');
 const runtimeConfigGenerator = resolve(process.cwd(), 'scripts/generate-runtime-config.mjs');
@@ -82,10 +90,16 @@ const runtimeConfigGenerator = resolve(process.cwd(), 'scripts/generate-runtime-
 const pollMs = (process.env.NG_SERVE_POLL_MS ?? '').trim();
 const pollFlag = pollMs && /^\d+$/.test(pollMs) ? ` --poll=${pollMs}` : '';
 
+/** Unix `env VAR=1 cmd` breaks Playwright webServer on Windows; use webServer.env instead. */
 const webServerCommand = useRemoteBaseUrl
   ? ''
-  : // Allow local Playwright when the active Node major differs from package.json (e.g. 25 vs ^24); `ng serve` still runs.
-    `env SKIP_NODE_VERSION_CHECK=1 "${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
+  : `"${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
+const webServerEnv: NodeJS.ProcessEnv | undefined = useRemoteBaseUrl
+  ? undefined
+  : {
+      ...process.env,
+      SKIP_NODE_VERSION_CHECK: '1',
+    };
 
 /** Full traces + screenshots for heal/debug runs (`PLAYWRIGHT_TRACE=on`). Default keeps artifacts on failure only. */
 function resolveTraceMode(): 'on' | 'off' | 'on-first-retry' | 'retain-on-failure' {
@@ -133,6 +147,7 @@ export default defineConfig({
           timeout: webServerTimeoutMs,
           stdout: 'inherit',
           stderr: 'inherit',
+          env: webServerEnv,
         },
   projects: [
     {
