@@ -46,6 +46,8 @@ export interface PaymentPanelCopy {
   payNowCardBody: string;
   payNowCta: string;
   payNowPlaceholderNote: string;
+  payNowUnavailableNote: string;
+  payNowUnavailableLabel: string;
   portalSoonTitle: string;
   portalSoonBody: string;
   portalSoonBadge: string;
@@ -106,6 +108,7 @@ export class ResidentPaymentPanel {
   readonly contactUpdateMailtoHref = input<string | null>(null);
   readonly quickPayHref = input.required<string>();
   readonly quickPayIsPlaceholder = input.required<boolean>();
+  readonly quickPayDisabled = input.required<boolean>();
   readonly preferredContactOptions = input.required<
     { value: PreferredBillPayContact; label: string }[]
   >();

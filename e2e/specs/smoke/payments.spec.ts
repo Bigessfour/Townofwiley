@@ -157,6 +157,18 @@ test.describe('pay bill without bill pay API configured', () => {
     await expect(homePage.page.getByTestId('pay-bill-portal-cta-disabled')).toBeDisabled();
   });
 
+  test('disables the portal CTA without a placeholder Paystar href when hosted mode has no portalUrl', async ({
+    homePage,
+  }) => {
+    await homePage.enablePaystarHostedWithoutPortal();
+    await gotoPayBillFormReady(homePage.page);
+
+    await expect(homePage.page.getByTestId('pay-bill-portal-placeholder')).toBeVisible();
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta-disabled')).toBeDisabled();
+    await expect(homePage.page.getByTestId('pay-bill-portal-cta')).toHaveCount(0);
+    await expect(homePage.page.locator('a[href*="paystar.io"]')).toHaveCount(0);
+  });
+
   test('billing assistance uses mailto path and does not POST when API endpoint is absent', async ({
     homePage,
   }) => {

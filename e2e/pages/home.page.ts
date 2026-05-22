@@ -362,6 +362,36 @@ export class HomePage {
     );
   }
 
+  async enablePaystarHostedWithoutPortal(): Promise<void> {
+    await this.page.addInitScript(() => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          payments?: {
+            paystar?: {
+              provider?: string;
+              mode?: string;
+              portalUrl?: string;
+              apiEndpoint?: string;
+            };
+          };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        payments: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.payments ?? {}),
+          paystar: {
+            provider: 'paystar',
+            mode: 'hosted',
+            portalUrl: '',
+            apiEndpoint: '',
+          },
+        },
+      };
+    });
+  }
+
   async enablePaystarPortal(portalUrl = 'https://secure.paystar.io/townofwiley'): Promise<void> {
     await this.page.addInitScript((url) => {
       const runtimeWindow = window as Window & {

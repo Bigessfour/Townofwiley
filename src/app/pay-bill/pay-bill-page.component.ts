@@ -25,12 +25,10 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
+import { resolveQuickPayHref } from '../payments/paystar-quick-pay';
 import { SiteLanguageService } from '../site-language';
 import { BillPayService } from './bill-pay.service';
-import {
-  PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL,
-  type PreferredBillPayContact,
-} from './pay-bill-request';
+import type { PreferredBillPayContact } from './pay-bill-request';
 
 /** Allows digits, spaces, and common phone punctuation; min length enforced separately. */
 const PHONE_INPUT_PATTERN = /^[\d\s\-+().]{10,40}$/;
@@ -186,18 +184,15 @@ export class PayBillPageComponent {
     };
   });
 
-  protected readonly quickPayHref = computed(() => {
-    const url = getPaystarRuntimeConfig().portalUrl.trim();
-    return url || PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL;
-  });
-
-  protected readonly quickPayIsPlaceholder = computed(
-    () => !getPaystarRuntimeConfig().portalUrl.trim(),
+  protected readonly quickPayState = computed(() =>
+    resolveQuickPayHref(getPaystarRuntimeConfig()),
   );
 
-  protected readonly paystarMode = computed(() => getPaystarRuntimeConfig().mode);
+  protected readonly quickPayHref = computed(() => this.quickPayState().href ?? '');
 
-  protected readonly quickPayDisabled = computed(() => this.paystarMode() === 'none');
+  protected readonly quickPayIsPlaceholder = computed(() => this.quickPayState().isPlaceholder);
+
+  protected readonly quickPayDisabled = computed(() => this.quickPayState().disabled);
 
   constructor() {
     effect(() => {
