@@ -7,6 +7,8 @@ that turns the Angular 21 SPA into a live, deep-linkable site belongs here.
 When the build output, rewrite rules, CSP origins, or runtime-config flow change,
 update this file in the same PR.
 
+**Custom Lambdas, DynamoDB, Function URL auth, and deployment order:** [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) and [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json).
+
 ---
 
 ## 1. Build output and artifact path

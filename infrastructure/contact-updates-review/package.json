@@ -1,7 +1,7 @@
 {
-  "name": "contact-update-lambda",
+  "name": "contact-updates-review",
   "version": "1.0.0",
-  "description": "Town of Wiley – resident contact-update Lambda (SES + DynamoDB)",
+  "description": "Town of Wiley – clerk contact-update review Lambda (DynamoDB scan)",
   "type": "module",
   "main": "index.mjs",
   "engines": {
@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.750.0",
-    "@aws-sdk/client-ses": "^3.750.0",
     "@aws-sdk/lib-dynamodb": "^3.750.0"
   }
 }

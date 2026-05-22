@@ -178,7 +178,13 @@ If production CSP is narrower than the repo (for example `font-src 'self'` witho
    npm run amplify:sync-headers
    ```
 
-   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`customHttp.yml`](../customHttp.yml) and calls `aws amplify update-app --cli-input-json` so CSP values with single quotes are not truncated.
+   To sync **buildSpec** (Node pin from [`amplify.yml`](../amplify.yml)) and SPA rewrites in one step:
+
+   ```bash
+   npm run amplify:sync-hosting
+   ```
+
+   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`customHttp.yml`](../customHttp.yml) and calls `aws amplify update-app --cli-input-json` so CSP values with single quotes are not truncated. Build settings: [`scripts/sync-amplify-buildspec.sh`](../scripts/sync-amplify-buildspec.sh).
 
 4. Redeploy the `main` branch from the Amplify Console (or push an empty commit) if headers do not appear immediately on CloudFront.
 

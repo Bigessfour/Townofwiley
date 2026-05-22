@@ -214,12 +214,25 @@ def get_table_arn(table_name: str, region: str) -> str:
 
 
 def build_zip() -> Path:
+    install_cmd = (
+        ["npm", "ci", "--omit=dev"]
+        if (BACKEND_DIR / "package-lock.json").is_file()
+        else ["npm", "install", "--omit=dev"]
+    )
+    print(f"  Installing Lambda dependencies ({' '.join(install_cmd)}) …")
+    subprocess.run(install_cmd, cwd=BACKEND_DIR, check=True)
     zip_path = REPO_ROOT / "__ng_tmp__" / "contact-updates-review.zip"
     zip_path.parent.mkdir(parents=True, exist_ok=True)
     with ZipFile(zip_path, "w", ZIP_DEFLATED) as zf:
-        for source_file in BACKEND_DIR.rglob("*"):
-            if source_file.is_file():
-                zf.write(source_file, source_file.relative_to(BACKEND_DIR))
+        for source_file in sorted(BACKEND_DIR.rglob("*")):
+            if not source_file.is_file():
+                continue
+            if source_file.name.endswith(".test.mjs"):
+                continue
+            rel = source_file.relative_to(BACKEND_DIR)
+            if rel.parts[0] == "node_modules" and rel.name.startswith("."):
+                continue
+            zf.write(source_file, rel)
     print(f"  Packaged Lambda: {zip_path}")
     return zip_path
 
@@ -305,13 +318,33 @@ def upsert_lambda(
 
 
 def ensure_function_url(function_name: str, region: str) -> str:
+    cors = (
+        "AllowOrigins=https://www.townofwiley.gov,"
+        "AllowMethods=GET,AllowHeaders=Content-Type"
+    )
     try:
         result = run_aws(
             ["lambda", "get-function-url-config", "--function-name", function_name],
             region=region,
         )
         url: str = result["FunctionUrl"]
-        print(f"  Function URL already exists: {url}")
+        auth = result.get("AuthType", "")
+        print(f"  Function URL already exists: {url} (AuthType={auth})")
+        if auth != "AWS_IAM":
+            print("  Updating Function URL AuthType to AWS_IAM (SSOT / AP-05) …")
+            run_aws(
+                [
+                    "lambda",
+                    "update-function-url-config",
+                    "--function-name",
+                    function_name,
+                    "--auth-type",
+                    "AWS_IAM",
+                    "--cors",
+                    cors,
+                ],
+                region=region,
+            )
         return url
     except RuntimeError:
         pass
@@ -325,10 +358,7 @@ def ensure_function_url(function_name: str, region: str) -> str:
             "--auth-type",
             "AWS_IAM",
             "--cors",
-            (
-                "AllowOrigins=https://www.townofwiley.gov,"
-                "AllowMethods=GET,AllowHeaders=Content-Type"
-            ),
+            cors,
         ],
         region=region,
     )

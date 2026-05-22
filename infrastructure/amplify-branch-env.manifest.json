@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "description": "Required Amplify Hosting branch environment variable NAMES for production runtime-config (values live in Amplify Console or secrets only — never commit values).",
+  "amplifyAppId": "d331voxr1fhoir",
+  "branch": "main",
+  "generator": "scripts/generate-runtime-config.mjs",
+  "requiredForProduction": [
+    {
+      "name": "APPSYNC_CMS_ENDPOINT",
+      "runtimePath": "cms.appSync.apiEndpoint"
+    },
+    {
+      "name": "APPSYNC_CMS_API_KEY",
+      "runtimePath": "cms.appSync.apiKey",
+      "secret": true
+    },
+    {
+      "name": "APPSYNC_CMS_REGION",
+      "runtimePath": "cms.appSync.region"
+    },
+    {
+      "name": "NWS_PROXY_ENDPOINT",
+      "runtimePath": "weather.apiEndpoint"
+    },
+    {
+      "name": "SEVERE_WEATHER_SIGNUP_API_ENDPOINT",
+      "runtimePath": "weather.alertSignup.apiEndpoint"
+    },
+    {
+      "name": "SEVERE_WEATHER_SIGNUP_ENABLED",
+      "runtimePath": "weather.alertSignup.enabled"
+    },
+    {
+      "name": "EASYPEASY_API_ENDPOINT",
+      "runtimePath": "chatbot.apiEndpoint"
+    },
+    {
+      "name": "EASYPEASY_CHAT_URL",
+      "runtimePath": "chatbot.chatUrl"
+    }
+  ],
+  "optionalOrModeDependent": [
+    {
+      "name": "PAYSTAR_PORTAL_URL",
+      "runtimePath": "payments.paystar.portalUrl",
+      "notes": "Hosted Paystar (AP-10)"
+    },
+    {
+      "name": "PAYSTAR_API_ENDPOINT",
+      "runtimePath": "payments.paystar.apiEndpoint",
+      "notes": "API mode only (AP-02 Path B)"
+    },
+    {
+      "name": "PAYSTAR_MODE",
+      "runtimePath": "payments.paystar.mode"
+    },
+    {
+      "name": "CONTACT_UPDATE_API_ENDPOINT",
+      "runtimePath": "contactUpdate.apiEndpoint",
+      "notes": "After deploy-contact-update-backend.py (AP-05)"
+    },
+    {
+      "name": "NWS_ALLOW_BROWSER_FALLBACK",
+      "runtimePath": "weather.allowBrowserFallback"
+    },
+    {
+      "name": "LOG_ENDPOINT",
+      "runtimePath": "logging.endpoint"
+    }
+  ],
+  "amplifyManaged": ["AMPLIFY_BACKEND_APP_ID", "USER_BRANCH"]
+}

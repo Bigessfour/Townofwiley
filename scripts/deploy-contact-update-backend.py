@@ -178,7 +178,19 @@ def ensure_dynamo_table(table_name: str, region: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def ensure_role(role_name: str, table_arn: str, region: str) -> str:
+def ses_send_resource_arn(from_address: str, region: str, account_id: str) -> str:
+    """Least-privilege SES resource for SendEmail (identity or domain)."""
+    override = os.environ.get("CONTACT_UPDATE_SES_RESOURCE_ARN", "").strip()
+    if override:
+        return override
+    if "@" in from_address:
+        return f"arn:aws:ses:{region}:{account_id}:identity/{from_address}"
+    return f"arn:aws:ses:{region}:{account_id}:identity/*"
+
+
+def ensure_role(
+    role_name: str, table_arn: str, region: str, ses_resource_arn: str
+) -> str:
     trust_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -200,7 +212,7 @@ def ensure_role(role_name: str, table_arn: str, region: str) -> str:
             {
                 "Effect": "Allow",
                 "Action": ["ses:SendEmail", "sesv2:SendEmail"],
-                "Resource": "*",
+                "Resource": ses_resource_arn,
             },
             {
                 "Effect": "Allow",
@@ -269,11 +281,26 @@ def ensure_role(role_name: str, table_arn: str, region: str) -> str:
 
 
 def package_lambda() -> Path:
+    install_cmd = (
+        ["npm", "ci", "--omit=dev"]
+        if (BACKEND_DIR / "package-lock.json").is_file()
+        else ["npm", "install", "--omit=dev"]
+    )
+    print(f"Installing Lambda dependencies ({' '.join(install_cmd)}) …")
+    subprocess.run(install_cmd, cwd=BACKEND_DIR, check=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="townofwiley-contact-update-"))
     archive_path = temp_dir / "contact-update-lambda.zip"
+    skip_suffixes = {".test.mjs"}
     with ZipFile(archive_path, "w", ZIP_DEFLATED) as archive:
-        for path in sorted(BACKEND_DIR.rglob("*.mjs")):
-            archive.write(path, path.relative_to(BACKEND_DIR))
+        for path in sorted(BACKEND_DIR.rglob("*")):
+            if not path.is_file():
+                continue
+            if path.suffix in skip_suffixes or path.name.endswith(".test.mjs"):
+                continue
+            rel = path.relative_to(BACKEND_DIR)
+            if rel.parts[0] == "node_modules" and rel.name.startswith("."):
+                continue
+            archive.write(path, rel)
     return archive_path
 
 
@@ -484,8 +511,13 @@ def main() -> int:
         "https://www.townofwiley.gov",
     )
 
+    caller = run_aws(["sts", "get-caller-identity"], region=region)
+    account_id: str = caller["Account"]
+    ses_arn = ses_send_resource_arn(from_address, region, account_id)
+    print(f"SES send scope: {ses_arn}")
+
     table_arn = ensure_dynamo_table(table_name, region)
-    role_arn = ensure_role(role_name, table_arn, region)
+    role_arn = ensure_role(role_name, table_arn, region, ses_arn)
     archive_path = package_lambda()
 
     ensure_lambda_function(

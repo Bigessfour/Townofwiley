@@ -19,6 +19,8 @@ Scoped to `log-group:/aws/lambda/TownOfWiley*` in **us-east-2** (primary) and **
 **Optional — Lambda read for `npm run verify:nws-proxy-aws`:** [copilot-lambda-read-verify-policy.json](./copilot-lambda-read-verify-policy.json)  
 Lets the same IAM user call `lambda:ListFunctions` and read configuration / function URLs for `arn:aws:lambda:us-east-2:570912405222:function:TownOfWiley*`. Use **`aws lambda list-functions --region us-east-2`** so discovery stays in the primary region. Apply with a **different** policy name so it does not replace the logs policy.
 
+**Infrastructure SSOT verification:** `npm run verify:aws-infra` (see [docs/AWS_INFRASTRUCTURE_SOT.md](../../docs/AWS_INFRASTRUCTURE_SOT.md)) compares live resources to [infrastructure/aws-infrastructure.manifest.json](../aws-infrastructure.manifest.json). Requires the same read permissions plus `amplify:GetApp`, `amplify:GetBranch`, `dynamodb:DescribeTable`, and `s3:GetPublicAccessBlock` on Town buckets.
+
 ### Apply (account administrator)
 
 Replace nothing if your account ID is already `570912405222`.

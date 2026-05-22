@@ -1,0 +1,154 @@
+{
+  "$schema": "./aws-infrastructure.manifest.schema.json",
+  "version": 1,
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen1 backend (AppSync/Cognito/S3) is defined under amplify/backend/; hosting under amplify.yml and customHttp.yml.",
+  "accountId": "570912405222",
+  "primaryRegion": "us-east-2",
+  "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
+  "amplify": {
+    "appId": "d331voxr1fhoir",
+    "appName": "Townofwiley",
+    "productionBranch": "main",
+    "nodeVersion": "24.15.0",
+    "customDomain": "townofwiley.gov",
+    "syncScripts": {
+      "hosting": "npm run amplify:sync-hosting",
+      "buildSpec": "npm run amplify:sync-buildspec",
+      "headers": "npm run amplify:sync-headers",
+      "spaRules": "npm run amplify:sync-spa-rewrites"
+    }
+  },
+  "appsync": {
+    "apiName": "townofwiley-main",
+    "defaultAuthorizationType": "API_KEY",
+    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"]
+  },
+  "s3Buckets": [
+    {
+      "name": "townofwiley-documents-storage-main",
+      "region": "us-east-2",
+      "purpose": "Amplify Storage branch bucket (logical name townofwiley-documents-storage)",
+      "requireBlockPublicAccess": true
+    },
+    {
+      "name": "townofwiley-email-alias-570912405222-us-east-1",
+      "region": "us-east-1",
+      "purpose": "SES inbound email alias storage",
+      "requireBlockPublicAccess": true
+    }
+  ],
+  "dynamodbTables": [
+    {
+      "name": "TownOfWileyContactUpdates",
+      "region": "us-east-2",
+      "required": true,
+      "deployScript": "scripts/deploy-contact-update-backend.py"
+    }
+  ],
+  "lambdaFunctions": [
+    {
+      "functionName": "TownOfWileyNWSWeatherProxy",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/nws-weather-proxy",
+      "functionUrl": { "authType": "NONE", "required": true },
+      "required": true
+    },
+    {
+      "functionName": "TownOfWileySevereWeatherBackend",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/severe-weather-signup",
+      "functionUrl": { "authType": "NONE", "required": true },
+      "deployScript": "scripts/deploy-severe-weather-backend.py",
+      "required": true
+    },
+    {
+      "functionName": "townofwiley-easy-peasy-chat-proxy",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/easy-peasy-chat-proxy",
+      "functionUrl": { "authType": "NONE", "required": true },
+      "required": true
+    },
+    {
+      "functionName": "TownOfWileyContactUpdate",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/contact-update-lambda",
+      "functionUrl": { "authType": "NONE", "required": true },
+      "deployScript": "scripts/deploy-contact-update-backend.py",
+      "required": false,
+      "notes": "Public resident POST; pair with client sanitization (AP-06) and WAF (AP-16)"
+    },
+    {
+      "functionName": "TownOfWileyContactUpdatesReview",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/contact-updates-review",
+      "functionUrl": { "authType": "AWS_IAM", "required": true },
+      "deployScript": "scripts/deploy-contact-updates-review.py",
+      "required": false,
+      "notes": "Admin PII scan; must use SigV4 proxy (AP-05b/c), never public NONE"
+    },
+    {
+      "functionName": "TownOfWileyPaystarProxy",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/paystar-proxy",
+      "functionUrl": { "authType": "NONE", "required": false },
+      "required": false,
+      "notes": "Optional if Paystar API mode; hosted-only may omit Lambda"
+    }
+  ],
+  "deploymentOrder": [
+    {
+      "step": 1,
+      "name": "Amplify backend",
+      "action": "amplify push or Amplify Studio (AppSync, Cognito, Storage)",
+      "paths": ["amplify/backend/"]
+    },
+    {
+      "step": 2,
+      "name": "Amplify hosting SSOT",
+      "action": "npm run amplify:sync-hosting",
+      "paths": ["amplify.yml", "customHttp.yml", "scripts/amplify-spa-rewrite-rules.json"]
+    },
+    {
+      "step": 3,
+      "name": "Severe weather backend",
+      "action": "python scripts/deploy-severe-weather-backend.py",
+      "paths": ["infrastructure/severe-weather-signup/"]
+    },
+    {
+      "step": 4,
+      "name": "Email alias router",
+      "action": "python scripts/deploy-email-alias-router.py",
+      "paths": ["infrastructure/email-alias-router/"]
+    },
+    {
+      "step": 5,
+      "name": "Contact update write + DynamoDB",
+      "action": "python scripts/deploy-contact-update-backend.py",
+      "paths": ["infrastructure/contact-update-lambda/"]
+    },
+    {
+      "step": 6,
+      "name": "Contact update review (IAM URL)",
+      "action": "python scripts/deploy-contact-updates-review.py",
+      "paths": ["infrastructure/contact-updates-review/"]
+    },
+    {
+      "step": 7,
+      "name": "Amplify env + redeploy main",
+      "action": "Set branch env vars per infrastructure/amplify-branch-env.manifest.json; redeploy main; AP-01b verify runtime-config.js",
+      "paths": ["scripts/generate-runtime-config.mjs"]
+    },
+    {
+      "step": 8,
+      "name": "Verify live vs manifest",
+      "action": "npm run verify:aws-infra",
+      "paths": ["infrastructure/aws-infrastructure.manifest.json"]
+    }
+  ]
+}
