@@ -1,64 +1,84 @@
-import { type Route } from '@playwright/test';
-import { expect, test } from '../../fixtures/town.fixture';
+import { type Route, expect, test } from '@playwright/test';
+import { expect as townExpect, test as townTest } from '../../fixtures/town.fixture';
+import { resolveE2eEnv } from '../../support/resolve-e2e-env';
 
-test.describe('news page interactions', () => {
-  test('renders featured and external news links', async ({ homePage }) => {
+const { baseURL: configuredBaseUrl } = resolveE2eEnv();
+
+townTest.describe('news page interactions', () => {
+  townTest('renders featured and external news links', async ({ homePage }) => {
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
 
-    await expect(
+    await townExpect(
       homePage.page.getByRole('heading', { level: 1, name: 'Town News and Announcements' }),
     ).toBeVisible();
 
     const featuredNewsCard = homePage.page.locator('.featured-news-card');
-    await expect(featuredNewsCard).toContainText('Featured town notice');
-    await expect(featuredNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
+    await townExpect(featuredNewsCard).toContainText('Featured town notice');
+    await townExpect(featuredNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
       'href',
       '/notices',
     );
 
     const externalNewsCard = homePage.page.locator('.news-card--external').first();
-    await expect(externalNewsCard).toContainText('Lamar Ledger');
-    await expect(externalNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
+    await townExpect(externalNewsCard).toContainText('Lamar Ledger');
+    await townExpect(externalNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
       'href',
       'https://www.lamarledger.com/',
     );
-    await expect(externalNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
+    await townExpect(externalNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
       'target',
       '_blank',
     );
   });
+});
 
+/**
+ * Newsletter CMS mock runs in a fresh browser context so the shared town fixture
+ * does not inject empty AppSync settings (which prevent GetPublicCmsContent POSTs).
+ */
+test.describe('news page newsletter CMS mock', () => {
   test('renders the latest Town newsletter PDF inline when CMS provides attachmentKey', async ({
-    homePage,
+    browser,
+    baseURL,
   }) => {
     const mockCmsEndpoint = 'https://mock-cms.test/graphql';
     const mockNewsletterUrl = 'https://newsletter-mock.test/2026-05-newsletter.pdf';
+    const resolvedBaseUrl = baseURL ?? configuredBaseUrl;
 
-    // Override the empty CMS endpoint set by the shared fixture so the AppSync request actually fires.
-    await homePage.page.addInitScript(
+    const context = await browser.newContext();
+    await context.addInitScript(
       (args) => {
-        const [endpoint, apiKey] = args as [string, string];
-        const runtimeWindow = window as Window & {
-          __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-            cms?: {
-              appSync?: { region?: string; apiEndpoint?: string; apiKey?: string };
-            };
-          };
-        };
-        runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        const { endpoint, apiKey } = args as { endpoint: string; apiKey: string };
+        window.localStorage.setItem('tow-site-language', 'en');
+        window.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
           cms: {
-            ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.cms ?? {}),
             appSync: {
               region: 'us-east-2',
               apiEndpoint: endpoint,
               apiKey,
             },
           },
+          chatbot: {
+            provider: 'easyPeasy',
+            mode: 'none',
+            chatUrl: '',
+            buttonPosition: 'bottom-right',
+            apiEndpoint: '',
+          },
+          payments: {
+            provider: 'paystar',
+            paystar: {
+              mode: 'none',
+              portalUrl: '',
+              apiEndpoint: '',
+            },
+          },
         };
       },
-      [mockCmsEndpoint, 'da2-newsletter-test-key'],
+      { endpoint: mockCmsEndpoint, apiKey: 'da2-newsletter-test-key' },
     );
+
+    const page = await context.newPage();
 
     const cmsMockBody = JSON.stringify({
       data: {
@@ -105,26 +125,38 @@ test.describe('news page interactions', () => {
         return;
       }
       const body = request.postData() ?? '';
-      if (!body.includes('GetPublicCmsContent') && !body.includes('listAnnouncements')) {
+      if (!body.includes('GetPublicCmsContent')) {
         await route.continue();
         return;
       }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
+        headers: { 'x-e2e-cms-mock': '1' },
         body: cmsMockBody,
       });
     };
 
-    // Mock endpoint from the init-script override (local + CI when override wins).
-    await homePage.page.route(`${mockCmsEndpoint}**`, fulfillCmsGraphql);
-    // CI may still POST to the real AppSync URL from runtime-config.js before/without override.
-    await homePage.page.route('**/*graphql*', fulfillCmsGraphql);
-    await homePage.page.route('**/*.appsync-api.*.amazonaws.com/**', fulfillCmsGraphql);
+    await page.route('**/runtime-config.js', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: `window.__TOW_RUNTIME_CONFIG__ = {
+          cms: {
+            appSync: {
+              region: 'us-east-2',
+              apiEndpoint: '${mockCmsEndpoint}',
+              apiKey: 'da2-newsletter-test-key'
+            }
+          }
+        };`,
+      });
+    });
 
-    // Stub the PDF responses with a tiny valid header so the iframe load doesn't surface a network
-    // error in the headless browser (content shape does not matter for the assertions).
-    await homePage.page.route('https://newsletter-mock.test/**', async (route) => {
+    await page.route(mockCmsEndpoint, fulfillCmsGraphql);
+    await page.route('**/*appsync-api*.amazonaws.com/**', fulfillCmsGraphql);
+
+    await page.route('https://newsletter-mock.test/**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/pdf',
@@ -132,44 +164,29 @@ test.describe('news page interactions', () => {
       });
     });
 
-    const cmsLoaded = homePage.page.waitForResponse(
-      (response) => {
-        if (response.request().method() !== 'POST') {
-          return false;
-        }
-        const body = response.request().postData() ?? '';
-        return body.includes('GetPublicCmsContent') || body.includes('listAnnouncements');
-      },
-      { timeout: 30000 },
-    );
+    await page.goto(`${resolvedBaseUrl}/news`, { waitUntil: 'networkidle' });
 
-    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
-    await cmsLoaded;
+    await expect(page.locator('#town-newsletter-heading')).toBeVisible({ timeout: 30000 });
 
-    await expect(homePage.page.locator('#town-newsletter-heading')).toBeVisible({
-      timeout: 30000,
-    });
-
-    // Only the latest active newsletter renders.
-    await expect(homePage.page.locator('.newsletter-item-card')).toHaveCount(1);
-    await expect(homePage.page.locator('#town-newsletter-heading')).toHaveText(
+    await expect(page.locator('.newsletter-item-card')).toHaveCount(1);
+    await expect(page.locator('#town-newsletter-heading')).toHaveText(
       'Newsletter from Town Hall',
     );
-    await expect(homePage.page.locator('.newsletter-item-card h3')).toHaveText(
-      'May 2026 Newsletter',
-    );
+    await expect(page.locator('.newsletter-item-card h3')).toHaveText('May 2026 Newsletter');
 
-    const iframe = homePage.page.locator('[data-testid=newsletter-pdf-frame]');
+    const iframe = page.locator('[data-testid=newsletter-pdf-frame]');
     await expect(iframe).toBeVisible();
     await expect(iframe).toHaveAttribute('title', /Town newsletter PDF.*May 2026 Newsletter/);
     await expect(iframe).toHaveAttribute('loading', 'lazy');
     await expect(iframe).toHaveAttribute('sandbox', /allow-same-origin/);
 
-    const downloadLink = homePage.page.locator('[data-testid=newsletter-download-link]');
+    const downloadLink = page.locator('[data-testid=newsletter-download-link]');
     await expect(downloadLink).toBeVisible();
     await expect(downloadLink).toHaveAttribute('href', mockNewsletterUrl);
     await expect(downloadLink).toHaveAttribute('target', '_blank');
     await expect(downloadLink).toHaveAttribute('rel', /noopener/);
     await expect(downloadLink).toContainText('Open newsletter PDF in a new tab');
+
+    await context.close();
   });
 });
