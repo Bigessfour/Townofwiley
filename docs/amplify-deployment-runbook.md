@@ -132,7 +132,8 @@ See `docs/git-workflow.md` for the full CI policy and path-based trigger rules.
 | `payments.paystar.mode`            | `PAYSTAR_MODE` (or inferred from portal/API URLs) |
 | `payments.paystar.portalUrl`       | `PAYSTAR_PORTAL_URL`                              |
 | `payments.paystar.apiEndpoint`     | `PAYSTAR_API_ENDPOINT`                            |
-| `contactUpdate.apiEndpoint`        | `CONTACT_UPDATE_API_ENDPOINT`                     |
+| `contactUpdate.apiEndpoint`        | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)      |
+| `contactUpdate.reviewProxyEndpoint`| `CONTACT_UPDATE_REVIEW_PROXY_URL` (admin proxy)   |
 | `chatbot.*`                        | `EASYPEASY_*`                                     |
 | `build.gitSha` / `build.timestamp` | From git at build time                            |
 

@@ -153,7 +153,7 @@ For frontend-impacting changes, GitHub Actions runs:
 1. `npm ci --prefer-offline --no-audit`
 2. `npm run lint`
 3. `npm run build`
-4. `npx playwright install --with-deps chromium`
+4. `npm run test:e2e:install` (Chromium only; CI caches `~/.cache/ms-playwright` and skips `--with-deps` apt)
 5. `npm run test:e2e:smoke`
 
 That is the recommended minimum deterministic gate for this site because it validates:
