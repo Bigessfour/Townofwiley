@@ -27,6 +27,7 @@ const args = process.argv.slice(2);
 const skipS3 = args.includes('--skip-s3');
 const skipAmplify = args.includes('--skip-amplify');
 const skipEnv = args.includes('--skip-amplify-env');
+const offline = args.includes('--offline');
 
 function awsJson(command, region) {
   const out = execSync(`aws ${command} --region ${region} --output json`, {
@@ -72,6 +73,16 @@ function warn(msg) {
 
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
+
+if (offline) {
+  for (const fn of manifest.lambdaFunctions) {
+    if (fn.functionUrl?.required && !fn.functionUrl?.authType) {
+      fail(`${fn.functionName}: missing functionUrl.authType in manifest`);
+    }
+  }
+  console.log(failures.length ? `FAILED: ${failures.length} issue(s)` : 'OK: manifest structure valid (offline)');
+  process.exit(failures.length ? 1 : 0);
+}
 
 let account;
 try {

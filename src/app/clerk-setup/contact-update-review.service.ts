@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { getContactUpdateReviewRuntimeConfig } from '../contact-update/contact-update-config';
 
 export interface ContactUpdateRecord {
   id: string;
@@ -15,23 +16,27 @@ export interface ContactUpdateRecord {
   locale: string;
 }
 
+export type ContactUpdatesLoadResult =
+  | { ok: true; data: ContactUpdateRecord[] }
+  | { ok: false; error: string };
+
 @Injectable({ providedIn: 'root' })
 export class ContactUpdateReviewService {
   private readonly http = inject(HttpClient);
 
-  // Proxied through the Angular dev server or CloudFront to the Lambda Function URL.
-  // Configure the actual Lambda Function URL in runtime-config.js or environment proxy.
-  private readonly reviewEndpoint = '/api/contact-updates-review';
+  /** Same-origin path when proxy is routed at the edge; full URL from runtime config in production. */
+  private readonly reviewEndpoint = this.resolveReviewEndpoint();
 
-  async getAllUpdates(): Promise<ContactUpdateRecord[]> {
+  async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
     try {
       const response = await firstValueFrom(
         this.http.get<ContactUpdateRecord[]>(this.reviewEndpoint),
       );
-      return response ?? [];
+      return { ok: true, data: response ?? [] };
     } catch (err) {
+      const message = this.describeHttpError(err);
       console.error('Failed to load contact updates', err);
-      return [];
+      return { ok: false, error: message };
     }
   }
 
@@ -50,7 +55,6 @@ export class ContactUpdateReviewService {
       'Language',
     ];
 
-    // Escape a field for RFC-4180 CSV: wrap in double-quotes, escape internal quotes by doubling.
     const escapeField = (value: string): string =>
       `"${value.replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
 
@@ -78,5 +82,26 @@ export class ContactUpdateReviewService {
     link.download = `wiley-contact-updates-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  private resolveReviewEndpoint(): string {
+    const configured = getContactUpdateReviewRuntimeConfig().reviewProxyEndpoint;
+    if (configured) {
+      return configured;
+    }
+    return '/api/contact-updates-review';
+  }
+
+  private describeHttpError(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 403) {
+        return 'Contact updates are not available (access denied). Ask IT to deploy the review proxy.';
+      }
+      if (err.status === 0) {
+        return 'Could not reach the contact updates service. Check your network or try again.';
+      }
+      return `Could not load contact updates (HTTP ${err.status}).`;
+    }
+    return 'Could not load contact updates.';
   }
 }

@@ -9,7 +9,7 @@
     "appId": "d331voxr1fhoir",
     "appName": "Townofwiley",
     "productionBranch": "main",
-    "nodeVersion": "24.15.0",
+    "nodeVersion": "24.16.0",
     "customDomain": "townofwiley.gov",
     "syncScripts": {
       "hosting": "npm run amplify:sync-hosting",
@@ -92,6 +92,34 @@
       "notes": "Admin PII scan; must use SigV4 proxy (AP-05b/c), never public NONE"
     },
     {
+      "functionName": "TownOfWileyContactUpdatesReviewProxy",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/contact-updates-review-proxy",
+      "functionUrl": { "authType": "NONE", "required": true },
+      "deployScript": "scripts/deploy-contact-updates-review-proxy.py",
+      "required": false,
+      "notes": "Browser-facing proxy; origin-restricted; signs IAM review URL (AP-05b)"
+    },
+    {
+      "functionName": "TownOfWileyEmailAliasRouter",
+      "region": "us-east-1",
+      "runtime": "python",
+      "codePath": "infrastructure/email-alias-router",
+      "deployScript": "scripts/deploy-email-alias-router.py",
+      "required": false,
+      "notes": "SES-triggered; no Function URL"
+    },
+    {
+      "functionName": "TownOfWileyDeveloperMonitor",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/site-monitor",
+      "deployScript": "scripts/deploy-site-monitor.py",
+      "required": false,
+      "notes": "EventBridge schedule; no public URL"
+    },
+    {
       "functionName": "TownOfWileyPaystarProxy",
       "region": "us-east-2",
       "runtime": "nodejs",
@@ -140,12 +168,18 @@
     },
     {
       "step": 7,
+      "name": "Contact update review proxy (public URL for admin UI)",
+      "action": "python scripts/deploy-contact-updates-review-proxy.py",
+      "paths": ["infrastructure/contact-updates-review-proxy/"]
+    },
+    {
+      "step": 8,
       "name": "Amplify env + redeploy main",
       "action": "Set branch env vars per infrastructure/amplify-branch-env.manifest.json; redeploy main; AP-01b verify runtime-config.js",
       "paths": ["scripts/generate-runtime-config.mjs"]
     },
     {
-      "step": 8,
+      "step": 9,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": ["infrastructure/aws-infrastructure.manifest.json"]

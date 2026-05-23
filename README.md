@@ -179,6 +179,7 @@ npm run verify:aws-infra
 ```bash
 python scripts/deploy-contact-update-backend.py
 python scripts/deploy-contact-updates-review.py   # Function URL AuthType AWS_IAM
+python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>
 ```
 
 ### Recent work (2026-05-22)
@@ -254,7 +255,8 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                        |
 | `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
 | `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
-| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates                     |
+| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)             |
+| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | Review proxy URL for `/admin` (not the IAM review URL)      |
 | `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
 | `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
 | `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |

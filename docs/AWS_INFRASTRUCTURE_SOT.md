@@ -39,8 +39,9 @@ Execute in order after code changes; skip steps that do not apply to your PR.
 4. **Email alias** — `python scripts/deploy-email-alias-router.py`
 5. **Contact write** — `python scripts/deploy-contact-update-backend.py` (DynamoDB + write Lambda, public Function URL `NONE`)
 6. **Contact review** — `python scripts/deploy-contact-updates-review.py` (Function URL **`AWS_IAM`** only)
-7. **Amplify env** — Set `CONTACT_UPDATE_API_ENDPOINT` and other keys per [amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json); redeploy **`main`**.
-8. **Verify** — `npm run verify:aws-infra` and [AP-01b](./amplify-deployment-runbook.md) (`/runtime-config.js` on production).
+7. **Contact review proxy** — `python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>` → set **`CONTACT_UPDATE_REVIEW_PROXY_URL`** on Amplify `main` (maps to `contactUpdate.reviewProxyEndpoint` in `runtime-config.js`)
+8. **Amplify env** — Set `CONTACT_UPDATE_API_ENDPOINT`, proxy URL, and other keys per [amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json); redeploy **`main`**.
+9. **Verify** — `npm run verify:aws-infra` and [AP-01b](./amplify-deployment-runbook.md) (`/runtime-config.js` on production).
 
 ---
 
@@ -52,7 +53,8 @@ Per [Control access to Lambda function URLs](https://docs.aws.amazon.com/lambda/
 | -------- | ----------------- | --------- |
 | NWS proxy, severe weather signup, Easy Peasy chat | `NONE` | Public proxies; restrict with CORS + **WAF (AP-16)** |
 | Contact update **write** | `NONE` | Public resident form; client + Lambda sanitization (AP-06) |
-| Contact update **review** | **`AWS_IAM`** | PII; admin must use SigV4 proxy (AP-05b/c) |
+| Contact update **review** | **`AWS_IAM`** | PII; never expose URL to browsers |
+| Contact update **review proxy** | `NONE` | Origin-restricted; signs IAM review URL server-side (AP-05b) |
 | Paystar proxy (if deployed) | `NONE` | Optional; hosted-only may omit Lambda |
 
 Deploy scripts encode auth type. **`npm run verify:aws-infra`** fails if live `AuthType` drifts.
@@ -74,6 +76,33 @@ Required keys for production are listed in [amplify-branch-env.manifest.json](..
 ## IAM operator policies
 
 Read-only verification policies for the `copilot` IAM user: [infrastructure/iam/README.md](../infrastructure/iam/README.md).
+
+---
+
+## Hybrid deployment model (why Amplify + scripts)
+
+| Layer | Tooling | Owns |
+| ----- | ------- | ---- |
+| **Public site + CMS read** | Amplify Gen1 (`amplify/backend/`, Hosting) | Angular build, AppSync, Cognito, S3 documents, `customHttp.yml` |
+| **Integration Lambdas** | Python/Node deploy scripts (`scripts/deploy-*.py`) | NWS, weather signup, contact updates, email alias, site monitor |
+
+This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
+
+---
+
+## WAF and rate limits (AP-16)
+
+Public Function URLs (`AuthType: NONE`) accept browser traffic with CORS only. Add **AWS WAF** rate-based rules per URL (ops; not generated from this repo).
+
+| Priority | Function URL resource | Notes |
+| -------- | ---------------------- | ----- |
+| Pilot | `TownOfWileyNWSWeatherProxy` | High traffic weather proxy |
+| Next | `TownOfWileySevereWeatherBackend`, `townofwiley-easy-peasy-chat-proxy` | Resident-facing |
+| Next | `TownOfWileyContactUpdate` (write) | After AP-05 deploy |
+| Next | `TownOfWileyContactUpdatesReviewProxy` | Admin proxy only; still rate-limit |
+| Optional | `TownOfWileyPaystarProxy` | If API mode deploys |
+
+WAF association options: CloudFront distribution in front of a URL, or [API Gateway HTTP API](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html) as a façade. Document the chosen pattern per URL in an ops ticket. **Acceptance:** manual test returns **429** after threshold.
 
 ---
 

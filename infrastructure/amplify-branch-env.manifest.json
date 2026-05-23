@@ -60,6 +60,11 @@
       "notes": "After deploy-contact-update-backend.py (AP-05)"
     },
     {
+      "name": "CONTACT_UPDATE_REVIEW_PROXY_URL",
+      "runtimePath": "contactUpdate.reviewProxyEndpoint",
+      "notes": "After deploy-contact-updates-review-proxy.py (AP-05b); not the IAM review URL"
+    },
+    {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",
       "runtimePath": "weather.allowBrowserFallback"
     },

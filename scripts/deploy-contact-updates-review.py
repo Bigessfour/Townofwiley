@@ -418,9 +418,10 @@ def main() -> None:
     print("Deployment complete.")
     print(f"\nFunction URL:\n  {url}")
     print(
-        "\nNext step: add a /api/contact-updates-review proxy in your CloudFront\n"
-        "distribution or Angular proxy config pointing to this Function URL.\n"
-        "Keep AuthType=AWS_IAM — do NOT grant public unauthenticated access."
+        "\nNext: python scripts/deploy-contact-updates-review-proxy.py "
+        f"--review-function-url {url}\n"
+        "Then set CONTACT_UPDATE_REVIEW_PROXY_URL on Amplify main.\n"
+        "Keep review AuthType=AWS_IAM — do NOT expose this URL to browsers."
     )
 
 
