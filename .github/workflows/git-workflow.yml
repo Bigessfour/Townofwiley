@@ -24,23 +24,6 @@ jobs:
       - name: Verify customHttp.yml CSP (amplify.yml must not define customHeaders)
         run: node scripts/verify-custom-http-yaml.mjs
 
-  verify-aws-infra-manifest:
-    runs-on: ubuntu-latest
-    needs: detect-changes
-    if: needs.detect-changes.outputs.infra_manifest_changed == 'true'
-    timeout-minutes: 5
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Set up Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Validate infrastructure manifest (offline)
-        run: node scripts/verify-aws-infrastructure.mjs --offline
-
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -50,6 +33,7 @@ jobs:
       site_monitor_changed: ${{ steps.classify.outputs.site_monitor_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
       email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
+      contact_infra_changed: ${{ steps.classify.outputs.contact_infra_changed }}
       infra_manifest_changed: ${{ steps.classify.outputs.infra_manifest_changed }}
       docs_only: ${{ steps.classify.outputs.docs_only }}
       changed_files: ${{ steps.classify.outputs.changed_files }}
@@ -80,6 +64,7 @@ jobs:
           SITE_MONITOR_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
           EMAIL_ALIAS_CHANGED=false
+          CONTACT_INFRA_CHANGED=false
           INFRA_MANIFEST_CHANGED=false
           DOCS_ONLY=true
 
@@ -111,7 +96,11 @@ jobs:
                 EMAIL_ALIAS_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              infrastructure/aws-infrastructure.manifest.json|infrastructure/amplify-branch-env.manifest.json|infrastructure/contact-update-lambda/*|infrastructure/contact-updates-review/*|infrastructure/contact-updates-review-proxy/*|scripts/deploy-contact-update-backend.py|scripts/deploy-contact-updates-review.py|scripts/deploy-contact-updates-review-proxy.py|scripts/verify-aws-infrastructure.mjs|docs/AWS_INFRASTRUCTURE_SOT.md)
+              infrastructure/contact-update-lambda/*|infrastructure/contact-updates-review/*|infrastructure/contact-updates-review-proxy/*|scripts/deploy-contact-update-backend.py|scripts/deploy-contact-updates-review.py|scripts/deploy-contact-updates-review-proxy.py)
+                CONTACT_INFRA_CHANGED=true
+                DOCS_ONLY=false
+                ;;
+              infrastructure/aws-infrastructure.manifest.json|infrastructure/amplify-branch-env.manifest.json|scripts/verify-aws-infrastructure.mjs|docs/AWS_INFRASTRUCTURE_SOT.md)
                 INFRA_MANIFEST_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -130,6 +119,7 @@ jobs:
             echo "site_monitor_changed=$SITE_MONITOR_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
             echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
+            echo "contact_infra_changed=$CONTACT_INFRA_CHANGED"
             echo "infra_manifest_changed=$INFRA_MANIFEST_CHANGED"
             echo "docs_only=$DOCS_ONLY"
             echo "changed_files<<EOF"
@@ -149,6 +139,8 @@ jobs:
           - Site monitor code changed: ${{ steps.classify.outputs.site_monitor_changed }}
           - Severe weather signup backend changed: ${{ steps.classify.outputs.weather_alerts_changed }}
           - Email alias router changed: ${{ steps.classify.outputs.email_alias_changed }}
+          - Contact infrastructure changed: ${{ steps.classify.outputs.contact_infra_changed }}
+          - Infrastructure manifest / SSOT changed: ${{ steps.classify.outputs.infra_manifest_changed }}
           - Docs or maintainer-only change set: ${{ steps.classify.outputs.docs_only }}
 
           ### Changed Files
@@ -157,6 +149,23 @@ jobs:
           ${{ steps.classify.outputs.changed_files }}
           ```
           EOF
+
+  verify-aws-infra-manifest:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.infra_manifest_changed == 'true'
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Validate infrastructure manifest (offline)
+        run: node scripts/verify-aws-infrastructure.mjs --offline
 
   frontend-lint-build:
     runs-on: ubuntu-latest
@@ -334,6 +343,36 @@ jobs:
           console.log('Solar times OK:', result);
           EOF
 
+  contact-infra-tests:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.contact_infra_changed == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci --no-audit
+
+      - name: Install contact review Lambda dependencies
+        run: npm ci --prefix infrastructure/contact-updates-review --no-audit
+
+      - name: Run contact infrastructure tests
+        run: npm run test:infra:contact
+
+      - name: Validate contact security posture (offline)
+        run: node scripts/verify-aws-infrastructure.mjs --offline
+
+      - name: Run contact review service unit test
+        run: npx vitest run src/app/clerk-setup/contact-update-review.service.vitest.ts
+
   backend-python-tests:
     runs-on: ubuntu-latest
     needs: detect-changes
@@ -348,7 +387,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Install pytest
         run: python -m pip install --quiet pytest

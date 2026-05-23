@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint (fast feedback for Copilot workspaces)
+        run: npm run lint
+
       - name: Cache Playwright Chromium
         uses: actions/cache@v4
         id: playwright-cache

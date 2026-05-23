@@ -74,13 +74,57 @@ function warn(msg) {
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
 
+/** Contact Function URL auth matrix (SSOT / AP-05). */
+const CONTACT_FUNCTION_URL_AUTH = {
+  TownOfWileyContactUpdatesReview: 'AWS_IAM',
+  TownOfWileyContactUpdate: 'NONE',
+  TownOfWileyContactUpdatesReviewProxy: 'NONE',
+};
+
 if (offline) {
   for (const fn of manifest.lambdaFunctions) {
     if (fn.functionUrl?.required && !fn.functionUrl?.authType) {
       fail(`${fn.functionName}: missing functionUrl.authType in manifest`);
     }
   }
-  console.log(failures.length ? `FAILED: ${failures.length} issue(s)` : 'OK: manifest structure valid (offline)');
+
+  for (const [name, expectedAuth] of Object.entries(CONTACT_FUNCTION_URL_AUTH)) {
+    const entry = manifest.lambdaFunctions.find((fn) => fn.functionName === name);
+    if (!entry) {
+      fail(`${name}: missing from aws-infrastructure.manifest.json`);
+      continue;
+    }
+    if (!entry.functionUrl?.required) {
+      fail(`${name}: functionUrl.required must be true in manifest`);
+    }
+    const actual = entry.functionUrl?.authType;
+    if (actual !== expectedAuth) {
+      fail(
+        `${name}: functionUrl.authType ${actual ?? '(missing)'} (expected ${expectedAuth} per SSOT)`,
+      );
+    } else if (name === 'TownOfWileyContactUpdatesReview' && actual === 'NONE') {
+      fail(`${name}: review Lambda must not use public NONE auth (PII)`);
+    } else {
+      pass(`${name}: Function URL authType ${actual}`);
+    }
+  }
+
+  const reviewDeployScript = join(repoRoot, 'scripts', 'deploy-contact-updates-review.py');
+  const reviewDeploySource = readFileSync(reviewDeployScript, 'utf8');
+  if (!/AWS_IAM/.test(reviewDeploySource)) {
+    fail(
+      'deploy-contact-updates-review.py must enforce AWS_IAM Function URL auth (AP-05)',
+    );
+  } else {
+    pass('deploy-contact-updates-review.py enforces AWS_IAM');
+  }
+
+  printSummary();
+  console.log(
+    failures.length
+      ? `FAILED: ${failures.length} issue(s)`
+      : 'OK: manifest and contact security posture valid (offline)',
+  );
   process.exit(failures.length ? 1 : 0);
 }
 
