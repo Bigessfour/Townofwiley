@@ -39,7 +39,11 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
     [/media-src[^;]*blob:/, 'media-src must include blob: (MediaSource / blob playback if used)'],
     [
       /media-src[^;]*townofwiley-documents-storage\.s3\.us-east-2\.amazonaws\.com/i,
-      'media-src must allow documents bucket (remote cow welcome / hosted media)',
+      'media-src must allow documents bucket (logical Amplify name)',
+    ],
+    [
+      /media-src[^;]*townofwiley-documents-storage-main\.s3\.us-east-2\.amazonaws\.com/i,
+      'media-src must allow live branch documents bucket (-main suffix)',
     ],
     [
       /connect-src[^;]*\*\.googletagmanager\.com/i,

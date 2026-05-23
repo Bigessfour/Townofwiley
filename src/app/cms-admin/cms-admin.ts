@@ -5,6 +5,7 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
@@ -79,6 +80,7 @@ interface CmsAdminCopy {
   contactUpdatesSubtitle: string;
   downloadCsvLabel: string;
   contactUpdatesLoading: string;
+  contactUpdatesLoadError: string;
   noContactUpdates: string;
   connectionKicker: string;
   connectionTitle: string;
@@ -209,6 +211,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contactUpdatesSubtitle: 'All submissions from the bill-pay contact-update form.',
     downloadCsvLabel: 'Download CSV',
     contactUpdatesLoading: 'Loading contact updates...',
+    contactUpdatesLoadError: 'Could not load contact updates. See the message below and contact IT if this persists.',
     noContactUpdates: 'No contact updates received yet.',
     connectionKicker: 'CMS Connection Status',
     connectionTitle: 'Prove Studio is connected',
@@ -444,6 +447,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contactUpdatesSubtitle: 'Todos los envios del formulario de actualizacion de contacto de pago.',
     downloadCsvLabel: 'Descargar CSV',
     contactUpdatesLoading: 'Cargando actualizaciones de contacto...',
+    contactUpdatesLoadError:
+      'No se pudieron cargar las actualizaciones de contacto. Revise el mensaje a continuacion y contacte a TI si persiste.',
     noContactUpdates: 'Aun no se han recibido actualizaciones de contacto.',
     connectionKicker: 'Estado de conexion del CMS',
     connectionTitle: 'Comprobar que Studio esta conectado',
@@ -653,7 +658,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
   host: {
     ngSkipHydration: '',
   },
-  imports: [DatePipe, TabsModule, TableModule, ButtonModule, CardModule, TagModule, SkeletonModule],
+  imports: [
+    DatePipe,
+    TabsModule,
+    TableModule,
+    ButtonModule,
+    CardModule,
+    TagModule,
+    SkeletonModule,
+    MessageModule,
+  ],
 })
 export class CmsAdmin {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
@@ -683,6 +697,7 @@ export class CmsAdmin {
 
   protected readonly activeTab = signal<string>(this.resolveInitialTab());
   protected readonly contactUpdatesLoading = signal(true);
+  protected readonly contactUpdatesLoadError = signal<string | null>(null);
   protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
   protected readonly connectionTestResult = signal<CmsConnectionTestResult | null>(null);
   protected readonly connectionTestLoading = signal(false);
@@ -977,9 +992,16 @@ export class CmsAdmin {
 
   private async loadContactUpdates(): Promise<void> {
     this.contactUpdatesLoading.set(true);
+    this.contactUpdatesLoadError.set(null);
 
     try {
-      this.contactUpdates.set(await this.contactUpdateReview.getAllUpdates());
+      const result = await this.contactUpdateReview.getAllUpdates();
+      if (result.ok) {
+        this.contactUpdates.set(result.data);
+      } else {
+        this.contactUpdates.set([]);
+        this.contactUpdatesLoadError.set(result.error);
+      }
     } finally {
       this.contactUpdatesLoading.set(false);
     }

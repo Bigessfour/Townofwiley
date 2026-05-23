@@ -148,6 +148,47 @@ _f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov canonical name =
 _377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws
 ```
 
+### AWS infrastructure (IaC SSOT)
+
+Custom Lambdas and hosting alignment are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
+
+| Resource | SSOT in repo |
+| -------- | ------------- |
+| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json) |
+| Amplify `main` env var **names** (no secret values) | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) |
+| Hosting build + headers + SPA rules | [`amplify.yml`](amplify.yml), [`customHttp.yml`](customHttp.yml), [`scripts/amplify-spa-rewrite-rules.json`](scripts/amplify-spa-rewrite-rules.json) |
+| Operator runbook + deploy order | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md) |
+| Full product / AP tracker | [`docs/post-development-inventory.md`](docs/post-development-inventory.md) |
+
+**Sync hosting to Amplify Console:**
+
+```bash
+export AWS_PROFILE=townofwiley
+export AWS_DEFAULT_REGION=us-east-2
+npm run amplify:sync-hosting
+```
+
+**Verify live AWS matches the manifest:**
+
+```bash
+npm run verify:aws-infra
+```
+
+**Deploy contact-update backends (after code review):**
+
+```bash
+python scripts/deploy-contact-update-backend.py
+python scripts/deploy-contact-updates-review.py   # Function URL AuthType AWS_IAM
+python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>
+```
+
+### Recent work (2026-05-22)
+
+- **AP-03** merged ([#30](https://github.com/Bigessfour/Townofwiley/pull/30)): Paystar portal CTA disabled when `portalUrl` unset.
+- **AP-06** in open PR [#35](https://github.com/Bigessfour/Townofwiley/pull/35): contact-update sanitization (client + Lambda `sanitize-body.mjs`).
+- **AP-02a/c, AP-24a** in open PR [#34](https://github.com/Bigessfour/Townofwiley/pull/34): Paystar hosted-only docs/E2E cleanup; Node **24.16.0** pin.
+- **AWS ops:** Amplify buildSpec/headers synced; CSP includes live documents bucket `townofwiley-documents-storage-main`; DynamoDB `TownOfWileyContactUpdates` provisioned; IaC manifests + `verify:aws-infra` added (see [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)).
+
 ### Operational Note
 
 The blocked `Invoke-RestMethod` calls came from the Copilot terminal execution policy in this environment, not from any workspace file in this repository. There are no repo-level Copilot customization or hook files present here to change that behavior.
@@ -214,7 +255,8 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                        |
 | `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
 | `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
-| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates                     |
+| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)             |
+| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | Review proxy URL for `/admin` (not the IAM review URL)      |
 | `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
 | `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
 | `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |

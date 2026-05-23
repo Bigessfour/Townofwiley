@@ -21,6 +21,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'node:crypto';
+import { sanitizeContactUpdateBody } from './sanitize-body.mjs';
 
 const TABLE_NAME = process.env.TABLE_NAME ?? 'TownOfWileyContactUpdates';
 const FROM_ADDRESS = process.env.FROM_ADDRESS ?? 'noreply@townofwiley.gov';
@@ -28,17 +29,6 @@ const TO_ADDRESS = process.env.TO_ADDRESS ?? 'clerk@townofwiley.gov';
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
-
-const ALLOWED_FIELDS = new Set([
-  'fullName',
-  'serviceAddress',
-  'poBox',
-  'phone',
-  'email',
-  'notes',
-  'locale',
-  'source',
-]);
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -65,12 +55,7 @@ export const handler = async (event) => {
     };
   }
 
-  // Strip any keys not in the allowlist (prevent injection into email/DDB)
-  const sanitized = Object.fromEntries(
-    Object.entries(body)
-      .filter(([k]) => ALLOWED_FIELDS.has(k))
-      .map(([k, v]) => [k, String(v ?? '').slice(0, 1000)]),
-  );
+  const sanitized = sanitizeContactUpdateBody(body);
 
   const id = randomUUID();
   const timestamp = new Date().toISOString();

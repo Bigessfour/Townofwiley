@@ -16,6 +16,7 @@ import { CardModule } from 'primeng/card';
 import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { startWith } from 'rxjs';
+import { sanitizeContactUpdateRequest } from '../contact-update/contact-update-sanitize';
 import { ContactUpdateService } from '../contact-update/contact-update.service';
 import { BillPayService } from '../pay-bill/bill-pay.service';
 import type { PreferredBillPayContact } from '../pay-bill/pay-bill-request';
@@ -934,7 +935,7 @@ export class ResidentServices {
     this.contactUpdateStatus.set(null);
     const values = this.contactUpdateFormValue();
     const result = await this.contactUpdateService.submitUpdate(
-      {
+      sanitizeContactUpdateRequest({
         fullName: values.fullName ?? '',
         serviceAddress: values.serviceAddress ?? '',
         poBox: values.poBox ?? '',
@@ -943,7 +944,7 @@ export class ResidentServices {
         notes: values.notes ?? '',
         locale: this.siteLanguageService.currentLanguage(),
         source: 'payment-panel',
-      },
+      }),
       href,
     );
 

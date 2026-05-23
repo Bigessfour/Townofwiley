@@ -289,6 +289,34 @@ describe('ResidentServices mailto flows', () => {
     );
   });
 
+  it('passes a sanitized contact-update payload to the service', async () => {
+    const component = createHarness();
+    const submitUpdate = vi.fn().mockResolvedValue({ outcome: 'api-success' });
+    component.contactUpdateService.submitUpdate = submitUpdate;
+    component.contactUpdateMailtoHref = () =>
+      'mailto:clerk@wiley.gov?subject=Resident+contact+information+update';
+
+    component.contactUpdateForm.patchValue({
+      fullName: 'Bad\u0000Name',
+      serviceAddress: '210 Main Street',
+      phone: '719-555-0102',
+      email: 'jordan@example.com',
+      notes: 'note\u0007tail',
+    });
+
+    await component.openContactUpdateMailto({ preventDefault: vi.fn() } as unknown as Event);
+
+    expect(submitUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fullName: 'BadName',
+        notes: 'notetail',
+        locale: 'en',
+        source: 'payment-panel',
+      }),
+      expect.stringContaining('mailto:clerk@wiley.gov'),
+    );
+  });
+
   it('completes the contact-update flow when the API succeeds', async () => {
     const component = createHarness();
     const submitUpdate = vi.fn().mockResolvedValue({ outcome: 'api-success' });
