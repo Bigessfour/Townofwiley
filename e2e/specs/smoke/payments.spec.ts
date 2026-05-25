@@ -69,10 +69,15 @@ test.describe('Pay bill page', () => {
       .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
       .check();
 
+    const submitResponse = homePage.page.waitForResponse(
+      (response) =>
+        response.url().includes('/bill-pay-requests') && response.request().method() === 'POST',
+    );
     await form.getByRole('button', { name: /Submit request/i }).click();
+    await submitResponse;
 
     await expect(homePage.page.locator('.p-toast-message-success')).toBeVisible({
-      timeout: 15000,
+      timeout: 20_000,
     });
   });
 

@@ -18,8 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+          cache: npm
 
       - name: Verify customHttp.yml CSP (amplify.yml must not define customHeaders)
         run: node scripts/verify-custom-http-yaml.mjs
@@ -38,8 +42,7 @@ jobs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       changed_files: ${{ steps.classify.outputs.changed_files }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -156,11 +159,9 @@ jobs:
     if: needs.detect-changes.outputs.infra_manifest_changed == 'true'
     timeout-minutes: 5
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -174,11 +175,9 @@ jobs:
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     timeout-minutes: 20
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -224,11 +223,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 24 (deterministic)
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -268,15 +265,13 @@ jobs:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
 
-      - name: Upload test artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: playwright-trace-and-video
-          path: |
-            test-results/
-            playwright-report/
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7
+          if-no-files-found: ignore
 
   site-monitor-tests:
     runs-on: ubuntu-latest
@@ -287,11 +282,9 @@ jobs:
       needs.detect-changes.outputs.site_monitor_changed == 'true'
     timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -313,11 +306,9 @@ jobs:
     if: needs.detect-changes.outputs.site_proxy_changed == 'true'
     timeout-minutes: 15
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -351,11 +342,9 @@ jobs:
     if: needs.detect-changes.outputs.contact_infra_changed == 'true'
     timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm
@@ -383,8 +372,12 @@ jobs:
       needs.detect-changes.outputs.email_alias_changed == 'true'
     timeout-minutes: 15
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+          cache: npm
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -411,11 +404,9 @@ jobs:
     if: needs.detect-changes.outputs.app_changed == 'true'
     timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24.16.0
           cache: npm

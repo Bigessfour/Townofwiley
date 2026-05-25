@@ -12,6 +12,8 @@ frontend:
         - npm ci
     build:
       commands:
+        # Pin Node 24.16.0 (GHA equivalent: actions/setup-node@v4, node-version: 24.16.0, cache: npm)
+        - nvm use 24.16.0
         - npm run build
   artifacts:
     baseDirectory: dist/townofwiley-app/browser

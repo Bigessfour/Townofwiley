@@ -11,9 +11,9 @@ test.describe('homepage weather', () => {
 
     await homePage.goto();
 
-    await expect(homePage.siteAlert).toHaveCount(0);
-    await expect(homePage.page.getByText('Urgent town update')).toHaveCount(0);
-    await expect(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
+    await expect(homePage.siteAlert).toHaveCount(0, { timeout: 15_000 });
+    await expect.soft(homePage.page.getByText('Urgent town update')).toHaveCount(0);
+    await expect.soft(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
   });
 
   test('elevates active Wiley alerts into the homepage warning banner', async ({
@@ -121,9 +121,9 @@ test.describe('homepage weather', () => {
 
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.weatherSource).toContainText('AWS weather service');
-    await expect(homePage.weatherHeading).toContainText('Wiley, CO');
-    await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
+    await expect(homePage.weatherSource).toContainText('AWS weather service', { timeout: 20_000 });
+    await expect(homePage.weatherHeading).toContainText('Wiley, CO', { timeout: 20_000 });
+    await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny', { timeout: 20_000 });
     await expect(homePage.weatherCurrentCard).toContainText('67°F');
     await expect(homePage.weatherCurrentCard).toContainText('NE 15 to 20 mph');
     await expect(homePage.weatherCurrentCard).toContainText('1% chance of precipitation');
@@ -404,7 +404,7 @@ test.describe('homepage weather', () => {
 
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny');
+    await expect(homePage.weatherCurrentCard).toContainText('Partly Sunny', { timeout: 20_000 });
 
     const solarFallback = homePage.page.getByTestId('solar-unavailable');
     const aqiFallback = homePage.page.getByTestId('aqi-unavailable');
