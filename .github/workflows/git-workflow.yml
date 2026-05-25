@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -42,7 +42,7 @@ jobs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       changed_files: ${{ steps.classify.outputs.changed_files }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -159,7 +159,7 @@ jobs:
     if: needs.detect-changes.outputs.infra_manifest_changed == 'true'
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -175,7 +175,7 @@ jobs:
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -223,7 +223,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -282,7 +282,7 @@ jobs:
       needs.detect-changes.outputs.site_monitor_changed == 'true'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -306,7 +306,7 @@ jobs:
     if: needs.detect-changes.outputs.site_proxy_changed == 'true'
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -342,7 +342,7 @@ jobs:
     if: needs.detect-changes.outputs.contact_infra_changed == 'true'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -372,7 +372,7 @@ jobs:
       needs.detect-changes.outputs.email_alias_changed == 'true'
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -404,7 +404,7 @@ jobs:
     if: needs.detect-changes.outputs.app_changed == 'true'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
