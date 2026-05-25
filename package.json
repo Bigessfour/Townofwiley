@@ -92,16 +92,16 @@
     "node": "24.16.0"
   },
   "dependencies": {
-    "@angular/animations": "21.2.11",
-    "@angular/common": "21.2.11",
-    "@angular/compiler": "21.2.11",
-    "@angular/core": "21.2.11",
-    "@angular/forms": "21.2.11",
-    "@angular/platform-browser": "21.2.11",
-    "@angular/platform-server": "21.2.11",
-    "@angular/router": "21.2.11",
-    "@angular/service-worker": "^21.2.11",
-    "@angular/ssr": "^21.2.9",
+    "@angular/animations": "21.2.14",
+    "@angular/common": "21.2.14",
+    "@angular/compiler": "21.2.14",
+    "@angular/core": "21.2.14",
+    "@angular/forms": "21.2.14",
+    "@angular/platform-browser": "21.2.14",
+    "@angular/platform-server": "21.2.14",
+    "@angular/router": "21.2.14",
+    "@angular/service-worker": "21.2.14",
+    "@angular/ssr": "21.2.12",
     "@aws-amplify/ui-angular": "^5.3.3",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/source-sans-3": "^5.2.9",
@@ -117,10 +117,10 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "21.2.9",
-    "@angular/cli": "21.2.9",
-    "@angular/compiler-cli": "21.2.11",
-    "@angular/platform-browser-dynamic": "21.2.11",
+    "@angular/build": "21.2.12",
+    "@angular/cli": "21.2.12",
+    "@angular/compiler-cli": "21.2.14",
+    "@angular/platform-browser-dynamic": "21.2.14",
     "@applitools/eyes-playwright": "^1.47.1",
     "@axe-core/cli": "^4.11.3",
     "@axe-core/playwright": "^4.11.3",
@@ -145,9 +145,12 @@
     "vitest": "^4.1.7",
     "webpack-bundle-analyzer": "^4.10.2"
   },
-  "//": "npm audit fixed - 2026-05-25",
+  "//": "npm audit fixed 2026-05-25; @angular/cli|build|ssr pinned 21.2.12 (latest on npm; framework packages 21.2.14)",
   "overrides": {
     "undici": "^7.24.5",
-    "flatted": "^3.4.2"
+    "flatted": "^3.4.2",
+    "fast-uri": "^3.1.2",
+    "fast-xml-builder": "^1.1.7",
+    "js-cookie": "^3.0.6"
   }
 }
