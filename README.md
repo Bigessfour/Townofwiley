@@ -671,6 +671,19 @@ Production recommendation:
 3. Set `NWS_PROXY_ENDPOINT` in Amplify so the Angular app uses the AWS proxy instead of direct browser requests.
 4. Leave browser fallback enabled only if you want a safety net during rollout.
 
+### Quick NWS Fix Checklist (AWS Amplify)
+
+1. Amplify → Environment variables:
+   - NWS_PROXY_ENDPOINT = your-lambda-function-url.lambda-url.us-east-2.on.aws/
+   - NWS_ALLOW_BROWSER_FALLBACK = true
+2. Lambda Console → NWS proxy function → Environment variables:
+   - NWS_USER_AGENT = townofwiley.gov/1.0 (your-email@domain.com)
+3. Lambda → Function URL → CORS: clear Allow Origins (let code handle it)
+4. Run: npm run verify:nws-weather-proxy-aws
+5. Redeploy Amplify (forces runtime-config.js update)
+
+This is the #1 cause of "NWS unavailable" on the live site.
+
 Homepage NWS alert banner:
 
 - `HomepageWeatherAlertPrimer` uses the same `weather.apiEndpoint` as the weather panel when it is set (so the banner respects the AWS proxy and NWS `User-Agent` policy). If the proxy fails and `allowBrowserFallback` is true, it falls back to the public `api.weather.gov` chain. In development builds, proxy or NWS failures log a single `console.warn` from `[HomepageWeatherAlertPrimer]` to aid debugging.

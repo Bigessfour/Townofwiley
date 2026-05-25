@@ -48,6 +48,11 @@ from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_npm import npm_install_cmd  # noqa: E402
+
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
 BACKEND_DIR = REPO_ROOT / "infrastructure" / "contact-update-lambda"
 
@@ -281,11 +286,7 @@ def ensure_role(
 
 
 def package_lambda() -> Path:
-    install_cmd = (
-        ["npm", "ci", "--omit=dev"]
-        if (BACKEND_DIR / "package-lock.json").is_file()
-        else ["npm", "install", "--omit=dev"]
-    )
+    install_cmd = npm_install_cmd(BACKEND_DIR)
     print(f"Installing Lambda dependencies ({' '.join(install_cmd)}) …")
     subprocess.run(install_cmd, cwd=BACKEND_DIR, check=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="townofwiley-contact-update-"))
@@ -397,7 +398,7 @@ def ensure_lambda_function(
 def ensure_function_url(function_name: str, allowed_origin: str, region: str) -> str:
     cors = {
         "AllowOrigins": [allowed_origin],
-        "AllowMethods": ["POST", "OPTIONS"],
+        "AllowMethods": ["POST"],
         "AllowHeaders": ["content-type"],
         "MaxAge": 300,
     }

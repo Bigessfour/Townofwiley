@@ -28,4 +28,4 @@ if ($ver -notmatch '^v24\.') {
 }
 & node (Join-Path $root 'scripts\ensure-node-version.mjs')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-Write-Host "[setup-repo-node] OK — use this shell for npm scripts."
+Write-Host "[setup-repo-node] OK - use this shell for npm scripts."

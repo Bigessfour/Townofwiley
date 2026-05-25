@@ -116,7 +116,30 @@ Set `PLAYWRIGHT_TRACE=on` (or `off`) to override default `retain-on-failure` beh
 - Override the local port with `E2E_PORT` if you need a different isolated test port.
 - Remote deployment: set `E2E_BASE_URL` and run against Amplify.
 
-PowerShell example:
+### Windows / Cursor agent shell
+
+Agent terminals may not inherit [`.vscode/settings.json`](../.vscode/settings.json) `E2E_NODE` / `NVM_SYMLINK`. Run from repo root **before** smoke (do not use `--ignore-scripts` — that skips kill-port and preflight):
+
+```powershell
+$env:Path = "C:\nvm4w\nodejs;$env:Path"
+$env:E2E_NODE = "C:\nvm4w\nodejs\node.exe"
+$env:PLAYWRIGHT_BROWSERS_PATH = "$PWD\.playwright-browsers"
+npm run test:e2e:install
+npm run test:e2e:preflight
+npm run test:e2e:smoke
+```
+
+If Playwright `webServer` is flaky, start the dev server manually and reuse it:
+
+```powershell
+# Terminal 1
+npm run serve:4300
+# Terminal 2
+$env:E2E_SKIP_WEBSERVER = "1"
+npm run test:e2e:smoke
+```
+
+PowerShell example (remote):
 
 ```powershell
 $env:E2E_BASE_URL = 'https://main.d331voxr1fhoir.amplifyapp.com'

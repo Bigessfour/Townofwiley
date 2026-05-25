@@ -1,3 +1,4 @@
+# trunk-ignore-all(black)
 """
 Deploy TownOfWileyContactUpdatesReviewProxy (AP-05b).
 
@@ -28,6 +29,11 @@ from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_npm import npm_install_cmd  # noqa: E402
+
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
 BACKEND_DIR = REPO_ROOT / "infrastructure" / "contact-updates-review-proxy"
 
@@ -166,11 +172,7 @@ def get_or_create_role(role_name: str, review_function_arn: str) -> str:
 
 
 def build_zip() -> Path:
-    install_cmd = (
-        ["npm", "ci", "--omit=dev"]
-        if (BACKEND_DIR / "package-lock.json").is_file()
-        else ["npm", "install", "--omit=dev"]
-    )
+    install_cmd = npm_install_cmd(BACKEND_DIR)
     subprocess.run(install_cmd, cwd=BACKEND_DIR, check=True)
     zip_path = REPO_ROOT / "__ng_tmp__" / "contact-updates-review-proxy.zip"
     zip_path.parent.mkdir(parents=True, exist_ok=True)
@@ -196,8 +198,7 @@ def upsert_lambda(
     env_cli = (
         "Variables={"
         f"REVIEW_FUNCTION_URL={env_vars['REVIEW_FUNCTION_URL']},"
-        f"ALLOWED_ORIGIN={env_vars['ALLOWED_ORIGIN']},"
-        f"AWS_REGION={env_vars['AWS_REGION']}"
+        f"ALLOWED_ORIGIN={env_vars['ALLOWED_ORIGIN']}"
         "}"
     )
     try:
@@ -258,7 +259,7 @@ def upsert_lambda(
 def ensure_public_function_url(function_name: str, region: str) -> str:
     cors = {
         "AllowOrigins": ["https://www.townofwiley.gov", "https://townofwiley.gov"],
-        "AllowMethods": ["GET", "OPTIONS"],
+        "AllowMethods": ["GET"],
         "AllowHeaders": ["content-type"],
         "MaxAge": 300,
     }
@@ -355,7 +356,6 @@ def main() -> None:
     env_vars = {
         "REVIEW_FUNCTION_URL": review_url,
         "ALLOWED_ORIGIN": allowed_origin,
-        "AWS_REGION": region,
     }
     upsert_lambda(function_name, role_arn, zip_path, env_vars, region, args.runtime)
     proxy_url = ensure_public_function_url(function_name, region)

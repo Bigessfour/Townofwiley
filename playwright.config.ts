@@ -1,7 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import { resolve } from 'node:path';
 import { resolveE2eEnv } from './e2e/support/resolve-e2e-env';
+
+const require = createRequire(import.meta.url);
+const { resolveE2eNode } = require('./scripts/resolve-e2e-node.mjs') as {
+  resolveE2eNode: () => string;
+};
 
 /**
  * Playwright appends `-arm64` to the mac host key only when `os.cpus()[].model` includes
@@ -72,33 +78,26 @@ const webServerTimeoutMs = (() => {
   }
   return 300_000;
 })();
-/**
- * Node binary for ensure / runtime config / ng serve.
- * Cursor/agent shells often expose `process.execPath` as the IDE helper Node (not repo .nvmrc).
- * Prefer E2E_NODE, then npm's active binary, then PATH `NODE`.
- */
-const e2eNodeBin =
-  (process.env.E2E_NODE ?? '').trim() ||
-  (process.env.npm_node_execpath ?? '').trim() ||
-  (process.env.NODE ?? '').trim() ||
-  process.execPath;
-const ensureNode = resolve(process.cwd(), 'scripts/ensure-node-version.mjs');
-const angularCliBin = resolve(process.cwd(), 'node_modules/@angular/cli/bin/ng.js');
-const runtimeConfigGenerator = resolve(process.cwd(), 'scripts/generate-runtime-config.mjs');
-
+/** Node binary for ensure / runtime config / ng serve (see scripts/resolve-e2e-node.mjs). */
+const e2eNodeBin = resolveE2eNode();
 /** Polling avoids native watcher FD exhaustion on some macOS shells; optional override. */
 const pollMs = (process.env.NG_SERVE_POLL_MS ?? '').trim();
 const pollFlag = pollMs && /^\d+$/.test(pollMs) ? ` --poll=${pollMs}` : '';
 
 /** Unix `env VAR=1 cmd` breaks Playwright webServer on Windows; use webServer.env instead. */
+const e2eWebServer = resolve(process.cwd(), 'scripts/e2e-web-server.mjs');
+/** Single Node entry avoids shell `&&` chains (exit 127 on Windows Playwright webServer). */
 const webServerCommand = useRemoteBaseUrl
   ? ''
-  : `"${e2eNodeBin}" "${ensureNode}" && "${e2eNodeBin}" "${runtimeConfigGenerator}" && "${e2eNodeBin}" "${angularCliBin}" serve --host 127.0.0.1 --port ${e2ePort} --watch=false${pollFlag}`;
+  : `"${e2eNodeBin}" "${e2eWebServer}" --port ${e2ePort}${pollFlag}`;
 const webServerEnv: NodeJS.ProcessEnv | undefined = useRemoteBaseUrl
   ? undefined
   : {
       ...process.env,
       SKIP_NODE_VERSION_CHECK: '1',
+      E2E_NODE: e2eNodeBin,
+      PLAYWRIGHT_BROWSERS_PATH:
+        process.env.PLAYWRIGHT_BROWSERS_PATH?.trim() || workspaceBrowsersPath,
     };
 
 /** Full traces + screenshots for heal/debug runs (`PLAYWRIGHT_TRACE=on`). Default keeps artifacts on failure only. */
@@ -143,7 +142,7 @@ export default defineConfig({
       : {
           command: webServerCommand,
           url: baseURL,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: !process.env.CI && process.env.E2E_REUSE_SERVER === '1',
           timeout: webServerTimeoutMs,
           stdout: 'inherit',
           stderr: 'inherit',

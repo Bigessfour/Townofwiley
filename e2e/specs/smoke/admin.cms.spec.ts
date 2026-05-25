@@ -91,6 +91,42 @@ test.describe('cms admin', () => {
     ).toBeVisible({ timeout: 20000 });
   });
 
+  test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
+    const mockReviewUrl = 'https://e2e-mock.example/contact-updates-review';
+
+    await homePage.page.addInitScript((reviewProxyEndpoint: string) => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          contactUpdate?: { reviewProxyEndpoint?: string };
+        };
+      };
+
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
+          reviewProxyEndpoint,
+        },
+      };
+    }, mockReviewUrl);
+
+    await homePage.page.route('**/contact-updates-review', async (route) => {
+      await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
+    });
+
+    await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(
+      homePage.page.getByText(
+        'Contact updates are not available (access denied). Ask IT to deploy the review proxy.',
+      ),
+    ).toBeVisible({ timeout: 20000 });
+    await expect(
+      homePage.page.getByText('No contact updates received yet.'),
+    ).not.toBeVisible();
+  });
+
   test('lists the Town newsletter section and Announcement attachmentKey guidance', async ({
     homePage,
   }) => {
