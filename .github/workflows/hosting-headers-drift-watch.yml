@@ -2,6 +2,10 @@
 # Complements scripts/verify-custom-http-yaml.mjs (repo) and e2e live header checks.
 # (repo file parity) and e2e/specs/smoke/live-hosting-headers.spec.ts (full header set).
 #
+# Noise control: when repository secrets provide Wiley AWS credentials, push
+# customHttp.yml via npm run amplify:sync-headers before the live check; always
+# wait 30s so CloudFront can pick up app-level header changes after sync/deploy.
+#
 # AWS context: custom headers can be set in the Amplify console, in customHttp.yml
 # (repo), or historically in amplify.yml — see:
 # https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html
@@ -17,16 +21,37 @@ permissions:
   contents: read
 
 jobs:
-  probe-production-csp:
+  check-production-headers:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      - name: Fetch production CSP and verify baseline
-        shell: bash
+      - name: Verify repo customHttp.yml (offline)
+        run: node scripts/verify-custom-http-yaml.mjs
+
+      - name: Install jq (Amplify sync script)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+
+      - name: Sync Amplify custom headers from customHttp.yml
         env:
-          PRIMARY_URL: https://www.townofwiley.gov/
-          FALLBACK_URL: https://townofwiley.gov/
-        run: bash scripts/probe-live-hosting-csp.sh
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: us-east-2
+          AWS_REGION: us-east-2
+        run: |
+          if [ -z "${AWS_ACCESS_KEY_ID:-}" ]; then
+            echo "Skipping Amplify sync (no AWS_ACCESS_KEY_ID repository secret)"
+            exit 0
+          fi
+          npm run amplify:sync-headers
+
+      - name: Wait for Hosting header propagation
+        run: sleep 30
+
+      - name: Compare live CSP to repo customHttp.yml
+        env:
+          E2E_BASE_URL: https://www.townofwiley.gov/
+        run: node scripts/compare-live-csp-to-repo.mjs
