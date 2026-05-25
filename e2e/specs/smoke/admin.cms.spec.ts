@@ -117,11 +117,10 @@ test.describe('cms admin', () => {
     await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.page).toHaveURL(/\/admin#updates$/);
-    await expect(
-      homePage.page.getByText(
-        'Contact updates are not available (access denied). Ask IT to deploy the review proxy.',
-      ),
-    ).toBeVisible({ timeout: 20000 });
+    await expect(homePage.page.locator('p-message.p-message-error, p-message[severity="error"]')).toContainText(
+      'access denied',
+      { timeout: 20000 },
+    );
     await expect(
       homePage.page.getByText('No contact updates received yet.'),
     ).not.toBeVisible();

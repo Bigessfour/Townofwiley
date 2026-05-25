@@ -24,13 +24,11 @@ export type ContactUpdatesLoadResult =
 export class ContactUpdateReviewService {
   private readonly http = inject(HttpClient);
 
-  /** Same-origin path when proxy is routed at the edge; full URL from runtime config in production. */
-  private readonly reviewEndpoint = this.resolveReviewEndpoint();
-
   async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
+    const reviewEndpoint = this.resolveReviewEndpoint();
     try {
       const response = await firstValueFrom(
-        this.http.get<ContactUpdateRecord[]>(this.reviewEndpoint),
+        this.http.get<ContactUpdateRecord[]>(reviewEndpoint),
       );
       return { ok: true, data: response ?? [] };
     } catch (err) {
