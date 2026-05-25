@@ -1,13 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-import { createRequire } from 'node:module';
 import os from 'node:os';
 import { resolve } from 'node:path';
 import { resolveE2eEnv } from './e2e/support/resolve-e2e-env';
-
-const require = createRequire(import.meta.url);
-const { resolveE2eNode } = require('./scripts/resolve-e2e-node.mjs') as {
-  resolveE2eNode: () => string;
-};
+import { resolveE2eNode } from './scripts/resolve-e2e-node.mjs';
 
 /**
  * Playwright appends `-arm64` to the mac host key only when `os.cpus()[].model` includes
