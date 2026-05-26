@@ -30,12 +30,15 @@ const WILEY_LON = -102.72;
 const WILEY_ZIP = '81092';
 const wileyPointUrl = `https://api.weather.gov/points/${WILEY_LAT},${WILEY_LON}`;
 
+const WEATHER_CACHE_CONTROL = 'public, max-age=300';
+
 function jsonResponse(statusCode, body, requestOrigin) {
   return {
     statusCode,
     headers: {
       ...buildCorsHeaders(requestOrigin ?? ''),
       'content-type': 'application/json; charset=utf-8',
+      'cache-control': WEATHER_CACHE_CONTROL,
     },
     body: JSON.stringify(body),
   };

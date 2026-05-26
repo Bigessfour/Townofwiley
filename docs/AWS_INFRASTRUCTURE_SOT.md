@@ -79,6 +79,32 @@ Read-only verification policies for the `copilot` IAM user: [infrastructure/iam/
 
 ---
 
+## CloudWatch logging and alarms
+
+Per [AWS Lambda logging](https://docs.aws.amazon.com/lambda/latest/dg/typescript-logging.html), [AppSync monitoring](https://docs.aws.amazon.com/appsync/latest/devguide/monitoring.html), and [Amplify Hosting metrics](https://docs.aws.amazon.com/amplify/latest/userguide/monitoring-with-cloudwatch.html):
+
+| Resource | Log / metric location | Repo / ops |
+| -------- | --------------------- | ---------- |
+| Custom Lambdas | `/aws/lambda/<FunctionName>` | Deploy scripts grant `logs:*`; retention via configure script |
+| Amplify backend Lambdas | `/aws/lambda/amplify-townofwiley-main--…` | Set retention in Console or configure script |
+| AppSync GraphQL (`townofwiley-main`) | `/aws/appsync/apis/<apiId>` | Enable in configure script (`ERROR` field logs) |
+| Amplify Hosting SPA | `AWS/AmplifyHosting` metrics; build transcripts in S3 artifact URLs | [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md) § 1.a |
+| Account audit | CloudTrail → S3 (+ optional CloudWatch Logs) | **Not in repo** — create multi-Region trail (see [AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md](./AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md)) |
+
+**Apply or repair Town of Wiley logging (account admin):**
+
+```bash
+export AWS_PROFILE=townofwiley AWS_DEFAULT_REGION=us-east-2
+python scripts/configure-townofwiley-cloudwatch-logging.py
+# or: npm run configure:cloudwatch-logging
+```
+
+The script is idempotent: sets **30-day** retention on manifest Lambdas, enables AppSync CloudWatch logs, subscribes **`TownOfWileyOpsAlerts`** and severe-weather SNS topics, and creates Lambda **Errors** + Amplify **5xxErrors** alarms. Confirm pending SNS email subscriptions after each run.
+
+**Gap — CloudTrail:** As of May 2026 the Town account had **no trails**. Add a multi-Region trail before relying on CloudWatch alone for API audit history.
+
+---
+
 ## Hybrid deployment model (why Amplify + scripts)
 
 | Layer | Tooling | Owns |

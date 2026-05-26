@@ -63,3 +63,9 @@ customHeaders:
     headers:
       - key: 'Cache-Control'
         value: 'no-cache, no-store, must-revalidate'
+  # Weather route shell: edge-cache HTML for /weather (SPA rewrite → index.html). API data is
+  # cached separately via NWS proxy Lambda Cache-Control (see infrastructure/nws-weather-proxy).
+  - pattern: '/weather*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=300'
