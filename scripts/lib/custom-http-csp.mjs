@@ -6,7 +6,7 @@ import { join } from 'node:path';
  * @param {string} [label]
  */
 export function extractCspValueFromCustomHttpText(text, label = 'customHttp.yml') {
-  const re = /['"]Content-Security-Policy['"]\s*\n\s*value:\s*"([^"]*)"/;
+  const re = /['"]?Content-Security-Policy['"]?\s*\n\s*value:\s*"([^"]*)"/;
   const m = text.match(re);
   if (!m) {
     throw new Error(`${label}: could not find Content-Security-Policy value: "..." line`);

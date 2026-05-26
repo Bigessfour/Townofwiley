@@ -16,7 +16,7 @@ import { join } from 'node:path';
 const root = join(import.meta.dirname, '..');
 
 function extractCspFromCustomHttp(text) {
-  const re = /['"]Content-Security-Policy['"]\s*\n\s*value:\s*"([^"]*)"/;
+  const re = /['"]?Content-Security-Policy['"]?\s*\n\s*value:\s*"([^"]*)"/;
   const m = text.match(re);
   if (!m) {
     throw new Error('customHttp.yml: could not find Content-Security-Policy value line');
