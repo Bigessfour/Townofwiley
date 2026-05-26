@@ -51,6 +51,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_lambda_url import (  # noqa: E402
+    ensure_none_auth_function_url_public_access,
+    town_site_cors_origins,
+)
 from _deploy_npm import npm_install_cmd  # noqa: E402
 
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
@@ -189,7 +193,9 @@ def ses_send_resource_arn(from_address: str, region: str, account_id: str) -> st
     if override:
         return override
     if "@" in from_address:
-        return f"arn:aws:ses:{region}:{account_id}:identity/{from_address}"
+        # Domain-verified SES identities authorize against the domain ARN, not the mailbox.
+        domain = from_address.rsplit("@", 1)[-1].strip().lower()
+        return f"arn:aws:ses:{region}:{account_id}:identity/{domain}"
     return f"arn:aws:ses:{region}:{account_id}:identity/*"
 
 
@@ -397,7 +403,7 @@ def ensure_lambda_function(
 
 def ensure_function_url(function_name: str, allowed_origin: str, region: str) -> str:
     cors = {
-        "AllowOrigins": [allowed_origin],
+        "AllowOrigins": town_site_cors_origins(allowed_origin),
         "AllowMethods": ["POST"],
         "AllowHeaders": ["content-type"],
         "MaxAge": 300,
@@ -436,30 +442,8 @@ def ensure_function_url(function_name: str, allowed_origin: str, region: str) ->
             region=region,
         )
         url = result["FunctionUrl"]
-        # Allow public invocation
-        try:
-            run_aws(
-                [
-                    "lambda",
-                    "add-permission",
-                    "--function-name",
-                    function_name,
-                    "--statement-id",
-                    "FunctionURLAllowPublicAccess",
-                    "--action",
-                    "lambda:InvokeFunctionUrl",
-                    "--principal",
-                    "*",
-                    "--function-url-auth-type",
-                    "NONE",
-                ],
-                expect_json=False,
-                region=region,
-            )
-        except RuntimeError as exc:
-            if "already exists" not in str(exc):
-                raise
 
+    ensure_none_auth_function_url_public_access(function_name, region, run_aws)
     return url
 
 

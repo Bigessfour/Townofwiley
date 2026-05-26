@@ -58,4 +58,26 @@ describe('GlobalErrorHandler', () => {
     );
     expect(mockMessageService.add).toHaveBeenCalled(); // Friendly message still shown
   });
+
+  it('suppresses toast for expected network degradation', () => {
+    const mockLogging = { log: vi.fn() };
+    const mockMessageService = { add: vi.fn() };
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: LoggingService, useValue: mockLogging },
+        { provide: MessageService, useValue: mockMessageService },
+      ],
+    });
+
+    const handler = TestBed.inject(GlobalErrorHandler);
+    handler.handleError({ name: 'TimeoutError' });
+
+    expect(mockLogging.log).toHaveBeenCalledWith(
+      'warn',
+      'Expected service degradation',
+      expect.objectContaining({ expectedDegradation: true }),
+    );
+    expect(mockMessageService.add).not.toHaveBeenCalled();
+  });
 });

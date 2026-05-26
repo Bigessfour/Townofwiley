@@ -29,6 +29,12 @@
     </label>
   </header>
 
+  @if (cmsExtendedLoadFailed()) {
+    <p class="public-empty-state cms-extended-load-hint" role="status" aria-live="polite">
+      {{ copy().extendedLoadUnavailableMessage }}
+    </p>
+  }
+
   @if (cmsLoading()) {
     <p class="public-empty-state" role="status" aria-live="polite" aria-busy="true">
       {{ copy().loadingState }}

@@ -42,6 +42,9 @@ def parse_args() -> argparse.Namespace:
         choices=["NONE", "ERROR", "INFO", "DEBUG", "ALL"],
     )
     parser.add_argument("--skip-appsync", action="store_true")
+    parser.add_argument("--skip-appsync-cache", action="store_true")
+    parser.add_argument("--appsync-cache-only", action="store_true")
+    parser.add_argument("--appsync-cache-ttl", type=int, default=300)
     parser.add_argument("--skip-alarms", action="store_true")
     parser.add_argument("--skip-retention", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -392,6 +395,65 @@ def ensure_appsync_logging(
     )
 
 
+def ensure_appsync_api_cache(
+    *,
+    region: str,
+    api_id: str,
+    ttl_seconds: int,
+    dry_run: bool,
+) -> None:
+    try:
+        existing = run_aws(["appsync", "get-api-cache", "--api-id", api_id], region=region)
+        status = str(existing.get("apiCache", {}).get("status", "")).upper()
+        if status in {"CREATING", "MODIFYING", "DELETING"}:
+            print(f"  appsync cache -> {api_id} is {status}; skipping update")
+            return
+    except RuntimeError:
+        existing = None
+
+    cache_command = [
+        "appsync",
+        "update-api-cache" if existing else "create-api-cache",
+        "--api-id",
+        api_id,
+        "--ttl",
+        str(ttl_seconds),
+        "--api-caching-behavior",
+        "FULL_REQUEST_CACHING",
+        "--type",
+        "SMALL",
+    ]
+
+    try:
+        run_aws(cache_command, region=region, dry_run=dry_run)
+    except RuntimeError as error:
+        message = str(error)
+        if "cache is not yet available" in message.lower():
+            print(f"  appsync cache -> {api_id} is still provisioning; retry later")
+            return
+        if existing is None and "NotFoundException" not in message:
+            raise
+        if existing is None:
+            run_aws(
+                [
+                    "appsync",
+                    "create-api-cache",
+                    "--api-id",
+                    api_id,
+                    "--ttl",
+                    str(ttl_seconds),
+                    "--api-caching-behavior",
+                    "FULL_REQUEST_CACHING",
+                    "--type",
+                    "SMALL",
+                ],
+                region=region,
+                dry_run=dry_run,
+            )
+            return
+        raise
+
+
 def main() -> int:
     args = parse_args()
     manifest = load_manifest()
@@ -403,6 +465,17 @@ def main() -> int:
     print(f"  ops email: {args.ops_notification_email}")
     if args.dry_run:
         print("  mode: dry-run")
+
+    if args.appsync_cache_only:
+        print(f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)")
+        ensure_appsync_api_cache(
+            region=primary_region,
+            api_id=args.appsync_api_id,
+            ttl_seconds=args.appsync_cache_ttl,
+            dry_run=args.dry_run,
+        )
+        print("\nDone.")
+        return 0
 
     if not args.skip_retention:
         for region, log_group in lambda_log_groups(manifest):
@@ -496,6 +569,15 @@ def main() -> int:
             role_arn=role_arn,
             field_log_level=args.appsync_field_log_level,
             retention_days=args.log_retention_days,
+            dry_run=args.dry_run,
+        )
+
+    if not args.skip_appsync_cache:
+        print(f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)")
+        ensure_appsync_api_cache(
+            region=primary_region,
+            api_id=args.appsync_api_id,
+            ttl_seconds=args.appsync_cache_ttl,
             dry_run=args.dry_run,
         )
 

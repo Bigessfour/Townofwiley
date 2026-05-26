@@ -52,6 +52,36 @@ function tryAwsJson(command, region) {
   }
 }
 
+function tryAwsText(command, region) {
+  try {
+    return awsText(command, region);
+  } catch {
+    return null;
+  }
+}
+
+function hasNoneAuthFunctionUrlPermissions(policyDocument) {
+  const statements = policyDocument?.Statement ?? [];
+  const hasInvokeUrl = statements.some((statement) => {
+    const action = statement.Action;
+    if (Array.isArray(action)) {
+      return action.includes('lambda:InvokeFunctionUrl');
+    }
+    return action === 'lambda:InvokeFunctionUrl';
+  });
+  const hasInvokeFunction = statements.some((statement) => {
+    const action = statement.Action;
+    const matchesAction = Array.isArray(action)
+      ? action.includes('lambda:InvokeFunction')
+      : action === 'lambda:InvokeFunction';
+    return (
+      matchesAction &&
+      statement.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'] === 'true'
+    );
+  });
+  return hasInvokeUrl && hasInvokeFunction;
+}
+
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
 
@@ -243,6 +273,24 @@ for (const fn of manifest.lambdaFunctions) {
       );
     } else {
       pass(`${fn.functionName}: Function URL AuthType ${actual}`);
+    }
+    if (actual === 'NONE') {
+      const policyRaw = tryAwsText(`lambda get-policy --function-name ${fn.functionName}`, region);
+      if (!policyRaw) {
+        fail(
+          `${fn.functionName}: NONE auth Function URL missing resource policy (needs InvokeFunctionUrl + InvokeFunction)`,
+        );
+      } else {
+        const policyJson = policyRaw.includes('\t') ? policyRaw.split('\t')[0] : policyRaw;
+        const policy = JSON.parse(policyJson);
+        if (!hasNoneAuthFunctionUrlPermissions(policy)) {
+          fail(
+            `${fn.functionName}: NONE auth Function URL missing lambda:InvokeFunction with lambda:InvokedViaFunctionUrl`,
+          );
+        } else {
+          pass(`${fn.functionName}: Function URL public invoke policy complete`);
+        }
+      }
     }
   }
 }

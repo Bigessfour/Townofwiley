@@ -163,8 +163,12 @@ class SiteMonitorTests(unittest.TestCase):
 
         self.assertTrue(response["ok"])
         self.assertEqual(response["status"], "healthy")
-        self.assertEqual(response["results"][-1]["name"], "cms-api")
-        self.assertGreaterEqual(len(response["results"]), 13)
+        cms_results = [
+            result for result in response["results"] if result["name"].startswith("cms-api")
+        ]
+        self.assertEqual(cms_results[-1]["name"], "cms-api-core")
+        self.assertEqual(cms_results[-2]["name"], "cms-api")
+        self.assertGreaterEqual(len(response["results"]), 14)
         self.assertEqual(mailer.messages, [])
         self.assertEqual(
             state_store.state["TownOfWileySiteMonitor"]["status"], "healthy"

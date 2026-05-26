@@ -24,6 +24,7 @@ interface BusinessDirectoryCopy {
   filteredEmptySuffix: string;
   loadingState: string;
   noBusinessesEmptyState: string;
+  extendedLoadUnavailableMessage: string;
 }
 
 const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
@@ -47,6 +48,8 @@ const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
     loadingState: 'Loading the Wiley business directory…',
     noBusinessesEmptyState:
       'No businesses are listed yet. To add or update a listing, contact Town Hall at (719) 829-4974.',
+    extendedLoadUnavailableMessage:
+      'The live business directory could not be refreshed. Showing saved listings and local defaults.',
   },
   es: {
     kicker: 'Directorio de Negocios de Wiley',
@@ -68,6 +71,8 @@ const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
     loadingState: 'Cargando el directorio de negocios de Wiley…',
     noBusinessesEmptyState:
       'Aun no hay negocios listados. Para agregar o actualizar una ficha, llame al Ayuntamiento al (719) 829-4974.',
+    extendedLoadUnavailableMessage:
+      'No se pudo actualizar el directorio en vivo. Mostrando fichas guardadas y valores predeterminados locales.',
   },
 };
 
@@ -206,6 +211,7 @@ export class BusinessDirectory {
   protected readonly failedLogoNames = signal<Set<string>>(new Set());
 
   protected readonly cmsLoading = this.cms.isLoading;
+  protected readonly cmsExtendedLoadFailed = this.cms.extendedLoadFailed;
   protected readonly copy = computed(
     () => BUSINESS_DIRECTORY_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );

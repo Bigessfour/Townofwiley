@@ -47,6 +47,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_lambda_url import ensure_review_function_allows_proxy, town_site_cors_origins  # noqa: E402
 from _deploy_npm import npm_install_cmd  # noqa: E402
 
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
@@ -319,10 +320,13 @@ def upsert_lambda(
 
 
 def ensure_function_url(function_name: str, region: str) -> str:
-    cors = (
-        "AllowOrigins=https://www.townofwiley.gov,"
-        "AllowMethods=GET,AllowHeaders=Content-Type"
-    )
+    cors = {
+        "AllowOrigins": town_site_cors_origins("https://www.townofwiley.gov"),
+        "AllowMethods": ["GET"],
+        "AllowHeaders": ["content-type"],
+        "MaxAge": 300,
+    }
+    cors_json = json.dumps(cors)
     try:
         result = run_aws(
             ["lambda", "get-function-url-config", "--function-name", function_name],
@@ -331,21 +335,19 @@ def ensure_function_url(function_name: str, region: str) -> str:
         url: str = result["FunctionUrl"]
         auth = result.get("AuthType", "")
         print(f"  Function URL already exists: {url} (AuthType={auth})")
-        if auth != "AWS_IAM":
-            print("  Updating Function URL AuthType to AWS_IAM (SSOT / AP-05) …")
-            run_aws(
-                [
-                    "lambda",
-                    "update-function-url-config",
-                    "--function-name",
-                    function_name,
-                    "--auth-type",
-                    "AWS_IAM",
-                    "--cors",
-                    cors,
-                ],
-                region=region,
-            )
+        run_aws(
+            [
+                "lambda",
+                "update-function-url-config",
+                "--function-name",
+                function_name,
+                "--auth-type",
+                "AWS_IAM",
+                "--cors",
+                cors_json,
+            ],
+            region=region,
+        )
         return url
     except RuntimeError:
         pass
@@ -359,7 +361,7 @@ def ensure_function_url(function_name: str, region: str) -> str:
             "--auth-type",
             "AWS_IAM",
             "--cors",
-            cors,
+            cors_json,
         ],
         region=region,
     )
@@ -414,6 +416,13 @@ def main() -> None:
 
     print("\n[5/5] Ensuring Function URL …")
     url = ensure_function_url(function_name, region)
+
+    proxy_role_name = resolve_value(
+        "",
+        cfg.get("proxyRoleName"),
+        "TownOfWileyContactUpdatesReviewProxyRole",
+    )
+    ensure_review_function_allows_proxy(function_name, proxy_role_name, region, run_aws)
 
     print("\n" + "=" * 60)
     print("Deployment complete.")

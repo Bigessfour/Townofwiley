@@ -30,17 +30,28 @@ const TO_ADDRESS = process.env.TO_ADDRESS ?? 'clerk@townofwiley.gov';
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
 
-const CORS_HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': 'https://www.townofwiley.gov',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const DEFAULT_ALLOWED_ORIGIN = 'https://www.townofwiley.gov';
+
+function corsHeaders(origin) {
+  const allowOrigin =
+    origin && (origin === DEFAULT_ALLOWED_ORIGIN || origin.endsWith('.townofwiley.gov'))
+      ? origin
+      : DEFAULT_ALLOWED_ORIGIN;
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
 export const handler = async (event) => {
+  const origin = event.headers?.origin ?? event.headers?.Origin ?? '';
+  const headers = corsHeaders(origin);
+
   // Handle CORS preflight
   if (event.requestContext?.http?.method === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS };
+    return { statusCode: 204, headers };
   }
 
   let body;
@@ -50,7 +61,7 @@ export const handler = async (event) => {
   } catch {
     return {
       statusCode: 400,
-      headers: CORS_HEADERS,
+      headers,
       body: JSON.stringify({ error: 'Invalid JSON' }),
     };
   }
@@ -82,25 +93,29 @@ export const handler = async (event) => {
     `Locale: ${sanitized.locale || 'en'}`,
   ].join('\n');
 
-  // Send via SES
-  await ses.send(
-    new SendEmailCommand({
-      Destination: { ToAddresses: [TO_ADDRESS] },
-      Source: FROM_ADDRESS,
-      Message: {
-        Subject: {
-          Data: `Contact Info Update from Resident – ${sanitized.fullName || 'Unknown'}`,
+  // Notify clerk via SES; do not fail the request if email delivery fails after persistence.
+  try {
+    await ses.send(
+      new SendEmailCommand({
+        Destination: { ToAddresses: [TO_ADDRESS] },
+        Source: FROM_ADDRESS,
+        Message: {
+          Subject: {
+            Data: `Contact Info Update from Resident – ${sanitized.fullName || 'Unknown'}`,
+          },
+          Body: {
+            Text: { Data: lines },
+          },
         },
-        Body: {
-          Text: { Data: lines },
-        },
-      },
-    }),
-  );
+      }),
+    );
+  } catch (err) {
+    console.error('Contact update saved but SES notification failed', err);
+  }
 
   return {
     statusCode: 200,
-    headers: CORS_HEADERS,
+    headers,
     body: JSON.stringify({ ok: true }),
   };
 };

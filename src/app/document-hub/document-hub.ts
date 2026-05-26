@@ -70,6 +70,7 @@ interface DocumentHubCopy {
   archiveSearchPlaceholder: string;
   archiveSearchAriaLabel: string;
   resolutionErrorMessage: string;
+  extendedLoadUnavailableMessage: string;
   sections: DocumentSection[];
 }
 
@@ -97,6 +98,8 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     archiveSearchAriaLabel: 'Search agendas, minutes, or keywords',
     resolutionErrorMessage:
       'Some document links could not be loaded. Refresh the page or contact the Town Clerk at (719) 829-4974 if the problem persists.',
+    extendedLoadUnavailableMessage:
+      'The live document catalog could not be refreshed. Showing saved documents and static town references.',
     sections: [
       {
         id: 'records-requests',
@@ -231,6 +234,8 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     archiveSearchAriaLabel: 'Buscar agendas, minutas o palabras clave',
     resolutionErrorMessage:
       'Algunos enlaces de documentos no se pudieron cargar. Actualice la pagina o llame a la Secretaria al (719) 829-4974 si el problema persiste.',
+    extendedLoadUnavailableMessage:
+      'No se pudo actualizar el catalogo en vivo. Mostrando documentos guardados y referencias estaticas del pueblo.',
     sections: [
       {
         id: 'records-requests',
@@ -366,6 +371,7 @@ export class DocumentHub {
 
   protected readonly resolvedCmsDocumentHrefs = signal<Record<string, string>>({});
   protected readonly hrefResolutionError = signal(false);
+  protected readonly cmsExtendedLoadFailed = this.cms.extendedLoadFailed;
 
   protected readonly copy = computed(
     () => DOCUMENT_HUB_COPY[this.siteLanguageService.currentLanguage() || 'en'],

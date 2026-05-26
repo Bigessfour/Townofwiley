@@ -32,6 +32,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_lambda_url import (  # noqa: E402
+    ensure_none_auth_function_url_public_access,
+    ensure_review_function_allows_proxy,
+    town_site_cors_origins,
+)
 from _deploy_npm import npm_install_cmd  # noqa: E402
 
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
@@ -142,6 +147,11 @@ def get_or_create_role(role_name: str, review_function_arn: str) -> str:
                     "Action": "lambda:InvokeFunctionUrl",
                     "Resource": review_function_arn,
                     "Condition": {"StringEquals": {"lambda:FunctionUrlAuthType": "AWS_IAM"}},
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": "lambda:InvokeFunction",
+                    "Resource": review_function_arn,
                 },
                 {
                     "Effect": "Allow",
@@ -258,7 +268,7 @@ def upsert_lambda(
 
 def ensure_public_function_url(function_name: str, region: str) -> str:
     cors = {
-        "AllowOrigins": ["https://www.townofwiley.gov", "https://townofwiley.gov"],
+        "AllowOrigins": town_site_cors_origins("https://www.townofwiley.gov"),
         "AllowMethods": ["GET"],
         "AllowHeaders": ["content-type"],
         "MaxAge": 300,
@@ -284,7 +294,18 @@ def ensure_public_function_url(function_name: str, region: str) -> str:
                 ],
                 region=region,
             )
-        return url
+        else:
+            run_aws(
+                [
+                    "lambda",
+                    "update-function-url-config",
+                    "--function-name",
+                    function_name,
+                    "--cors",
+                    json.dumps(cors),
+                ],
+                region=region,
+            )
     except RuntimeError:
         result = run_aws(
             [
@@ -299,29 +320,10 @@ def ensure_public_function_url(function_name: str, region: str) -> str:
             ],
             region=region,
         )
-        try:
-            run_aws(
-                [
-                    "lambda",
-                    "add-permission",
-                    "--function-name",
-                    function_name,
-                    "--statement-id",
-                    "FunctionURLAllowPublicAccess",
-                    "--action",
-                    "lambda:InvokeFunctionUrl",
-                    "--principal",
-                    "*",
-                    "--function-url-auth-type",
-                    "NONE",
-                ],
-                expect_json=False,
-                region=region,
-            )
-        except RuntimeError as exc:
-            if "already exists" not in str(exc):
-                raise
-        return result["FunctionUrl"]
+        url = result["FunctionUrl"]
+
+    ensure_none_auth_function_url_public_access(function_name, region, run_aws)
+    return url
 
 
 def main() -> None:
@@ -358,6 +360,7 @@ def main() -> None:
         "ALLOWED_ORIGIN": allowed_origin,
     }
     upsert_lambda(function_name, role_arn, zip_path, env_vars, region, args.runtime)
+    ensure_review_function_allows_proxy(review_fn, role_name, region, run_aws)
     proxy_url = ensure_public_function_url(function_name, region)
 
     print("\n" + "=" * 60)

@@ -20,6 +20,11 @@ describe('LocalizedCmsContentStore', () => {
     __TOW_RUNTIME_CONFIG_OVERRIDE__?: TestRuntimeConfig;
   };
 
+  async function waitForCmsInitialization(): Promise<void> {
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+
   beforeEach(() => {
     window.localStorage.setItem('tow-site-language', 'en');
   });
@@ -28,17 +33,22 @@ describe('LocalizedCmsContentStore', () => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
+    window.localStorage.removeItem('tow-cms-snapshot-v1');
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
 
-  it('uses bundled fallback content when runtime config is missing', () => {
+  it('uses bundled fallback content when runtime config is missing', async () => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await Promise.resolve();
 
     expect(store.isLoading()).toBe(false);
     expect(store.loadError()).toBeNull();
@@ -51,8 +61,6 @@ describe('LocalizedCmsContentStore', () => {
   });
 
   it('loads and normalizes public CMS content from AppSync', async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
     window.localStorage.setItem('tow-site-language', 'es');
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
@@ -70,29 +78,28 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
 
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    expect(cmsRequest.request.method).toBe('POST');
-    expect(cmsRequest.request.headers.get('x-api-key')).toBe('test-public-api-key');
-    expect(cmsRequest.request.body.query as string).toContain('listSiteSettings(limit: 1)');
-    expect(cmsRequest.request.body.query as string).toContain(
+    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    expect(coreRequest.request.method).toBe('POST');
+    expect(coreRequest.request.headers.get('x-api-key')).toBe('test-public-api-key');
+    expect(coreRequest.request.body.query as string).toContain('GetPublicCmsCoreContent');
+    expect(coreRequest.request.body.query as string).toContain('listSiteSettings(limit: 1)');
+    expect(coreRequest.request.body.query as string).toContain(
       'listAnnouncements(filter: { active: { eq: true } }, limit: 50)',
     );
-    expect(cmsRequest.request.body.query as string).toContain('announcementKind');
-    expect(cmsRequest.request.body.query as string).toContain(
+    expect(coreRequest.request.body.query as string).toContain('announcementKind');
+    expect(coreRequest.request.body.query as string).toContain(
       'listEvents(filter: { active: { eq: true } }, limit: 50)',
     );
-    expect(cmsRequest.request.body.query as string).toContain(
-      'listBusinesses(filter: { active: { eq: true } }, limit: 100)',
-    );
-    expect(cmsRequest.request.body.query as string).toContain(
-      'listPublicDocuments(filter: { active: { eq: true } }, limit: 200)',
-    );
-    expect(cmsRequest.request.body.query as string).toContain(
-      'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
-    );
+    expect(coreRequest.request.body.query as string).not.toContain('listBusinesses');
 
-    cmsRequest.flush({
+    coreRequest.flush({
       data: {
         listSiteSettings: {
           items: [
@@ -228,6 +235,25 @@ describe('LocalizedCmsContentStore', () => {
             },
           ],
         },
+      },
+    });
+
+    await Promise.resolve();
+
+    const extendedRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    expect(extendedRequest.request.body.query as string).toContain('GetPublicCmsExtendedContent');
+    expect(extendedRequest.request.body.query as string).toContain(
+      'listBusinesses(filter: { active: { eq: true } }, limit: 100)',
+    );
+    expect(extendedRequest.request.body.query as string).toContain(
+      'listPublicDocuments(filter: { active: { eq: true } }, limit: 100)',
+    );
+    expect(extendedRequest.request.body.query as string).toContain(
+      'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
+    );
+
+    extendedRequest.flush({
+      data: {
         listBusinesses: {
           items: [
             {
@@ -390,6 +416,10 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
 
     httpTesting.expectOne('https://cms.example.com/graphql').flush({
       data: {
@@ -411,7 +441,14 @@ describe('LocalizedCmsContentStore', () => {
         },
         listAnnouncements: { items: [] },
         listEvents: { items: [] },
-        listContacts: { items: [] },
+        listOfficialContacts: { items: [] },
+      },
+    });
+
+    await Promise.resolve();
+
+    httpTesting.expectOne('https://cms.example.com/graphql').flush({
+      data: {
         listBusinesses: { items: [] },
         listPublicDocuments: { items: [] },
         listExternalNewsLinks: { items: [] },
@@ -422,6 +459,121 @@ describe('LocalizedCmsContentStore', () => {
 
     expect(store.alertBanner().enabled).toBe(false);
     expect(store.alertBanner().title).toBe('Urgent town update');
+
+    httpTesting.verify();
+  });
+
+  it('falls back with a friendly message when AppSync returns 504 after retries', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
+
+    vi.useFakeTimers();
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      httpTesting
+        .expectOne('https://cms.example.com/graphql')
+        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+
+      if (attempt < 2) {
+        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
+      }
+    }
+
+    await Promise.resolve();
+
+    expect(store.hasLoadFailed()).toBe(true);
+    expect(store.loadError()).toContain('timed out');
+    expect(store.hero().title).toBe('Town of Wiley');
+
+    httpTesting.verify();
+  });
+
+  it('restores a cached CMS snapshot when live AppSync core load fails', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    window.localStorage.setItem(
+      'tow-cms-snapshot-v1',
+      JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        siteSettings: {
+          townName: 'Town of Wiley',
+          heroTitle: 'Cached Town of Wiley',
+        },
+        alertBannerRecords: [],
+        noticeRecords: [
+          {
+            id: 'cached-notice',
+            title: 'Cached water notice',
+            date: '2026-06-18',
+            detail: 'Cached detail',
+            active: true,
+          },
+        ],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      }),
+    );
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
+
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      httpTesting
+        .expectOne('https://cms.example.com/graphql')
+        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+
+      if (attempt < 2) {
+        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
+      }
+    }
+
+    await Promise.resolve();
+
+    expect(store.hasLoadFailed()).toBe(false);
+    expect(store.isUsingCachedSnapshot()).toBe(true);
+    expect(store.hero().title).toBe('Cached Town of Wiley');
+    expect(store.notices()[0]?.title).toBe('Cached water notice');
 
     httpTesting.verify();
   });

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { isExpectedNetworkDegradation } from './network-degradation';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -45,6 +46,15 @@ export class LoggingService {
     });
 
     window.addEventListener('unhandledrejection', (event) => {
+      if (isExpectedNetworkDegradation(event.reason)) {
+        this.log('warn', 'Expected promise rejection', {
+          eventType: 'expected_rejection',
+          reason: this.stringifyReason(event.reason),
+        });
+        event.preventDefault();
+        return;
+      }
+
       this.log('error', 'Unhandled promise rejection', {
         eventType: 'unhandled_rejection',
         reason: this.stringifyReason(event.reason),

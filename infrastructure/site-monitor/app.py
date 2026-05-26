@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Protocol
@@ -52,6 +53,14 @@ DEFAULT_PUBLIC_PAGE_PATHS = {
 DEFAULT_CMS_QUERY = (
     "query TownWebsiteHealth { listSiteSettings(limit: 1) { items { id } } }"
 )
+DEFAULT_CMS_CORE_QUERY = """query GetPublicCmsCoreContent {
+  listSiteSettings(limit: 1) { items { id townName } }
+  listAlertBanners(limit: 1) { items { id enabled } }
+  listAnnouncements(filter: { active: { eq: true } }, limit: 1) { items { id title } }
+  listEvents(filter: { active: { eq: true } }, limit: 1) { items { id title } }
+  listOfficialContacts(limit: 1) { items { id label } }
+}"""
+CMS_CORE_SLOW_THRESHOLD_MS = 5000
 DEFAULT_RECIPIENT_EMAIL = "bigessfour@gmail.com"
 DEFAULT_SENDER_EMAIL = "alerts@townofwiley.gov"
 DEFAULT_SENDER_NAME = "Town of Wiley Alerts"
@@ -295,6 +304,7 @@ class TownSiteMonitor:
 
         if self._config.cms_endpoint and self._config.cms_api_key:
             checks.append(self._probe_cms())
+            checks.append(self._probe_cms_core())
 
         return checks
 
@@ -438,6 +448,100 @@ class TownSiteMonitor:
             ok=True,
             status_code=status_code,
             detail="ok",
+            response_excerpt=excerpt_text(body),
+        )
+
+    def _probe_cms_core(self) -> ProbeResult:
+        payload = json.dumps({"query": DEFAULT_CMS_CORE_QUERY}).encode("utf-8")
+        request = Request(
+            self._config.cms_endpoint,
+            data=payload,
+            headers={
+                "content-type": "application/json; charset=utf-8",
+                "x-api-key": self._config.cms_api_key,
+                "user-agent": self._config.user_agent,
+            },
+            method="POST",
+        )
+
+        started_at = time.perf_counter()
+
+        try:
+            with self._fetcher(request, timeout=30) as response:
+                status_code = getattr(response, "status", None) or response.getcode()
+                body = response.read().decode("utf-8", errors="replace")
+        except HTTPError as error:
+            body = _read_error_body(error)
+            latency_ms = round((time.perf_counter() - started_at) * 1000)
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=error.code,
+                detail=f"HTTP {error.code} in {latency_ms}ms",
+                response_excerpt=excerpt_text(body),
+            )
+        except URLError as error:
+            latency_ms = round((time.perf_counter() - started_at) * 1000)
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=None,
+                detail=f"{error.reason or error} after {latency_ms}ms",
+            )
+
+        latency_ms = round((time.perf_counter() - started_at) * 1000)
+
+        if status_code != 200:
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=status_code,
+                detail=f"HTTP {status_code} in {latency_ms}ms",
+                response_excerpt=excerpt_text(body),
+            )
+
+        try:
+            payload_json = json.loads(body or "{}")
+        except json.JSONDecodeError:
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=status_code,
+                detail=f"invalid JSON response in {latency_ms}ms",
+                response_excerpt=excerpt_text(body),
+            )
+
+        errors = payload_json.get("errors") or []
+        if errors:
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=status_code,
+                detail=f"GraphQL returned errors in {latency_ms}ms",
+                response_excerpt=excerpt_text(json.dumps(errors, indent=2)),
+            )
+
+        if latency_ms > CMS_CORE_SLOW_THRESHOLD_MS:
+            return ProbeResult(
+                name="cms-api-core",
+                url=self._config.cms_endpoint,
+                ok=False,
+                status_code=status_code,
+                detail=f"slow response {latency_ms}ms (>{CMS_CORE_SLOW_THRESHOLD_MS}ms)",
+                response_excerpt=excerpt_text(body),
+            )
+
+        return ProbeResult(
+            name="cms-api-core",
+            url=self._config.cms_endpoint,
+            ok=True,
+            status_code=status_code,
+            detail=f"ok in {latency_ms}ms",
             response_excerpt=excerpt_text(body),
         )
 
