@@ -1396,13 +1396,95 @@ export class LocalizedCmsContentStore {
         };
       });
 
-    if (contacts.length) {
-      return contacts;
+    if (!contacts.length) {
+      const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+
+      return fallbackContacts.map((contact) => ({ ...contact }));
     }
 
-    const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+    return this.ensureRequiredOfficialContacts(contacts, language);
+  }
 
-    return fallbackContacts.map((contact) => ({ ...contact }));
+  private ensureRequiredOfficialContacts(
+    contacts: CmsContact[],
+    language: SiteLanguage,
+  ): CmsContact[] {
+    const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+    const contactById = new Map(contacts.map((contact) => [contact.id, contact]));
+
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+      (contact, fallback) =>
+        contact.id.includes('town-information') ||
+        contact.label.toLowerCase().includes('town information') ||
+        contact.label.toLowerCase().includes('informacion del pueblo') ||
+        contact.href === fallback.href,
+    );
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_CITY_CLERK,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
+      (contact, fallback) =>
+        contact.id.includes('clerk') ||
+        contact.label.toLowerCase().includes('clerk') ||
+        contact.label.toLowerCase().includes('secretaria') ||
+        contact.href === fallback.href ||
+        contact.linkLabel === fallback.linkLabel ||
+        contact.value === fallback.value,
+    );
+
+    return [...contactById.values()].sort((left, right) => {
+      const leftOrder = contacts.findIndex((contact) => contact.id === left.id);
+      const rightOrder = contacts.findIndex((contact) => contact.id === right.id);
+      const normalizedLeft = leftOrder === -1 ? Number.MAX_SAFE_INTEGER : leftOrder;
+      const normalizedRight = rightOrder === -1 ? Number.MAX_SAFE_INTEGER : rightOrder;
+
+      return normalizedLeft - normalizedRight;
+    });
+  }
+
+  private mergeRequiredOfficialContact(
+    contactById: Map<string, CmsContact>,
+    contacts: CmsContact[],
+    requiredId: string,
+    fallback: CmsContact | undefined,
+    matchesCandidate: (contact: CmsContact, fallback: CmsContact) => boolean,
+  ): void {
+    if (!fallback) {
+      return;
+    }
+
+    const current = contactById.get(requiredId);
+    if (current?.href) {
+      return;
+    }
+
+    const candidate =
+      current ??
+      contacts.find(
+        (contact) => contact.id !== requiredId && matchesCandidate(contact, fallback),
+      );
+
+    if (candidate) {
+      if (candidate.id !== requiredId) {
+        contactById.delete(candidate.id);
+      }
+
+      contactById.set(requiredId, {
+        ...fallback,
+        ...candidate,
+        id: requiredId,
+        href: candidate.href ?? fallback.href,
+        linkLabel: candidate.linkLabel ?? fallback.linkLabel,
+      });
+      return;
+    }
+
+    contactById.set(requiredId, { ...fallback });
   }
 
   private normalizeEvents(records: EventRecord[]): CmsCalendarEvent[] {

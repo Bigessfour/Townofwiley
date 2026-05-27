@@ -18,6 +18,12 @@ import {
   type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
+import {
+  emptyCmsCoreGraphqlData,
+  emptyCmsExtendedGraphqlData,
+  flushBuildCmsSnapshotNotFound,
+  flushCmsSnapshotAndWait,
+} from './cms-test-support';
 
 interface TestRuntimeConfig {
   clerkSetup?: {
@@ -361,12 +367,12 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    cmsRequest.flush({
+    await flushCmsSnapshotAndWait(httpTesting);
+
+    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    coreRequest.flush({
       data: {
-        listSiteSettings: { items: [] },
-        listAlertBanners: { items: [] },
-        listAnnouncements: { items: [] },
+        ...emptyCmsCoreGraphqlData,
         listEvents: {
           items: [
             {
@@ -381,12 +387,15 @@ describe('App', () => {
             },
           ],
         },
-        listOfficialContacts: { items: [] },
-        listBusinesses: { items: [] },
-        listPublicDocuments: { items: [] },
-        listExternalNewsLinks: { items: [] },
       },
     });
+
+    await Promise.resolve();
+
+    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
+    for (const request of extendedRequest) {
+      request.flush({ data: emptyCmsExtendedGraphqlData });
+    }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
@@ -420,12 +429,12 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    cmsRequest.flush({
+    await flushCmsSnapshotAndWait(httpTesting);
+
+    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    coreRequest.flush({
       data: {
-        listSiteSettings: { items: [] },
-        listAlertBanners: { items: [] },
-        listAnnouncements: { items: [] },
+        ...emptyCmsCoreGraphqlData,
         listEvents: {
           items: [
             {
@@ -440,12 +449,15 @@ describe('App', () => {
             },
           ],
         },
-        listOfficialContacts: { items: [] },
-        listBusinesses: { items: [] },
-        listPublicDocuments: { items: [] },
-        listExternalNewsLinks: { items: [] },
       },
     });
+
+    await Promise.resolve();
+
+    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
+    for (const request of extendedRequest) {
+      request.flush({ data: emptyCmsExtendedGraphqlData });
+    }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
@@ -961,6 +973,8 @@ describe('App', () => {
    * three-step NWS direct chain (points → forecast → alerts).
    */
   async function flushWeatherRequests(alertFeatures: AlertFeature[] = []): Promise<void> {
+    await flushCmsSnapshotAndWait(httpTesting);
+
     const effectiveWeather = {
       ...(runtimeWindow.__TOW_RUNTIME_CONFIG__?.weather ?? {}),
       ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
@@ -1176,6 +1190,8 @@ describe('App', () => {
   }
 
   function flushPendingWeatherRequests(): void {
+    flushBuildCmsSnapshotNotFound(httpTesting);
+
     const directRequests = [
       {
         url: 'https://api.weather.gov/points/38.154,-102.72',

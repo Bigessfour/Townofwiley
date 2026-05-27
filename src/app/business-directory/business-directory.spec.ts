@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { defaultCmsStoreMockFields } from '../cms-test-support';
 import { LoggingService } from '../logging.service';
 import { type CmsBusiness, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
@@ -17,7 +18,10 @@ function configure(store: DirectoryStore, language: 'en' | 'es' = 'en') {
       SiteLanguageService,
       {
         provide: LocalizedCmsContentStore,
-        useValue: store as unknown as LocalizedCmsContentStore,
+        useValue: {
+          ...defaultCmsStoreMockFields,
+          ...store,
+        } as unknown as LocalizedCmsContentStore,
       },
       {
         provide: LoggingService,

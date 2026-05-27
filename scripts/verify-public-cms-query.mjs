@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Ensures PUBLIC_CMS_QUERY in site-cms-content.ts only lists AppSync models
- * that grant public + apiKey + read in schema.graphql, and never EmailAlias.
+ * Ensures public CMS GraphQL queries in site-cms-content.ts only list AppSync
+ * models that grant public + apiKey + read in schema.graphql, and never EmailAlias.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -24,17 +24,26 @@ const LIST_OPERATION_TO_MODEL = {
   listLeadershipRosterEntries: 'LeadershipRosterEntry',
 };
 
-function extractPublicCmsQuery(source) {
-  const start = source.indexOf('const PUBLIC_CMS_QUERY = `');
+const PUBLIC_CMS_QUERY_CONSTANTS = ['PUBLIC_CMS_CORE_QUERY', 'PUBLIC_CMS_EXTENDED_QUERY'];
+
+function extractQueryConstant(source, constantName) {
+  const marker = `const ${constantName} = \``;
+  const start = source.indexOf(marker);
   if (start === -1) {
-    throw new Error('Could not find PUBLIC_CMS_QUERY in site-cms-content.ts');
+    throw new Error(`Could not find ${constantName} in site-cms-content.ts`);
   }
-  const open = source.indexOf('`', start + 'const PUBLIC_CMS_QUERY = '.length);
+
+  const open = source.indexOf('`', start + marker.length - 1);
   const close = source.indexOf('`;', open + 1);
   if (open === -1 || close === -1) {
-    throw new Error('Could not parse PUBLIC_CMS_QUERY string boundaries');
+    throw new Error(`Could not parse ${constantName} string boundaries`);
   }
+
   return source.slice(open + 1, close);
+}
+
+function extractPublicCmsQueries(source) {
+  return PUBLIC_CMS_QUERY_CONSTANTS.map((constantName) => extractQueryConstant(source, constantName));
 }
 
 function modelAllowsPublicApiKeyRead(schema, modelName) {
@@ -60,25 +69,26 @@ function modelAllowsPublicApiKeyRead(schema, modelName) {
 function main() {
   const schema = readFileSync(schemaPath, 'utf8');
   const siteCms = readFileSync(siteCmsPath, 'utf8');
-  const query = extractPublicCmsQuery(siteCms);
+  const queries = extractPublicCmsQueries(siteCms);
+  const query = queries.join('\n');
 
   if (/EmailAlias|listEmailAliases/i.test(query)) {
-    console.error('PUBLIC_CMS_QUERY must not reference EmailAlias or listEmailAliases.');
+    console.error('Public CMS queries must not reference EmailAlias or listEmailAliases.');
     process.exit(1);
   }
 
-  const listOps = [...query.matchAll(/\b(list[A-Za-z]+)\s*\(/g)].map((m) => m[1]);
+  const listOps = [...query.matchAll(/\b(list[A-Za-z]+)\s*\(/g)].map((match) => match[1]);
   const unique = [...new Set(listOps)];
 
   for (const op of unique) {
     const model = LIST_OPERATION_TO_MODEL[op];
     if (!model) {
-      console.error(`Unexpected list operation in PUBLIC_CMS_QUERY: ${op}`);
+      console.error(`Unexpected list operation in public CMS queries: ${op}`);
       process.exit(1);
     }
     const { ok, reason } = modelAllowsPublicApiKeyRead(schema, model);
     if (!ok) {
-      console.error(`PUBLIC_CMS_QUERY uses ${op} -> ${model}, but schema check failed: ${reason}`);
+      console.error(`Public CMS queries use ${op} -> ${model}, but schema check failed: ${reason}`);
       process.exit(1);
     }
   }
@@ -86,14 +96,14 @@ function main() {
   for (const op of Object.keys(LIST_OPERATION_TO_MODEL)) {
     if (!unique.includes(op)) {
       console.error(
-        `Expected PUBLIC_CMS_QUERY to include ${op} (${LIST_OPERATION_TO_MODEL[op]}) — update script allowlist or restore query.`,
+        `Expected public CMS queries to include ${op} (${LIST_OPERATION_TO_MODEL[op]}) — update script allowlist or restore query.`,
       );
       process.exit(1);
     }
   }
 
   console.log(
-    `verify-public-cms-query: OK (${unique.length} list operations match public apiKey read models).`,
+    `verify-public-cms-query: OK (${unique.length} list operations across ${PUBLIC_CMS_QUERY_CONSTANTS.length} queries match public apiKey read models).`,
   );
 }
 

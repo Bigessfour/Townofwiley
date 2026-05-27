@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { defaultCmsStoreMockFields } from '../cms-test-support';
 import {
   type CmsCalendarEvent,
   type CmsPublicDocument,
@@ -38,6 +39,7 @@ async function configure(opts: ConfigureOpts = {}) {
       {
         provide: LocalizedCmsContentStore,
         useValue: {
+          ...defaultCmsStoreMockFields,
           events,
           publicDocuments,
           refreshContent: vi.fn().mockResolvedValue(undefined),

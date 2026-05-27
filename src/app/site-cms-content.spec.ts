@@ -60,6 +60,48 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting.verify();
   });
 
+  it('keeps bundled official contacts when build snapshot records use unstable ids', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        contactRecords: [
+          {
+            id: '94d5fe8f-6e50-429f-9bde-0993e0ead939',
+            label: 'Town Clerk',
+            value: 'Debbie Dillon',
+            detail: 'Point of Contact for Official Town Business',
+            href: null,
+            linkLabel: null,
+            displayOrder: 1,
+          },
+        ],
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      });
+    await waitForCmsInitialization();
+
+    expect(store.contacts().find((contact) => contact.id === 'city-clerk')?.href).toBe(
+      'mailto:deb.dillon@townofwiley.gov',
+    );
+    expect(store.contacts().find((contact) => contact.id === 'town-information')?.href).toBe(
+      'tel:+17198294974',
+    );
+
+    httpTesting.verify();
+  });
+
   it('loads and normalizes public CMS content from AppSync', async () => {
     window.localStorage.setItem('tow-site-language', 'es');
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
