@@ -7,13 +7,15 @@ that turns the Angular 21 SPA into a live, deep-linkable site belongs here.
 When the build output, rewrite rules, CSP origins, or runtime-config flow change,
 update this file in the same PR.
 
+**Custom Lambdas, DynamoDB, Function URL auth, and deployment order:** [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) and [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json).
+
 ---
 
 ## 1. Build output and artifact path
 
 Amplify executes the build defined in [`amplify.yml`](../amplify.yml). The relevant facts:
 
-- **Node version**: pinned to **`24.15.0`** via `nvm install 24.15.0` / `nvm use 24.15.0` in `preBuild`, matching `.nvmrc` and CI. **Node 25+ is unsupported** for this stack.
+- **Node version**: pinned to **`24.16.0`** via `nvm install 24.16.0` / `nvm use 24.16.0` in `preBuild`, matching `.nvmrc` and CI. See [`NODE_VERSION.md`](NODE_VERSION.md). **Node 25+ is unsupported** for this stack.
 - **Install**: `npm ci`.
 - **Build command**: `npm run build` (which runs the Angular `ng build` configured in `angular.json`).
 - **Artifact `baseDirectory`**: `dist/townofwiley-app/browser` — Amplify uploads everything under this folder to its CDN. This is the SPA static-asset root: `index.html`, hashed `*.js`/`*.css` bundles, and the `assets/` tree.

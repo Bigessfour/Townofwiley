@@ -43,7 +43,11 @@ export const handler = async (event) => {
   // Only allow GET
   const method = event.requestContext?.http?.method ?? 'GET';
   if (method !== 'GET') {
-    return { statusCode: 405, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return {
+      statusCode: 405,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
   }
 
   try {

@@ -81,7 +81,7 @@ process.stdout.write(exe);
     r = run(["node", "-e", snippet, str(root)], cwd=root)
     if r.returncode != 0:
         err = (r.stderr or r.stdout or "").strip()
-        hint = "Run: npx playwright install chromium  (or playwright install --with-deps chromium in CI)"
+        hint = "Run: npm run test:e2e:install  (or npx playwright install chromium)"
         return (
             False,
             f"Chromium executable missing or playwright-core not loadable.\n{err}\n{hint}",

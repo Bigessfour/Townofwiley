@@ -112,6 +112,10 @@ const contactUpdateApiEndpoint =
   process.env.CONTACT_UPDATE_API_ENDPOINT?.trim() ||
   localSecrets.contactUpdate?.apiEndpoint?.trim() ||
   '';
+const contactUpdateReviewProxyEndpoint =
+  process.env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||
+  localSecrets.contactUpdate?.reviewProxyEndpoint?.trim() ||
+  '';
 const paystarMode =
   explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
     ? explicitPaystarMode
@@ -180,6 +184,7 @@ const runtimeConfig = {
   },
   contactUpdate: {
     apiEndpoint: contactUpdateApiEndpoint,
+    reviewProxyEndpoint: contactUpdateReviewProxyEndpoint,
   },
 };
 

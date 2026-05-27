@@ -1,7 +1,8 @@
 # Town of Wiley Website Readiness Checklist
 
-**Purpose:** A living checklist for iterating the site from "mostly works" to "Done".
-Use this as the single working document for audit, remediation, and validation.
+**Last updated:** 2026-05-22
+**Purpose:** Pre-launch quality checklist (architecture, UX, perf).
+**Remediation status:** [`post-development-inventory.md`](post-development-inventory.md) is the authoritative AP slice tracker after the 2026-05-22 audit.
 
 **Source of truth:**
 
@@ -40,6 +41,7 @@ Evidence / notes:
 - [x] No dead code, orphaned imports, or unused component wiring remain in the touched area.
 
 Evidence / notes:
+
 - `ng lint` and `ng build` passed under Node 24.
 
 ### 1.3 Testing baseline
@@ -50,6 +52,7 @@ Evidence / notes:
 - [x] Error paths and empty states have explicit test coverage.
 
 Evidence / notes:
+
 - Targeted Playwright smoke specs passed for visual readiness and form/error-state coverage.
 
 ## 2. User Experience Criteria
@@ -65,6 +68,7 @@ Evidence / notes:
 - [ ] Homepage, weather, services, meetings, and documents look intentionally designed to a human reviewer.
 
 Evidence / notes:
+
 - `e2e/specs/smoke/visual-readiness.spec.ts` now checks homepage hero typography, the homepage search-panel surface tone, desktop route spacing, and mobile/desktop font readability for the homepage, weather, services, meetings, and documents pages.
 - Existing deterministic screenshot baselines continue to cover the major public surfaces in `e2e/specs/best-practices/deterministic-coverage.spec.ts`.
 
@@ -79,6 +83,7 @@ Evidence / notes:
 - [x] Screen-reader output is understandable for core flows.
 
 Evidence / notes:
+
 - Playwright axe accessibility suite passed on the 13 public-page cases, including the weather page no-alerts state.
 - `e2e/specs/smoke/accessibility-focus.spec.ts` now proves tab order, focus visibility, and a readable accessibility-report structure.
 - `e2e/specs/smoke/forms-and-empty-states.spec.ts` and `e2e/specs/smoke/form-labeling-complete.spec.ts` prove labels, helper/error messaging, and form discovery.
@@ -92,6 +97,7 @@ Evidence / notes:
 - [x] Touch targets are large enough to use comfortably.
 
 Evidence / notes:
+
 - `e2e/specs/responsive/public-pages.responsive.spec.ts` continues to prove mobile route visibility, overflow limits, and footer link reachability.
 - `e2e/specs/responsive/home.responsive.spec.ts` continues to prove the homepage remains scannable on mobile and key actions stay reachable.
 - `e2e/specs/responsive/mobile-touch-targets.spec.ts` now passes on the mobile Chromium project and proves all visible controls meet the 44px touch-target baseline.
@@ -114,6 +120,7 @@ Evidence / notes:
 - [x] Footer, privacy, terms, and accessibility links remain reachable on mobile.
 
 Evidence / notes:
+
 - `e2e/specs/responsive/mobile-touch-targets.spec.ts` passed on the mobile Chromium project and proves the 44px touch-target baseline for visible controls.
 - `e2e/specs/responsive/public-pages.responsive.spec.ts` and `e2e/specs/responsive/home.responsive.spec.ts` continue to prove mobile overflow, footer reachability, and visibility of the key mobile actions on public pages.
 - `e2e/specs/responsive/public-pages.responsive.spec.ts` now also proves the homepage footer legal links can be reached and navigated from the mobile viewport.
@@ -144,7 +151,7 @@ Evidence / notes:
 
 - `e2e/specs/smoke/performance-readiness.spec.ts` verifies the homepage hero uses eager, high-priority image delivery and keeps layout shift low on initial load.
 - The recent browser run measured CLS at `0.0319004593767638`, which stays comfortably below the checklist threshold.
-- The live audit artifact in `artifacts/live-audit/925107.json` records LCP `1336 ms`, CLS `0.004438401249388658`, and TBT `11 ms` for the public homepage.
+- The live audit artifact in `archive/artifacts/live-audit/925107.json` records LCP `1336 ms`, CLS `0.004438401249388658`, and TBT `11 ms` for the public homepage.
 
 ### 3.3 Lighthouse and Web Vitals
 
@@ -159,7 +166,7 @@ Evidence / notes:
 
 - Desktop PageSpeed for `https://townofwiley.gov` currently reports Performance 63, Accessibility 92, Best Practices 92, and SEO 92, with FCP 0.6 s, LCP 1.3 s, TBT 540 ms, CLS 0.225, and Speed Index 0.8 s.
 - Mobile PageSpeed for the same URL shows the same broad issue pattern: image delivery, unused JavaScript, layout-shift pressure, and contrast/ARIA concerns.
-- Live audit evidence exists for LCP, CLS, and TBT in `artifacts/live-audit/925107.json`, but Lighthouse score capture is still a separate manual step if the numeric thresholds need formal signoff.
+- Live audit evidence exists for LCP, CLS, and TBT in `archive/artifacts/live-audit/925107.json`, but Lighthouse score capture is still a separate manual step if the numeric thresholds need formal signoff.
 
 Plan to fix both desktop and mobile:
 

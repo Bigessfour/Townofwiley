@@ -21,20 +21,14 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/assets/**",
-          "/*.(svg|png|jpg|jpeg|gif|webp)"
-        ]
+        "files": ["/assets/**", "/*.(svg|png|jpg|jpeg|gif|webp)"]
       }
     }
   ],
   "dataGroups": [
     {
       "name": "google-tag-manager",
-      "urls": [
-        "https://www.googletagmanager.com/**",
-        "https://www.google-analytics.com/**"
-      ],
+      "urls": ["https://www.googletagmanager.com/**", "https://www.google-analytics.com/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 20,
@@ -48,7 +42,7 @@
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 10,
-        "maxAge": "1d",
+        "maxAge": "4h",
         "timeout": "10s"
       }
     }

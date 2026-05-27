@@ -153,7 +153,7 @@ For frontend-impacting changes, GitHub Actions runs:
 1. `npm ci --prefer-offline --no-audit`
 2. `npm run lint`
 3. `npm run build`
-4. `npx playwright install --with-deps chromium`
+4. `npm run test:e2e:install` (Chromium only; CI caches `~/.cache/ms-playwright` and skips `--with-deps` apt)
 5. `npm run test:e2e:smoke`
 
 That is the recommended minimum deterministic gate for this site because it validates:
@@ -168,7 +168,21 @@ That is the recommended minimum deterministic gate for this site because it vali
 The workflow also runs targeted checks when website-facing backend code changes:
 
 - `npm run test:infra` for `infrastructure/nws-weather-proxy/**` and `infrastructure/paystar-proxy/**`
-- `npm run test:infra:alerts` for `infrastructure/severe-weather-signup/**`
+- `npm run test:infra:alerts` for `infrastructure/severe-weather-signup/**` (Python **3.13**)
+- `npm run test:infra:mail` for `infrastructure/email-alias-router/**` (Python **3.13**)
+- `npm run test:infra:contact` for contact Lambdas and deploy scripts (see below)
+- `node scripts/verify-aws-infrastructure.mjs --offline` when the SSOT manifest or contact infra changes
+
+### Contact infrastructure CI
+
+When paths under `infrastructure/contact-update-lambda/**`, `infrastructure/contact-updates-review/**`, `infrastructure/contact-updates-review-proxy/**`, or the contact deploy scripts change, Site CI runs the **`contact-infra-tests`** job:
+
+1. `npm ci` (root and `infrastructure/contact-updates-review` for AWS SDK)
+2. `npm run test:infra:contact` (sanitize, review handler guards, proxy origin checks)
+3. `node scripts/verify-aws-infrastructure.mjs --offline` (contact Function URL auth matrix: review=`AWS_IAM`, write/proxy=`NONE`; deploy script must enforce `AWS_IAM`)
+4. `npx vitest run src/app/clerk-setup/contact-update-review.service.vitest.ts`
+
+Manifest-only edits (`aws-infrastructure.manifest.json`, `amplify-branch-env.manifest.json`, `docs/AWS_INFRASTRUCTURE_SOT.md`) trigger **`verify-aws-infra-manifest`** without re-running contact unit tests unless contact code also changed.
 
 ### Amplify alignment
 

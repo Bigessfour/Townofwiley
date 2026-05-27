@@ -2,6 +2,7 @@ import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LoggingService } from './logging.service';
+import { isExpectedNetworkDegradation } from './network-degradation';
 
 interface ErrorDetails {
   message: string;
@@ -19,6 +20,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   private readonly router = inject(Router);
 
   handleError(error: unknown): void {
+    const expectedDegradation = isExpectedNetworkDegradation(error);
     const errorId = this.createErrorId();
     const details = this.toErrorDetails(error);
     const currentNavigation = this.router.getCurrentNavigation();
@@ -32,10 +34,19 @@ export class GlobalErrorHandler implements ErrorHandler {
       navInitialUrl: currentNavigation?.initialUrl?.toString(),
       navFinalUrl: currentNavigation?.finalUrl?.toString(),
       historyNavigationId: this.getHistoryNavigationId(),
+      expectedDegradation,
       ...details,
     };
 
-    this.logging.log('error', 'Uncaught application error', context);
+    this.logging.log(
+      expectedDegradation ? 'warn' : 'error',
+      expectedDegradation ? 'Expected service degradation' : 'Uncaught application error',
+      context,
+    );
+
+    if (expectedDegradation) {
+      return;
+    }
 
     // Keep the raw object in console for local debugging sessions.
     console.error(GlobalErrorHandler.name, {
@@ -46,7 +57,8 @@ export class GlobalErrorHandler implements ErrorHandler {
     this.messageService.add({
       severity: 'error',
       summary: 'Unexpected Error',
-      detail: 'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
+      detail:
+        'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
       life: 10000,
       closable: true,
     });

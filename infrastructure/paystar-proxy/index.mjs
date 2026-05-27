@@ -1,3 +1,11 @@
+import {
+  isEmbeddedSessionRequest,
+  resolveEmbeddedSessionType,
+  tryEmbeddedSession,
+  PAYSTAR_EMBEDDED_DOCS_URL,
+  embeddedConfigured,
+} from './paystar-embedded.mjs';
+
 const PAYSTAR_DOCS_URL = 'https://docs.paystar.io/';
 
 const ALLOWED_ORIGINS = new Set([
@@ -356,6 +364,8 @@ export async function handler(event) {
         mode: getModeForStatus(),
         upstreamLaunchConfigured: upstreamLaunchConfigured(),
         upstreamReceiptConfigured: upstreamReceiptConfigured(),
+        embeddedConfigured: embeddedConfigured(),
+        embeddedDocumentation: PAYSTAR_EMBEDDED_DOCS_URL,
         documentation: PAYSTAR_DOCS_URL,
       },
       cors,
@@ -400,6 +410,26 @@ export async function handler(event) {
       },
       cors,
     );
+  }
+
+  if (isEmbeddedSessionRequest(path, requestBody)) {
+    const sessionType = resolveEmbeddedSessionType(path, requestBody);
+    if (!sessionType) {
+      return jsonResponse(
+        400,
+        {
+          error: 'Invalid Paystar embedded session request.',
+          documentation: PAYSTAR_EMBEDDED_DOCS_URL,
+        },
+        cors,
+      );
+    }
+    const embeddedResult = await tryEmbeddedSession(sessionType, requestBody, cors);
+    return {
+      statusCode: embeddedResult.statusCode,
+      headers: embeddedResult.headers,
+      body: embeddedResult.body,
+    };
   }
 
   if (upstreamLaunchConfigured()) {

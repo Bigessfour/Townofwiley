@@ -33,12 +33,15 @@
   },
   "terminal.integrated.env.linux": {
     "AWS_PROFILE": "townofwiley",
+    "E2E_NODE": "${env:E2E_NODE}",
     "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "terminal.integrated.env.windows": {
     "AWS_PROFILE": "townofwiley",
     "NPM_CONFIG_PREFIX": "${env:APPDATA}\\npm",
-    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}\\.playwright-browsers"
+    "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}\\.playwright-browsers",
+    "E2E_NODE": "${env:NVM_SYMLINK}\\node.exe",
+    "PATH": "${env:NVM_SYMLINK};${env:PATH}"
   },
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python.defaultInterpreterPath": "/usr/bin/python3",

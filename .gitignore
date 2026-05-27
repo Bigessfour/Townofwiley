@@ -37,6 +37,9 @@ yarn-error.log
 /.scorer-source/
 /.web-codegen-scorer/
 /web-codegen-scorer-out*/
+# Ephemeral reports under archive (regenerate locally; do not commit new runs)
+/archive/artifacts/playwright-report/
+/archive/artifacts/test-results/
 /*.log
 /ULqrE.jpg
 /.angular/cache

@@ -44,24 +44,31 @@ from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SECRETS_PATH = REPO_ROOT / 'secrets' / 'local' / 'user-secrets.json'
-BACKEND_DIR = REPO_ROOT / 'infrastructure' / 'contact-updates-review'
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from _deploy_lambda_url import ensure_review_function_allows_proxy, town_site_cors_origins  # noqa: E402
+from _deploy_npm import npm_install_cmd  # noqa: E402
+
+SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
+BACKEND_DIR = REPO_ROOT / "infrastructure" / "contact-updates-review"
 
 
 # ---------------------------------------------------------------------------
 # CLI + secrets helpers
 # ---------------------------------------------------------------------------
 
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Deploy the Town of Wiley contact-updates-review Lambda.',
+        description="Deploy the Town of Wiley contact-updates-review Lambda.",
     )
-    parser.add_argument('--function-name', default='')
-    parser.add_argument('--role-name', default='')
-    parser.add_argument('--table-name', default='')
-    parser.add_argument('--allowed-origin', default='')
-    parser.add_argument('--region', default='')
-    parser.add_argument('--runtime', default='nodejs20.x')
+    parser.add_argument("--function-name", default="")
+    parser.add_argument("--role-name", default="")
+    parser.add_argument("--table-name", default="")
+    parser.add_argument("--allowed-origin", default="")
+    parser.add_argument("--region", default="")
+    parser.add_argument("--runtime", default="nodejs20.x")
     return parser.parse_args()
 
 
@@ -69,25 +76,25 @@ def load_local_secrets() -> dict[str, Any]:
     if not SECRETS_PATH.exists():
         return {}
     try:
-        return json.loads(SECRETS_PATH.read_text(encoding='utf-8'))
+        return json.loads(SECRETS_PATH.read_text(encoding="utf-8"))
     except Exception as exc:
-        print(f'Warning: could not parse local secrets: {exc}', file=sys.stderr)
+        print(f"Warning: could not parse local secrets: {exc}", file=sys.stderr)
         return {}
 
 
 def ensure_env_from_secrets(secrets: dict[str, Any]) -> None:
-    aws = secrets.get('aws', {})
+    aws = secrets.get("aws", {})
     for env_key, secret_key in [
-        ('AWS_ACCESS_KEY_ID', 'accessKeyId'),
-        ('AWS_SECRET_ACCESS_KEY', 'secretAccessKey'),
-        ('AWS_SESSION_TOKEN', 'sessionToken'),
-        ('AWS_REGION', 'region'),
+        ("AWS_ACCESS_KEY_ID", "accessKeyId"),
+        ("AWS_SECRET_ACCESS_KEY", "secretAccessKey"),
+        ("AWS_SESSION_TOKEN", "sessionToken"),
+        ("AWS_REGION", "region"),
     ]:
         if not os.environ.get(env_key) and aws.get(secret_key):
             os.environ[env_key] = aws[secret_key]
 
 
-def resolve_value(cli_value: str, secret_value: Any, fallback: str = '') -> str:
+def resolve_value(cli_value: str, secret_value: Any, fallback: str = "") -> str:
     if isinstance(cli_value, str) and cli_value.strip():
         return cli_value.strip()
     if isinstance(secret_value, str) and secret_value.strip():
@@ -99,9 +106,10 @@ def resolve_value(cli_value: str, secret_value: Any, fallback: str = '') -> str:
 # AWS CLI wrapper
 # ---------------------------------------------------------------------------
 
-def run_aws(command: list[str], expect_json: bool = True, region: str = '') -> Any:
+
+def run_aws(command: list[str], expect_json: bool = True, region: str = "") -> Any:
     process = subprocess.run(
-        ['aws', *(['--region', region] if region else []), *command],
+        ["aws", *(["--region", region] if region else []), *command],
         cwd=REPO_ROOT,
         check=False,
         capture_output=True,
@@ -109,7 +117,9 @@ def run_aws(command: list[str], expect_json: bool = True, region: str = '') -> A
     )
     if process.returncode != 0:
         raise RuntimeError(
-            process.stderr.strip() or process.stdout.strip() or 'AWS CLI command failed.'
+            process.stderr.strip()
+            or process.stdout.strip()
+            or "AWS CLI command failed."
         )
     output = process.stdout.strip()
     if expect_json and output:
@@ -121,56 +131,74 @@ def run_aws(command: list[str], expect_json: bool = True, region: str = '') -> A
 # IAM
 # ---------------------------------------------------------------------------
 
-TRUST_POLICY = json.dumps({
-    'Version': '2012-10-17',
-    'Statement': [{
-        'Effect': 'Allow',
-        'Principal': {'Service': 'lambda.amazonaws.com'},
-        'Action': 'sts:AssumeRole',
-    }],
-})
+TRUST_POLICY = json.dumps(
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "lambda.amazonaws.com"},
+                "Action": "sts:AssumeRole",
+            }
+        ],
+    }
+)
 
 
 def get_or_create_role(role_name: str, table_arn: str) -> str:
     try:
-        result = run_aws(['iam', 'get-role', '--role-name', role_name])
-        arn: str = result['Role']['Arn']
-        print(f'  IAM role already exists: {arn}')
+        result = run_aws(["iam", "get-role", "--role-name", role_name])
+        arn: str = result["Role"]["Arn"]
+        print(f"  IAM role already exists: {arn}")
     except RuntimeError:
-        print(f'  Creating IAM role {role_name} …')
-        result = run_aws([
-            'iam', 'create-role',
-            '--role-name', role_name,
-            '--assume-role-policy-document', TRUST_POLICY,
-        ])
-        arn = result['Role']['Arn']
+        print(f"  Creating IAM role {role_name} …")
+        result = run_aws(
+            [
+                "iam",
+                "create-role",
+                "--role-name",
+                role_name,
+                "--assume-role-policy-document",
+                TRUST_POLICY,
+            ]
+        )
+        arn = result["Role"]["Arn"]
         time.sleep(10)  # propagation delay
 
-    inline_policy = json.dumps({
-        'Version': '2012-10-17',
-        'Statement': [
-            {
-                'Effect': 'Allow',
-                'Action': ['dynamodb:Scan'],
-                'Resource': [table_arn, f'{table_arn}/index/*'],
-            },
-            {
-                'Effect': 'Allow',
-                'Action': [
-                    'logs:CreateLogGroup',
-                    'logs:CreateLogStream',
-                    'logs:PutLogEvents',
-                ],
-                'Resource': 'arn:aws:logs:*:*:*',
-            },
+    inline_policy = json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": ["dynamodb:Scan"],
+                    "Resource": [table_arn, f"{table_arn}/index/*"],
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents",
+                    ],
+                    "Resource": "arn:aws:logs:*:*:*",
+                },
+            ],
+        }
+    )
+    run_aws(
+        [
+            "iam",
+            "put-role-policy",
+            "--role-name",
+            role_name,
+            "--policy-name",
+            "ContactUpdatesReviewPolicy",
+            "--policy-document",
+            inline_policy,
         ],
-    })
-    run_aws([
-        'iam', 'put-role-policy',
-        '--role-name', role_name,
-        '--policy-name', 'ContactUpdatesReviewPolicy',
-        '--policy-document', inline_policy,
-    ], expect_json=False)
+        expect_json=False,
+    )
     return arn
 
 
@@ -178,29 +206,43 @@ def get_or_create_role(role_name: str, table_arn: str) -> str:
 # DynamoDB - resolve table ARN
 # ---------------------------------------------------------------------------
 
+
 def get_table_arn(table_name: str, region: str) -> str:
-    result = run_aws(['dynamodb', 'describe-table', '--table-name', table_name], region=region)
-    return result['Table']['TableArn']
+    result = run_aws(
+        ["dynamodb", "describe-table", "--table-name", table_name], region=region
+    )
+    return result["Table"]["TableArn"]
 
 
 # ---------------------------------------------------------------------------
 # Lambda zip
 # ---------------------------------------------------------------------------
 
+
 def build_zip() -> Path:
-    zip_path = REPO_ROOT / '__ng_tmp__' / 'contact-updates-review.zip'
+    install_cmd = npm_install_cmd(BACKEND_DIR)
+    print(f"  Installing Lambda dependencies ({' '.join(install_cmd)}) …")
+    subprocess.run(install_cmd, cwd=BACKEND_DIR, check=True)
+    zip_path = REPO_ROOT / "__ng_tmp__" / "contact-updates-review.zip"
     zip_path.parent.mkdir(parents=True, exist_ok=True)
-    with ZipFile(zip_path, 'w', ZIP_DEFLATED) as zf:
-        for source_file in BACKEND_DIR.rglob('*'):
-            if source_file.is_file():
-                zf.write(source_file, source_file.relative_to(BACKEND_DIR))
-    print(f'  Packaged Lambda: {zip_path}')
+    with ZipFile(zip_path, "w", ZIP_DEFLATED) as zf:
+        for source_file in sorted(BACKEND_DIR.rglob("*")):
+            if not source_file.is_file():
+                continue
+            if source_file.name.endswith(".test.mjs"):
+                continue
+            rel = source_file.relative_to(BACKEND_DIR)
+            if rel.parts[0] == "node_modules" and rel.name.startswith("."):
+                continue
+            zf.write(source_file, rel)
+    print(f"  Packaged Lambda: {zip_path}")
     return zip_path
 
 
 # ---------------------------------------------------------------------------
 # Lambda create / update
 # ---------------------------------------------------------------------------
+
 
 def upsert_lambda(
     function_name: str,
@@ -213,16 +255,19 @@ def upsert_lambda(
     zip_bytes = zip_path.read_bytes()
     try:
         result = run_aws(
-            ['lambda', 'get-function', '--function-name', function_name],
+            ["lambda", "get-function", "--function-name", function_name],
             region=region,
         )
-        current_arn: str = result['Configuration']['FunctionArn']
-        print(f'  Updating existing Lambda …')
+        current_arn: str = result["Configuration"]["FunctionArn"]
+        print(f"  Updating existing Lambda …")
         run_aws(
             [
-                'lambda', 'update-function-code',
-                '--function-name', function_name,
-                '--zip-file', f'fileb://{zip_path}',
+                "lambda",
+                "update-function-code",
+                "--function-name",
+                function_name,
+                "--zip-file",
+                f"fileb://{zip_path}",
             ],
             region=region,
         )
@@ -230,65 +275,98 @@ def upsert_lambda(
         time.sleep(5)
         run_aws(
             [
-                'lambda', 'update-function-configuration',
-                '--function-name', function_name,
-                '--environment',
-                f'Variables={{TABLE_NAME={table_name}}}',
+                "lambda",
+                "update-function-configuration",
+                "--function-name",
+                function_name,
+                "--environment",
+                f"Variables={{TABLE_NAME={table_name}}}",
             ],
             region=region,
         )
         return current_arn
     except RuntimeError:
-        print(f'  Creating Lambda function {function_name} …')
+        print(f"  Creating Lambda function {function_name} …")
         result = run_aws(
             [
-                'lambda', 'create-function',
-                '--function-name', function_name,
-                '--runtime', runtime,
-                '--role', role_arn,
-                '--handler', 'index.handler',
-                '--zip-file', f'fileb://{zip_path}',
-                '--environment', f'Variables={{TABLE_NAME={table_name}}}',
-                '--timeout', '10',
-                '--memory-size', '128',
+                "lambda",
+                "create-function",
+                "--function-name",
+                function_name,
+                "--runtime",
+                runtime,
+                "--role",
+                role_arn,
+                "--handler",
+                "index.handler",
+                "--zip-file",
+                f"fileb://{zip_path}",
+                "--environment",
+                f"Variables={{TABLE_NAME={table_name}}}",
+                "--timeout",
+                "10",
+                "--memory-size",
+                "128",
             ],
             region=region,
         )
         time.sleep(10)
-        return result['FunctionArn']
+        return result["FunctionArn"]
 
 
 # ---------------------------------------------------------------------------
 # Function URL
 # ---------------------------------------------------------------------------
 
+
 def ensure_function_url(function_name: str, region: str) -> str:
+    cors = {
+        "AllowOrigins": town_site_cors_origins("https://www.townofwiley.gov"),
+        "AllowMethods": ["GET"],
+        "AllowHeaders": ["content-type"],
+        "MaxAge": 300,
+    }
+    cors_json = json.dumps(cors)
     try:
         result = run_aws(
-            ['lambda', 'get-function-url-config', '--function-name', function_name],
+            ["lambda", "get-function-url-config", "--function-name", function_name],
             region=region,
         )
-        url: str = result['FunctionUrl']
-        print(f'  Function URL already exists: {url}')
+        url: str = result["FunctionUrl"]
+        auth = result.get("AuthType", "")
+        print(f"  Function URL already exists: {url} (AuthType={auth})")
+        run_aws(
+            [
+                "lambda",
+                "update-function-url-config",
+                "--function-name",
+                function_name,
+                "--auth-type",
+                "AWS_IAM",
+                "--cors",
+                cors_json,
+            ],
+            region=region,
+        )
         return url
     except RuntimeError:
         pass
 
     result = run_aws(
         [
-            'lambda', 'create-function-url-config',
-            '--function-name', function_name,
-            '--auth-type', 'AWS_IAM',
-            '--cors',
-            (
-                'AllowOrigins=https://www.townofwiley.gov,'
-                'AllowMethods=GET,AllowHeaders=Content-Type'
-            ),
+            "lambda",
+            "create-function-url-config",
+            "--function-name",
+            function_name,
+            "--auth-type",
+            "AWS_IAM",
+            "--cors",
+            cors_json,
         ],
         region=region,
     )
-    url = result['FunctionUrl']
-    print(f'  Created Function URL: {url}')
+    url = result["FunctionUrl"]
+    print(f"  Created Function URL: {url}")
     return url
 
 
@@ -296,49 +374,66 @@ def ensure_function_url(function_name: str, region: str) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     args = parse_args()
     secrets = load_local_secrets()
     ensure_env_from_secrets(secrets)
-    cfg = secrets.get('contactUpdatesReview', {})
+    cfg = secrets.get("contactUpdatesReview", {})
 
-    region = resolve_value(args.region, cfg.get('region', ''),
-                           os.environ.get('AWS_REGION', 'us-east-2'))
-    function_name = resolve_value(args.function_name, cfg.get('functionName', ''),
-                                  'TownOfWileyContactUpdatesReview')
-    role_name = resolve_value(args.role_name, cfg.get('roleName', ''),
-                              'TownOfWileyContactUpdatesReviewRole')
-    table_name = resolve_value(args.table_name, cfg.get('tableName', ''),
-                               'TownOfWileyContactUpdates')
+    region = resolve_value(
+        args.region, cfg.get("region", ""), os.environ.get("AWS_REGION", "us-east-2")
+    )
+    function_name = resolve_value(
+        args.function_name,
+        cfg.get("functionName", ""),
+        "TownOfWileyContactUpdatesReview",
+    )
+    role_name = resolve_value(
+        args.role_name, cfg.get("roleName", ""), "TownOfWileyContactUpdatesReviewRole"
+    )
+    table_name = resolve_value(
+        args.table_name, cfg.get("tableName", ""), "TownOfWileyContactUpdates"
+    )
 
-    print(f'\nDeploying contact-updates-review Lambda to {region} …')
+    print(f"\nDeploying contact-updates-review Lambda to {region} …")
 
-    print('\n[1/5] Resolving DynamoDB table ARN …')
+    print("\n[1/5] Resolving DynamoDB table ARN …")
     table_arn = get_table_arn(table_name, region)
-    print(f'  Table ARN: {table_arn}')
+    print(f"  Table ARN: {table_arn}")
 
-    print('\n[2/5] Ensuring IAM role …')
+    print("\n[2/5] Ensuring IAM role …")
     role_arn = get_or_create_role(role_name, table_arn)
 
-    print('\n[3/5] Building zip …')
+    print("\n[3/5] Building zip …")
     zip_path = build_zip()
 
-    print('\n[4/5] Upserting Lambda …')
-    fn_arn = upsert_lambda(function_name, role_arn, zip_path, table_name, region, args.runtime)
-    print(f'  Function ARN: {fn_arn}')
+    print("\n[4/5] Upserting Lambda …")
+    fn_arn = upsert_lambda(
+        function_name, role_arn, zip_path, table_name, region, args.runtime
+    )
+    print(f"  Function ARN: {fn_arn}")
 
-    print('\n[5/5] Ensuring Function URL …')
+    print("\n[5/5] Ensuring Function URL …")
     url = ensure_function_url(function_name, region)
 
-    print('\n' + '=' * 60)
-    print('Deployment complete.')
-    print(f'\nFunction URL:\n  {url}')
+    proxy_role_name = resolve_value(
+        "",
+        cfg.get("proxyRoleName"),
+        "TownOfWileyContactUpdatesReviewProxyRole",
+    )
+    ensure_review_function_allows_proxy(function_name, proxy_role_name, region, run_aws)
+
+    print("\n" + "=" * 60)
+    print("Deployment complete.")
+    print(f"\nFunction URL:\n  {url}")
     print(
-        '\nNext step: add a /api/contact-updates-review proxy in your CloudFront\n'
-        'distribution or Angular proxy config pointing to this Function URL.\n'
-        'Keep AuthType=AWS_IAM — do NOT grant public unauthenticated access.'
+        "\nNext: python scripts/deploy-contact-updates-review-proxy.py "
+        f"--review-function-url {url}\n"
+        "Then set CONTACT_UPDATE_REVIEW_PROXY_URL on Amplify main.\n"
+        "Keep review AuthType=AWS_IAM — do NOT expose this URL to browsers."
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

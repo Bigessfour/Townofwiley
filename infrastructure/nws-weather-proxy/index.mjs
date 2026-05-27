@@ -30,12 +30,15 @@ const WILEY_LON = -102.72;
 const WILEY_ZIP = '81092';
 const wileyPointUrl = `https://api.weather.gov/points/${WILEY_LAT},${WILEY_LON}`;
 
+const WEATHER_CACHE_CONTROL = 'public, max-age=300';
+
 function jsonResponse(statusCode, body, requestOrigin) {
   return {
     statusCode,
     headers: {
       ...buildCorsHeaders(requestOrigin ?? ''),
       'content-type': 'application/json; charset=utf-8',
+      'cache-control': WEATHER_CACHE_CONTROL,
     },
     body: JSON.stringify(body),
   };
@@ -277,7 +280,8 @@ export async function handler(event) {
     return jsonResponse(
       500,
       {
-        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration.',
+        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
+        hint: 'Set NWS_USER_AGENT to something like "townofwiley.gov/1.0 (your-email@domain.com)"',
       },
       requestOrigin,
     );
@@ -343,7 +347,8 @@ export async function handler(event) {
         error:
           error instanceof Error && error.message
             ? error.message
-            : 'Unable to reach the National Weather Service right now.',
+            : 'Unable to reach the National Weather Service right now. (Check Lambda logs in CloudWatch)',
+        source: 'aws-proxy',
       },
       requestOrigin,
     );

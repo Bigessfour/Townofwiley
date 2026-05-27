@@ -1,14 +1,15 @@
 ---
-description: "Use when working on AI-powered application features, model-provider integrations, prompt flows, tool calling, agentic UI behavior, or LLM-backed services in this repo."
-name: "AI Application Development Standards"
+description: 'Use when working on AI-powered application features, model-provider integrations, prompt flows, tool calling, agentic UI behavior, or LLM-backed services in this repo.'
+name: 'AI Application Development Standards'
 applyTo:
-  - "src/**/*.ts"
-  - "src/**/*.html"
-  - "src/**/*.scss"
-  - "infrastructure/**/*.py"
-  - "scripts/**/*.mjs"
-  - "docs/**/*.md"
+  - 'src/**/*.ts'
+  - 'src/**/*.html'
+  - 'src/**/*.scss'
+  - 'infrastructure/**/*.py'
+  - 'scripts/**/*.mjs'
+  - 'docs/**/*.md'
 ---
+
 # AI Application Development Standards
 
 - Keep model-provider credentials out of client-shipped code. Never place API keys in `src/environments*`, browser bundles, or other client-visible files.

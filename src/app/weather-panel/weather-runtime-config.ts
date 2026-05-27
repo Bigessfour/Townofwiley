@@ -44,7 +44,7 @@ export function readWeatherRuntimeConfig(): WeatherRuntimeConfig {
     ...(runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
   };
 
-  return {
+  const config: WeatherRuntimeConfig = {
     apiEndpoint: typeof weatherConfig.apiEndpoint === 'string' ? weatherConfig.apiEndpoint : '',
     allowBrowserFallback: weatherConfig.allowBrowserFallback !== false,
     alertSignup: {
@@ -55,4 +55,10 @@ export function readWeatherRuntimeConfig(): WeatherRuntimeConfig {
           : '',
     },
   };
+
+  if (import.meta.env.DEV && (!weatherConfig.apiEndpoint || weatherConfig.apiEndpoint.includes('placeholder'))) {
+    console.warn('[RuntimeConfig] NWS_PROXY_ENDPOINT missing or placeholder in Amplify env vars — weather will show unavailable');
+  }
+
+  return config;
 }

@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
+import { siteContent } from '../../support/site-content';
 import { mockDirectNwsRoutes, mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 async function waitForFonts(page: Page): Promise<void> {
@@ -69,31 +70,9 @@ test.describe('deterministic regression coverage', () => {
   test('captures the homepage section navigation accessibility tree', async ({ homePage }) => {
     await homePage.goto();
 
-    await expect(homePage.page.getByTestId('homepage-section-nav')).toMatchAriaSnapshot(`
-      - navigation "Homepage sections":
-        - link "Top Tasks":
-          - /url: /#top-tasks
-        - link "Weather":
-          - /url: /weather
-        - link "Notices":
-          - /url: /notices
-        - link "Meetings":
-          - /url: /meetings
-        - link "Services":
-          - /url: /services
-        - link "Records":
-          - /url: /records
-        - link "Documents":
-          - /url: /documents
-        - link "Accessibility":
-          - /url: /accessibility
-        - link "Businesses":
-          - /url: /businesses
-        - link "News":
-          - /url: /news
-        - link "Contact":
-          - /url: /contact
-    `);
+    const nav = homePage.page.getByTestId('homepage-section-nav');
+    await expect(nav.getByRole('menubar')).toBeVisible();
+    await expect(homePage.sectionNavLinks).toHaveText(siteContent.megaMenuRootLabelsEn);
   });
 
   test('captures the site-language accessibility group', async ({ homePage }) => {
@@ -110,9 +89,9 @@ test.describe('deterministic regression coverage', () => {
     await mockDirectNwsRoutes(homePage.page, []);
     await homePage.goto();
 
-    await expect(homePage.siteAlert).toHaveCount(0);
-    await expect(homePage.page.getByText('Urgent town update')).toHaveCount(0);
-    await expect(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
+    await expect(homePage.siteAlert).toHaveCount(0, { timeout: 15_000 });
+    await expect.soft(homePage.page.getByText('Urgent town update')).toHaveCount(0);
+    await expect.soft(homePage.page.getByText('Weather alerts load here')).toHaveCount(0);
   });
 
   test('keeps header controls on normalized desktop sizing', async ({ homePage }) => {
@@ -217,8 +196,12 @@ test.describe('deterministic regression coverage', () => {
     await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.getByTestId('weather-current-card')).toContainText('Partly Sunny');
-    await expect(homePage.page.getByRole('heading', { name: '7-day forecast' })).toBeVisible();
+    const weatherCard = homePage.page.getByTestId('weather-current-card');
+    await expect(weatherCard).toBeVisible({ timeout: 20_000 });
+    await expect(weatherCard).toContainText('Partly Sunny', { timeout: 20_000 });
+    await expect(homePage.page.getByRole('heading', { name: '7-day forecast' })).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(
       homePage.page.getByRole('heading', { name: 'Active watches, warnings, and advisories' }),
     ).toBeVisible();

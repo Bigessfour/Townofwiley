@@ -16,8 +16,8 @@ Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
 ## Runtime Baseline
 
-- **Node.js `24.x` LTS only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.15.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). Repo files pin **`24.15.0`** (`.nvmrc`, `.node-version`, **`volta`**, **`mise.toml`**, **asdf** `.tool-versions`). **Do not use Node 22, 23, 25+, or odd majors** — Node 25+ has caused toolchain and native dependency issues with this stack.
-- Use `nvm install && nvm use` (reads `.nvmrc`), **`mise install`**, **Volta**, **asdf**, or Homebrew **`node@24`** so your shell `node` matches CI.
+- **Node.js `24.x` LTS only** for this app (Amplify, GitHub Actions, and `package.json` / `ensure-node-version` agree). **`engines.node` is `>=24.15.0 <25.0.0`** (with `.npmrc` `engine-strict=true`). Repo files pin **`24.16.0`** (`.nvmrc`, `.node-version`, **`volta`**, **`mise.toml`**, **asdf** `.tool-versions`) — see **[`docs/NODE_VERSION.md`](docs/NODE_VERSION.md)** for why the pin is an exact patch (not “whatever LTS says today”). **Do not use Node 22, 23, 25+, or odd majors** — Node 25+ has caused toolchain and native dependency issues with this stack.
+- Use `nvm install && nvm use` (reads `.nvmrc`), **`mise install`**, **Volta**, **asdf**, Homebrew **`node@24`**, Windows **`.\scripts\setup-repo-node.ps1`**, or **Docker `node:24-slim`** (see [`docs/NODE_VERSION.md`](docs/NODE_VERSION.md) § Docker) so your shell `node` matches CI.
 
 **Homebrew (recommended on macOS)** — install the LTS keg and make it the default `node` (the top-level `node` formula tracks the latest major, often v25+):
 
@@ -26,7 +26,7 @@ brew install node@24
 brew unlink node       # only if `node -v` shows v25+ from /opt/homebrew/bin/node
 brew link --overwrite --force node@24
 hash -r
-node -v   # expect v24.15.0 (matches .nvmrc)
+node -v   # expect v24.16.0 (matches .nvmrc)
 ```
 
 If Homebrew relinks `node` to a newer major after `brew upgrade`, run **`brew unlink node && brew link --overwrite --force node@24`** again.
@@ -35,7 +35,7 @@ If Homebrew relinks `node` to a newer major after `brew upgrade`, run **`brew un
 
 ```bash
 nvm install && nvm use
-node -v   # v24.15.0 (or any 24.x satisfying engines)
+node -v   # v24.16.0 (or any 24.15+ satisfying engines)
 ```
 
 ## Deployment Record
@@ -52,7 +52,7 @@ node -v   # v24.15.0 (or any 24.x satisfying engines)
 - Build logs: stored automatically per job (**Hosting → Builds**). Enable **Build notifications** plus CloudWatch retention for CodeBuild-/Amplify-related log groups in `us-east-2` (`docs/AMPLIFY_HOSTING_SOT.md` § **1.a**).
 - Build command: `npm run build`
 - Build output: `dist/townofwiley-app/browser`
-- Node runtime for Amplify builds: **`24.15.0`** (`amplify.yml` `nvm install` / `nvm use`)
+- Node runtime for Amplify builds: **`24.16.0`** (`amplify.yml` `nvm install` / `nvm use`)
 
 Amplify build spec (see repo [`amplify.yml`](amplify.yml) for the canonical file):
 
@@ -62,8 +62,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 24.15.0
-        - nvm use 24.15.0
+        - nvm install 24.16.0
+        - nvm use 24.16.0
         - npm ci
     build:
       commands:
@@ -148,6 +148,47 @@ _f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov canonical name =
 _377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws
 ```
 
+### AWS infrastructure (IaC SSOT)
+
+Custom Lambdas and hosting alignment are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
+
+| Resource | SSOT in repo |
+| -------- | ------------- |
+| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json) |
+| Amplify `main` env var **names** (no secret values) | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) |
+| Hosting build + headers + SPA rules | [`amplify.yml`](amplify.yml), [`customHttp.yml`](customHttp.yml), [`scripts/amplify-spa-rewrite-rules.json`](scripts/amplify-spa-rewrite-rules.json) |
+| Operator runbook + deploy order | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md) |
+| Full product / AP tracker | [`docs/post-development-inventory.md`](docs/post-development-inventory.md) |
+
+**Sync hosting to Amplify Console:**
+
+```bash
+export AWS_PROFILE=townofwiley
+export AWS_DEFAULT_REGION=us-east-2
+npm run amplify:sync-hosting
+```
+
+**Verify live AWS matches the manifest:**
+
+```bash
+npm run verify:aws-infra
+```
+
+**Deploy contact-update backends (after code review):**
+
+```bash
+python scripts/deploy-contact-update-backend.py
+python scripts/deploy-contact-updates-review.py   # Function URL AuthType AWS_IAM
+python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>
+```
+
+### Recent work (2026-05-22)
+
+- **AP-03** merged ([#30](https://github.com/Bigessfour/Townofwiley/pull/30)): Paystar portal CTA disabled when `portalUrl` unset.
+- **AP-06** in open PR [#35](https://github.com/Bigessfour/Townofwiley/pull/35): contact-update sanitization (client + Lambda `sanitize-body.mjs`).
+- **AP-02a/c, AP-24a** in open PR [#34](https://github.com/Bigessfour/Townofwiley/pull/34): Paystar hosted-only docs/E2E cleanup; Node **24.16.0** pin.
+- **AWS ops:** Amplify buildSpec/headers synced; CSP includes live documents bucket `townofwiley-documents-storage-main`; DynamoDB `TownOfWileyContactUpdates` provisioned; IaC manifests + `verify:aws-infra` added (see [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)).
+
 ### Operational Note
 
 The blocked `Invoke-RestMethod` calls came from the Copilot terminal execution policy in this environment, not from any workspace file in this repository. There are no repo-level Copilot customization or hook files present here to change that behavior.
@@ -214,7 +255,8 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                        |
 | `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
 | `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
-| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates                     |
+| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)             |
+| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | Review proxy URL for `/admin` (not the IAM review URL)      |
 | `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
 | `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
 | `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |
@@ -355,6 +397,8 @@ Traceability:
 - `src/app/document-hub/document-archive.ts`
 - `src/app/document-hub/document-hub.ts`
 - `src/app/records-center/records-center.ts`
+- [`docs/README.md`](docs/README.md) — documentation index and current status
+- `docs/post-development-inventory.md` — post-build audit and AP remediation log
 - `docs/town-document-publishing-guide.md`
 - `src/app/app.ts`
 - `docs/incomplete-items-reference.md`
@@ -632,6 +676,19 @@ Production recommendation:
 3. Set `NWS_PROXY_ENDPOINT` in Amplify so the Angular app uses the AWS proxy instead of direct browser requests.
 4. Leave browser fallback enabled only if you want a safety net during rollout.
 
+### Quick NWS Fix Checklist (AWS Amplify)
+
+1. Amplify → Environment variables:
+   - NWS_PROXY_ENDPOINT = your-lambda-function-url.lambda-url.us-east-2.on.aws/
+   - NWS_ALLOW_BROWSER_FALLBACK = true
+2. Lambda Console → NWS proxy function → Environment variables:
+   - NWS_USER_AGENT = townofwiley.gov/1.0 (your-email@domain.com)
+3. Lambda → Function URL → CORS: clear Allow Origins (let code handle it)
+4. Run: npm run verify:nws-weather-proxy-aws
+5. Redeploy Amplify (forces runtime-config.js update)
+
+This is the #1 cause of "NWS unavailable" on the live site.
+
 Homepage NWS alert banner:
 
 - `HomepageWeatherAlertPrimer` uses the same `weather.apiEndpoint` as the weather panel when it is set (so the banner respects the AWS proxy and NWS `User-Agent` policy). If the proxy fails and `allowBrowserFallback` is true, it falls back to the public `api.weather.gov` chain. In development builds, proxy or NWS failures log a single `console.warn` from `[HomepageWeatherAlertPrimer]` to aid debugging.
@@ -804,7 +861,7 @@ Operational note:
 
 ## Feature Completion Progress
 
-This section tracks progress on completing the site's incomplete features based on the AI coding guide analysis (see `docs/townofwiley-website-completion-todos.md`). Updates will be added here as each section reaches 10/10.
+This section tracks post-build remediation. **Source of truth:** [`docs/post-development-inventory.md`](docs/post-development-inventory.md) and [`docs/README.md`](docs/README.md). AP-03 (Paystar placeholder) merged 2026-05-22.
 
 ### 1. Functionality/Page Features (Target: 10/10)
 

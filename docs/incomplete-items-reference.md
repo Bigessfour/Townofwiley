@@ -1,8 +1,8 @@
 # Town of Wiley - Incomplete Items Reference
 
-**Generated:** March 26, 2026  
+**Generated:** March 26, 2026 · **Last updated:** 2026-05-22
 **Source:** codebase analysis, `src/app/app.ts`, validation reports, `README.md`, and repository memories.  
-**Purpose:** Living checklist for final polish (no new features). Iterate by updating checkboxes, adding evidence, or marking "done + validation command used". Re-run `npm run lint`, `npm run build`, and `npm run test:e2e -- --workers=1` after changes.
+**Purpose:** Historical polish checklist (March 2026). **Current remediation:** [`post-development-inventory.md`](post-development-inventory.md) (AP slices). Re-run `npm run lint`, `npm run test:vitest`, and `npm run test:e2e:smoke` after changes.
 
 Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) for any Angular edits (standalone components, signals, native control flow `@if`/`@for`, `input()`/`output()`, `OnPush`, `inject()`, no `ngClass`/`ngStyle`, WCAG AA).
 
@@ -11,6 +11,7 @@ Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) fo
 This site is a small-town local resource, so the best return comes from improving clarity, reliability, and usability before chasing enterprise-grade infrastructure. Prioritize items that make the site easier to use, easier to trust, and easier to maintain.
 
 ### P1: Highest Payback for Time Invested
+
 - [x] Add visible form validation messages for every user-facing form field that can fail validation. Completed in `src/app/resident-services/resident-services.html` with `p-message` field feedback and covered by `src/app/resident-services/resident-services.spec.ts`.
 - [x] Add unit tests for form validation, derived state, and mailto / payload-building logic in resident services and weather flows. Validated with `npx vitest run src/app/resident-services/resident-services.vitest.ts src/app/weather-panel/weather-panel.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
 - [x] Add integration-style service tests for API failure paths, retry behavior, and user-facing error states. Validated with `npx vitest run src/app/weather-panel/weather-panel.vitest.ts src/app/contact-update/contact-update.service.vitest.ts src/app/payments/paystar-connection.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
@@ -19,19 +20,22 @@ This site is a small-town local resource, so the best return comes from improvin
 - [x] Add ARIA attributes and error-description links where validation or state feedback is shown. Validated with `npx playwright test e2e/specs/smoke/accessibility-focus.spec.ts`.
 
 ### P2: Strong Value, Moderate Effort
+
 - [x] Add loading states for form submits and any async UI action that can leave the page feeling frozen.
 - [x] Tighten mobile spacing and header behavior on the most important public pages.
 - [x] Add unit tests for shared copy helpers, language toggles, and any conditional UI rendering.
-- [x] Expand integration tests for contact-update, paystar-proxy, and weather proxy request/response handling. (Paystar remains a placeholder).
+- [x] Expand integration tests for contact-update, paystar-proxy, and weather proxy request/response handling. Paystar portal placeholder removed in repo (AP-03, PR #30); production `portalUrl` still ops-owned (AP-10).
 - [x] Add i18n coverage for all new validation, loading, and error strings.
 
 ### P3: Good Cleanup, Lower Urgency
+
 - [x] Review bundle size warnings and lazy-load any feature routes that are rarely used. Validated route structures and bundle size output.
 - [x] Improve image delivery only where it affects visible content or page speed. Opted for standard Angular image directives where applicable.
 - [x] Expand README and runbooks with the minimum deployment and maintenance steps a volunteer or clerk would actually need. Documentation updated.
 - [x] Add lightweight monitoring only if it helps local debugging without adding operational overhead. Minimal logging enhancements established.
 
 ### Test Priority Order
+
 1. Form validation unit tests.
 2. Service-level integration tests for failed requests and recovery paths.
 3. Error-handler and fallback-state tests.
@@ -40,13 +44,17 @@ This site is a small-town local resource, so the best return comes from improvin
 6. Loading-state and responsive layout tests for the highest-traffic pages.
 
 ### Done When
-- [ ] The site clearly explains validation failures to a real user.
-- [ ] Failed API calls produce a visible, friendly recovery path.
-- [ ] The main public flows work with keyboard only.
-- [ ] Unit and integration tests cover the highest-risk logic.
-- [ ] The remaining issues are mostly cosmetic or optional enhancements, not blockers.
+
+_Reconciled 2026-05-22 per AP-33 — see [`post-development-inventory.md`](post-development-inventory.md) for open ops slices (AP-01b, AP-02, AP-10)._
+
+- [x] The site clearly explains validation failures to a real user. (Resident services + payment panels; AP-03 bilingual disabled-state copy.)
+- [x] Failed API calls produce a visible, friendly recovery path. (Global error handler, weather/payment fallbacks.)
+- [x] The main public flows work with keyboard only. (`accessibility-focus.spec.ts` and related smoke.)
+- [x] Unit and integration tests cover the highest-risk logic. (Vitest + smoke E2E baseline on `main`.)
+- [ ] The remaining issues are mostly cosmetic or optional enhancements, not blockers. **Still open:** production runtime-config verification (AP-01b), Paystar portal URL + product decision (AP-10, AP-02), WAF on public Lambdas (AP-16), leadership roster CMS (PR #28).
 
 ## 1. Document & Records Hub (High Priority)
+
 - [x] Post real agenda packets, minutes, budgets, annual reports, ordinances to `public/documents/archive/`. (Completed with 6 guide HTMLs matching manifest; first-pass per publishing guide.)
 - [x] Update manifest in `src/app/document-hub/document-archive.ts` (section ids: records-requests, meeting-documents, etc.). (Full bilingual, 6 entries exact match to archive files.)
 - [x] Extend search indexing in `src/app/app.ts` (`SearchItem`, `AppCopy`) for document metadata and archive crawl. (Verified integration via shared sources; dedicated routes in app.routes.ts.)
@@ -57,6 +65,7 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Validation:** `npm run test:e2e -- --workers=1` (navigation + search). Completed.
 
 ## 2. Weather Alert Signup & Backend
+
 - [x] Frontend signup and weather panel (signals, computed, OnPush, HttpClient, runtime config for alerts).
 - [x] Resolve SNS SMS sandbox state for `us-east-2` and verify transactional SMS delivery in production.
 - [x] Complete live unsubscribe journey validation.
@@ -66,6 +75,7 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Note:** Email via SES and SMS via SNS are live; smoke tests pass. Item 2 completed, with CloudWatch alarms now configured for normal-trigger and failure notification paths.
 
 ## 3. Language Access & Localization
+
 - [x] Extend translations to subpages, Amplify Studio content, clerk documents, and attachments. (Completed via in-house bilingual copy pattern.)
 - **Files:** `src/app/site-language.ts`, `src/app/app.ts`, `src/app/weather-panel/*`, accessibility-support, resident-services, document-hub, records-center.
 - **Status:** Homepage + key forms + all public UI now localized; English default, switchable to Spanish via signals.
@@ -74,6 +84,7 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Validation:** `npm run lint`, `npm run build`, `npx playwright test --project=desktop-chromium`. Item 3 closed.
 
 ## 4. Search & Discovery (`src/app/app.ts`)
+
 - [x] Add document-library metadata indexing beyond resident guides.
 - [x] Implement archive crawl (no external service yet).
 - **Note:** Now uses live CMS + shared `AppCopy` sources (improved per repo memory).
@@ -81,6 +92,7 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Validation:** `npm run lint`, `npm run build`, `npm run test:e2e -- --workers=1` (search tests pass). Item 4 closed.
 
 ## 5. CMS Admin & Publishing Guidance
+
 - [x] Verify all models (`SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `EmailAlias`) visible in live Amplify Studio.
 - [x] Add version history, rollback, staging, and review workflow docs to `src/app/cms-admin/cms-admin.ts` and `CLERK-CMS-GUIDE.md`. (Verified in existing guide/component; no new features added per spec.)
 - **Files:** `src/app/cms-admin/cms-admin.ts`, `CLERK-CMS-GUIDE.md`.
@@ -88,12 +100,14 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Validation:** `npm run lint`, `npm run build`. Item 5 closed.
 
 ## 6. Email Alias Routing
+
 - [x] Complete bucket hardening and end-to-end mailbox validation. (Verified in current logic/runbook; manual test sufficient, no new features.)
 - **Files:** `infrastructure/email-alias-router/app.py`, `docs/town-email-alias-forwarding-runbook.md`, schema.graphql.
 - **Deeper Analysis Findings (March 26, 2026):** App.py implements forwarding with SES/Dynamo; runbook covers deployment, SES status, aliases. Hardening in IAM/SES verified per current. End-to-end operational via manual. Production ready.
 - **Validation:** `npm run test:infra:mail`. Item 6 closed.
 
 ## 7. Runtime Config & Deployment
+
 - [x] Add build timestamp + Git SHA to `scripts/generate-runtime-config.mjs` (prebuild hook).
 - [x] Enhance `public/status.html` with richer health checks (no new features).
 - **Files:** `public/runtime-config.js`, `public/easy-peasy-loader.js`, `scripts/generate-runtime-config.mjs`.
@@ -101,19 +115,22 @@ This site is a small-town local resource, so the best return comes from improvin
 - **Validation:** `npm run build`. Item 7 closed.
 
 ## 8. Technical Debt & Angular Alignment
+
 - [x] Address bundle size warnings (`angular.json` budgets).
 - [x] Resolve ESLint deprecated `.eslintignore` warning.
 - [x] Migrate pathname-based branching in `src/app/app.ts` (current design verified as production ready per memories; no migration without features).
-- **Deeper Analysis Findings:** Budgets noted but acceptable; branching aligns with current; no changes needed. 
+- **Deeper Analysis Findings:** Budgets noted but acceptable; branching aligns with current; no changes needed.
 - **Validation:** `npm run lint`, `npm run build`. Item 8 closed.
 
 ## 9. Operational / Accessibility
+
 - [x] Document quarterly audit log and alt-text/caption checklist.
 - [x] Enrich `Event` records with categories/agenda URLs (calendar UI in `app.ts` already complete).
 - **Deeper Analysis Findings:** Docs in guides/audit status; events enriched via CMS. Complete.
 - **Validation:** Full suite. Item 9 closed.
 
 ## Iteration Instructions
+
 - Mark `[x]` when complete + add evidence (e.g., "Validated with `npm run build` on 2026-03-27").
 - Update this file via targeted edits only.
 - Run full validation suite before committing.

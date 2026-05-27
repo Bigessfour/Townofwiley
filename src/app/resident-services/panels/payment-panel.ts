@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -46,6 +41,8 @@ export interface PaymentPanelCopy {
   payNowCardBody: string;
   payNowCta: string;
   payNowPlaceholderNote: string;
+  payNowUnavailableNote: string;
+  payNowUnavailableLabel: string;
   portalSoonTitle: string;
   portalSoonBody: string;
   portalSoonBadge: string;
@@ -106,20 +103,18 @@ export class ResidentPaymentPanel {
   readonly contactUpdateMailtoHref = input<string | null>(null);
   readonly quickPayHref = input.required<string>();
   readonly quickPayIsPlaceholder = input.required<boolean>();
-  readonly preferredContactOptions = input.required<
-    { value: PreferredBillPayContact; label: string }[]
-  >();
+  readonly quickPayDisabled = input.required<boolean>();
+  readonly preferredContactOptions =
+    input.required<{ value: PreferredBillPayContact; label: string }[]>();
   readonly townHallPhoneHref = input<string | null>(null);
   readonly townHallPhoneLabel = input<string>('');
   readonly clerkEmailHref = input<string | null>(null);
   readonly clerkEmailLabel = input<string>('');
   readonly lang = input.required<'en' | 'es'>();
-  readonly portalFieldMessage = input.required<
-    (controlName: keyof PortalAccessFormGroup['controls']) => string | null
-  >();
-  readonly validationMessage = input.required<
-    (control: AbstractControl, fieldLabel: string) => string | null
-  >();
+  readonly portalFieldMessage =
+    input.required<(controlName: keyof PortalAccessFormGroup['controls']) => string | null>();
+  readonly validationMessage =
+    input.required<(control: AbstractControl, fieldLabel: string) => string | null>();
 
   readonly submitPortal = output<void>();
   readonly toggleContactUpdate = output<void>();

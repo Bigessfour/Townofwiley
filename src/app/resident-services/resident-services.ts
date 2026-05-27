@@ -9,26 +9,19 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { startWith } from 'rxjs';
+import { sanitizeContactUpdateRequest } from '../contact-update/contact-update-sanitize';
 import { ContactUpdateService } from '../contact-update/contact-update.service';
 import { BillPayService } from '../pay-bill/bill-pay.service';
-import {
-  PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL,
-  type PreferredBillPayContact,
-} from '../pay-bill/pay-bill-request';
+import type { PreferredBillPayContact } from '../pay-bill/pay-bill-request';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
+import { resolveQuickPayHref } from '../payments/paystar-quick-pay';
 import {
   CmsContact,
   LocalizedCmsContentStore,
@@ -87,6 +80,8 @@ interface ResidentServicesCopy {
   payNowCardBody: string;
   payNowCta: string;
   payNowPlaceholderNote: string;
+  payNowUnavailableNote: string;
+  payNowUnavailableLabel: string;
   portalSoonTitle: string;
   portalSoonBody: string;
   portalSoonBadge: string;
@@ -186,7 +181,10 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       'Pay your utility bill through the hosted Paystar portal when it is active for this site.',
     payNowCta: 'Pay now with Paystar',
     payNowPlaceholderNote:
-      'When runtime billing data is connected, this link will point to your live Paystar checkout.',
+      'The online payment link is being finalized—use the form below or call Town Hall.',
+    payNowUnavailableNote:
+      'The online payment portal is not yet active on this site. Use the form below or call Town Hall.',
+    payNowUnavailableLabel: 'Portal unavailable',
     portalSoonTitle: 'Full online account portal',
     portalSoonBody:
       'Account history, autopay, and usage will appear here after billing data is connected.',
@@ -300,7 +298,10 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
       'Pague su recibo de servicios a traves del portal alojado de Paystar cuando este activo.',
     payNowCta: 'Pagar ahora con Paystar',
     payNowPlaceholderNote:
-      'Cuando se conecten los datos de facturacion, este enlace apuntara al checkout en vivo.',
+      'El enlace de pago en linea se esta finalizando; use el formulario siguiente o llame al Ayuntamiento.',
+    payNowUnavailableNote:
+      'El portal de pagos en linea aun no esta disponible en este sitio. Use el formulario de abajo o llame al Ayuntamiento.',
+    payNowUnavailableLabel: 'Portal no disponible',
     portalSoonTitle: 'Portal de cuenta en linea',
     portalSoonBody:
       'Historial de cuenta, pago automatico y uso apareceran aqui cuando se conecten los datos.',
@@ -593,15 +594,13 @@ export class ResidentServices {
         ],
   );
 
-  protected readonly quickPayHref = computed(() => {
-    const url = getPaystarRuntimeConfig().portalUrl.trim();
-    return url || PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL;
-  });
+  protected readonly quickPayState = computed(() => resolveQuickPayHref(getPaystarRuntimeConfig()));
 
-  /** True when using the placeholder Paystar URL until runtime config supplies the live portal. */
-  protected readonly quickPayIsPlaceholder = computed(
-    () => !getPaystarRuntimeConfig().portalUrl.trim(),
-  );
+  protected readonly quickPayHref = computed(() => this.quickPayState().href ?? '');
+
+  protected readonly quickPayIsPlaceholder = computed(() => this.quickPayState().isPlaceholder);
+
+  protected readonly quickPayDisabled = computed(() => this.quickPayState().disabled);
 
   protected readonly townInfoContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION));
   protected readonly clerkContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK));
@@ -941,7 +940,7 @@ export class ResidentServices {
     this.contactUpdateStatus.set(null);
     const values = this.contactUpdateFormValue();
     const result = await this.contactUpdateService.submitUpdate(
-      {
+      sanitizeContactUpdateRequest({
         fullName: values.fullName ?? '',
         serviceAddress: values.serviceAddress ?? '',
         poBox: values.poBox ?? '',
@@ -950,7 +949,7 @@ export class ResidentServices {
         notes: values.notes ?? '',
         locale: this.siteLanguageService.currentLanguage(),
         source: 'payment-panel',
-      },
+      }),
       href,
     );
 

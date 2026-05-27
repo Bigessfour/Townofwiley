@@ -91,18 +91,38 @@ test.describe('cms admin', () => {
     ).toBeVisible({ timeout: 20000 });
   });
 
+  test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
+    // Same-origin default (/api/contact-updates-review) so Playwright can fulfill the request.
+    await homePage.page.route('**/contact-updates-review', async (route) => {
+      await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
+    });
+
+    await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(homePage.page.locator('p-message.p-message-error, p-message[severity="error"]')).toContainText(
+      'access denied',
+      { timeout: 20000 },
+    );
+    await expect(
+      homePage.page.getByText('No contact updates received yet.'),
+    ).not.toBeVisible();
+  });
+
   test('lists the Town newsletter section and Announcement attachmentKey guidance', async ({
     homePage,
   }) => {
     await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
 
-    // Documents tab guidance lists the new newsletter sectionId tag.
-    await expect(homePage.page.getByText('Town Newsletter', { exact: false })).toBeVisible({
-      timeout: 20000,
-    });
-    await expect(homePage.page.getByText('newsletter', { exact: true }).first()).toBeVisible();
+    // Documents tab guidance lists the newsletter sectionId and S3 path (EN + ES copy duplicates labels).
+    await expect(
+      homePage.page.getByRole('heading', { name: 'Supported document workflow' }),
+    ).toBeVisible({ timeout: 20000 });
     await expect(
       homePage.page.getByText('documents/newsletter/', { exact: false }).first(),
+    ).toBeVisible();
+    await expect(
+      homePage.page.getByText(/announcementKind.*newsletter/i).first(),
     ).toBeVisible();
 
     // Announcement CRUD card calls out attachmentKey for the inline /news PDF.

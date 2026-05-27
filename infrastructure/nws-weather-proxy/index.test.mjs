@@ -148,6 +148,7 @@ test('proxies the NWS forecast and alert payloads with the configured headers', 
   const body = JSON.parse(response.body);
 
   assert.equal(response.statusCode, 200);
+  assert.equal(response.headers['cache-control'], 'public, max-age=300');
   assert.equal(body.provider, 'nws');
   assert.equal(body.source, 'aws-proxy');
   assert.equal(body.locationLabel, 'Wiley, CO');

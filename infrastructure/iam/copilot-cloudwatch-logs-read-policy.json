@@ -13,6 +13,12 @@
       "Resource": [
         "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/TownOfWiley*",
         "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/TownOfWiley*:*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/townofwiley*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/townofwiley*:*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/amplify-townofwiley*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/lambda/amplify-townofwiley*:*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/appsync/apis/*",
+        "arn:aws:logs:us-east-2:570912405222:log-group:/aws/appsync/apis/*:*",
         "arn:aws:logs:us-east-1:570912405222:log-group:/aws/lambda/TownOfWiley*",
         "arn:aws:logs:us-east-1:570912405222:log-group:/aws/lambda/TownOfWiley*:*"
       ]

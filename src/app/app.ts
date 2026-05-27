@@ -263,6 +263,9 @@ interface AppCopy {
   nwsAlertLinkLabel: string;
   nwsAlertSignupShortLabel: string;
   nwsWeatherAlertDismissLabel: string;
+  cmsLoadFallbackMessage: string;
+  cmsLoadRetryLabel: string;
+  cmsLoadDismissLabel: string;
   nwsAlertSummarySingle: string;
   nwsAlertSummaryPluralSuffix: string;
   homepageSectionsAriaLabel: string;
@@ -555,6 +558,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     nwsAlertLinkLabel: 'Open NWS forecast',
     nwsAlertSignupShortLabel: 'Sign up for alerts',
     nwsWeatherAlertDismissLabel: 'Dismiss weather alert',
+    cmsLoadFallbackMessage:
+      'Live town content is temporarily unavailable. Showing bundled information until the connection recovers.',
+    cmsLoadRetryLabel: 'Try again',
+    cmsLoadDismissLabel: 'Dismiss notice',
     nwsAlertSummarySingle: '1 active NWS alert for Wiley.',
     nwsAlertSummaryPluralSuffix: 'active NWS alerts for Wiley.',
     homepageSectionsAriaLabel: 'Homepage sections',
@@ -967,6 +974,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     nwsAlertLinkLabel: 'Abrir pronostico del SMN',
     nwsAlertSignupShortLabel: 'Inscribirse para alertas',
     nwsWeatherAlertDismissLabel: 'Cerrar alerta meteorologica',
+    cmsLoadFallbackMessage:
+      'El contenido en vivo del pueblo no esta disponible temporalmente. Mostrando informacion incluida hasta que se recupere la conexion.',
+    cmsLoadRetryLabel: 'Intentar de nuevo',
+    cmsLoadDismissLabel: 'Cerrar aviso',
     nwsAlertSummarySingle: '1 alerta activa del NWS para Wiley.',
     nwsAlertSummaryPluralSuffix: 'alertas activas del NWS para Wiley.',
     homepageSectionsAriaLabel: 'Secciones de la pagina principal',
@@ -1504,6 +1515,10 @@ export class App {
     sortOrder: null,
   });
   protected readonly cmsContentLoading = this.cmsStore.isLoading;
+  protected readonly cmsContentLoadFailed = this.cmsStore.hasLoadFailed;
+  protected readonly cmsUsingCachedSnapshot = this.cmsStore.isUsingCachedSnapshot;
+  protected readonly cmsLoadError = this.cmsStore.loadError;
+  protected readonly cmsLoadFallbackDismissed = signal(false);
   private readonly routedFragmentScrollEffect = effect(() => {
     const fragment = this.currentFragment();
 
@@ -2578,6 +2593,15 @@ export class App {
 
   protected closeMobileMenu(): void {
     this.sidebarVisible.set(false);
+  }
+
+  protected retryCmsContent(): void {
+    this.cmsLoadFallbackDismissed.set(false);
+    void this.cmsStore.refreshContent();
+  }
+
+  protected dismissCmsLoadFallbackNotice(): void {
+    this.cmsLoadFallbackDismissed.set(true);
   }
 
   protected updateCalendarTable(event: {

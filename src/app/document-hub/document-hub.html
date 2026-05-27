@@ -24,6 +24,17 @@
     </p>
   }
 
+  @if (cmsExtendedLoadFailed()) {
+    <p
+      class="public-empty-state document-hub-extended-load-hint"
+      role="status"
+      aria-live="polite"
+      data-testid="document-hub-extended-load-hint"
+    >
+      {{ copy().extendedLoadUnavailableMessage }}
+    </p>
+  }
+
   <!-- Featured upcoming meeting -->
   <section class="featured-meeting" aria-labelledby="upcoming-heading">
     <p class="document-hub-kicker">{{ copy().upcomingKicker }}</p>

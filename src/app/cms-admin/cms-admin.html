@@ -353,6 +353,9 @@
                 <p-skeleton class="shimmer shimmer--compact" height="3rem" />
               </div>
             </div>
+          } @else if (contactUpdatesLoadError()) {
+            <p-message severity="error" [text]="contactUpdatesLoadError()!" class="mb-4" />
+            <p class="text-center py-8 text-color-secondary">{{ copy().contactUpdatesLoadError }}</p>
           } @else if (contactUpdates().length === 0) {
             <p class="text-center py-12 text-color-secondary">{{ copy().noContactUpdates }}</p>
           } @else {

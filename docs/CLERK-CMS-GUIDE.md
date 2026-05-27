@@ -71,6 +71,16 @@ The admin page is a guide and status page. It proves whether the public website 
 
 When you save a record in Data Manager, the website automatically shows the new content within a few seconds. You do not need to click "publish" or "deploy."
 
+### When IT changes payment or other website settings (not Studio)
+
+Some features—utility bill pay links, weather signup, chatbot—are controlled by **Amplify environment variables**, not by Data Manager. After your IT contact changes those settings, they must **redeploy the `main` branch** in Amplify Hosting. Until that finishes, the public site may still show old behavior.
+
+**What you should do after IT says a deploy is done:**
+
+1. Open the page you care about (for example `/pay-bill` or `/services`).
+2. **Hard-refresh** so your browser loads the new settings: **Ctrl+Shift+R** (Windows) or **Cmd+Shift+R** (Mac). On a phone, close the tab completely and open the site again.
+3. If something still looks wrong, tell IT the date/time you checked—they compare the live site file `/runtime-config.js` to Amplify (see `docs/amplify-deployment-runbook.md`).
+
 ### The rule for every change
 
 1. Open Data Manager.

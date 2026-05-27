@@ -1,4 +1,4 @@
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ContactUpdateService } from './contact-update.service';
 import { TestBed } from '@angular/core/testing';
@@ -7,7 +7,7 @@ import { LoggingService } from '../logging.service';
 import testProviders from '../../test-providers';
 
 vi.mock('./contact-update-config', () => ({
-  getContactUpdateRuntimeConfig: vi.fn(() => ({ apiEndpoint: 'https://api.wiley.gov/update' }))
+  getContactUpdateRuntimeConfig: vi.fn(() => ({ apiEndpoint: 'https://api.wiley.gov/update' })),
 }));
 
 describe('ContactUpdateService (Unit)', () => {
@@ -16,20 +16,22 @@ describe('ContactUpdateService (Unit)', () => {
       providers: [
         ...testProviders,
         ContactUpdateService,
-        { provide: LoggingService, useValue: { log: vi.fn() } }
-      ]
+        { provide: LoggingService, useValue: { log: vi.fn() } },
+      ],
     });
 
     const service = TestBed.inject(ContactUpdateService);
     const http = TestBed.inject(HttpClient);
     const logging = TestBed.inject(LoggingService);
-    
+
     return { service, http, logging };
   };
 
   it('falls back to mailto outcome on API failure', async () => {
     const { service, http, logging } = setup();
-    const postSpy = vi.spyOn(http, 'post').mockReturnValue(throwError(() => new Error('Lambda timeout')));
+    const postSpy = vi
+      .spyOn(http, 'post')
+      .mockReturnValue(throwError(() => new Error('Lambda timeout')));
 
     const request = {
       fullName: 'Test User',
@@ -49,7 +51,40 @@ describe('ContactUpdateService (Unit)', () => {
       expect(result.href).toBe('mailto:test@wiley.gov');
     }
     expect(postSpy).toHaveBeenCalled();
-    expect(logging.log).toHaveBeenCalledWith('warn', expect.stringContaining('Lambda failed'), expect.anything());
+    expect(logging.log).toHaveBeenCalledWith(
+      'warn',
+      expect.stringContaining('Lambda failed'),
+      expect.anything(),
+    );
+  });
+
+  it('POSTs a sanitized payload when the API is configured', async () => {
+    const { service, http } = setup();
+    const postSpy = vi.spyOn(http, 'post').mockReturnValue(of({}));
+
+    const request = {
+      fullName: 'Hostile\u0000Name',
+      serviceAddress: '123 Main',
+      poBox: '',
+      phone: '555-1212',
+      email: 'test@example.com',
+      notes: 'x'.repeat(1200),
+      locale: 'en' as const,
+      source: 'payment-panel' as const,
+    };
+
+    const result = await service.submitUpdate(request, 'mailto:test@wiley.gov');
+
+    expect(result.outcome).toBe('api-success');
+    expect(postSpy).toHaveBeenCalledWith(
+      'https://api.wiley.gov/update',
+      expect.objectContaining({
+        fullName: 'HostileName',
+        notes: 'x'.repeat(1000),
+        locale: 'en',
+        source: 'payment-panel',
+      }),
+    );
   });
 
   it('immediately uses mailto if no apiEndpoint configured', async () => {

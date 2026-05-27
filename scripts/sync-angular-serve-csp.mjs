@@ -20,4 +20,6 @@ serve.options.headers = {
 };
 
 writeFileSync(angularPath, `${JSON.stringify(angular, null, 2)}\n`, 'utf8');
-console.log('OK: angular.json serve.options.headers.Content-Security-Policy synced from customHttp.yml');
+console.log(
+  'OK: angular.json serve.options.headers.Content-Security-Policy synced from customHttp.yml',
+);

@@ -24,6 +24,7 @@ interface BusinessDirectoryCopy {
   filteredEmptySuffix: string;
   loadingState: string;
   noBusinessesEmptyState: string;
+  extendedLoadUnavailableMessage: string;
 }
 
 const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
@@ -47,6 +48,8 @@ const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
     loadingState: 'Loading the Wiley business directory…',
     noBusinessesEmptyState:
       'No businesses are listed yet. To add or update a listing, contact Town Hall at (719) 829-4974.',
+    extendedLoadUnavailableMessage:
+      'The live business directory could not be refreshed. Showing saved listings and local defaults.',
   },
   es: {
     kicker: 'Directorio de Negocios de Wiley',
@@ -68,6 +71,8 @@ const BUSINESS_DIRECTORY_COPY: Record<SiteLanguage, BusinessDirectoryCopy> = {
     loadingState: 'Cargando el directorio de negocios de Wiley…',
     noBusinessesEmptyState:
       'Aun no hay negocios listados. Para agregar o actualizar una ficha, llame al Ayuntamiento al (719) 829-4974.',
+    extendedLoadUnavailableMessage:
+      'No se pudo actualizar el directorio en vivo. Mostrando fichas guardadas y valores predeterminados locales.',
   },
 };
 
@@ -105,8 +110,10 @@ function normalizeBusinessKey(value: string): string {
 }
 
 function compareBusinesses(left: Business, right: Business): number {
-  const leftOrder = typeof left.displayOrder === 'number' ? left.displayOrder : Number.MAX_SAFE_INTEGER;
-  const rightOrder = typeof right.displayOrder === 'number' ? right.displayOrder : Number.MAX_SAFE_INTEGER;
+  const leftOrder =
+    typeof left.displayOrder === 'number' ? left.displayOrder : Number.MAX_SAFE_INTEGER;
+  const rightOrder =
+    typeof right.displayOrder === 'number' ? right.displayOrder : Number.MAX_SAFE_INTEGER;
 
   if (leftOrder !== rightOrder) {
     return leftOrder - rightOrder;
@@ -141,20 +148,25 @@ const FALLBACK_BUSINESSES: Business[] = [
     phone: '719-829-4811',
     address: '220 Main Street, Wiley, CO 81092',
     website: getVerifiedWebsite('https://www.colobank.com/'),
-    description: 'Hometown banking with exceptional customer service, mobile app, and remote deposit.',
+    description:
+      'Hometown banking with exceptional customer service, mobile app, and remote deposit.',
   },
   {
     name: 'Los Hermanos Restaurant',
     phone: 'Contact via Facebook',
     address: 'Wiley, CO',
-    website: getVerifiedWebsite('https://www.facebook.com/p/Los-Hermanos-Restaurant-61557700846895/'),
+    website: getVerifiedWebsite(
+      'https://www.facebook.com/p/Los-Hermanos-Restaurant-61557700846895/',
+    ),
     description: 'Local restaurant in Wiley, CO.',
   },
   {
     name: 'County Line Convenience Store',
     phone: 'Contact via Facebook',
     address: 'Wiley, CO',
-    website: getVerifiedWebsite('https://www.facebook.com/p/County-Line-Convenience-Store-100057178160741/'),
+    website: getVerifiedWebsite(
+      'https://www.facebook.com/p/County-Line-Convenience-Store-100057178160741/',
+    ),
     description: 'Local convenience store in Wiley, CO.',
   },
   {
@@ -172,7 +184,8 @@ const FALLBACK_BUSINESSES: Business[] = [
     website: getVerifiedWebsite('https://www.stampedeservices.net/'),
     description:
       'Family-owned general contracting specializing in metal buildings, trenching, and construction services.',
-    image: 'https://static.wixstatic.com/media/8928bd_0cb13a43a9024243adc28739bb866030~mv2.png/v1/fill/w_264,h_222,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8928bd_0cb13a43a9024243adc28739bb866030~mv2.png',
+    image:
+      'https://static.wixstatic.com/media/8928bd_0cb13a43a9024243adc28739bb866030~mv2.png/v1/fill/w_264,h_222,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8928bd_0cb13a43a9024243adc28739bb866030~mv2.png',
   },
   {
     name: 'Prairie Plumbing L.L.C.',
@@ -198,19 +211,27 @@ export class BusinessDirectory {
   protected readonly failedLogoNames = signal<Set<string>>(new Set());
 
   protected readonly cmsLoading = this.cms.isLoading;
+  protected readonly cmsExtendedLoadFailed = this.cms.extendedLoadFailed;
   protected readonly copy = computed(
     () => BUSINESS_DIRECTORY_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
 
   protected readonly businesses = computed<Business[]>(() => {
     const cmsBusinesses = this.cms.businesses().map(mapCmsBusiness);
-    const cmsBusinessKeys = new Set(cmsBusinesses.map((business) => normalizeBusinessKey(business.name)));
+    const cmsBusinessKeys = new Set(
+      cmsBusinesses.map((business) => normalizeBusinessKey(business.name)),
+    );
     const fallbackBusinesses = FALLBACK_BUSINESSES.map((business, index) => ({
       ...business,
       displayOrder: index + 1000,
     }));
 
-    return [...cmsBusinesses, ...fallbackBusinesses.filter((business) => !cmsBusinessKeys.has(normalizeBusinessKey(business.name)))].sort(compareBusinesses);
+    return [
+      ...cmsBusinesses,
+      ...fallbackBusinesses.filter(
+        (business) => !cmsBusinessKeys.has(normalizeBusinessKey(business.name)),
+      ),
+    ].sort(compareBusinesses);
   });
 
   protected readonly filteredBusinesses = computed(() => {

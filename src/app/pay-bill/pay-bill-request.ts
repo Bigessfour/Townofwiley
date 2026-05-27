@@ -25,8 +25,8 @@ export type BillPaySubmitResult =
   | { outcome: 'api-failure-mailto'; href: string };
 
 /**
- * Default Quick Pay target when `__TOW_RUNTIME_CONFIG__.payments.paystar.portalUrl` is unset.
- * Replace with the final hosted Paystar URL via runtime config when Paystar provides it.
+ * @deprecated Do not use for resident-facing links. Set `PAYSTAR_PORTAL_URL` in Amplify env instead.
+ * Kept only so older references fail visibly during refactors; `resolveQuickPayHref` disables the CTA when unset.
  */
 export const PAY_BILL_QUICK_PAY_PORTAL_PLACEHOLDER_URL =
   'https://secure.paystar.io/pay/townofwiley-utility';

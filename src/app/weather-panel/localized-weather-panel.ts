@@ -753,6 +753,12 @@ export class LocalizedWeatherPanel {
       } else {
         this.loadError.set(isRefresh ? this.copy().refreshError : this.copy().unavailableError);
       }
+
+      if (import.meta.env.DEV) {
+        console.warn(
+          '[Weather] NWS unavailable — verify Amplify env var NWS_PROXY_ENDPOINT and Lambda NWS_USER_AGENT',
+        );
+      }
     } finally {
       this.isLoading.set(false);
       this.isRefreshing.set(false);

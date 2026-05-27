@@ -1,6 +1,9 @@
 # Feature Completion — Remaining Backlog
 
-Shipped work is **removed** from this list so only open or ops-owned items remain.
+**Last updated:** 2026-05-22
+Shipped work is **removed** from this list so only open or ops-owned items remain. Full audit: [`post-development-inventory.md`](post-development-inventory.md).
+
+**Recently merged:** AP-03 — Paystar hosted CTA disabled when `portalUrl` empty ([PR #30](https://github.com/Bigessfour/Townofwiley/pull/30)).
 
 ## Security (ops / cloud)
 

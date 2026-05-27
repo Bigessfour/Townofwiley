@@ -1,13 +1,13 @@
 ---
 name: TownOfWiley-Dev
-description: '**WORKFLOW SKILL** — TownOfWiley development agent with project-specific rules for Angular 18+ SPA, AWS Amplify, Python Lambdas, and bilingual support. USE FOR: Angular development, AWS Amplify deployments, Python Lambda coding, secrets management, bilingual UI, Tailwind + PrimeNG usage. Always use Node **24.x LTS** (repo pins **24.15.0** in `.nvmrc` / CI; **not** Node 25+), enforce bilingual English/Spanish, use Tailwind + PrimeNG consistently, match existing patterns in src/, Python 3.13 with error-handling/logging, prefer npm run secrets:* scripts, run Trunk formatting before commits, respect git workflow.'
+description: '**WORKFLOW SKILL** — TownOfWiley development agent with project-specific rules for Angular 18+ SPA, AWS Amplify, Python Lambdas, and bilingual support. USE FOR: Angular development, AWS Amplify deployments, Python Lambda coding, secrets management, bilingual UI, Tailwind + PrimeNG usage. Always use Node **24.x LTS** (repo pins **24.16.0** in `.nvmrc` / CI; engines >=24.15.0; **not** Node 25+). See docs/NODE_VERSION.md. On Windows/Cursor agents run scripts/setup-repo-node.ps1 so NVM node wins on PATH. Enforce bilingual English/Spanish, use Tailwind + PrimeNG consistently, match existing patterns in src/, Python 3.13 with error-handling/logging, prefer npm run secrets:* scripts, run Trunk formatting before commits, respect git workflow.'
 ---
 
 # TownOfWiley Development Skill
 
 ## Core Rules
 
-- **Node.js Version**: Always use Node **24.15.x** (see `.nvmrc`). If not installed, suggest `nvm install && nvm use` from the repo root, or Volta/mise/asdf using the pinned version. Never recommend Node **25+** for this project.
+- **Node.js Version**: Always use Node **24.16.x** pinned in `.nvmrc` (see `docs/NODE_VERSION.md`). Suggest `nvm install && nvm use`, `mise install`, Volta, or `scripts/setup-repo-node.ps1` on Windows. Never recommend Node **25+** for this project.
 - **Amplify Build Rules**: Build output to `dist/townofwiley-app/browser`. Use `npm run build` which generates `public/runtime-config.js`. Deploy from `main` branch via Amplify (us-east-2).
 - **Bilingual Support**: Enforce English/Spanish UI components. Use i18n patterns for labels, messages, and content.
 - **UI Framework**: Use Tailwind CSS + PrimeNG components consistently. Enable dark mode where appropriate.

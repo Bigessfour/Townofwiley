@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, retry, throwError, timer, timeout } from 'rxjs';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
+import { LoggingService } from './logging.service';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
 export interface CmsNotice {
@@ -489,13 +490,13 @@ interface CmsGraphqlResponse {
 }
 
 /**
- * CMS coverage (Amplify Studio / AppSync `PUBLIC_CMS_QUERY`): town hero + welcome block
- * (`listSiteSettings`), alert banners, announcements/notices, calendar events, official contacts,
- * leadership roster lines for /contact, businesses, public documents, external news links. Content
- * not in this query remains in bundled `APP_COPY` (e.g. section kickers/headings, static meeting
- * fallback blurbs, calendar seeds, many labels) until modeled in CMS or `SiteSettings`.
+ * CMS coverage (Amplify Studio / AppSync): town hero + welcome block (`listSiteSettings`),
+ * alert banners, announcements/notices, calendar events, official contacts, leadership roster
+ * lines for /contact, businesses, public documents, external news links. Split into core
+ * (homepage-critical) and extended (directory/docs/roster) queries so a slow AppSync response
+ * does not block the entire homepage load.
  */
-const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
+const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
   listSiteSettings(limit: 1) {
     items {
       townName
@@ -559,6 +560,9 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       displayOrder
     }
   }
+}`;
+
+const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
   listBusinesses(filter: { active: { eq: true } }, limit: 100) {
     items {
       id
@@ -572,7 +576,7 @@ const PUBLIC_CMS_QUERY = `query GetPublicCmsContent {
       displayOrder
     }
   }
-  listPublicDocuments(filter: { active: { eq: true } }, limit: 200) {
+  listPublicDocuments(filter: { active: { eq: true } }, limit: 100) {
     items {
       id
       title
@@ -621,12 +625,37 @@ const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
 export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
 export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
 
+const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
+const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface CmsPersistedSnapshot {
+  version: 1;
+  savedAt: string;
+  buildSha?: string;
+  siteSettings?: SiteSettingsRecord;
+  alertBannerRecords: AlertBannerRecord[];
+  noticeRecords: AnnouncementRecord[];
+  eventRecords: EventRecord[];
+  contactRecords: OfficialContactRecord[];
+  businessRecords: BusinessRecord[];
+  publicDocumentRecords: PublicDocumentRecord[];
+  externalNewsLinkRecords: ExternalNewsLinkRecord[];
+  leadershipRosterRecords?: LeadershipRosterEntryRecord[];
+}
+
+export type CmsContentSource = 'bundled' | 'loading' | 'live' | 'cached';
+export type CmsExtendedLoadState = 'idle' | 'loading' | 'studio' | 'error';
+
 @Injectable({
   providedIn: 'root',
 })
 export class LocalizedCmsContentStore {
+  private static readonly CMS_REQUEST_TIMEOUT_MS = 25_000;
+  private static readonly CMS_MAX_RETRIES = 2;
+  private static readonly CMS_RETRY_DELAY_MS = 1_500;
+
   private readonly http = inject(HttpClient);
-  private readonly cmsConfig = this.getCmsRuntimeConfig();
+  private readonly logging = inject(LoggingService);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly englishDateFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'long',
@@ -648,10 +677,10 @@ export class LocalizedCmsContentStore {
   private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
   private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
   private readonly leadershipRosterRecordsState = signal<LeadershipRosterEntryRecord[]>([]);
-  private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>(
-    this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey ? 'loading' : 'fallback',
-  );
+  private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>('fallback');
   private readonly loadErrorState = signal<string | null>(null);
+  private readonly contentSourceState = signal<CmsContentSource>('bundled');
+  private readonly extendedLoadState = signal<CmsExtendedLoadState>('idle');
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -683,10 +712,16 @@ export class LocalizedCmsContentStore {
   );
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
+  readonly hasLoadFailed = computed(() => this.loadState() === 'error');
+  readonly contentSource = computed(() => this.contentSourceState());
+  readonly isUsingCachedSnapshot = computed(() => this.contentSourceState() === 'cached');
+  readonly extendedLoadFailed = computed(() => this.extendedLoadState() === 'error');
+  readonly isExtendedLoading = computed(() => this.extendedLoadState() === 'loading');
   readonly persistenceSummary = computed(() => {
     const language = this.siteLanguage();
+    const cmsConfig = this.getCmsRuntimeConfig();
 
-    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+    if (!cmsConfig.apiEndpoint || !cmsConfig.apiKey) {
       return language === 'es'
         ? 'Falta la configuracion de tiempo de ejecucion del CMS de Amplify Studio. El sitio muestra contenido incluido en la aplicacion hasta que se inyecten los ajustes de AppSync durante la compilacion o el despliegue.'
         : 'Amplify Studio CMS runtime config is missing. The site is showing bundled fallback content until AppSync settings are injected at build or deploy time.';
@@ -713,13 +748,36 @@ export class LocalizedCmsContentStore {
   });
 
   constructor() {
-    if (this.cmsConfig.apiEndpoint && this.cmsConfig.apiKey) {
-      void this.loadContent();
+    void this.initializeContentLoad();
+  }
+
+  private async initializeContentLoad(): Promise<void> {
+    const hydratedOffline = await this.hydrateFromOfflineSnapshots();
+    if (hydratedOffline) {
+      this.loadState.set('studio');
+      this.contentSourceState.set('cached');
+    }
+
+    if (this.hasCmsCredentials()) {
+      if (!hydratedOffline) {
+        this.loadState.set('loading');
+      }
+      await this.loadContent();
+      return;
+    }
+
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+    if (this.hasCmsCredentials()) {
+      if (!hydratedOffline) {
+        this.loadState.set('loading');
+      }
+      await this.loadContent();
     }
   }
 
   async refreshContent(): Promise<void> {
-    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+    if (!this.hasCmsCredentials()) {
       this.applyFallbackContent();
       return;
     }
@@ -729,8 +787,9 @@ export class LocalizedCmsContentStore {
 
   async testCmsConnection(): Promise<CmsConnectionTestResult> {
     const checkedAt = new Date().toISOString();
+    const cmsConfig = this.getCmsRuntimeConfig();
 
-    if (!this.cmsConfig.apiEndpoint || !this.cmsConfig.apiKey) {
+    if (!cmsConfig.apiEndpoint || !cmsConfig.apiKey) {
       return {
         ok: false,
         latencyMs: 0,
@@ -746,20 +805,7 @@ export class LocalizedCmsContentStore {
     const startedAt = performance.now();
 
     try {
-      const response = await firstValueFrom(
-        this.http.post<CmsGraphqlResponse>(
-          this.cmsConfig.apiEndpoint,
-          {
-            query: CMS_CONNECTION_TEST_QUERY,
-          },
-          {
-            headers: {
-              'content-type': 'application/json',
-              'x-api-key': this.cmsConfig.apiKey,
-            },
-          },
-        ),
-      );
+      const response = await this.postCmsGraphql(CMS_CONNECTION_TEST_QUERY);
       const latencyMs = Math.round(performance.now() - startedAt);
 
       if (response.errors?.length) {
@@ -796,83 +842,176 @@ export class LocalizedCmsContentStore {
   private async loadContent(): Promise<void> {
     this.loadState.set('loading');
     this.loadErrorState.set(null);
+    this.contentSourceState.set('loading');
 
     try {
-      const response = await firstValueFrom(
-        this.http.post<CmsGraphqlResponse>(
-          this.cmsConfig.apiEndpoint,
-          {
-            query: PUBLIC_CMS_QUERY,
-          },
+      const coreResponse = await this.postCmsGraphql(PUBLIC_CMS_CORE_QUERY);
+      this.applyCoreResponse(coreResponse);
+      this.loadState.set('studio');
+      this.contentSourceState.set('live');
+      this.persistSnapshot();
+      void this.loadExtendedContent();
+    } catch (error) {
+      if (this.restorePersistedSnapshot()) {
+        this.loadState.set('studio');
+        this.contentSourceState.set('cached');
+        this.loadErrorState.set(this.readCachedFallbackMessage());
+      } else {
+        this.applyFallbackContent();
+        this.loadState.set('error');
+        this.contentSourceState.set('bundled');
+        this.loadErrorState.set(this.readLoadError(error));
+      }
+
+      this.logging.log('warn', 'CMS core content load failed', {
+        eventType: 'cms_load_failed',
+        phase: 'core',
+        error: this.readLoadError(error),
+        usedCachedSnapshot: this.contentSourceState() === 'cached',
+      });
+    }
+  }
+
+  private async loadExtendedContent(): Promise<void> {
+    this.extendedLoadState.set('loading');
+
+    try {
+      const extendedResponse = await this.postCmsGraphql(PUBLIC_CMS_EXTENDED_QUERY);
+      this.applyExtendedResponse(extendedResponse);
+      this.extendedLoadState.set('studio');
+      this.persistSnapshot();
+    } catch (error) {
+      this.extendedLoadState.set('error');
+      this.logging.log('warn', 'CMS extended content load failed', {
+        eventType: 'cms_load_failed',
+        phase: 'extended',
+        error: this.readLoadError(error),
+      });
+    }
+  }
+
+  private applyCoreResponse(response: CmsGraphqlResponse): void {
+    if (response.errors?.length) {
+      throw new Error(this.formatGraphqlErrors(response.errors));
+    }
+
+    this.siteSettingsState.set(
+      response.data?.listSiteSettings?.items?.find((item): item is SiteSettingsRecord =>
+        Boolean(item),
+      ),
+    );
+    this.alertBannerRecordsState.set(
+      (response.data?.listAlertBanners?.items ?? []).filter((item): item is AlertBannerRecord =>
+        Boolean(item),
+      ),
+    );
+    this.noticeRecordsState.set(
+      (response.data?.listAnnouncements?.items ?? []).filter((item): item is AnnouncementRecord =>
+        Boolean(item),
+      ),
+    );
+    this.eventRecordsState.set(
+      (response.data?.listEvents?.items ?? []).filter((item): item is EventRecord => Boolean(item)),
+    );
+    this.contactRecordsState.set(
+      (response.data?.listOfficialContacts?.items ?? []).filter(
+        (item): item is OfficialContactRecord => Boolean(item),
+      ),
+    );
+  }
+
+  private applyExtendedResponse(response: CmsGraphqlResponse): void {
+    if (response.errors?.length) {
+      throw new Error(this.formatGraphqlErrors(response.errors));
+    }
+
+    this.businessRecordsState.set(
+      (response.data?.listBusinesses?.items ?? []).filter((item): item is BusinessRecord =>
+        Boolean(item),
+      ),
+    );
+    this.publicDocumentRecordsState.set(
+      (response.data?.listPublicDocuments?.items ?? []).filter(
+        (item): item is PublicDocumentRecord => Boolean(item),
+      ),
+    );
+    this.externalNewsLinkRecordsState.set(
+      (response.data?.listExternalNewsLinks?.items ?? []).filter(
+        (item): item is ExternalNewsLinkRecord => Boolean(item),
+      ),
+    );
+    this.leadershipRosterRecordsState.set(
+      (response.data?.listLeadershipRosterEntries?.items ?? []).filter(
+        (item): item is LeadershipRosterEntryRecord => Boolean(item),
+      ),
+    );
+  }
+
+  private postCmsGraphql(query: string): Promise<CmsGraphqlResponse> {
+    const cmsConfig = this.getCmsRuntimeConfig();
+
+    return firstValueFrom(
+      this.http
+        .post<CmsGraphqlResponse>(
+          cmsConfig.apiEndpoint,
+          { query },
           {
             headers: {
               'content-type': 'application/json',
-              'x-api-key': this.cmsConfig.apiKey,
+              'x-api-key': cmsConfig.apiKey,
             },
           },
-        ),
-      );
+        )
+        .pipe(
+          timeout(LocalizedCmsContentStore.CMS_REQUEST_TIMEOUT_MS),
+          retry({
+            count: LocalizedCmsContentStore.CMS_MAX_RETRIES,
+            delay: (error, retryCount) => {
+              if (!this.isRetriableCmsError(error)) {
+                return throwError(() => error);
+              }
 
-      if (response.errors?.length) {
-        throw new Error(
-          response.errors
-            .map((error) => error.message?.trim())
-            .filter((message): message is string => Boolean(message))
-            .join(' '),
-        );
-      }
+              return timer(LocalizedCmsContentStore.CMS_RETRY_DELAY_MS * retryCount);
+            },
+          }),
+        ),
+    );
+  }
 
-      this.siteSettingsState.set(
-        response.data?.listSiteSettings?.items?.find((item): item is SiteSettingsRecord =>
-          Boolean(item),
-        ),
+  private hasCmsCredentials(): boolean {
+    const cmsConfig = this.getCmsRuntimeConfig();
+    return Boolean(cmsConfig.apiEndpoint && cmsConfig.apiKey);
+  }
+
+  private isRetriableCmsError(error: unknown): boolean {
+    if (error instanceof HttpErrorResponse) {
+      return (
+        error.status === 0 ||
+        error.status === 408 ||
+        error.status === 429 ||
+        error.status === 502 ||
+        error.status === 503 ||
+        error.status === 504
       );
-      this.alertBannerRecordsState.set(
-        (response.data?.listAlertBanners?.items ?? []).filter((item): item is AlertBannerRecord =>
-          Boolean(item),
-        ),
-      );
-      this.noticeRecordsState.set(
-        (response.data?.listAnnouncements?.items ?? []).filter((item): item is AnnouncementRecord =>
-          Boolean(item),
-        ),
-      );
-      this.eventRecordsState.set(
-        (response.data?.listEvents?.items ?? []).filter((item): item is EventRecord =>
-          Boolean(item),
-        ),
-      );
-      this.contactRecordsState.set(
-        (response.data?.listOfficialContacts?.items ?? []).filter(
-          (item): item is OfficialContactRecord => Boolean(item),
-        ),
-      );
-      this.businessRecordsState.set(
-        (response.data?.listBusinesses?.items ?? []).filter((item): item is BusinessRecord =>
-          Boolean(item),
-        ),
-      );
-      this.publicDocumentRecordsState.set(
-        (response.data?.listPublicDocuments?.items ?? []).filter(
-          (item): item is PublicDocumentRecord => Boolean(item),
-        ),
-      );
-      this.externalNewsLinkRecordsState.set(
-        (response.data?.listExternalNewsLinks?.items ?? []).filter(
-          (item): item is ExternalNewsLinkRecord => Boolean(item),
-        ),
-      );
-      this.leadershipRosterRecordsState.set(
-        (response.data?.listLeadershipRosterEntries?.items ?? []).filter(
-          (item): item is LeadershipRosterEntryRecord => Boolean(item),
-        ),
-      );
-      this.loadState.set('studio');
-    } catch (error) {
-      this.applyFallbackContent();
-      this.loadState.set('error');
-      this.loadErrorState.set(this.readLoadError(error));
     }
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      (error as { name: string }).name === 'TimeoutError'
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private formatGraphqlErrors(errors: { message?: string }[]): string {
+    return errors
+      .map((error) => error.message?.trim())
+      .filter((message): message is string => Boolean(message))
+      .join(' ');
   }
 
   private applyFallbackContent(): void {
@@ -885,6 +1024,136 @@ export class LocalizedCmsContentStore {
     this.publicDocumentRecordsState.set([]);
     this.externalNewsLinkRecordsState.set([]);
     this.leadershipRosterRecordsState.set([]);
+  }
+
+  private async hydrateFromOfflineSnapshots(): Promise<boolean> {
+    const buildSnapshotLoaded = await this.hydrateFromBuildSnapshot();
+    if (buildSnapshotLoaded) {
+      return true;
+    }
+
+    return this.restorePersistedSnapshot();
+  }
+
+  private async hydrateFromBuildSnapshot(): Promise<boolean> {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<CmsPersistedSnapshot>('/cms-snapshot.json', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        }),
+      );
+
+      if (response?.version !== 1) {
+        return false;
+      }
+
+      this.applySnapshot(response);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private restorePersistedSnapshot(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    try {
+      const rawSnapshot = window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY);
+      if (!rawSnapshot) {
+        return false;
+      }
+
+      const snapshot = JSON.parse(rawSnapshot) as CmsPersistedSnapshot;
+      if (snapshot.version !== 1 || !this.isSnapshotFresh(snapshot.savedAt)) {
+        window.localStorage.removeItem(CMS_SNAPSHOT_STORAGE_KEY);
+        return false;
+      }
+
+      this.applySnapshot(snapshot);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private persistSnapshot(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const snapshot = this.createSnapshot();
+      window.localStorage.setItem(CMS_SNAPSHOT_STORAGE_KEY, JSON.stringify(snapshot));
+    } catch (error) {
+      this.logging.log('warn', 'Unable to persist CMS snapshot', {
+        eventType: 'cms_snapshot_persist_failed',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  private createSnapshot(): CmsPersistedSnapshot {
+    return {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      buildSha: this.getRuntimeBuildSha(),
+      siteSettings: this.siteSettingsState(),
+      alertBannerRecords: this.alertBannerRecordsState(),
+      noticeRecords: this.noticeRecordsState(),
+      eventRecords: this.eventRecordsState(),
+      contactRecords: this.contactRecordsState(),
+      businessRecords: this.businessRecordsState(),
+      publicDocumentRecords: this.publicDocumentRecordsState(),
+      externalNewsLinkRecords: this.externalNewsLinkRecordsState(),
+      leadershipRosterRecords: this.leadershipRosterRecordsState(),
+    };
+  }
+
+  private applySnapshot(snapshot: CmsPersistedSnapshot): void {
+    this.siteSettingsState.set(snapshot.siteSettings);
+    this.alertBannerRecordsState.set(snapshot.alertBannerRecords ?? []);
+    this.noticeRecordsState.set(snapshot.noticeRecords ?? []);
+    this.eventRecordsState.set(snapshot.eventRecords ?? []);
+    this.contactRecordsState.set(snapshot.contactRecords ?? []);
+    this.businessRecordsState.set(snapshot.businessRecords ?? []);
+    this.publicDocumentRecordsState.set(snapshot.publicDocumentRecords ?? []);
+    this.externalNewsLinkRecordsState.set(snapshot.externalNewsLinkRecords ?? []);
+    this.leadershipRosterRecordsState.set(snapshot.leadershipRosterRecords ?? []);
+  }
+
+  private isSnapshotFresh(savedAt: string): boolean {
+    const savedAtMs = Date.parse(savedAt);
+    if (Number.isNaN(savedAtMs)) {
+      return false;
+    }
+
+    return Date.now() - savedAtMs <= CMS_SNAPSHOT_TTL_MS;
+  }
+
+  private getRuntimeBuildSha(): string | undefined {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const build = (
+      window as Window & { __TOW_RUNTIME_CONFIG__?: { build?: { gitSha?: string } } }
+    ).__TOW_RUNTIME_CONFIG__?.build;
+
+    return typeof build?.gitSha === 'string' && build.gitSha.trim() ? build.gitSha.trim() : undefined;
+  }
+
+  private readCachedFallbackMessage(): string {
+    return this.siteLanguage() === 'es'
+      ? 'No se pudo cargar contenido en vivo. Mostrando la ultima copia guardada del pueblo.'
+      : 'Live town content is unavailable. Showing the last saved town copy.';
   }
 
   private normalizeHero(
@@ -1344,6 +1613,18 @@ export class LocalizedCmsContentStore {
 
   private readLoadError(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 504) {
+        return this.siteLanguage() === 'es'
+          ? 'El servicio de contenido del pueblo tardo demasiado en responder. Mostrando contenido incluido en la aplicacion.'
+          : 'Town content service timed out. Showing bundled homepage content instead.';
+      }
+
+      if (error.status === 0) {
+        return this.siteLanguage() === 'es'
+          ? 'No se pudo conectar con el servicio de contenido del pueblo. Compruebe su conexion e intente de nuevo.'
+          : 'Could not reach the town content service. Check your connection and try again.';
+      }
+
       if (typeof error.error === 'string' && error.error.trim()) {
         return error.error.trim();
       }
@@ -1351,6 +1632,17 @@ export class LocalizedCmsContentStore {
       if (typeof error.message === 'string' && error.message.trim()) {
         return error.message.trim();
       }
+    }
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      (error as { name: string }).name === 'TimeoutError'
+    ) {
+      return this.siteLanguage() === 'es'
+        ? 'La solicitud de contenido del pueblo excedio el tiempo de espera.'
+        : 'The town content request timed out.';
     }
 
     if (error instanceof Error && error.message.trim()) {

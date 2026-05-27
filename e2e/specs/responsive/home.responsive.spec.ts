@@ -41,7 +41,7 @@ test.describe('homepage responsive coverage', () => {
 
     await homePage.page.goto('/services#records-request', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#records-request .resident-action')).toBeVisible();
-    
+
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#barrier-report .accessibility-action')).toBeVisible();
   });

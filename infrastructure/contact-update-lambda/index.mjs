@@ -21,6 +21,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'node:crypto';
+import { sanitizeContactUpdateBody } from './sanitize-body.mjs';
 
 const TABLE_NAME = process.env.TABLE_NAME ?? 'TownOfWileyContactUpdates';
 const FROM_ADDRESS = process.env.FROM_ADDRESS ?? 'noreply@townofwiley.gov';
@@ -29,28 +30,28 @@ const TO_ADDRESS = process.env.TO_ADDRESS ?? 'clerk@townofwiley.gov';
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESClient({});
 
-const ALLOWED_FIELDS = new Set([
-  'fullName',
-  'serviceAddress',
-  'poBox',
-  'phone',
-  'email',
-  'notes',
-  'locale',
-  'source',
-]);
+const DEFAULT_ALLOWED_ORIGIN = 'https://www.townofwiley.gov';
 
-const CORS_HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': 'https://www.townofwiley.gov',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+function corsHeaders(origin) {
+  const allowOrigin =
+    origin && (origin === DEFAULT_ALLOWED_ORIGIN || origin.endsWith('.townofwiley.gov'))
+      ? origin
+      : DEFAULT_ALLOWED_ORIGIN;
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
 export const handler = async (event) => {
+  const origin = event.headers?.origin ?? event.headers?.Origin ?? '';
+  const headers = corsHeaders(origin);
+
   // Handle CORS preflight
   if (event.requestContext?.http?.method === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS };
+    return { statusCode: 204, headers };
   }
 
   let body;
@@ -58,15 +59,14 @@ export const handler = async (event) => {
   try {
     body = JSON.parse(event.body ?? '{}');
   } catch {
-    return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'Invalid JSON' }),
+    };
   }
 
-  // Strip any keys not in the allowlist (prevent injection into email/DDB)
-  const sanitized = Object.fromEntries(
-    Object.entries(body)
-      .filter(([k]) => ALLOWED_FIELDS.has(k))
-      .map(([k, v]) => [k, String(v ?? '').slice(0, 1000)]),
-  );
+  const sanitized = sanitizeContactUpdateBody(body);
 
   const id = randomUUID();
   const timestamp = new Date().toISOString();
@@ -93,25 +93,29 @@ export const handler = async (event) => {
     `Locale: ${sanitized.locale || 'en'}`,
   ].join('\n');
 
-  // Send via SES
-  await ses.send(
-    new SendEmailCommand({
-      Destination: { ToAddresses: [TO_ADDRESS] },
-      Source: FROM_ADDRESS,
-      Message: {
-        Subject: {
-          Data: `Contact Info Update from Resident – ${sanitized.fullName || 'Unknown'}`,
+  // Notify clerk via SES; do not fail the request if email delivery fails after persistence.
+  try {
+    await ses.send(
+      new SendEmailCommand({
+        Destination: { ToAddresses: [TO_ADDRESS] },
+        Source: FROM_ADDRESS,
+        Message: {
+          Subject: {
+            Data: `Contact Info Update from Resident – ${sanitized.fullName || 'Unknown'}`,
+          },
+          Body: {
+            Text: { Data: lines },
+          },
         },
-        Body: {
-          Text: { Data: lines },
-        },
-      },
-    }),
-  );
+      }),
+    );
+  } catch (err) {
+    console.error('Contact update saved but SES notification failed', err);
+  }
 
   return {
     statusCode: 200,
-    headers: CORS_HEADERS,
+    headers,
     body: JSON.stringify({ ok: true }),
   };
 };

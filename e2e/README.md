@@ -42,9 +42,22 @@ Run `npx playwright init-agents --loop copilot -c playwright.config.ts --prompts
 
 ### MCP in VS Code / Cursor
 
-**Cursor** lists servers from [`.cursor/mcp.json`](../.cursor/mcp.json) at the repo root (or `~/.cursor/mcp.json` globally). It uses the top-level key **`mcpServers`**. If Settings showed no servers, you were looking at the wrong file: Playwright’s `init-agents` merges into [`.vscode/mcp.json`](../.vscode/mcp.json) (VS Code / Copilot style, key **`servers`**). This project keeps both in sync for Cursor + other tools.
+**Cursor** reads [`.cursor/mcp.json`](../.cursor/mcp.json) (`mcpServers`). **VS Code / Copilot** reads [`.vscode/mcp.json`](../.vscode/mcp.json) (`servers`). Both register the same Playwright stack (pinned to `@playwright/test` **1.59.x**, not `@latest`).
 
-Turn on **MCP** in Cursor, then **reload the window** so `.cursor/mcp.json` is picked up. You should see **angular-cli**, **primeng**, **microsoft/playwright-mcp**, and **playwright-test**.
+Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, **microsoft/playwright-mcp**, **playwright-test**.
+
+| Server                         | When to use it                                                                                                                                        |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`playwright-test`**          | **Pre-push / CI parity** — `test_run`, `test_list`, planner/generator/healer. Runs against [`playwright.config.ts`](../playwright.config.ts).         |
+| **`microsoft/playwright-mcp`** | **Ad-hoc browsing** — explore staging, click flows, mock APIs. Uses [`playwright-mcp.config.json`](../playwright-mcp.config.json). Not a test runner. |
+| `angular-cli`, `primeng`       | Framework docs and scaffolding.                                                                                                                       |
+
+**MCP `test_run` example** (same scope as CI smoke):
+
+- `locations`: `["e2e/specs/smoke"]`
+- `projects`: `["desktop-chromium"]`
+
+**Node.js:** MCP and `test_run` need **Node 24.15+** (see [`.nvmrc`](../.nvmrc)). Agent terminals may use the IDE’s bundled Node — set **`E2E_NODE`** to your NVM/Homebrew Node 24 binary ([`.vscode/settings.json`](../.vscode/settings.json) sets `E2E_NODE` on macOS and `NVM_SYMLINK` on Windows when nvm-windows is active).
 
 Refresh upstream agent templates after Playwright upgrades:
 
@@ -52,17 +65,25 @@ Refresh upstream agent templates after Playwright upgrades:
 npm run e2e:init-agents
 ```
 
-[`../.vscode/mcp.json`](../.vscode/mcp.json) (VS Code / `init-agents` merge target) and [`../.cursor/mcp.json`](../.cursor/mcp.json) (Cursor UI) register the same tools:
-
-| Server                     | Purpose                                                                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `playwright-test`          | Playwright Test MCP (`run-test-mcp-server`) used by `playwright-test-*` agents — snapshots, planner/generator/healer tools.      |
-| `microsoft/playwright-mcp` | Microsoft’s Playwright MCP package (`@playwright/mcp`), useful for general browser automation alongside Angular/PrimeNG servers. |
-| `angular-cli`, `primeng`   | Framework docs and scaffolding helpers.                                                                                          |
-
-In **GitHub Copilot** coding agent settings, paste the same `playwright-test` server block if MCP is configured in the GitHub UI rather than locally.
+In **GitHub Copilot** agent settings, paste the `playwright-test` block from `.cursor/mcp.json` if MCP is configured in the GitHub UI.
 
 CI installs browsers for Copilot agent jobs via [`.github/workflows/copilot-setup-steps.yml`](../.github/workflows/copilot-setup-steps.yml) (`workflow_dispatch` / path-triggered).
+
+### VS Code tasks (CLI alternative to MCP)
+
+Run from **Terminal → Run Task…** ([`.vscode/tasks.json`](../.vscode/tasks.json)):
+
+| Task                                       | Purpose                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| **e2e: install browsers**                  | `npm run test:e2e:install` — required once per machine/upgrade            |
+| **e2e: smoke (CI parity)**                 | Same as `npm run test:e2e:smoke` / MCP `test_run` on `e2e/specs/smoke`    |
+| **e2e: pre-push (preflight + smoke)**      | Python preflight then smoke — quick gate before push                      |
+| **e2e: serve :4300**                       | Background `ng serve` for MCP exploration                                 |
+| **e2e: smoke (reuse running server)**      | Smoke with `E2E_SKIP_WEBSERVER=1` after serve is up                       |
+| **e2e: MCP local loop (serve then smoke)** | Compound: serve → reuse-server smoke when Playwright `webServer` is flaky |
+| **e2e: init Playwright agents**            | `npm run e2e:init-agents` after `@playwright/test` bumps                  |
+
+Tasks use **`npm`** scripts so they work on Windows and macOS (integrated terminal env supplies `E2E_NODE` / `PLAYWRIGHT_BROWSERS_PATH` where configured).
 
 ### Typography and viewability checks
 
@@ -95,7 +116,30 @@ Set `PLAYWRIGHT_TRACE=on` (or `off`) to override default `retain-on-failure` beh
 - Override the local port with `E2E_PORT` if you need a different isolated test port.
 - Remote deployment: set `E2E_BASE_URL` and run against Amplify.
 
-PowerShell example:
+### Windows / Cursor agent shell
+
+Agent terminals may not inherit [`.vscode/settings.json`](../.vscode/settings.json) `E2E_NODE` / `NVM_SYMLINK`. Run from repo root **before** smoke (do not use `--ignore-scripts` — that skips kill-port and preflight):
+
+```powershell
+$env:Path = "C:\nvm4w\nodejs;$env:Path"
+$env:E2E_NODE = "C:\nvm4w\nodejs\node.exe"
+$env:PLAYWRIGHT_BROWSERS_PATH = "$PWD\.playwright-browsers"
+npm run test:e2e:install
+npm run test:e2e:preflight
+npm run test:e2e:smoke
+```
+
+If Playwright `webServer` is flaky, start the dev server manually and reuse it:
+
+```powershell
+# Terminal 1
+npm run serve:4300
+# Terminal 2
+$env:E2E_SKIP_WEBSERVER = "1"
+npm run test:e2e:smoke
+```
+
+PowerShell example (remote):
 
 ```powershell
 $env:E2E_BASE_URL = 'https://main.d331voxr1fhoir.amplifyapp.com'

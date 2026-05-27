@@ -1,6 +1,11 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { publicRouteContracts } from '../../support/public-routes';
 
+/** Angular view transitions can log benign AbortErrors on reload in Chromium smoke runs. */
+function isBenignConsoleError(message: string): boolean {
+  return /AbortError:\s*Transition was skipped/i.test(message);
+}
+
 test.describe('public route health', () => {
   for (const routeContract of publicRouteContracts) {
     test(`loads ${routeContract.label} without route or asset failures`, async ({ homePage }) => {
@@ -15,7 +20,10 @@ test.describe('public route health', () => {
 
       homePage.page.on('console', (message) => {
         if (message.type() === 'error') {
-          consoleErrors.push(message.text());
+          const text = message.text();
+          if (!isBenignConsoleError(text)) {
+            consoleErrors.push(text);
+          }
         }
       });
 

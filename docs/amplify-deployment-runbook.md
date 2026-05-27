@@ -113,6 +113,57 @@ See `docs/git-workflow.md` for the full CI policy and path-based trigger rules.
 
 ---
 
+## Runtime config verification (`/runtime-config.js`)
+
+**Source of truth:** Amplify Console → **Environment variables** on branch `main` (and any staging branch).  
+**Build step:** `npm run prebuild` → [`scripts/generate-runtime-config.mjs`](../scripts/generate-runtime-config.mjs) → `public/runtime-config.js` copied into the hosting artifact.  
+**Live asset:** `https://townofwiley.gov/runtime-config.js` (or `https://main.d331voxr1fhoir.amplifyapp.com/runtime-config.js` for Amplify default host).
+
+### Expected keys (compare live file to Amplify env)
+
+| Runtime path                       | Amplify env var(s)                                |
+| ---------------------------------- | ------------------------------------------------- |
+| `cms.appSync.apiEndpoint`          | `APPSYNC_CMS_ENDPOINT`                            |
+| `cms.appSync.apiKey`               | `APPSYNC_CMS_API_KEY` (redact in logs)            |
+| `cms.appSync.region`               | `APPSYNC_CMS_REGION`                              |
+| `weather.apiEndpoint`              | `NWS_PROXY_ENDPOINT`                              |
+| `weather.alertSignup.apiEndpoint`  | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`              |
+| `weather.alertSignup.enabled`      | `SEVERE_WEATHER_SIGNUP_ENABLED`                   |
+| `payments.paystar.mode`            | `PAYSTAR_MODE` (or inferred from portal/API URLs) |
+| `payments.paystar.portalUrl`       | `PAYSTAR_PORTAL_URL`                              |
+| `payments.paystar.apiEndpoint`     | `PAYSTAR_API_ENDPOINT`                            |
+| `contactUpdate.apiEndpoint`        | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)      |
+| `contactUpdate.reviewProxyEndpoint`| `CONTACT_UPDATE_REVIEW_PROXY_URL` (admin proxy)   |
+| `chatbot.*`                        | `EASYPEASY_*`                                     |
+| `build.gitSha` / `build.timestamp` | From git at build time                            |
+
+### Verification commands (PowerShell)
+
+```powershell
+$env:AWS_PROFILE = "townofwiley"
+$env:AWS_REGION = "us-east-2"
+aws amplify get-branch --app-id d331voxr1fhoir --branch-name main `
+  --query "branch.environmentVariables" --output json
+
+Invoke-WebRequest -Uri "https://townofwiley.gov/runtime-config.js" -OutFile "$env:TEMP\runtime-config-prod.js"
+```
+
+Reproduce locally from the same env vars (do not commit output):
+
+```powershell
+npm run generate:runtime-config
+```
+
+**Pass criteria:** Paystar `portalUrl` is the real Town URL when go-live is intended (no resident-facing placeholder links). CMS endpoint and API key present. Weather proxy URL matches deployed Lambda. `build.gitSha` matches the latest `main` deploy.
+
+**Evidence log (paste in PR or ops ticket):** date, verifier, branch, Amplify job id, `build.gitSha`, Paystar `mode` + whether `portalUrl` is set (not the URL itself if sensitive), CMS/weather endpoints non-empty yes/no.
+
+After any Amplify env change: **redeploy `main`**, then ask clerks/residents to **hard-refresh** so browsers load the new `/runtime-config.js`. Clerk-facing steps: [`docs/CLERK-CMS-GUIDE.md`](CLERK-CMS-GUIDE.md) § “When IT changes payment or other website settings.”
+
+See also [`docs/AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md) §4. Agent session prompt (Week 1 AP-01/02/03/10): [`docs/week1-incremental-session-prompt.md`](week1-incremental-session-prompt.md).
+
+---
+
 ## Sync app-level custom headers (CSP) with the repo
 
 Hosting headers (**CSP, HSTS, cache-control**, etc.) are defined only in repo-root [`customHttp.yml`](../customHttp.yml). [`amplify.yml`](../amplify.yml) intentionally has **no** `customHeaders` block, following AWS guidance to [migrate custom headers out of the build specification](https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html).
@@ -128,7 +179,13 @@ If production CSP is narrower than the repo (for example `font-src 'self'` witho
    npm run amplify:sync-headers
    ```
 
-   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`customHttp.yml`](../customHttp.yml) and calls `aws amplify update-app --cli-input-json` so CSP values with single quotes are not truncated.
+   To sync **buildSpec** (Node pin from [`amplify.yml`](../amplify.yml)) and SPA rewrites in one step:
+
+   ```bash
+   npm run amplify:sync-hosting
+   ```
+
+   This runs [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh), which reads [`customHttp.yml`](../customHttp.yml) and calls `aws amplify update-app --cli-input-json` so CSP values with single quotes are not truncated. Build settings: [`scripts/sync-amplify-buildspec.sh`](../scripts/sync-amplify-buildspec.sh).
 
 4. Redeploy the `main` branch from the Amplify Console (or push an empty commit) if headers do not appear immediately on CloudFront.
 

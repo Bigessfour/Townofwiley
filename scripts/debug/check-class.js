@@ -12,8 +12,8 @@ const { chromium } = require('playwright');
   const rootLayout = await page.evaluate(() => {
     return document.querySelector('p-megamenu').getBoundingClientRect().toJSON();
   });
-  console.log("list", layout);
-  console.log("root container", rootLayout);
-  
+  console.log('list', layout);
+  console.log('root container', rootLayout);
+
   await browser.close();
 })();

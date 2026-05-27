@@ -18,11 +18,7 @@
       }
     </div>
 
-    <form
-      class="resident-form grid gap-4"
-      [formGroup]="issueForm()"
-      (ngSubmit)="onSubmit()"
-    >
+    <form class="resident-form grid gap-4" [formGroup]="issueForm()" (ngSubmit)="onSubmit()">
       <section class="resident-form-grid grid gap-3 lg:grid-cols-2">
         <label for="issue-category" class="resident-field grid gap-1">
           <span>{{ copy().issueCategoryLabel }}</span>
@@ -57,10 +53,7 @@
             autocomplete="name"
             [invalid]="issueForm().controls.name.invalid && issueForm().controls.name.touched"
           />
-          @if (
-            validationMessage()(issueForm().controls.name, copy().issueNameLabel);
-            as message
-          ) {
+          @if (validationMessage()(issueForm().controls.name, copy().issueNameLabel); as message) {
             <p-message severity="error" [text]="message" />
           }
         </label>
@@ -103,10 +96,7 @@
             "
           />
           @if (
-            validationMessage()(
-              issueForm().controls.preferredContact,
-              copy().issueContactLabel
-            );
+            validationMessage()(issueForm().controls.preferredContact, copy().issueContactLabel);
             as message
           ) {
             <p-message severity="error" [text]="message" />
@@ -122,9 +112,7 @@
             id="issue-details"
             rows="4"
             formControlName="details"
-            [invalid]="
-              issueForm().controls.details.invalid && issueForm().controls.details.touched
-            "
+            [invalid]="issueForm().controls.details.invalid && issueForm().controls.details.touched"
           ></textarea>
           @if (
             validationMessage()(issueForm().controls.details, copy().issueDetailsLabel);

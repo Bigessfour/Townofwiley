@@ -13,10 +13,7 @@
       }
     </div>
     <p class="compliance-note">{{ copy().complianceNote }}</p>
-    <p
-      class="policy-last-updated meta-label"
-      data-testid="accessibility-last-reviewed"
-    >
+    <p class="policy-last-updated meta-label" data-testid="accessibility-last-reviewed">
       {{ copy().accessibilityLastReviewedLabel }}: {{ copy().accessibilityLastReviewedDate }}
     </p>
     <app-accessibility-support [contacts]="contacts()" />

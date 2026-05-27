@@ -6,37 +6,41 @@ updates:
     schedule:
       interval: weekly
       day: monday
-      time: "09:00"
+      time: '09:00'
       timezone: America/Denver
     open-pull-requests-limit: 5
     groups:
       angular:
         patterns:
-          - "@angular/*"
-          - "@angular-eslint/*"
+          - '@angular/*'
+          - '@angular-eslint/*'
       primeng:
         patterns:
-          - "primeng"
-          - "primeicons"
+          - 'primeng'
+          - 'primeicons'
       aws-amplify:
         patterns:
-          - "aws-amplify"
-          - "@aws-amplify/*"
+          - 'aws-amplify'
+          - '@aws-amplify/*'
       testing:
         patterns:
-          - "@playwright/*"
-          - "vitest"
-          - "@vitest/*"
-          - "axe-core"
+          - '@playwright/*'
+          - 'vitest'
+          - '@vitest/*'
+          - 'axe-core'
     ignore:
       # Suppress patch bumps for major framework packages to reduce noise;
       # still get minor/major alerts for security.
-      - dependency-name: "@angular/*"
+      - dependency-name: '@angular/*'
         update-types:
           - version-update:semver-patch
+      # Repo pins Node 24.x (.nvmrc); @types/node 25+ mismatches runtime.
+      - dependency-name: '@types/node'
+        update-types:
+          - version-update:semver-major
     labels:
-      - "dependencies"
-      - "automated"
+      - 'dependencies'
+      - 'automated'
 
   # GitHub Actions
   - package-ecosystem: github-actions
@@ -44,10 +48,10 @@ updates:
     schedule:
       interval: monthly
       day: monday
-      time: "09:00"
+      time: '09:00'
       timezone: America/Denver
     open-pull-requests-limit: 3
     labels:
-      - "dependencies"
-      - "github-actions"
-      - "automated"
+      - 'dependencies'
+      - 'github-actions'
+      - 'automated'

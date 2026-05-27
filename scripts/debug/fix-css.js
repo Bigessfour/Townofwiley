@@ -8,6 +8,6 @@ const { chromium } = require('playwright');
     const list = document.querySelector('.p-megamenu-root-list');
     return window.getComputedStyle(list).display;
   });
-  console.log("p-megamenu-root-list display: ", styles);
+  console.log('p-megamenu-root-list display: ', styles);
   await browser.close();
 })();

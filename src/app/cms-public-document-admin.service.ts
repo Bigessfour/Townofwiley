@@ -34,7 +34,7 @@ export class CmsPublicDocumentAdminService {
     document: UploadedDocument,
     sectionId: DocumentArchiveSectionId,
   ): Promise<string> {
-    const response = await client.graphql({
+    const response = (await client.graphql({
       query: CREATE_PUBLIC_DOCUMENT_MUTATION,
       variables: {
         input: {
@@ -50,7 +50,7 @@ export class CmsPublicDocumentAdminService {
         },
       },
       authMode: 'iam',
-    }) as GraphQLResult<CreatePublicDocumentResult>;
+    })) as GraphQLResult<CreatePublicDocumentResult>;
 
     if (response.errors?.length) {
       throw new Error(
@@ -103,10 +103,7 @@ export class CmsPublicDocumentAdminService {
   }
 
   private toKeywords(fileName: string, sectionId: DocumentArchiveSectionId): string[] {
-    const titleTerms = this.toDisplayTitle(fileName)
-      .toLowerCase()
-      .split(' ')
-      .filter(Boolean);
+    const titleTerms = this.toDisplayTitle(fileName).toLowerCase().split(' ').filter(Boolean);
 
     return Array.from(new Set([sectionId, 'uploaded', 'cms', ...titleTerms]));
   }

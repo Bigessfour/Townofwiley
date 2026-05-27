@@ -56,7 +56,9 @@ describe('runtime config helpers', () => {
     };
 
     expect(configureArg.Auth.Cognito.allowGuestAccess).toBe(true);
-    expect(configureArg.Auth.Cognito.identityPoolId).toBe('us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56');
+    expect(configureArg.Auth.Cognito.identityPoolId).toBe(
+      'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
+    );
     expect(configureArg.API.GraphQL.endpoint).toBe(
       'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
     );

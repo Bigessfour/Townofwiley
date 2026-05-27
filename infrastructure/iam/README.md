@@ -14,10 +14,28 @@ Town of Wiley workloads and IAM user **`copilot`** live only in **`570912405222`
 The `copilot` IAM user needs log read actions to run `aws logs tail` / `FilterLogEvents` without `AccessDeniedException`.
 
 **Policy file:** [copilot-cloudwatch-logs-read-policy.json](./copilot-cloudwatch-logs-read-policy.json)  
-Scoped to `log-group:/aws/lambda/TownOfWiley*` in **us-east-2** (primary) and **us-east-1** (email alias Lambda per runbook).
+Scoped to Town Lambda log groups (`TownOfWiley*`, `townofwiley*`, `amplify-townofwiley*`) in **us-east-2**, AppSync API logs (`/aws/appsync/apis/*`), and **us-east-1** email-alias Lambda logs.
 
 **Optional — Lambda read for `npm run verify:nws-proxy-aws`:** [copilot-lambda-read-verify-policy.json](./copilot-lambda-read-verify-policy.json)  
 Lets the same IAM user call `lambda:ListFunctions` and read configuration / function URLs for `arn:aws:lambda:us-east-2:570912405222:function:TownOfWiley*`. Use **`aws lambda list-functions --region us-east-2`** so discovery stays in the primary region. Apply with a **different** policy name so it does not replace the logs policy.
+
+## `copilot` user — CloudFront (Amplify CDN)
+
+For optional `/weather*` cache behaviors and invalidations on the Amplify-managed distribution (`d1tkcm7820z9y8.cloudfront.net` per domain association), attach the AWS managed policy **`CloudFrontFullAccess`** (`arn:aws:iam::aws:policy/CloudFrontFullAccess`) to user **`copilot`**.
+
+**Verify (account administrator):**
+
+```bash
+aws iam list-attached-user-policies --user-name copilot \
+  --query "AttachedPolicies[?PolicyName=='CloudFrontFullAccess']"
+aws iam simulate-principal-policy \
+  --policy-source-arn "arn:aws:iam::570912405222:user/copilot" \
+  --action-names cloudfront:ListDistributions cloudfront:UpdateDistribution cloudfront:CreateInvalidation
+```
+
+All evaluations should be **`allowed`**. Prefer repo [`customHttp.yml`](../../customHttp.yml) + `npm run amplify:sync-headers` for `/weather*` `Cache-Control`; use [`scripts/configure-cloudfront-weather-cache.sh`](../../scripts/configure-cloudfront-weather-cache.sh) only when an explicit behavior is required.
+
+**Infrastructure SSOT verification:** `npm run verify:aws-infra` (see [docs/AWS_INFRASTRUCTURE_SOT.md](../../docs/AWS_INFRASTRUCTURE_SOT.md)) compares live resources to [infrastructure/aws-infrastructure.manifest.json](../aws-infrastructure.manifest.json). Requires the same read permissions plus `amplify:GetApp`, `amplify:GetBranch`, `dynamodb:DescribeTable`, and `s3:GetPublicAccessBlock` on Town buckets.
 
 ### Apply (account administrator)
 

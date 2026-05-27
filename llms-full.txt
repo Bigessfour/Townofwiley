@@ -62,7 +62,7 @@ When there is overlap, prefer `.vscode/angular-best-practices.md` for Angular co
 ## Web Codegen Scorer
 
 - Web Codegen Scorer is installed in the local environment and available on PATH.
-- Repository scorer configuration is defined in `hello-world/config.mjs`.
+- Repository scorer configuration is defined in `archive/hello-world/config.mjs` (non-production).
 - The scorer is configured for Angular and uses `.vscode/angular-best-practices.md` as its generation system prompt.
 
 ## Working Guidance For AI Tools

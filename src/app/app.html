@@ -18,6 +18,36 @@
     />
   }
 
+  @if ((cmsContentLoadFailed() || cmsUsingCachedSnapshot()) && !cmsLoadFallbackDismissed()) {
+    <section
+      class="cms-load-status"
+      role="status"
+      aria-live="polite"
+      [attr.aria-label]="cmsLoadError() || appCopy().cmsLoadFallbackMessage"
+    >
+      <p class="cms-load-status__message">
+        {{ cmsLoadError() || appCopy().cmsLoadFallbackMessage }}
+      </p>
+      <div class="cms-load-status__actions">
+        <button
+          type="button"
+          class="button-cta button-cta--ghost cms-load-status__retry"
+          [disabled]="cmsContentLoading()"
+          (click)="retryCmsContent()"
+        >
+          {{ appCopy().cmsLoadRetryLabel }}
+        </button>
+        <button
+          type="button"
+          class="button-cta button-cta--ghost cms-load-status__dismiss"
+          (click)="dismissCmsLoadFallbackNotice()"
+        >
+          {{ appCopy().cmsLoadDismissLabel }}
+        </button>
+      </div>
+    </section>
+  }
+
   @if (shouldPrimeWeatherAlerts() && alertBanner().enabled) {
     @if (homepageWeatherAlert(); as alert) {
       @if (!nwsBannerDismissed() && !isWeatherMode()) {

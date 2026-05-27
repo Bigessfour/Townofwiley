@@ -11,7 +11,8 @@
   const buttonPosition = currentScript.dataset.buttonPosition || 'bottom-right';
   const delayMs = Number.parseInt(currentScript.dataset.delayMs || '300', 10);
   const autoHideMs = Number.parseInt(currentScript.dataset.autoHideMs || '4200', 10);
-  const bubbleText = currentScript.dataset.bubbleText || "I'm Wylie. Tap the chat bubble if you'd like a hand.";
+  const bubbleText =
+    currentScript.dataset.bubbleText || "I'm Wylie. Tap the chat bubble if you'd like a hand.";
   const rawVideoSources = [
     {
       src: currentScript.dataset.videoWebmSrc || '',

@@ -1,11 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import {
-  type IssueCategory,
-  type IssueFormGroup,
-  ResidentIssuePanel,
-} from './issue-panel';
+import { type IssueCategory, type IssueFormGroup, ResidentIssuePanel } from './issue-panel';
 
 function makeIssueForm(): IssueFormGroup {
   return new FormGroup({
