@@ -218,10 +218,11 @@ jobs:
         run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)
 
   frontend-smoke:
+    name: Test Browsers + Full E2E Regression
     needs: detect-changes
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
 
@@ -258,9 +259,9 @@ jobs:
       - name: E2E preflight (Node toolchain, deps, Playwright Chromium)
         run: python3 scripts/e2e_smoke_preflight.py
 
-      - name: Run deterministic E2E regression suite
+      - name: Run full E2E regression (smoke + interaction inventory)
         # Omit E2E_BASE_URL so Playwright starts local ng serve. Invalid org/repo variables fail fast in playwright.config (resolveE2eEnv).
-        run: npx playwright test e2e/specs/smoke --project=desktop-chromium --workers=2
+        run: npm run test:regression:e2e
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
