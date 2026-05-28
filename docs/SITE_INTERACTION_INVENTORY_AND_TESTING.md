@@ -61,18 +61,19 @@ Your site is already hosted on **AWS Amplify** (free-tier eligible web hosting �
 
 - Playwright E2E (`e2e/`) – smoke, accessibility (axe), responsive, typography, homepage navigation, forms, chatbot, weather signup (already in `npm run test:regression`).
 - Vitest unit tests.
-- GitHub Actions `ci.yml` (attached) – lint, unit, browsers (Playwright), TypeScript, dependency review.
-- AWS Amplify build (`amplify.yml` attached) – runs on every push to `main`.
+- GitHub Actions [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) → reusable [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml) (lint, unit, infra, E2E).
+- AWS Amplify build ([`amplify.yml`](../amplify.yml)) – runs on every push to `main`.
 
-**New requirement met**: **Every single control listed above now has a dedicated Playwright test** that runs in CI (see Prompt 2 below for implementation).  
-Tests assert: correct navigation (after rewrite fix), action performance, intended display data, form submissions, downloads, etc.  
-Tests run automatically on every PR and push via GitHub Actions (updated in step 3).
+**Inventory E2E suite**: **Every control listed above has a dedicated Playwright test** in [`e2e/specs/inventory/`](../e2e/specs/inventory/) (IDs in [`e2e/support/interaction-inventory.ts`](../e2e/support/interaction-inventory.ts)).  
+Tests assert correct in-app navigation (local/CI via `ng serve`), action completion, intended display data, form submissions, and downloads.  
+CI runs smoke + inventory via `frontend-smoke` in [`git-workflow.yml`](../.github/workflows/git-workflow.yml) using `npm run test:regression:e2e`.
 
 **How to maintain**:
 
 - Push changes → GitHub Actions + Amplify build runs full regression.
 - Any regression → PR blocked until fixed.
-- Run locally or in MCP: `npm run test:regression`
+- Run locally: `npm run test:e2e:inventory`, `npm run test:regression:e2e` (E2E only), or `npm run test:regression` (unit + infra + E2E).
+- **Playwright MCP** (`playwright-test` → `test_run`) is for local/Cursor only; CI runs the same specs via npm, not MCP.
 
 **Next step**: Fix the Amplify rewrite rule (2-minute console change) → all navigation tests will pass.
 
