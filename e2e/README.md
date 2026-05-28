@@ -17,8 +17,12 @@ e2e/
     town.fixture.ts
   pages/
     home.page.ts
+    site-chrome.page.ts
+    public-route.page.ts
+    …
   specs/
     accessibility/
+    inventory/
     responsive/
     smoke/
     typography/
@@ -42,7 +46,7 @@ Run `npx playwright init-agents --loop copilot -c playwright.config.ts --prompts
 
 ### MCP in VS Code / Cursor
 
-**Cursor** reads [`.cursor/mcp.json`](../.cursor/mcp.json) (`mcpServers`). **VS Code / Copilot** reads [`.vscode/mcp.json`](../.vscode/mcp.json) (`servers`). Both register the same Playwright stack (pinned to `@playwright/test` **1.59.x**, not `@latest`).
+**Cursor** reads [`.cursor/mcp.json`](../.cursor/mcp.json) (`mcpServers`). **VS Code / Copilot** reads [`.vscode/mcp.json`](../.vscode/mcp.json) (`servers`). Both register the same Playwright stack: **`playwright-test`** uses the repo’s `@playwright/test` (see `package.json`); **`microsoft/playwright-mcp`** uses `@playwright/mcp@0.0.75` for ad-hoc browsing (not the same version number as `@playwright/test`).
 
 Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, **microsoft/playwright-mcp**, **playwright-test**.
 
@@ -52,10 +56,16 @@ Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, *
 | **`microsoft/playwright-mcp`** | **Ad-hoc browsing** — explore staging, click flows, mock APIs. Uses [`playwright-mcp.config.json`](../playwright-mcp.config.json). Not a test runner. |
 | `angular-cli`, `primeng`       | Framework docs and scaffolding.                                                                                                                       |
 
-**MCP `test_run` example** (same scope as CI smoke):
+**MCP `test_run` examples** (CI parity):
 
-- `locations`: `["e2e/specs/smoke"]`
-- `projects`: `["desktop-chromium"]`
+- Smoke: `locations`: `["e2e/specs/smoke"]`, `projects`: `["desktop-chromium"]`
+- Site interaction inventory: `locations`: `["e2e/specs/inventory"]`, `projects`: `["desktop-chromium"]` (or `npm run test:e2e:inventory`)
+
+**MCP troubleshooting:**
+
+- **PrimeNG** — `Tool get_migration_guide expected a Zod schema`: reload the window after pulling; [`.cursor/mcp.json`](../.cursor/mcp.json) pins `@modelcontextprotocol/sdk@1.24.3` with `@primeng/mcp@21.1.8` ([primeng#19504](https://github.com/primefaces/primeng/issues/19504)).
+- **`microsoft/playwright-mcp`** — `@playwright/mcp@1.59.1` does not exist on npm; config uses **`@playwright/mcp@0.0.75`**. Use **`playwright-test`** for `test_run`, not `microsoft/playwright-mcp`.
+- **Port 4300 in use** — If `npm run test:e2e:inventory` is already running, either stop it or rely on **`E2E_REUSE_SERVER=1`** (set in [`.cursor/mcp.json`](../.cursor/mcp.json) for **`playwright-test`**) so MCP reuses the existing `ng serve` webServer.
 
 **Node.js:** MCP and `test_run` need **Node 24.15+** (see [`.nvmrc`](../.nvmrc)). Agent terminals may use the IDE’s bundled Node — set **`E2E_NODE`** to your NVM/Homebrew Node 24 binary ([`.vscode/settings.json`](../.vscode/settings.json) sets `E2E_NODE` on macOS and `NVM_SYMLINK` on Windows when nvm-windows is active).
 
@@ -96,6 +106,7 @@ Tasks use **`npm`** scripts so they work on Windows and macOS (integrated termin
 npm run test:e2e:install
 npm run test:e2e
 npm run test:e2e:smoke
+npm run test:e2e:inventory
 npm run test:e2e:smoke:all-projects  # desktop + mobile (single worker — avoids dev-server churn)
 npm run test:e2e:headed
 npm run test:e2e:ui
