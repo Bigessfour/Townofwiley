@@ -28,7 +28,7 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--primary-region", default="us-east-2")
-    parser.add_argument("--log-retention-days", type=int, default=30)
+    parser.add_argument("--log-retention-days", type=int, default=90)
     parser.add_argument(
         "--ops-notification-email",
         default="steve.mckitrick@townofwiley.gov",

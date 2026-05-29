@@ -99,7 +99,15 @@ python scripts/configure-townofwiley-cloudwatch-logging.py
 # or: npm run configure:cloudwatch-logging
 ```
 
-The script is idempotent: sets **30-day** retention on manifest Lambdas, enables AppSync CloudWatch logs, subscribes **`TownOfWileyOpsAlerts`** and severe-weather SNS topics, and creates Lambda **Errors** + Amplify **5xxErrors** alarms. Confirm pending SNS email subscriptions after each run.
+The script is idempotent: sets **90-day** retention on manifest Lambdas (default; override with `--log-retention-days`), enables AppSync CloudWatch logs (`ERROR` by default; use `--appsync-field-log-level INFO` during incidents only), subscribes **`TownOfWileyOpsAlerts`** and severe-weather SNS topics, and creates Lambda **Errors** + Amplify **5xxErrors** alarms. Confirm pending SNS email subscriptions after each run.
+
+**Verify retention after configure:**
+
+```bash
+npm run verify:aws-infra
+```
+
+Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and Amplify backend Lambdas listed in [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json) `cloudWatch.amplifyBackendLogGroups`. Skip with `npm run verify:aws-infra -- --skip-log-retention`.
 
 **Gap — CloudTrail:** As of May 2026 the Town account had **no trails**. Add a multi-Region trail before relying on CloudWatch alone for API audit history.
 
@@ -141,6 +149,6 @@ WAF association options: CloudFront distribution in front of a URL, or [API Gate
 | AP-06 | Contact payload sanitization |
 | AP-16 | WAF on public Function URLs |
 | AP-17 | S3 upload AV / metadata |
-| AP-19 | AppSync API key rotation |
+| AP-19 | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)) |
 
 Full tracker: [post-development-inventory.md](./post-development-inventory.md).

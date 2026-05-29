@@ -11,7 +11,7 @@
  * AWS Lambda Function URL auth: https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html
  */
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,6 +27,7 @@ const args = process.argv.slice(2);
 const skipS3 = args.includes('--skip-s3');
 const skipAmplify = args.includes('--skip-amplify');
 const skipEnv = args.includes('--skip-amplify-env');
+const skipLogRetention = args.includes('--skip-log-retention');
 const offline = args.includes('--offline');
 
 function awsJson(command, region) {
@@ -85,6 +86,12 @@ function hasNoneAuthFunctionUrlPermissions(policyDocument) {
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
 
+const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 90;
+const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
+const amplifyBackendLogGroups = manifest.cloudWatch?.amplifyBackendLogGroups ?? [
+  '/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF',
+];
+
 const failures = [];
 const warnings = [];
 const ok = [];
@@ -101,6 +108,30 @@ function warn(msg) {
   warnings.push(msg);
 }
 
+function checkLogGroupRetention(logGroupName, region) {
+  const groups = tryAwsJson(
+    `logs describe-log-groups --log-group-name-prefix ${logGroupName}`,
+    region,
+  );
+  const group = groups?.logGroups?.find((g) => g.logGroupName === logGroupName);
+  if (!group) {
+    warn(`CloudWatch log group missing (may appear after first invoke): ${logGroupName}`);
+    return;
+  }
+  const retention = group.retentionInDays;
+  if (retention == null) {
+    fail(
+      `${logGroupName}: no retention policy (expected ${expectedLogRetentionDays}d) — run ${manifest.cloudWatch?.configureScript ?? 'npm run configure:cloudwatch-logging'}`,
+    );
+  } else if (retention < expectedLogRetentionDays) {
+    fail(
+      `${logGroupName}: retention ${retention}d < expected ${expectedLogRetentionDays}d — run ${manifest.cloudWatch?.configureScript ?? 'npm run configure:cloudwatch-logging'}`,
+    );
+  } else {
+    pass(`${logGroupName}: retention ${retention}d`);
+  }
+}
+
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
 
@@ -112,6 +143,41 @@ const CONTACT_FUNCTION_URL_AUTH = {
 };
 
 if (offline) {
+  const generatorPath = join(repoRoot, envManifest.generator ?? 'scripts/generate-runtime-config.mjs');
+  if (!existsSync(generatorPath)) {
+    fail(`amplify-branch-env generator missing: ${envManifest.generator}`);
+  } else {
+    pass(`amplify-branch-env generator exists: ${envManifest.generator}`);
+  }
+
+  if (!Array.isArray(envManifest.requiredForProduction) || envManifest.requiredForProduction.length === 0) {
+    fail('amplify-branch-env.manifest.json: requiredForProduction must be a non-empty array');
+  } else {
+    pass(
+      `amplify-branch-env: ${envManifest.requiredForProduction.length} required production env vars`,
+    );
+  }
+
+  const cspRegistryPath = join(repoRoot, 'docs', 'third-party-csp-registry.md');
+  if (!existsSync(cspRegistryPath)) {
+    fail('docs/third-party-csp-registry.md is missing (CSP third-party SSOT)');
+  } else {
+    const registry = readFileSync(cspRegistryPath, 'utf8');
+    const requiredMarkers = [
+      'execute-api',
+      'googletagmanager',
+      'easy-peasy',
+      'appsync-api',
+      'unsafe-inline',
+    ];
+    for (const marker of requiredMarkers) {
+      if (!registry.includes(marker)) {
+        fail(`third-party-csp-registry.md missing marker: ${marker}`);
+      }
+    }
+    pass('third-party-csp-registry.md documents required CSP vendors');
+  }
+
   for (const fn of manifest.lambdaFunctions) {
     if (fn.functionUrl?.required && !fn.functionUrl?.authType) {
       fail(`${fn.functionName}: missing functionUrl.authType in manifest`);
@@ -293,6 +359,21 @@ for (const fn of manifest.lambdaFunctions) {
       }
     }
   }
+}
+
+if (!offline && !skipLogRetention) {
+  const primaryRegion = manifest.primaryRegion ?? 'us-east-2';
+  for (const fn of manifest.lambdaFunctions ?? []) {
+    const region = fn.region ?? primaryRegion;
+    const name = String(fn.functionName ?? '').trim();
+    if (name) {
+      checkLogGroupRetention(`/aws/lambda/${name}`, region);
+    }
+  }
+  for (const logGroup of amplifyBackendLogGroups) {
+    checkLogGroupRetention(logGroup, primaryRegion);
+  }
+  checkLogGroupRetention(`/aws/appsync/apis/${appsyncApiId}`, primaryRegion);
 }
 
 if (!skipS3) {
