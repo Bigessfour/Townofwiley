@@ -98,6 +98,9 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.contacts().find((contact) => contact.id === 'town-information')?.href).toBe(
       'tel:+17198294974',
     );
+    expect(store.contacts().find((contact) => contact.id === 'town-superintendent')?.href).toBe(
+      'mailto:scott.whitman@townofwiley.gov',
+    );
 
     httpTesting.verify();
   });
@@ -437,6 +440,7 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.contacts().map((contact) => contact.label)).toEqual([
       'Informacion del pueblo',
       'Secretaria municipal',
+      'Superintendente del pueblo',
     ]);
     expect(store.businesses().map((business) => business.name)).toEqual([
       'B Business',
@@ -452,7 +456,9 @@ describe('LocalizedCmsContentStore', () => {
       'Local Coverage',
       'Regional Coverage',
     ]);
-    expect(store.leadershipRosterLinesByGroup().get('mayor-council')).toEqual(['Alcalde: Desde CMS']);
+    expect(store.leadershipRosterLinesByGroup().get('mayor-council')).toEqual([
+      'Alcalde: Desde CMS',
+    ]);
 
     httpTesting.verify();
   });

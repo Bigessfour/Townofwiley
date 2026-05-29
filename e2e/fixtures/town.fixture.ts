@@ -56,6 +56,9 @@ export const test = base.extend<TownFixtures>({
             apiEndpoint: '',
           },
         },
+        billPay: {
+          apiEndpoint: '',
+        },
       };
     });
 

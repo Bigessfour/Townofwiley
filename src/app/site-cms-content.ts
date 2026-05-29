@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { firstValueFrom, retry, throwError, timer, timeout } from 'rxjs';
+import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import { SiteLanguage, SiteLanguageService } from './site-language';
@@ -624,6 +624,7 @@ const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
 /** Stable Dynamo `id` on `OfficialContact` rows required by shell, permits, and services. */
 export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
 export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
+export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';
 
 const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
 const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -705,10 +706,7 @@ export class LocalizedCmsContentStore {
   );
   /** Localized roster lines keyed by `groupId` (`mayor-council`, `town-administration`). */
   readonly leadershipRosterLinesByGroup = computed(() =>
-    this.normalizeLeadershipRosterByGroup(
-      this.leadershipRosterRecordsState(),
-      this.siteLanguage(),
-    ),
+    this.normalizeLeadershipRosterByGroup(this.leadershipRosterRecordsState(), this.siteLanguage()),
   );
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
@@ -1143,11 +1141,12 @@ export class LocalizedCmsContentStore {
       return undefined;
     }
 
-    const build = (
-      window as Window & { __TOW_RUNTIME_CONFIG__?: { build?: { gitSha?: string } } }
-    ).__TOW_RUNTIME_CONFIG__?.build;
+    const build = (window as Window & { __TOW_RUNTIME_CONFIG__?: { build?: { gitSha?: string } } })
+      .__TOW_RUNTIME_CONFIG__?.build;
 
-    return typeof build?.gitSha === 'string' && build.gitSha.trim() ? build.gitSha.trim() : undefined;
+    return typeof build?.gitSha === 'string' && build.gitSha.trim()
+      ? build.gitSha.trim()
+      : undefined;
   }
 
   private readCachedFallbackMessage(): string {
@@ -1436,6 +1435,18 @@ export class LocalizedCmsContentStore {
         contact.linkLabel === fallback.linkLabel ||
         contact.value === fallback.value,
     );
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT),
+      (contact, fallback) =>
+        contact.id.includes('superintendent') ||
+        contact.label.toLowerCase().includes('superintendent') ||
+        contact.label.toLowerCase().includes('superintendente') ||
+        contact.href === fallback.href ||
+        contact.linkLabel === fallback.linkLabel,
+    );
 
     return [...contactById.values()].sort((left, right) => {
       const leftOrder = contacts.findIndex((contact) => contact.id === left.id);
@@ -1465,9 +1476,7 @@ export class LocalizedCmsContentStore {
 
     const candidate =
       current ??
-      contacts.find(
-        (contact) => contact.id !== requiredId && matchesCandidate(contact, fallback),
-      );
+      contacts.find((contact) => contact.id !== requiredId && matchesCandidate(contact, fallback));
 
     if (candidate) {
       if (candidate.id !== requiredId) {
@@ -1583,11 +1592,7 @@ export class LocalizedCmsContentStore {
         };
       })
       .filter(
-        (row) =>
-          row.id &&
-          row.groupId &&
-          row.line &&
-          LEADERSHIP_ROSTER_GROUP_IDS.has(row.groupId),
+        (row) => row.id && row.groupId && row.line && LEADERSHIP_ROSTER_GROUP_IDS.has(row.groupId),
       )
       .sort((left, right) => {
         if (left.displayOrder !== right.displayOrder) {
