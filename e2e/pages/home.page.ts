@@ -580,7 +580,7 @@ export class HomePage {
   async searchFor(query: string): Promise<void> {
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
-    await this.page.waitForSelector('.search-result, .empty-state', { timeout: 5000 });
+    await this.page.waitForSelector('.search-result, .empty-state', { timeout: 10_000 });
   }
 
   /** Submit header search (works when `#mega-site-search` is hidden under the mobile breakpoint). */

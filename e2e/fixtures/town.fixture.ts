@@ -62,6 +62,21 @@ export const test = base.extend<TownFixtures>({
       };
     });
 
+    await page.route('**/cms-snapshot.json', async (route) => {
+      const response = await route.fetch();
+      const snapshot = (await response.json()) as Record<string, unknown>;
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ...snapshot,
+          eventRecords: [],
+          businessRecords: [],
+        }),
+      });
+    });
+
     await mockDirectNwsRoutes(page);
     await use(new HomePage(page, baseURL ?? configuredBaseUrl));
   },
