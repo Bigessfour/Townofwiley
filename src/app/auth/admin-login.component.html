@@ -8,16 +8,76 @@
       <p-message severity="error" [text]="loadError()!" styleClass="admin-login__error" />
     }
 
-    <amplify-authenticator [hideSignUp]="true" [loginMechanisms]="['email']">
-      <ng-template amplifySlot="authenticated">
+    @if (step() === 'signIn') {
+      <form
+        class="admin-login__form"
+        data-testid="admin-login-form"
+        [formGroup]="signInForm"
+        (ngSubmit)="submitSignIn()"
+      >
+        <label class="admin-login__field">
+          <span>{{ copy().emailLabel }}</span>
+          <input
+            pInputText
+            type="email"
+            autocomplete="username"
+            formControlName="email"
+            data-testid="admin-login-email"
+            [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched"
+          />
+        </label>
+        <label class="admin-login__field">
+          <span>{{ copy().passwordLabel }}</span>
+          <p-password
+            formControlName="password"
+            [feedback]="false"
+            [toggleMask]="true"
+            inputId="admin-login-password"
+            autocomplete="current-password"
+          />
+        </label>
         <p-button
-          type="button"
-          label="Continue to admin"
-          (onClick)="onAuthenticated()"
-          styleClass="admin-login__continue"
+          type="submit"
+          [label]="copy().signInLabel"
+          [loading]="submitting()"
+          [disabled]="signInForm.invalid || submitting()"
+          styleClass="admin-login__submit"
         />
-      </ng-template>
-    </amplify-authenticator>
+      </form>
+    } @else {
+      <form class="admin-login__form" [formGroup]="newPasswordForm" (ngSubmit)="submitNewPassword()">
+        <p class="admin-login__hint">{{ copy().newPasswordHint }}</p>
+        <label class="admin-login__field">
+          <span>{{ copy().newPasswordLabel }}</span>
+          <p-password
+            formControlName="newPassword"
+            [toggleMask]="true"
+            inputId="admin-login-new-password"
+            autocomplete="new-password"
+          />
+        </label>
+        <label class="admin-login__field">
+          <span>{{ copy().confirmPasswordLabel }}</span>
+          <p-password
+            formControlName="confirmPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            inputId="admin-login-confirm-password"
+            autocomplete="new-password"
+          />
+        </label>
+        @if (newPasswordForm.hasError('passwordMismatch') && newPasswordForm.touched) {
+          <p-message severity="warn" [text]="copy().passwordMismatch" styleClass="admin-login__error" />
+        }
+        <p-button
+          type="submit"
+          [label]="copy().setPasswordLabel"
+          [loading]="submitting()"
+          [disabled]="newPasswordForm.invalid || submitting()"
+          styleClass="admin-login__submit"
+        />
+      </form>
+    }
 
     <p class="admin-login__footer">
       <a routerLink="/">{{ copy().returnHome }}</a>

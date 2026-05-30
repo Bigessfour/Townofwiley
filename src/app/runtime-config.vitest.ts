@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { getPaystarRuntimeConfig } from './payments/paystar-config';
 

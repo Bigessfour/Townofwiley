@@ -6,7 +6,8 @@ set -euo pipefail
 cat <<'EOF'
 Gen 2 production cutover (manual steps)
 
-1. Confirm https://gen2-main.d331voxr1fhoir.amplifyapp.com is green (CMS + /admin + staff login).
+1. Confirm production https://www.townofwiley.gov and preview https://gen2-main.d331voxr1fhoir.amplifyapp.com (CMS + /admin + staff login).
+1b. AWS_PROFILE=townofwiley npm run amplify:gen2:migrate-cms  (if Gen2 tables empty after first deploy).
 2. git checkout main && amplify env checkout main && amplify pull
 3. npm run amplify:gen2:lock
 4. npm run amplify:gen2:assess  # record Gen2 root stack name

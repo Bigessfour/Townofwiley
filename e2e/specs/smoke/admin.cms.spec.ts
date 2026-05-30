@@ -4,7 +4,7 @@ import { enableE2eStaffAuth } from '../../support/admin-staff-auth';
 /** Gen 2 Amplify Console Data manager (replaces Gen 1 hosted Studio). */
 const CONSOLE_DATA_MANAGER_LINK = 'Open Amplify Console Data manager';
 const CONSOLE_DATA_MANAGER_HREF =
-  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/gen2-main\/data$/;
+  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/(?:main|gen2-main)\/data$/;
 
 /** PrimeNG p-tabs lazy panels and clerk-setup redirects need the app shell settled (see primeng.org/tabs). */
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
@@ -18,6 +18,18 @@ async function gotoAdminHub(page: import('@playwright/test').Page, path: string)
 
 test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
+
+  test('staff login page shows email and password fields', async ({ homePage }) => {
+    await homePage.page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.getByRole('heading', { name: /Sign in — Town admin/i })).toBeVisible(
+      {
+        timeout: 20_000,
+      },
+    );
+    await expect(homePage.page.getByTestId('admin-login-email')).toBeVisible();
+    await expect(homePage.page.getByLabel(/password/i)).toBeVisible();
+    await expect(homePage.page.getByRole('button', { name: /^Sign in$/i })).toBeVisible();
+  });
 
   test('opens the unified admin hub and shows all editable CMS models', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin');

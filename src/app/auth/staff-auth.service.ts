@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
+  confirmSignIn,
   fetchAuthSession,
   getCurrentUser,
   signIn,
@@ -20,6 +21,8 @@ export interface StaffSignInInput {
   username: string;
   password: string;
 }
+
+export type StaffSignInStep = 'complete' | 'newPasswordRequired';
 
 @Injectable({ providedIn: 'root' })
 export class StaffAuthService {
@@ -78,25 +81,57 @@ export class StaffAuthService {
     }
   }
 
-  async signInStaff(input: StaffSignInInput): Promise<void> {
+  /** Starts staff sign-in; returns when a new temporary password must be set. */
+  async beginStaffSignIn(input: StaffSignInInput): Promise<StaffSignInStep> {
     const credentials: SignInInput = {
       username: input.username.trim(),
       password: input.password,
     };
     const result = await signIn(credentials);
-    if (result.nextStep.signInStep !== 'DONE') {
-      throw new Error('Additional sign-in steps are required. Contact IT for staff account setup.');
+    if (result.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+      return 'newPasswordRequired';
     }
-    await this.refreshSession();
-    if (!this.isStaff()) {
-      await signOut();
-      throw new Error('This account is not authorized for staff admin access.');
+    if (result.nextStep.signInStep !== 'DONE') {
+      throw new Error(
+        `Additional sign-in steps are required (${result.nextStep.signInStep}). Contact IT for staff account setup.`,
+      );
+    }
+    await this.assertStaffSession();
+    return 'complete';
+  }
+
+  /** Completes first-time sign-in after Cognito issues a temporary password. */
+  async completeStaffNewPassword(newPassword: string): Promise<void> {
+    const result = await confirmSignIn({ challengeResponse: newPassword });
+    if (result.nextStep.signInStep !== 'DONE') {
+      throw new Error(
+        `Additional sign-in steps are required (${result.nextStep.signInStep}). Contact IT for staff account setup.`,
+      );
+    }
+    await this.assertStaffSession();
+  }
+
+  /** @deprecated Prefer beginStaffSignIn for UI flows that handle password challenges. */
+  async signInStaff(input: StaffSignInInput): Promise<void> {
+    const step = await this.beginStaffSignIn(input);
+    if (step === 'newPasswordRequired') {
+      throw new Error(
+        'Your account requires a new password. Enter your temporary password, then set a new password when prompted.',
+      );
     }
   }
 
   async signOutStaff(): Promise<void> {
     await signOut();
     await this.refreshSession();
+  }
+
+  private async assertStaffSession(): Promise<void> {
+    await this.refreshSession();
+    if (!this.isStaff()) {
+      await signOut();
+      throw new Error('This account is not authorized for staff admin access.');
+    }
   }
 
   private isE2eStaffBypass(): boolean {

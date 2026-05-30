@@ -196,7 +196,7 @@ export function buildRuntimeConfigValues(localSecrets, env) {
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
   const amplifyBranch =
-    env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'gen2-main';
+    env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||

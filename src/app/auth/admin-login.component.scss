@@ -35,6 +35,28 @@
   margin-top: 1.5rem;
 }
 
-.admin-login__continue {
+.admin-login__form {
+  display: grid;
+  gap: 1rem;
+  max-width: 28rem;
+}
+
+.admin-login__field {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.admin-login__field input,
+.admin-login__field .p-password {
+  width: 100%;
+}
+
+.admin-login__hint {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted, #64748b);
+}
+
+.admin-login__submit {
   width: 100%;
 }

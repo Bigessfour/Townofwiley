@@ -7,7 +7,10 @@ Operational runbook for moving from **Amplify Gen 1** (Studio + `amplify push`) 
 | AWS account | `570912405222` |
 | Amplify app | `d331voxr1fhoir` |
 | Gen 1 env / stack | `main` / `amplify-townofwiley-main-d1245` |
-| Gen 2 Hosting branch | `gen2-main` |
+| Gen 2 Hosting branch (preview) | `gen2-main` |
+| Gen 2 production Hosting branch | `main` (stack `amplify-d331voxr1fhoir-main-branch-82345f229c`) |
+| Gen 2 production AppSync | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…` |
+| Gen 1 AppSync (legacy data source) | `j7b2x3sh7rcezekekkxxiak7hi` → `327diwc6…` (decommission after retain) |
 | Region | `us-east-2` |
 
 ## What changed for staff
@@ -46,6 +49,28 @@ On **`main`**, Gen 1 files remain under `amplify/backend/` until merge/cutover.
 | Frontend missing CMS outputs | After backend deploy, assert **`amplify_outputs.json`** exists before `generate-runtime-config.mjs --strict`. |
 
 Sync Console buildSpec after editing `amplify.yml`: `npm run amplify:sync-buildspec`.
+
+## CMS data (Gen 1 → Gen 2 main)
+
+After Hosting deploy wired `amplify_outputs.json` to production, the Gen 2 DynamoDB tables were empty while Gen 1 still held records. Copy with:
+
+```bash
+AWS_PROFILE=townofwiley npm run amplify:gen2:migrate-cms
+# dry run: npm run amplify:gen2:migrate-cms -- --dry-run
+```
+
+Then trigger a `main` Hosting build (or wait for the next push) so `public/cms-snapshot.json` refreshes.
+
+## Gen 2 enablement status
+
+| Step | Status |
+|------|--------|
+| Gen 2 backend on `main` (job 223+) | Done — `ampx pipeline-deploy` + Hosting |
+| CMS DynamoDB copy Gen 1 → Gen 2 main | Done — `npm run amplify:gen2:migrate-cms` |
+| Production reads Gen 2 AppSync | Done — verify `/runtime-config.js` + public pages |
+| `gen2-migration` lock / refactor / retain | **Not done** — optional AWS CLI path to retire Gen 1 stack |
+| Decommission Gen 1 CloudFormation | **Not done** — wait 48h after refactor |
+| Point domain at `gen2-main` | **Not required** if production stays on `main` with Gen 2 backend |
 
 ## Prerequisites (done in this effort)
 

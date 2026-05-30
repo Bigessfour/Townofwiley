@@ -37,6 +37,8 @@
     "amplify:gen2:refactor": "amplify gen2-migration refactor",
     "amplify:copy-branch-env": "bash scripts/copy-amplify-branch-env.sh",
     "amplify:disassociate-gen1-backend": "bash scripts/disassociate-gen1-backend-from-branch.sh",
+    "amplify:gen2:migrate-cms": "node scripts/migrate-cms-gen1-to-gen2-dynamodb.mjs",
+    "amplify:gen2:configure-clerk": "node scripts/configure-gen2-clerk-cms.mjs",
     "mcp:primeng:install": "npm install --prefix mcp/primeng",
     "rag:setup": "node scripts/rag-setup.mjs",
     "rag:index": "node scripts/rag-run.mjs index",
