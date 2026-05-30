@@ -27,8 +27,9 @@ test.describe('cms admin', () => {
       },
     );
     await expect(homePage.page.getByTestId('admin-login-email')).toBeVisible();
-    await expect(homePage.page.getByLabel(/password/i)).toBeVisible();
-    await expect(homePage.page.getByRole('button', { name: /^Sign in$/i })).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-password')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-submit')).toBeVisible();
+    await expect(homePage.page.getByRole('heading', { name: /how to sign in/i })).toBeVisible();
   });
 
   test('opens the unified admin hub and shows all editable CMS models', async ({ homePage }) => {

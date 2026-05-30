@@ -7,6 +7,15 @@
   text-align: left;
 }
 
+.admin-login__panel {
+  width: min(100%, 36rem);
+  padding: var(--space-6, 1.5rem);
+  border-radius: var(--radius-xl, 1rem);
+  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+  background: var(--wiley-inverse, #fff);
+  box-shadow: var(--shadow-card, 0 4px 24px rgb(15 23 42 / 8%));
+}
+
 .admin-login__kicker {
   font-size: 0.875rem;
   font-weight: 600;
@@ -22,8 +31,35 @@
 }
 
 .admin-login__body {
+  margin: 0 0 1rem;
+}
+
+.admin-login__instructions {
   margin: 0 0 1.25rem;
-  max-width: 36rem;
+  padding: 1rem 1rem 1rem 1.25rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--wiley-cream-50, #faf8f5);
+  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+}
+
+.admin-login__instructions-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.admin-login__steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-login__help {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--text-muted, #64748b);
 }
 
 .admin-login__error {
@@ -33,12 +69,12 @@
 
 .admin-login__footer {
   margin-top: 1.5rem;
+  font-size: 0.9375rem;
 }
 
 .admin-login__form {
   display: grid;
   gap: 1rem;
-  max-width: 28rem;
 }
 
 .admin-login__field {
@@ -47,9 +83,9 @@
   font-weight: 600;
 }
 
-.admin-login__field input,
-.admin-login__field .p-password {
+.admin-login__input {
   width: 100%;
+  min-height: 2.75rem;
 }
 
 .admin-login__hint {
@@ -59,4 +95,12 @@
 
 .admin-login__submit {
   width: 100%;
+  min-height: 2.75rem;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-login__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }

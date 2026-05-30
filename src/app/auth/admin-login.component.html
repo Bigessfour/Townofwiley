@@ -1,8 +1,20 @@
 <main id="main-content" class="admin-login" tabindex="-1">
-  <p-card class="panel wiley-panel">
+  <section class="admin-login__panel panel wiley-panel" aria-labelledby="admin-login-heading">
     <p class="admin-login__kicker">{{ copy().kicker }}</p>
-    <h1 class="admin-login__title">{{ copy().title }}</h1>
+    <h1 id="admin-login-heading" class="admin-login__title">{{ copy().title }}</h1>
     <p class="admin-login__body">{{ copy().body }}</p>
+
+    <section class="admin-login__instructions" aria-labelledby="admin-login-steps-heading">
+      <h2 id="admin-login-steps-heading" class="admin-login__instructions-title">
+        {{ copy().howToHeading }}
+      </h2>
+      <ol class="admin-login__steps">
+        @for (step of copy().howToSteps; track step) {
+          <li>{{ step }}</li>
+        }
+      </ol>
+      <p class="admin-login__help">{{ copy().helpText }}</p>
+    </section>
 
     @if (loadError()) {
       <p-message severity="error" [text]="loadError()!" styleClass="admin-login__error" />
@@ -14,73 +26,100 @@
         data-testid="admin-login-form"
         [formGroup]="signInForm"
         (ngSubmit)="submitSignIn()"
+        [attr.aria-label]="copy().signInFormLabel"
       >
-        <label class="admin-login__field">
+        <label class="admin-login__field" for="admin-login-email">
           <span>{{ copy().emailLabel }}</span>
           <input
             pInputText
+            id="admin-login-email"
             type="email"
             autocomplete="username"
             formControlName="email"
             data-testid="admin-login-email"
+            class="admin-login__input"
             [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched"
           />
         </label>
-        <label class="admin-login__field">
+        <label class="admin-login__field" for="admin-login-password">
           <span>{{ copy().passwordLabel }}</span>
-          <p-password
-            formControlName="password"
-            [feedback]="false"
-            [toggleMask]="true"
-            inputId="admin-login-password"
+          <input
+            pInputText
+            id="admin-login-password"
+            type="password"
             autocomplete="current-password"
+            formControlName="password"
+            data-testid="admin-login-password"
+            class="admin-login__input"
+            [attr.aria-invalid]="signInForm.controls.password.invalid && signInForm.controls.password.touched"
           />
         </label>
-        <p-button
+        <button
           type="submit"
-          [label]="copy().signInLabel"
-          [loading]="submitting()"
+          class="button-cta button-cta--solid admin-login__submit"
+          data-testid="admin-login-submit"
           [disabled]="signInForm.invalid || submitting()"
-          styleClass="admin-login__submit"
-        />
+        >
+          @if (submitting()) {
+            {{ copy().signingInLabel }}
+          } @else {
+            {{ copy().signInLabel }}
+          }
+        </button>
       </form>
     } @else {
-      <form class="admin-login__form" [formGroup]="newPasswordForm" (ngSubmit)="submitNewPassword()">
+      <form
+        class="admin-login__form"
+        data-testid="admin-login-new-password-form"
+        [formGroup]="newPasswordForm"
+        (ngSubmit)="submitNewPassword()"
+        [attr.aria-label]="copy().newPasswordFormLabel"
+      >
         <p class="admin-login__hint">{{ copy().newPasswordHint }}</p>
-        <label class="admin-login__field">
+        <label class="admin-login__field" for="admin-login-new-password">
           <span>{{ copy().newPasswordLabel }}</span>
-          <p-password
-            formControlName="newPassword"
-            [toggleMask]="true"
-            inputId="admin-login-new-password"
+          <input
+            pInputText
+            id="admin-login-new-password"
+            type="password"
             autocomplete="new-password"
+            formControlName="newPassword"
+            class="admin-login__input"
           />
         </label>
-        <label class="admin-login__field">
+        <label class="admin-login__field" for="admin-login-confirm-password">
           <span>{{ copy().confirmPasswordLabel }}</span>
-          <p-password
-            formControlName="confirmPassword"
-            [feedback]="false"
-            [toggleMask]="true"
-            inputId="admin-login-confirm-password"
+          <input
+            pInputText
+            id="admin-login-confirm-password"
+            type="password"
             autocomplete="new-password"
+            formControlName="confirmPassword"
+            class="admin-login__input"
           />
         </label>
         @if (newPasswordForm.hasError('passwordMismatch') && newPasswordForm.touched) {
           <p-message severity="warn" [text]="copy().passwordMismatch" styleClass="admin-login__error" />
         }
-        <p-button
+        <button
           type="submit"
-          [label]="copy().setPasswordLabel"
-          [loading]="submitting()"
+          class="button-cta button-cta--solid admin-login__submit"
+          data-testid="admin-login-submit"
           [disabled]="newPasswordForm.invalid || submitting()"
-          styleClass="admin-login__submit"
-        />
+        >
+          @if (submitting()) {
+            {{ copy().signingInLabel }}
+          } @else {
+            {{ copy().setPasswordLabel }}
+          }
+        </button>
       </form>
     }
 
     <p class="admin-login__footer">
       <a routerLink="/">{{ copy().returnHome }}</a>
+      ·
+      <a routerLink="/admin">{{ copy().adminHubLabel }}</a>
     </p>
-  </p-card>
+  </section>
 </main>
