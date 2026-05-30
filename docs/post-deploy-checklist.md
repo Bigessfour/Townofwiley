@@ -41,6 +41,7 @@ npm run start
 | **Weather** | NWS proxy URL; `/weather` and homepage deferred weather load forecasts. |
 | **Severe weather signup** | `/weather` signup form; `SEVERE_WEATHER_SIGNUP_*` env vars. |
 | **Pay bill** | Paystar portal URL or placeholder message on `/pay-bill`. |
+| **Resident intake** | `CONTACT_UPDATE_API_ENDPOINT` set → billing assistance POST persists to DynamoDB; clerk sees rows at `/admin#updates` (print/CSV). See [resident-intake-runbook.md](./resident-intake-runbook.md). |
 | **Chatbot** | “Ask Wiley” FAB + dialog when `EASYPEASY_*` configured. |
 | **CSP** | No console CSP violations on homepage (third-party: fonts, NWS, Paystar, etc.). |
 

@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { getContactUpdateReviewRuntimeConfig } from '../contact-update/contact-update-config';
+import { printContactUpdateReport, type ContactUpdateReportLabels } from './contact-update-report';
 
 export interface ContactUpdateRecord {
   id: string;
@@ -9,8 +10,11 @@ export interface ContactUpdateRecord {
   fullName: string;
   serviceAddress: string;
   poBox?: string;
+  accountNumber?: string;
   phone?: string;
   email?: string;
+  preferredContactMethod?: string;
+  consentToContact?: boolean;
   notes?: string;
   source: string;
   locale: string;
@@ -44,8 +48,11 @@ export class ContactUpdateReviewService {
       'Full Name',
       'Service Address',
       'PO Box',
+      'Account Number',
       'Phone',
       'Email',
+      'Preferred Contact',
+      'Consent to Contact',
       'Notes',
       'Source',
       'Language',
@@ -59,8 +66,11 @@ export class ContactUpdateReviewService {
       update.fullName ?? '',
       update.serviceAddress ?? '',
       update.poBox ?? '',
+      update.accountNumber ?? '',
       update.phone ?? '',
       update.email ?? '',
+      update.preferredContactMethod ?? '',
+      update.consentToContact === true ? 'yes' : update.consentToContact === false ? 'no' : '',
       update.notes ?? '',
       update.source ?? '',
       update.locale ?? '',
@@ -75,9 +85,13 @@ export class ContactUpdateReviewService {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `wiley-contact-updates-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `wiley-resident-intake-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  printReport(updates: ContactUpdateRecord[], labels: ContactUpdateReportLabels): void {
+    printContactUpdateReport(updates, labels);
   }
 
   private resolveReviewEndpoint(): string {

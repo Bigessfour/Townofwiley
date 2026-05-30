@@ -50,7 +50,8 @@
       "name": "TownOfWileyContactUpdates",
       "region": "us-east-2",
       "required": true,
-      "deployScript": "scripts/deploy-contact-update-backend.py"
+      "deployScript": "scripts/deploy-contact-update-backend.py",
+      "notes": "Resident intake: billing assistance (/pay-bill), portal access, optional contact updates. Items may include accountNumber, preferredContactMethod, consentToContact."
     }
   ],
   "lambdaFunctions": [

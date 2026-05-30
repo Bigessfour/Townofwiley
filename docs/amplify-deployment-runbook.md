@@ -144,7 +144,7 @@ Local `npm start` uses non-strict `generate:runtime-config` so developers withou
 | `payments.paystar.mode`             | `PAYSTAR_MODE` (or inferred from portal/API URLs)      |
 | `payments.paystar.portalUrl`        | `PAYSTAR_PORTAL_URL`                                   |
 | `payments.paystar.apiEndpoint`      | `PAYSTAR_API_ENDPOINT`                                 |
-| `contactUpdate.apiEndpoint`         | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)           |
+| `contactUpdate.apiEndpoint`         | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda; billing assistance + contact updates) |
 | `contactUpdate.reviewApiEndpoint`   | `CONTACT_UPDATE_REVIEW_API_URL` (JWT staff review API) |
 | `contactUpdate.reviewProxyEndpoint` | `CONTACT_UPDATE_REVIEW_PROXY_URL` (**deprecated**)     |
 | `chatbot.*`                         | `EASYPEASY_*`                                          |

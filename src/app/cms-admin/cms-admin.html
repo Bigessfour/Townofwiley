@@ -332,17 +332,30 @@
               <h2 id="cms-updates-heading">{{ copy().contactUpdatesTitle }}</h2>
               <p>{{ copy().contactUpdatesSubtitle }}</p>
             </div>
-            <button
-              pButton
-              type="button"
-              [label]="copy().downloadCsvLabel"
-              icon="pi pi-download"
-              [outlined]="true"
-              (click)="downloadCSV()"
-              [disabled]="contactUpdates().length === 0"
-            >
-              {{ copy().downloadCsvLabel }}
-            </button>
+            <div class="cms-updates-actions flex flex-wrap gap-2 justify-content-end">
+              <button
+                pButton
+                type="button"
+                [label]="copy().printReportLabel"
+                icon="pi pi-print"
+                [outlined]="true"
+                (click)="printCustomerReport()"
+                [disabled]="contactUpdates().length === 0"
+              >
+                {{ copy().printReportLabel }}
+              </button>
+              <button
+                pButton
+                type="button"
+                [label]="copy().downloadCsvLabel"
+                icon="pi pi-download"
+                [outlined]="true"
+                (click)="downloadCSV()"
+                [disabled]="contactUpdates().length === 0"
+              >
+                {{ copy().downloadCsvLabel }}
+              </button>
+            </div>
           </header>
 
           @if (contactUpdatesLoading()) {
@@ -395,8 +408,12 @@
                     Service Address <p-sortIcon field="serviceAddress" />
                   </th>
                   <th scope="col">PO Box</th>
+                  <th scope="col">Account #</th>
                   <th scope="col">Phone</th>
                   <th scope="col">Email</th>
+                  <th scope="col">Preferred contact</th>
+                  <th scope="col">Consent</th>
+                  <th scope="col">Source</th>
                   <th scope="col">Notes</th>
                 </tr>
               </ng-template>
@@ -406,8 +423,12 @@
                   <td>{{ update.fullName }}</td>
                   <td>{{ update.serviceAddress }}</td>
                   <td>{{ update.poBox || '-' }}</td>
+                  <td>{{ update.accountNumber || '-' }}</td>
                   <td class="whitespace-nowrap">{{ update.phone || '-' }}</td>
                   <td>{{ update.email || '-' }}</td>
+                  <td>{{ update.preferredContactMethod || '-' }}</td>
+                  <td>{{ formatConsent(update.consentToContact) }}</td>
+                  <td>{{ update.source || '-' }}</td>
                   <td class="max-w-xs truncate">{{ update.notes || '-' }}</td>
                 </tr>
               </ng-template>

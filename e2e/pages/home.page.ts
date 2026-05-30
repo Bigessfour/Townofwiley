@@ -425,13 +425,14 @@ export class HomePage {
     await this.page.addInitScript((endpoint) => {
       const runtimeWindow = window as Window & {
         __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-          billPay?: { apiEndpoint?: string };
+          contactUpdate?: { apiEndpoint?: string };
         };
       };
 
       runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
         ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        billPay: {
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
           apiEndpoint: endpoint,
         },
       };

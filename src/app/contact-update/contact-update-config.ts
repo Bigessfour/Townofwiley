@@ -24,12 +24,14 @@ export function getContactUpdateRuntimeConfig(): RuntimeContactUpdateConfig {
         });
   const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  const overrideEndpoint = runtimeConfigOverride?.contactUpdate?.apiEndpoint;
+
+  if (overrideEndpoint !== undefined) {
+    return { apiEndpoint: overrideEndpoint.trim() };
+  }
 
   return {
-    apiEndpoint:
-      runtimeConfigOverride?.contactUpdate?.apiEndpoint?.trim() ||
-      runtimeConfig?.contactUpdate?.apiEndpoint?.trim() ||
-      '',
+    apiEndpoint: runtimeConfig?.contactUpdate?.apiEndpoint?.trim() ?? '',
   };
 }
 

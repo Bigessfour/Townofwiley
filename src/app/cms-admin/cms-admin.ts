@@ -90,6 +90,7 @@ interface CmsAdminCopy {
   contactUpdatesTitle: string;
   contactUpdatesSubtitle: string;
   downloadCsvLabel: string;
+  printReportLabel: string;
   contactUpdatesLoading: string;
   contactUpdatesLoadError: string;
   noContactUpdates: string;
@@ -237,9 +238,11 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     documentChecksTitle: 'Before you publish a document',
     documentChecksSubtitle:
       'Keep file publishing in the same supported CMS process as the rest of the site.',
-    contactUpdatesTitle: 'Resident Contact Updates',
-    contactUpdatesSubtitle: 'All submissions from the bill-pay contact-update form.',
+    contactUpdatesTitle: 'Resident contact & billing intake',
+    contactUpdatesSubtitle:
+      'Billing assistance (/pay-bill), portal access on Services, and optional contact updates — one list.',
     downloadCsvLabel: 'Download CSV',
+    printReportLabel: 'Print customer report',
     contactUpdatesLoading: 'Loading contact updates...',
     contactUpdatesLoadError:
       'Could not load contact updates. See the message below and contact IT if this persists.',
@@ -541,9 +544,11 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     documentChecksTitle: 'Antes de publicar un documento',
     documentChecksSubtitle:
       'Mantenga la publicacion de archivos en el mismo proceso compatible del CMS que el resto del sitio.',
-    contactUpdatesTitle: 'Actualizaciones de contacto de residentes',
-    contactUpdatesSubtitle: 'Todos los envios del formulario de actualizacion de contacto de pago.',
+    contactUpdatesTitle: 'Contacto y facturacion de residentes',
+    contactUpdatesSubtitle:
+      'Ayuda con facturacion (/pay-bill), acceso al portal en Servicios y actualizaciones de contacto opcionales.',
     downloadCsvLabel: 'Descargar CSV',
+    printReportLabel: 'Imprimir informe de clientes',
     contactUpdatesLoading: 'Cargando actualizaciones de contacto...',
     contactUpdatesLoadError:
       'No se pudieron cargar las actualizaciones de contacto. Revise el mensaje a continuacion y contacte a TI si persiste.',
@@ -1227,6 +1232,43 @@ export class CmsAdmin {
   protected downloadCSV(): void {
     this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
   }
+
+  protected printCustomerReport(): void {
+    this.contactUpdateReview.printReport(this.contactUpdates(), this.contactUpdateReportLabels());
+  }
+
+  protected formatConsent(value: boolean | undefined): string {
+    if (value === true) {
+      return this.siteLanguageService.currentLanguage() === 'es' ? 'Si' : 'Yes';
+    }
+    if (value === false) {
+      return this.siteLanguageService.currentLanguage() === 'es' ? 'No' : 'No';
+    }
+    return '—';
+  }
+
+  private readonly contactUpdateReportLabels = computed(() => {
+    const es = this.siteLanguageService.currentLanguage() === 'es';
+    return {
+      title: es ? 'Informe de contacto de clientes' : 'Customer contact information report',
+      generatedLabel: es ? 'Generado' : 'Generated',
+      recordCountLabel: es ? 'Registros' : 'Records',
+      fields: {
+        date: es ? 'Fecha' : 'Date',
+        fullName: es ? 'Nombre completo' : 'Full name',
+        serviceAddress: es ? 'Direccion del servicio' : 'Service address',
+        poBox: es ? 'Apartado postal' : 'PO Box',
+        accountNumber: es ? 'Numero de cuenta' : 'Account number',
+        phone: es ? 'Telefono' : 'Phone',
+        email: es ? 'Correo' : 'Email',
+        preferredContact: es ? 'Contacto preferido' : 'Preferred contact',
+        consent: es ? 'Consentimiento' : 'Consent to contact',
+        notes: es ? 'Notas' : 'Notes',
+        source: es ? 'Origen' : 'Source',
+        language: es ? 'Idioma' : 'Language',
+      },
+    };
+  });
 
   private resolveInitialTab(): string {
     if (typeof window === 'undefined') {
