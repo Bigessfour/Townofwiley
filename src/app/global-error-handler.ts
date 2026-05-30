@@ -48,17 +48,18 @@ export class GlobalErrorHandler implements ErrorHandler {
       return;
     }
 
-    // Keep the raw object in console for local debugging sessions.
-    console.error(GlobalErrorHandler.name, {
-      ...context,
+    const errorLabel = details.name ? `${details.name}: ` : '';
+    // Log the raw exception first so DevTools shows a clickable stack; attach context separately.
+    console.error(
+      `[${GlobalErrorHandler.name}] ${errorId} ${errorLabel}${details.message}`,
       error,
-    });
+      context,
+    );
 
     this.messageService.add({
       severity: 'error',
       summary: 'Unexpected Error',
-      detail:
-        'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
+      detail: `An unexpected error occurred. Please try again or contact the Town Hall if the problem persists. Reference: ${errorId}.`,
       life: 10000,
       closable: true,
     });

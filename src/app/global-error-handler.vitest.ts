@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
+import { MessageService } from 'primeng/api';
 import { describe, expect, it, vi } from 'vitest';
 import { GlobalErrorHandler } from './global-error-handler';
 import { LoggingService } from './logging.service';
-import { MessageService } from 'primeng/api';
 
 describe('GlobalErrorHandler', () => {
   it('logs uncaught errors and displays a friendly toast', () => {
@@ -30,10 +30,15 @@ describe('GlobalErrorHandler', () => {
       expect.objectContaining({
         severity: 'error',
         summary: 'Unexpected Error',
-        detail: expect.stringContaining('contact the Town Hall'),
+        detail: expect.stringMatching(
+          /contact the Town Hall.*Reference: err-[a-z0-9]+-[a-z0-9]+\./,
+        ),
         life: 10000,
       }),
     );
+
+    const logContext = mockLogging.log.mock.calls[0]?.[2] as { errorId?: string };
+    expect(logContext?.errorId).toMatch(/^err-/);
   });
 
   it('handles non-Error objects safely', () => {
@@ -56,7 +61,11 @@ describe('GlobalErrorHandler', () => {
       'Uncaught application error',
       expect.objectContaining({ message: 'A string error' }),
     );
-    expect(mockMessageService.add).toHaveBeenCalled(); // Friendly message still shown
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: expect.stringContaining('Reference: err-'),
+      }),
+    );
   });
 
   it('suppresses toast for expected network degradation', () => {
