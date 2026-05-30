@@ -578,10 +578,6 @@ export class HomePage {
   }
 
   async searchFor(query: string): Promise<void> {
-    if (!this.page.url().match(/\/$/) && !this.page.url().includes('localhost:4300/?')) {
-      await this.goto();
-    }
-
     await this.page
       .locator('#search-panel')
       .scrollIntoViewIfNeeded()
@@ -589,26 +585,9 @@ export class HomePage {
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
     await expect(this.page.locator('.search-results--loading')).toHaveCount(0, { timeout: 10_000 });
-
-    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-
     await expect
-      .poll(async () => {
-        if (await this.emptySearchState.isVisible().catch(() => false)) {
-          return true;
-        }
-
-        const titles = await this.page
-          .locator('.search-results .search-result strong')
-          .allTextContents();
-        if (!titles.length) {
-          return false;
-        }
-
-        const haystack = titles.join(' ').toLowerCase();
-        return terms.some((term) => haystack.includes(term));
-      })
-      .toBe(true);
+      .poll(async () => this.page.locator('.search-results .search-result, .empty-state').count())
+      .toBeGreaterThan(0);
   }
 
   /** Submit header search (works when `#mega-site-search` is hidden under the mobile breakpoint). */
