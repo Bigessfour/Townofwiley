@@ -1,0 +1,26 @@
+<main id="main-content" class="admin-login" tabindex="-1">
+  <p-card>
+    <p class="admin-login__kicker">{{ copy().kicker }}</p>
+    <h1 class="admin-login__title">{{ copy().title }}</h1>
+    <p class="admin-login__body">{{ copy().body }}</p>
+
+    @if (loadError()) {
+      <p-message severity="error" [text]="loadError()!" styleClass="admin-login__error" />
+    }
+
+    <amplify-authenticator [hideSignUp]="true" [loginMechanisms]="['email']">
+      <ng-template amplifySlot="authenticated">
+        <p-button
+          type="button"
+          label="Continue to admin"
+          (onClick)="onAuthenticated()"
+          styleClass="admin-login__continue"
+        />
+      </ng-template>
+    </amplify-authenticator>
+
+    <p class="admin-login__footer">
+      <a routerLink="/">{{ copy().returnHome }}</a>
+    </p>
+  </p-card>
+</main>

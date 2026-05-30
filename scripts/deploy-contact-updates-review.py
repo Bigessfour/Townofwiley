@@ -47,7 +47,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
-from _deploy_lambda_url import ensure_review_function_allows_proxy, town_site_cors_origins  # noqa: E402
+from _deploy_lambda_url import (  # noqa: E402
+    ensure_review_function_allows_proxy,
+    town_site_cors_origins,
+)
 from _deploy_npm import npm_install_cmd  # noqa: E402
 
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"

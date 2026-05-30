@@ -16,12 +16,20 @@ const runtimeConfig =
       undefined);
 const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
 
+/** Cognito identifiers for staff admin (see docs/admin-auth-runbook.md). */
+export const cognitoConfig = {
+  userPoolId: 'us-east-2_DmY7BCBIp',
+  userPoolClientId: '2m6vp91m9938jpbg2efivr2p8k',
+  identityPoolId: 'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
+  staffGroup: 'Staff',
+} as const;
+
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: 'us-east-2_DmY7BCBIp',
-      userPoolClientId: '2m6vp91m9938jpbg2efivr2p8k',
-      identityPoolId: 'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
+      userPoolId: cognitoConfig.userPoolId,
+      userPoolClientId: cognitoConfig.userPoolClientId,
+      identityPoolId: cognitoConfig.identityPoolId,
       allowGuestAccess: true,
     },
   },

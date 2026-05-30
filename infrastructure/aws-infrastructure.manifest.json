@@ -20,8 +20,16 @@
   },
   "appsync": {
     "apiName": "townofwiley-main",
+    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
     "defaultAuthorizationType": "API_KEY",
     "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"]
+  },
+  "cloudWatch": {
+    "logRetentionDays": 90,
+    "configureScript": "npm run configure:cloudwatch-logging",
+    "amplifyBackendLogGroups": [
+      "/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF"
+    ]
   },
   "s3Buckets": [
     {

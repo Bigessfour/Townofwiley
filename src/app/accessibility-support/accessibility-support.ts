@@ -5,7 +5,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
-import { CmsContact } from '../site-cms-content';
+import {
+  CmsContact,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+} from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 type AccessibilityStatusTone = 'error' | 'info';
@@ -132,8 +136,12 @@ export class AccessibilitySupport {
     { initialValue: this.reportForm.getRawValue() },
   );
 
-  protected readonly townInfoContact = computed(() => this.findContact('town-information'));
-  protected readonly clerkContact = computed(() => this.findContact('city-clerk'));
+  protected readonly townInfoContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+  );
+  protected readonly clerkContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK),
+  );
   protected readonly townHallPhoneHref = computed(() =>
     this.getContactHref(this.townInfoContact(), 'tel:'),
   );

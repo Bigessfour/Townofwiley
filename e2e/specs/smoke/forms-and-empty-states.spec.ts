@@ -97,7 +97,7 @@ test.describe('forms and empty states', () => {
       await route.fulfill({
         status: 503,
         contentType: 'application/json',
-        body: JSON.stringify({ error: 'signup unavailable' }),
+        body: JSON.stringify({ error: 'Signup service unavailable' }),
       });
     });
 
@@ -105,6 +105,6 @@ test.describe('forms and empty states', () => {
     await homePage.chooseWeatherSignupChannel('email');
     await homePage.submitWeatherAlertSignup('resident@example.com', 'Jordan Resident');
 
-    await expect(homePage.weatherSignupStatus).toContainText('signup unavailable');
+    await expect(homePage.weatherSignupStatus).toContainText('Signup service unavailable');
   });
 });

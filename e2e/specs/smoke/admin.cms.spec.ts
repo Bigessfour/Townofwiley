@@ -1,10 +1,21 @@
 import { expect, test } from '../../fixtures/town.fixture';
+import { enableE2eStaffAuth } from '../../support/admin-staff-auth';
+
+/** PrimeNG p-tabs lazy panels and clerk-setup redirects need the app shell settled (see primeng.org/tabs). */
+async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
+  await enableE2eStaffAuth(page);
+  await page.goto(path, { waitUntil: 'load' });
+  await expect(page).toHaveURL(new RegExp(`${path.replace('#', '#')}$`));
+  await expect(
+    page.getByRole('heading', { level: 1, name: /Town of Wiley Content Management/ }),
+  ).toBeVisible({ timeout: 20_000 });
+}
 
 test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
 
   test('opens the unified admin hub and shows all editable CMS models', async ({ homePage }) => {
-    await homePage.page.goto('/admin', { waitUntil: 'domcontentloaded' });
+    await gotoAdminHub(homePage.page, '/admin');
 
     await expect(
       homePage.page.getByRole('heading', { name: /Town of Wiley Content Management/ }),
@@ -13,7 +24,7 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('link', { name: 'Open Amplify Studio Data Manager' }).first(),
     ).toHaveAttribute(
       'href',
-      /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/home\?region=us-east-2#\/d331voxr1fhoir\/main\/studio\/data/,
+      /^https:\/\/us-east-2\.admin\.amplifyapp\.com\/admin\/d331voxr1fhoir\/main\/home$/,
     );
     await expect(homePage.page.getByText('CMS Connection Status')).toBeVisible();
     await expect(homePage.page.getByRole('tab', { name: 'Setup & credentials' })).toBeVisible();
@@ -41,9 +52,10 @@ test.describe('cms admin', () => {
   test('redirects the legacy clerk setup document link to the admin document tab', async ({
     homePage,
   }) => {
+    await enableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/clerk-setup#documents', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#documents$/);
+    await expect(homePage.page).toHaveURL(/\/admin#documents$/, { timeout: 20_000 });
     await expect(
       homePage.page.getByRole('heading', { name: 'Supported document workflow' }),
     ).toBeVisible({ timeout: 20000 });
@@ -53,25 +65,27 @@ test.describe('cms admin', () => {
   test('preserves the legacy /clerk-setup#setup deep link to the admin setup tab', async ({
     homePage,
   }) => {
+    await enableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/clerk-setup#setup', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#setup$/);
+    await expect(homePage.page).toHaveURL(/\/admin#setup$/, { timeout: 20_000 });
     await expect(homePage.page.getByRole('tab', { name: 'Setup & credentials' })).toBeVisible();
   });
 
   test('preserves the legacy /clerk-setup#updates deep link to the contact updates tab', async ({
     homePage,
   }) => {
+    await enableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/clerk-setup#updates', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/, { timeout: 20_000 });
     await expect(homePage.page.getByRole('tab', { name: 'Contact updates' })).toBeVisible();
   });
 
   test('opens directly to the documents tab when /admin#documents is loaded', async ({
     homePage,
   }) => {
-    await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
+    await gotoAdminHub(homePage.page, '/admin#documents');
 
     await expect(homePage.page).toHaveURL(/\/admin#documents$/);
     await expect(
@@ -82,7 +96,7 @@ test.describe('cms admin', () => {
   test('opens directly to the contact updates tab when /admin#updates is loaded', async ({
     homePage,
   }) => {
-    await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
+    await gotoAdminHub(homePage.page, '/admin#updates');
 
     await expect(homePage.page).toHaveURL(/\/admin#updates$/);
     await expect(homePage.page.getByRole('tab', { name: 'Contact updates' })).toBeVisible();
@@ -97,22 +111,19 @@ test.describe('cms admin', () => {
       await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
     });
 
-    await homePage.page.goto('/admin#updates', { waitUntil: 'domcontentloaded' });
+    await gotoAdminHub(homePage.page, '/admin#updates');
 
     await expect(homePage.page).toHaveURL(/\/admin#updates$/);
-    await expect(homePage.page.locator('p-message.p-message-error, p-message[severity="error"]')).toContainText(
-      'access denied',
-      { timeout: 20000 },
-    );
     await expect(
-      homePage.page.getByText('No contact updates received yet.'),
-    ).not.toBeVisible();
+      homePage.page.locator('p-message.p-message-error, p-message[severity="error"]'),
+    ).toContainText('access denied', { timeout: 20000 });
+    await expect(homePage.page.getByText('No contact updates received yet.')).not.toBeVisible();
   });
 
   test('lists the Town newsletter section and Announcement attachmentKey guidance', async ({
     homePage,
   }) => {
-    await homePage.page.goto('/admin#documents', { waitUntil: 'domcontentloaded' });
+    await gotoAdminHub(homePage.page, '/admin#documents');
 
     // Documents tab guidance lists the newsletter sectionId and S3 path (EN + ES copy duplicates labels).
     await expect(
@@ -121,9 +132,7 @@ test.describe('cms admin', () => {
     await expect(
       homePage.page.getByText('documents/newsletter/', { exact: false }).first(),
     ).toBeVisible();
-    await expect(
-      homePage.page.getByText(/announcementKind.*newsletter/i).first(),
-    ).toBeVisible();
+    await expect(homePage.page.getByText(/announcementKind.*newsletter/i).first()).toBeVisible();
 
     // Announcement CRUD card calls out attachmentKey for the inline /news PDF.
     const announcementCard = homePage.page.locator(':is(article, section, div)', {

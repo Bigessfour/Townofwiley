@@ -1,6 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { publicRouteContracts } from '../../support/public-routes';
 
+function parseRuntimeConfigJson(text: string): Record<string, unknown> {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error('Could not locate JSON object in runtime-config.js');
+  }
+  return JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>;
+}
+
 test.describe('live hosting readiness', () => {
   test.skip(!process.env.E2E_BASE_URL, 'Set E2E_BASE_URL to validate deployed hosting.');
 
@@ -64,5 +73,37 @@ test.describe('live hosting readiness', () => {
       '/documents/archive/city-council-meeting-access-guide.html',
     );
     await expect(archiveGuide).toBeOK();
+  });
+
+  test('runtime-config.js exposes cms.appSync shape for browser CMS reads', async ({ request }) => {
+    const runtimeConfig = await request.get('/runtime-config.js');
+    expect(runtimeConfig.ok(), 'runtime-config.js should be hosted').toBe(true);
+    const body = await runtimeConfig.text();
+    const cfg = parseRuntimeConfigJson(body);
+    const cms = cfg.cms as Record<string, unknown> | undefined;
+    expect(cms?.provider, 'cms.provider should be set').toBe('appsync');
+    const appSync = cms?.appSync as Record<string, unknown> | undefined;
+    expect(appSync, 'cms.appSync object should exist').toBeTruthy();
+    for (const key of ['region', 'apiEndpoint', 'apiKey'] as const) {
+      expect(
+        typeof appSync?.[key],
+        `cms.appSync.${key} should be a string (may be empty in dev)`,
+      ).toBe('string');
+    }
+  });
+
+  test('admin CMS connection succeeds when E2E_ASSERT_LIVE_CMS is true', async ({ page }) => {
+    test.skip(
+      process.env.E2E_ASSERT_LIVE_CMS !== 'true',
+      'Set E2E_ASSERT_LIVE_CMS=true to run a live AppSync probe from /admin.',
+    );
+
+    const response = await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+    expect(response?.ok(), '/admin response should be OK').toBe(true);
+    await page.getByRole('button', { name: 'Test CMS Connection' }).click();
+    await expect(page.getByText('Connected').first()).toBeVisible({ timeout: 45000 });
+    await expect(
+      page.getByText(/Homepage content is coming from Amplify Studio through AppSync/i).first(),
+    ).toBeVisible({ timeout: 15000 });
   });
 });

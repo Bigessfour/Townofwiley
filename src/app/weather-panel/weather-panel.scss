@@ -474,6 +474,14 @@
   color: var(--p-red-800);
   font-weight: 700;
 }
+
+.weather-outage-callout.weather-status.is-error {
+  border: 1px solid color-mix(in srgb, var(--p-red-800) 28%, transparent);
+}
+
+.weather-outage-callout__text {
+  max-width: 52rem;
+}
 :host ::ng-deep .weather-no-alerts .p-message.p-message-success {
   background: var(--success-surface);
   border: 1px solid color-mix(in srgb, #111111 14%, transparent);

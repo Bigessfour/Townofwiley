@@ -60,6 +60,51 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting.verify();
   });
 
+  it('keeps bundled official contacts when build snapshot records use unstable ids', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        contactRecords: [
+          {
+            id: '94d5fe8f-6e50-429f-9bde-0993e0ead939',
+            label: 'Town Clerk',
+            value: 'Debbie Dillon',
+            detail: 'Point of Contact for Official Town Business',
+            href: null,
+            linkLabel: null,
+            displayOrder: 1,
+          },
+        ],
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      });
+    await waitForCmsInitialization();
+
+    expect(store.contacts().find((contact) => contact.id === 'city-clerk')?.href).toBe(
+      'mailto:deb.dillon@townofwiley.gov',
+    );
+    expect(store.contacts().find((contact) => contact.id === 'town-information')?.href).toBe(
+      'tel:+17198294974',
+    );
+    expect(store.contacts().find((contact) => contact.id === 'town-superintendent')?.href).toBe(
+      'mailto:scott.whitman@townofwiley.gov',
+    );
+
+    httpTesting.verify();
+  });
+
   it('loads and normalizes public CMS content from AppSync', async () => {
     window.localStorage.setItem('tow-site-language', 'es');
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
@@ -251,6 +296,9 @@ describe('LocalizedCmsContentStore', () => {
     expect(extendedRequest.request.body.query as string).toContain(
       'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
     );
+    expect(extendedRequest.request.body.query as string).toContain(
+      'listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50)',
+    );
 
     extendedRequest.flush({
       data: {
@@ -322,9 +370,12 @@ describe('LocalizedCmsContentStore', () => {
             {
               id: 'agenda-2026-04',
               title: 'Council Meeting Agenda Packet',
+              titleEs: 'Paquete de agenda del concejo',
               summary: 'Agenda packet for the April meeting.',
+              summaryEs: 'Paquete de agenda para la reunion de abril.',
               sectionId: 'meeting-documents',
               status: 'Published',
+              statusEs: 'Publicado',
               format: 'PDF',
               href: '/documents/agenda-2026-04.pdf',
               downloadFileName: null,
@@ -362,6 +413,18 @@ describe('LocalizedCmsContentStore', () => {
             },
           ],
         },
+        listLeadershipRosterEntries: {
+          items: [
+            {
+              id: 'lr-1',
+              groupId: 'mayor-council',
+              displayOrder: 1,
+              lineEn: 'Mayor: From CMS',
+              lineEs: 'Alcalde: Desde CMS',
+              active: true,
+            },
+          ],
+        },
       },
     });
 
@@ -380,6 +443,7 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.contacts().map((contact) => contact.label)).toEqual([
       'Informacion del pueblo',
       'Secretaria municipal',
+      'Superintendente del pueblo',
     ]);
     expect(store.businesses().map((business) => business.name)).toEqual([
       'B Business',
@@ -390,10 +454,17 @@ describe('LocalizedCmsContentStore', () => {
       'Council Meeting Minutes',
     ]);
     expect(store.publicDocuments()[0]?.downloadFileName).toBe('');
+    expect(store.publicDocuments()[0]?.titleEs).toBe('Paquete de agenda del concejo');
+    expect(store.publicDocuments()[0]?.summaryEs).toBe(
+      'Paquete de agenda para la reunion de abril.',
+    );
     expect(store.publicDocuments()[1]?.keywords).toEqual(['minutes', 'agenda']);
     expect(store.externalNewsLinks().map((link) => link.title)).toEqual([
       'Local Coverage',
       'Regional Coverage',
+    ]);
+    expect(store.leadershipRosterLinesByGroup().get('mayor-council')).toEqual([
+      'Alcalde: Desde CMS',
     ]);
 
     httpTesting.verify();
@@ -452,6 +523,7 @@ describe('LocalizedCmsContentStore', () => {
         listBusinesses: { items: [] },
         listPublicDocuments: { items: [] },
         listExternalNewsLinks: { items: [] },
+        listLeadershipRosterEntries: { items: [] },
       },
     });
 

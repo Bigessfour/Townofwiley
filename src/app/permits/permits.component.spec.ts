@@ -2,14 +2,18 @@ import { DOCUMENT } from '@angular/common';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import type { CmsContact } from '../site-cms-content';
-import { LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  type CmsContact,
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+} from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { PermitsComponent } from './permits.component';
 
 describe('PermitsComponent', () => {
   const clerk: CmsContact = {
-    id: 'city-clerk',
+    id: OFFICIAL_CONTACT_ID_CITY_CLERK,
     label: 'Town Clerk',
     value: 'Deb Dillon',
     detail: 'Clerk office',
@@ -18,7 +22,7 @@ describe('PermitsComponent', () => {
   };
 
   const townInfo: CmsContact = {
-    id: 'town-information',
+    id: OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
     label: 'Town Hall',
     value: 'Main line',
     detail: 'Hours',

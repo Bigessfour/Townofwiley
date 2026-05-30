@@ -2,18 +2,25 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
-import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
+import { TooltipModule } from 'primeng/tooltip';
+import {
+  buildAmplifyAdminStudioHomeUrl,
+  getClerkSetupRuntimeConfig,
+} from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
 } from '../clerk-setup/contact-update-review.service';
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+
+/** Official AWS Amplify Gen 1 Studio overview (visual backend, Data Manager / data browser). */
+export const AMPLIFY_STUDIO_GEN1_DOCS_URL = 'https://docs.amplify.aws/gen1/angular/tools/console/';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
@@ -28,6 +35,8 @@ interface CmsAdminRuntimeConfig {
 interface CmsAdminSetupDetail {
   key: string;
   label: string;
+  /** Extra context for clerks (shown as tooltip on the label). */
+  labelHint?: string;
   value: string;
   copyValue: string;
 }
@@ -35,6 +44,8 @@ interface CmsAdminSetupDetail {
 interface CmsAdminTask {
   action: string;
   model: string;
+  /** What to tap in Studio after the app opens (Data / Content, then this model). */
+  hint: string;
 }
 
 interface CmsAdminDocumentSection {
@@ -144,6 +155,8 @@ interface CmsAdminCopy {
   crudItems: {
     model: string;
     summary: string;
+    whereItShows: string;
+    commonFields: string;
     operations: string[];
     notes: string;
   }[];
@@ -164,6 +177,23 @@ interface CmsAdminCopy {
   contentSourceError: string;
   modelCoverageLabel: string;
   modelCoverageItems: string[];
+  studioDocsTitle: string;
+  studioDocsBody: string;
+  studioDocsLinkText: string;
+  setupAwsAccountLabel: string;
+  setupAwsAccountHint: string;
+  setupAmplifyAppLabel: string;
+  setupAmplifyAppHint: string;
+  setupAwsConsoleHint: string;
+  setupStudioUrlHint: string;
+  setupDataManagerUrlHint: string;
+  setupRegionHint: string;
+  connectionEndpointHint: string;
+  connectionRegionHint: string;
+  connectionApiKeyHint: string;
+  crudWhereLabel: string;
+  crudFieldsLabel: string;
+  crudOperationsLabel: string;
 }
 
 const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
@@ -211,7 +241,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contactUpdatesSubtitle: 'All submissions from the bill-pay contact-update form.',
     downloadCsvLabel: 'Download CSV',
     contactUpdatesLoading: 'Loading contact updates...',
-    contactUpdatesLoadError: 'Could not load contact updates. See the message below and contact IT if this persists.',
+    contactUpdatesLoadError:
+      'Could not load contact updates. See the message below and contact IT if this persists.',
     noContactUpdates: 'No contact updates received yet.',
     connectionKicker: 'CMS Connection Status',
     connectionTitle: 'Prove Studio is connected',
@@ -251,7 +282,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Clerk Access',
     accessTitle: 'Start here every day',
     accessBody:
-      'Open Data Manager when you need to change live website content. Use the document publishing guide on this page when you need to route a new public file through the supported Studio PublicDocument workflow. Open Studio Home only if you need to get back to the main AWS Studio screen first.',
+      'Open Data Manager when you need to change live website content. Use the document publishing guide on this page when you need to route a new public file through the supported Studio PublicDocument workflow. Open Studio Home when you need the hosted Amplify Studio shell first (same login as Data Manager).',
     accessChecklist: [
       'Use Data Manager for everyday edits.',
       'Use the document publishing guide for PublicDocument files.',
@@ -297,15 +328,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapKicker: 'Model Map',
     modelMapTitle: 'If you want to change this, open this model',
     modelMapItems: [
-      'SiteSettings: homepage title and welcome text',
-      'AlertBanner: emergency banner',
-      'Announcement: bulletin notices and Town newsletter entries (set attachmentKey to display a PDF inline on /news)',
-      'Event: meetings and calendar items',
-      'OfficialContact: public contact cards',
-      'Business: business directory entries',
-      'PublicDocument: use the Studio publishing guide to route the file and set the website section',
-      'ExternalNewsLink: news links from outside sources',
-      'EmailAlias: private email forwarding only',
+      'SiteSettings: homepage hero, welcome block, and town name text residents see first.',
+      'AlertBanner: emergency strip at the top of the homepage when enabled.',
+      'Announcement: short bulletin cards on the homepage; long newsletter column on /news when announcementKind is newsletter; attachmentKey can embed a PDF.',
+      'Event: meetings and hearings that appear in the homepage calendar list.',
+      'OfficialContact: staff/office phone and email cards on public contact pages.',
+      'LeadershipRosterEntry: roster bullet lines under Mayor and Council and Town Administration on /contact (groupId mayor-council or town-administration).',
+      'Business: directory listings on the business directory route.',
+      'PublicDocument: downloadable files on /documents—use the document publishing guide and the exact sectionId.',
+      'ExternalNewsLink: curated outbound headlines and URLs on /news.',
+      'EmailAlias: invisible mail forwarding rules—never a public page field.',
     ],
     crudKicker: 'CRUD reference',
     crudTitle: 'Most CMS models get normal CRUD in Amplify Studio and AppSync',
@@ -315,18 +347,28 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'SiteSettings',
         summary: 'Homepage title, hero text, and contact fields.',
+        whereItShows: 'Homepage hero, welcome block, and overall town branding text.',
+        commonFields:
+          'townName, tagline, heroImageUrl, welcomeTitle, welcomeBody, and any contact lines shown next to the hero—keep a single active record.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes: 'Keep one current record for the public site.',
       },
       {
         model: 'AlertBanner',
         summary: 'Emergency banner content and call-to-action.',
+        whereItShows: 'Top strip on the homepage when enabled.',
+        commonFields:
+          'enabled, label, title, detail, optional linkLabel and linkHref (URL) for a call-to-action link.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes: 'Keep one enabled banner at a time.',
       },
       {
         model: 'Announcement',
         summary: 'Public notices, closures, and long newsletter posts.',
+        whereItShows:
+          'Homepage “Current Wiley Updates” cards; long newsletter column on /news when announcementKind is newsletter.',
+        commonFields:
+          'title, detail, date, active, priority (lower sorts first), imageUrl, announcementKind (`newsletter` vs blank), attachmentKey (S3 key such as documents/newsletter/…pdf for inline PDF on /news).',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes:
           'Set announcementKind to `newsletter` for the /news newsletter section; leave blank for short bulletin notices. Use priority to control order. Paste the S3 storage key (e.g. `documents/newsletter/2026-05-newsletter.pdf`) into `attachmentKey` to render the PDF inline on /news. Only the latest active newsletter is shown.',
@@ -334,6 +376,9 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'Event',
         summary: 'Meetings, hearings, and calendar items.',
+        whereItShows: 'Homepage meetings list and other event-driven areas that read this model.',
+        commonFields:
+          'title, start (required), end, description, location, active—events sort by start date/time for residents.',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes:
           'Set title, start, and active for every record. Add description and location for the meetings cards, use end when it is known, and remember the site sorts events by start date and time.',
@@ -341,18 +386,38 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'OfficialContact',
         summary: 'Public contact cards for town staff and offices.',
+        whereItShows: 'Contact and staff listings on the public site.',
+        commonFields:
+          'displayOrder, label (card heading), value (main line, e.g. phone or email text), detail (supporting text), href (mailto: or tel: URL), linkLabel (optional short link text).',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
         notes: 'Use displayOrder to arrange the public list.',
       },
       {
+        model: 'LeadershipRosterEntry',
+        summary: 'Bullet lines for Mayor/Council and Town Administration rosters on /contact.',
+        whereItShows:
+          'Non-clickable leadership bullets on /contact when active rows exist for the matching groupId.',
+        commonFields:
+          'groupId (`mayor-council` or `town-administration`), displayOrder, lineEn, lineEs, active — one record per bullet.',
+        operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
+        notes:
+          'When any active rows exist for a groupId, the site replaces that entire bullet list from Studio. Fill both lineEn and lineEs for bilingual pages.',
+      },
+      {
         model: 'Business',
         summary: 'Business directory entries with phone, website, and image.',
+        whereItShows: 'Town business directory pages and linked cards.',
+        commonFields:
+          'displayOrder, business name, category, phone, website URL, image/logo URL, short description fields as shown in Studio.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
         notes: 'Use displayOrder to keep featured businesses first.',
       },
       {
         model: 'PublicDocument',
         summary: 'Public forms, notices, and downloadable documents.',
+        whereItShows: '/documents and other resident download areas keyed by sectionId.',
+        commonFields:
+          'title, file or storage path, sectionId (must match the section map on this page), displayOrder within that section.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
         notes:
           'Use the Studio publishing guide so file routing stays in the supported PublicDocument workflow.',
@@ -360,12 +425,18 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'ExternalNewsLink',
         summary: 'Outside news stories and regional updates.',
+        whereItShows: '/news and other feeds that surface curated external links.',
+        commonFields:
+          'displayOrder, headline/title, external URL, optional source label or summary fields.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
         notes: 'Use displayOrder to control the order shown on the page.',
       },
       {
         model: 'EmailAlias',
         summary: 'Private forwarding rules for town email addresses.',
+        whereItShows: 'Not shown on the website—only affects mail routing.',
+        commonFields:
+          'aliasAddress (public town address people write to) and destinationAddress (private inbox that receives the mail).',
         operations: ['Create', 'Read', 'Update', 'Delete'],
         notes: 'Admin-only internal routing; no public ordering.',
       },
@@ -397,11 +468,38 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement',
       'Event',
       'OfficialContact',
+      'LeadershipRosterEntry',
       'Business',
       'PublicDocument',
       'ExternalNewsLink',
       'EmailAlias',
     ],
+    studioDocsTitle: 'How Amplify Studio maps to this website',
+    studioDocsBody:
+      'AWS documents Studio as the visual place to manage your app backend: data modeling, authentication, storage, and the Data Manager (data browser) where you edit CMS records. The buttons above open hosted Studio; use Data / Content there to change live site text, files, and lists—then refresh townofwiley.gov to verify.',
+    studioDocsLinkText: 'Read AWS Amplify Studio basics (Gen 1 documentation)',
+    setupAwsAccountLabel: 'AWS account',
+    setupAwsAccountHint:
+      'The twelve-digit account that owns this Amplify app. Match it before editing so you are not in the wrong AWS organization.',
+    setupAmplifyAppLabel: 'Amplify app',
+    setupAmplifyAppHint:
+      'The hosting app id for townofwiley.gov. It ties this website build to the correct Studio project and backend.',
+    setupAwsConsoleHint:
+      'Opens the full AWS console for advanced troubleshooting. Routine text and document edits should use Studio instead.',
+    setupStudioUrlHint:
+      'Hosted Amplify Studio login. After sign-in, use the Data or Content area to browse models (SiteSettings, Announcement, and so on) exactly as described on this page.',
+    setupDataManagerUrlHint:
+      'Same hosted Studio entry as Studio Home. In Studio, open Data Manager to list, create, edit, or delete CMS records that the public site reads through AppSync.',
+    setupRegionHint:
+      'AWS region where Amplify and AppSync run (us-east-2). Must match deployment and the CMS endpoint region.',
+    connectionEndpointHint:
+      'The AppSync GraphQL host the public website calls to load homepage content. If this is wrong or unreachable, the site falls back to bundled text.',
+    connectionRegionHint: 'Region configured for the CMS AppSync API key and endpoint pair.',
+    connectionApiKeyHint:
+      'Public read key shipped in runtime config for anonymous homepage loads. It does not grant console login; it only proves the CMS read path works.',
+    crudWhereLabel: 'Where residents see it',
+    crudFieldsLabel: 'Fields to know in Studio',
+    crudOperationsLabel: 'Operations in Data Manager',
   },
   es: {
     kicker: 'CMS de la secretaria',
@@ -488,7 +586,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     accessKicker: 'Acceso del personal',
     accessTitle: 'Empiece aqui cada dia',
     accessBody:
-      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra la guia de publicacion de documentos cuando necesite dirigir un archivo publico por el flujo compatible de PublicDocument en Studio. Abra Studio Home solo si primero necesita volver a la pantalla principal de Studio.',
+      'Abra Data Manager cuando necesite cambiar contenido en vivo. Abra la guia de publicacion de documentos cuando necesite dirigir un archivo publico por el flujo compatible de PublicDocument en Studio. Abra Studio Home cuando necesite primero el entorno alojado de Amplify Studio (mismo inicio de sesion que Data Manager).',
     accessChecklist: [
       'Use Data Manager para las ediciones diarias.',
       'Use la guia de publicacion de documentos para los archivos PublicDocument.',
@@ -535,15 +633,16 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     modelMapKicker: 'Mapa de modelos',
     modelMapTitle: 'Si quiere cambiar esto, abra este modelo',
     modelMapItems: [
-      'SiteSettings: titulo de la pagina principal y texto de bienvenida',
-      'AlertBanner: banner de emergencia',
-      'Announcement: avisos breves y entradas del boletin del pueblo (configure attachmentKey para mostrar un PDF en linea en /news)',
-      'Event: reuniones y elementos del calendario',
-      'OfficialContact: tarjetas de contacto publico',
-      'Business: entradas del directorio de negocios',
-      'PublicDocument: use la guia de Studio para dirigir el archivo y definir la seccion del sitio',
-      'ExternalNewsLink: enlaces de noticias externas',
-      'EmailAlias: solo reenvio privado de correo',
+      'SiteSettings: hero de portada, bloque de bienvenida y nombre del pueblo que ven primero.',
+      'AlertBanner: franja de emergencia arriba de la portada cuando esta habilitado.',
+      'Announcement: tarjetas breves en portada; columna larga del boletin en /news si announcementKind es newsletter; attachmentKey puede incrustar un PDF.',
+      'Event: reuniones y audiencias en el calendario de la portada.',
+      'OfficialContact: tarjetas de telefono y correo del personal en paginas de contacto.',
+      'LeadershipRosterEntry: lineas de viñetas del alcalde/concejo y administracion del pueblo en /contact (groupId mayor-council o town-administration).',
+      'Business: entradas del directorio de negocios en su ruta publica.',
+      'PublicDocument: archivos descargables en /documents: use la guia de publicacion y el sectionId exacto.',
+      'ExternalNewsLink: titulos y enlaces externos curados en /news.',
+      'EmailAlias: reenvio de correo invisible; nunca es un campo de pagina publica.',
     ],
     crudKicker: 'Referencia CRUD',
     crudTitle: 'La mayoria de los modelos del CMS tienen CRUD normal en Amplify Studio y AppSync',
@@ -553,18 +652,29 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'SiteSettings',
         summary: 'Titulo de la pagina principal, texto del hero y campos de contacto.',
+        whereItShows:
+          'Hero de la portada, bloque de bienvenida y texto general de la marca del pueblo.',
+        commonFields:
+          'townName, tagline, heroImageUrl, welcomeTitle, welcomeBody y lineas de contacto junto al hero: conserve un solo registro activo.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes: 'Conserve un solo registro actual para el sitio publico.',
       },
       {
         model: 'AlertBanner',
         summary: 'Contenido del banner de emergencia y llamada a la accion.',
+        whereItShows: 'Franja superior de la portada cuando esta habilitado.',
+        commonFields:
+          'enabled, label, title, detail, linkLabel y linkHref opcionales (URL del enlace).',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes: 'Conserve un solo banner habilitado a la vez.',
       },
       {
         model: 'Announcement',
         summary: 'Avisos publicos, cierres y publicaciones largas del boletin.',
+        whereItShows:
+          'Tarjetas “Actualizaciones de Wiley” en la portada; columna larga del boletin en /news si announcementKind es newsletter.',
+        commonFields:
+          'title, detail, date, active, priority (menor ordena primero), imageUrl, announcementKind (`newsletter` o vacio), attachmentKey (clave S3 como documents/newsletter/…pdf para PDF en linea en /news).',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes:
           'Configure announcementKind en `newsletter` para la seccion de boletin en /news; dejelo en blanco para avisos breves. Use priority para el orden. Pegue la clave de almacenamiento S3 (por ejemplo `documents/newsletter/2026-05-newsletter.pdf`) en `attachmentKey` para mostrar el PDF en linea en /news. Solo se muestra el boletin activo mas reciente.',
@@ -572,6 +682,9 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'Event',
         summary: 'Reuniones, audiencias y elementos del calendario.',
+        whereItShows: 'Lista de reuniones en la portada y otras areas que lean este modelo.',
+        commonFields:
+          'title, start (obligatorio), end, description, location, active: el sitio ordena por fecha y hora de inicio.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes:
           'Configure title, start y active en cada registro. Agregue description y location para las tarjetas de reuniones, use end cuando se conozca y recuerde que el sitio ordena los eventos por fecha y hora de inicio.',
@@ -579,18 +692,38 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'OfficialContact',
         summary: 'Tarjetas de contacto publico para personal y oficinas.',
+        whereItShows: 'Listados de contacto y personal en el sitio publico.',
+        commonFields:
+          'displayOrder, label (titulo de la tarjeta), value (linea principal, p. ej. telefono o correo), detail (texto de apoyo), href (URL mailto: o tel:), linkLabel (texto corto del enlace).',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
         notes: 'Use displayOrder para ordenar la lista publica.',
       },
       {
+        model: 'LeadershipRosterEntry',
+        summary: 'Lineas de viñetas del alcalde/concejo y administracion del pueblo en /contact.',
+        whereItShows:
+          'Viñetas de liderazgo no enlazables en /contact cuando hay registros activos con el groupId correspondiente.',
+        commonFields:
+          'groupId (`mayor-council` o `town-administration`), displayOrder, lineEn, lineEs, active: un registro por viñeta.',
+        operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
+        notes:
+          'Si existe cualquier fila activa para un groupId, el sitio reemplaza toda esa lista desde Studio. Complete lineEn y lineEs para paginas bilingues.',
+      },
+      {
         model: 'Business',
         summary: 'Entradas del directorio de negocios con telefono, sitio web e imagen.',
+        whereItShows: 'Paginas del directorio de negocios del pueblo.',
+        commonFields:
+          'displayOrder, nombre del negocio, categoria, telefono, URL del sitio, URL de imagen o logo, descripcion corta segun Studio.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
         notes: 'Use displayOrder para mantener primero los negocios destacados.',
       },
       {
         model: 'PublicDocument',
         summary: 'Formularios publicos, avisos y documentos descargables.',
+        whereItShows: '/documents y otras zonas de descarga segun sectionId.',
+        commonFields:
+          'title, ruta de archivo o almacenamiento, sectionId (debe coincidir con el mapa de esta pagina), displayOrder dentro de esa seccion.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
         notes:
           'Use la guia de publicacion en Studio para que la ruta del archivo permanezca en el flujo compatible de PublicDocument.',
@@ -598,12 +731,17 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'ExternalNewsLink',
         summary: 'Noticias externas y actualizaciones regionales.',
+        whereItShows: '/news y otras listas que muestren enlaces externos curados.',
+        commonFields: 'displayOrder, titulo, URL externa, etiqueta de fuente o resumen opcional.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar', 'Reordenar'],
         notes: 'Use displayOrder para controlar el orden mostrado.',
       },
       {
         model: 'EmailAlias',
         summary: 'Reglas privadas de reenvio para direcciones de correo del pueblo.',
+        whereItShows: 'No aparece en el sitio web: solo afecta el enrutamiento del correo.',
+        commonFields:
+          'aliasAddress (correo publico del pueblo) y destinationAddress (bandeja privada que recibe).',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
         notes: 'Solo uso interno del personal; sin orden publico.',
       },
@@ -635,11 +773,38 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       'Announcement',
       'Event',
       'OfficialContact',
+      'LeadershipRosterEntry',
       'Business',
       'PublicDocument',
       'ExternalNewsLink',
       'EmailAlias',
     ],
+    studioDocsTitle: 'Como Amplify Studio se relaciona con este sitio',
+    studioDocsBody:
+      'AWS describe Studio como el entorno visual para administrar el backend: modelado de datos, autenticacion, almacenamiento y el Administrador de datos (navegador de datos) donde edita los registros del CMS. Los botones superiores abren Studio alojado; use Datos o Contenido alli para cambiar textos, archivos y listas en vivo, luego actualice townofwiley.gov para comprobar.',
+    studioDocsLinkText: 'Lea los conceptos basicos de AWS Amplify Studio (documentacion Gen 1)',
+    setupAwsAccountLabel: 'Cuenta de AWS',
+    setupAwsAccountHint:
+      'Los doce digitos de la cuenta propietaria de esta app Amplify. Verifiquelos antes de editar para no estar en otra organizacion.',
+    setupAmplifyAppLabel: 'Aplicacion Amplify',
+    setupAmplifyAppHint:
+      'Id de hospedaje de townofwiley.gov. Une este sitio al proyecto Studio y backend correctos.',
+    setupAwsConsoleHint:
+      'Abre la consola AWS completa para soporte avanzado. Las ediciones rutinarias deben hacerse en Studio.',
+    setupStudioUrlHint:
+      'Inicio de sesion en Amplify Studio alojado. Despues de entrar, use Datos o Contenido para ver modelos (SiteSettings, Announcement, etc.) como en esta pagina.',
+    setupDataManagerUrlHint:
+      'Misma entrada que Studio Home. En Studio, abra Data Manager para listar, crear, editar o eliminar registros CMS que el sitio lee por AppSync.',
+    setupRegionHint:
+      'Region AWS donde corren Amplify y AppSync (us-east-2). Debe coincidir con el despliegue y la region del endpoint CMS.',
+    connectionEndpointHint:
+      'Host GraphQL de AppSync que el sitio publico usa para la pagina principal. Si falla, el sitio usa texto incluido en la app.',
+    connectionRegionHint: 'Region configurada para la clave y el par de endpoint CMS de AppSync.',
+    connectionApiKeyHint:
+      'Clave de lectura publica en la configuracion de tiempo de ejecucion para cargas anonimas de la portada. No inicia sesion en la consola; solo prueba la lectura CMS.',
+    crudWhereLabel: 'Donde lo ven los residentes',
+    crudFieldsLabel: 'Campos clave en Studio',
+    crudOperationsLabel: 'Operaciones en Data Manager',
   },
 };
 
@@ -649,11 +814,12 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
   styleUrl: './cms-admin.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   /**
-   * Outbound Amplify/AWS Console anchors use fragment URLs (`#/.../studio/...`).
-   * With `provideClientHydration(withEventReplay())`, delegated click replay on the SSR
-   * shell could prevent normal browser navigation—clerk-visible buttons appeared "dead".
-   * Opt this route out so native `<a href target="_blank">` works reliably (see NG8108 /
-   * hydration docs: https://angular.dev/extended-diagnostics/NG8108).
+   * Outbound Amplify Studio anchors use full HTTPS URLs (hosted admin at
+   * `{region}.admin.amplifyapp.com`). With `provideClientHydration(withEventReplay())`,
+   * delegated click replay on the SSR shell could prevent normal browser navigation—
+   * clerk-visible buttons appeared "dead". Opt this route out so native
+   * `<a href target="_blank">` works reliably (see NG8108 / hydration docs:
+   * https://angular.dev/extended-diagnostics/NG8108).
    */
   host: {
     ngSkipHydration: '',
@@ -667,9 +833,13 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     TagModule,
     SkeletonModule,
     MessageModule,
+    TooltipModule,
   ],
 })
 export class CmsAdmin {
+  /** Official AWS Amplify Gen 1 Studio documentation (linked from the admin hub). */
+  protected readonly amplifyStudioGen1DocsUrl = AMPLIFY_STUDIO_GEN1_DOCS_URL;
+
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly contactUpdateReview = inject(ContactUpdateReviewService);
@@ -739,37 +909,43 @@ export class CmsAdmin {
     return [
       {
         key: 'aws-account',
-        label: 'AWS account',
+        label: copy.setupAwsAccountLabel,
+        labelHint: copy.setupAwsAccountHint,
         value: this.awsAccountId || 'Not configured',
         copyValue: this.awsAccountId,
       },
       {
         key: 'region',
         label: copy.regionLabel,
+        labelHint: copy.setupRegionHint,
         value: this.awsRegion || 'Not configured',
         copyValue: this.awsRegion,
       },
       {
         key: 'amplify-app',
-        label: 'Amplify app',
+        label: copy.setupAmplifyAppLabel,
+        labelHint: copy.setupAmplifyAppHint,
         value: this.amplifyAppId || 'Not configured',
         copyValue: this.amplifyAppId,
       },
       {
         key: 'aws-console',
         label: copy.openAwsConsole,
+        labelHint: copy.setupAwsConsoleHint,
         value: this.awsConsoleUrl,
         copyValue: this.awsConsoleUrl,
       },
       {
         key: 'studio-url',
         label: copy.openAmplify,
+        labelHint: copy.setupStudioUrlHint,
         value: this.studioUrl,
         copyValue: this.studioUrl,
       },
       {
         key: 'data-manager-url',
         label: copy.openCmsEditPage,
+        labelHint: copy.setupDataManagerUrlHint,
         value: this.dataManagerUrl,
         copyValue: this.dataManagerUrl,
       },
@@ -800,28 +976,104 @@ export class CmsAdmin {
           {
             action: 'Titulo de inicio, texto de bienvenida y foto principal',
             model: 'SiteSettings',
+            hint: 'En Studio > Data Manager: modelo SiteSettings, normalmente un solo registro para hero y textos de portada.',
           },
-          { action: 'Banner de emergencia en la pagina principal', model: 'AlertBanner' },
-          { action: 'Avisos publicos, cierres y anuncios generales', model: 'Announcement' },
-          { action: 'Reuniones, audiencias y calendario', model: 'Event' },
-          { action: 'Tarjetas de contacto del personal', model: 'OfficialContact' },
-          { action: 'Directorio de negocios, logos y sitios web', model: 'Business' },
-          { action: 'Documentos publicos, formularios y descargas', model: 'PublicDocument' },
-          { action: 'Noticias externas compartidas en el sitio', model: 'ExternalNewsLink' },
-          { action: 'Reglas internas de reenvio de correo', model: 'EmailAlias' },
+          {
+            action: 'Banner de emergencia en la pagina principal',
+            model: 'AlertBanner',
+            hint: 'En Studio: modelo AlertBanner; enabled enciende la franja; label, title y detail son el texto visible; linkHref es la URL del boton.',
+          },
+          {
+            action: 'Avisos publicos, cierres y anuncios generales',
+            model: 'Announcement',
+            hint: 'En Studio: modelo Announcement; active y priority controlan tarjetas en portada; announcementKind y attachmentKey enlazan con /news y PDFs.',
+          },
+          {
+            action: 'Reuniones, audiencias y calendario',
+            model: 'Event',
+            hint: 'En Studio: modelo Event; start/end alimentan el calendario; description y location aparecen en tarjetas de reuniones.',
+          },
+          {
+            action: 'Tarjetas de contacto del personal',
+            model: 'OfficialContact',
+            hint: 'En Studio: modelo OfficialContact; conserve ids `town-information` y `city-clerk` para pie de pagina y permisos; displayOrder ordena tarjetas.',
+          },
+          {
+            action: 'Listas de viñetas del alcalde/concejo y administracion en /contact',
+            model: 'LeadershipRosterEntry',
+            hint: 'En Studio: modelo LeadershipRosterEntry; groupId `mayor-council` o `town-administration`; una fila por viñeta con lineEn y lineEs; displayOrder ordena lineas.',
+          },
+          {
+            action: 'Directorio de negocios, logos y sitios web',
+            model: 'Business',
+            hint: 'En Studio: modelo Business; displayOrder y campos de negocio alimentan el directorio publico.',
+          },
+          {
+            action: 'Documentos publicos, formularios y descargas',
+            model: 'PublicDocument',
+            hint: 'En Studio: modelo PublicDocument; sectionId debe coincidir con las secciones de la pestana Document publishing.',
+          },
+          {
+            action: 'Noticias externas compartidas en el sitio',
+            model: 'ExternalNewsLink',
+            hint: 'En Studio: modelo ExternalNewsLink; enlaces externos curados para /news u otras listas.',
+          },
+          {
+            action: 'Reglas internas de reenvio de correo',
+            model: 'EmailAlias',
+            hint: 'En Studio: modelo EmailAlias; solo enrutamiento de correo, no aparece en paginas publicas.',
+          },
         ]
       : [
-          { action: 'Homepage title, welcome text, and hero photo', model: 'SiteSettings' },
-          { action: 'Emergency banner shown at the top of the homepage', model: 'AlertBanner' },
-          { action: 'Public notices, closures, and general announcements', model: 'Announcement' },
-          { action: 'Meetings, hearings, and calendar events', model: 'Event' },
-          { action: 'Staff contact cards for names, phones, and emails', model: 'OfficialContact' },
-          { action: 'Business directory entries, logos, and websites', model: 'Business' },
-          { action: 'Public documents, forms, and downloads', model: 'PublicDocument' },
-          { action: 'Outside news links shared on the site', model: 'ExternalNewsLink' },
+          {
+            action: 'Homepage title, welcome text, and hero photo',
+            model: 'SiteSettings',
+            hint: 'In Studio Data Manager: open the SiteSettings model—usually one record controls the homepage hero and welcome text.',
+          },
+          {
+            action: 'Emergency banner shown at the top of the homepage',
+            model: 'AlertBanner',
+            hint: 'In Studio: open AlertBanner; enabled toggles the strip; label, title, and detail are the resident-facing text; linkHref is the optional button URL.',
+          },
+          {
+            action: 'Public notices, closures, and general announcements',
+            model: 'Announcement',
+            hint: 'In Studio: open Announcement; active and priority control homepage cards; announcementKind and attachmentKey tie to /news and inline PDFs.',
+          },
+          {
+            action: 'Meetings, hearings, and calendar events',
+            model: 'Event',
+            hint: 'In Studio: open Event; start/end drive the live calendar; description and location populate meeting cards.',
+          },
+          {
+            action: 'Staff contact cards for names, phones, and emails',
+            model: 'OfficialContact',
+            hint: 'In Studio: open OfficialContact; keep record ids `town-information` and `city-clerk` for shell and permits; displayOrder sorts cards.',
+          },
+          {
+            action: 'Mayor/Council and Town Administration bullet lists on /contact',
+            model: 'LeadershipRosterEntry',
+            hint: 'In Studio: open LeadershipRosterEntry; groupId `mayor-council` or `town-administration`; one row per bullet with lineEn and lineEs; displayOrder sorts lines.',
+          },
+          {
+            action: 'Business directory entries, logos, and websites',
+            model: 'Business',
+            hint: 'In Studio: open Business; displayOrder plus business fields feed the public directory.',
+          },
+          {
+            action: 'Public documents, forms, and downloads',
+            model: 'PublicDocument',
+            hint: 'In Studio: open PublicDocument; sectionId must match the Document publishing tab section map.',
+          },
+          {
+            action: 'Outside news links shared on the site',
+            model: 'ExternalNewsLink',
+            hint: 'In Studio: open ExternalNewsLink; curated outbound links for /news or similar lists.',
+          },
           {
             action: 'Town email forwarding rules for behind-the-scenes delivery',
             model: 'EmailAlias',
+            hint: 'In Studio: open EmailAlias; mail routing only—nothing is rendered on public pages.',
           },
         ],
   );
@@ -831,13 +1083,13 @@ export class CmsAdmin {
           'Abra Data Manager y continue al flujo compatible de PublicDocument en Studio.',
           'Cree o actualice el registro PublicDocument en Studio.',
           'Dirija el archivo a la seccion publica correcta usando el sectionId exacto.',
-          'Guarde el cambio y actualice la pagina publica de documentos para verificarlo.',
+          'Guarde en Studio, abra /documents (actualice una vez si hace falta) y confirme que el archivo aparece; otros residentes lo veran en la siguiente visita o al volver a la pestana.',
         ]
       : [
           'Open Data Manager and continue into the supported Studio PublicDocument workflow.',
           'Create or update the PublicDocument entry there instead of using the retired in-page uploader.',
           'Route the file to the correct resident-facing section using the exact sectionId shown below.',
-          'Save the Studio change, then refresh the public Documents page or related resident page to verify it appears.',
+          'Save in Studio, open /documents (hard refresh once if needed), and confirm the file appears; other residents see it on their next visit or when returning to the tab.',
         ],
   );
   protected readonly documentSections = computed<CmsAdminDocumentSection[]>(() =>
@@ -1011,11 +1263,7 @@ export class CmsAdmin {
     const region = this.clerkSetupConfig.awsRegion;
     const appId = this.clerkSetupConfig.amplifyAppId;
 
-    if (!region || !appId) {
-      return this.clerkSetupConfig.studioUrl;
-    }
-
-    return `https://${region}.console.aws.amazon.com/amplify/home?region=${region}#/${appId}/main/studio/data`;
+    return buildAmplifyAdminStudioHomeUrl(region, appId, this.clerkSetupConfig.studioUrl);
   }
 
   private maskEndpoint(endpoint: string): string {

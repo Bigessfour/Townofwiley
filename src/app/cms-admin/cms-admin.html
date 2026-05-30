@@ -32,6 +32,23 @@
     </div>
   </header>
 
+  <section class="cms-docs-callout" aria-labelledby="cms-studio-docs-heading">
+    <h2 id="cms-studio-docs-heading" class="cms-docs-callout__title">
+      {{ copy().studioDocsTitle }}
+    </h2>
+    <p class="cms-docs-callout__body">{{ copy().studioDocsBody }}</p>
+    <p class="cms-docs-callout__link">
+      <a
+        class="cms-link cms-docs-callout__anchor"
+        [href]="amplifyStudioGen1DocsUrl"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        {{ copy().studioDocsLinkText }}
+      </a>
+    </p>
+  </section>
+
   <section class="cms-banner" [attr.aria-label]="copy().statusAriaLabel">
     <p>{{ persistenceSummary() }}</p>
     @if (isLoading()) {
@@ -119,13 +136,33 @@
 
     <ul class="cms-proof-grid">
       <li>
-        <strong>{{ copy().endpointLabel }}:</strong> {{ maskedEndpoint() }}
+        <strong
+          class="cms-tip-target"
+          tabindex="0"
+          [pTooltip]="copy().connectionEndpointHint"
+          tooltipPosition="bottom"
+          >{{ copy().endpointLabel }}:</strong
+        >
+        {{ maskedEndpoint() }}
       </li>
       <li>
-        <strong>{{ copy().regionLabel }}:</strong> {{ appSyncRegion() }}
+        <strong
+          class="cms-tip-target"
+          tabindex="0"
+          [pTooltip]="copy().connectionRegionHint"
+          tooltipPosition="bottom"
+          >{{ copy().regionLabel }}:</strong
+        >
+        {{ appSyncRegion() }}
       </li>
       <li>
-        <strong>{{ copy().apiKeyLabel }}:</strong>
+        <strong
+          class="cms-tip-target"
+          tabindex="0"
+          [pTooltip]="copy().connectionApiKeyHint"
+          tooltipPosition="bottom"
+          >{{ copy().apiKeyLabel }}:</strong
+        >
         {{ hasAppSyncRuntimeConfig ? copy().apiKeyPresent : copy().apiKeyMissing }}
       </li>
       @if (connectionTestResult(); as result) {
@@ -191,8 +228,11 @@
               <summary>{{ copy().setupDetailsTitle }}</summary>
               <dl class="cms-setup-details">
                 @for (detail of setupDetails(); track detail.key) {
-                  <div>
+                  <div class="cms-setup-detail-block">
                     <dt>{{ detail.label }}</dt>
+                    @if (detail.labelHint) {
+                      <p class="cms-setup-hint" role="note">{{ detail.labelHint }}</p>
+                    }
                     <dd>{{ detail.value }}</dd>
                     <button
                       type="button"
@@ -228,6 +268,7 @@
                 <li>
                   <strong>{{ item.action }}:</strong>
                   <p-tag [value]="item.model" severity="secondary" styleClass="ml-1" />
+                  <p class="cms-task-hint" role="note">{{ item.hint }}</p>
                 </li>
               }
             </ul>
@@ -319,7 +360,9 @@
             </div>
           } @else if (contactUpdatesLoadError()) {
             <p-message severity="error" [text]="contactUpdatesLoadError()!" class="mb-4" />
-            <p class="text-center py-8 text-color-secondary">{{ copy().contactUpdatesLoadError }}</p>
+            <p class="text-center py-8 text-color-secondary">
+              {{ copy().contactUpdatesLoadError }}
+            </p>
           } @else if (contactUpdates().length === 0) {
             <p class="text-center py-12 text-color-secondary">{{ copy().noContactUpdates }}</p>
           } @else {
@@ -435,7 +478,15 @@
           <article class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
             <h3 class="m-0 text-base font-semibold">{{ item.model }}</h3>
             <p class="mt-2 mb-0">{{ item.summary }}</p>
-            <p class="mt-2 mb-0"><strong>Operations:</strong> {{ item.operations.join(', ') }}</p>
+            <p class="mt-2 mb-0">
+              <strong>{{ copy().crudWhereLabel }}:</strong> {{ item.whereItShows }}
+            </p>
+            <p class="mt-2 mb-0">
+              <strong>{{ copy().crudFieldsLabel }}:</strong> {{ item.commonFields }}
+            </p>
+            <p class="mt-2 mb-0">
+              <strong>{{ copy().crudOperationsLabel }}:</strong> {{ item.operations.join(', ') }}
+            </p>
             <p class="mt-2 mb-0 text-sm text-color-secondary">{{ item.notes }}</p>
             <a
               class="cms-link mt-3"

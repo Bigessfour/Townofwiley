@@ -2,6 +2,10 @@
 
 This guide is written for the Town Clerk or any staff member who manages the Wiley website. No technical knowledge is needed. Every step is explained exactly as written.
 
+**Technical map (for IT or training):** see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md) for which Studio models feed which pages, and [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md) for AWS-side checks.
+
+**Verify CMS is working (Studio + website):** follow [CMS-VERIFY-STUDIO.md](./CMS-VERIFY-STUDIO.md) — about five minutes, no code required.
+
 ---
 
 ## Part 1 — Get Access (Do This Once)
@@ -28,14 +32,13 @@ Bookmark this page first: https://townofwiley.gov/admin
 
 The admin page shows the Studio links, setup details, document publishing guide, contact updates, and a CMS connection test. Use it as the starting point each time.
 
-### Step 4 — Bookmark the Studio links if you want direct shortcuts
+### Step 4 — Bookmark Amplify Studio if you want a direct shortcut
 
-Bookmark both of these links in your browser now. You will use them every time.
+Bookmark this link in your browser if you like opening Studio without going through `/admin` first.
 
-| Link                                                                                                                    | What it is                         |
-| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| [Studio Home](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home)  | Starting page for Amplify Studio   |
-| [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data) | Where you edit all website content |
+| Link                                                                                    | What it is                                                               |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [Amplify Studio](https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home) | Log in here for hosted Studio (home and Data Manager use the same entry) |
 
 ### Step 5 — Log in for the first time
 
@@ -52,7 +55,7 @@ Bookmark both of these links in your browser now. You will use them every time.
 
 All website content is managed in one place: **Data Manager**.
 
-Direct link: https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data
+Direct link: https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
 
 Start here if you are not sure where to go: https://townofwiley.gov/admin
 
@@ -104,6 +107,23 @@ Every piece of content on the website lives in one of these models in Data Manag
 | External news links shown on the /news page                | `ExternalNewsLink` |
 | Town email forwarding rules for behind-the-scenes delivery | `EmailAlias`       |
 
+### Important: two contact cards use fixed record IDs
+
+The website looks up the **Town Hall** block and **City Clerk** block by the **`id`** field on `OfficialContact` (not by the person’s name in the title). In Amplify Studio, keep these exact IDs:
+
+| `id` field (exact) | Purpose                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| `town-information` | Main Town Hall phone block used in the site footer, services, and accessibility pages |
+| `city-clerk`       | Clerk email/phone used on Permits and related contact panels                          |
+
+If you delete one of these records and create a new row with a different `id`, the site may show fallback wording until IT restores the IDs.
+
+### Field names that match the database (use these in Studio)
+
+- **AlertBanner:** `enabled`, `label`, `title`, `detail`, `linkLabel`, **`linkHref`** (the button link is **linkHref**, not “link URL”).
+- **OfficialContact:** **`label`**, **`value`**, **`detail`**, **`href`** (mailto: or tel:), **`linkLabel`**, **`displayOrder`**. The **`id`** is the stable key in the table above.
+- **Announcement:** `title`, `detail`, `date` (`YYYY-MM-DD`), `active`, **`priority`** (number — lower sorts first among bulletin notices), **`announcementKind`** (leave blank for short bulletins; type **`newsletter`** in lowercase for the long newsletter block on `/news`), **`attachmentKey`** (S3 file path for a newsletter PDF — see [Announcement fields explained](#announcement-fields-explained-announcementkind-attachmentkey-priority-and-imageurl) below), **`imageUrl`** (optional full `https://` image link — see same section).
+
 ---
 
 ## Part 4 — Step-by-Step Tasks
@@ -112,29 +132,44 @@ Every piece of content on the website lives in one of these models in Data Manag
 
 Use this for closures, reminders, utility updates, and general public notices.
 
-1. Open [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data).
+1. Open [Data Manager](https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home).
 2. Click **Announcement** in the left sidebar.
 3. Click **Create announcement** (top-right button).
 4. Fill in **title** — keep it short and clear, like a headline.
 5. Fill in **detail** — explain what happened, who is affected, and when.
 6. Fill in **date** — use the format `YYYY-MM-DD`, for example `2026-04-15`.
 7. Set **active** to **true** (toggle it on).
-8. Set **priority** — lower numbers appear first. Use `1` for the most urgent notice, `10` for a routine update.
-9. (Optional) Paste a public photo web address into **imageUrl** if you have a relevant photo.
-10. Click **Save**.
-11. Open https://townofwiley.gov/news in a new browser tab, refresh it, and confirm the notice appears.
+8. Set **priority** — see [Announcement fields explained](#announcement-fields-explained-announcementkind-attachmentkey-priority-and-imageurl) (lower numbers sort first among short notices).
+9. Leave **announcementKind** blank for a normal bulletin notice. Leave **attachmentKey** blank unless IT told you to use it for a newsletter PDF.
+10. **imageUrl** — optional; see the same section. You may leave it blank for routine notices.
+11. Click **Save**.
+12. Open https://townofwiley.gov/news in a new browser tab, refresh it, and confirm the notice appears.
 
 ### Post a town newsletter (long-form update on /news)
 
 Use this when the Clerk publishes a column or multi-paragraph update that should appear in the **Town newsletter** section instead of the short bulletin cards.
 
 1. Open **Announcement** in Data Manager and create or edit a record.
-2. Fill **title** and **detail** as usual (detail can be long; use a blank line between paragraphs for separate blocks on the website).
-3. Set **announcementKind** to `newsletter` (after the next backend deploy that adds this field—see the engineering team if the field is not visible yet).
-4. Set **active** to **true** and save.
-5. Refresh `https://townofwiley.gov/news` and confirm the entry appears under **Newsletter from Town Hall**.
+2. Fill **title** and **detail** as usual (detail can be long; use a blank line between paragraphs for separate blocks on the website when no PDF is attached yet).
+3. Set **announcementKind** to the word **`newsletter`** in all lowercase (no spaces). If this field is missing in your form, ask your IT contact to confirm the CMS schema is deployed.
+4. (Recommended) Set **attachmentKey** to the **exact S3 storage key** for the newsletter PDF so residents can open it inline on `/news`. Ask IT to upload the PDF to Town storage using the same folder pattern as other newsletters (for example `documents/newsletter/2026-05-town-newsletter.pdf`). Copy the full path IT gives you — it is **not** a `https://` link and it is **not** the same as a file name alone. See [Announcement fields explained](#announcement-fields-explained-announcementkind-attachmentkey-priority-and-imageurl). If you leave **attachmentKey** blank, residents still see the written **detail**, but they will not get the embedded PDF viewer until a key is added.
+5. Set **date** to the issue date (`YYYY-MM-DD`). The live site treats the newest active newsletter by date as the one to feature.
+6. Set **priority** if IT asks you to coordinate ordering; see the same reference section.
+7. Set **active** to **true** and save.
+8. Refresh `https://townofwiley.gov/news` and confirm the entry appears under **Newsletter from Town Hall** and that the PDF opens if you set **attachmentKey**.
 
 Short utility notices should leave **announcementKind** blank so they stay in **Current Wiley Updates**.
+
+### Announcement fields explained: announcementKind, attachmentKey, priority, and imageUrl
+
+Use this table when you are unsure what to type in optional **Announcement** fields in Data Manager.
+
+| Field                | What it is                                                                                         | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **announcementKind** | Tells the website which layout to use on `/news`.                                                  | Leave **empty** (or blank) for normal short bulletins in **Current Wiley Updates**. Type exactly **`newsletter`** (lowercase) for the long **Newsletter from Town Hall** block. Do not invent other words unless engineering has documented them — other values behave like a normal notice.                                                                                                                                                                                                                                      |
+| **attachmentKey**    | The **storage object key** (internal file path) for a **newsletter PDF** in Town document storage. | **Only when `announcementKind` is `newsletter`.** Ask IT to upload the finished PDF and send you the full key. It always starts with `documents/newsletter/` and ends with the file name, for example `documents/newsletter/2026-05-town-newsletter.pdf`. Paste that entire path into **attachmentKey** with no spaces. Do **not** paste a Google Drive edit link, a `mailto:` link, or only the file name by itself. If you are not publishing a PDF yet, leave this field blank — the site will still show the **detail** text. |
+| **priority**         | A whole number used to **sort** announcements before the site shows them.                          | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention.                                        |
+| **imageUrl**         | A full public web address pointing to an **image** file.                                           | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it.                                    |
 
 ### Add or refresh regional news links (Wiley / Prowers coverage)
 
@@ -210,6 +245,28 @@ To cancel or hide an event, open it and set **active** to **false**.
 
 To add a new contact, click **Create officialContact** and fill in all fields.
 
+### Mayor and City Council roster (bullet list under leadership on /contact)
+
+The **Mayor and Council** and **Town Administration** bullet lists on `/contact` come from the **`LeadershipRosterEntry`** model when at least one **active** row exists for that section. If Studio has no rows yet, the site keeps the bundled lines from the app (same names as today).
+
+**What you do as Clerk**
+
+1. Open **LeadershipRosterEntry** in Data Manager.
+2. Click **Create** (or open an existing row).
+3. Set **groupId** to exactly one of these keys (copy/paste):
+   - `mayor-council` — bullets under **Mayor and Council** / **Alcalde y concejo**
+   - `town-administration` — bullets under **Town Administration** / **Administracion del pueblo**
+4. Set **displayOrder** — lower numbers appear first (for example 10, 20, 30 so you can insert lines later).
+5. Fill **lineEn** and **lineEs** — one line per record, for example English `Mayor: Pat Garcia` and Spanish `Alcalde: Pat Garcia`.
+6. Set **active** to **true** and save.
+7. Refresh `/contact` and switch the site language to confirm both languages.
+
+To remove someone from the list, either set **active** to **false** or delete the row. To replace the whole section from Studio, every visible bullet must have its own **LeadershipRosterEntry** row for that **groupId** (the site replaces the whole bullet list for that section when any CMS lines exist).
+
+**Do not confuse this with OfficialContact**
+
+The **`OfficialContact`** rows control the **clickable contact cards** higher on the contact page. **`LeadershipRosterEntry`** only drives the **non-clickable** roster bullets in the leadership blocks below.
+
 ### Change the homepage hero photo
 
 The hero is the large photo at the top of the homepage.
@@ -251,22 +308,65 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 
 ### Add a public document (for the /documents page)
 
+**Post-migration (CMS-only):** The `/documents` hub reads **only** active `PublicDocument` rows from AppSync. There is no repo manifest to edit. Optional **titleEs**, **summaryEs**, and **statusEs** supply Spanish labels when residents switch the site to Español (English fields are used when Spanish is blank). After you save in Studio, open `/documents` once (hard refresh if needed); the page refreshes the catalog on each visit and when a resident returns to the tab—no website redeploy is required for new rows.
+
 1. Open **PublicDocument** in Data Manager.
 2. Click **Create publicDocument**.
 3. Fill in **title** — the document name residents will see.
 4. Fill in **summary** — one sentence describing what it is.
+   4a. (Optional) Fill in **titleEs**, **summaryEs**, and **statusEs** for the Spanish site.
 5. Fill in **sectionId** — this decides which section of the documents page it appears under. Use one of these exact values:
    - `records-requests` — records requests and public forms
    - `meeting-documents` — meeting packets, agendas, and minutes
    - `financial-documents` — budgets, audits, and finance documents
    - `code-references` — ordinances, codes, and reference guides
-6. Fill in **href** — the document link residents will open. It must be a full web address that works without logging in.
+6. Fill in **href** — how residents open the file. Use a full **https://** address that works without logging in, **or** the **storage key** (or `storage:` + key) your IT contact gives you after uploading to Town document storage (see **Upload a City Council agenda packet** below).
 7. Fill in **format** — the file type or delivery type, for example `PDF`, `DOCX`, or `Web link`.
 8. Fill in **status** — the publishing state, for example `Current`, `Draft`, or `Archived`.
 9. Set **active** to **true** so residents can see it on the live site.
 10. Set **displayOrder** if needed — lower numbers appear higher in the list.
 11. Click **Save**.
-12. Refresh the /documents page and confirm the document appears in the correct section.
+12. Open `/documents` and confirm the document appears in the correct section (hard refresh once if you do not see it immediately; other residents see it on their next visit or when returning to the tab).
+
+### Upload a City Council agenda packet for public viewing
+
+Use this when the Council packet is a **PDF** (or similar file) that residents should open from the **Meeting documents & agendas** area on the documents page (`https://townofwiley.gov/documents`, section **Meeting documents & agendas**). The same listing also feeds resident search and document-hub shortcuts that point people toward meeting materials.
+
+**Before you start**
+
+1. Finalize the packet as one file (usually **PDF**). Use a clear filename such as `2026-05-12-city-council-agenda-packet.pdf` so residents recognize the meeting date when they download it.
+2. The file must live where the website can reach it. You have two supported options:
+   - **Option A — Town document storage (recommended):** Ask your IT or website contact to upload the file into Amplify **Storage** under the meeting-documents path. Uploaded files use this pattern: `documents/meeting-documents/<unique-name>.pdf` (the system may add numbers to the name so every upload stays unique). After upload, they should give you the **full storage key** (everything from `documents/` through the filename).
+   - **Option B — Public link:** If the packet is already hosted as a stable **https://** link that anyone can open without logging in, you can use that full address instead.
+
+**Create the `PublicDocument` record in Data Manager**
+
+1. Open **PublicDocument** in Data Manager and click **Create publicDocument** (or open an existing row to replace an old packet).
+2. **title** — Use a resident-facing headline, for example `City Council agenda packet — May 12, 2026`.
+3. **summary** — One sentence, for example `Agenda, resolutions packet, and supporting materials for the regular council meeting.`
+4. **sectionId** — Type exactly: `meeting-documents` (this is the only value that puts the file under **Meeting documents & agendas** on `/documents`).
+5. **href** — Paste one of the following (do not invent a path; use what IT gave you):
+   - The **storage key** from Option A, for example `documents/meeting-documents/1737123456789-2026-05-12-city-council-agenda-packet.pdf`, **or**
+   - The prefix form `storage:` plus that key (some records use this; both work on the live site), **or**
+   - The full **https://** URL from Option B.
+6. **format** — Usually `PDF`.
+7. **status** — Use `Current` or `Published` so residents know it is the active packet (match whatever your office already uses for other meeting files).
+8. **downloadFileName** — Optional but helpful: the filename residents should see when they save the file, for example `2026-05-12-city-council-agenda-packet.pdf`.
+9. **keywords** — Optional. If your Data Manager form supports it, add a few plain words (for example `city council`, `agenda`, `may 2026`) so site search can find the packet. If you are not sure how to enter keywords, skip this field or ask your IT contact.
+10. Set **active** to **true**.
+11. Set **displayOrder** if you need this packet to appear above older meeting rows in the same section (lower numbers appear first, same rule as other documents).
+12. Click **Save**.
+
+**Check it on the website**
+
+1. Open `https://townofwiley.gov/documents` and scroll to **Meeting documents & agendas** (or use the anchor `https://townofwiley.gov/documents#meeting-documents`).
+2. Click your new title and confirm the PDF opens.
+3. Open `https://townofwiley.gov/meetings` and confirm any calendar text still matches the meeting date; if the agenda button should point residents to the hub, your IT contact can align that with the document hub (see [town-document-publishing-guide.md](./town-document-publishing-guide.md) only if staff still maintain separate static archive files — most day-to-day packets should use this **PublicDocument** flow in Studio).
+
+**If something goes wrong**
+
+- If the row saves but the link does nothing or errors, the **href** is usually wrong (typo in the key, file never uploaded, or a private link). Send the exact **href** string and the filename to your IT contact; they can verify the file in Storage or re-upload.
+- Do **not** paste a long Google Docs **edit** link that requires a login. Residents need a **public** PDF or **https** download.
 
 ### Add an external news link (for /news "From Other Sources")
 
@@ -358,8 +458,8 @@ Example:
 Print or screenshot this section and keep it at your desk.
 
 ```
-LOG IN:   https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home
-EDIT:     https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/data
+LOG IN:   https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
+EDIT:     https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
 PUBLIC:   https://townofwiley.gov
 
 WHAT TO OPEN IN DATA MANAGER:

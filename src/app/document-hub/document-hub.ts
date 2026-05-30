@@ -3,24 +3,24 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { filter } from 'rxjs';
+import { DocumentRefreshService } from '../document-refresh.service';
+import { DocumentUploadService } from '../document-upload.service';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
-import { DocumentRefreshService } from '../document-refresh.service';
-import { DocumentUploadService } from '../document-upload.service';
-import {
-  DOCUMENT_ARCHIVE,
-  type DocumentArchiveSectionId,
-  type PublishedDocument,
-} from './document-archive';
+import type { DocumentArchiveSectionId, PublishedDocument } from './document-archive';
 import { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
+import { localizeCmsPublicDocument } from './localize-public-document';
 
 export { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES } from './document-hub-titles';
 
@@ -99,7 +99,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     resolutionErrorMessage:
       'Some document links could not be loaded. Refresh the page or contact the Town Clerk at (719) 829-4974 if the problem persists.',
     extendedLoadUnavailableMessage:
-      'The live document catalog could not be refreshed. Showing saved documents and static town references.',
+      'The live document catalog could not be refreshed. Showing the last saved document list until the connection is restored.',
     sections: [
       {
         id: 'records-requests',
@@ -235,7 +235,7 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     resolutionErrorMessage:
       'Algunos enlaces de documentos no se pudieron cargar. Actualice la pagina o llame a la Secretaria al (719) 829-4974 si el problema persiste.',
     extendedLoadUnavailableMessage:
-      'No se pudo actualizar el catalogo en vivo. Mostrando documentos guardados y referencias estaticas del pueblo.',
+      'No se pudo actualizar el catalogo en vivo. Se muestra la ultima lista de documentos guardada hasta que se restaure la conexion.',
     sections: [
       {
         id: 'records-requests',
@@ -363,11 +363,15 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
 })
 export class DocumentHub {
   private static readonly ARCHIVE_PAGE_SIZE = 20;
+  private static readonly DOCUMENTS_REFRESH_DEBOUNCE_MS = 30_000;
 
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly cms = inject(LocalizedCmsContentStore);
   private readonly documentUploadService = inject(DocumentUploadService);
   private readonly documentRefreshService = inject(DocumentRefreshService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private lastDocumentsRefreshMs = 0;
 
   protected readonly resolvedCmsDocumentHrefs = signal<Record<string, string>>({});
   protected readonly hrefResolutionError = signal(false);
@@ -378,34 +382,20 @@ export class DocumentHub {
   );
   protected readonly sections = computed<DocumentSectionView[]>(() => {
     const language = this.siteLanguageService.currentLanguage();
-    const staticArchive = DOCUMENT_ARCHIVE[language];
     const cmsDocuments = this.cms.publicDocuments();
     const resolvedCmsDocumentHrefs = this.resolvedCmsDocumentHrefs();
 
-    // Merge: CMS documents take precedence and can reference storage-backed files; static entries fill gaps.
-    const mergedById = new Map<string, PublishedDocument>();
-    for (const doc of staticArchive) {
-      mergedById.set(doc.id, doc);
-    }
-    for (const doc of cmsDocuments) {
-      mergedById.set(doc.id, {
-        id: doc.id,
-        sectionId: doc.sectionId as DocumentArchiveSectionId,
-        title: doc.title,
-        summary: doc.summary,
-        status: doc.status,
-        updatedAt: '',
-        format: doc.format,
-        href: resolvedCmsDocumentHrefs[doc.id] ?? doc.href,
-        downloadFileName: doc.downloadFileName,
-        keywords: doc.keywords,
-      });
-    }
-    const merged = Array.from(mergedById.values());
+    const published = cmsDocuments.map((doc) => {
+      const localized = localizeCmsPublicDocument(doc, language);
+      return {
+        ...localized,
+        href: resolvedCmsDocumentHrefs[doc.id] ?? localized.href,
+      };
+    });
 
     return DOCUMENT_HUB_COPY[language].sections.map((section) => ({
       ...section,
-      publishedDocuments: merged.filter((document) => document.sectionId === section.id),
+      publishedDocuments: published.filter((document) => document.sectionId === section.id),
     }));
   });
 
@@ -505,12 +495,42 @@ export class DocumentHub {
   }
 
   constructor() {
-    void this.resolveCmsDocumentHrefs();
+    if (this.router.url.startsWith('/documents')) {
+      void this.refreshDocumentsHub();
+    } else {
+      void this.resolveCmsDocumentHrefs();
+    }
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event) => {
+        if (event.urlAfterRedirects.startsWith('/documents')) {
+          void this.refreshDocumentsHub();
+        }
+      });
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') {
+          return;
+        }
+        if (!this.router.url.startsWith('/documents')) {
+          return;
+        }
+        const now = Date.now();
+        if (now - this.lastDocumentsRefreshMs < DocumentHub.DOCUMENTS_REFRESH_DEBOUNCE_MS) {
+          return;
+        }
+        void this.refreshDocumentsHub();
+      });
+    }
 
     effect(() => {
       this.documentRefreshService.getRefreshTrigger()();
-      void this.cms.refreshContent();
-      void this.resolveCmsDocumentHrefs();
+      void this.refreshDocumentsHub();
     });
 
     effect(() => {
@@ -518,6 +538,12 @@ export class DocumentHub {
       this.siteLanguageService.currentLanguage();
       this.archiveDisplayLimit.set(DocumentHub.ARCHIVE_PAGE_SIZE);
     });
+  }
+
+  private async refreshDocumentsHub(): Promise<void> {
+    this.lastDocumentsRefreshMs = Date.now();
+    await this.cms.refreshContent();
+    await this.resolveCmsDocumentHrefs();
   }
 
   private async resolveCmsDocumentHrefs() {

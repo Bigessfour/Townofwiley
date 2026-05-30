@@ -48,25 +48,134 @@ function normalizeWhitespace(value) {
   return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
 }
 
+function getNwsRetryMaxAttempts() {
+  return Math.min(
+    8,
+    Math.max(2, Number.parseInt(process.env.NWS_RETRY_MAX_ATTEMPTS ?? '4', 10) || 4),
+  );
+}
+
+function getNwsRetryBaseMs() {
+  return Math.max(1, Number.parseInt(process.env.NWS_RETRY_BASE_MS ?? '1000', 10) || 1000);
+}
+
+function getNwsRetryMaxDelayMs() {
+  const base = getNwsRetryBaseMs();
+  return Math.max(
+    base,
+    Number.parseInt(process.env.NWS_RETRY_MAX_DELAY_MS ?? '20000', 10) || 20_000,
+  );
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function addJitterMs(baseMs) {
+  const cap = Math.min(500, Math.floor(baseMs * 0.2));
+  const jitter = cap > 0 ? Math.floor(Math.random() * (cap + 1)) : 0;
+  return baseMs + jitter;
+}
+
+/**
+ * Parses Retry-After (RFC 7231): delta-seconds or HTTP-date.
+ * @param {Response} response
+ */
+function parseRetryAfterDelayMs(response) {
+  const maxDelay = getNwsRetryMaxDelayMs();
+  const raw = response.headers?.get?.('retry-after') ?? response.headers?.get?.('Retry-After');
+  if (!raw) return null;
+  const trimmed = String(raw).trim();
+  const asInt = Number.parseInt(trimmed, 10);
+  if (!Number.isNaN(asInt) && String(asInt) === trimmed) {
+    return Math.min(Math.max(0, asInt) * 1000, maxDelay);
+  }
+  const dateMs = Date.parse(trimmed);
+  if (!Number.isNaN(dateMs)) {
+    return Math.min(Math.max(0, dateMs - Date.now()), maxDelay);
+  }
+  return null;
+}
+
+function isTransientNwsHttpStatus(status) {
+  return (
+    status === 408 ||
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  );
+}
+
+function exponentialBackoffMs(attemptIndex) {
+  const base = getNwsRetryBaseMs();
+  const maxDelay = getNwsRetryMaxDelayMs();
+  const raw = base * 2 ** Math.max(0, attemptIndex - 1);
+  const capped = Math.min(raw, maxDelay);
+  return base <= 1 ? capped : addJitterMs(capped);
+}
+
+/**
+ * GET JSON from api.weather.gov with transient-error retries (rate limits, gateway errors).
+ * Aligns with NWS guidance: retry after a short wait when rate-limited (~5s typical).
+ * @see https://www.weather.gov/documentation/services-web-api
+ */
 async function fetchNwsJson(url, userAgent, apiKey) {
-  const response = await fetch(url, {
-    headers: {
-      accept: 'application/geo+json',
-      'user-agent': userAgent,
-      ...(apiKey ? { 'api-key': apiKey } : {}),
-    },
-  });
+  const maxAttempts = getNwsRetryMaxAttempts();
+  const headers = {
+    accept: 'application/geo+json',
+    'user-agent': userAgent,
+    ...(apiKey ? { 'api-key': apiKey } : {}),
+  };
 
-  const responseText = await response.text();
+  let lastMessage = '';
 
-  if (!response.ok) {
-    throw new Error(
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let response;
+    let responseText;
+
+    try {
+      response = await fetch(url, { headers });
+      responseText = await response.text();
+    } catch (networkErr) {
+      lastMessage =
+        networkErr instanceof Error ? networkErr.message : 'NWS request failed (network error).';
+      if (attempt === maxAttempts) {
+        throw new Error(lastMessage);
+      }
+      await sleep(exponentialBackoffMs(attempt));
+      continue;
+    }
+
+    if (response.ok) {
+      return JSON.parse(responseText);
+    }
+
+    lastMessage =
       normalizeWhitespace(responseText).slice(0, 400) ||
-        `NWS request failed with ${response.status}`,
-    );
+      `NWS request failed with ${response.status}`;
+
+    const canRetry = attempt < maxAttempts && isTransientNwsHttpStatus(response.status);
+
+    if (!canRetry) {
+      throw new Error(lastMessage);
+    }
+
+    const retryAfterMs = parseRetryAfterDelayMs(response);
+    let delayMs;
+    if (response.status === 429 && retryAfterMs != null) {
+      delayMs = addJitterMs(
+        Math.max(getNwsRetryBaseMs(), Math.min(retryAfterMs, getNwsRetryMaxDelayMs())),
+      );
+    } else {
+      delayMs = exponentialBackoffMs(attempt);
+    }
+
+    await sleep(delayMs);
   }
 
-  return JSON.parse(responseText);
+  throw new Error(lastMessage || 'NWS request failed after retries.');
 }
 
 function mapAlert(properties) {
@@ -175,7 +284,8 @@ export async function handler(event) {
     return jsonResponse(
       500,
       {
-        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
+        error:
+          'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
         hint: 'Set NWS_USER_AGENT to something like "townofwiley.gov/1.0 (your-email@domain.com)"',
       },
       requestOrigin,

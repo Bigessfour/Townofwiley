@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { App } from './app';
+import { HomeRouteShell } from './home-route-shell';
 
 export const routes: Routes = [
   {
@@ -78,10 +78,10 @@ export const routes: Routes = [
     loadComponent: () => import('./terms-page/terms-page').then((m) => m.TermsPage),
   },
   /**
-   * Empty path must exist so `app.routes.server.ts` `{ path: '' }` prerender matches `provideRouter`
-   * (bootstrap component is already `App`; this route is registry parity for SSR, not a second shell).
+   * Empty path must exist so `app.routes.server.ts` `{ path: '' }` prerender matches `provideRouter`.
+   * `HomeRouteShell` is an empty outlet placeholder — bootstrapped `App` renders the homepage UI.
    */
-  { path: '', component: App, pathMatch: 'full' },
+  { path: '', component: HomeRouteShell, pathMatch: 'full' },
   {
     path: '**',
     loadComponent: () => import('./not-found/not-found').then((m) => m.NotFoundComponent),

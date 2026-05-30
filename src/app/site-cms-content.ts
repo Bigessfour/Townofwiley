@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { firstValueFrom, retry, throwError, timer, timeout } from 'rxjs';
+import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
+import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
@@ -75,9 +76,12 @@ export interface CmsBusiness {
 export interface CmsPublicDocument {
   id: string;
   title: string;
+  titleEs?: string;
   summary: string;
+  summaryEs?: string;
   sectionId: string;
   status: string;
+  statusEs?: string;
   format: string;
   href: string;
   downloadFileName: string;
@@ -417,6 +421,15 @@ interface OfficialContactRecord {
   displayOrder?: number | null;
 }
 
+interface LeadershipRosterEntryRecord {
+  id: string;
+  groupId: string;
+  displayOrder?: number | null;
+  lineEn?: string | null;
+  lineEs?: string | null;
+  active: boolean;
+}
+
 interface EventRecord {
   id: string;
   title: string;
@@ -442,9 +455,12 @@ interface BusinessRecord {
 interface PublicDocumentRecord {
   id: string;
   title: string;
+  titleEs?: string | null;
   summary: string;
+  summaryEs?: string | null;
   sectionId: string;
   status: string;
+  statusEs?: string | null;
   format: string;
   href: string;
   downloadFileName?: string | null;
@@ -472,6 +488,7 @@ interface CmsGraphqlResponse {
     listBusinesses?: CmsGraphqlList<BusinessRecord>;
     listPublicDocuments?: CmsGraphqlList<PublicDocumentRecord>;
     listExternalNewsLinks?: CmsGraphqlList<ExternalNewsLinkRecord>;
+    listLeadershipRosterEntries?: CmsGraphqlList<LeadershipRosterEntryRecord>;
   };
   errors?: {
     message?: string;
@@ -480,9 +497,10 @@ interface CmsGraphqlResponse {
 
 /**
  * CMS coverage (Amplify Studio / AppSync): town hero + welcome block (`listSiteSettings`),
- * alert banners, announcements/notices, calendar events, official contacts, businesses, public
- * documents, external news links. Split into core (homepage-critical) and extended (directory/docs)
- * queries so a slow AppSync response does not block the entire homepage load.
+ * alert banners, announcements/notices, calendar events, official contacts, leadership roster
+ * lines for /contact, businesses, public documents, external news links. Split into core
+ * (homepage-critical) and extended (directory/docs/roster) queries so a slow AppSync response
+ * does not block the entire homepage load.
  */
 const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
   listSiteSettings(limit: 1) {
@@ -568,9 +586,12 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
     items {
       id
       title
+      titleEs
       summary
+      summaryEs
       sectionId
       status
+      statusEs
       format
       href
       downloadFileName
@@ -589,6 +610,16 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
       displayOrder
     }
   }
+  listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      groupId
+      displayOrder
+      lineEn
+      lineEs
+      active
+    }
+  }
 }`;
 
 const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
@@ -598,6 +629,11 @@ const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
     }
   }
 }`;
+
+/** Stable Dynamo `id` on `OfficialContact` rows required by shell, permits, and services. */
+export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
+export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
+export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';
 
 const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
 const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -614,6 +650,7 @@ interface CmsPersistedSnapshot {
   businessRecords: BusinessRecord[];
   publicDocumentRecords: PublicDocumentRecord[];
   externalNewsLinkRecords: ExternalNewsLinkRecord[];
+  leadershipRosterRecords?: LeadershipRosterEntryRecord[];
 }
 
 export type CmsContentSource = 'bundled' | 'loading' | 'live' | 'cached';
@@ -649,6 +686,7 @@ export class LocalizedCmsContentStore {
   private readonly businessRecordsState = signal<BusinessRecord[]>([]);
   private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
   private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
+  private readonly leadershipRosterRecordsState = signal<LeadershipRosterEntryRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>('fallback');
   private readonly loadErrorState = signal<string | null>(null);
   private readonly contentSourceState = signal<CmsContentSource>('bundled');
@@ -674,6 +712,10 @@ export class LocalizedCmsContentStore {
   );
   readonly externalNewsLinks = computed(() =>
     this.normalizeExternalNewsLinks(this.externalNewsLinkRecordsState()),
+  );
+  /** Localized roster lines keyed by `groupId` (`mayor-council`, `town-administration`). */
+  readonly leadershipRosterLinesByGroup = computed(() =>
+    this.normalizeLeadershipRosterByGroup(this.leadershipRosterRecordsState(), this.siteLanguage()),
   );
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
@@ -743,7 +785,12 @@ export class LocalizedCmsContentStore {
 
   async refreshContent(): Promise<void> {
     if (!this.hasCmsCredentials()) {
-      this.applyFallbackContent();
+      // Re-hydrate from build snapshot / persisted cache instead of wiping PublicDocument rows
+      // (document hub calls refresh on navigation; E2E and local serve often lack AppSync keys).
+      const rehydrated = await this.hydrateFromOfflineSnapshots();
+      if (!rehydrated) {
+        this.applyFallbackContent();
+      }
       return;
     }
 
@@ -905,6 +952,11 @@ export class LocalizedCmsContentStore {
         (item): item is ExternalNewsLinkRecord => Boolean(item),
       ),
     );
+    this.leadershipRosterRecordsState.set(
+      (response.data?.listLeadershipRosterEntries?.items ?? []).filter(
+        (item): item is LeadershipRosterEntryRecord => Boolean(item),
+      ),
+    );
   }
 
   private postCmsGraphql(query: string): Promise<CmsGraphqlResponse> {
@@ -983,6 +1035,7 @@ export class LocalizedCmsContentStore {
     this.businessRecordsState.set([]);
     this.publicDocumentRecordsState.set([]);
     this.externalNewsLinkRecordsState.set([]);
+    this.leadershipRosterRecordsState.set([]);
   }
 
   private async hydrateFromOfflineSnapshots(): Promise<boolean> {
@@ -1072,6 +1125,7 @@ export class LocalizedCmsContentStore {
       businessRecords: this.businessRecordsState(),
       publicDocumentRecords: this.publicDocumentRecordsState(),
       externalNewsLinkRecords: this.externalNewsLinkRecordsState(),
+      leadershipRosterRecords: this.leadershipRosterRecordsState(),
     };
   }
 
@@ -1084,6 +1138,7 @@ export class LocalizedCmsContentStore {
     this.businessRecordsState.set(snapshot.businessRecords ?? []);
     this.publicDocumentRecordsState.set(snapshot.publicDocumentRecords ?? []);
     this.externalNewsLinkRecordsState.set(snapshot.externalNewsLinkRecords ?? []);
+    this.leadershipRosterRecordsState.set(snapshot.leadershipRosterRecords ?? []);
   }
 
   private isSnapshotFresh(savedAt: string): boolean {
@@ -1100,11 +1155,12 @@ export class LocalizedCmsContentStore {
       return undefined;
     }
 
-    const build = (
-      window as Window & { __TOW_RUNTIME_CONFIG__?: { build?: { gitSha?: string } } }
-    ).__TOW_RUNTIME_CONFIG__?.build;
+    const build = (window as Window & { __TOW_RUNTIME_CONFIG__?: { build?: { gitSha?: string } } })
+      .__TOW_RUNTIME_CONFIG__?.build;
 
-    return typeof build?.gitSha === 'string' && build.gitSha.trim() ? build.gitSha.trim() : undefined;
+    return typeof build?.gitSha === 'string' && build.gitSha.trim()
+      ? build.gitSha.trim()
+      : undefined;
   }
 
   private readCachedFallbackMessage(): string {
@@ -1353,13 +1409,105 @@ export class LocalizedCmsContentStore {
         };
       });
 
-    if (contacts.length) {
-      return contacts;
+    if (!contacts.length) {
+      const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+
+      return fallbackContacts.map((contact) => ({ ...contact }));
     }
 
-    const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+    return this.ensureRequiredOfficialContacts(contacts, language);
+  }
 
-    return fallbackContacts.map((contact) => ({ ...contact }));
+  private ensureRequiredOfficialContacts(
+    contacts: CmsContact[],
+    language: SiteLanguage,
+  ): CmsContact[] {
+    const fallbackContacts = language === 'es' ? DEFAULT_CMS_CONTACTS_ES : DEFAULT_CMS_CONTACTS;
+    const contactById = new Map(contacts.map((contact) => [contact.id, contact]));
+
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+      (contact, fallback) =>
+        contact.id.includes('town-information') ||
+        contact.label.toLowerCase().includes('town information') ||
+        contact.label.toLowerCase().includes('informacion del pueblo') ||
+        contact.href === fallback.href,
+    );
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_CITY_CLERK,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
+      (contact, fallback) =>
+        contact.id.includes('clerk') ||
+        contact.label.toLowerCase().includes('clerk') ||
+        contact.label.toLowerCase().includes('secretaria') ||
+        contact.href === fallback.href ||
+        contact.linkLabel === fallback.linkLabel ||
+        contact.value === fallback.value,
+    );
+    this.mergeRequiredOfficialContact(
+      contactById,
+      contacts,
+      OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
+      fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT),
+      (contact, fallback) =>
+        contact.id.includes('superintendent') ||
+        contact.label.toLowerCase().includes('superintendent') ||
+        contact.label.toLowerCase().includes('superintendente') ||
+        contact.href === fallback.href ||
+        contact.linkLabel === fallback.linkLabel,
+    );
+
+    return [...contactById.values()].sort((left, right) => {
+      const leftOrder = contacts.findIndex((contact) => contact.id === left.id);
+      const rightOrder = contacts.findIndex((contact) => contact.id === right.id);
+      const normalizedLeft = leftOrder === -1 ? Number.MAX_SAFE_INTEGER : leftOrder;
+      const normalizedRight = rightOrder === -1 ? Number.MAX_SAFE_INTEGER : rightOrder;
+
+      return normalizedLeft - normalizedRight;
+    });
+  }
+
+  private mergeRequiredOfficialContact(
+    contactById: Map<string, CmsContact>,
+    contacts: CmsContact[],
+    requiredId: string,
+    fallback: CmsContact | undefined,
+    matchesCandidate: (contact: CmsContact, fallback: CmsContact) => boolean,
+  ): void {
+    if (!fallback) {
+      return;
+    }
+
+    const current = contactById.get(requiredId);
+    if (current?.href) {
+      return;
+    }
+
+    const candidate =
+      current ??
+      contacts.find((contact) => contact.id !== requiredId && matchesCandidate(contact, fallback));
+
+    if (candidate) {
+      if (candidate.id !== requiredId) {
+        contactById.delete(candidate.id);
+      }
+
+      contactById.set(requiredId, {
+        ...fallback,
+        ...candidate,
+        id: requiredId,
+        href: candidate.href ?? fallback.href,
+        linkLabel: candidate.linkLabel ?? fallback.linkLabel,
+      });
+      return;
+    }
+
+    contactById.set(requiredId, { ...fallback });
   }
 
   private normalizeEvents(records: EventRecord[]): CmsCalendarEvent[] {
@@ -1415,9 +1563,12 @@ export class LocalizedCmsContentStore {
       .map((r) => ({
         id: r.id,
         title: r.title,
+        titleEs: r.titleEs?.trim() || undefined,
         summary: r.summary,
+        summaryEs: r.summaryEs?.trim() || undefined,
         sectionId: r.sectionId,
         status: r.status,
+        statusEs: r.statusEs?.trim() || undefined,
         format: r.format,
         href: r.href,
         downloadFileName: r.downloadFileName ?? '',
@@ -1434,6 +1585,49 @@ export class LocalizedCmsContentStore {
       }))
       .sort((a, b) => a.displayOrder - b.displayOrder)
       .map((r) => ({ id: r.id, title: r.title, url: r.url, source: r.source }));
+  }
+
+  private normalizeLeadershipRosterByGroup(
+    records: LeadershipRosterEntryRecord[],
+    language: SiteLanguage,
+  ): ReadonlyMap<string, readonly string[]> {
+    const prepared = records
+      .filter((record) => Boolean(record.active))
+      .map((record) => {
+        const groupId = (this.cleanText(record.groupId) ?? '').toLowerCase();
+        const lineEn = this.cleanText(record.lineEn);
+        const lineEs = this.cleanText(record.lineEs);
+        const line = language === 'es' ? (lineEs ?? lineEn) : (lineEn ?? lineEs);
+        const displayOrder =
+          typeof record.displayOrder === 'number' ? record.displayOrder : Number.MAX_SAFE_INTEGER;
+
+        return {
+          id: record.id.trim(),
+          groupId,
+          displayOrder,
+          line,
+        };
+      })
+      .filter(
+        (row) => row.id && row.groupId && row.line && LEADERSHIP_ROSTER_GROUP_IDS.has(row.groupId),
+      )
+      .sort((left, right) => {
+        if (left.displayOrder !== right.displayOrder) {
+          return left.displayOrder - right.displayOrder;
+        }
+
+        return left.id.localeCompare(right.id);
+      });
+
+    const map = new Map<string, string[]>();
+
+    for (const row of prepared) {
+      const bucket = map.get(row.groupId) ?? [];
+      bucket.push(row.line!);
+      map.set(row.groupId, bucket);
+    }
+
+    return map;
   }
 
   private pickAlertBanner(records: AlertBannerRecord[]): AlertBannerRecord | undefined {

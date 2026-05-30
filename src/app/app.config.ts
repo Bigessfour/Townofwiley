@@ -1,4 +1,4 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   ErrorHandler,
@@ -18,6 +18,7 @@ import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
+import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 import { GlobalErrorHandler } from './global-error-handler';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -28,7 +29,10 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     MessageService,
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([nwsApiHttpInterceptor, nwsApiRetryInterceptor]),
+    ),
     provideAnimations(),
     provideRouter(
       routes,

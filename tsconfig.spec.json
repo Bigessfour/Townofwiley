@@ -11,6 +11,7 @@
     "src/**/*.d.ts",
     "src/**/*.spec.ts",
     "src/test-providers.ts",
-    "src/unit-test-browser-isolation.setup.ts"
+    "src/unit-test-browser-isolation.setup.ts",
+    "src/unit-test-polyfills.ts"
   ]
 }

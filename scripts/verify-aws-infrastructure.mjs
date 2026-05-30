@@ -11,22 +11,19 @@
  * AWS Lambda Function URL auth: https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html
  */
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = join(repoRoot, 'infrastructure', 'aws-infrastructure.manifest.json');
-const envManifestPath = join(
-  repoRoot,
-  'infrastructure',
-  'amplify-branch-env.manifest.json',
-);
+const envManifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.manifest.json');
 
 const args = process.argv.slice(2);
 const skipS3 = args.includes('--skip-s3');
 const skipAmplify = args.includes('--skip-amplify');
 const skipEnv = args.includes('--skip-amplify-env');
+const skipLogRetention = args.includes('--skip-log-retention');
 const offline = args.includes('--offline');
 
 function awsJson(command, region) {
@@ -74,16 +71,19 @@ function hasNoneAuthFunctionUrlPermissions(policyDocument) {
     const matchesAction = Array.isArray(action)
       ? action.includes('lambda:InvokeFunction')
       : action === 'lambda:InvokeFunction';
-    return (
-      matchesAction &&
-      statement.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'] === 'true'
-    );
+    return matchesAction && statement.Condition?.Bool?.['lambda:InvokedViaFunctionUrl'] === 'true';
   });
   return hasInvokeUrl && hasInvokeFunction;
 }
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
+
+const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 90;
+const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
+const amplifyBackendLogGroups = manifest.cloudWatch?.amplifyBackendLogGroups ?? [
+  '/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF',
+];
 
 const failures = [];
 const warnings = [];
@@ -101,6 +101,30 @@ function warn(msg) {
   warnings.push(msg);
 }
 
+function checkLogGroupRetention(logGroupName, region) {
+  const groups = tryAwsJson(
+    `logs describe-log-groups --log-group-name-prefix ${logGroupName}`,
+    region,
+  );
+  const group = groups?.logGroups?.find((g) => g.logGroupName === logGroupName);
+  if (!group) {
+    warn(`CloudWatch log group missing (may appear after first invoke): ${logGroupName}`);
+    return;
+  }
+  const retention = group.retentionInDays;
+  if (retention == null) {
+    fail(
+      `${logGroupName}: no retention policy (expected ${expectedLogRetentionDays}d) — run ${manifest.cloudWatch?.configureScript ?? 'npm run configure:cloudwatch-logging'}`,
+    );
+  } else if (retention < expectedLogRetentionDays) {
+    fail(
+      `${logGroupName}: retention ${retention}d < expected ${expectedLogRetentionDays}d — run ${manifest.cloudWatch?.configureScript ?? 'npm run configure:cloudwatch-logging'}`,
+    );
+  } else {
+    pass(`${logGroupName}: retention ${retention}d`);
+  }
+}
+
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
 
@@ -112,6 +136,47 @@ const CONTACT_FUNCTION_URL_AUTH = {
 };
 
 if (offline) {
+  const generatorPath = join(
+    repoRoot,
+    envManifest.generator ?? 'scripts/generate-runtime-config.mjs',
+  );
+  if (!existsSync(generatorPath)) {
+    fail(`amplify-branch-env generator missing: ${envManifest.generator}`);
+  } else {
+    pass(`amplify-branch-env generator exists: ${envManifest.generator}`);
+  }
+
+  if (
+    !Array.isArray(envManifest.requiredForProduction) ||
+    envManifest.requiredForProduction.length === 0
+  ) {
+    fail('amplify-branch-env.manifest.json: requiredForProduction must be a non-empty array');
+  } else {
+    pass(
+      `amplify-branch-env: ${envManifest.requiredForProduction.length} required production env vars`,
+    );
+  }
+
+  const cspRegistryPath = join(repoRoot, 'docs', 'third-party-csp-registry.md');
+  if (!existsSync(cspRegistryPath)) {
+    fail('docs/third-party-csp-registry.md is missing (CSP third-party SSOT)');
+  } else {
+    const registry = readFileSync(cspRegistryPath, 'utf8');
+    const requiredMarkers = [
+      'execute-api',
+      'googletagmanager',
+      'easy-peasy',
+      'appsync-api',
+      'unsafe-inline',
+    ];
+    for (const marker of requiredMarkers) {
+      if (!registry.includes(marker)) {
+        fail(`third-party-csp-registry.md missing marker: ${marker}`);
+      }
+    }
+    pass('third-party-csp-registry.md documents required CSP vendors');
+  }
+
   for (const fn of manifest.lambdaFunctions) {
     if (fn.functionUrl?.required && !fn.functionUrl?.authType) {
       fail(`${fn.functionName}: missing functionUrl.authType in manifest`);
@@ -142,9 +207,7 @@ if (offline) {
   const reviewDeployScript = join(repoRoot, 'scripts', 'deploy-contact-updates-review.py');
   const reviewDeploySource = readFileSync(reviewDeployScript, 'utf8');
   if (!/AWS_IAM/.test(reviewDeploySource)) {
-    fail(
-      'deploy-contact-updates-review.py must enforce AWS_IAM Function URL auth (AP-05)',
-    );
+    fail('deploy-contact-updates-review.py must enforce AWS_IAM Function URL auth (AP-05)');
   } else {
     pass('deploy-contact-updates-review.py enforces AWS_IAM');
   }
@@ -244,7 +307,10 @@ for (const table of manifest.dynamodbTables ?? []) {
 
 for (const fn of manifest.lambdaFunctions) {
   const region = fn.region ?? manifest.primaryRegion;
-  const cfg = tryAwsJson(`lambda get-function-configuration --function-name ${fn.functionName}`, region);
+  const cfg = tryAwsJson(
+    `lambda get-function-configuration --function-name ${fn.functionName}`,
+    region,
+  );
   if (!cfg) {
     if (fn.required) {
       fail(`Lambda missing (required): ${fn.functionName}`);
@@ -295,23 +361,32 @@ for (const fn of manifest.lambdaFunctions) {
   }
 }
 
+if (!offline && !skipLogRetention) {
+  const primaryRegion = manifest.primaryRegion ?? 'us-east-2';
+  for (const fn of manifest.lambdaFunctions ?? []) {
+    const region = fn.region ?? primaryRegion;
+    const name = String(fn.functionName ?? '').trim();
+    if (name) {
+      checkLogGroupRetention(`/aws/lambda/${name}`, region);
+    }
+  }
+  for (const logGroup of amplifyBackendLogGroups) {
+    checkLogGroupRetention(logGroup, primaryRegion);
+  }
+  checkLogGroupRetention(`/aws/appsync/apis/${appsyncApiId}`, primaryRegion);
+}
+
 if (!skipS3) {
   for (const bucket of manifest.s3Buckets ?? []) {
     const region = bucket.region ?? manifest.primaryRegion;
-    const bpa = tryAwsJson(
-      `s3api get-public-access-block --bucket ${bucket.name}`,
-      region,
-    );
+    const bpa = tryAwsJson(`s3api get-public-access-block --bucket ${bucket.name}`, region);
     if (!bpa?.PublicAccessBlockConfiguration) {
       fail(`S3 bucket not found or no BPA API: ${bucket.name}`);
       continue;
     }
     const c = bpa.PublicAccessBlockConfiguration;
     const allOn =
-      c.BlockPublicAcls &&
-      c.IgnorePublicAcls &&
-      c.BlockPublicPolicy &&
-      c.RestrictPublicBuckets;
+      c.BlockPublicAcls && c.IgnorePublicAcls && c.BlockPublicPolicy && c.RestrictPublicBuckets;
     if (bucket.requireBlockPublicAccess && !allOn) {
       fail(`S3 ${bucket.name}: Block Public Access not fully enabled`);
     } else {

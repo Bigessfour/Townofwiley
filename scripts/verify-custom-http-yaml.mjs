@@ -15,6 +15,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractCspValueFromCustomHttpText } from './lib/custom-http-csp.mjs';
+import { applyDevServeCspRelaxedStyles } from './lib/dev-serve-csp.mjs';
 
 const root = join(import.meta.dirname, '..');
 
@@ -79,10 +80,23 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
       'frame-src must allow https://www.googletagmanager.com (GA4 / GTM iframes per Google CSP guide)',
     ],
     [/object-src\s+'none'/, "object-src must be 'none'"],
+    [
+      /connect-src[^;]*\*\.execute-api\.us-east-2\.amazonaws\.com/i,
+      'connect-src must allow https://*.execute-api.us-east-2.amazonaws.com (staff contact review API)',
+    ],
+    [
+      /connect-src[^;]*\*\.lambda-url\.us-east-2\.on\.aws/i,
+      'connect-src must allow https://*.lambda-url.us-east-2.on.aws (weather proxy and alert signup)',
+    ],
+    [/style-src[^;]*'self'/, "style-src must include 'self'"],
+    [
+      /style-src-attr[^;]*'unsafe-inline'/,
+      "style-src-attr must include 'unsafe-inline' (Angular/PrimeNG attribute styles)",
+    ],
   ];
   for (const [pattern, msg] of checks) {
     if (!pattern.test(csp)) {
-      throw new Error(`${label}: ${msg}`);
+      failWithHint(`${label}: ${msg}`);
     }
   }
 }
@@ -90,13 +104,21 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
 const amp = readFileSync(join(root, 'amplify.yml'), 'utf8');
 const custom = readFileSync(join(root, 'customHttp.yml'), 'utf8');
 
+function failWithHint(message) {
+  const fix =
+    'Fix: npm run sync:angular-serve-csp && npm run verify:custom-http-yaml (edit customHttp.yml only; never add customHeaders to amplify.yml)';
+  console.error(`error: ${message}\n${fix}`);
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    console.error(`::error title=CSP SSOT check failed::${message}. ${fix}`);
+  }
+  process.exit(1);
+}
+
 if (/^\s*customHeaders:/m.test(amp)) {
-  console.error(
-    'error: amplify.yml must not define customHeaders.\n' +
-      'Per AWS, use repo-root customHttp.yml only, then deploy and run npm run amplify:sync-headers as needed.\n' +
+  failWithHint(
+    'amplify.yml must not define customHeaders — use repo-root customHttp.yml only, then npm run amplify:sync-headers after merge.\n' +
       'https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html',
   );
-  process.exit(1);
 }
 
 const cspCustom = extractCspValueFromCustomHttpText(custom, 'customHttp.yml');
@@ -109,13 +131,14 @@ const serveCsp =
     'Content-Security-Policy'
   ];
 if (!serveCsp) {
-  throw new Error(
-    'angular.json: missing projects.townofwiley-app.architect.serve.options.headers.Content-Security-Policy — run `npm run sync:angular-serve-csp` after editing customHttp.yml.',
+  failWithHint(
+    'angular.json: missing projects.townofwiley-app.architect.serve.options.headers.Content-Security-Policy — run npm run sync:angular-serve-csp after editing customHttp.yml.',
   );
 }
-if (serveCsp !== cspCustom) {
-  throw new Error(
-    'angular.json dev-server CSP does not match customHttp.yml — run `npm run sync:angular-serve-csp`.',
+const expectedServeCsp = applyDevServeCspRelaxedStyles(cspCustom);
+if (serveCsp !== expectedServeCsp) {
+  failWithHint(
+    'angular.json dev-server CSP does not match customHttp.yml (with dev style-src unsafe-inline) — run npm run sync:angular-serve-csp.',
   );
 }
 

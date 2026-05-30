@@ -30,12 +30,17 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-function buildStudioUrl(region: string, appId: string, consoleUrl: string): string {
+/** Default hosted Amplify Studio entry (replaces legacy AWS Console hash URLs). */
+export function buildAmplifyAdminStudioHomeUrl(
+  region: string,
+  appId: string,
+  fallbackUrl: string,
+): string {
   if (!region || !appId) {
-    return consoleUrl;
+    return fallbackUrl;
   }
 
-  return `https://${region}.console.aws.amazon.com/amplify/home?region=${region}#/${appId}/main/studio/home`;
+  return `https://${region}.admin.amplifyapp.com/admin/${appId}/main/home`;
 }
 
 export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
@@ -60,6 +65,6 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     awsConsoleUrl,
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildStudioUrl(awsRegion, amplifyAppId, awsConsoleUrl),
+      buildAmplifyAdminStudioHomeUrl(awsRegion, amplifyAppId, awsConsoleUrl),
   };
 }

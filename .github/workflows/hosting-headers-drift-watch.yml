@@ -51,7 +51,12 @@ jobs:
       - name: Wait for Hosting header propagation
         run: sleep 30
 
+      - name: Probe live CSP baseline tokens
+        env:
+          E2E_BASE_URL: https://www.townofwiley.gov/
+        run: npm run verify:live-csp-probe
+
       - name: Compare live CSP to repo customHttp.yml
         env:
           E2E_BASE_URL: https://www.townofwiley.gov/
-        run: node scripts/compare-live-csp-to-repo.mjs
+        run: npm run verify:live-csp-vs-repo

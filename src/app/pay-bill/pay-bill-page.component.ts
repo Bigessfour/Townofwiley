@@ -295,7 +295,7 @@ export class PayBillPageComponent {
         life: 5000,
       });
       if (typeof window !== 'undefined') {
-        window.setTimeout(() => window.location.assign(result.href), 400);
+        window.setTimeout(() => this.openMailtoHref(result.href), 600);
       }
     } catch {
       this.messages.add({
@@ -308,5 +308,15 @@ export class PayBillPageComponent {
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  private openMailtoHref(href: string): void {
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.rel = 'noopener';
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
   }
 }

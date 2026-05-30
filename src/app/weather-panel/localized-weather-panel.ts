@@ -191,6 +191,7 @@ interface WeatherCopy {
   precipitationUnknown: string;
   alertsKicker: string;
   alertsHeading: string;
+  asideLandmarkDuringForecastOutage: string;
   oneActiveAlert: string;
   manyActiveAlertsSuffix: string;
   noActiveAlerts: string;
@@ -270,6 +271,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     precipitationUnknown: 'Precipitation chance not listed',
     alertsKicker: 'Alerts',
     alertsHeading: 'Active watches, warnings, and advisories',
+    asideLandmarkDuringForecastOutage:
+      'Severe weather alert signup and NEXRAD radar while the forecast feed is unavailable',
     oneActiveAlert: '1 active alert',
     manyActiveAlertsSuffix: 'active alerts',
     noActiveAlerts: 'No active alerts',
@@ -356,6 +359,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     precipitationUnknown: 'No se indico la probabilidad de precipitacion',
     alertsKicker: 'Alertas',
     alertsHeading: 'Vigilancias, advertencias y avisos activos',
+    asideLandmarkDuringForecastOutage:
+      'Registro de alertas meteorologicas graves y radar NEXRAD mientras el canal de pronostico no esta disponible',
     oneActiveAlert: '1 alerta activa',
     manyActiveAlertsSuffix: 'alertas activas',
     noActiveAlerts: 'Sin alertas activas',
@@ -524,6 +529,7 @@ export class LocalizedWeatherPanel {
   );
   protected readonly solarTimes = computed(() => this.solarState());
   protected readonly aqiData = computed(() => this.aqiState());
+  protected readonly hasForecastPayload = computed(() => this.forecastPeriodsState().length > 0);
   protected readonly forecastGdd = computed(() => {
     const periods = this.forecastPeriodsState();
     const BASE_TEMP = 50;

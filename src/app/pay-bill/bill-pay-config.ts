@@ -8,21 +8,24 @@ interface RuntimeConfigShape {
   };
 }
 
+type RuntimeWindow = Window & {
+  __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape;
+  __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeConfigShape;
+};
+
 export function getBillPayRuntimeConfig(): RuntimeBillPayConfig {
-  const runtimeWindow =
-    typeof window === 'undefined'
-      ? undefined
-      : (window as Window & {
-          __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape;
-          __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeConfigShape;
-        });
-  const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
-  const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  if (typeof window === 'undefined') {
+    return { apiEndpoint: '' };
+  }
+
+  const runtimeWindow = window as RuntimeWindow;
+  const overrideEndpoint = runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.billPay?.apiEndpoint;
+
+  if (overrideEndpoint !== undefined) {
+    return { apiEndpoint: overrideEndpoint.trim() };
+  }
 
   return {
-    apiEndpoint:
-      runtimeConfigOverride?.billPay?.apiEndpoint?.trim() ||
-      runtimeConfig?.billPay?.apiEndpoint?.trim() ||
-      '',
+    apiEndpoint: runtimeWindow.__TOW_RUNTIME_CONFIG__?.billPay?.apiEndpoint?.trim() ?? '',
   };
 }

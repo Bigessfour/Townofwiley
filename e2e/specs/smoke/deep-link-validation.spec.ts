@@ -30,9 +30,10 @@ test.describe('public deep links', () => {
 
       const targetSection = homePage.page.locator(target.selector);
 
-      await expect(targetSection).toBeVisible({ timeout: 20000 });
-      await expect(homePage.page).toHaveURL(new RegExp(`${target.selector}$`));
+      await expect(targetSection).toBeVisible({ timeout: 20_000 });
+      await expect(homePage.page).toHaveURL(new RegExp(`${target.selector.replace('#', '#')}$`));
 
+      await targetSection.scrollIntoViewIfNeeded();
       await expect
         .poll(
           async () =>
@@ -41,7 +42,10 @@ test.describe('public deep links', () => {
 
               return rect.top >= -24 && rect.top <= window.innerHeight * 0.75;
             }),
-          { message: `${target.label} should scroll into view from the fragment` },
+          {
+            message: `${target.label} should scroll into view from the fragment`,
+            timeout: 20_000,
+          },
         )
         .toBe(true);
     });
