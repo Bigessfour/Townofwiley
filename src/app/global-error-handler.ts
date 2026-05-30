@@ -1,7 +1,7 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { isAmplifyAuthFailure } from './auth/staff-auth-error';
+import { shouldShowGlobalErrorToast } from './global-error-toast-policy';
 import { LoggingService } from './logging.service';
 import { isExpectedNetworkDegradation } from './network-degradation';
 
@@ -21,14 +21,16 @@ export class GlobalErrorHandler implements ErrorHandler {
   private readonly router = inject(Router);
 
   handleError(error: unknown): void {
+    const route = this.router.url;
     const expectedDegradation = isExpectedNetworkDegradation(error);
+    const showToast = shouldShowGlobalErrorToast(error, route);
     const errorId = this.createErrorId();
     const details = this.toErrorDetails(error);
     const currentNavigation = this.router.getCurrentNavigation();
 
     const context = {
       errorId,
-      route: this.router.url,
+      route,
       href: typeof window !== 'undefined' ? window.location.href : undefined,
       navId: currentNavigation?.id,
       navTrigger: currentNavigation?.trigger,
@@ -36,30 +38,31 @@ export class GlobalErrorHandler implements ErrorHandler {
       navFinalUrl: currentNavigation?.finalUrl?.toString(),
       historyNavigationId: this.getHistoryNavigationId(),
       expectedDegradation,
+      showToast,
       ...details,
     };
 
-    this.logging.log(
-      expectedDegradation ? 'warn' : 'error',
-      expectedDegradation ? 'Expected service degradation' : 'Uncaught application error',
-      context,
-    );
+    const logLevel = expectedDegradation || !showToast ? 'warn' : 'error';
+    const logMessage =
+      expectedDegradation || !showToast
+        ? 'Handled application error (no global toast)'
+        : 'Uncaught operational application error';
 
-    if (expectedDegradation) {
-      return;
-    }
+    this.logging.log(logLevel, logMessage, context);
 
-    const route = this.router.url;
-    if (
-      (route.startsWith('/admin/login') || route.startsWith('/admin')) &&
-      isAmplifyAuthFailure(error)
-    ) {
-      this.logging.log('warn', 'Staff auth failure (inline handling expected)', context);
+    if (!showToast) {
+      if (!expectedDegradation) {
+        const errorLabel = details.name ? `${details.name}: ` : '';
+        console.warn(
+          `[${GlobalErrorHandler.name}] ${errorId} ${errorLabel}${details.message} (logged only)`,
+          error,
+          context,
+        );
+      }
       return;
     }
 
     const errorLabel = details.name ? `${details.name}: ` : '';
-    // Log the raw exception first so DevTools shows a clickable stack; attach context separately.
     console.error(
       `[${GlobalErrorHandler.name}] ${errorId} ${errorLabel}${details.message}`,
       error,

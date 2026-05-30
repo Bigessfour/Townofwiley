@@ -6,7 +6,9 @@ test.describe('Global Error Handler', () => {
     await expect(homePage.heroHeading).toBeVisible();
 
     await homePage.page.evaluate(() => {
-      const error = new Error('Test uncaught application error');
+      const error = new TypeError('Test uncaught application error');
+      error.stack =
+        'TypeError: Test uncaught application error\n    at https://www.townofwiley.gov/main-E2E.js:1:1';
       setTimeout(() => {
         throw error;
       }, 250);
