@@ -43,7 +43,7 @@ python scripts/purge-contact-update-test-data.py
 ## Staff onboarding
 
 1. IT runs `setup-cognito-staff-group.py --create-user <email> --set-temp-password` (or creates the user in the Cognito console).
-2. The script attaches group **Staff** to the Amplify **auth IAM role** (`amplify-townofwiley-main-d1245-authRole`) for AppSync CMS mutations and S3 document uploads, and maps the group in the identity pool.
+2. The script attaches group **Staff** to the Gen 2 Amplify **authenticated IAM role** (see `infrastructure/gen2-production-bindings.json`) for AppSync CMS mutations and S3 document uploads, and maps the group in the identity pool.
 3. Staff opens https://www.townofwiley.gov/admin/login, signs in with email + password, and changes the temporary password when prompted.
 4. MFA: optional (pool default OFF); enable in Cognito if required later.
 

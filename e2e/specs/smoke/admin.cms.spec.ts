@@ -19,6 +19,18 @@ async function gotoAdminHub(page: import('@playwright/test').Page, path: string)
 test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
 
+  test('staff login page shows email and password fields', async ({ homePage }) => {
+    await homePage.page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.getByRole('heading', { name: /Sign in — Town admin/i })).toBeVisible(
+      {
+        timeout: 20_000,
+      },
+    );
+    await expect(homePage.page.getByTestId('admin-login-email')).toBeVisible();
+    await expect(homePage.page.getByLabel(/password/i)).toBeVisible();
+    await expect(homePage.page.getByRole('button', { name: /^Sign in$/i })).toBeVisible();
+  });
+
   test('opens the unified admin hub and shows all editable CMS models', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin');
 
