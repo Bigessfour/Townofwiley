@@ -1,25 +1,20 @@
-$pay-navy: #0f172a;
-$pay-teal: #0d9488;
-$pay-teal-dark: #0f766e;
-$pay-surface: #f8fafc;
-
 :host {
   display: block;
-  background: $pay-surface;
+  background: var(--wiley-cream-50);
 }
 
 .pay-bill {
-  color: $pay-navy;
+  color: var(--wiley-ink-900);
   padding-bottom: 3rem;
 }
 
 .pay-bill-hero {
   background: linear-gradient(
     135deg,
-    $pay-navy 0%,
-    color-mix(in srgb, $pay-navy 82%, $pay-teal) 100%
+    var(--wiley-navy-900) 0%,
+    color-mix(in srgb, var(--wiley-navy-900) 82%, var(--wiley-teal-600)) 100%
   );
-  color: #f8fafc;
+  color: var(--wiley-inverse);
   padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
 }
 
@@ -74,14 +69,14 @@ $pay-surface: #f8fafc;
 
 :host ::ng-deep .pay-bill-card.p-card {
   border-radius: 1rem;
-  border: 1px solid color-mix(in srgb, $pay-navy 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-navy-900) 12%, transparent);
   box-shadow:
     0 1px 2px rgb(15 23 42 / 0.06),
     0 12px 28px rgb(15 23 42 / 0.08);
 }
 
 :host ::ng-deep .pay-bill-card--accent.p-card {
-  border-color: color-mix(in srgb, $pay-teal 35%, transparent);
+  border-color: color-mix(in srgb, var(--wiley-teal-600) 35%, transparent);
 }
 
 :host ::ng-deep .pay-bill-card--wide.p-card {
@@ -89,8 +84,8 @@ $pay-surface: #f8fafc;
 }
 
 :host ::ng-deep .pay-bill-card--help.p-card {
-  background: color-mix(in srgb, $pay-teal 6%, #fff);
-  border-color: color-mix(in srgb, $pay-teal 22%, transparent);
+  background: color-mix(in srgb, var(--wiley-teal-600) 6%, #fff);
+  border-color: color-mix(in srgb, var(--wiley-teal-600) 22%, transparent);
 }
 
 .pay-bill-card-head {
@@ -122,7 +117,7 @@ $pay-surface: #f8fafc;
 
 .pay-bill-form-intro {
   margin-top: 0;
-  color: color-mix(in srgb, $pay-navy 72%, #64748b);
+  color: color-mix(in srgb, var(--wiley-navy-900) 72%, #64748b);
 }
 
 .pay-bill-fields {
@@ -147,7 +142,7 @@ $pay-surface: #f8fafc;
 }
 
 .pay-bill-field .required {
-  color: $pay-teal-dark;
+  color: var(--wiley-teal-700);
 }
 
 .pay-bill-consent {
@@ -181,12 +176,12 @@ $pay-surface: #f8fafc;
 }
 
 .pay-bill-help-list a {
-  color: $pay-teal-dark;
+  color: var(--wiley-teal-700);
   font-weight: 600;
 }
 
 .pay-bill-help-list a:focus-visible {
-  outline: 2px solid $pay-teal;
+  outline: 2px solid var(--wiley-teal-600);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -194,5 +189,5 @@ $pay-surface: #f8fafc;
 :host ::ng-deep .pay-bill .p-button:focus-visible {
   box-shadow:
     0 0 0 2px #fff,
-    0 0 0 4px $pay-teal;
+    0 0 0 4px var(--wiley-teal-600);
 }

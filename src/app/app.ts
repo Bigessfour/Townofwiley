@@ -21,7 +21,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
@@ -72,12 +72,21 @@ import {
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
-import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
+import {
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
+} from './weather-panel/localized-weather-panel';
 
 interface NavLink {
   label: string;
   href: string;
   icon?: string;
+}
+
+interface PrimaryNavLink {
+  label: string;
+  routerLink: string;
+  fragment?: string;
 }
 
 interface TopTask {
@@ -250,9 +259,21 @@ interface FeaturePage {
 interface AppCopy {
   skipLinkLabel: string;
   homeLabel: string;
+  primaryNavServicesLabel: string;
+  primaryNavMeetingsLabel: string;
+  primaryNavDocumentsLabel: string;
+  primaryNavPayLabel: string;
+  primaryNavContactLabel: string;
+  homepageWeatherKicker: string;
+  homepageWeatherHeading: string;
+  footerTownInfoHeading: string;
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
   mobileMenuLabel: string;
+  /** Visible "Menu" + drawer purpose for label-in-name (WCAG 2.5.3). */
+  mobileMenuButtonAriaLabel: string;
+  /** Town name + return action for label-in-name on the header logo link. */
+  townLogoAriaLabel: string;
   /** Close control in the mobile navigation drawer header. */
   mobileMenuDrawerCloseLabel: string;
   meetingsQuickLinkLabel: string;
@@ -543,12 +564,22 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   en: {
     skipLinkLabel: 'Skip to main content',
     homeLabel: 'Home',
+    primaryNavServicesLabel: 'Services',
+    primaryNavMeetingsLabel: 'Meetings',
+    primaryNavDocumentsLabel: 'Documents',
+    primaryNavPayLabel: 'Pay',
+    primaryNavContactLabel: 'Contact',
+    homepageWeatherKicker: 'Local conditions',
+    homepageWeatherHeading: 'Wiley weather',
+    footerTownInfoHeading: 'Town Hall',
     languageLabel: 'Site language',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuButtonAriaLabel: 'Menu, homepage sections',
+    townLogoAriaLabel: 'Town of Wiley, return to homepage',
     mobileMenuDrawerCloseLabel: 'Close menu',
     meetingsQuickLinkLabel: 'Meetings and Calendar',
     siteAlertAriaLabel: 'Town alert banner',
@@ -959,12 +990,22 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
     homeLabel: 'Inicio',
+    primaryNavServicesLabel: 'Servicios',
+    primaryNavMeetingsLabel: 'Reuniones',
+    primaryNavDocumentsLabel: 'Documentos',
+    primaryNavPayLabel: 'Pagar',
+    primaryNavContactLabel: 'Contacto',
+    homepageWeatherKicker: 'Condiciones locales',
+    homepageWeatherHeading: 'Clima en Wiley',
+    footerTownInfoHeading: 'Ayuntamiento',
     languageLabel: 'Idioma del sitio',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuButtonAriaLabel: 'Menu, secciones de la pagina principal',
+    townLogoAriaLabel: 'Pueblo de Wiley, volver a la pagina principal',
     mobileMenuDrawerCloseLabel: 'Cerrar menú',
     meetingsQuickLinkLabel: 'Reuniones y calendario',
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
@@ -1405,6 +1446,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
   imports: [
     NgOptimizedImage,
     RouterLink,
+    RouterLinkActive,
     DrawerModule,
     FormsModule,
     ButtonModule,
@@ -1427,6 +1469,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     LocalizedAiChat,
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
+    LocalizedWeatherPanel,
     Ripple,
   ],
   templateUrl: './app.html',
@@ -1495,9 +1538,19 @@ export class App {
   protected readonly taskCardPt = {
     content: { class: 'task-card-content' },
   };
+  /**
+   * PrimeNG MegaMenu sets aria-level on role=menuitem (invalid per ARIA) and aria-label on
+   * <li> nodes that can mismatch visible flyout copy. Strip those; names come from our #item template.
+   */
   protected readonly desktopMegaMenuPt = {
     panel: {
       class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
+    },
+    item: {
+      'aria-level': null,
+      'aria-setsize': null,
+      'aria-posinset': null,
+      'aria-label': null,
     },
     itemIcon: { 'aria-hidden': 'true' },
     submenuIcon: { 'aria-hidden': 'true' },
@@ -1861,6 +1914,17 @@ export class App {
     { label: this.appCopy().languageOptions.es, value: 'es' as SiteLanguage },
     { label: this.appCopy().languageOptions.en, value: 'en' as SiteLanguage },
   ]);
+  protected readonly primaryNavLinks = computed<PrimaryNavLink[]>(() => {
+    const copy = this.appCopy();
+    return [
+      { label: copy.homeLabel, routerLink: '/' },
+      { label: copy.primaryNavServicesLabel, routerLink: '/services' },
+      { label: copy.primaryNavMeetingsLabel, routerLink: '/meetings' },
+      { label: copy.primaryNavDocumentsLabel, routerLink: '/records' },
+      { label: copy.primaryNavPayLabel, routerLink: '/pay-bill' },
+      { label: copy.primaryNavContactLabel, routerLink: '/contact' },
+    ];
+  });
   protected readonly primaryContact = computed<CmsContact | null>(() => {
     return (
       this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION) ??
@@ -2541,6 +2605,14 @@ export class App {
       hasContactIntent
     ) {
       score += 24;
+    }
+
+    if (
+      href.startsWith('mailto:') &&
+      title.includes('clerk') &&
+      terms.some((term) => ['clerk', 'deb', 'dillon'].includes(term))
+    ) {
+      score += 48;
     }
 
     if (href.startsWith('/documents') && !hasDocumentIntent) {

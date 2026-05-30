@@ -110,10 +110,10 @@ export class HomePage {
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
     this.sectionNavLinks = page.locator(
-      '[data-testid="homepage-section-nav"] .mega-menu-root-link',
+      '[data-testid="homepage-section-nav"] .primary-nav-link, [data-testid="homepage-section-nav"] .mega-menu-root-link',
     );
     this.sectionNav = page.getByTestId('homepage-section-nav');
-    this.searchInput = this.sectionNav.locator('#mega-site-search');
+    this.searchInput = page.locator('#mega-site-search, #landing-site-search').first();
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');
@@ -565,9 +565,9 @@ export class HomePage {
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
     const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    await this.sectionNav.locator(selector).evaluate((btn) => {
-      (btn as HTMLButtonElement).click();
-    });
+    const button = this.page.locator(selector);
+    await expect(button).toBeVisible();
+    await button.click();
   }
 
   async openAssistantDialog(): Promise<void> {
@@ -578,9 +578,37 @@ export class HomePage {
   }
 
   async searchFor(query: string): Promise<void> {
+    if (!this.page.url().match(/\/$/) && !this.page.url().includes('localhost:4300/?')) {
+      await this.goto();
+    }
+
+    await this.page
+      .locator('#search-panel')
+      .scrollIntoViewIfNeeded()
+      .catch(() => undefined);
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
-    await this.page.waitForSelector('.search-result, .empty-state', { timeout: 10_000 });
+    await expect(this.page.locator('.search-results--loading')).toHaveCount(0, { timeout: 10_000 });
+
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+    await expect
+      .poll(async () => {
+        if (await this.emptySearchState.isVisible().catch(() => false)) {
+          return true;
+        }
+
+        const titles = await this.page
+          .locator('.search-results .search-result strong')
+          .allTextContents();
+        if (!titles.length) {
+          return false;
+        }
+
+        const haystack = titles.join(' ').toLowerCase();
+        return terms.some((term) => haystack.includes(term));
+      })
+      .toBe(true);
   }
 
   /** Submit header search (works when `#mega-site-search` is hidden under the mobile breakpoint). */

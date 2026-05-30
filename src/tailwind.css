@@ -4,3 +4,47 @@
 
 @source './app/**/*.{html,ts}';
 @source './index.html';
+
+/* Town of Wiley — Tailwind v4 theme (maps to :root tokens in styles.scss). */
+@theme {
+  --color-wiley-navy-950: var(--wiley-navy-950);
+  --color-wiley-navy-900: var(--wiley-navy-900);
+  --color-wiley-navy-800: var(--wiley-navy-800);
+  --color-wiley-navy-700: var(--wiley-navy-700);
+  --color-wiley-teal-600: var(--wiley-teal-600);
+  --color-wiley-teal-700: var(--wiley-teal-700);
+  --color-wiley-teal-800: var(--wiley-teal-800);
+  --color-wiley-sage-50: var(--wiley-sage-50);
+  --color-wiley-sage-100: var(--wiley-sage-100);
+  --color-wiley-sage-500: var(--wiley-sage-500);
+  --color-wiley-sage-700: var(--wiley-sage-700);
+  --color-wiley-earth-500: var(--wiley-earth-500);
+  --color-wiley-earth-700: var(--wiley-earth-700);
+  --color-wiley-gold-400: var(--wiley-gold-400);
+  --color-wiley-gold-500: var(--wiley-gold-500);
+  --color-wiley-cream-0: var(--wiley-cream-0);
+  --color-wiley-cream-50: var(--wiley-cream-50);
+  --color-wiley-cream-100: var(--wiley-cream-100);
+  --color-wiley-ink-900: var(--wiley-ink-900);
+  --color-wiley-ink-700: var(--wiley-ink-700);
+  --color-wiley-ink-500: var(--wiley-ink-500);
+  --color-wiley-inverse: var(--wiley-inverse);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+
+  --spacing-wiley-xs: var(--space-xs);
+  --spacing-wiley-sm: var(--space-sm);
+  --spacing-wiley-md: var(--space-md);
+  --spacing-wiley-lg: var(--space-lg);
+  --spacing-wiley-xl: var(--space-xl);
+
+  --radius-wiley-md: var(--radius-md);
+  --radius-wiley-lg: var(--radius-lg);
+  --radius-wiley-xl: var(--radius-xl);
+  --radius-wiley-full: var(--radius-full);
+
+  --shadow-wiley-card: var(--shadow-subtle);
+  --shadow-wiley-lift: var(--shadow-medium);
+  --shadow-wiley-strong: var(--shadow-strong);
+}

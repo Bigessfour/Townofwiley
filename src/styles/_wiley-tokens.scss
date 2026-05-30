@@ -1,0 +1,41 @@
+/* Town of Wiley — canonical design tokens (light theme). */
+
+:root {
+  /* Primary — deep navy + teal */
+  --wiley-navy-950: #020617;
+  --wiley-navy-900: #0f172a;
+  --wiley-navy-800: #1e293b;
+  --wiley-navy-700: #334155;
+  --wiley-teal-600: #0d9488;
+  --wiley-teal-700: #0f766e;
+  --wiley-teal-800: #115e59;
+
+  /* Secondary — sage + earth */
+  --wiley-sage-50: #f4f7f2;
+  --wiley-sage-100: #e3ebe0;
+  --wiley-sage-500: #6b8f71;
+  --wiley-sage-700: #4a6b50;
+  --wiley-earth-500: #9a7b5a;
+  --wiley-earth-700: #6b5344;
+
+  /* Accents — gold + warm neutrals */
+  --wiley-gold-400: #d4a14b;
+  --wiley-gold-500: #c4923a;
+  --wiley-cream-0: #fffdfb;
+  --wiley-cream-50: #faf6f0;
+  --wiley-cream-100: #f1ebe3;
+
+  /* High-contrast neutrals */
+  --wiley-ink-900: #0f172a;
+  --wiley-ink-700: #334155;
+  --wiley-ink-500: #64748b;
+  --wiley-inverse: #ffffff;
+
+  /* Notice / alert surfaces */
+  --wiley-alert-info-bg: var(--wiley-sage-50);
+  --wiley-alert-info-border: var(--wiley-sage-100);
+  --wiley-alert-warn-bg: #fef9ee;
+  --wiley-alert-warn-border: color-mix(in srgb, var(--wiley-gold-400) 35%, var(--wiley-cream-100));
+  --wiley-alert-urgent-start: color-mix(in srgb, #b91c1c 86%, var(--wiley-navy-900));
+  --wiley-alert-urgent-end: color-mix(in srgb, #dc2626 88%, var(--wiley-navy-900));
+}

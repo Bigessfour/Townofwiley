@@ -1,11 +1,9 @@
 <section class="feature-detail-stack">
-  <p-card class="panel meetings-main-panel" aria-labelledby="meetings-heading">
+  <p-card class="panel wiley-panel meetings-main-panel" aria-labelledby="meetings-heading">
     <ng-template pTemplate="header">
-      <div class="meetings-panel-header">
-        <div>
-          <p class="section-kicker">{{ copy().meetingsKicker }}</p>
-          <h1 id="meetings-heading">{{ copy().meetingsHeading }}</h1>
-        </div>
+      <div class="wiley-page-header meetings-panel-header">
+        <p class="section-kicker">{{ copy().meetingsKicker }}</p>
+        <h1 id="meetings-heading">{{ copy().meetingsHeading }}</h1>
       </div>
     </ng-template>
 
@@ -88,15 +86,17 @@
     }
   </p-card>
 
-  <p-card class="panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">
+  <p-card class="panel wiley-panel calendar-panel" id="calendar" aria-labelledby="calendar-heading">
     <ng-template pTemplate="header">
-      <p class="section-kicker">{{ copy().calendarKicker }}</p>
-      <header class="calendar-header">
-        <section class="calendar-header-copy">
-          <h2 id="calendar-heading">{{ copy().calendarHeading }}</h2>
-          <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
-        </section>
-      </header>
+      <div class="wiley-page-header calendar-panel-header">
+        <p class="section-kicker">{{ copy().calendarKicker }}</p>
+        <header class="calendar-header">
+          <section class="calendar-header-copy">
+            <h2 id="calendar-heading">{{ copy().calendarHeading }}</h2>
+            <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
+          </section>
+        </header>
+      </div>
     </ng-template>
     @if (cmsLoading()) {
       <div class="calendar-panel-skeleton" aria-live="polite" aria-busy="true">

@@ -1,11 +1,9 @@
 <section class="feature-detail-stack">
-  <p-card class="panel" id="alerts">
+  <p-card class="panel wiley-panel" id="alerts">
     <ng-template pTemplate="header">
-      <div class="feature-page-panel-header">
-        <div>
-          <p class="section-kicker">{{ copy().noticesKicker }}</p>
-          <h1>{{ copy().noticesHeading }}</h1>
-        </div>
+      <div class="wiley-page-header feature-page-panel-header">
+        <p class="section-kicker">{{ copy().noticesKicker }}</p>
+        <h1>{{ copy().noticesHeading }}</h1>
       </div>
     </ng-template>
     @if (cmsLoading()) {

@@ -35,8 +35,8 @@
       "label": "Town Clerk",
       "value": "Debbie Dillon",
       "detail": "Point of Contact for Official Town Business",
-      "href": null,
-      "linkLabel": null,
+      "href": "mailto:deb.dillon@townofwiley.gov",
+      "linkLabel": "deb.dillon@townofwiley.gov",
       "displayOrder": 1
     }
   ],

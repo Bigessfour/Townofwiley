@@ -11,19 +11,19 @@ import { MessageService, type MegaMenuItem } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
-import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
-import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
-import {
-  LocalizedWeatherPanel,
-  type HomepageWeatherAlert,
-} from './weather-panel/localized-weather-panel';
-import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 import {
   emptyCmsCoreGraphqlData,
   emptyCmsExtendedGraphqlData,
   flushBuildCmsSnapshotNotFound,
   flushCmsSnapshotAndWait,
 } from './cms-test-support';
+import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
+import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
+import {
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
+} from './weather-panel/localized-weather-panel';
+import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
   clerkSetup?: {
@@ -169,6 +169,23 @@ describe('App', () => {
 
     const taskAnchors = compiled.querySelectorAll('a.task-card');
     expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
+    for (const anchor of taskAnchors) {
+      expect(anchor.hasAttribute('aria-labelledby')).toBe(false);
+    }
+
+    const mobileMenuButton = compiled.querySelector('.mobile-menu-button');
+    expect(mobileMenuButton?.getAttribute('aria-label')).toBe(
+      APP_COPY.en.mobileMenuButtonAriaLabel,
+    );
+    expect(mobileMenuButton?.textContent).toContain(APP_COPY.en.mobileMenuLabel);
+
+    const townLogo = compiled.querySelector('a.town-logo');
+    expect(townLogo?.getAttribute('aria-label')).toBe(APP_COPY.en.townLogoAriaLabel);
+    expect(townLogo?.textContent).toContain('Town of Wiley');
+
+    const primaryNav = compiled.querySelector('[data-testid="homepage-section-nav"]');
+    expect(primaryNav).not.toBeNull();
+    expect(primaryNav?.querySelectorAll('.primary-nav-link').length).toBeGreaterThanOrEqual(6);
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
