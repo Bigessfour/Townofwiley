@@ -243,6 +243,8 @@ AWS documents that **custom headers should live in `customHttp.yml` or the Ampli
 
 After `npm run amplify:sync-headers`, the sync script **reads back** `aws amplify get-app` and fails if the returned `customHeaders` blob is missing key CSP markers (catches silent API truncation).
 
-**Weekly production probe** (scheduled workflow): [`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) curls `https://www.townofwiley.gov/` and fails if `Content-Security-Policy` is missing baseline tokens (`googletagmanager`, `font-src` + `data:`, etc.). Run manually via **Actions → Hosting headers drift watch → Run workflow**.
+**Weekly production probe** (scheduled workflow): [`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) curls `https://www.townofwiley.gov/` and fails if `Content-Security-Policy` is missing baseline tokens (`googletagmanager`, `font-src` + `data:`, `style-src 'unsafe-inline'`, etc.), compares the full header to `customHttp.yml`, and runs the live Playwright inline-style check. Run manually via **Actions → Hosting headers drift watch → Run workflow**.
+
+**After CSP header changes:** Some clients keep a stale policy until the Angular service worker updates. Operators should unregister the SW or use “Update on reload”, then confirm the **document** response for `/` includes `style-src 'self' 'unsafe-inline'`. See [third-party-csp-registry.md](./third-party-csp-registry.md) § “Service worker and stale CSP”.
 
 **Operational rule:** Do not maintain a conflicting copy of CSP in the Amplify Console **Hosting → Custom headers** editor unless it matches the repo; when `customHttp.yml` is in the repo and deployed, it **overrides** console custom headers for that deployment path—see AWS [custom headers](https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html) overview. Prefer editing **`customHttp.yml`** only, then sync + redeploy.

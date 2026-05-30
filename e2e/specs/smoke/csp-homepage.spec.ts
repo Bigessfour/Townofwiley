@@ -8,6 +8,29 @@ interface CspViolationRecord {
 }
 
 test.describe('homepage CSP', () => {
+  test('document CSP allows Angular inline style tags (guards d22973b regression)', async ({
+    homePage,
+  }) => {
+    const response = await homePage.page.goto('/');
+    expect(response?.ok(), 'homepage response should be OK').toBe(true);
+
+    const csp = response?.headers()['content-security-policy'] ?? '';
+    expect(
+      csp,
+      'ng serve must send Content-Security-Policy (sync angular.json from customHttp.yml)',
+    ).not.toBe('');
+    expect(csp).toMatch(/style-src[^;]*'unsafe-inline'/);
+    expect(csp).toMatch(/style-src-attr[^;]*'unsafe-inline'/);
+
+    const styleSrcSources = csp.match(/style-src\s+([^;]+)/i)?.[1] ?? '';
+    const styleSrcAttrSources = csp.match(/style-src-attr\s+([^;]+)/i)?.[1] ?? '';
+    expect(
+      styleSrcAttrSources.includes("'unsafe-inline'") &&
+        !styleSrcSources.includes("'unsafe-inline'"),
+      'CSP must not use style-src-attr unsafe-inline without style-src unsafe-inline (blocks <style> tags)',
+    ).toBe(false);
+  });
+
   test('homepage weather and chat load without Content-Security-Policy violations', async ({
     homePage,
   }) => {

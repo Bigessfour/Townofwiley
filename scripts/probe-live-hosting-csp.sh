@@ -63,13 +63,15 @@ fi
 checks=(
   "default-src 'self'"
   'worker-src'
+  "style-src 'self' 'unsafe-inline'"
+  "style-src-attr 'unsafe-inline'"
   'font-src'
   'data:'
   'googletagmanager'
   'google-analytics.com'
   'g.doubleclick.net'
   'execute-api.us-east-2.amazonaws.com'
-  'frame-src https://www.googletagmanager.com'
+  "frame-src 'self' https://www.googletagmanager.com"
   "object-src 'none'"
 )
 

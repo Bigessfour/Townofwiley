@@ -33,14 +33,36 @@ See also: [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md) §3, [appsync-api-k
 
 We do **not** duplicate CSP in `index.html` meta tags or `amplify.yml` `customHeaders`.
 
+## Service worker and stale CSP (operators)
+
+After changing `Content-Security-Policy` in [`customHttp.yml`](../customHttp.yml), run `npm run amplify:sync-headers` and redeploy `main` so CloudFront serves the new header on network responses.
+
+Some browsers may still show **“Applying inline style violates…”** with sha256 hashes when:
+
+1. **Angular service worker** cached an older `index.html` `Response` (including its headers) from before `style-src 'unsafe-inline'` was restored. [`ngsw-config.json`](../ngsw-config.json) prefetches `/index.html`.
+2. **Third-party iframes** (GTM, chatbot) log violations in DevTools while the top-level document policy is correct.
+
+**Clear client drift:**
+
+1. DevTools → **Application** → **Service Workers** → unregister for `townofwiley.gov`, or enable **Update on reload** once.
+2. **Network** → load `/` → select the **document** → **Response Headers** → confirm:
+   `style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'`
+3. Hard reload with cache disabled once.
+
+If the document response headers match the repo but violations persist only until step 1, the issue was a stale SW cache—not the live Amplify policy.
+
+**Do not** fix inline `<style>` blocks by adding `'unsafe-inline'` only to `style-src-attr`; that allows `style=""` attributes but still blocks SSR/hydration `<style>` tags (see `style-src` vs `style-src-attr` in CSP Level 3).
+
 ## Verification
 
 | Check                                 | Command                                           |
 | ------------------------------------- | ------------------------------------------------- |
 | Repo YAML + angular parity            | `npm run verify:custom-http-yaml`                 |
+| Inline `<style>` regression guard     | `npm run test:csp-inline-style-policy`            |
 | Live token baseline                   | `npm run verify:live-csp-probe`                   |
 | Live exact match                      | `npm run verify:live-csp-vs-repo`                 |
 | Homepage violations (local serve CSP) | `npm run test:e2e:smoke` → `csp-homepage.spec.ts` |
+| Live homepage inline-style console    | `npm run test:e2e:live:csp-inline-style`          |
 | Scheduled prod probe                  | GitHub Actions `hosting-headers-drift-watch.yml`  |
 
 When adding a vendor, update **this table** and `customHttp.yml` in the same PR.

@@ -8,10 +8,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractCspValueFromCustomHttpFile } from './lib/custom-http-csp.mjs';
-import { applyDevServeCspRelaxedStyles } from './lib/dev-serve-csp.mjs';
 
 const root = join(import.meta.dirname, '..');
-const csp = applyDevServeCspRelaxedStyles(extractCspValueFromCustomHttpFile(root));
+const csp = extractCspValueFromCustomHttpFile(root);
 const angularPath = join(root, 'angular.json');
 const angularText = readFileSync(angularPath, 'utf8');
 const angular = JSON.parse(angularText);

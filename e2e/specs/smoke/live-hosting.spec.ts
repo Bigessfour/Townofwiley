@@ -61,8 +61,13 @@ test.describe('live hosting readiness', () => {
   test('homepage does not hit CSP inline-style blocks', async ({ page }) => {
     const violations: string[] = [];
     page.on('console', (msg) => {
-      if (/Refused to apply inline style|Applying inline style violates/i.test(msg.text())) {
-        violations.push(msg.text());
+      const text = msg.text();
+      if (
+        /Refused to apply inline style|Applying inline style violates/i.test(text) ||
+        /cssRules/i.test(text) ||
+        /Cannot read properties of null \(reading 'cssRules'\)/.test(text)
+      ) {
+        violations.push(text);
       }
     });
     const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
