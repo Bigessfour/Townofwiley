@@ -4,7 +4,7 @@ import { enableE2eStaffAuth } from '../../support/admin-staff-auth';
 /** Gen 2 Amplify Console Data manager (replaces Gen 1 hosted Studio). */
 const CONSOLE_DATA_MANAGER_LINK = 'Open Amplify Console Data manager';
 const CONSOLE_DATA_MANAGER_HREF =
-  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/gen2-main\/data$/;
+  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/(?:main|gen2-main)\/data$/;
 
 /** PrimeNG p-tabs lazy panels and clerk-setup redirects need the app shell settled (see primeng.org/tabs). */
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {

@@ -76,6 +76,6 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     awsConsoleUrl,
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'gen2-main', awsConsoleUrl),
+      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
   };
 }

@@ -1314,7 +1314,7 @@ export class CmsAdmin {
     return buildAmplifyConsoleDataManagerUrl(
       region,
       appId,
-      'gen2-main',
+      'main',
       this.clerkSetupConfig.studioUrl,
     );
   }
