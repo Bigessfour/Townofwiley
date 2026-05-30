@@ -16,6 +16,8 @@ export const test = base.extend<TownFixtures>({
         window.localStorage.setItem('tow-site-language', 'en');
       }
       window.localStorage.removeItem('towCowPopupSeen');
+      // Stale snapshots can omit PublicDocument rows and break document-hub smoke tests.
+      window.localStorage.removeItem('tow-cms-snapshot-v1');
     });
 
     await page.addInitScript(() => {
@@ -33,6 +35,10 @@ export const test = base.extend<TownFixtures>({
 
       runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
         ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        e2e: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e ?? {}),
+          staffAuth: true,
+        },
         chatbot: {
           provider: 'easyPeasy',
           mode: 'none',

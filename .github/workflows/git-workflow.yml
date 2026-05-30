@@ -28,6 +28,24 @@ jobs:
       - name: Verify CSP SSOT (customHttp.yml + angular.json parity)
         run: node scripts/verify-custom-http-yaml.mjs
 
+  # Guard against @playwright/mcp@1.x (Playwright core version — does not exist on npm; breaks Cursor MCP).
+  verify-playwright-mcp-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.16.0
+          cache: npm
+
+      - name: Install dependencies (no scripts)
+        run: npm ci --ignore-scripts --no-fund
+
+      - name: Verify @playwright/mcp is 0.x (IDE MCP package)
+        run: npm run verify:playwright-mcp
+
   csp-angular-sync-check:
     runs-on: ubuntu-latest
     needs: detect-changes
@@ -258,7 +276,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
@@ -295,9 +313,9 @@ jobs:
       - name: E2E preflight (Node toolchain, deps, Playwright Chromium)
         run: python3 scripts/e2e_smoke_preflight.py
 
-      - name: Run deterministic E2E regression suite
+      - name: Run PR smoke tier (critical paths, local ng serve)
         # Omit E2E_BASE_URL so Playwright starts local ng serve. Invalid org/repo variables fail fast in playwright.config (resolveE2eEnv).
-        run: npx playwright test e2e/specs/smoke --project=desktop-chromium --workers=2
+        run: npm run test:e2e:smoke
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}

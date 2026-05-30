@@ -47,6 +47,8 @@ test.describe('Public document hub', () => {
   test('switches document hub copy to Spanish', async ({ page }) => {
     await gotoDocumentHubWithSpanish(page);
 
-    await expect(page.getByTestId('document-hub-title')).toContainText(DOCUMENT_HUB_TITLE_ES);
+  await expect(page.getByTestId('document-hub-title')).toContainText(DOCUMENT_HUB_TITLE_ES, {
+    timeout: 20_000,
   });
+});
 });

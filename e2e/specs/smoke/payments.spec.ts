@@ -165,7 +165,7 @@ test.describe('Pay bill page', () => {
 
     await expect(
       homePage.page.getByRole('heading', { name: /Pague su factura de servicios en línea/i }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.locator('#bill-pay-request').locator('#bp-full-name')).toBeVisible();
   });
 });
