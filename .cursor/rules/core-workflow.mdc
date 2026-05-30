@@ -8,7 +8,8 @@ alwaysApply: true
 ## Project Context
 - Angular 21 standalone components, signals-first (input/output/computed/inject), OnPush change detection, native control flow (@if/@for/@switch), reactive forms.
 - Strict WCAG AA accessibility, semantic HTML, PrimeNG + SCSS.
-- Prefer MCP tools from [`.cursor/mcp.json`](../.cursor/mcp.json) in Cursor and [`.vscode/mcp.json`](../.vscode/mcp.json) in VS Code: **angular-cli**, **primeng**, **playwright-test** (`run-test-mcp-server`), **microsoft/playwright-mcp**, and **cursor-ide-browser** (when enabled) for Angular/PrimeNG/Playwright guidance before generic knowledge.
+- Prefer MCP tools from [`.cursor/mcp.json`](../.cursor/mcp.json) in Cursor and [`.vscode/mcp.json`](../.vscode/mcp.json) in VS Code: **angular-cli**, **primeng**, **playwright-test** (`run-test-mcp-server`), **microsoft/playwright-mcp**, **townofwiley-rag**, and **cursor-ide-browser** (when enabled) for Angular/PrimeNG/Playwright guidance before generic knowledge.
+- For cross-cutting codebase exploration, use **townofwiley-rag** / `search_codebase` (or `npm run rag:query`) per [codebase-rag.mdc](./codebase-rag.mdc) before wide grep.
 - Use repo-local files: .instructions.md, .github/skills/TownOfWiley-Dev/SKILL.md, .github/instructions/*.instructions.md.
 
 ## Mandatory Practices
@@ -26,6 +27,34 @@ alwaysApply: true
 ## Cursor agent terminal (Town of Wiley)
 - If Agent terminal sessions are **read-only**, **stall**, or **ignore input**, turn on **Legacy Terminal Tool**: **Cursor → Settings → Cursor Settings → Chat → Inline Editing & Terminal → Legacy Terminal Tool** (then reload the window if needed). This is a Cursor-side switch, not `angular.json`.
 - Agent-invoked shells may **not** inherit `.vscode/settings.json` **`terminal.integrated.env`**. On macOS + Homebrew, prefix **`PATH="/opt/homebrew/opt/node@24/bin:$PATH"`** (Intel: `/usr/local/opt/node@24/bin`). On Windows + nvm-windows, run **`.\scripts\setup-repo-node.ps1`** or **`$env:Path = "$env:NVM_SYMLINK;$env:Path"`** after **`nvm use`** so Cursor’s bundled Node 22/25 is not first on PATH.
+
+## Cursor Agent Auto-Approval & Execution Policy (Composer / Agent Chat)
+
+This project uses a combination of **explicit rules + project hooks** to control when Cursor's agent can auto-approve edits and run terminal commands.
+
+### Default Behavior You Should Follow
+- **You are allowed to auto-approve** routine development actions without asking the user every time:
+  - File edits for code, tests, docs, and configuration that follow the rules in this file and the other `.cursor/rules/*.mdc` files.
+  - Running `npm run lint`, `npm run build`, `npm run test:*`, `trunk check --fix`, `ng generate`, and similar safe dev commands.
+  - Reading files, searching the codebase (including via `townofwiley-rag`), and using MCP tools.
+- **You must ask for confirmation** before:
+  - Any destructive or mutating terminal command (e.g. `rm`, `git push --force`, database changes, Amplify deletes, production deploys).
+  - Running HTTP requests that send bodies or use non-read-only methods (see the project hook below).
+  - Large refactors that touch many files across multiple features.
+  - Anything involving secrets, credentials, or production infrastructure changes.
+
+### Project Hook Enforcement
+A terminal policy hook is active at `.cursor/hooks/pre_tool_use.py` (and also usable via `scripts/copilot_hook_terminal_policy.py`).
+- Read-only HTTP diagnostics (`curl` / `Invoke-WebRequest` to public endpoints with no body) are **auto-allowed**.
+- Any command with bodies or mutating methods is forced to **ask** the user.
+
+### How to Enable Full Auto-Approve Experience in Cursor
+1. In Cursor: **Settings → Chat → "Auto-approve edits"** and **"Auto-run terminal commands"** (or equivalent in your version).
+2. When the agent starts a session, it should respect the policy above.
+3. If the agent is overly cautious, remind it: "Follow the Auto-Approval Policy in core-workflow.mdc".
+4. For very safe sessions you can still use the "Auto" mode or "YOLO" style intent in prompts.
+
+This policy exists so the agent can move quickly on normal work while remaining safe on anything risky.
 
 ## Always:
 - Review .vscode/settings.json, tasks.json, extensions.json for workspace config.

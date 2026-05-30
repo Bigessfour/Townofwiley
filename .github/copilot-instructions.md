@@ -49,6 +49,23 @@
 - HTTP commands that send a body or use mutating methods such as `POST`, `PUT`, `PATCH`, or `DELETE` should still require confirmation.
 - When direct shell web utilities are blocked by host policy, prefer Python `urllib` or .NET `HttpClient` as the fallback for the same diagnostic purpose.
 
+## Codebase RAG (local semantic search)
+
+- Before broad repo exploration, use [`docs/codebase-rag.md`](../docs/codebase-rag.md): `npm run rag:query -- "<question>"` (after `npm run rag:setup` and `npm run rag:index`).
+- VS Code MCP: **`townofwiley-rag`** → `search_codebase`; then read cited `path:line` ranges only.
+- The index includes the RAG implementation (`rag/tow_rag/`), `.github/skills/`, and all instruction files — great for meta-questions.
+- Re-index when `npm run rag:status` reports stale (prefer `:incremental` after large changes). Prefer grep for exact symbol names.
+
+## Cursor / Copilot Agent Auto-Approval Policy
+
+See the full **Cursor Agent Auto-Approval & Execution Policy** in [`.cursor/rules/core-workflow.mdc`](../.cursor/rules/core-workflow.mdc).
+
+In short:
+
+- Auto-approve routine compliant development work.
+- Ask on destructive, mutating, or high-risk operations.
+- A terminal safety hook is active (`.cursor/hooks/pre_tool_use.py`).
+
 ## Cursor/Grok 4.20 Tool Usage & Workflow
 
 - Follow all system instructions: Read files before editing (use Read tool), use StrReplace for precise edits with unique context (3-5+ lines), TodoWrite for complex tasks, CallMcpTool for MCP servers (angular-cli, primeng, playwright-mcp, cursor-ide-browser).

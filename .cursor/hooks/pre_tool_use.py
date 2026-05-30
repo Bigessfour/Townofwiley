@@ -2,12 +2,15 @@
 """
 Cursor Agent Hook — Terminal Safety Policy (Town of Wiley)
 
-ACTIVE VERSION: .cursor/hooks/pre_tool_use.py (and session_start.py)
+This hook is automatically loaded from .cursor/hooks/pre_tool_use.py.
 
-This file is the source of truth for the hook logic.
-The active copies live in .cursor/hooks/ so Cursor can discover them automatically.
+It controls auto-approval of terminal commands inside Cursor Composer/Agent:
+- Read-only HTTP diagnostics (safe curl / Invoke-WebRequest) → auto allowed
+- Anything with bodies or mutating methods → forces user confirmation
 
-See .cursor/rules/core-workflow.mdc for the human-readable Auto-Approval Policy.
+See also:
+- .cursor/rules/core-workflow.mdc → "Cursor Agent Auto-Approval & Execution Policy"
+- scripts/copilot_hook_terminal_policy.py (source copy)
 """
 
 import argparse

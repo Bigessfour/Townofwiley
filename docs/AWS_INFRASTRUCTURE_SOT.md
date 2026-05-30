@@ -152,3 +152,9 @@ WAF association options: CloudFront distribution in front of a URL, or [API Gate
 | AP-19  | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)) |
 
 Full tracker: [post-development-inventory.md](./post-development-inventory.md).
+
+---
+
+## Cost optimization
+
+Monthly spend guardrails and Aurora/S3 tuning: [aws-cost-optimization-runbook.md](./aws-cost-optimization-runbook.md). Discovery: `npm run aws:optimize:discover`.

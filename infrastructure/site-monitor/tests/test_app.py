@@ -164,7 +164,9 @@ class SiteMonitorTests(unittest.TestCase):
         self.assertTrue(response["ok"])
         self.assertEqual(response["status"], "healthy")
         cms_results = [
-            result for result in response["results"] if result["name"].startswith("cms-api")
+            result
+            for result in response["results"]
+            if result["name"].startswith("cms-api")
         ]
         self.assertEqual(cms_results[-1]["name"], "cms-api-core")
         self.assertEqual(cms_results[-2]["name"], "cms-api")

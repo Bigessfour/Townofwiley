@@ -1,0 +1,44 @@
+---
+description: Use local codebase RAG before broad repo search
+alwaysApply: true
+---
+
+# Codebase RAG (mandatory for exploration)
+
+This repo has **local semantic search** over source and docs. Full runbook: [`docs/codebase-rag.md`](../../docs/codebase-rag.md).
+
+## When to use
+
+- Cross-cutting questions: “where is X handled?”, “how does Y integrate with Z?”, or questions about the repo’s own tools/rules/RAG system.
+- **After** skimming relevant `docs/` and `.cursor/rules/`, **before** three or more speculative greps or wide directory walks.
+
+## How to search
+
+1. **Preferred**: MCP server **`townofwiley-rag`** → tool **`search_codebase`** (`query`, optional `limit`, `path_prefix`).
+2. **Fallback**: `npm run rag:query -- "<question>"` in the repo root (requires `npm run rag:setup` and `npm run rag:index`).
+
+## After results
+
+- Open only cited **`path:startLine-endLine`** ranges with the Read tool.
+- Do not treat snippets as complete files or skip reading surrounding logic when making edits.
+
+## Index health
+
+- Call MCP **`rag_status`** or `npm run rag:status` when results seem empty or outdated.
+- After large commits or refactors (many files changed): prefer `npm run rag:index:incremental` (fast, uses content hashes).
+- Full `npm run rag:index` only when the index is missing or badly stale.
+- The RAG source (`rag/tow_rag/`) and `.github/skills/` are now indexed — you can ask RAG meta-questions about the retrieval system itself.
+
+## When NOT to use
+
+- Exact symbol/string lookup → `grep` is faster.
+- Secrets, `.env`, credentials, or live production URLs.
+- Questions already answered by the file the user has open.
+
+## Setup (human / first clone)
+
+```bash
+npm run rag:setup && npm run rag:index
+```
+
+Generation uses the IDE model; RAG only **retrieves** context locally (no embedding API keys in repo).

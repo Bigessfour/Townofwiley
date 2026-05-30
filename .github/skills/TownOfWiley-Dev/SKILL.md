@@ -29,3 +29,4 @@ description: '**WORKFLOW SKILL** — TownOfWiley development agent with project-
 - See `.vscode/extensions.json` (includes trunk.io, angular, playwright, AWS tools).
 - MCP servers configured in `.vscode/mcp.json` for angular-cli, primeng, playwright.
 - Settings in `.vscode/settings.json` and `.cursor/rules/` for AI guidance.
+- **Auto-approval policy**: Follow the "Cursor Agent Auto-Approval & Execution Policy" in `.cursor/rules/core-workflow.mdc`. A safety hook is active at `.cursor/hooks/pre_tool_use.py`.

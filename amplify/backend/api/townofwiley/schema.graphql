@@ -177,9 +177,12 @@ type PublicDocument
   ) {
   id: ID!
   title: String!
+  titleEs: String
   summary: String!
+  summaryEs: String
   sectionId: String!
   status: String!
+  statusEs: String
   format: String!
   href: String!
   downloadFileName: String

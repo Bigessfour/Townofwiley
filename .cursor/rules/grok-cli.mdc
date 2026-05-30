@@ -1,0 +1,88 @@
+---
+description: Grok Build CLI — Heavy-only OAuth, canonical commands, MCP and CI troubleshooting
+alwaysApply: true
+---
+
+# Grok Build CLI (Town of Wiley)
+
+Full reference: [`docs/grok-cli.md`](../../docs/grok-cli.md). Project rules: [`AGENTS.md`](../../AGENTS.md).
+
+## Auth model (do not deviate)
+
+- **Heavy only:** OAuth + `grok-build` via `grok login --oauth` (SuperGrok / X Premium+).
+- **Never** export `XAI_API_KEY` or `GROK_CODE_XAI_API_KEY` in the shell for this workflow — they override OAuth.
+- `~/.zshrc` defines a `grok()` wrapper that unsets API-key env vars and defaults `-m grok-build`.
+
+## Shell setup (Cursor / agent terminals)
+
+Non-interactive shells may not load `~/.zshrc`. Prefix Grok commands:
+
+```bash
+export PATH="$HOME/.grok/bin:$PATH"
+source ~/.zshrc   # optional; loads grok() wrapper
+```
+
+Node 24 for npm in this repo (separate from Grok):
+
+```bash
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"   # macOS Homebrew; Intel: /usr/local/opt/node@24/bin
+```
+
+## Health check (run before blaming auth)
+
+```bash
+export PATH="$HOME/.grok/bin:$PATH"
+source ~/.zshrc
+grok --version
+grok models          # expect: logged in with grok.com, default grok-build
+grok -p "reply with exactly: ok"
+grok mcp doctor
+```
+
+- `Auth(AuthorizationRequired)` in logs **while `-p` still prints a response** is a known headless worker quirk — not missing API key. Refresh with `grok login --oauth` or use interactive `grok` (no `-p`).
+- If `grok: command not found`, PATH is wrong — use exports above.
+
+## Canonical commands
+
+| Task | Command |
+|------|---------|
+| Interactive session | `grok` |
+| Headless one-shot | `grok -p "prompt"` |
+| Auto-approve tools (headless) | `grok -p "prompt" --yolo` or `--always-approve` |
+| Wrong (parsed as `-y`) | ~~`-yolo`~~, ~~`-y`~~ |
+| Project + MCP inspect | `grok inspect` |
+| Refresh OAuth | `grok login --oauth` |
+| MCP diagnostics | `grok mcp doctor` |
+
+## CI / GitHub Actions (prefer `gh`, not Grok fetch)
+
+Do **not** ask Grok to fetch GitHub Actions URLs. Use `gh`:
+
+```bash
+gh run list --limit 5
+gh run view <run-id> --log-failed
+gh pr checks <number>
+```
+
+Fix failures with repo scripts: `npm run lint`, `npm run test:unit:browser`, `npm run test:e2e:smoke`, `trunk check --fix`.
+
+## MCP (Grok vs Cursor)
+
+Project MCP: [`.grok/config.toml`](../../.grok/config.toml) (mirrors [`.cursor/mcp.json`](../../.cursor/mcp.json)).
+
+| Server | Grok notes |
+|--------|------------|
+| angular-cli, playwright-test, github, mermaid | Usually healthy |
+| playwright-mcp | Use `@playwright/mcp@latest` (not `@1.59.1` — version does not exist on npm) |
+| figma | Separate OAuth from `grok login`; authenticate in Grok TUI when prompted |
+| primeng | Often broken upstream (MCP SDK/Zod); prefer angular-cli + PrimeNG docs |
+
+## Trunk / script encoding
+
+If Trunk reports `invalid UTF-8` or shellcheck SC1072 on `scripts/configure-cloudfront-weather-cache.sh` or `scripts/deploy-contact-updates-review.py`, restore from git:
+
+```bash
+git checkout HEAD -- scripts/configure-cloudfront-weather-cache.sh scripts/deploy-contact-updates-review.py
+```
+
+Avoid smart quotes / mojibake in shell scripts — use ASCII `->` and `-`.
