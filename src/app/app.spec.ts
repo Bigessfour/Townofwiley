@@ -858,7 +858,8 @@ describe('App', () => {
         amplifyAppId: 'd331voxr1fhoir',
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
-        studioUrl: 'https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home',
+        studioUrl:
+          'https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data',
       },
     };
 
@@ -876,7 +877,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('570912405222');
     expect(compiled.textContent).toContain('d331voxr1fhoir');
     expect(compiled.textContent).toContain('Open Studio Home');
-    expect(compiled.textContent).toContain('Amplify Studio Data Manager');
+    expect(compiled.textContent).toContain('Amplify Console Data manager');
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
@@ -897,7 +898,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Website section map');
     expect(compiled.textContent).toContain('Meeting Documents');
     expect(compiled.textContent).toContain('meeting-documents');
-    expect(compiled.textContent).toContain('Open Amplify Studio Data Manager');
+    expect(compiled.textContent).toContain('Open Amplify Console Data manager');
   });
 
   it('should link the admin document button to the admin document tab', async () => {
