@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SiteLanguageService } from '../site-language';
+import { readStaffAuthErrorMessage } from './staff-auth-error';
 import { StaffAuthService } from './staff-auth.service';
 
 type LoginStep = 'signIn' | 'newPassword';
@@ -122,8 +123,8 @@ export class AdminLoginComponent {
         return;
       }
       await this.navigateAfterSignIn();
-    } catch {
-      this.loadError.set(this.copy().authError);
+    } catch (error) {
+      this.loadError.set(readStaffAuthErrorMessage(error, this.copy().authError));
     } finally {
       this.submitting.set(false);
       this.cdr.markForCheck();
@@ -143,8 +144,8 @@ export class AdminLoginComponent {
       const { newPassword } = this.newPasswordForm.getRawValue();
       await this.auth.completeStaffNewPassword(newPassword);
       await this.navigateAfterSignIn();
-    } catch {
-      this.loadError.set(this.copy().authError);
+    } catch (error) {
+      this.loadError.set(readStaffAuthErrorMessage(error, this.copy().authError));
     } finally {
       this.submitting.set(false);
       this.cdr.markForCheck();
@@ -162,8 +163,8 @@ export class AdminLoginComponent {
       if (this.auth.isStaff()) {
         await this.navigateAfterSignIn();
       }
-    } catch {
-      this.loadError.set(this.copy().authError);
+    } catch (error) {
+      this.loadError.set(readStaffAuthErrorMessage(error, this.copy().authError));
     } finally {
       this.cdr.markForCheck();
     }

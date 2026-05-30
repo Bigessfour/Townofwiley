@@ -1,6 +1,7 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { isAmplifyAuthFailure } from './auth/staff-auth-error';
 import { LoggingService } from './logging.service';
 import { isExpectedNetworkDegradation } from './network-degradation';
 
@@ -45,6 +46,15 @@ export class GlobalErrorHandler implements ErrorHandler {
     );
 
     if (expectedDegradation) {
+      return;
+    }
+
+    const route = this.router.url;
+    if (
+      (route.startsWith('/admin/login') || route.startsWith('/admin')) &&
+      isAmplifyAuthFailure(error)
+    ) {
+      this.logging.log('warn', 'Staff auth failure (inline handling expected)', context);
       return;
     }
 
