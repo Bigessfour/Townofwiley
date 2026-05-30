@@ -62,9 +62,40 @@
   color: var(--text-muted, #64748b);
 }
 
-.admin-login__error {
+.admin-login__banner {
   display: block;
   margin-bottom: 1rem;
+}
+
+.admin-login__subheading {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.admin-login__secondary-action {
+  margin: 0;
+}
+
+.admin-login__text-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--wiley-blue-700, #1d4ed8);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.admin-login__text-button:hover {
+  color: var(--wiley-blue-800, #1e40af);
+}
+
+.admin-login__text-button:focus-visible {
+  outline: 2px solid var(--wiley-blue-700, #1d4ed8);
+  outline-offset: 2px;
 }
 
 .admin-login__footer {

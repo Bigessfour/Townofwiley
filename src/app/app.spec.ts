@@ -834,20 +834,12 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Administracion de contenido del Pueblo de Wiley',
-    );
-    expect(compiled.textContent).toContain('Event');
-    expect(compiled.textContent).toContain('EmailAlias');
-    expect(compiled.textContent).toContain(
-      'Esta pagina solo muestra guia y estado actual del CMS. No guarda ni publica contenido del sitio.',
-    );
-    expect(compiled.textContent).toContain('Configuracion y credenciales');
-    expect(compiled.textContent).toContain('Referencia rapida');
-    expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
-    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Abrir Amplify Studio Data Manager',
-    );
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
+    expect(compiled.textContent).toContain('Post news or notice');
+    expect(compiled.textContent).toContain('Add meeting or event');
+    expect(compiled.textContent).toContain('Document publishing');
+    expect(compiled.textContent).toContain('Edit content');
+    expect(compiled.querySelector('[data-testid="cms-task-post-notice"]')).toBeTruthy();
   });
 
   it('should render the Deb Dillon setup details on the admin hub path', async () => {
@@ -870,14 +862,10 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Town of Wiley Content Management',
-    );
-    expect(compiled.textContent).toContain('Setup & credentials');
-    expect(compiled.textContent).toContain('570912405222');
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
+    expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('d331voxr1fhoir');
-    expect(compiled.textContent).toContain('Open Studio Home');
-    expect(compiled.textContent).toContain('Amplify Console Data manager');
+    expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
@@ -893,15 +881,13 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(TestBed.inject(Router).url).toBe('/admin#documents');
-    expect(compiled.textContent).toContain('Supported document workflow');
-    expect(compiled.textContent).toContain('Supported document workflow');
-    expect(compiled.textContent).toContain('Website section map');
+    expect(compiled.textContent).toContain('Document publishing');
     expect(compiled.textContent).toContain('Meeting Documents');
     expect(compiled.textContent).toContain('meeting-documents');
-    expect(compiled.textContent).toContain('Open Amplify Console Data manager');
+    expect(compiled.textContent).toContain('Add a form or PDF');
   });
 
-  it('should link the admin document button to the admin document tab', async () => {
+  it('should expose document publishing via jump nav on the admin hub', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/admin');
@@ -909,8 +895,8 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-button.add')?.getAttribute('href')).toBe(
-      '/admin#documents',
+    expect(compiled.querySelector('.cms-jump-nav a[href="#documents"]')?.getAttribute('href')).toBe(
+      '#documents',
     );
   });
 

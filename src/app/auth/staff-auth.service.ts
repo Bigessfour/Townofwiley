@@ -1,8 +1,10 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
+  confirmResetPassword,
   confirmSignIn,
   fetchAuthSession,
   getCurrentUser,
+  resetPassword,
   signIn,
   signOut,
   type SignInInput,
@@ -20,6 +22,12 @@ interface AppRuntimeConfig {
 export interface StaffSignInInput {
   username: string;
   password: string;
+}
+
+export interface StaffPasswordResetConfirmInput {
+  username: string;
+  confirmationCode: string;
+  newPassword: string;
 }
 
 export type StaffSignInStep = 'complete' | 'newPasswordRequired';
@@ -124,6 +132,28 @@ export class StaffAuthService {
   async signOutStaff(): Promise<void> {
     await signOut();
     await this.refreshSession();
+  }
+
+  /** Sends a verification code to the staff email for self-service password reset. */
+  async requestStaffPasswordReset(username: string): Promise<void> {
+    const result = await resetPassword({ username: username.trim() });
+    if (result.nextStep.resetPasswordStep === 'DONE') {
+      return;
+    }
+    if (result.nextStep.resetPasswordStep !== 'CONFIRM_RESET_PASSWORD_WITH_CODE') {
+      throw new Error(
+        `Password reset requires additional steps (${result.nextStep.resetPasswordStep}). Contact IT for staff account help.`,
+      );
+    }
+  }
+
+  /** Completes password reset with the code from email and a new password. */
+  async confirmStaffPasswordReset(input: StaffPasswordResetConfirmInput): Promise<void> {
+    await confirmResetPassword({
+      username: input.username.trim(),
+      confirmationCode: input.confirmationCode.trim(),
+      newPassword: input.newPassword,
+    });
   }
 
   private async assertStaffSession(): Promise<void> {

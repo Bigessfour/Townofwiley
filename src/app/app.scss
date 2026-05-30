@@ -1706,6 +1706,14 @@ h6 {
   box-shadow: var(--shadow-subtle);
 }
 
+.notice-card__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
 .notice-card .meta-label {
   display: inline-flex;
   align-items: center;

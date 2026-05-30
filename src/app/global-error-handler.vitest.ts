@@ -31,8 +31,7 @@ describe('GlobalErrorHandler', () => {
   it('toasts operational TypeError from app code', () => {
     const { handler, mockLogging, mockMessageService } = createHandler();
     const testError = new TypeError('Cannot read properties of undefined');
-    testError.stack =
-      'TypeError: x\n    at https://www.townofwiley.gov/main-TEST.js:10:1';
+    testError.stack = 'TypeError: x\n    at https://www.townofwiley.gov/main-TEST.js:10:1';
 
     handler.handleError(testError);
 

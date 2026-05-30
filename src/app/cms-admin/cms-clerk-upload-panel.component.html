@@ -1,0 +1,57 @@
+<section class="cms-upload-panel" [attr.aria-label]="mode() === 'hero' ? 'Upload homepage photo' : 'Upload newsletter PDF'">
+  @if (mode() === 'hero') {
+    <h3 class="cms-upload-panel__title">Upload homepage photo (optional)</h3>
+    <p class="cms-upload-panel__lead">
+      Choose a JPG or PNG. After upload, copy the web address into
+      <strong>Photo web address</strong> in Homepage settings.
+    </p>
+  } @else {
+    <h3 class="cms-upload-panel__title">Upload newsletter PDF (optional)</h3>
+    <p class="cms-upload-panel__lead">
+      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter Announcement row.
+    </p>
+  }
+
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="cms-upload-panel__banner" />
+  }
+  @if (resultMessage()) {
+    <p-message severity="success" [text]="resultMessage()!" styleClass="cms-upload-panel__banner" />
+  }
+
+  <label class="cms-upload-panel__file">
+    <span class="visually-hidden">Choose file</span>
+    <input
+      type="file"
+      [accept]="mode() === 'hero' ? 'image/jpeg,image/png,image/webp' : 'application/pdf'"
+      [disabled]="uploading()"
+      (change)="onFileSelected($event)"
+    />
+    @if (uploading()) {
+      Uploading…
+    } @else {
+      Choose file
+    }
+  </label>
+
+  @if (copyValue(); as value) {
+    <p class="cms-upload-panel__value">
+      <code>{{ value }}</code>
+    </p>
+    <div class="cms-upload-panel__actions">
+      <button type="button" class="button-cta button-cta--light" (click)="copyToClipboard()">Copy</button>
+      <a
+        class="button-cta button-cta--solid"
+        [href]="editorUrlForMode()"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        Open editor to paste
+      </a>
+    </div>
+  }
+
+  <p class="cms-upload-panel__signin">
+    You must <a href="/admin/login">sign in</a> as staff before uploading.
+  </p>
+</section>

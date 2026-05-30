@@ -24,6 +24,15 @@
   color: var(--ink-700);
 }
 
+.news-card__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  margin-bottom: 0.75rem;
+}
+
 /* Consolidated with app.scss card styles + PrimeNG p-card templates/PT */
 .featured-news-card.p-card,
 .public-card.p-card {

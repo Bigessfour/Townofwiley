@@ -116,6 +116,16 @@
           <p class="featured-news-date">{{ featuredNotice.date }}</p>
         </ng-template>
         <ng-template pTemplate="content">
+          @if (featuredNotice.imageUrl) {
+            <img
+              class="news-card__image"
+              [ngSrc]="featuredNotice.imageUrl"
+              width="560"
+              height="315"
+              sizes="(max-width: 640px) 100vw, 560px"
+              [alt]="featuredNotice.title"
+            />
+          }
           <p>{{ featuredNotice.detail }}</p>
         </ng-template>
         <ng-template pTemplate="footer">
@@ -145,6 +155,16 @@
                 <h3>{{ item.title }}</h3>
               </ng-template>
               <ng-template pTemplate="content">
+                @if (item.imageUrl) {
+                  <img
+                    class="news-card__image"
+                    [ngSrc]="item.imageUrl"
+                    width="400"
+                    height="225"
+                    sizes="(max-width: 480px) 100vw, 400px"
+                    [alt]="item.title"
+                  />
+                }
                 <p class="public-card-copy">{{ item.detail }}</p>
               </ng-template>
             </p-card>

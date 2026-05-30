@@ -1,0 +1,90 @@
+@if (isItAudience()) {
+  <section class="cms-snapshot" aria-labelledby="cms-snapshot-heading">
+    <header class="cms-snapshot__header">
+      <h2 id="cms-snapshot-heading">Content inventory (IT)</h2>
+      <p>Live website counts vs last AWS database scan.</p>
+      @if (!awsInventory()) {
+        <p-message
+          severity="info"
+          text="Could not load gen2-cms-inventory.json — run npm run amplify:gen2:discover-cms."
+          styleClass="cms-snapshot__banner"
+        />
+      }
+    </header>
+
+    <p-card styleClass="cms-snapshot__hero-card">
+      <ng-template #title>Homepage preview</ng-template>
+      <div class="cms-snapshot__hero">
+        <div class="cms-snapshot__hero-media">
+          <img
+            [ngSrc]="heroImageSrc()"
+            width="640"
+            height="360"
+            sizes="(max-width: 640px) 100vw, 320px"
+            priority
+            [alt]="hero().title"
+            class="cms-snapshot__hero-img"
+          />
+        </div>
+        <dl class="cms-snapshot__hero-meta">
+          <div><dt>Title</dt><dd>{{ hero().title }}</dd></div>
+          @if (heroUsesFallbackImage()) {
+            <div class="cms-snapshot__hero-note">
+              <p-message
+                severity="warn"
+                text="No custom photo URL — site uses default /hero-wiley.webp."
+              />
+            </div>
+          }
+        </dl>
+      </div>
+    </p-card>
+
+    <p-table
+      [value]="inventoryRows()"
+      dataKey="model"
+      styleClass="cms-snapshot__table"
+      aria-label="Content inventory"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">Model</th>
+          <th scope="col">Routes</th>
+          <th scope="col">Live</th>
+          <th scope="col">AWS</th>
+          <th scope="col">Status</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr [attr.data-testid]="'cms-inventory-row-' + row.model">
+          <td><strong>{{ row.model }}</strong></td>
+          <td>{{ row.routes }}</td>
+          <td>{{ row.liveCount }}</td>
+          <td>{{ row.awsCount ?? '—' }}</td>
+          <td>
+            <p-tag [value]="statusLabel(row)" [severity]="statusSeverity(row.status)" />
+          </td>
+        </tr>
+        @if (row.warning) {
+          <tr class="cms-snapshot__warning-row">
+            <td colspan="5">
+              <p-message severity="warn" [text]="row.warning" styleClass="w-full" />
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </p-table>
+
+    <p class="cms-snapshot__footer">
+      <a
+        class="cms-snapshot__link"
+        [href]="cmsEditUrl()"
+        target="_blank"
+        rel="noreferrer noopener"
+        data-testid="cms-snapshot-open-data-manager"
+      >
+        Open content editor
+      </a>
+    </p>
+  </section>
+}

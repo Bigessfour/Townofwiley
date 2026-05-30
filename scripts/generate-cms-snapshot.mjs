@@ -130,6 +130,16 @@ ${publicDocumentFields}
       displayOrder
     }
   }
+  listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50) {
+    items {
+      id
+      groupId
+      displayOrder
+      lineEn
+      lineEs
+      active
+    }
+  }
 }`;
 }
 
@@ -216,6 +226,7 @@ function buildSnapshot(coreData, extendedData, buildSha) {
     businessRecords: extendedData.listBusinesses?.items ?? [],
     publicDocumentRecords: extendedData.listPublicDocuments?.items ?? [],
     externalNewsLinkRecords: extendedData.listExternalNewsLinks?.items ?? [],
+    leadershipRosterRecords: extendedData.listLeadershipRosterEntries?.items ?? [],
   };
 }
 

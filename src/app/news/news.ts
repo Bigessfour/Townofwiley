@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -114,7 +115,7 @@ const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
 
 @Component({
   selector: 'app-news',
-  imports: [CardModule, RouterLink, SkeletonModule],
+  imports: [NgOptimizedImage, CardModule, RouterLink, SkeletonModule],
   templateUrl: './news.html',
   styleUrl: './news.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

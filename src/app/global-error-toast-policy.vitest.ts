@@ -1,6 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
-import { shouldShowGlobalErrorToast, shouldSuppressGlobalErrorToast } from './global-error-toast-policy';
+import {
+  shouldShowGlobalErrorToast,
+  shouldSuppressGlobalErrorToast,
+} from './global-error-toast-policy';
 
 describe('global-error-toast-policy', () => {
   it('suppresses Cognito auth failures', () => {
@@ -31,7 +34,8 @@ describe('global-error-toast-policy', () => {
 
   it('shows TypeError from app bundles', () => {
     const error = new TypeError('Cannot read properties of undefined');
-    error.stack = 'TypeError: Cannot read properties of undefined\n    at https://www.townofwiley.gov/main-ABC123.js:1:1';
+    error.stack =
+      'TypeError: Cannot read properties of undefined\n    at https://www.townofwiley.gov/main-ABC123.js:1:1';
     expect(shouldShowGlobalErrorToast(error, '/')).toBe(true);
   });
 

@@ -30,20 +30,35 @@ If the link has expired (they expire after 24 hours), ask for a new invitation.
 
 Bookmark this page first: https://townofwiley.gov/admin
 
-The admin page shows the Studio links, setup details, document publishing guide, contact updates, and a CMS connection test. Use it as the starting point each time.
+The admin page is a **task hub** in plain English: pick what you want to change, click **Edit content**, save in the AWS editor, then **See on website** and hard-refresh. It also has document publishing help, resident message review, and optional file uploads. **Clerk screens are English only**; the public site stays bilingual — fill Spanish fields in the editor when they appear.
+
+Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 ### Step 4 — Bookmark Amplify Console Data manager
 
 | Link | What it is |
 |------|------------|
-| [Amplify Console — Data manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data) | Edit CMS records (SiteSettings, Announcement, Event, etc.) after Gen 2 cutover |
+| [Amplify Console — Data manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) | Edit CMS records (SiteSettings, Announcement, Event, etc.) on the **main** branch |
 
-### Step 5 — Log in for the first time
+Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
 
-1. Go to the Studio Home link above.
-2. It will ask for your email and password.
-3. Enter the ones you created in Step 2.
-4. You are in. You do not need a full AWS account. This is its own login.
+### Step 5 — Log in to the Town admin hub
+
+1. Open **https://townofwiley.gov/admin/login** (bookmark this page).
+2. Enter your **Town staff email** and **password**.
+3. **First time only:** If IT gave you a temporary password, sign in with it; the site will ask you to choose a new password.
+4. After sign-in, open **https://townofwiley.gov/admin** and use the task buttons (**Edit content**, **See on website**).
+
+**Forgot your password?**
+
+1. On `/admin/login`, click **Forgot password?**
+2. Enter your staff email and click **Send reset code**.
+3. Check your inbox (and spam) for a verification code from Amazon Cognito.
+4. Enter the code and a new password (at least 8 characters), then sign in with the new password.
+
+If you do not receive the email or do not have an account yet, call Town Hall at **(719) 829-4974** so IT can help.
+
+**Amplify Console Data manager** (Step 4) uses your **AWS console** login, not this Town staff password. Clerks who only edit CMS records in Data Manager still need the `/admin/login` account when using contact updates and other staff-only tabs on the website.
 
 ---
 
@@ -53,11 +68,11 @@ The admin page shows the Studio links, setup details, document publishing guide,
 
 All website content is managed in one place: **Amplify Console Data manager**.
 
-Direct link: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data
+Direct link: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data
 
 Start here if you are not sure where to go: https://townofwiley.gov/admin
 
-The admin page is a guide and status page. It proves whether the public website can reach the CMS, but the actual content edits still happen in Amplify Studio Data Manager.
+The admin page is a guide and status page. It shows whether the public website is reading saved content, but **edits happen in Amplify Console Data manager** (opened from each task’s **Edit content** button).
 
 **Do not** try to edit the website from:
 
@@ -100,6 +115,7 @@ Every piece of content on the website lives in one of these models in Data Manag
 | Public notices, closures, and general announcements        | `Announcement`     |
 | Meetings, hearings, and calendar events                    | `Event`            |
 | Staff contact cards for names, phones, and emails          | `OfficialContact`  |
+| Mayor/Council and Town Administration bullets on `/contact` | `LeadershipRosterEntry` |
 | Business directory listings                                | `Business`         |
 | Public document archive for forms, guides, and downloads   | `PublicDocument`   |
 | External news links shown on the /news page                | `ExternalNewsLink` |

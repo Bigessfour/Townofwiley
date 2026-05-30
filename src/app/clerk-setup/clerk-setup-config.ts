@@ -41,8 +41,27 @@ export function buildAmplifyConsoleDataManagerUrl(
     return fallbackUrl;
   }
 
-  const branch = branchName.trim() || 'gen2-main';
+  const branch = branchName.trim() || 'main';
   return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
+}
+
+/**
+ * Best-effort deep link to a model in Amplify Console Data manager.
+ * If the console UI changes, callers should fall back to the branch data root.
+ */
+export function buildAmplifyConsoleDataManagerModelUrl(
+  region: string,
+  appId: string,
+  branchName: string,
+  model: string,
+  fallbackUrl: string,
+): string {
+  const base = buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
+  const trimmed = model.trim();
+  if (!trimmed) {
+    return base;
+  }
+  return `${base}/models/${encodeURIComponent(trimmed)}`;
 }
 
 /** @deprecated Gen 1 Studio home; use {@link buildAmplifyConsoleDataManagerUrl}. */

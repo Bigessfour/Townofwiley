@@ -109,7 +109,7 @@ npm run verify:aws-infra
 
 Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and Amplify backend Lambdas listed in [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json) `cloudWatch.amplifyBackendLogGroups`. Skip with `npm run verify:aws-infra -- --skip-log-retention`.
 
-**Gap — CloudTrail:** As of May 2026 the Town account had **no trails**. Add a multi-Region trail before relying on CloudWatch alone for API audit history.
+**Gap — CloudTrail:** As of May 2026 the Town account had **no trails**. Add a multi-Region trail before relying on CloudWatch alone for API audit history. **Apply (free):** `npm run configure:free-tier-security` — see [aws-free-tier-security.md](./aws-free-tier-security.md).
 
 ---
 

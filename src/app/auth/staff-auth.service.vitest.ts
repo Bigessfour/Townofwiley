@@ -2,14 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fetchAuthSession = vi.fn();
 const getCurrentUser = vi.fn();
+const confirmResetPassword = vi.fn();
 const confirmSignIn = vi.fn();
+const resetPassword = vi.fn();
 const signIn = vi.fn();
 const signOut = vi.fn();
 
 vi.mock('aws-amplify/auth', () => ({
+  confirmResetPassword,
   confirmSignIn,
   fetchAuthSession,
   getCurrentUser,
+  resetPassword,
   signIn,
   signOut,
 }));
@@ -19,7 +23,9 @@ describe('StaffAuthService', () => {
     vi.resetModules();
     fetchAuthSession.mockReset();
     getCurrentUser.mockReset();
+    confirmResetPassword.mockReset();
     confirmSignIn.mockReset();
+    resetPassword.mockReset();
     signIn.mockReset();
     signOut.mockReset();
   });
@@ -80,6 +86,37 @@ describe('StaffAuthService', () => {
 
     expect(confirmSignIn).toHaveBeenCalledWith({ challengeResponse: 'NewSecurePass1!' });
     expect(service.isStaff()).toBe(true);
+  });
+
+  it('requests password reset when Cognito returns confirm step', async () => {
+    resetPassword.mockResolvedValue({
+      isPasswordReset: false,
+      nextStep: { resetPasswordStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE' },
+    });
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.requestStaffPasswordReset('clerk@town.gov');
+
+    expect(resetPassword).toHaveBeenCalledWith({ username: 'clerk@town.gov' });
+  });
+
+  it('confirms password reset with code and new password', async () => {
+    confirmResetPassword.mockResolvedValue(undefined);
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.confirmStaffPasswordReset({
+      username: 'clerk@town.gov',
+      confirmationCode: '123456',
+      newPassword: 'NewSecurePass1!',
+    });
+
+    expect(confirmResetPassword).toHaveBeenCalledWith({
+      username: 'clerk@town.gov',
+      confirmationCode: '123456',
+      newPassword: 'NewSecurePass1!',
+    });
   });
 
   it('rejects non-staff authenticated users', async () => {

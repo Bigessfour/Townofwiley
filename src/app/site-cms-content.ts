@@ -717,6 +717,18 @@ export class LocalizedCmsContentStore {
   readonly leadershipRosterLinesByGroup = computed(() =>
     this.normalizeLeadershipRosterByGroup(this.leadershipRosterRecordsState(), this.siteLanguage()),
   );
+  /** Active record counts after the latest AppSync load (for `/admin` inventory). */
+  readonly modelCounts = computed(() => ({
+    SiteSettings: this.siteSettingsState() ? 1 : 0,
+    AlertBanner: this.alertBannerRecordsState().length,
+    Announcement: this.noticeRecordsState().filter((r) => r.active).length,
+    Event: this.eventRecordsState().filter((r) => r.active).length,
+    OfficialContact: this.contactRecordsState().length,
+    LeadershipRosterEntry: this.leadershipRosterRecordsState().filter((r) => r.active).length,
+    Business: this.businessRecordsState().filter((r) => r.active).length,
+    PublicDocument: this.publicDocumentRecordsState().filter((r) => r.active).length,
+    ExternalNewsLink: this.externalNewsLinkRecordsState().filter((r) => r.active).length,
+  }));
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
   readonly hasLoadFailed = computed(() => this.loadState() === 'error');
