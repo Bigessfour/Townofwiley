@@ -86,6 +86,15 @@ More detail lives in **`docs/AMPLIFY_HOSTING_SOT.md` § 1.a (Build logs — capt
 
 ---
 
+## Gen 2 migration (in progress)
+
+See **[amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md)**. Summary:
+
+- Hosting branch **`gen2-main`** uses `amplify.yml` backend phase: `npx ampx pipeline-deploy`.
+- Clerks use **Amplify Console Data manager**, not Gen 1 Studio.
+- Production cutover: `scripts/gen2-production-cutover.sh` (checklist only).
+- Requires Amplify CLI **14.4+** for `npm run amplify:gen2:*`.
+
 ## Quick Reference: Amplify App Details
 
 | Field             | Value                                |

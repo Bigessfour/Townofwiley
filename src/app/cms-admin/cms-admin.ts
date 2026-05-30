@@ -9,7 +9,7 @@ import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import {
-  buildAmplifyAdminStudioHomeUrl,
+  buildAmplifyConsoleDataManagerUrl,
   getClerkSetupRuntimeConfig,
 } from '../clerk-setup/clerk-setup-config';
 import {
@@ -19,8 +19,9 @@ import {
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
-/** Official AWS Amplify Gen 1 Studio overview (visual backend, Data Manager / data browser). */
-export const AMPLIFY_STUDIO_GEN1_DOCS_URL = 'https://docs.amplify.aws/gen1/angular/tools/console/';
+/** Amplify Gen 2 data (Console Data manager). */
+export const AMPLIFY_DATA_MANAGER_DOCS_URL =
+  'https://docs.amplify.aws/angular/build-a-backend/data/manage-data/';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
@@ -210,8 +211,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     returnHome: 'Return to homepage',
     openPublicDocumentUploadForm: 'Open document publishing guide',
     openSetupPage: 'Open clerk instructions',
-    openAmplify: 'Open Studio Home',
-    openCmsEditPage: 'Open Amplify Studio Data Manager',
+    openAmplify: 'Open Console Data manager',
+    openCmsEditPage: 'Open Amplify Console Data manager',
     openAwsConsole: 'Open AWS Console',
     setupTab: 'Setup & credentials',
     documentsTab: 'Document publishing',
@@ -460,7 +461,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     runtimeConfigPresent: 'Present in runtime config',
     runtimeConfigMissing: 'Missing from runtime config',
     contentSourceLabel: 'Current content source',
-    contentSourceStudio: 'Amplify Studio via AppSync',
+    contentSourceStudio: 'Amplify Console Data manager via AppSync',
     contentSourceFallback: 'Bundled fallback content',
     contentSourceLoading: 'Loading Amplify Studio content',
     contentSourceError: 'AppSync load failed and site fell back',
@@ -843,7 +844,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
 })
 export class CmsAdmin {
   /** Official AWS Amplify Gen 1 Studio documentation (linked from the admin hub). */
-  protected readonly amplifyStudioGen1DocsUrl = AMPLIFY_STUDIO_GEN1_DOCS_URL;
+  protected readonly amplifyDataManagerDocsUrl = AMPLIFY_DATA_MANAGER_DOCS_URL;
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
@@ -1310,7 +1311,12 @@ export class CmsAdmin {
     const region = this.clerkSetupConfig.awsRegion;
     const appId = this.clerkSetupConfig.amplifyAppId;
 
-    return buildAmplifyAdminStudioHomeUrl(region, appId, this.clerkSetupConfig.studioUrl);
+    return buildAmplifyConsoleDataManagerUrl(
+      region,
+      appId,
+      'gen2-main',
+      this.clerkSetupConfig.studioUrl,
+    );
   }
 
   private maskEndpoint(endpoint: string): string {

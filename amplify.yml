@@ -1,8 +1,15 @@
-# Hosting HTTP headers (CSP, HSTS, cache-control): repo-root customHttp.yml (SSOT).
-# If Amplify Console `get-app` CSP drifts from that file after manual edits or an old deploy,
-# run: AWS_PROFILE=townofwiley AWS_REGION=us-east-2 npm run amplify:sync-headers
-# Docs: docs/AMPLIFY_HOSTING_SOT.md (section 3). https://docs.aws.amazon.com/amplify/latest/userguide/migrate-custom-headers.html
+# Gen 2 Hosting + backend deploy. Headers SSOT: customHttp.yml (npm run amplify:sync-headers).
+# See docs/amplify-gen2-migration-plan.md and docs/AMPLIFY_HOSTING_SOT.md.
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - nvm install 24.16.0
+        - nvm use 24.16.0
+        - npm ci --cache .npm --prefer-offline
+        - npm ci --prefix amplify --cache .npm --prefer-offline
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     preBuild:
@@ -12,7 +19,6 @@ frontend:
         - npm ci
     build:
       commands:
-        # Pin Node 24.16.0 (GHA equivalent: actions/setup-node@v6, node-version: 24.16.0, cache: npm)
         - nvm use 24.16.0
         - node scripts/generate-runtime-config.mjs --strict
         - npm run build
@@ -23,3 +29,4 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+      - amplify/node_modules/**/*
