@@ -39,7 +39,7 @@ On **`main`**, Gen 1 files remain under `amplify/backend/` until merge/cutover.
 
 | Issue | Fix |
 |-------|-----|
-| `npm ci --prefix amplify` EUSAGE | Commit **`amplify/package-lock.json`** (run `npm install` in `amplify/`). |
+| `npm ci --prefix amplify` EUSAGE | Commit **`amplify/package-lock.json`**; keep **`amplify/.npmrc`** (`legacy-peer-deps=true`) and **`overrides`** in `amplify/package.json` for `@aws-cdk/toolkit-lib` (npm ci vs nested CDK toolkit versions). |
 | Gen 1 `amplify pull` on `gen2-main` | Clear Gen 1 backend link: `aws amplify update-branch --app-id d331voxr1fhoir --branch-name gen2-main --backend-environment-arn ""` (branch `backend` becomes `{}`). **Do not** run this on `main`. |
 | `ampx pipeline-deploy` in CodeBuild | Set **`export CI=1`**; invoke **`npx --prefix amplify ampx pipeline-deploy`** (CLI is under `amplify/`, not repo root). |
 | Invalid `branchName` in `defineData` | Removed; not a valid `DataProps` field — shared DynamoDB for models is automatic per migration docs until refactor. |
