@@ -1,8 +1,8 @@
-# Amplify Studio & AWS operations checklist (manual)
+# Amplify Console (Gen 2) & AWS operations checklist (manual)
 
-Use this alongside the [Amplify Gen 1 Studio overview](https://docs.amplify.aws/gen1/angular/tools/console/) and the repo [CMS model route matrix](./CMS-MODEL-ROUTE-MATRIX.md). The hosted Studio URL for this app is configured via `CLERK_SETUP_*` / runtime config; staff bookmarks: **https://townofwiley.gov/admin**.
+Use this with [amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md) and [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md). Staff bookmarks: **https://townofwiley.gov/admin** (links to Console Data manager).
 
-**Routine verification task:** follow [CMS-VERIFY-STUDIO.md](./CMS-VERIFY-STUDIO.md) to confirm Studio Data Manager and the live site’s AppSync connection are working.
+**Routine verification:** [CMS-VERIFY-STUDIO.md](./CMS-VERIFY-STUDIO.md) (name kept for history — steps use Console Data manager, not Gen 1 Studio).
 
 ## Access & roles
 
@@ -32,6 +32,6 @@ Use this alongside the [Amplify Gen 1 Studio overview](https://docs.amplify.aws/
 - [ ] After each **PublicDocument** save, open **/documents** and confirm the file card appears in the correct section (hard refresh once if needed).
 - [ ] Spot-check **homepage**, **/news**, **/documents**, and **/contact** after CMS edits.
 
-## Gen 1 maintenance note
+## Gen 2 note
 
-Amplify Gen 1 is in **maintenance mode** (see Studio doc banner). Plan eventual **Gen 2** migration separately; it does not block current Studio + Data Manager workflow.
+Production cutover targets Hosting branch **`gen2-main`** and Console **Data manager**. Gen 1 Studio is deprecated after cutover; see [amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md).

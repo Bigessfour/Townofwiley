@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AmplifyGen2StackRefactor",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateStackRefactor",
+        "cloudformation:DescribeStackRefactor",
+        "cloudformation:ExecuteStackRefactor",
+        "cloudformation:GetStackPolicy",
+        "cloudformation:SetStackPolicy",
+        "cloudformation:DeleteChangeSet"
+      ],
+      "Resource": "arn:aws:cloudformation:*:*:stack/amplify-*"
+    }
+  ]
+}

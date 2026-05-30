@@ -3,13 +3,17 @@
  * Ensures public CMS GraphQL queries in site-cms-content.ts only list AppSync
  * models that grant public + apiKey + read in schema.graphql, and never EmailAlias.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
-const schemaPath = join(repoRoot, 'amplify/backend/api/townofwiley/schema.graphql');
+const SCHEMA_CANDIDATES = [
+  join(repoRoot, 'amplify/backend/api/townofwiley/schema.graphql'),
+  join(repoRoot, 'gen1-amplify-backend/backend/api/townofwiley/schema.graphql'),
+];
+const schemaPath = SCHEMA_CANDIDATES.find((path) => existsSync(path));
 const siteCmsPath = join(repoRoot, 'src/app/site-cms-content.ts');
 
 const LIST_OPERATION_TO_MODEL = {
@@ -69,6 +73,12 @@ function modelAllowsPublicApiKeyRead(schema, modelName) {
 }
 
 function main() {
+  if (!schemaPath) {
+    console.error(
+      `verify-public-cms-query: no schema.graphql found (tried: ${SCHEMA_CANDIDATES.join(', ')})`,
+    );
+    process.exit(1);
+  }
   const schema = readFileSync(schemaPath, 'utf8');
   const siteCms = readFileSync(siteCmsPath, 'utf8');
   const queries = extractPublicCmsQueries(siteCms);

@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen1 backend (AppSync/Cognito/S3) is defined under amplify/backend/; hosting under amplify.yml and customHttp.yml. Cost optimization effort started May 2026. Agent AWS access: source scripts/agent-aws-env.sh (exports townofwiley profile). See also scripts/configure-aws-cli-profile.sh and scripts/apply-aws-cost-optimizations.sh.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen2 backend (AppSync/Cognito/S3) on branch gen2-main under amplify/ (TypeScript CDK); Gen1 archive in gen1-amplify-backend/ on gen2-main; production main may still use amplify/backend/ until cutover. Hosting: amplify.yml + customHttp.yml. See docs/amplify-gen2-migration-plan.md.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -9,6 +9,9 @@
     "appId": "d331voxr1fhoir",
     "appName": "Townofwiley",
     "productionBranch": "main",
+    "gen2Branch": "gen2-main",
+    "gen2Backend": "amplify/backend.ts",
+    "gen2MigrationRunbook": "docs/amplify-gen2-migration-plan.md",
     "nodeVersion": "24.16.0",
     "customDomain": "townofwiley.gov",
     "syncScripts": {

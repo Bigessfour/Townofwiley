@@ -114,7 +114,7 @@ class SiteMonitorTests(unittest.TestCase):
                 "<html><body>Public Document Hub Stable public destinations for meetings, finance records, and code references</body></html>",
             ),
             ("GET", "https://townofwiley.gov/admin"): FakeResponse(
-                "<html><body>Open Amplify Studio Data Manager CMS Connection Status</body></html>",
+                "<html><body>Open Amplify Console Data manager CMS Connection Status</body></html>",
             ),
             (
                 "POST",

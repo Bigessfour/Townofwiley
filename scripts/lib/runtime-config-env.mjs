@@ -6,6 +6,22 @@ const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
 export const manifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.manifest.json');
 export const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
+export const amplifyOutputsPath = join(repoRoot, 'amplify_outputs.json');
+
+/**
+ * @returns {Record<string, unknown> | null}
+ */
+export function loadAmplifyOutputsFromRepo() {
+  if (!existsSync(amplifyOutputsPath)) {
+    return null;
+  }
+  try {
+    return JSON.parse(readFileSync(amplifyOutputsPath, 'utf8'));
+  } catch (error) {
+    console.warn(`Unable to parse ${amplifyOutputsPath}: ${error.message}`);
+    return null;
+  }
+}
 
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
@@ -34,10 +50,37 @@ export function loadAmplifyBranchEnvManifest(path = manifestPath) {
  * @param {Array<{ name: string; runtimePath?: string }>} requiredList
  * @returns {Array<{ name: string; runtimePath: string }>}
  */
+/**
+ * Env vars satisfied by amplify_outputs.json (Gen 2 Hosting backend phase).
+ * @param {Record<string, unknown> | null} outputs
+ */
+export function envFromAmplifyOutputs(outputs) {
+  if (!outputs || typeof outputs !== 'object') {
+    return {};
+  }
+  const data =
+    'data' in outputs && outputs.data && typeof outputs.data === 'object'
+      ? /** @type {{ url?: string; api_key?: string; aws_region?: string }} */ (outputs.data)
+      : null;
+  const out = {};
+  if (data?.url?.trim()) {
+    out.APPSYNC_CMS_ENDPOINT = data.url.trim();
+  }
+  if (data?.api_key?.trim()) {
+    out.APPSYNC_CMS_API_KEY = data.api_key.trim();
+  }
+  if (data?.aws_region?.trim()) {
+    out.APPSYNC_CMS_REGION = data.aws_region.trim();
+  }
+  return out;
+}
+
 export function collectRequiredEnvErrors(requiredList, env) {
+  const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
+  const effectiveEnv = { ...outputsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
-    const value = env[entry.name];
+    const value = effectiveEnv[entry.name];
     if (typeof value !== 'string' || value.trim() === '') {
       missing.push({
         name: entry.name,
@@ -71,6 +114,24 @@ export function shouldUseStrictMode(argv, env) {
  * @param {import('node:process').env} env
  */
 export function buildRuntimeConfigValues(localSecrets, env) {
+  const amplifyOutputs = loadAmplifyOutputsFromRepo();
+  const outputsData =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'data' in amplifyOutputs
+      ? /** @type {{ url?: string; aws_region?: string; api_key?: string }} */ (
+          amplifyOutputs.data
+        )
+      : null;
+  const outputsAuth =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'auth' in amplifyOutputs
+      ? /** @type {{ user_pool_id?: string; user_pool_client_id?: string; identity_pool_id?: string; aws_region?: string }} */ (
+          amplifyOutputs.auth
+        )
+      : null;
+  const outputsStorage =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'storage' in amplifyOutputs
+      ? /** @type {{ bucket_name?: string; aws_region?: string }} */ (amplifyOutputs.storage)
+      : null;
+
   const chatUrl =
     env.EASYPEASY_CHAT_URL?.trim() || localSecrets.chatbot?.easyPeasy?.chatUrl?.trim() || '';
   const apiEndpoint =
@@ -92,10 +153,18 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
     '';
   const cmsApiEndpoint =
-    env.APPSYNC_CMS_ENDPOINT?.trim() || localSecrets.cms?.appSync?.apiEndpoint?.trim() || '';
+    outputsData?.url?.trim() ||
+    env.APPSYNC_CMS_ENDPOINT?.trim() ||
+    localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
+    '';
   const cmsApiKey =
-    env.APPSYNC_CMS_API_KEY?.trim() || localSecrets.cms?.appSync?.apiKey?.trim() || '';
+    outputsData?.api_key?.trim() ||
+    env.APPSYNC_CMS_API_KEY?.trim() ||
+    localSecrets.cms?.appSync?.apiKey?.trim() ||
+    '';
   const cmsRegion =
+    outputsData?.aws_region?.trim() ||
+    outputsAuth?.aws_region?.trim() ||
     env.APPSYNC_CMS_REGION?.trim() ||
     localSecrets.cms?.appSync?.region?.trim() ||
     localSecrets.aws?.region?.trim() ||
@@ -126,11 +195,15 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     (clerkSetupAwsRegion
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
+  const amplifyBranch =
+    env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'gen2-main';
   const clerkSetupStudioUrl =
+    env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||
+    localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
     (clerkSetupAwsRegion && clerkSetupAmplifyAppId
-      ? `https://${clerkSetupAwsRegion}.admin.amplifyapp.com/admin/${clerkSetupAmplifyAppId}/main/home`
+      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`
       : clerkSetupAwsConsoleUrl);
   const severeWeatherSignupEnabled =
     env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'
@@ -198,6 +271,11 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     contactUpdateReviewProxyEndpoint,
     paystarMode,
     mode,
+    cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
+    cognitoUserPoolClientId: outputsAuth?.user_pool_client_id?.trim() || '',
+    cognitoIdentityPoolId: outputsAuth?.identity_pool_id?.trim() || '',
+    storageBucketName: outputsStorage?.bucket_name?.trim() || '',
+    storageRegion: outputsStorage?.aws_region?.trim() || '',
   };
 }
 
@@ -243,6 +321,23 @@ export function buildRuntimeConfigObject(values, buildMeta) {
         apiKey: values.cmsApiKey,
       },
     },
+    auth: values.cognitoUserPoolId
+      ? {
+          cognito: {
+            userPoolId: values.cognitoUserPoolId,
+            userPoolClientId: values.cognitoUserPoolClientId,
+            identityPoolId: values.cognitoIdentityPoolId,
+          },
+        }
+      : undefined,
+    storage: values.storageBucketName
+      ? {
+          s3: {
+            bucket: values.storageBucketName,
+            region: values.storageRegion || values.cmsRegion,
+          },
+        }
+      : undefined,
     clerkSetup: {
       clerkName: values.clerkSetupClerkName,
       awsAccountId: values.clerkSetupAwsAccountId,
@@ -250,6 +345,7 @@ export function buildRuntimeConfigObject(values, buildMeta) {
       awsRegion: values.clerkSetupAwsRegion,
       awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
       studioUrl: values.clerkSetupStudioUrl,
+      dataManagerUrl: values.clerkSetupStudioUrl,
     },
     logging: {
       endpoint: values.logEndpoint || undefined,

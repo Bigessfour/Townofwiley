@@ -13,10 +13,10 @@ Town of Wiley workloads and IAM user **`copilot`** live only in **`570912405222`
 
 The `copilot` IAM user needs log read actions to run `aws logs tail` / `FilterLogEvents` without `AccessDeniedException`.
 
-**Policy file:** [copilot-cloudwatch-logs-read-policy.json](./copilot-cloudwatch-logs-read-policy.json)  
+**Policy file:** [copilot-cloudwatch-logs-read-policy.json](./copilot-cloudwatch-logs-read-policy.json)
 Scoped to Town Lambda log groups (`TownOfWiley*`, `townofwiley*`, `amplify-townofwiley*`) in **us-east-2**, AppSync API logs (`/aws/appsync/apis/*`), and **us-east-1** email-alias Lambda logs.
 
-**Optional — Lambda read for `npm run verify:nws-proxy-aws`:** [copilot-lambda-read-verify-policy.json](./copilot-lambda-read-verify-policy.json)  
+**Optional — Lambda read for `npm run verify:nws-proxy-aws`:** [copilot-lambda-read-verify-policy.json](./copilot-lambda-read-verify-policy.json)
 Lets the same IAM user call `lambda:ListFunctions` and read configuration / function URLs for `arn:aws:lambda:us-east-2:570912405222:function:TownOfWiley*`. Use **`aws lambda list-functions --region us-east-2`** so discovery stays in the primary region. Apply with a **different** policy name so it does not replace the logs policy.
 
 ## `copilot` user — CloudFront (Amplify CDN)
@@ -119,9 +119,27 @@ export AWS_PROFILE=townofwiley AWS_DEFAULT_REGION=us-east-2
 aws logs tail /aws/lambda/TownOfWileySevereWeatherBackend --since 1h --format short | tail -20
 ```
 
+## Gen 2 migration — CloudFormation stack refactor
+
+Required for `amplify gen2-migration refactor` (see [docs/amplify-gen2-migration-plan.md](../../docs/amplify-gen2-migration-plan.md)).
+
+**Policy file:** [gen2-stack-refactor-policy.json](./gen2-stack-refactor-policy.json)
+**Managed policy name:** `TownOfWileyGen2StackRefactor` (`arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor`)
+
+Do **not** use `put-user-policy` for `copilot` — inline policy quota is full. Attach the managed policy:
+
+```bash
+aws iam attach-user-policy \
+  --user-name copilot \
+  --policy-arn arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor
+```
+
+Account administrators using the root user or a role with `AdministratorAccess` already have these actions.
+
 ### Remove (if needed)
 
 ```bash
 aws iam delete-user-policy --user-name copilot --policy-name TownOfWileyCloudWatchLogsRead
 aws iam delete-user-policy --user-name copilot --policy-name TownOfWileyLambdaReadVerify
+aws iam detach-user-policy --user-name copilot --policy-arn arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor
 ```

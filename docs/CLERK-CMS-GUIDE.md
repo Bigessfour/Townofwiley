@@ -14,7 +14,7 @@ This guide is written for the Town Clerk or any staff member who manages the Wil
 
 You need an invitation before you can log in. Contact the person who manages the website (your IT contact or the person who set this up) and ask them to invite you to Amplify Studio for the `townofwiley` app.
 
-They will send you an email from AWS with the subject **"You are invited to collaborate on an application in AWS Amplify Studio"**.
+For **Gen 2**, your IT contact adds you in **IAM** or shares the Amplify Console **Data manager** link (see [amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md)). Gen 1 Studio invitations are being retired.
 
 ### Step 2 — Accept the invitation
 
@@ -32,13 +32,11 @@ Bookmark this page first: https://townofwiley.gov/admin
 
 The admin page shows the Studio links, setup details, document publishing guide, contact updates, and a CMS connection test. Use it as the starting point each time.
 
-### Step 4 — Bookmark Amplify Studio if you want a direct shortcut
+### Step 4 — Bookmark Amplify Console Data manager
 
-Bookmark this link in your browser if you like opening Studio without going through `/admin` first.
-
-| Link                                                                                    | What it is                                                               |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [Amplify Studio](https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home) | Log in here for hosted Studio (home and Data Manager use the same entry) |
+| Link | What it is |
+|------|------------|
+| [Amplify Console — Data manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data) | Edit CMS records (SiteSettings, Announcement, Event, etc.) after Gen 2 cutover |
 
 ### Step 5 — Log in for the first time
 
@@ -53,9 +51,9 @@ Bookmark this link in your browser if you like opening Studio without going thro
 
 ### Where you make changes
 
-All website content is managed in one place: **Data Manager**.
+All website content is managed in one place: **Amplify Console Data manager**.
 
-Direct link: https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
+Direct link: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data
 
 Start here if you are not sure where to go: https://townofwiley.gov/admin
 

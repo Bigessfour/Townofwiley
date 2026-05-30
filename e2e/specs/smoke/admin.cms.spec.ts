@@ -1,6 +1,11 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
+/** Gen 2 Amplify Console Data manager (replaces Gen 1 hosted Studio). */
+const CONSOLE_DATA_MANAGER_LINK = 'Open Amplify Console Data manager';
+const CONSOLE_DATA_MANAGER_HREF =
+  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/gen2-main\/data$/;
+
 /** PrimeNG p-tabs lazy panels and clerk-setup redirects need the app shell settled (see primeng.org/tabs). */
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -21,11 +26,8 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /Town of Wiley Content Management/ }),
     ).toBeVisible({ timeout: 20000 });
     await expect(
-      homePage.page.getByRole('link', { name: 'Open Amplify Studio Data Manager' }).first(),
-    ).toHaveAttribute(
-      'href',
-      /^https:\/\/us-east-2\.admin\.amplifyapp\.com\/admin\/d331voxr1fhoir\/main\/home$/,
-    );
+      homePage.page.getByRole('link', { name: CONSOLE_DATA_MANAGER_LINK }).first(),
+    ).toHaveAttribute('href', CONSOLE_DATA_MANAGER_HREF);
     await expect(homePage.page.getByText('CMS Connection Status')).toBeVisible();
     await expect(homePage.page.getByRole('tab', { name: 'Setup & credentials' })).toBeVisible();
     await expect(homePage.page.getByRole('tab', { name: 'Document publishing' })).toBeVisible();

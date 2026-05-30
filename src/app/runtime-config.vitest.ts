@@ -63,7 +63,7 @@ describe('runtime config helpers', () => {
       'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
     );
     expect(configureArg.API.GraphQL.apiKey).toBe('');
-    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage');
+    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage-main');
     expect(configureArg.Storage.S3.region).toBe('us-east-2');
   });
 
