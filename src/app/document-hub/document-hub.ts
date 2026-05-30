@@ -54,6 +54,9 @@ interface DocumentHubCopy {
   title: string;
   intro: string;
   returnHome: string;
+  navDocumentsLabel: string;
+  navMeetingsLabel: string;
+  navContactLabel: string;
   openRecordsForm: string;
   sectionNavLabel: string;
   publishedArchiveKicker: string;
@@ -81,6 +84,9 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     intro:
       'Use this page to find meeting packets, approved minutes, budget summaries, annual reports, ordinances, zoning references, and records request information.',
     returnHome: 'Return to homepage',
+    navDocumentsLabel: 'Documents',
+    navMeetingsLabel: 'Meetings',
+    navContactLabel: 'Contact',
     openRecordsForm: 'Open records request form',
     sectionNavLabel: 'Document hub sections',
     publishedArchiveKicker: 'Published now',
@@ -216,6 +222,9 @@ const DOCUMENT_HUB_COPY: Record<SiteLanguage, DocumentHubCopy> = {
     intro:
       'Use esta pagina para encontrar paquetes de agenda, minutas aprobadas, resumenes de presupuesto, informes anuales, ordenanzas, referencias de zonificacion e informacion para solicitar registros.',
     returnHome: 'Volver a la pagina principal',
+    navDocumentsLabel: 'Documentos',
+    navMeetingsLabel: 'Reuniones',
+    navContactLabel: 'Contacto',
     openRecordsForm: 'Abrir formulario de registros',
     sectionNavLabel: 'Secciones del centro de documentos',
     publishedArchiveKicker: 'Publicado ahora',

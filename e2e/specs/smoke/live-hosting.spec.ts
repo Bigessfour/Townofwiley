@@ -58,6 +58,22 @@ test.describe('live hosting readiness', () => {
     await expect(page).toHaveURL(/\/admin#documents$/);
   });
 
+  test('homepage does not hit CSP inline-style blocks', async ({ page }) => {
+    const violations: string[] = [];
+    page.on('console', (msg) => {
+      if (/Refused to apply inline style|Applying inline style violates/i.test(msg.text())) {
+        violations.push(msg.text());
+      }
+    });
+    const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
+    expect(response?.ok(), '/ response should be OK').toBe(true);
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 20000 });
+    expect(
+      violations,
+      violations.join('\n') || 'no CSP inline-style violations',
+    ).toEqual([]);
+  });
+
   test('serves browser runtime config and critical public assets', async ({ request }) => {
     const runtimeConfig = await request.get('/runtime-config.js');
     expect(runtimeConfig.ok(), 'runtime-config.js should be hosted').toBe(true);

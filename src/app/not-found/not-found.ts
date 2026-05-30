@@ -29,13 +29,15 @@ const NOT_FOUND_COPY: Record<
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="not-found panel mx-auto grid max-w-2xl gap-6 px-4 py-10"
+      class="not-found panel wiley-panel mx-auto grid max-w-2xl gap-6 px-4 py-10"
       aria-labelledby="not-found-heading"
       data-testid="not-found-page"
     >
-      <p-card>
+      <p-card class="panel wiley-panel">
         <ng-template pTemplate="header">
-          <h1 id="not-found-heading" class="text-2xl font-semibold">{{ copy().heading }}</h1>
+          <div class="wiley-page-header">
+            <h1 id="not-found-heading">{{ copy().heading }}</h1>
+          </div>
         </ng-template>
         <ng-template pTemplate="content">
           <p class="m-0 text-balance">{{ copy().body }}</p>
@@ -43,9 +45,11 @@ const NOT_FOUND_COPY: Record<
         <ng-template pTemplate="footer">
           <div class="flex flex-wrap gap-4">
             <a routerLink="/" class="button-cta button-cta--solid">{{ copy().homeCta }}</a>
-            <a routerLink="/services" class="button-cta button-cta--ghost">{{
-              copy().servicesCta
-            }}</a>
+            <a
+              routerLink="/services"
+              class="button-cta button-cta--light inline-flex min-h-11 items-center justify-center rounded-wiley-full px-6 font-bold no-underline"
+              >{{ copy().servicesCta }}</a
+            >
           </div>
         </ng-template>
       </p-card>

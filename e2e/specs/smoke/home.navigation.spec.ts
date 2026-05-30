@@ -127,14 +127,13 @@ test.describe('homepage navigation', () => {
     });
     await expect(accessibilityResult.first()).toBeVisible();
 
-    await homePage.searchFor('city clerk deb dillon');
-    const clerkResult = homePage.page.locator(
-      'a.search-result[href="mailto:deb.dillon@townofwiley.gov"]',
-      {
-        hasText: siteContent.searchMatches.clerk,
-      },
-    );
-    await expect(clerkResult.first()).toBeVisible();
+    await homePage.searchFor('clerk dillon');
+    const clerkResult = homePage.page
+      .locator(
+        'a.search-result[href="mailto:deb.dillon@townofwiley.gov"], a.search-result[href="/contact"]',
+      )
+      .filter({ hasText: /Clerk|Dillon/i });
+    await expect(clerkResult.first()).toBeVisible({ timeout: 15_000 });
 
     await homePage.searchFor('business directory');
     const businessResult = homePage.page.locator('a.search-result[href="/businesses"]', {

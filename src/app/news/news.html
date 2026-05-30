@@ -1,5 +1,5 @@
 <section
-  class="public-page news-page-shell grid gap-6 max-w-[1240px] mx-auto px-4 py-8"
+  class="public-page wiley-page-shell news-page-shell"
   aria-labelledby="news-page-heading"
 >
   <header class="public-page-header grid gap-4 max-w-[56rem]">
@@ -9,7 +9,7 @@
   </header>
 
   @if (cmsLoading()) {
-    <p-card class="featured-news-card" [pt]="newsCardPt">
+    <p-card class="featured-news-card panel wiley-panel" [pt]="newsCardPt">
       <ng-template pTemplate="header">
         <p-skeleton width="11rem" height="0.7rem" styleClass="mb-2" />
         <p-skeleton width="92%" height="1.35rem" borderRadius="8px" styleClass="mb-2" />
@@ -37,7 +37,7 @@
 
       <div class="public-card-grid news-card-grid">
         @for (_ of [0, 1, 2]; track $index) {
-          <p-card class="public-card news-card" [pt]="newsCardPt">
+          <p-card class="public-card panel wiley-panel news-card" [pt]="newsCardPt">
             <ng-template pTemplate="header">
               <p-skeleton width="5.5rem" height="0.65rem" styleClass="mb-2" />
               <p-skeleton width="94%" height="1.1rem" borderRadius="6px" />
@@ -61,7 +61,7 @@
           <p class="public-page-copy">{{ copy().newsletterCopy }}</p>
         </div>
 
-        <p-card class="newsletter-item-card public-card" [pt]="newsCardPt">
+        <p-card class="newsletter-item-card public-card panel wiley-panel" [pt]="newsCardPt">
           <ng-template pTemplate="header">
             <p class="meta-label">{{ newsletter.date }}</p>
             <h3>{{ newsletter.title }}</h3>
@@ -109,7 +109,7 @@
     }
 
     @if (featuredNotice(); as featuredNotice) {
-      <p-card class="featured-news-card" [pt]="newsCardPt">
+      <p-card class="featured-news-card panel wiley-panel" [pt]="newsCardPt">
         <ng-template pTemplate="header">
           <p class="meta-label">{{ copy().featuredKicker }}</p>
           <h2>{{ featuredNotice.title }}</h2>
@@ -139,7 +139,7 @@
 
         <div class="public-card-grid news-card-grid">
           @for (item of remainingNotices(); track item.id) {
-            <p-card class="public-card news-card" [pt]="newsCardPt">
+            <p-card class="public-card panel wiley-panel news-card" [pt]="newsCardPt">
               <ng-template pTemplate="header">
                 <p class="meta-label">{{ item.date }}</p>
                 <h3>{{ item.title }}</h3>
@@ -179,7 +179,7 @@
 
     <div class="public-card-grid news-card-grid">
       @for (item of externalLinks(); track item.url) {
-        <p-card class="public-card news-card news-card--external" [pt]="newsCardPt">
+        <p-card class="public-card panel wiley-panel news-card news-card--external" [pt]="newsCardPt">
           <ng-template pTemplate="header">
             <p class="meta-label">{{ item.source }}</p>
             <h3>{{ item.title }}</h3>

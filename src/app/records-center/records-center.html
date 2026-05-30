@@ -1,6 +1,11 @@
-<section class="records-center grid gap-6" aria-labelledby="records-center-heading">
-  <p class="meta-label">{{ copy().kicker }}</p>
-  <h1 id="records-center-heading">{{ copy().title }}</h1>
+<section
+  class="records-center panel wiley-panel grid gap-6 rounded-wiley-xl border border-wiley-cream-100 p-6 shadow-wiley-card md:p-8"
+  aria-labelledby="records-center-heading"
+>
+  <div class="wiley-page-header">
+    <p class="section-kicker">{{ copy().kicker }}</p>
+    <h1 id="records-center-heading">{{ copy().title }}</h1>
+  </div>
 
   <section class="records-center-grid" aria-label="Records and document guides">
     @for (guide of copy().guides; track guide.id) {

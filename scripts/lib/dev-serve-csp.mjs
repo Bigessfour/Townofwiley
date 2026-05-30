@@ -1,7 +1,6 @@
 /**
- * Production CSP (customHttp.yml) uses style-src 'self' only — bundled CSS on Amplify.
- * `ng serve` + Vite inject component styles via inline <style> tags; without
- * 'unsafe-inline' on style-src, lazy routes (e.g. /admin) throw during injectStyles.
+ * Ensures style-src includes 'unsafe-inline' for local `ng serve` parity with Amplify Hosting.
+ * Production customHttp.yml must already include style-src 'unsafe-inline' (SSR + hydration).
  */
 export function applyDevServeCspRelaxedStyles(csp) {
   if (!csp.includes("style-src 'self'")) {

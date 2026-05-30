@@ -212,13 +212,18 @@
   box-shadow: 0 0 0 0.35rem var(--focus-ring-glow);
 }
 
-.site-header,
 .site-alert,
 .page-shell {
   max-width: 1240px;
   margin: 0 auto;
   padding-left: var(--space-md);
   padding-right: var(--space-md);
+}
+
+.site-header.sticky {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
 }
 
 .site-alert {
@@ -1030,10 +1035,10 @@ h6 {
 .panel {
   position: relative;
   padding: var(--panel-padding);
-  border: 1px solid rgba(13, 44, 84, 0.08);
+  border: 1px solid color-mix(in srgb, var(--wiley-navy-900) 8%, var(--wiley-cream-100));
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--shadow-medium);
+  background: var(--wiley-cream-0);
+  box-shadow: var(--shadow-subtle);
 }
 
 .hero-card {
@@ -1281,8 +1286,6 @@ h6 {
 .landing-shortcuts:focus-visible,
 .support-strip:hover,
 .support-strip:focus-visible,
-.panel:hover,
-.panel:focus-visible,
 .fact-card:hover,
 .fact-card:focus-visible,
 .service-card:hover,
@@ -1306,46 +1309,14 @@ h6 {
   border: 0;
 }
 
-.feature-page-shell {
-  display: grid;
-  gap: var(--space-sm);
-}
-
-.feature-page-shell h1 {
-  font-size: clamp(2rem, 4.5vw, 3rem);
-  line-height: var(--line-height-heading);
-}
-
-.feature-detail-stack {
-  display: grid;
-  gap: var(--section-gap-compact);
-}
-
-.feature-detail-stack .feature-page-panel-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-sm, 1rem);
-  justify-content: space-between;
-}
+/* feature-page-shell, feature-detail-stack, wiley-page-header — styles/_wiley-layout.scss */
 
 .feature-detail-stack .p-progress-spinner.feature-page-loading-spinner {
   width: 2rem;
   height: 2rem;
 }
 
-.detail-back-link {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
-  padding: var(--space-xs) var(--space-sm);
-  box-sizing: border-box;
-  color: var(--civic-blue);
-  font-weight: 700;
-  text-decoration: none;
-}
+/* detail-back-link — see styles/_wiley-layout.scss */
 
 .page-label-strip {
   display: flex;
@@ -1583,8 +1554,7 @@ h6 {
 .contact-card p,
 .contact-card-detail,
 .notice-card-detail,
-.compliance-note,
-.site-footer p {
+.compliance-note {
   line-height: var(--line-height-body);
   color: var(--ink-700);
   white-space: normal;
@@ -2635,16 +2605,6 @@ h6 {
   border-radius: 12px;
 }
 
-.site-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-top: 0;
-  padding: var(--space-lg) 0 0;
-  border-top: 1px solid rgba(13, 44, 84, 0.14);
-}
-
 .footer-links {
   list-style: none;
   margin: 0;
@@ -2856,11 +2816,6 @@ button:not(:disabled):active,
 
   .calendar-card.is-featured {
     grid-column: span 1;
-  }
-
-  .site-footer {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .utility-link {
@@ -3520,8 +3475,8 @@ button:not(:disabled):active,
   height: 3.75rem;
   border-radius: 50%;
   border: none;
-  background: #0d2c54;
-  color: #fff;
+  background: linear-gradient(135deg, var(--wiley-navy-900), var(--wiley-teal-800));
+  color: var(--wiley-inverse);
   font-size: 1.5rem;
   box-shadow: var(--shadow-floating);
   cursor: pointer;
@@ -3545,8 +3500,8 @@ button:not(:disabled):active,
   right: 4.5rem;
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-full);
-  background: #fff;
-  color: #0d2c54;
+  background: var(--wiley-cream-0);
+  color: var(--wiley-navy-900);
   font-size: var(--font-size-body);
   font-weight: 700;
   white-space: nowrap;

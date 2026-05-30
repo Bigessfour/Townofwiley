@@ -1,17 +1,15 @@
 <section class="feature-detail-stack">
-  <p-card class="panel contact-panel" id="contact">
+  <p-card class="panel wiley-panel contact-panel" id="contact">
     <ng-template pTemplate="header">
-      <div class="feature-page-panel-header">
+      <div class="wiley-page-header feature-page-panel-header">
         @if (cmsLoading()) {
           <div class="grid gap-2" aria-live="polite" aria-busy="true">
             <p-skeleton width="9rem" height="0.75rem" />
             <p-skeleton width="90%" height="1.85rem" borderRadius="8px" />
           </div>
         } @else {
-          <div>
-            <p class="section-kicker">{{ copy().contactKicker }}</p>
-            <h1>{{ copy().contactHeading }}</h1>
-          </div>
+          <p class="section-kicker">{{ copy().contactKicker }}</p>
+          <h1>{{ copy().contactHeading }}</h1>
         }
       </div>
     </ng-template>

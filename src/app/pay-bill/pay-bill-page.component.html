@@ -1,6 +1,6 @@
 <p-toast key="bill-pay" position="top-right" />
 
-<main class="pay-bill" role="main">
+<div class="pay-bill pay-bill-stack">
   <header class="pay-bill-hero" aria-labelledby="pay-bill-hero-heading">
     <div class="pay-bill-hero-inner">
       <p class="pay-bill-kicker">
@@ -14,7 +14,7 @@
 
   <div class="pay-bill-layout">
     <section class="pay-bill-cards" [attr.aria-label]="copy().cardsRegionLabel">
-      <p-card styleClass="pay-bill-card">
+      <p-card styleClass="pay-bill-card panel wiley-panel">
         <ng-template pTemplate="header">
           <div class="pay-bill-card-head">
             <i class="pi pi-external-link" aria-hidden="true"></i>
@@ -65,7 +65,7 @@
         </div>
       </p-card>
 
-      <p-card styleClass="pay-bill-card pay-bill-card--accent">
+      <p-card styleClass="pay-bill-card pay-bill-card--accent panel wiley-panel">
         <ng-template pTemplate="header">
           <div class="pay-bill-card-head pay-bill-card-head--split">
             <span class="pay-bill-card-title">
@@ -97,7 +97,7 @@
       tabindex="-1"
       aria-labelledby="bill-pay-form-heading"
     >
-      <p-card styleClass="pay-bill-card pay-bill-card--wide">
+      <p-card styleClass="pay-bill-card pay-bill-card--wide panel wiley-panel">
         <ng-template pTemplate="header">
           <div class="pay-bill-card-head">
             <i class="pi pi-pencil" aria-hidden="true"></i>
@@ -234,7 +234,7 @@
     </section>
 
     <section class="pay-bill-help" aria-labelledby="pay-bill-help-heading">
-      <p-card styleClass="pay-bill-card pay-bill-card--help">
+      <p-card styleClass="pay-bill-card pay-bill-card--help panel wiley-panel">
         <ng-template pTemplate="header">
           <div class="pay-bill-card-head">
             <i class="pi pi-info-circle" aria-hidden="true"></i>
@@ -257,4 +257,4 @@
       </p-card>
     </section>
   </div>
-</main>
+</div>
