@@ -35,18 +35,18 @@ export class ContactUpdateReviewService {
     const reviewEndpoint = this.resolveReviewEndpoint(reviewConfig);
     const requiresStaffJwt = Boolean(reviewConfig.reviewApiEndpoint);
 
-    if (requiresStaffJwt) {
-      await this.staffAuth.refreshSession();
-      if (!this.staffAuth.accessToken()) {
-        return {
-          ok: false,
-          error:
-            'Sign in at /admin/login to view resident contact updates, then open this tab again.',
-        };
-      }
-    }
-
     try {
+      if (requiresStaffJwt) {
+        await this.staffAuth.refreshSession();
+        if (!this.staffAuth.accessToken()) {
+          return {
+            ok: false,
+            error:
+              'Sign in at /admin/login to view resident contact updates, then open this tab again.',
+          };
+        }
+      }
+
       const headers = requiresStaffJwt
         ? new HttpHeaders({
             Authorization: `Bearer ${this.staffAuth.accessToken()}`,
@@ -55,7 +55,17 @@ export class ContactUpdateReviewService {
       const response = await firstValueFrom(
         this.http.get<ContactUpdateRecord[]>(reviewEndpoint, { headers }),
       );
-      return { ok: true, data: response ?? [] };
+
+      if (!Array.isArray(response)) {
+        return {
+          ok: false,
+          error: requiresStaffJwt
+            ? 'Contact updates returned an unexpected format. Sign in at /admin/login and try again.'
+            : 'Contact updates returned an unexpected format. Contact IT.',
+        };
+      }
+
+      return { ok: true, data: response };
     } catch (err) {
       const message = this.describeHttpError(err, requiresStaffJwt);
       console.error('Failed to load contact updates', err);

@@ -59,10 +59,14 @@ export class AdminLoginComponent {
   }
 
   private async redirectIfAlreadyStaff(): Promise<void> {
-    await this.auth.refreshSession();
-    if (this.auth.isStaff()) {
-      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/admin';
-      await this.router.navigateByUrl(returnUrl);
+    try {
+      await this.auth.refreshSession();
+      if (this.auth.isStaff()) {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/admin';
+        await this.router.navigateByUrl(returnUrl);
+      }
+    } catch {
+      this.loadError.set(this.copy().authError);
     }
   }
 }

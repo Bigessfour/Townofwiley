@@ -8,6 +8,7 @@ export interface AppRouteLink {
 const APP_ROUTE_PATHS = new Set([
   '/',
   '/admin',
+  '/admin/login',
   '/clerk-setup',
   '/documents',
   '/notices',

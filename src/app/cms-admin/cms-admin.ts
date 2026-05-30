@@ -1296,6 +1296,11 @@ export class CmsAdmin {
         this.contactUpdates.set([]);
         this.contactUpdatesLoadError.set(result.error);
       }
+    } catch {
+      this.contactUpdates.set([]);
+      this.contactUpdatesLoadError.set(
+        'Could not load contact updates. Sign in at /admin/login or contact IT.',
+      );
     } finally {
       this.contactUpdatesLoading.set(false);
     }

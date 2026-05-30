@@ -101,7 +101,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page).toHaveURL(/\/admin#updates$/);
     await expect(homePage.page.getByRole('tab', { name: 'Contact updates' })).toBeVisible();
     await expect(
-      homePage.page.getByRole('heading', { name: 'Resident Contact Updates' }),
+      homePage.page.getByRole('heading', { name: 'Resident contact & billing intake' }),
     ).toBeVisible({ timeout: 20000 });
   });
 

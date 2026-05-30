@@ -93,6 +93,25 @@ describe('ContactUpdateReviewService', () => {
     expect(result.ok).toBe(true);
   });
 
+  it('returns ok false when review API returns a non-array body', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://api.example/contact-updates',
+      },
+    };
+    staffAuth.accessToken.mockReturnValue('staff-jwt');
+
+    const promise = service.getAllUpdates();
+    await Promise.resolve();
+    const req = httpTesting.expectOne('https://api.example/contact-updates');
+    req.flush({ items: [] });
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('unexpected format');
+    }
+  });
+
   it('returns sign-in message when review API is configured but user has no token', async () => {
     (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
       contactUpdate: {
