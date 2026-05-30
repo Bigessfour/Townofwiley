@@ -175,7 +175,6 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   name: 'townofwiley',
-  branchName: 'gen2-main',
   authorizationModes: {
     defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {

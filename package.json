@@ -36,6 +36,7 @@
     "amplify:gen2:retain": "amplify gen2-migration retain",
     "amplify:gen2:refactor": "amplify gen2-migration refactor",
     "amplify:copy-branch-env": "bash scripts/copy-amplify-branch-env.sh",
+    "amplify:disassociate-gen1-backend": "bash scripts/disassociate-gen1-backend-from-branch.sh",
     "mcp:primeng:install": "npm install --prefix mcp/primeng",
     "rag:setup": "node scripts/rag-setup.mjs",
     "rag:index": "node scripts/rag-run.mjs index",

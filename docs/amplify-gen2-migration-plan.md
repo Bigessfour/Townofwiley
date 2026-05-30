@@ -35,6 +35,18 @@ Clerk guide: [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md). Admin hub: https://town
 
 On **`main`**, Gen 1 files remain under `amplify/backend/` until merge/cutover.
 
+## Hosting deploy fixes (`gen2-main` job failures)
+
+| Issue | Fix |
+|-------|-----|
+| `npm ci --prefix amplify` EUSAGE | Commit **`amplify/package-lock.json`** (run `npm install` in `amplify/`). |
+| Gen 1 `amplify pull` on `gen2-main` | Clear Gen 1 backend link: `aws amplify update-branch --app-id d331voxr1fhoir --branch-name gen2-main --backend-environment-arn ""` (branch `backend` becomes `{}`). **Do not** run this on `main`. |
+| `ampx pipeline-deploy` in CodeBuild | Set **`export CI=1`**; invoke **`npx --prefix amplify ampx pipeline-deploy`** (CLI is under `amplify/`, not repo root). |
+| Invalid `branchName` in `defineData` | Removed; not a valid `DataProps` field — shared DynamoDB for models is automatic per migration docs until refactor. |
+| Frontend missing CMS outputs | After backend deploy, assert **`amplify_outputs.json`** exists before `generate-runtime-config.mjs --strict`. |
+
+Sync Console buildSpec after editing `amplify.yml`: `npm run amplify:sync-buildspec`.
+
 ## Prerequisites (done in this effort)
 
 - [x] CDK bootstrap: `npx aws-cdk bootstrap aws://570912405222/us-east-2`

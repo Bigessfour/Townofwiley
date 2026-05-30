@@ -50,10 +50,37 @@ export function loadAmplifyBranchEnvManifest(path = manifestPath) {
  * @param {Array<{ name: string; runtimePath?: string }>} requiredList
  * @returns {Array<{ name: string; runtimePath: string }>}
  */
+/**
+ * Env vars satisfied by amplify_outputs.json (Gen 2 Hosting backend phase).
+ * @param {Record<string, unknown> | null} outputs
+ */
+export function envFromAmplifyOutputs(outputs) {
+  if (!outputs || typeof outputs !== 'object') {
+    return {};
+  }
+  const data =
+    'data' in outputs && outputs.data && typeof outputs.data === 'object'
+      ? /** @type {{ url?: string; api_key?: string; aws_region?: string }} */ (outputs.data)
+      : null;
+  const out = {};
+  if (data?.url?.trim()) {
+    out.APPSYNC_CMS_ENDPOINT = data.url.trim();
+  }
+  if (data?.api_key?.trim()) {
+    out.APPSYNC_CMS_API_KEY = data.api_key.trim();
+  }
+  if (data?.aws_region?.trim()) {
+    out.APPSYNC_CMS_REGION = data.aws_region.trim();
+  }
+  return out;
+}
+
 export function collectRequiredEnvErrors(requiredList, env) {
+  const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
+  const effectiveEnv = { ...outputsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
-    const value = env[entry.name];
+    const value = effectiveEnv[entry.name];
     if (typeof value !== 'string' || value.trim() === '') {
       missing.push({
         name: entry.name,
@@ -126,20 +153,20 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
     '';
   const cmsApiEndpoint =
+    outputsData?.url?.trim() ||
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
     localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
-    outputsData?.url?.trim() ||
     '';
   const cmsApiKey =
+    outputsData?.api_key?.trim() ||
     env.APPSYNC_CMS_API_KEY?.trim() ||
     localSecrets.cms?.appSync?.apiKey?.trim() ||
-    outputsData?.api_key?.trim() ||
     '';
   const cmsRegion =
-    env.APPSYNC_CMS_REGION?.trim() ||
-    localSecrets.cms?.appSync?.region?.trim() ||
     outputsData?.aws_region?.trim() ||
     outputsAuth?.aws_region?.trim() ||
+    env.APPSYNC_CMS_REGION?.trim() ||
+    localSecrets.cms?.appSync?.region?.trim() ||
     localSecrets.aws?.region?.trim() ||
     DEFAULT_AWS_REGION;
   const clerkSetupAwsAccountId =
