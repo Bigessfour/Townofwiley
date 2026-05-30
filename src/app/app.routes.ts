@@ -3,6 +3,10 @@ import { HomeRouteShell } from './home-route-shell';
 
 export const routes: Routes = [
   {
+    path: 'admin/login',
+    loadComponent: () => import('./auth/admin-login.component').then((m) => m.AdminLoginComponent),
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./cms-admin/cms-admin').then((m) => m.CmsAdmin),
   },

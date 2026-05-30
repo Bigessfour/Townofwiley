@@ -1,6 +1,7 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { StaffAuthService } from '../auth/staff-auth.service';
 import { getContactUpdateReviewRuntimeConfig } from '../contact-update/contact-update-config';
 import { printContactUpdateReport, type ContactUpdateReportLabels } from './contact-update-report';
 
@@ -27,14 +28,36 @@ export type ContactUpdatesLoadResult =
 @Injectable({ providedIn: 'root' })
 export class ContactUpdateReviewService {
   private readonly http = inject(HttpClient);
+  private readonly staffAuth = inject(StaffAuthService);
 
   async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
-    const reviewEndpoint = this.resolveReviewEndpoint();
+    const reviewConfig = getContactUpdateReviewRuntimeConfig();
+    const reviewEndpoint = this.resolveReviewEndpoint(reviewConfig);
+    const requiresStaffJwt = Boolean(reviewConfig.reviewApiEndpoint);
+
+    if (requiresStaffJwt) {
+      await this.staffAuth.refreshSession();
+      if (!this.staffAuth.accessToken()) {
+        return {
+          ok: false,
+          error:
+            'Sign in at /admin/login to view resident contact updates, then open this tab again.',
+        };
+      }
+    }
+
     try {
-      const response = await firstValueFrom(this.http.get<ContactUpdateRecord[]>(reviewEndpoint));
+      const headers = requiresStaffJwt
+        ? new HttpHeaders({
+            Authorization: `Bearer ${this.staffAuth.accessToken()}`,
+          })
+        : undefined;
+      const response = await firstValueFrom(
+        this.http.get<ContactUpdateRecord[]>(reviewEndpoint, { headers }),
+      );
       return { ok: true, data: response ?? [] };
     } catch (err) {
-      const message = this.describeHttpError(err);
+      const message = this.describeHttpError(err, requiresStaffJwt);
       console.error('Failed to load contact updates', err);
       return { ok: false, error: message };
     }
@@ -94,21 +117,31 @@ export class ContactUpdateReviewService {
     printContactUpdateReport(updates, labels);
   }
 
-  private resolveReviewEndpoint(): string {
-    const configured = getContactUpdateReviewRuntimeConfig().reviewProxyEndpoint;
-    if (configured) {
-      return configured;
+  private resolveReviewEndpoint(config: {
+    reviewApiEndpoint: string;
+    reviewProxyEndpoint: string;
+  }): string {
+    if (config.reviewApiEndpoint) {
+      return config.reviewApiEndpoint;
+    }
+    if (config.reviewProxyEndpoint) {
+      return config.reviewProxyEndpoint;
     }
     return '/api/contact-updates-review';
   }
 
-  private describeHttpError(err: unknown): string {
+  private describeHttpError(err: unknown, requiresStaffJwt: boolean): string {
     if (err instanceof HttpErrorResponse) {
-      if (err.status === 403) {
-        return 'Contact updates are not available (access denied). Ask IT to deploy the review proxy.';
+      if (err.status === 401 || err.status === 403) {
+        return requiresStaffJwt
+          ? 'Contact updates require staff sign-in. Open /admin/login, sign in, then reload this page.'
+          : 'Contact updates are not available (access denied). Ask IT to deploy the review proxy.';
       }
       if (err.status === 0) {
         return 'Could not reach the contact updates service. Check your network or try again.';
+      }
+      if (err.status === 200) {
+        return 'Could not load contact updates (received the site home page instead of data). Sign in at /admin/login or contact IT.';
       }
       return `Could not load contact updates (HTTP ${err.status}).`;
     }

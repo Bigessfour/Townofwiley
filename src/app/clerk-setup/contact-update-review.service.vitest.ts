@@ -1,17 +1,38 @@
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ContactUpdateReviewService } from './contact-update-review.service';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import testProviders from '../../test-providers';
+import { StaffAuthService } from '../auth/staff-auth.service';
+import { ContactUpdateReviewService } from './contact-update-review.service';
+
+type RuntimeWindow = Window & {
+  __TOW_RUNTIME_CONFIG__?: {
+    contactUpdate?: {
+      reviewApiEndpoint?: string;
+      reviewProxyEndpoint?: string;
+    };
+  };
+};
 
 describe('ContactUpdateReviewService', () => {
   let service: ContactUpdateReviewService;
   let httpTesting: HttpTestingController;
+  let staffAuth: {
+    refreshSession: ReturnType<typeof vi.fn>;
+    accessToken: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
+    delete (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__;
+    delete (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+
+    staffAuth = {
+      refreshSession: vi.fn().mockResolvedValue(undefined),
+      accessToken: vi.fn().mockReturnValue(null),
+    };
+
     TestBed.configureTestingModule({
-      providers: [...testProviders, provideHttpClient(), provideHttpClientTesting()],
+      providers: [...testProviders, { provide: StaffAuthService, useValue: staffAuth }],
     });
     service = TestBed.inject(ContactUpdateReviewService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -21,7 +42,7 @@ describe('ContactUpdateReviewService', () => {
     httpTesting.verify();
   });
 
-  it('returns ok with data on successful GET', async () => {
+  it('returns ok with data on successful GET to default proxy path', async () => {
     const promise = service.getAllUpdates();
     const req = httpTesting.expectOne('/api/contact-updates-review');
     expect(req.request.method).toBe('GET');
@@ -51,5 +72,39 @@ describe('ContactUpdateReviewService', () => {
     if (!result.ok) {
       expect(result.error).toContain('access denied');
     }
+  });
+
+  it('uses reviewApiEndpoint with Bearer token when configured', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://api.example/contact-updates',
+      },
+    };
+    staffAuth.accessToken.mockReturnValue('staff-jwt');
+
+    const promise = service.getAllUpdates();
+    await Promise.resolve();
+    expect(staffAuth.refreshSession).toHaveBeenCalled();
+
+    const req = httpTesting.expectOne('https://api.example/contact-updates');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer staff-jwt');
+    req.flush([]);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+  });
+
+  it('returns sign-in message when review API is configured but user has no token', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://api.example/contact-updates',
+      },
+    };
+
+    const result = await service.getAllUpdates();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('/admin/login');
+    }
+    httpTesting.expectNone('https://api.example/contact-updates');
   });
 });
