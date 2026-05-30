@@ -133,22 +133,22 @@ Local `npm start` uses non-strict `generate:runtime-config` so developers withou
 
 ### Expected keys (compare live file to Amplify env)
 
-| Runtime path                       | Amplify env var(s)                                |
-| ---------------------------------- | ------------------------------------------------- |
-| `cms.appSync.apiEndpoint`          | `APPSYNC_CMS_ENDPOINT`                            |
-| `cms.appSync.apiKey`               | `APPSYNC_CMS_API_KEY` (redact in logs)            |
-| `cms.appSync.region`               | `APPSYNC_CMS_REGION`                              |
-| `weather.apiEndpoint`              | `NWS_PROXY_ENDPOINT`                              |
-| `weather.alertSignup.apiEndpoint`  | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`              |
-| `weather.alertSignup.enabled`      | `SEVERE_WEATHER_SIGNUP_ENABLED`                   |
-| `payments.paystar.mode`            | `PAYSTAR_MODE` (or inferred from portal/API URLs) |
-| `payments.paystar.portalUrl`       | `PAYSTAR_PORTAL_URL`                              |
-| `payments.paystar.apiEndpoint`     | `PAYSTAR_API_ENDPOINT`                            |
-| `contactUpdate.apiEndpoint`        | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)      |
-| `contactUpdate.reviewApiEndpoint`    | `CONTACT_UPDATE_REVIEW_API_URL` (JWT staff review API) |
-| `contactUpdate.reviewProxyEndpoint`| `CONTACT_UPDATE_REVIEW_PROXY_URL` (**deprecated**) |
-| `chatbot.*`                        | `EASYPEASY_*`                                     |
-| `build.gitSha` / `build.timestamp` | From git at build time                            |
+| Runtime path                        | Amplify env var(s)                                     |
+| ----------------------------------- | ------------------------------------------------------ |
+| `cms.appSync.apiEndpoint`           | `APPSYNC_CMS_ENDPOINT`                                 |
+| `cms.appSync.apiKey`                | `APPSYNC_CMS_API_KEY` (redact in logs)                 |
+| `cms.appSync.region`                | `APPSYNC_CMS_REGION`                                   |
+| `weather.apiEndpoint`               | `NWS_PROXY_ENDPOINT`                                   |
+| `weather.alertSignup.apiEndpoint`   | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`                   |
+| `weather.alertSignup.enabled`       | `SEVERE_WEATHER_SIGNUP_ENABLED`                        |
+| `payments.paystar.mode`             | `PAYSTAR_MODE` (or inferred from portal/API URLs)      |
+| `payments.paystar.portalUrl`        | `PAYSTAR_PORTAL_URL`                                   |
+| `payments.paystar.apiEndpoint`      | `PAYSTAR_API_ENDPOINT`                                 |
+| `contactUpdate.apiEndpoint`         | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)           |
+| `contactUpdate.reviewApiEndpoint`   | `CONTACT_UPDATE_REVIEW_API_URL` (JWT staff review API) |
+| `contactUpdate.reviewProxyEndpoint` | `CONTACT_UPDATE_REVIEW_PROXY_URL` (**deprecated**)     |
+| `chatbot.*`                         | `EASYPEASY_*`                                          |
+| `build.gitSha` / `build.timestamp`  | From git at build time                                 |
 
 ### Verification commands (PowerShell)
 

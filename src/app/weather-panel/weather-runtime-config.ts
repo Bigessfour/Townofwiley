@@ -56,8 +56,13 @@ export function readWeatherRuntimeConfig(): WeatherRuntimeConfig {
     },
   };
 
-  if (import.meta.env.DEV && (!weatherConfig.apiEndpoint || weatherConfig.apiEndpoint.includes('placeholder'))) {
-    console.warn('[RuntimeConfig] NWS_PROXY_ENDPOINT missing or placeholder in Amplify env vars — weather will show unavailable');
+  if (
+    import.meta.env.DEV &&
+    (!weatherConfig.apiEndpoint || weatherConfig.apiEndpoint.includes('placeholder'))
+  ) {
+    console.warn(
+      '[RuntimeConfig] NWS_PROXY_ENDPOINT missing or placeholder in Amplify env vars — weather will show unavailable',
+    );
   }
 
   return config;

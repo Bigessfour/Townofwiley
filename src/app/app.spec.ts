@@ -841,8 +841,7 @@ describe('App', () => {
         amplifyAppId: 'd331voxr1fhoir',
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
-        studioUrl:
-          'https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home',
+        studioUrl: 'https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home',
       },
     };
 

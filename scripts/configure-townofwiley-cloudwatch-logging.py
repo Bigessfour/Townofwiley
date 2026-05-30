@@ -148,7 +148,9 @@ def ensure_sns_topic(topic_name: str, *, region: str, dry_run: bool) -> str:
         region=region,
         dry_run=dry_run,
     )
-    return str(details.get("TopicArn", f"arn:aws:sns:{region}:570912405222:{topic_name}"))
+    return str(
+        details.get("TopicArn", f"arn:aws:sns:{region}:570912405222:{topic_name}")
+    )
 
 
 def ensure_sns_email_subscription(
@@ -403,7 +405,9 @@ def ensure_appsync_api_cache(
     dry_run: bool,
 ) -> None:
     try:
-        existing = run_aws(["appsync", "get-api-cache", "--api-id", api_id], region=region)
+        existing = run_aws(
+            ["appsync", "get-api-cache", "--api-id", api_id], region=region
+        )
         status = str(existing.get("apiCache", {}).get("status", "")).upper()
         if status in {"CREATING", "MODIFYING", "DELETING"}:
             print(f"  appsync cache -> {api_id} is {status}; skipping update")
@@ -467,7 +471,9 @@ def main() -> int:
         print("  mode: dry-run")
 
     if args.appsync_cache_only:
-        print(f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)")
+        print(
+            f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)"
+        )
         ensure_appsync_api_cache(
             region=primary_region,
             api_id=args.appsync_api_id,
@@ -562,7 +568,9 @@ def main() -> int:
             role_name=DEFAULT_APPSYNC_LOGS_ROLE,
             dry_run=args.dry_run,
         )
-        print(f"  appsync logging -> {args.appsync_api_id} ({args.appsync_field_log_level})")
+        print(
+            f"  appsync logging -> {args.appsync_api_id} ({args.appsync_field_log_level})"
+        )
         ensure_appsync_logging(
             region=primary_region,
             api_id=args.appsync_api_id,
@@ -573,7 +581,9 @@ def main() -> int:
         )
 
     if not args.skip_appsync_cache:
-        print(f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)")
+        print(
+            f"  appsync cache -> {args.appsync_api_id} (TTL {args.appsync_cache_ttl}s)"
+        )
         ensure_appsync_api_cache(
             region=primary_region,
             api_id=args.appsync_api_id,

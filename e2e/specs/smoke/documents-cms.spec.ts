@@ -9,9 +9,9 @@ test.describe('Documents hub CMS snapshot', () => {
       homePage.page.getByRole('heading', { level: 1, name: siteContent.cmsHeadings.documentsHub }),
     ).toBeVisible({ timeout: 20_000 });
 
-    await expect(
-      homePage.page.getByRole('link', { name: 'Open document' }).first(),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(homePage.page.getByRole('link', { name: 'Open document' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     const meetingAccessGuide = homePage.page.locator('article', {
       hasText: 'City Council Meeting Access Guide',
@@ -29,9 +29,9 @@ test.describe('Documents hub CMS snapshot', () => {
     });
     await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
 
-    await expect(
-      homePage.page.getByRole('link', { name: 'Abrir documento' }).first(),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(homePage.page.getByRole('link', { name: 'Abrir documento' }).first()).toBeVisible({
+      timeout: 20_000,
+    });
 
     await expect(
       homePage.page.getByText('Guia de acceso a reuniones del concejo municipal', { exact: false }),

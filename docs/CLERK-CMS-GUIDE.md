@@ -36,8 +36,8 @@ The admin page shows the Studio links, setup details, document publishing guide,
 
 Bookmark this link in your browser if you like opening Studio without going through `/admin` first.
 
-| Link                                                                                                                                      | What it is                                                                 |
-| ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Link                                                                                    | What it is                                                               |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | [Amplify Studio](https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home) | Log in here for hosted Studio (home and Data Manager use the same entry) |
 
 ### Step 5 — Log in for the first time
@@ -111,10 +111,10 @@ Every piece of content on the website lives in one of these models in Data Manag
 
 The website looks up the **Town Hall** block and **City Clerk** block by the **`id`** field on `OfficialContact` (not by the person’s name in the title). In Amplify Studio, keep these exact IDs:
 
-| `id` field (exact) | Purpose |
-| ------------------- | ------- |
+| `id` field (exact) | Purpose                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------- |
 | `town-information` | Main Town Hall phone block used in the site footer, services, and accessibility pages |
-| `city-clerk`       | Clerk email/phone used on Permits and related contact panels |
+| `city-clerk`       | Clerk email/phone used on Permits and related contact panels                          |
 
 If you delete one of these records and create a new row with a different `id`, the site may show fallback wording until IT restores the IDs.
 
@@ -164,12 +164,12 @@ Short utility notices should leave **announcementKind** blank so they stay in **
 
 Use this table when you are unsure what to type in optional **Announcement** fields in Data Manager.
 
-| Field | What it is | What you should enter |
-| ----- | ----------- | ---------------------- |
-| **announcementKind** | Tells the website which layout to use on `/news`. | Leave **empty** (or blank) for normal short bulletins in **Current Wiley Updates**. Type exactly **`newsletter`** (lowercase) for the long **Newsletter from Town Hall** block. Do not invent other words unless engineering has documented them — other values behave like a normal notice. |
-| **attachmentKey** | The **storage object key** (internal file path) for a **newsletter PDF** in Town document storage. | **Only when `announcementKind` is `newsletter`.** Ask IT to upload the finished PDF and send you the full key. It always starts with `documents/newsletter/` and ends with the file name, for example `documents/newsletter/2026-05-town-newsletter.pdf`. Paste that entire path into **attachmentKey** with no spaces. Do **not** paste a Google Drive edit link, a `mailto:` link, or only the file name by itself. If you are not publishing a PDF yet, leave this field blank — the site will still show the **detail** text. |
-| **priority** | A whole number used to **sort** announcements before the site shows them. | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention. |
-| **imageUrl** | A full public web address pointing to an **image** file. | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it. |
+| Field                | What it is                                                                                         | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **announcementKind** | Tells the website which layout to use on `/news`.                                                  | Leave **empty** (or blank) for normal short bulletins in **Current Wiley Updates**. Type exactly **`newsletter`** (lowercase) for the long **Newsletter from Town Hall** block. Do not invent other words unless engineering has documented them — other values behave like a normal notice.                                                                                                                                                                                                                                      |
+| **attachmentKey**    | The **storage object key** (internal file path) for a **newsletter PDF** in Town document storage. | **Only when `announcementKind` is `newsletter`.** Ask IT to upload the finished PDF and send you the full key. It always starts with `documents/newsletter/` and ends with the file name, for example `documents/newsletter/2026-05-town-newsletter.pdf`. Paste that entire path into **attachmentKey** with no spaces. Do **not** paste a Google Drive edit link, a `mailto:` link, or only the file name by itself. If you are not publishing a PDF yet, leave this field blank — the site will still show the **detail** text. |
+| **priority**         | A whole number used to **sort** announcements before the site shows them.                          | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention.                                        |
+| **imageUrl**         | A full public web address pointing to an **image** file.                                           | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it.                                    |
 
 ### Add or refresh regional news links (Wiley / Prowers coverage)
 
@@ -308,10 +308,13 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 
 ### Add a public document (for the /documents page)
 
+**Post-migration (CMS-only):** The `/documents` hub reads **only** active `PublicDocument` rows from AppSync. There is no repo manifest to edit. Optional **titleEs**, **summaryEs**, and **statusEs** supply Spanish labels when residents switch the site to Español (English fields are used when Spanish is blank). After you save in Studio, open `/documents` once (hard refresh if needed); the page refreshes the catalog on each visit and when a resident returns to the tab—no website redeploy is required for new rows.
+
 1. Open **PublicDocument** in Data Manager.
 2. Click **Create publicDocument**.
 3. Fill in **title** — the document name residents will see.
 4. Fill in **summary** — one sentence describing what it is.
+   4a. (Optional) Fill in **titleEs**, **summaryEs**, and **statusEs** for the Spanish site.
 5. Fill in **sectionId** — this decides which section of the documents page it appears under. Use one of these exact values:
    - `records-requests` — records requests and public forms
    - `meeting-documents` — meeting packets, agendas, and minutes
@@ -323,7 +326,7 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 9. Set **active** to **true** so residents can see it on the live site.
 10. Set **displayOrder** if needed — lower numbers appear higher in the list.
 11. Click **Save**.
-12. Refresh the /documents page and confirm the document appears in the correct section.
+12. Open `/documents` and confirm the document appears in the correct section (hard refresh once if you do not see it immediately; other residents see it on their next visit or when returning to the tab).
 
 ### Upload a City Council agenda packet for public viewing
 

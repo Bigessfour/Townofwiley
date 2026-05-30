@@ -1,11 +1,11 @@
 import { expect, test } from '../../fixtures/town.fixture';
 
-type CspViolationRecord = {
+interface CspViolationRecord {
   directive?: string;
   blockedURI?: string;
   source: 'securitypolicyviolation' | 'console';
   detail: string;
-};
+}
 
 test.describe('homepage CSP', () => {
   test('homepage weather and chat load without Content-Security-Policy violations', async ({

@@ -17,9 +17,7 @@ export async function waitForCmsStoreInitialization(): Promise<void> {
   await Promise.resolve();
 }
 
-export async function flushCmsSnapshotAndWait(
-  httpTesting: HttpTestingController,
-): Promise<void> {
+export async function flushCmsSnapshotAndWait(httpTesting: HttpTestingController): Promise<void> {
   flushBuildCmsSnapshotNotFound(httpTesting);
   await waitForCmsStoreInitialization();
 }

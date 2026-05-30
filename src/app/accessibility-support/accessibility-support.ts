@@ -136,8 +136,12 @@ export class AccessibilitySupport {
     { initialValue: this.reportForm.getRawValue() },
   );
 
-  protected readonly townInfoContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION));
-  protected readonly clerkContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK));
+  protected readonly townInfoContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+  );
+  protected readonly clerkContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK),
+  );
   protected readonly townHallPhoneHref = computed(() =>
     this.getContactHref(this.townInfoContact(), 'tel:'),
   );

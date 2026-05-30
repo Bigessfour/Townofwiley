@@ -15,6 +15,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractCspValueFromCustomHttpText } from './lib/custom-http-csp.mjs';
+import { applyDevServeCspRelaxedStyles } from './lib/dev-serve-csp.mjs';
 
 const root = join(import.meta.dirname, '..');
 
@@ -87,10 +88,7 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
       /connect-src[^;]*\*\.lambda-url\.us-east-2\.on\.aws/i,
       'connect-src must allow https://*.lambda-url.us-east-2.on.aws (weather proxy and alert signup)',
     ],
-    [
-      /style-src[^;]*'self'/,
-      "style-src must include 'self'",
-    ],
+    [/style-src[^;]*'self'/, "style-src must include 'self'"],
     [
       /style-src-attr[^;]*'unsafe-inline'/,
       "style-src-attr must include 'unsafe-inline' (Angular/PrimeNG attribute styles)",
@@ -137,8 +135,11 @@ if (!serveCsp) {
     'angular.json: missing projects.townofwiley-app.architect.serve.options.headers.Content-Security-Policy — run npm run sync:angular-serve-csp after editing customHttp.yml.',
   );
 }
-if (serveCsp !== cspCustom) {
-  failWithHint('angular.json dev-server CSP does not match customHttp.yml — run npm run sync:angular-serve-csp.');
+const expectedServeCsp = applyDevServeCspRelaxedStyles(cspCustom);
+if (serveCsp !== expectedServeCsp) {
+  failWithHint(
+    'angular.json dev-server CSP does not match customHttp.yml (with dev style-src unsafe-inline) — run npm run sync:angular-serve-csp.',
+  );
 }
 
 console.log(

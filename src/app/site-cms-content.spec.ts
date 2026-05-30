@@ -370,9 +370,12 @@ describe('LocalizedCmsContentStore', () => {
             {
               id: 'agenda-2026-04',
               title: 'Council Meeting Agenda Packet',
+              titleEs: 'Paquete de agenda del concejo',
               summary: 'Agenda packet for the April meeting.',
+              summaryEs: 'Paquete de agenda para la reunion de abril.',
               sectionId: 'meeting-documents',
               status: 'Published',
+              statusEs: 'Publicado',
               format: 'PDF',
               href: '/documents/agenda-2026-04.pdf',
               downloadFileName: null,
@@ -451,6 +454,10 @@ describe('LocalizedCmsContentStore', () => {
       'Council Meeting Minutes',
     ]);
     expect(store.publicDocuments()[0]?.downloadFileName).toBe('');
+    expect(store.publicDocuments()[0]?.titleEs).toBe('Paquete de agenda del concejo');
+    expect(store.publicDocuments()[0]?.summaryEs).toBe(
+      'Paquete de agenda para la reunion de abril.',
+    );
     expect(store.publicDocuments()[1]?.keywords).toEqual(['minutes', 'agenda']);
     expect(store.externalNewsLinks().map((link) => link.title)).toEqual([
       'Local Coverage',

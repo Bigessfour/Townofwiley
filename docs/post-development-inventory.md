@@ -1,8 +1,8 @@
 # Post-Development Inventory — Town of Wiley
 
-**Generated:** 2026-05-22 · **Last updated:** 2026-05-23 (AP-05 contact Lambdas deployed + Amplify wired; deploy-script hardening; AP-07a/b in repo)  
-**Purpose:** Map what exists in this repo after a whole-product build, then guide review and next actions.  
-**Doc index:** [docs/README.md](./README.md)  
+**Generated:** 2026-05-22 · **Last updated:** 2026-05-23 (AP-05 contact Lambdas deployed + Amplify wired; deploy-script hardening; AP-07a/b in repo)
+**Purpose:** Map what exists in this repo after a whole-product build, then guide review and next actions.
+**Doc index:** [docs/README.md](./README.md)
 **Related:** [e2e-feature-map.md](./e2e-feature-map.md), [NODE_VERSION.md](./NODE_VERSION.md), [incomplete-items-reference.md](./incomplete-items-reference.md), [feature-completion-spec.md](./feature-completion-spec.md), [review-checklist.md](./review-checklist.md), [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md)
 
 **Product identity:** Primary deliverable is **townofwiley.gov** (Angular municipal site). **“Wiley Widget”** in-repo means the resident assistant UX: **Ask Wiley** (`LocalizedAiChat`), optional **Easy Peasy** embed (`public/easy-peasy-loader.js`), and the **cow welcome popup** (`public/cow-video-popup.js`). There is no separate npm package named “Wiley Widget.”
@@ -11,35 +11,35 @@
 
 ## Executive summary
 
-| Area                         | Status in repo                                                                                                    |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Public SPA + prerender       | Shipped — routes, bilingual UI, smoke E2E                                                                         |
-| CMS (AppSync + S3)           | Shipped — read via API key; staff workflows via Studio + `/admin`                                                 |
-| Weather + alert signup       | Shipped — NWS proxy + large Python signup backend                                                                 |
-| Paystar / bill pay           | AP-03 + AP-02a/c **on `main`** (PR #34); ops: `portalUrl` + formal Path A sign-off                                |
+| Area                         | Status in repo                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Public SPA + prerender       | Shipped — routes, bilingual UI, smoke E2E                                                                        |
+| CMS (AppSync + S3)           | Shipped — read via API key; staff workflows via Studio + `/admin`                                                |
+| Weather + alert signup       | Shipped — NWS proxy + large Python signup backend                                                                |
+| Paystar / bill pay           | AP-03 + AP-02a/c **on `main`** (PR #34); ops: `portalUrl` + formal Path A sign-off                               |
 | Contact update backends      | **Deployed** — write + IAM review + review proxy Lambdas; Amplify `main` env wired (Amplify job **202** SUCCEED) |
-| Node.js toolchain            | Pin **24.16.0** on `main` (`.nvmrc`, Amplify, GHA); reconcile live Amplify buildSpec if still **24.15.0**         |
-| AWS IaC / drift checks       | **Added** — manifests + `npm run verify:aws-infra` (see § Recent accomplishments)                                 |
-| Budget import / calculations | **Not present** — guides + search only                                                                            |
-| Online permits               | **Not present** — informational page only                                                                         |
-| Bill pay persistence API     | **Not present** — mailto or optional HTTP POST                                                                    |
-| Monolithic homepage          | `app.ts` ~3,000 lines — maintainability risk                                                                      |
+| Node.js toolchain            | Pin **24.16.0** on `main` (`.nvmrc`, Amplify, GHA); reconcile live Amplify buildSpec if still **24.15.0**        |
+| AWS IaC / drift checks       | **Added** — manifests + `npm run verify:aws-infra` (see § Recent accomplishments)                                |
+| Budget import / calculations | **Not present** — guides + search only                                                                           |
+| Online permits               | **Not present** — informational page only                                                                        |
+| Bill pay persistence API     | **Not present** — mailto or optional HTTP POST                                                                   |
+| Monolithic homepage          | `app.ts` ~3,000 lines — maintainability risk                                                                     |
 
 ---
 
 ## Recent accomplishments (2026-05-22 – 2026-05-23)
 
-| Work | Status | Where |
-| ---- | ------ | ----- |
-| AP-03 Paystar placeholder CTA | **Merged** [#30](https://github.com/Bigessfour/Townofwiley/pull/30) | `main` |
-| AP-02a/c, AP-24a Paystar docs/E2E; Node 24.16.0 | **Merged** [#34](https://github.com/Bigessfour/Townofwiley/pull/34) | `main` |
-| AP-06 contact sanitization + IaC SSOT | **Merged** [#35](https://github.com/Bigessfour/Townofwiley/pull/35) | `main` |
-| **AP-05** contact Lambdas + Amplify wiring | **Done** (2026-05-23) | `TownOfWileyContactUpdate` (NONE), `TownOfWileyContactUpdatesReview` (**AWS_IAM**), `TownOfWileyContactUpdatesReviewProxy`; Amplify `CONTACT_UPDATE_API_ENDPOINT` + `CONTACT_UPDATE_REVIEW_PROXY_URL`; prod `runtime-config.js` contact keys set |
-| Deploy-script hardening (Windows) | **In working tree** | `scripts/_deploy_npm.py`, CORS `AllowMethods` fix, `@smithy/signature-v4`, proxy env (no `AWS_REGION`), `scripts/e2e-web-server.mjs` |
-| Amplify hosting sync (CSP both S3 hostnames) | **Done** (live account) | `amplify:sync-hosting`, `customHttp.yml` |
-| DynamoDB `TownOfWileyContactUpdates` | **ACTIVE** | `us-east-2` |
-| IaC SSOT + verification | **On `main`** | `aws-infrastructure.manifest.json`, `verify:aws-infra`, [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) |
-| AWS resource analysis vs docs | **Documented** | § AWS live configuration, [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) |
+| Work                                            | Status                                                              | Where                                                                                                                                                                                                                                            |
+| ----------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AP-03 Paystar placeholder CTA                   | **Merged** [#30](https://github.com/Bigessfour/Townofwiley/pull/30) | `main`                                                                                                                                                                                                                                           |
+| AP-02a/c, AP-24a Paystar docs/E2E; Node 24.16.0 | **Merged** [#34](https://github.com/Bigessfour/Townofwiley/pull/34) | `main`                                                                                                                                                                                                                                           |
+| AP-06 contact sanitization + IaC SSOT           | **Merged** [#35](https://github.com/Bigessfour/Townofwiley/pull/35) | `main`                                                                                                                                                                                                                                           |
+| **AP-05** contact Lambdas + Amplify wiring      | **Done** (2026-05-23)                                               | `TownOfWileyContactUpdate` (NONE), `TownOfWileyContactUpdatesReview` (**AWS_IAM**), `TownOfWileyContactUpdatesReviewProxy`; Amplify `CONTACT_UPDATE_API_ENDPOINT` + `CONTACT_UPDATE_REVIEW_PROXY_URL`; prod `runtime-config.js` contact keys set |
+| Deploy-script hardening (Windows)               | **In working tree**                                                 | `scripts/_deploy_npm.py`, CORS `AllowMethods` fix, `@smithy/signature-v4`, proxy env (no `AWS_REGION`), `scripts/e2e-web-server.mjs`                                                                                                             |
+| Amplify hosting sync (CSP both S3 hostnames)    | **Done** (live account)                                             | `amplify:sync-hosting`, `customHttp.yml`, [`third-party-csp-registry.md`](./third-party-csp-registry.md)                                                                                                                                         |
+| DynamoDB `TownOfWileyContactUpdates`            | **ACTIVE**                                                          | `us-east-2`                                                                                                                                                                                                                                      |
+| IaC SSOT + verification                         | **On `main`**                                                       | `aws-infrastructure.manifest.json`, `verify:aws-infra`, [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md)                                                                                                                                 |
+| AWS resource analysis vs docs                   | **Documented**                                                      | § AWS live configuration, [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md)                                                                                                                                                               |
 
 **AP-05 evidence (ops, 2026-05-23):** `aws lambda get-function-url-config --function-name TownOfWileyContactUpdatesReview --query AuthType` → **AWS_IAM**. Amplify branch `main` job **202** SUCCEED. `npm run verify:aws-infra` → **28 OK**, 1 warning (optional Paystar proxy), 1 failure (live buildSpec Node pin — run `npm run amplify:sync-buildspec`).
 
@@ -86,17 +86,17 @@
 
 Cross-checked against [AWS documentation](https://docs.aws.amazon.com/) (Lambda Function URL auth, AppSync API keys, Amplify custom headers, S3 Block Public Access) and live account **`570912405222`** via AWS CLI/MCP.
 
-| Area | Resource / setting | Live status | Repo / ops alignment |
-| ---- | ---------------- | ----------- | -------------------- |
-| **Amplify Hosting** | App `d331voxr1fhoir`, branch `main` | Production deploy **SUCCEED**; domain `townofwiley.gov` **AVAILABLE** | Repo **`amplify.yml`** pins **24.16.0** (PR #34); run `npm run amplify:sync-buildspec` if live buildSpec lags |
-| **HTTP headers** | App `customHeaders` from `customHttp.yml` | **Synced** — CSP includes **`townofwiley-documents-storage-main`** + logical bucket hostnames | `npm run amplify:sync-headers` or `npm run amplify:sync-hosting` |
-| **AppSync CMS** | `townofwiley-main` | Default auth **API_KEY**; key expires **2026-06-22** | Rotate per [AppSync API key docs](https://docs.aws.amazon.com/appsync/latest/devguide/security-authz.html) — **AP-19** |
-| **S3 documents** | `townofwiley-documents-storage-main` | **Block Public Access** — all four settings **on** | CSP + Amplify Storage; **AP-17** AV/metadata policy still open |
-| **S3 email alias** | `townofwiley-email-alias-570912405222-us-east-1` | **Block Public Access** — all four settings **on** | `scripts/deploy-email-alias-router.py` |
-| **Lambda (public `NONE`)** | `TownOfWileyNWSWeatherProxy`, `TownOfWileySevereWeatherBackend`, `townofwiley-easy-peasy-chat-proxy` | Function URLs **NONE** + CORS to `townofwiley.gov` / Amplify host | Acceptable for public proxies per [Lambda URL auth](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html); add **WAF rate limits — AP-16** |
-| **Lambda (contact)** | `TownOfWileyContactUpdate`, `TownOfWileyContactUpdatesReview`, `TownOfWileyContactUpdatesReviewProxy` | **Deployed** 2026-05-23 — review URL **AWS_IAM**; proxy + write **NONE**; Amplify env + prod `runtime-config.js` wired | **AP-16** WAF on public URLs; manual clerk smoke on `/admin#updates` |
-| **Lambda (Paystar)** | `TownOfWileyPaystarProxy` (expected) | **Not present** in `us-east-2` function list | Hosted Paystar via env URL — **AP-10** |
-| **Paystar / runtime** | Amplify `main` env | NWS, severe-weather, Easy Peasy endpoints set; Paystar portal URL ops-owned | **AP-01b** verify `/runtime-config.js` on prod |
+| Area                       | Resource / setting                                                                                    | Live status                                                                                                            | Repo / ops alignment                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Amplify Hosting**        | App `d331voxr1fhoir`, branch `main`                                                                   | Production deploy **SUCCEED**; domain `townofwiley.gov` **AVAILABLE**                                                  | Repo **`amplify.yml`** pins **24.16.0** (PR #34); run `npm run amplify:sync-buildspec` if live buildSpec lags                                     |
+| **HTTP headers**           | App `customHeaders` from `customHttp.yml`                                                             | **Synced** — CSP includes **`townofwiley-documents-storage-main`** + logical bucket hostnames                          | `npm run amplify:sync-headers` or `npm run amplify:sync-hosting`                                                                                  |
+| **AppSync CMS**            | `townofwiley-main`                                                                                    | Default auth **API_KEY**; key expires **2026-06-22**                                                                   | [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md) + EventBridge reminder — **AP-19**                                   |
+| **S3 documents**           | `townofwiley-documents-storage-main`                                                                  | **Block Public Access** — all four settings **on**                                                                     | CSP + Amplify Storage; **AP-17** AV/metadata policy still open                                                                                    |
+| **S3 email alias**         | `townofwiley-email-alias-570912405222-us-east-1`                                                      | **Block Public Access** — all four settings **on**                                                                     | `scripts/deploy-email-alias-router.py`                                                                                                            |
+| **Lambda (public `NONE`)** | `TownOfWileyNWSWeatherProxy`, `TownOfWileySevereWeatherBackend`, `townofwiley-easy-peasy-chat-proxy`  | Function URLs **NONE** + CORS to `townofwiley.gov` / Amplify host                                                      | Acceptable for public proxies per [Lambda URL auth](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html); add **WAF rate limits — AP-16** |
+| **Lambda (contact)**       | `TownOfWileyContactUpdate`, `TownOfWileyContactUpdatesReview`, `TownOfWileyContactUpdatesReviewProxy` | **Deployed** 2026-05-23 — review URL **AWS_IAM**; proxy + write **NONE**; Amplify env + prod `runtime-config.js` wired | **AP-16** WAF on public URLs; manual clerk smoke on `/admin#updates`                                                                              |
+| **Lambda (Paystar)**       | `TownOfWileyPaystarProxy` (expected)                                                                  | **Not present** in `us-east-2` function list                                                                           | Hosted Paystar via env URL — **AP-10**                                                                                                            |
+| **Paystar / runtime**      | Amplify `main` env                                                                                    | NWS, severe-weather, Easy Peasy endpoints set; Paystar portal URL ops-owned                                            | **AP-01b** verify `/runtime-config.js` on prod                                                                                                    |
 
 **IaC SSOT:** [docs/AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md), [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), [infrastructure/amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json). Verify: `npm run verify:aws-infra`.
 
@@ -133,9 +133,10 @@ Cross-checked against [AWS documentation](https://docs.aws.amazon.com/) (Lambda 
 
 ### Documents & records
 
-- Manifest: `src/app/document-hub/document-archive.ts`
-- Static guides + test HTML: `public/documents/archive/`
-- Upload: `DocumentUploadService` + `DocumentUploadComponent` + `CmsPublicDocumentAdminService`
+- **CMS-only hub:** active `PublicDocument` rows via AppSync (`LocalizedCmsContentStore`); optional `titleEs` / `summaryEs` / `statusEs`
+- Legacy HTML guides: `public/documents/archive/` (href targets; not a separate manifest)
+- Staff publishing: Amplify Studio **PublicDocument** — see `docs/CLERK-CMS-GUIDE.md`
+- Upload resolution: `DocumentUploadService` + `CmsPublicDocumentAdminService` (storage-backed `href`)
 - **No** budget import, spreadsheet parsing, or fiscal calculation engine
 
 ### Weather & alerts
@@ -209,10 +210,13 @@ Use before calling the site “audit-complete” or merging large refactors. Che
 
 ### A. Production configuration (AWS / runtime)
 
+- [ ] **Strict build** passes on Amplify `main` (all `requiredForProduction` env vars in [`amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json))
 - [ ] `public/runtime-config.js` on **production** has correct CMS endpoint/key, NWS proxy, severe-weather signup URL, Paystar mode/URLs
+- [ ] Post-deploy: `npm run verify:runtime-config-cms` (`listSiteSettings` OK)
+- [ ] AppSync key rotation runbook + EventBridge reminder: [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)
 - [ ] Paystar: confirm live mode (`none` / `hosted` / `api`) matches clerk expectation; no placeholder portal URL in prod _(code fix merged AP-03 — verify on prod after deploy)_
 - [ ] Bill pay: if using API, endpoint exists and is authenticated — not mailto-only by accident
-- [ ] Contact-update **write** Lambda deployed; **review** Lambda Function URL uses IAM (not public) _(DynamoDB table **ACTIVE** 2026-05-22; Lambdas pending `deploy-contact-*` scripts)_
+- [ ] Contact-update **write** Lambda deployed; staff review uses JWT API (`CONTACT_UPDATE_REVIEW_API_URL`), not public proxy
 - [ ] Severe-weather signup Lambda + Dynamo + SES/SNS verified in `us-east-2`
 - [ ] Amplify SPA rewrite + `404.html` / static route entrypoints — deep links work on hard refresh
 - [ ] Cognito/AppSync/S3 IDs in `amplify-config.ts` match current Amplify backend
@@ -239,7 +243,7 @@ Use before calling the site “audit-complete” or merging large refactors. Che
 - [ ] No secrets in git; `npm run secrets:status` documented for maintainers
 - [ ] WAF/throttles on public Lambda URLs (per [feature-completion-spec.md](./feature-completion-spec.md))
 - [ ] Upload storage AV/metadata policy (ops)
-- [ ] API key rotation process for AppSync documented
+- [x] API key rotation process for AppSync documented ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md))
 
 ### E. Automated gates
 
@@ -254,6 +258,15 @@ Use before calling the site “audit-complete” or merging large refactors. Che
 - [ ] Remove or clearly label **test/MOC** archive HTML if not intended for residents
 - [ ] Newsletter PDFs and meeting packets match what clerk published
 - [ ] No “early access” / “coming soon” copy left on production without intent
+
+### Runtime config + AppSync completeness (post-deploy / post-rotation)
+
+| #   | Check                               | How                                                                                          |
+| --- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| 1   | Build fails on missing keys         | Clear one `requiredForProduction` Amplify env on a test branch → strict build fails; restore |
+| 2   | New key in prod `runtime-config.js` | After rotation, fetch live JS; `cms.appSync.apiKey` non-empty (redact in logs)               |
+| 3   | `listSiteSettings` returns data     | `npm run verify:runtime-config-cms`                                                          |
+| 4   | Calendar entry visible              | Studio **Event** + `/meetings#calendar` (or E2E `feature-pages.spec.ts`)                     |
 
 ---
 
@@ -327,7 +340,7 @@ Full local gate: `npm run audit:done:local`
 
 ## Phase 2: Test coverage analysis
 
-**Generated:** 2026-05-22 (appended to Phase 1 inventory)  
+**Generated:** 2026-05-22 (appended to Phase 1 inventory)
 **Scope:** What existing tests actually prove — not line-coverage percentages.
 
 ### How tests are organized
@@ -659,7 +672,7 @@ npm run test:coverage   # Vitest coverage report (src/**/*.vitest.ts only)
 
 ## Phase 3: Quality and dead code audit
 
-**Generated:** 2026-05-22  
+**Generated:** 2026-05-22
 **Scope:** Correctness, resident trust, maintainability — not style-only nits. Findings are prioritized **P0 (highest impact)** → **P3 (lower)**.
 
 ---
@@ -926,7 +939,7 @@ These are **heuristics**, not proof of origin:
 
 ## Phase 4: Consolidated action plan (2–4 weeks)
 
-**Generated:** 2026-05-22  
+**Generated:** 2026-05-22
 **Inputs:** Phase 1 inventory, Phase 2 test coverage, Phase 3 quality/dead-code audit, and Phase 1 “Action steps” / **Q-\*** backlog.
 
 ### Risk levels
@@ -941,43 +954,43 @@ These are **heuristics**, not proof of origin:
 
 Issues are numbered **AP-** (action plan) for tracking. Cross-refs: **Q-** (Phase 3), Phase 1 step **#**.
 
-| ID    | Risk       | Issue / gap                                                                                                                                 | Primary evidence                                | Key files / systems                                                 |
-| ----- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
-| AP-01 | **High**   | Production `runtime-config.js` not verified against Amplify env and secrets                                                                 | Phase 1 §7; Phase 1 step #1                     | `scripts/generate-runtime-config.mjs`, Amplify console              |
-| AP-02 | **High**   | **Paystar API unwired** — `PaystarConnectionService` unused in UI; **docs/E2E aligned (AP-02a/c)**; deprecate/delete service pending Path A | Phase 3 P0 #1; Q-1; Phase 2                     | `paystar-connection.ts`, `e2e-feature-map.md`                       |
-| AP-03 | **High**   | ~~**Placeholder Paystar URL**~~ **Fixed in repo (2026-05-22)** — CTA disabled when `portalUrl` empty; verify after prod deploy              | Phase 3 P0 #2; Q-2                              | `paystar-quick-pay.ts`, `pay-bill-page`, `resident-services`        |
-| AP-04 | **High**   | **Bill-pay backend absent** — intake is mailto or optional POST only; success path untested in prod                                         | Phase 1; `bill-pay.service.ts` comment; Phase 2 | `bill-pay.service.ts`, infra (not in repo)                          |
-| AP-05 | **High**   | ~~Contact-update review Lambda publicly scannable~~ **Mitigated 2026-05-23** — review URL **AWS_IAM** + browser uses review proxy only | Phase 3 P0 #3; Q-4; Phase 1 step #3             | `contact-updates-review/index.mjs`, `contact-updates-review-proxy/` |
-| AP-06 | **High**   | ~~Contact updates not sanitized on client~~ **Fixed in repo** — `sanitizeContactUpdateRequest`; Lambda `sanitize-body.mjs` + tests          | Phase 3 P0 #3; Q-3; Phase 2                     | `contact-update-sanitize.ts`, `contact-update-lambda/`              |
+| ID    | Risk       | Issue / gap                                                                                                                                        | Primary evidence                                | Key files / systems                                                 |
+| ----- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| AP-01 | **High**   | Production `runtime-config.js` not verified against Amplify env and secrets                                                                        | Phase 1 §7; Phase 1 step #1                     | `scripts/generate-runtime-config.mjs`, Amplify console              |
+| AP-02 | **High**   | **Paystar API unwired** — `PaystarConnectionService` unused in UI; **docs/E2E aligned (AP-02a/c)**; deprecate/delete service pending Path A        | Phase 3 P0 #1; Q-1; Phase 2                     | `paystar-connection.ts`, `e2e-feature-map.md`                       |
+| AP-03 | **High**   | ~~**Placeholder Paystar URL**~~ **Fixed in repo (2026-05-22)** — CTA disabled when `portalUrl` empty; verify after prod deploy                     | Phase 3 P0 #2; Q-2                              | `paystar-quick-pay.ts`, `pay-bill-page`, `resident-services`        |
+| AP-04 | **High**   | **Bill-pay backend absent** — intake is mailto or optional POST only; success path untested in prod                                                | Phase 1; `bill-pay.service.ts` comment; Phase 2 | `bill-pay.service.ts`, infra (not in repo)                          |
+| AP-05 | **High**   | ~~Contact-update review Lambda publicly scannable~~ **Mitigated 2026-05-23** — review URL **AWS_IAM** + browser uses review proxy only             | Phase 3 P0 #3; Q-4; Phase 1 step #3             | `contact-updates-review/index.mjs`, `contact-updates-review-proxy/` |
+| AP-06 | **High**   | ~~Contact updates not sanitized on client~~ **Fixed in repo** — `sanitizeContactUpdateRequest`; Lambda `sanitize-body.mjs` + tests                 | Phase 3 P0 #3; Q-3; Phase 2                     | `contact-update-sanitize.ts`, `contact-update-lambda/`              |
 | AP-07 | **High**   | ~~Admin contact tab silent failure~~ **AP-07a/b Done in repo** — `getAllUpdates()` result type + `cms-admin` error banner; **AP-07c** E2E optional | Phase 3 P0 #3; Phase 2                          | `contact-update-review.service.ts`, `cms-admin.ts`                  |
-| AP-08 | **High**   | **Misleading offline copy** (“submissions will sync”) with no `syncQueuedPayments`                                                          | Phase 3 P0 #1; Q-5                              | `offline-connectivity.service.ts`                                   |
-| AP-09 | **High**   | Mock/test archive HTML discoverable via search (trust)                                                                                      | Phase 1 docs; Q-10; Phase 1 step #6             | `public/documents/archive/`, `document-archive.ts`, `app.ts` search |
-| AP-10 | **Medium** | Paystar **hosted** go-live: confirm real `portalUrl` / mode; staging smoke                                                                  | Phase 1 step #2; Phase 2 E2E mocks only         | `paystar-config.ts`, `paystar-proxy/`                               |
-| AP-11 | **Medium** | Paystar proxy **upstream JSON mapping** is guessed; receipt **501**                                                                         | Phase 3; Phase 1 step #8; Phase 2               | `infrastructure/paystar-proxy/index.mjs`                            |
-| AP-12 | **Medium** | ~~**No CI tests** for contact-update write Lambdas~~ **Partial** — `sanitize-body` + `index.test.mjs`; review Lambda still open             | Phase 2; Q-7                                    | `contact-update-lambda/`, `contact-updates-review/`                 |
-| AP-13 | **Medium** | **BillPay sanitization** (account strip, lengths) untested                                                                                  | Phase 2; Phase 3 P0 #4                          | `bill-pay.service.ts`, `input-sanitization.ts`                      |
-| AP-14 | **Medium** | Document upload: **list errors → `[]`**, partial URL failures skipped                                                                       | Phase 3 §6; Q-6                                 | `document-upload.service.ts`                                        |
-| AP-15 | **Medium** | Upload **rollback** can orphan S3 if delete fails after CMS failure                                                                         | Phase 3 §6                                      | `document-upload.component.ts`                                      |
-| AP-16 | **Medium** | **WAF / rate limits** on public Lambda URLs not in repo                                                                                     | Phase 1 feature-completion-spec; step #10       | AWS console / API Gateway                                           |
-| AP-17 | **Medium** | **S3 upload AV / metadata** policy not implemented                                                                                          | Phase 1 step #11                                | S3 / Amplify storage                                                |
-| AP-18 | **Medium** | Severe-weather signup: **prod Lambda URL** not in browser CI path                                                                           | Phase 2                                         | `localized-weather-panel.ts`, deploy scripts                        |
-| AP-19 | **Medium** | **AppSync API key** in client; rotation/runbook gap                                                                                         | Phase 1 §4; Phase 1 review §D                   | `amplify-config.ts`, `site-cms-content.ts`                          |
-| AP-20 | **Medium** | CMS Spanish via **manual map** — untranslated Studio strings leak to ES UI                                                                  | Phase 3 §7                                      | `site-cms-content.ts` `KNOWN_CMS_TEXT_TRANSLATIONS`                 |
-| AP-21 | **Medium** | **`LoggingService` vs `console.error`** split — ops blind spots                                                                             | Phase 3 §10                                     | upload/CMS/news/review services                                     |
-| AP-22 | **Medium** | **`LocalizedAiChat`** — bare catch, no unit tests; embed path weak in CI                                                                    | Phase 2; Phase 3 §9                             | `localized-ai-chat.ts`, `cow-embed-loader.spec.ts`                  |
-| AP-23 | **Medium** | Global error handler toast **English-only**                                                                                                 | Phase 3 §11                                     | `global-error-handler.ts`                                           |
-| AP-24 | **Medium** | ~~**`enablePaystarApi` dead helper**~~ **AP-24a done**; vitest on `PaystarConnectionService` still gives false confidence (AP-24b open)     | Phase 3 §12                                     | `paystar-connection.vitest.ts`                                      |
-| AP-25 | **Medium** | Production config drift: **hardcoded Cognito/AppSync** defaults                                                                             | Phase 3 §7                                      | `amplify-config.ts`                                                 |
-| AP-26 | **Low**    | Dead export **`cms-content.ts`** barrel (unused)                                                                                            | Phase 3 Q-9                                     | `cms-content.ts`                                                    |
-| AP-27 | **Low**    | Duplicate **mailto / contact helpers** across components                                                                                    | Phase 3 §13                                     | `resident-services.ts`, `accessibility-support.ts`                  |
-| AP-28 | **Low**    | **`app.ts` monolith** (~3k lines) — regression and review cost                                                                              | Phase 1 §5; Phase 3 §14                         | `app.ts`                                                            |
-| AP-29 | **Low**    | Split homepage search/calendar into modules (no behavior change)                                                                            | Phase 1 step #12; Phase 2                       | `app.ts`, `meetings-page.helpers.ts`                                |
-| AP-30 | **Low**    | ~~Repo clutter~~ **Addressed 2026-05-22** — `archive/` for non-production paths; see `archive/README.md`                                    | Phase 3 §15                                     | `archive/`, `.gitignore`                                            |
-| AP-31 | **Low**    | Lighthouse / perf staging gate optional                                                                                                     | Phase 1 step #15                                | `npm run perf:lighthouse:staging`                                   |
-| AP-32 | **Low**    | Applitools / visual baseline optional                                                                                                       | Phase 1 step #16                                | `e2e/specs/applitools/`                                             |
-| AP-33 | **Low**    | Reconcile **`incomplete-items-reference.md`** “Done When” vs shipped reality                                                                | Phase 3 §15                                     | `docs/incomplete-items-reference.md`                                |
-| AP-34 | **Low**    | **`forecastGdd`** display — clarify non-official if kept                                                                                    | Phase 3 §8                                      | `localized-weather-panel.ts`                                        |
-| AP-35 | **Low**    | Future product: records/issue **tracking API** (mailto-only today)                                                                          | Phase 1 out of scope                            | `resident-services.ts`                                              |
+| AP-08 | **High**   | **Misleading offline copy** (“submissions will sync”) with no `syncQueuedPayments`                                                                 | Phase 3 P0 #1; Q-5                              | `offline-connectivity.service.ts`                                   |
+| AP-09 | **High**   | Mock/test archive HTML discoverable via search (trust)                                                                                             | Phase 1 docs; Q-10; Phase 1 step #6             | `public/documents/archive/`, `document-archive.ts`, `app.ts` search |
+| AP-10 | **Medium** | Paystar **hosted** go-live: confirm real `portalUrl` / mode; staging smoke                                                                         | Phase 1 step #2; Phase 2 E2E mocks only         | `paystar-config.ts`, `paystar-proxy/`                               |
+| AP-11 | **Medium** | Paystar proxy **upstream JSON mapping** is guessed; receipt **501**                                                                                | Phase 3; Phase 1 step #8; Phase 2               | `infrastructure/paystar-proxy/index.mjs`                            |
+| AP-12 | **Medium** | ~~**No CI tests** for contact-update write Lambdas~~ **Partial** — `sanitize-body` + `index.test.mjs`; review Lambda still open                    | Phase 2; Q-7                                    | `contact-update-lambda/`, `contact-updates-review/`                 |
+| AP-13 | **Medium** | **BillPay sanitization** (account strip, lengths) untested                                                                                         | Phase 2; Phase 3 P0 #4                          | `bill-pay.service.ts`, `input-sanitization.ts`                      |
+| AP-14 | **Medium** | Document upload: **list errors → `[]`**, partial URL failures skipped                                                                              | Phase 3 §6; Q-6                                 | `document-upload.service.ts`                                        |
+| AP-15 | **Medium** | Upload **rollback** can orphan S3 if delete fails after CMS failure                                                                                | Phase 3 §6                                      | `document-upload.component.ts`                                      |
+| AP-16 | **Medium** | **WAF / rate limits** on public Lambda URLs not in repo                                                                                            | Phase 1 feature-completion-spec; step #10       | AWS console / API Gateway                                           |
+| AP-17 | **Medium** | **S3 upload AV / metadata** policy not implemented                                                                                                 | Phase 1 step #11                                | S3 / Amplify storage                                                |
+| AP-18 | **Medium** | Severe-weather signup: **prod Lambda URL** not in browser CI path                                                                                  | Phase 2                                         | `localized-weather-panel.ts`, deploy scripts                        |
+| AP-19 | **Medium** | **AppSync API key** in client; rotation/runbook gap                                                                                                | Phase 1 §4; Phase 1 review §D                   | `amplify-config.ts`, `site-cms-content.ts`                          |
+| AP-20 | **Medium** | CMS Spanish via **manual map** — untranslated Studio strings leak to ES UI                                                                         | Phase 3 §7                                      | `site-cms-content.ts` `KNOWN_CMS_TEXT_TRANSLATIONS`                 |
+| AP-21 | **Medium** | **`LoggingService` vs `console.error`** split — ops blind spots                                                                                    | Phase 3 §10                                     | upload/CMS/news/review services                                     |
+| AP-22 | **Medium** | **`LocalizedAiChat`** — bare catch, no unit tests; embed path weak in CI                                                                           | Phase 2; Phase 3 §9                             | `localized-ai-chat.ts`, `cow-embed-loader.spec.ts`                  |
+| AP-23 | **Medium** | Global error handler toast **English-only**                                                                                                        | Phase 3 §11                                     | `global-error-handler.ts`                                           |
+| AP-24 | **Medium** | ~~**`enablePaystarApi` dead helper**~~ **AP-24a done**; vitest on `PaystarConnectionService` still gives false confidence (AP-24b open)            | Phase 3 §12                                     | `paystar-connection.vitest.ts`                                      |
+| AP-25 | **Medium** | Production config drift: **hardcoded Cognito/AppSync** defaults                                                                                    | Phase 3 §7                                      | `amplify-config.ts`                                                 |
+| AP-26 | **Low**    | Dead export **`cms-content.ts`** barrel (unused)                                                                                                   | Phase 3 Q-9                                     | `cms-content.ts`                                                    |
+| AP-27 | **Low**    | Duplicate **mailto / contact helpers** across components                                                                                           | Phase 3 §13                                     | `resident-services.ts`, `accessibility-support.ts`                  |
+| AP-28 | **Low**    | **`app.ts` monolith** (~3k lines) — regression and review cost                                                                                     | Phase 1 §5; Phase 3 §14                         | `app.ts`                                                            |
+| AP-29 | **Low**    | Split homepage search/calendar into modules (no behavior change)                                                                                   | Phase 1 step #12; Phase 2                       | `app.ts`, `meetings-page.helpers.ts`                                |
+| AP-30 | **Low**    | ~~Repo clutter~~ **Addressed 2026-05-22** — `archive/` for non-production paths; see `archive/README.md`                                           | Phase 3 §15                                     | `archive/`, `.gitignore`                                            |
+| AP-31 | **Low**    | Lighthouse / perf staging gate optional                                                                                                            | Phase 1 step #15                                | `npm run perf:lighthouse:staging`                                   |
+| AP-32 | **Low**    | Applitools / visual baseline optional                                                                                                              | Phase 1 step #16                                | `e2e/specs/applitools/`                                             |
+| AP-33 | **Low**    | Reconcile **`incomplete-items-reference.md`** “Done When” vs shipped reality                                                                       | Phase 3 §15                                     | `docs/incomplete-items-reference.md`                                |
+| AP-34 | **Low**    | **`forecastGdd`** display — clarify non-official if kept                                                                                           | Phase 3 §8                                      | `localized-weather-panel.ts`                                        |
+| AP-35 | **Low**    | Future product: records/issue **tracking API** (mailto-only today)                                                                                 | Phase 1 out of scope                            | `resident-services.ts`                                              |
 
 **Explicitly deferred (not in 4-week plan unless leadership reprioritizes):** budget import, online permits, full in-app CMS editor, Paystar in-app API unless AP-02 decision is “wire now.”
 
@@ -1118,43 +1131,43 @@ These block clean implementation; record outcomes in this file or a linked issue
 
 ## Phase 5: Incremental remediation plan (High + Medium)
 
-**Generated:** 2026-05-22  
+**Generated:** 2026-05-22
 **Scope:** **AP-01–AP-25** only. Each slice is one PR-sized change.
 
 ### Remediation progress log
 
-| AP ID | Slice    | Status      | PR / notes                                                                                                                                                                                                                                                                                                                                                       |
-| ----- | -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AP-01 | AP-01a   | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`                                                                                                                                                                                                                                                                                  |
-| AP-01 | AP-01b   | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                                                                                                                                                                                                                                                                                            |
-| AP-01 | AP-01c   | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…”                                                                                                                                                                                                                                                                            |
-| AP-03 | AP-03a–d | **Done**    | PR [#30](https://github.com/Bigessfour/Townofwiley/pull/30) merged 2026-05-22: `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + `payments.spec.ts` (`enablePaystarHostedWithoutPortal`); CI [26311705310](https://github.com/Bigessfour/Townofwiley/actions/runs/26311705310) green (prior fail 26305712397 was newsletter E2E — fixed `294e566`) |
-| AP-02 | AP-02a   | **Done**    | `docs/e2e-feature-map.md`: hosted portal `href` via `resolveQuickPayHref`; no `PaystarConnectionService` in production UI — PR [#34](https://github.com/Bigessfour/Townofwiley/pull/34) merged 2026-05-22                                                                                                                                                      |
-| AP-02 | AP-02c   | **Done**    | Removed dead `enablePaystarApi` from `e2e/pages/home.page.ts` — PR #34                                                                                                                                                                                                                                                                                           |
-| AP-02 | AP-02b,d | **Open**    | Path A: `@deprecated` or legacy-move `PaystarConnectionService`; trim `paystar-connection.vitest.ts` — pending formal hosted-only clerk sign-off                                                                                                                                                                                                                 |
-| AP-02 | All      | **Blocked** | Path A doc/E2E slices done; **Path B** (wire API) still awaits leadership decision                                                                                                                                                                                                                                                                               |
-| AP-06 | AP-06a–d | **Done**    | PR [#35](https://github.com/Bigessfour/Townofwiley/pull/35): `contact-update-sanitize.ts`, service + resident-services, Lambda `sanitize-body.mjs` + `index.test.mjs`                                                                                                                                                                                           |
-| AP-24 | AP-24a   | **Done**    | PR #34 — removed unused `enablePaystarApi` E2E helper                                                                                                                                                                                                                                                                                                            |
-| —     | Node pin | **Done**    | Pin **24.16.0** on `main` (PR #34): `.nvmrc`, Amplify, GHA, Volta/mise; [`NODE_VERSION.md`](./NODE_VERSION.md)                                                                                                                                                                                                                                                  |
-| AWS   | Hosting sync | **Done** | 2026-05-22: `customHttp.yml` → app headers (both S3 bucket hostnames in CSP); DynamoDB `TownOfWileyContactUpdates` **ACTIVE**; reconcile live buildSpec to **24.16.0** |
-| AWS   | IaC SSOT | **Done**    | 2026-05-22: manifests + `verify:aws-infra` + [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) — PR #35                                                                                                                                                                                                                                                   |
-| AP-05 | AP-05a–c | **Done**    | 2026-05-23: Lambdas deployed; review **AWS_IAM**; proxy + Amplify env; prod runtime-config contact keys; deploy scripts hardened (Windows npm, CORS, smithy sigv4) |
-| AP-10 | —        | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                                                                                                                                                                                                                                                                                                      |
-| AP-30 | —        | **Done**    | `archive/` housekeeping — `hello-world/`, `artifacts/` moved; `docs/README.md` index                                                                                                                                                                                                                                                                             |
+| AP ID | Slice        | Status      | PR / notes                                                                                                                                                                                                                                                                                                                                                       |
+| ----- | ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AP-01 | AP-01a       | **Done**    | Runbook § “Runtime config verification” in `docs/amplify-deployment-runbook.md`                                                                                                                                                                                                                                                                                  |
+| AP-01 | AP-01b       | **Open**    | Ops: compare Amplify env to live `/runtime-config.js` on staging/prod                                                                                                                                                                                                                                                                                            |
+| AP-01 | AP-01c       | **Done**    | Clerk hard-refresh + IT env change steps in `CLERK-CMS-GUIDE.md` § “When IT changes…”                                                                                                                                                                                                                                                                            |
+| AP-03 | AP-03a–d     | **Done**    | PR [#30](https://github.com/Bigessfour/Townofwiley/pull/30) merged 2026-05-22: `paystar-quick-pay.ts` + vitest; pay-bill + resident-services + `payments.spec.ts` (`enablePaystarHostedWithoutPortal`); CI [26311705310](https://github.com/Bigessfour/Townofwiley/actions/runs/26311705310) green (prior fail 26305712397 was newsletter E2E — fixed `294e566`) |
+| AP-02 | AP-02a       | **Done**    | `docs/e2e-feature-map.md`: hosted portal `href` via `resolveQuickPayHref`; no `PaystarConnectionService` in production UI — PR [#34](https://github.com/Bigessfour/Townofwiley/pull/34) merged 2026-05-22                                                                                                                                                        |
+| AP-02 | AP-02c       | **Done**    | Removed dead `enablePaystarApi` from `e2e/pages/home.page.ts` — PR #34                                                                                                                                                                                                                                                                                           |
+| AP-02 | AP-02b,d     | **Open**    | Path A: `@deprecated` or legacy-move `PaystarConnectionService`; trim `paystar-connection.vitest.ts` — pending formal hosted-only clerk sign-off                                                                                                                                                                                                                 |
+| AP-02 | All          | **Blocked** | Path A doc/E2E slices done; **Path B** (wire API) still awaits leadership decision                                                                                                                                                                                                                                                                               |
+| AP-06 | AP-06a–d     | **Done**    | PR [#35](https://github.com/Bigessfour/Townofwiley/pull/35): `contact-update-sanitize.ts`, service + resident-services, Lambda `sanitize-body.mjs` + `index.test.mjs`                                                                                                                                                                                            |
+| AP-24 | AP-24a       | **Done**    | PR #34 — removed unused `enablePaystarApi` E2E helper                                                                                                                                                                                                                                                                                                            |
+| —     | Node pin     | **Done**    | Pin **24.16.0** on `main` (PR #34): `.nvmrc`, Amplify, GHA, Volta/mise; [`NODE_VERSION.md`](./NODE_VERSION.md)                                                                                                                                                                                                                                                   |
+| AWS   | Hosting sync | **Done**    | 2026-05-22: `customHttp.yml` → app headers (both S3 bucket hostnames in CSP); DynamoDB `TownOfWileyContactUpdates` **ACTIVE**; reconcile live buildSpec to **24.16.0**                                                                                                                                                                                           |
+| AWS   | IaC SSOT     | **Done**    | 2026-05-22: manifests + `verify:aws-infra` + [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) — PR #35                                                                                                                                                                                                                                                   |
+| AP-05 | AP-05a–c     | **Done**    | 2026-05-23: Lambdas deployed; review **AWS_IAM**; proxy + Amplify env; prod runtime-config contact keys; deploy scripts hardened (Windows npm, CORS, smithy sigv4)                                                                                                                                                                                               |
+| AP-10 | —            | **Open**    | Set real `PAYSTAR_PORTAL_URL` on Amplify when clerk has URL                                                                                                                                                                                                                                                                                                      |
+| AP-30 | —            | **Done**    | `archive/` housekeeping — `hello-world/`, `artifacts/` moved; `docs/README.md` index                                                                                                                                                                                                                                                                             |
 
 **Next recommended slice (2026-05-23):** **AP-01b** runtime-config audit → **AP-07c** (admin contact E2E) → commit deploy/E2E fixes. Ops: **AP-10**, **amplify:sync-buildspec**, **AP-16**, **AP-19** (AppSync key expires **2026-06-22**). See § **Next iteration plan**.
 
 ### Open pull requests (2026-05-22)
 
-| PR / branch                                                                                                        | Type                                                     | Disposition                                                           |
-| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------- |
-| [#35](https://github.com/Bigessfour/Townofwiley/pull/35) `ap-06-contact-sanitize`                                  | AP-06 sanitization + IaC SSOT                            | **Merge** after rebase push + CI green                                |
-| [#28](https://github.com/Bigessfour/Townofwiley/pull/28)                                                           | Feature (weather CORS, leadership roster, CI classifier) | **Rebase** onto `main`; conflicts; not Dependabot                     |
-| [#31](https://github.com/Bigessfour/Townofwiley/pull/31), [#32](https://github.com/Bigessfour/Townofwiley/pull/32) | Dependabot — `actions/setup-node` / `checkout` v6        | **Merge** — updates `copilot-setup-steps.yml` only                    |
-| [#33](https://github.com/Bigessfour/Townofwiley/pull/33)                                                           | Dependabot — PrimeNG patch                               | **Merge** when smoke green                                            |
-| [#29](https://github.com/Bigessfour/Townofwiley/pull/29)                                                           | Dependabot — aws-amplify minor                           | **Merge** after smoke; spot-check `/admin`                            |
-| [#24](https://github.com/Bigessfour/Townofwiley/pull/24)                                                           | Dependabot — testing group                               | **Merge** when smoke green                                            |
-| [#26](https://github.com/Bigessfour/Townofwiley/pull/26), [#27](https://github.com/Bigessfour/Townofwiley/pull/27) | Dependabot — Tailwind 4.3.0                              | **Close or rebase** — stale smoke failures (May 11)                   |
+| PR / branch                                                                                                        | Type                                                     | Disposition                                         |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------- |
+| [#35](https://github.com/Bigessfour/Townofwiley/pull/35) `ap-06-contact-sanitize`                                  | AP-06 sanitization + IaC SSOT                            | **Merge** after rebase push + CI green              |
+| [#28](https://github.com/Bigessfour/Townofwiley/pull/28)                                                           | Feature (weather CORS, leadership roster, CI classifier) | **Rebase** onto `main`; conflicts; not Dependabot   |
+| [#31](https://github.com/Bigessfour/Townofwiley/pull/31), [#32](https://github.com/Bigessfour/Townofwiley/pull/32) | Dependabot — `actions/setup-node` / `checkout` v6        | **Merge** — updates `copilot-setup-steps.yml` only  |
+| [#33](https://github.com/Bigessfour/Townofwiley/pull/33)                                                           | Dependabot — PrimeNG patch                               | **Merge** when smoke green                          |
+| [#29](https://github.com/Bigessfour/Townofwiley/pull/29)                                                           | Dependabot — aws-amplify minor                           | **Merge** after smoke; spot-check `/admin`          |
+| [#24](https://github.com/Bigessfour/Townofwiley/pull/24)                                                           | Dependabot — testing group                               | **Merge** when smoke green                          |
+| [#26](https://github.com/Bigessfour/Townofwiley/pull/26), [#27](https://github.com/Bigessfour/Townofwiley/pull/27) | Dependabot — Tailwind 4.3.0                              | **Close or rebase** — stale smoke failures (May 11) |
 
 **Legend — test strategy:**
 
@@ -1227,18 +1240,18 @@ _Ops-first; no app refactor required._
 
 ### AP-05 — Secure contact-updates review Lambda (High)
 
-| Slice  | Work                                                                                                                                    | Proven correct                                     | Tests                                             | Strategy    | CI                                                |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------- | ----------- | ------------------------------------------------- |
-| AP-05a | Ops: Function URL `AuthType: AWS_IAM` | **Done 2026-05-23** | Manual + `verify:aws-infra` | N/A | — |
-| AP-05b | Review proxy + `contactUpdate.reviewProxyEndpoint` | **Done 2026-05-23** | `TownOfWileyContactUpdatesReviewProxy` deployed | Test-first | `test:infra` |
-| AP-05c | `ContactUpdateReviewService` uses proxy endpoint | **Done in repo** | Service + Amplify env | Test-around | `test:vitest` |
+| Slice  | Work                                               | Proven correct      | Tests                                           | Strategy    | CI            |
+| ------ | -------------------------------------------------- | ------------------- | ----------------------------------------------- | ----------- | ------------- |
+| AP-05a | Ops: Function URL `AuthType: AWS_IAM`              | **Done 2026-05-23** | Manual + `verify:aws-infra`                     | N/A         | —             |
+| AP-05b | Review proxy + `contactUpdate.reviewProxyEndpoint` | **Done 2026-05-23** | `TownOfWileyContactUpdatesReviewProxy` deployed | Test-first  | `test:infra`  |
+| AP-05c | `ContactUpdateReviewService` uses proxy endpoint   | **Done in repo**    | Service + Amplify env                           | Test-around | `test:vitest` |
 
 ---
 
 ### AP-06 — Sanitize contact updates (High)
 
-| Slice  | Work                                                                                                   | Proven correct                            | Tests                                        | Strategy    | CI                                                |
-| ------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------- | -------------------------------------------- | ----------- | ------------------------------------------------- |
+| Slice  | Work                                                                                                   | Proven correct                            | Tests                                        | Strategy    | CI                  |
+| ------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------- | -------------------------------------------- | ----------- | ------------------- |
 | AP-06a | Add `sanitizeContactUpdateRequest()` next to `bill-pay.service.ts` pattern (reuse `sanitizePlainText`) | NUL stripped; max lengths enforced        | `contact-update-sanitize.vitest.ts` new file | Test-first  | **Done 2026-05-22** |
 | AP-06b | Call sanitizer in `ContactUpdateService.submitUpdate` before POST                                      | POST body matches sanitized shape         | Extend `contact-update.service.vitest.ts`    | Test-around | **Done 2026-05-22** |
 | AP-06c | Call sanitizer in `ResidentServices.openContactUpdateMailto` before mailto/API                         | Same fields cleaned for mailto lines      | `resident-services.vitest.ts` one case       | Test-around | **Done 2026-05-22** |
@@ -1248,11 +1261,11 @@ _Ops-first; no app refactor required._
 
 ### AP-07 — Admin contact tab errors (High)
 
-| Slice  | Work                                                                                          | Proven correct                      | Tests                                                        | Strategy    | CI                  |
-| ------ | --------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------ | ----------- | ------------------- |
-| AP-07a | `getAllUpdates()` → `{ ok, data \| error }` | **Done in repo** | `contact-update-review.service.vitest.ts` | Test-first | `test:vitest` |
-| AP-07b | `cms-admin.ts` error banner vs empty state | **Done in repo** | Template `@else if (contactUpdatesLoadError())` | Test-around | `test:unit:browser` optional |
-| AP-07c | E2E: mock review failure → visible error | **Open** | `admin.cms.spec.ts` | Test-around | `test:e2e:smoke` |
+| Slice  | Work                                        | Proven correct   | Tests                                           | Strategy    | CI                           |
+| ------ | ------------------------------------------- | ---------------- | ----------------------------------------------- | ----------- | ---------------------------- |
+| AP-07a | `getAllUpdates()` → `{ ok, data \| error }` | **Done in repo** | `contact-update-review.service.vitest.ts`       | Test-first  | `test:vitest`                |
+| AP-07b | `cms-admin.ts` error banner vs empty state  | **Done in repo** | Template `@else if (contactUpdatesLoadError())` | Test-around | `test:unit:browser` optional |
+| AP-07c | E2E: mock review failure → visible error    | **Open**         | `admin.cms.spec.ts`                             | Test-around | `test:e2e:smoke`             |
 
 ---
 
@@ -1370,10 +1383,10 @@ _No repo CI for WAF; track in ops ticket._
 
 ### AP-19 — AppSync API key runbook (Medium)
 
-| Slice  | Work                                                                          | Proven correct           | Tests                               | Strategy    | CI                  |
-| ------ | ----------------------------------------------------------------------------- | ------------------------ | ----------------------------------- | ----------- | ------------------- |
-| AP-19a | `CLERK-CMS-GUIDE.md`: rotate key, update Amplify env, redeploy                | Steps verified once      | —                                   | N/A         | —                   |
-| AP-19b | `LocalizedCmsContentStore.testCmsConnection()` documented as clerk smoke test | Button in `/admin` works | `site-cms-content.spec.ts` (exists) | Test-around | `test:unit:browser` |
+| Slice  | Work                                                                                                     | Proven correct              | Tests                               | Strategy    | CI                  |
+| ------ | -------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------- | ----------- | ------------------- |
+| AP-19a | [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md) + EventBridge deploy script | Runbook + reminder deployed | `verify:runtime-config-cms`         | N/A         | **Done 2026-05-28** |
+| AP-19b | `LocalizedCmsContentStore.testCmsConnection()` documented as clerk smoke test                            | Button in `/admin` works    | `site-cms-content.spec.ts` (exists) | Test-around | `test:unit:browser` |
 
 ---
 
@@ -1429,10 +1442,10 @@ _One file per PR._
 
 ### AP-25 — Hardcoded Amplify defaults (Medium)
 
-| Slice  | Work                                                                                                                              | Proven correct                 | Tests                             | Strategy    | CI                    |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------- | ----------- | --------------------- |
-| AP-25a | Add dev-only warning in `amplify-config.ts` if runtime CMS key empty and endpoint is default                                      | Console warn once              | `runtime-config.vitest.ts` extend | Test-around | `test:vitest`         |
-| AP-25b | Fail CI build if `apiKey` empty in production config generation — **optional, risky:** only warn in `generate-runtime-config.mjs` | Log warning on `npm run build` | Script test                       | Test-around | `npm run build` in CI |
+| Slice  | Work                                                                                         | Proven correct                         | Tests                             | Strategy    | CI                  |
+| ------ | -------------------------------------------------------------------------------------------- | -------------------------------------- | --------------------------------- | ----------- | ------------------- |
+| AP-25a | Add dev-only warning in `amplify-config.ts` if runtime CMS key empty and endpoint is default | Console warn once                      | `runtime-config.vitest.ts` extend | Test-around | `test:vitest`       |
+| AP-25b | Fail CI/Amplify build if required prod env empty (`--strict` + manifest)                     | `generate-runtime-config.mjs --strict` | `test:runtime-config-strict`      | Test-around | **Done 2026-05-28** |
 
 ---
 
@@ -1495,9 +1508,9 @@ Week 3 PRs:
 
 ## Phase 6: Paystar Embedded Session API — scaffold and reference
 
-**Generated:** 2026-05-22  
-**Official docs:** [Paystar Embedded Session API](https://docs.paystar.io/api/embedded/)  
-**OpenAPI:** [embedded-openapi.yaml](https://docs.paystar.io/redocusaurus/embedded-openapi.yaml)  
+**Generated:** 2026-05-22
+**Official docs:** [Paystar Embedded Session API](https://docs.paystar.io/api/embedded/)
+**OpenAPI:** [embedded-openapi.yaml](https://docs.paystar.io/redocusaurus/embedded-openapi.yaml)
 **Frontend SDK (after session URL exists):** [Embedded SDK reference](https://docs.paystar.io/api-docs/embedded/sdk-reference)
 
 Paystar has not yet issued Town of Wiley tenant credentials (`BusinessUnitSlug`, API key). This section records the **methods we plan to use**, how they map to repo code, and what remains blocked until Paystar onboarding.
@@ -1533,7 +1546,7 @@ Resident browser (Angular)
 | Staging     | `https://stage-gateway.paystar.io` |
 | Production  | `https://gateway.paystar.io`       |
 
-**Town proxy env:** `PAYSTAR_EMBEDDED_GATEWAY_BASE_URL` (defaults to staging base in scaffold).  
+**Town proxy env:** `PAYSTAR_EMBEDDED_GATEWAY_BASE_URL` (defaults to staging base in scaffold).
 **Town proxy env:** `PAYSTAR_BUSINESS_UNIT_SLUG` (required before live calls).
 
 ### Embedded session methods — reference table

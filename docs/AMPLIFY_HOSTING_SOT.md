@@ -121,7 +121,18 @@ These are exercised by [`e2e/specs/smoke/live-hosting.spec.ts`](../e2e/specs/smo
 
 ## 3. HTTP headers (CSP and friends)
 
-All HTTP headers are managed in the repo at [`customHttp.yml`](../customHttp.yml) and synced to Amplify by `scripts/sync-amplify-custom-headers.sh`. Highlights:
+All HTTP headers are managed in the repo at [`customHttp.yml`](../customHttp.yml) and synced to Amplify by `scripts/sync-amplify-custom-headers.sh`.
+
+**Edit workflow (SSOT):**
+
+1. Change CSP only in [`customHttp.yml`](../customHttp.yml).
+2. `npm run verify:custom-http-yaml`
+3. `npm run sync:angular-serve-csp` (updates [`angular.json`](../angular.json) dev-server headers)
+4. `npm run amplify:sync-headers` then redeploy `main` for production
+
+Third-party origin reference: [`third-party-csp-registry.md`](third-party-csp-registry.md).
+
+Highlights:
 
 - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 - `X-Content-Type-Options: nosniff`
@@ -134,6 +145,7 @@ All HTTP headers are managed in the repo at [`customHttp.yml`](../customHttp.yml
   - **S3 documents bucket**: `https://townofwiley-documents-storage.s3.us-east-2.amazonaws.com` (connect-src + media-src + frame-src — the last so the `/news` newsletter PDF iframe can render presigned URLs; see [`docs/CMS_NEWSLETTER.md`](CMS_NEWSLETTER.md)).
   - **NWS weather**: `https://api.weather.gov`, `https://alerts.weather.gov`, `https://radar.weather.gov`.
   - **Lambda function URLs**: `https://*.lambda-url.us-east-2.on.aws` (weather proxy + alert signup).
+  - **API Gateway (staff)**: `https://*.execute-api.us-east-2.amazonaws.com` (contact review JWT API).
   - **Google Analytics 4 / GTM**: `https://www.googletagmanager.com`, `https://www.google-analytics.com`, etc.
   - **AI assistant embed**: `https://bots.easy-peasy.ai`, `wss://bots.easy-peasy.ai`.
 
@@ -146,8 +158,11 @@ Caching:
 
 CI guards:
 
-- [`scripts/verify-custom-http-yaml.mjs`](../scripts/verify-custom-http-yaml.mjs) keeps the YAML structurally valid.
-- [`scripts/probe-live-hosting-csp.sh`](../scripts/probe-live-hosting-csp.sh) compares the deployed CSP to the repo file.
+- [`scripts/verify-custom-http-yaml.mjs`](../scripts/verify-custom-http-yaml.mjs) — YAML valid, GA4/SW baselines, `angular.json` serve CSP matches `customHttp.yml`.
+- [`scripts/probe-live-hosting-csp.sh`](../scripts/probe-live-hosting-csp.sh) — live token baseline (`npm run verify:live-csp-probe`).
+- [`scripts/compare-live-csp-to-repo.mjs`](../scripts/compare-live-csp-to-repo.mjs) — exact live vs repo match (`npm run verify:live-csp-vs-repo`).
+- [`.github/workflows/hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) — daily prod probe + compare.
+- [`e2e/specs/smoke/csp-homepage.spec.ts`](../e2e/specs/smoke/csp-homepage.spec.ts) — no CSP violations on homepage (weather + chat) under local serve CSP.
 - [`e2e/specs/smoke/live-hosting-headers.spec.ts`](../e2e/specs/smoke/live-hosting-headers.spec.ts) asserts the headers on `E2E_BASE_URL` when set.
 
 **Drift from `customHttp.yml` (staging/prod CSP looks stale vs local `ng serve`):** Amplify persists `customHeaders` on the Hosting app (`aws amplify get-app`). The repo expects full GA4/SW-aligned CSP (see [`customHttp.yml`](../customHttp.yml)). If the CLI shows an older CSP (for example missing `worker-src`, `*.googletagmanager.com`, `frame-src`, or Doubleclick/Google `connect-src` entries), operators with Wiley IAM access should run **`npm run amplify:sync-headers`** (see [`scripts/sync-amplify-custom-headers.sh`](../scripts/sync-amplify-custom-headers.sh)), using `AWS_PROFILE` / `AWS_REGION=us-east-2`. Then optionally **Redeploy** the `main` branch in the Amplify Console if edge headers do not update within a short window.

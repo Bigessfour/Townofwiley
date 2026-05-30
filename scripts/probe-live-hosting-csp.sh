@@ -68,6 +68,7 @@ checks=(
   'googletagmanager'
   'google-analytics.com'
   'g.doubleclick.net'
+  'execute-api.us-east-2.amazonaws.com'
   'frame-src https://www.googletagmanager.com'
   "object-src 'none'"
 )

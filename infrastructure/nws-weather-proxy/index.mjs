@@ -61,7 +61,10 @@ function getNwsRetryBaseMs() {
 
 function getNwsRetryMaxDelayMs() {
   const base = getNwsRetryBaseMs();
-  return Math.max(base, Number.parseInt(process.env.NWS_RETRY_MAX_DELAY_MS ?? '20000', 10) || 20_000);
+  return Math.max(
+    base,
+    Number.parseInt(process.env.NWS_RETRY_MAX_DELAY_MS ?? '20000', 10) || 20_000,
+  );
 }
 
 function sleep(ms) {
@@ -150,7 +153,8 @@ async function fetchNwsJson(url, userAgent, apiKey) {
     }
 
     lastMessage =
-      normalizeWhitespace(responseText).slice(0, 400) || `NWS request failed with ${response.status}`;
+      normalizeWhitespace(responseText).slice(0, 400) ||
+      `NWS request failed with ${response.status}`;
 
     const canRetry = attempt < maxAttempts && isTransientNwsHttpStatus(response.status);
 
@@ -280,7 +284,8 @@ export async function handler(event) {
     return jsonResponse(
       500,
       {
-        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
+        error:
+          'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
         hint: 'Set NWS_USER_AGENT to something like "townofwiley.gov/1.0 (your-email@domain.com)"',
       },
       requestOrigin,

@@ -91,9 +91,12 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
     items {
       id
       title
+      titleEs
       summary
+      summaryEs
       sectionId
       status
+      statusEs
       format
       href
       downloadFileName
@@ -182,7 +185,9 @@ function buildSnapshot(coreData, extendedData, buildSha) {
 async function main() {
   const localSecrets = readLocalSecrets();
   const endpoint =
-    process.env.APPSYNC_CMS_ENDPOINT?.trim() || localSecrets.cms?.appSync?.apiEndpoint?.trim() || '';
+    process.env.APPSYNC_CMS_ENDPOINT?.trim() ||
+    localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
+    '';
   const apiKey =
     process.env.APPSYNC_CMS_API_KEY?.trim() || localSecrets.cms?.appSync?.apiKey?.trim() || '';
 

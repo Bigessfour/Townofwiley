@@ -602,8 +602,12 @@ export class ResidentServices {
 
   protected readonly quickPayDisabled = computed(() => this.quickPayState().disabled);
 
-  protected readonly townInfoContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION));
-  protected readonly clerkContact = computed(() => this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK));
+  protected readonly townInfoContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+  );
+  protected readonly clerkContact = computed(() =>
+    this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK),
+  );
   protected readonly superintendentContact = computed(() =>
     this.findContact('town-superintendent'),
   );

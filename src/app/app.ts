@@ -38,26 +38,26 @@ import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { TimelineModule } from 'primeng/timeline';
 import { TagModule } from 'primeng/tag';
+import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
-import { getChatbotRuntimeConfig } from './chatbot-config';
 import {
   createGoogleCalendarLinkForEvent,
   createGoogleCalendarLinkForSeed,
   createIcsDataUrlForEvent,
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
+import { getChatbotRuntimeConfig } from './chatbot-config';
+import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
+import { localizeCmsPublicDocument } from './document-hub/localize-public-document';
+import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import {
   LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
   LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
 } from './leadership-roster-group-ids';
-import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
-import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
-import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import { LoggingService } from './logging.service';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import { RECORDS_CENTER_COPY } from './records-center/records-center';
@@ -1870,7 +1870,9 @@ export class App {
   });
   protected readonly clerkContact = computed<CmsContact | null>(() => {
     return (
-      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK) ?? this.contacts()[1] ?? null
+      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK) ??
+      this.contacts()[1] ??
+      null
     );
   });
   protected readonly alertBanner = computed<CmsAlertBanner>(() => {
@@ -2263,7 +2265,10 @@ export class App {
   });
   private readonly recordsSearchItems = computed<SearchItem[]>(() => {
     const recordsCopy = this.recordsCenterCopy();
-    const archive = DOCUMENT_ARCHIVE[this.siteLanguage()];
+    const language = this.siteLanguage();
+    const archive = this.cmsStore
+      .publicDocuments()
+      .map((doc) => localizeCmsPublicDocument(doc, language));
 
     return [
       ...recordsCopy.guides.map((guide) => ({

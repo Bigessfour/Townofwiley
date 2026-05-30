@@ -7,9 +7,7 @@ import { ContactPage } from './contact-page';
 interface ContactPageStore {
   contacts: ReturnType<typeof signal<CmsContact[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
-  leadershipRosterLinesByGroup: ReturnType<
-    typeof signal<ReadonlyMap<string, readonly string[]>>
-  >;
+  leadershipRosterLinesByGroup: ReturnType<typeof signal<ReadonlyMap<string, readonly string[]>>>;
 }
 
 function configure(

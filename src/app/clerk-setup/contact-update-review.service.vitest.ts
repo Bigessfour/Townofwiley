@@ -25,7 +25,16 @@ describe('ContactUpdateReviewService', () => {
     const promise = service.getAllUpdates();
     const req = httpTesting.expectOne('/api/contact-updates-review');
     expect(req.request.method).toBe('GET');
-    req.flush([{ id: '1', timestamp: '2026-01-01T00:00:00.000Z', fullName: 'A', serviceAddress: '', source: 'test', locale: 'en' }]);
+    req.flush([
+      {
+        id: '1',
+        timestamp: '2026-01-01T00:00:00.000Z',
+        fullName: 'A',
+        serviceAddress: '',
+        source: 'test',
+        locale: 'en',
+      },
+    ]);
     const result = await promise;
     expect(result.ok).toBe(true);
     if (result.ok) {

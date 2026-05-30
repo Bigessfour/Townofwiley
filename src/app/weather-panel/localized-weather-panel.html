@@ -65,181 +65,181 @@
     }
 
     @if (!(loadError() && !hasForecastPayload())) {
-    <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
-      @if (solarTimes(); as solar) {
-        <div class="atglance-card">
-          <span class="meta-label">{{ copy().sunriseLabel }}</span>
-          <strong>{{ solar.sunrise }}</strong>
-        </div>
-        <div class="atglance-card">
-          <span class="meta-label">{{ copy().sunsetLabel }}</span>
-          <strong>{{ solar.sunset }}</strong>
-        </div>
-        <div class="atglance-card">
-          <span class="meta-label">{{ copy().photoperiodLabel }}</span>
-          <strong>{{ solar.photoperiod }}</strong>
-        </div>
-      } @else {
-        <div class="atglance-card atglance-card--unavailable" data-testid="solar-unavailable">
-          <span class="meta-label">{{ copy().sunriseLabel }}</span>
-          <small class="atglance-unavailable">{{ copy().solarUnavailable }}</small>
-        </div>
-      }
-      @if (aqiData(); as aqi) {
-        <div class="atglance-card">
-          <span class="meta-label">{{ copy().aqiLabel }}</span>
-          <p-tag [value]="aqi.category" [severity]="aqiSeverityClass(aqi.category)" />
-        </div>
-      } @else {
-        <div class="atglance-card atglance-card--unavailable" data-testid="aqi-unavailable">
-          <span class="meta-label">{{ copy().aqiLabel }}</span>
-          <small class="atglance-unavailable">{{ copy().aqiUnavailable }}</small>
-        </div>
-      }
-      @if (forecastGdd() > 0) {
-        <div class="atglance-card">
-          <span class="meta-label gdd-label-row">
-            {{ copy().gddLabel }}
-            <button
-              type="button"
-              class="gdd-info-button"
-              [attr.aria-label]="copy().gddTooltip"
-              [pTooltip]="copy().gddTooltip"
-              tooltipPosition="top"
-            >
-              <i class="pi pi-info-circle" aria-hidden="true"></i>
-            </button>
-          </span>
-          <strong>{{ forecastGdd() }}</strong>
-          <small class="atglance-unit">{{ copy().gddUnit }}</small>
-        </div>
-      }
-    </section>
+      <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
+        @if (solarTimes(); as solar) {
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().sunriseLabel }}</span>
+            <strong>{{ solar.sunrise }}</strong>
+          </div>
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().sunsetLabel }}</span>
+            <strong>{{ solar.sunset }}</strong>
+          </div>
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().photoperiodLabel }}</span>
+            <strong>{{ solar.photoperiod }}</strong>
+          </div>
+        } @else {
+          <div class="atglance-card atglance-card--unavailable" data-testid="solar-unavailable">
+            <span class="meta-label">{{ copy().sunriseLabel }}</span>
+            <small class="atglance-unavailable">{{ copy().solarUnavailable }}</small>
+          </div>
+        }
+        @if (aqiData(); as aqi) {
+          <div class="atglance-card">
+            <span class="meta-label">{{ copy().aqiLabel }}</span>
+            <p-tag [value]="aqi.category" [severity]="aqiSeverityClass(aqi.category)" />
+          </div>
+        } @else {
+          <div class="atglance-card atglance-card--unavailable" data-testid="aqi-unavailable">
+            <span class="meta-label">{{ copy().aqiLabel }}</span>
+            <small class="atglance-unavailable">{{ copy().aqiUnavailable }}</small>
+          </div>
+        }
+        @if (forecastGdd() > 0) {
+          <div class="atglance-card">
+            <span class="meta-label gdd-label-row">
+              {{ copy().gddLabel }}
+              <button
+                type="button"
+                class="gdd-info-button"
+                [attr.aria-label]="copy().gddTooltip"
+                [pTooltip]="copy().gddTooltip"
+                tooltipPosition="top"
+              >
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+              </button>
+            </span>
+            <strong>{{ forecastGdd() }}</strong>
+            <small class="atglance-unit">{{ copy().gddUnit }}</small>
+          </div>
+        }
+      </section>
     }
 
     <section class="weather-grid flex flex-col gap-4 xl:flex-row xl:items-stretch">
       @if (!(loadError() && !hasForecastPayload())) {
-      <section
-        class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]"
-        aria-labelledby="weather-current-heading"
-      >
-        @if (currentPeriod(); as period) {
-          <p-card
-            [class]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')"
-            data-testid="weather-current-card"
-          >
-            <ng-template pTemplate="header">
-              <div
-                class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div>
-                  <p class="meta-label">{{ period.name }}</p>
-                  <h2 id="weather-current-heading">{{ period.shortForecast }}</h2>
-                  <p class="weather-temperature">{{ period.temperatureLabel }}</p>
-                  @if (updatedLabel()) {
-                    <small
-                      class="weather-current-updated weather-detail"
-                      id="weather-current-updated-text"
-                    >
-                      {{ copy().updatedPrefix }} {{ updatedLabel() }}
-                    </small>
+        <section
+          class="weather-forecast flex flex-col gap-4 xl:flex-[1.45]"
+          aria-labelledby="weather-current-heading"
+        >
+          @if (currentPeriod(); as period) {
+            <p-card
+              [class]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')"
+              data-testid="weather-current-card"
+            >
+              <ng-template pTemplate="header">
+                <div
+                  class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                >
+                  <div>
+                    <p class="meta-label">{{ period.name }}</p>
+                    <h2 id="weather-current-heading">{{ period.shortForecast }}</h2>
+                    <p class="weather-temperature">{{ period.temperatureLabel }}</p>
+                    @if (updatedLabel()) {
+                      <small
+                        class="weather-current-updated weather-detail"
+                        id="weather-current-updated-text"
+                      >
+                        {{ copy().updatedPrefix }} {{ updatedLabel() }}
+                      </small>
+                    }
+                  </div>
+                  @if (period.iconUrl) {
+                    <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
                   }
                 </div>
-                @if (period.iconUrl) {
-                  <img class="weather-icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
+              </ng-template>
+
+              <p class="weather-detail">{{ period.detailedForecast }}</p>
+
+              <dl class="weather-metrics flex flex-wrap gap-3">
+                <div>
+                  <dt>{{ copy().windLabel }}</dt>
+                  <dd>{{ period.windLabel }}</dd>
+                </div>
+                <div>
+                  <dt>{{ copy().precipitationLabel }}</dt>
+                  <dd>{{ period.precipitationLabel }}</dd>
+                </div>
+              </dl>
+
+              <ng-template pTemplate="footer">
+                <div class="weather-current-footer flex flex-wrap gap-3">
+                  <a
+                    class="weather-action is-link"
+                    [attr.href]="weatherGovUrl"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {{ copy().openForecast }}
+                  </a>
+                  <a
+                    class="weather-action is-link weather-action--secondary"
+                    [attr.href]="forecastMapsUrl"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {{ copy().forecastMaps }}
+                  </a>
+                </div>
+              </ng-template>
+            </p-card>
+          }
+
+          <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
+            <h3 id="weather-hourly-heading" class="meta-label weather-section-label">
+              {{ copy().hourlyLabel }}
+            </h3>
+            @if (hourlyPeriods().length > 0) {
+              <ul class="weather-hourly-scroll" [attr.aria-label]="copy().hourlyLabel">
+                @for (h of hourlyPeriods(); track h.timeLabel) {
+                  <li class="weather-hourly-card" [class.is-night]="!h.isDaytime">
+                    <span class="hourly-time">{{ h.timeLabel }}</span>
+                    <strong class="hourly-temp">{{ h.temperatureLabel }}</strong>
+                    @if (h.precipitationLabel) {
+                      <span class="hourly-precip">{{ h.precipitationLabel }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p
+                class="public-empty-state weather-hourly-unavailable"
+                role="status"
+                data-testid="hourly-unavailable"
+              >
+                {{ copy().hourlyUnavailable }}
+              </p>
+            }
+          </section>
+
+          @if (sevenDayPeriods().length > 0) {
+            <section aria-labelledby="weather-sevenday-heading">
+              <h3 id="weather-sevenday-heading" class="meta-label weather-section-label">
+                {{ copy().sevenDayLabel }}
+              </h3>
+              <div
+                class="weather-period-grid grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+              >
+                @for (period of sevenDayPeriods(); track period.name) {
+                  <article
+                    class="weather-period-card grid gap-2"
+                    [class.is-night]="!period.isDaytime"
+                  >
+                    <header class="weather-period-heading flex items-center justify-between gap-3">
+                      <p class="meta-label">{{ period.name }}</p>
+                      <strong>{{ period.temperatureLabel }}</strong>
+                    </header>
+                    <p class="weather-period-summary">{{ period.shortForecast }}</p>
+                    <p>{{ period.windLabel }}</p>
+                    <span>{{ period.precipitationLabel }}</span>
+                  </article>
                 }
               </div>
-            </ng-template>
-
-            <p class="weather-detail">{{ period.detailedForecast }}</p>
-
-            <dl class="weather-metrics flex flex-wrap gap-3">
-              <div>
-                <dt>{{ copy().windLabel }}</dt>
-                <dd>{{ period.windLabel }}</dd>
-              </div>
-              <div>
-                <dt>{{ copy().precipitationLabel }}</dt>
-                <dd>{{ period.precipitationLabel }}</dd>
-              </div>
-            </dl>
-
-            <ng-template pTemplate="footer">
-              <div class="weather-current-footer flex flex-wrap gap-3">
-                <a
-                  class="weather-action is-link"
-                  [attr.href]="weatherGovUrl"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  {{ copy().openForecast }}
-                </a>
-                <a
-                  class="weather-action is-link weather-action--secondary"
-                  [attr.href]="forecastMapsUrl"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  {{ copy().forecastMaps }}
-                </a>
-              </div>
-            </ng-template>
-          </p-card>
-        }
-
-        <section class="weather-hourly-section" aria-labelledby="weather-hourly-heading">
-          <h3 id="weather-hourly-heading" class="meta-label weather-section-label">
-            {{ copy().hourlyLabel }}
-          </h3>
-          @if (hourlyPeriods().length > 0) {
-            <ul class="weather-hourly-scroll" [attr.aria-label]="copy().hourlyLabel">
-              @for (h of hourlyPeriods(); track h.timeLabel) {
-                <li class="weather-hourly-card" [class.is-night]="!h.isDaytime">
-                  <span class="hourly-time">{{ h.timeLabel }}</span>
-                  <strong class="hourly-temp">{{ h.temperatureLabel }}</strong>
-                  @if (h.precipitationLabel) {
-                    <span class="hourly-precip">{{ h.precipitationLabel }}</span>
-                  }
-                </li>
-              }
-            </ul>
-          } @else {
-            <p
-              class="public-empty-state weather-hourly-unavailable"
-              role="status"
-              data-testid="hourly-unavailable"
-            >
-              {{ copy().hourlyUnavailable }}
-            </p>
+            </section>
           }
         </section>
-
-        @if (sevenDayPeriods().length > 0) {
-          <section aria-labelledby="weather-sevenday-heading">
-            <h3 id="weather-sevenday-heading" class="meta-label weather-section-label">
-              {{ copy().sevenDayLabel }}
-            </h3>
-            <div
-              class="weather-period-grid grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-            >
-              @for (period of sevenDayPeriods(); track period.name) {
-                <article
-                  class="weather-period-card grid gap-2"
-                  [class.is-night]="!period.isDaytime"
-                >
-                  <header class="weather-period-heading flex items-center justify-between gap-3">
-                    <p class="meta-label">{{ period.name }}</p>
-                    <strong>{{ period.temperatureLabel }}</strong>
-                  </header>
-                  <p class="weather-period-summary">{{ period.shortForecast }}</p>
-                  <p>{{ period.windLabel }}</p>
-                  <span>{{ period.precipitationLabel }}</span>
-                </article>
-              }
-            </div>
-          </section>
-        }
-      </section>
       }
 
       <aside
@@ -254,70 +254,72 @@
         aria-atomic="false"
       >
         @if (!(loadError() && !hasForecastPayload())) {
-        <p-panel
-          styleClass="weather-alerts-panel"
-          [pt]="{ header: { class: 'weather-alerts-header-host' } }"
-        >
-          <ng-template pTemplate="header">
-            <div class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full">
-              <div>
-                <p class="meta-label">{{ copy().alertsKicker }}</p>
-                <h2 id="weather-alerts-heading" class="m-0">{{ copy().alertsHeading }}</h2>
+          <p-panel
+            styleClass="weather-alerts-panel"
+            [pt]="{ header: { class: 'weather-alerts-header-host' } }"
+          >
+            <ng-template pTemplate="header">
+              <div
+                class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full"
+              >
+                <div>
+                  <p class="meta-label">{{ copy().alertsKicker }}</p>
+                  <h2 id="weather-alerts-heading" class="m-0">{{ copy().alertsHeading }}</h2>
+                </div>
+                <p-tag
+                  [value]="hasAlerts() ? alertSummary() : copy().noActiveAlerts"
+                  [severity]="hasAlerts() ? 'danger' : 'success'"
+                  styleClass="weather-alert-pill"
+                />
               </div>
-              <p-tag
-                [value]="hasAlerts() ? alertSummary() : copy().noActiveAlerts"
-                [severity]="hasAlerts() ? 'danger' : 'success'"
-                styleClass="weather-alert-pill"
-              />
-            </div>
-          </ng-template>
+            </ng-template>
 
-          @if (hasAlerts()) {
-            <p-accordion
-              [multiple]="true"
-              styleClass="weather-accordion"
-              [value]="accordionActiveValue()"
-            >
-              @for (
-                alert of weatherAlerts();
-                track alert.event + alert.headline;
-                let idx = $index
-              ) {
-                <p-accordion-panel class="weather-alert-card" [value]="idx">
-                  <p-accordion-header
-                    [attr.aria-label]="alert.event + ' ' + alert.severity + ' alert'"
-                  >
-                    <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
-                      <p-tag
-                        [value]="alert.severity"
-                        [severity]="alertSeverityClass(alert.severity)"
-                        styleClass="weather-alert-badge"
-                      />
-                      <span>{{ alert.event }}</span>
-                    </span>
-                  </p-accordion-header>
-                  <p-accordion-content>
-                    <p class="meta-label weather-alert-severity">
-                      {{ alert.severity }} · {{ alert.urgency }}
-                    </p>
-                    <p>{{ alert.headline }}</p>
-                    @if (alert.instruction) {
-                      <p class="weather-alert-instruction">{{ alert.instruction }}</p>
-                    }
-                    @if (alert.expiresLabel) {
-                      <small>{{ alert.expiresLabel }}</small>
-                    }
-                  </p-accordion-content>
-                </p-accordion-panel>
-              }
-            </p-accordion>
-          } @else {
-            <div class="weather-no-alerts grid gap-2">
-              <p-message severity="success" [text]="copy().noAlertsTitle" />
-              <p class="weather-copy">{{ copy().noAlertsBody }}</p>
-            </div>
-          }
-        </p-panel>
+            @if (hasAlerts()) {
+              <p-accordion
+                [multiple]="true"
+                styleClass="weather-accordion"
+                [value]="accordionActiveValue()"
+              >
+                @for (
+                  alert of weatherAlerts();
+                  track alert.event + alert.headline;
+                  let idx = $index
+                ) {
+                  <p-accordion-panel class="weather-alert-card" [value]="idx">
+                    <p-accordion-header
+                      [attr.aria-label]="alert.event + ' ' + alert.severity + ' alert'"
+                    >
+                      <span class="weather-accordion-header flex items-center gap-3 flex-wrap">
+                        <p-tag
+                          [value]="alert.severity"
+                          [severity]="alertSeverityClass(alert.severity)"
+                          styleClass="weather-alert-badge"
+                        />
+                        <span>{{ alert.event }}</span>
+                      </span>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <p class="meta-label weather-alert-severity">
+                        {{ alert.severity }} · {{ alert.urgency }}
+                      </p>
+                      <p>{{ alert.headline }}</p>
+                      @if (alert.instruction) {
+                        <p class="weather-alert-instruction">{{ alert.instruction }}</p>
+                      }
+                      @if (alert.expiresLabel) {
+                        <small>{{ alert.expiresLabel }}</small>
+                      }
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                }
+              </p-accordion>
+            } @else {
+              <div class="weather-no-alerts grid gap-2">
+                <p-message severity="success" [text]="copy().noAlertsTitle" />
+                <p class="weather-copy">{{ copy().noAlertsBody }}</p>
+              </div>
+            }
+          </p-panel>
         }
 
         @if (isAlertSignupEnabled()) {

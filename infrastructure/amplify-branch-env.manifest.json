@@ -37,6 +37,11 @@
     {
       "name": "EASYPEASY_CHAT_URL",
       "runtimePath": "chatbot.chatUrl"
+    },
+    {
+      "name": "CONTACT_UPDATE_REVIEW_API_URL",
+      "runtimePath": "contactUpdate.reviewApiEndpoint",
+      "notes": "JWT-protected API Gateway GET URL (includes /contact-updates path)"
     }
   ],
   "optionalOrModeDependent": [
@@ -62,7 +67,7 @@
     {
       "name": "CONTACT_UPDATE_REVIEW_PROXY_URL",
       "runtimePath": "contactUpdate.reviewProxyEndpoint",
-      "notes": "After deploy-contact-updates-review-proxy.py (AP-05b); not the IAM review URL"
+      "notes": "DEPRECATED — remove after proxy Function URL deleted; use CONTACT_UPDATE_REVIEW_API_URL"
     },
     {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",

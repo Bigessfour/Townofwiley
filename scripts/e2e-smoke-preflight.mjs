@@ -119,7 +119,10 @@ function runNodePreflight() {
     row(`path:${rel}`, ok ? 'directory' : 'missing', ok, 'Run: npm ci');
   }
 
-  const needFiles = ['playwright.config.ts', join('node_modules', '@angular', 'cli', 'bin', 'ng.js')];
+  const needFiles = [
+    'playwright.config.ts',
+    join('node_modules', '@angular', 'cli', 'bin', 'ng.js'),
+  ];
   for (const rel of needFiles) {
     const ok = existsSync(join(repoRoot, rel));
     row(`path:${rel}`, ok ? 'file' : 'missing', ok, 'Run: npm ci');

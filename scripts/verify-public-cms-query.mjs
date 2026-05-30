@@ -43,7 +43,9 @@ function extractQueryConstant(source, constantName) {
 }
 
 function extractPublicCmsQueries(source) {
-  return PUBLIC_CMS_QUERY_CONSTANTS.map((constantName) => extractQueryConstant(source, constantName));
+  return PUBLIC_CMS_QUERY_CONSTANTS.map((constantName) =>
+    extractQueryConstant(source, constantName),
+  );
 }
 
 function modelAllowsPublicApiKeyRead(schema, modelName) {

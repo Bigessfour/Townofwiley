@@ -27,9 +27,7 @@ export class ContactUpdateReviewService {
   async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
     const reviewEndpoint = this.resolveReviewEndpoint();
     try {
-      const response = await firstValueFrom(
-        this.http.get<ContactUpdateRecord[]>(reviewEndpoint),
-      );
+      const response = await firstValueFrom(this.http.get<ContactUpdateRecord[]>(reviewEndpoint));
       return { ok: true, data: response ?? [] };
     } catch (err) {
       const message = this.describeHttpError(err);

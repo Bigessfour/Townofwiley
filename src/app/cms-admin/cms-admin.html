@@ -33,7 +33,9 @@
   </header>
 
   <section class="cms-docs-callout" aria-labelledby="cms-studio-docs-heading">
-    <h2 id="cms-studio-docs-heading" class="cms-docs-callout__title">{{ copy().studioDocsTitle }}</h2>
+    <h2 id="cms-studio-docs-heading" class="cms-docs-callout__title">
+      {{ copy().studioDocsTitle }}
+    </h2>
     <p class="cms-docs-callout__body">{{ copy().studioDocsBody }}</p>
     <p class="cms-docs-callout__link">
       <a
@@ -139,7 +141,8 @@
           tabindex="0"
           [pTooltip]="copy().connectionEndpointHint"
           tooltipPosition="bottom"
-          >{{ copy().endpointLabel }}:</strong>
+          >{{ copy().endpointLabel }}:</strong
+        >
         {{ maskedEndpoint() }}
       </li>
       <li>
@@ -148,7 +151,8 @@
           tabindex="0"
           [pTooltip]="copy().connectionRegionHint"
           tooltipPosition="bottom"
-          >{{ copy().regionLabel }}:</strong>
+          >{{ copy().regionLabel }}:</strong
+        >
         {{ appSyncRegion() }}
       </li>
       <li>
@@ -157,7 +161,8 @@
           tabindex="0"
           [pTooltip]="copy().connectionApiKeyHint"
           tooltipPosition="bottom"
-          >{{ copy().apiKeyLabel }}:</strong>
+          >{{ copy().apiKeyLabel }}:</strong
+        >
         {{ hasAppSyncRuntimeConfig ? copy().apiKeyPresent : copy().apiKeyMissing }}
       </li>
       @if (connectionTestResult(); as result) {
@@ -355,7 +360,9 @@
             </div>
           } @else if (contactUpdatesLoadError()) {
             <p-message severity="error" [text]="contactUpdatesLoadError()!" class="mb-4" />
-            <p class="text-center py-8 text-color-secondary">{{ copy().contactUpdatesLoadError }}</p>
+            <p class="text-center py-8 text-color-secondary">
+              {{ copy().contactUpdatesLoadError }}
+            </p>
           } @else if (contactUpdates().length === 0) {
             <p class="text-center py-12 text-color-secondary">{{ copy().noContactUpdates }}</p>
           } @else {

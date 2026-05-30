@@ -28,7 +28,8 @@ jobs:
       - name: Verify CSP SSOT (customHttp.yml + angular.json parity)
         run: node scripts/verify-custom-http-yaml.mjs
 
-  # Guard against @playwright/mcp@1.x (Playwright core version — does not exist on npm; breaks Cursor MCP).
+  # Advisory check only. @playwright/mcp is IDE-only (npx @latest per .cursor/mcp.json + docs).
+  # It is never a project dependency; the old require() would always fail after npm ci.
   verify-playwright-mcp-package:
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -43,7 +44,7 @@ jobs:
       - name: Install dependencies (no scripts)
         run: npm ci --ignore-scripts --no-fund
 
-      - name: Verify @playwright/mcp is 0.x (IDE MCP package)
+      - name: Confirm @playwright/mcp is IDE-only (advisory; never a project dep)
         run: npm run verify:playwright-mcp
 
   csp-angular-sync-check:

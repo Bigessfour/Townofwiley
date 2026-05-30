@@ -2,14 +2,14 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { defaultCmsStoreMockFields } from '../cms-test-support';
+import { DocumentRefreshService } from '../document-refresh.service';
+import { DocumentUploadService } from '../document-upload.service';
 import {
   type CmsCalendarEvent,
   type CmsPublicDocument,
   LocalizedCmsContentStore,
 } from '../site-cms-content';
 import { type SiteLanguage, SiteLanguageService } from '../site-language';
-import { DocumentRefreshService } from '../document-refresh.service';
-import { DocumentUploadService } from '../document-upload.service';
 import { DOCUMENT_HUB_TITLE_EN, DOCUMENT_HUB_TITLE_ES, DocumentHub } from './document-hub';
 
 function languageMock(language: SiteLanguage): SiteLanguageService {
@@ -139,6 +139,41 @@ describe('DocumentHub', () => {
       'Proximamente',
     );
     expect(el.querySelector('.archive-header h3')?.textContent).toContain('Buscar agendas');
+  });
+
+  it('shows Spanish document titles from titleEs when language is es', async () => {
+    const fixture = await configure({
+      language: 'es',
+      publicDocuments: [
+        {
+          id: 'bilingual-guide',
+          title: 'English Only Title',
+          titleEs: 'Titulo bilingue',
+          summary: 'English summary',
+          summaryEs: 'Resumen bilingue',
+          sectionId: 'meeting-documents',
+          status: 'Published',
+          statusEs: 'Publicado',
+          format: 'PDF',
+          href: '/documents/guide.pdf',
+          downloadFileName: 'guide.pdf',
+          keywords: [],
+        },
+      ],
+    });
+    const titles = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.document-file-title'),
+    ).map((node) => node.textContent?.trim());
+    expect(titles).toContain('Titulo bilingue');
+    expect(titles).not.toContain('English Only Title');
+  });
+
+  it('does not show static-only cards when publicDocuments is empty', async () => {
+    const fixture = await configure({ publicDocuments: [] });
+    const titles = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.document-file-title'),
+    ).map((node) => node.textContent?.trim());
+    expect(titles).toEqual([]);
   });
 
   it('shows a bilingual error state when document href resolution fails', async () => {

@@ -44,10 +44,10 @@ After Studio and `/admin` both look healthy, open the homepage and one other rou
 
 ## Record outcome
 
-- Date: _______________
+- Date: **\*\***\_\_\_**\*\***
 - Studio Data Manager reachable: Yes / No
 - `/admin` Test CMS Connection: Connected / Failed
-- Notes: _______________
+- Notes: **\*\***\_\_\_**\*\***
 
 ## Related documents
 

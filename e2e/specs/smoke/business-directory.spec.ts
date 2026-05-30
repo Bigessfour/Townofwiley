@@ -10,7 +10,9 @@ test.describe('Business directory', () => {
 
     await homePage.page.getByLabel('Search local businesses').fill('Tempel Grain');
     await expect(homePage.page.locator('.public-directory-card').first()).toBeVisible();
-    await expect(homePage.page.locator('.public-directory-card').first()).toContainText('Tempel Grain');
+    await expect(homePage.page.locator('.public-directory-card').first()).toContainText(
+      'Tempel Grain',
+    );
 
     const contactLink = homePage.page
       .locator('.public-directory-card')

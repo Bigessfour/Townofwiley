@@ -76,9 +76,12 @@ export interface CmsBusiness {
 export interface CmsPublicDocument {
   id: string;
   title: string;
+  titleEs?: string;
   summary: string;
+  summaryEs?: string;
   sectionId: string;
   status: string;
+  statusEs?: string;
   format: string;
   href: string;
   downloadFileName: string;
@@ -452,9 +455,12 @@ interface BusinessRecord {
 interface PublicDocumentRecord {
   id: string;
   title: string;
+  titleEs?: string | null;
   summary: string;
+  summaryEs?: string | null;
   sectionId: string;
   status: string;
+  statusEs?: string | null;
   format: string;
   href: string;
   downloadFileName?: string | null;
@@ -580,9 +586,12 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
     items {
       id
       title
+      titleEs
       summary
+      summaryEs
       sectionId
       status
+      statusEs
       format
       href
       downloadFileName
@@ -776,7 +785,12 @@ export class LocalizedCmsContentStore {
 
   async refreshContent(): Promise<void> {
     if (!this.hasCmsCredentials()) {
-      this.applyFallbackContent();
+      // Re-hydrate from build snapshot / persisted cache instead of wiping PublicDocument rows
+      // (document hub calls refresh on navigation; E2E and local serve often lack AppSync keys).
+      const rehydrated = await this.hydrateFromOfflineSnapshots();
+      if (!rehydrated) {
+        this.applyFallbackContent();
+      }
       return;
     }
 
@@ -1549,9 +1563,12 @@ export class LocalizedCmsContentStore {
       .map((r) => ({
         id: r.id,
         title: r.title,
+        titleEs: r.titleEs?.trim() || undefined,
         summary: r.summary,
+        summaryEs: r.summaryEs?.trim() || undefined,
         sectionId: r.sectionId,
         status: r.status,
+        statusEs: r.statusEs?.trim() || undefined,
         format: r.format,
         href: r.href,
         downloadFileName: r.downloadFileName ?? '',

@@ -2,10 +2,10 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import {
@@ -20,8 +20,7 @@ import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-c
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
 /** Official AWS Amplify Gen 1 Studio overview (visual backend, Data Manager / data browser). */
-export const AMPLIFY_STUDIO_GEN1_DOCS_URL =
-  'https://docs.amplify.aws/gen1/angular/tools/console/';
+export const AMPLIFY_STUDIO_GEN1_DOCS_URL = 'https://docs.amplify.aws/gen1/angular/tools/console/';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
@@ -242,7 +241,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     contactUpdatesSubtitle: 'All submissions from the bill-pay contact-update form.',
     downloadCsvLabel: 'Download CSV',
     contactUpdatesLoading: 'Loading contact updates...',
-    contactUpdatesLoadError: 'Could not load contact updates. See the message below and contact IT if this persists.',
+    contactUpdatesLoadError:
+      'Could not load contact updates. See the message below and contact IT if this persists.',
     noContactUpdates: 'No contact updates received yet.',
     connectionKicker: 'CMS Connection Status',
     connectionTitle: 'Prove Studio is connected',
@@ -426,7 +426,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
         model: 'ExternalNewsLink',
         summary: 'Outside news stories and regional updates.',
         whereItShows: '/news and other feeds that surface curated external links.',
-        commonFields: 'displayOrder, headline/title, external URL, optional source label or summary fields.',
+        commonFields:
+          'displayOrder, headline/title, external URL, optional source label or summary fields.',
         operations: ['Create', 'Read', 'Update', 'Delete', 'Reorder'],
         notes: 'Use displayOrder to control the order shown on the page.',
       },
@@ -651,7 +652,8 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
       {
         model: 'SiteSettings',
         summary: 'Titulo de la pagina principal, texto del hero y campos de contacto.',
-        whereItShows: 'Hero de la portada, bloque de bienvenida y texto general de la marca del pueblo.',
+        whereItShows:
+          'Hero de la portada, bloque de bienvenida y texto general de la marca del pueblo.',
         commonFields:
           'townName, tagline, heroImageUrl, welcomeTitle, welcomeBody y lineas de contacto junto al hero: conserve un solo registro activo.',
         operations: ['Crear', 'Leer', 'Actualizar', 'Eliminar'],
@@ -1081,13 +1083,13 @@ export class CmsAdmin {
           'Abra Data Manager y continue al flujo compatible de PublicDocument en Studio.',
           'Cree o actualice el registro PublicDocument en Studio.',
           'Dirija el archivo a la seccion publica correcta usando el sectionId exacto.',
-          'Guarde el cambio y actualice la pagina publica de documentos para verificarlo.',
+          'Guarde en Studio, abra /documents (actualice una vez si hace falta) y confirme que el archivo aparece; otros residentes lo veran en la siguiente visita o al volver a la pestana.',
         ]
       : [
           'Open Data Manager and continue into the supported Studio PublicDocument workflow.',
           'Create or update the PublicDocument entry there instead of using the retired in-page uploader.',
           'Route the file to the correct resident-facing section using the exact sectionId shown below.',
-          'Save the Studio change, then refresh the public Documents page or related resident page to verify it appears.',
+          'Save in Studio, open /documents (hard refresh once if needed), and confirm the file appears; other residents see it on their next visit or when returning to the tab.',
         ],
   );
   protected readonly documentSections = computed<CmsAdminDocumentSection[]>(() =>
