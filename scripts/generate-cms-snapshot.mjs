@@ -73,7 +73,35 @@ const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
   }
 }`;
 
-const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
+const PUBLIC_DOCUMENT_FIELDS_LEGACY = `      id
+      title
+      summary
+      sectionId
+      status
+      format
+      href
+      downloadFileName
+      keywords
+      active
+      displayOrder`;
+
+const PUBLIC_DOCUMENT_FIELDS_BILINGUAL = `      id
+      title
+      titleEs
+      summary
+      summaryEs
+      sectionId
+      status
+      statusEs
+      format
+      href
+      downloadFileName
+      keywords
+      active
+      displayOrder`;
+
+function buildExtendedCmsQuery(publicDocumentFields) {
+  return `query GetPublicCmsExtendedContent {
   listBusinesses(filter: { active: { eq: true } }, limit: 100) {
     items {
       id
@@ -89,20 +117,7 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
   }
   listPublicDocuments(filter: { active: { eq: true } }, limit: 100) {
     items {
-      id
-      title
-      titleEs
-      summary
-      summaryEs
-      sectionId
-      status
-      statusEs
-      format
-      href
-      downloadFileName
-      keywords
-      active
-      displayOrder
+${publicDocumentFields}
     }
   }
   listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50) {
@@ -116,6 +131,10 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
     }
   }
 }`;
+}
+
+const PUBLIC_CMS_EXTENDED_QUERY_BILINGUAL = buildExtendedCmsQuery(PUBLIC_DOCUMENT_FIELDS_BILINGUAL);
+const PUBLIC_CMS_EXTENDED_QUERY_LEGACY = buildExtendedCmsQuery(PUBLIC_DOCUMENT_FIELDS_LEGACY);
 
 function readLocalSecrets() {
   if (!existsSync(localSecretsPath)) {
@@ -166,6 +185,24 @@ async function postGraphql(endpoint, apiKey, query) {
   return payload.data ?? {};
 }
 
+function isPublicDocumentBilingualSchemaError(message) {
+  return /FieldUndefined|titleEs|summaryEs|statusEs/.test(message);
+}
+
+async function fetchExtendedCmsData(endpoint, apiKey) {
+  try {
+    return await postGraphql(endpoint, apiKey, PUBLIC_CMS_EXTENDED_QUERY_BILINGUAL);
+  } catch (error) {
+    if (!isPublicDocumentBilingualSchemaError(error.message)) {
+      throw error;
+    }
+    console.warn(
+      'Live AppSync schema lacks PublicDocument titleEs/summaryEs/statusEs; snapshot uses legacy document fields until amplify push.',
+    );
+    return postGraphql(endpoint, apiKey, PUBLIC_CMS_EXTENDED_QUERY_LEGACY);
+  }
+}
+
 function buildSnapshot(coreData, extendedData, buildSha) {
   return {
     version: 1,
@@ -198,7 +235,7 @@ async function main() {
 
   const [coreData, extendedData] = await Promise.all([
     postGraphql(endpoint, apiKey, PUBLIC_CMS_CORE_QUERY),
-    postGraphql(endpoint, apiKey, PUBLIC_CMS_EXTENDED_QUERY),
+    fetchExtendedCmsData(endpoint, apiKey),
   ]);
 
   const snapshot = buildSnapshot(coreData, extendedData, resolveGitSha());
