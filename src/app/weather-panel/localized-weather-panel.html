@@ -24,6 +24,9 @@
           <i class="pi pi-refresh" aria-hidden="true"></i>
           <span>{{ isRefreshing() ? copy().refreshing : copy().refresh }}</span>
         </button>
+        <a class="weather-action is-link" href="#weather-alert-signup">
+          {{ copy().signupNavLabel }}
+        </a>
         <a
           class="weather-action is-link"
           [attr.href]="weatherGovUrl"
@@ -325,19 +328,19 @@
           </p-panel>
         }
 
-        @if (isAlertSignupEnabled()) {
-          <section
-            id="weather-alert-signup"
-            class="weather-signup-shell"
-            aria-labelledby="weather-signup-heading"
-            data-testid="weather-signup-shell"
-          >
-            <header class="weather-signup-copy grid gap-2">
-              <p class="meta-label">{{ copy().residentAlertsKicker }}</p>
-              <h3 id="weather-signup-heading">{{ copy().residentAlertsHeading }}</h3>
-              <p>{{ copy().residentAlertsBody }}</p>
-            </header>
+        <section
+          id="weather-alert-signup"
+          class="weather-signup-shell"
+          aria-labelledby="weather-signup-heading"
+          data-testid="weather-signup-shell"
+        >
+          <header class="weather-signup-copy grid gap-2">
+            <p class="meta-label">{{ copy().residentAlertsKicker }}</p>
+            <h3 id="weather-signup-heading">{{ copy().residentAlertsHeading }}</h3>
+            <p>{{ copy().residentAlertsBody }}</p>
+          </header>
 
+          @if (isAlertSignupEnabled()) {
             <form class="weather-signup-form grid gap-4" (submit)="submitAlertSignup($event)">
               <section class="weather-signup-grid grid gap-3 sm:grid-cols-2">
                 <label class="weather-signup-field grid gap-1" for="weather-alert-signup-channel">
@@ -453,8 +456,15 @@
                 [disabled]="isAlertSignupSubmitting() || !isAlertSignupDestinationValid()"
               />
             </form>
-          </section>
-        }
+          } @else {
+            <div class="weather-signup-unavailable grid gap-3" role="status">
+              <p class="weather-copy m-0">{{ copy().signupUnavailableBody }}</p>
+              <p class="m-0">
+                <a class="weather-action is-link" routerLink="/contact">{{ copy().contactTownHallLabel }}</a>
+              </p>
+            </div>
+          }
+        </section>
 
         <p-panel styleClass="weather-radar-panel">
           <ng-template pTemplate="header">

@@ -100,6 +100,7 @@
               <a
                 class="site-alert-button button-cta button-cta--ghost"
                 routerLink="/weather"
+                [fragment]="weatherAlertSignupFragment"
                 (click)="trackAlertSignupClick()"
               >
                 {{ appCopy().alertActionLabel }}
@@ -119,14 +120,14 @@
     role="banner"
   >
     <div class="header-main mx-auto flex w-full max-w-[1240px] flex-col gap-3 px-4 py-3 md:gap-4 md:py-4">
-      <div class="flex min-h-11 items-center justify-between gap-3">
+      <div class="flex min-h-11 items-center justify-between gap-3 lg:hidden">
         <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-          <div class="mobile-menu-bar shrink-0 lg:hidden">
+          <div class="mobile-menu-bar shrink-0">
             <button
               type="button"
               class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 px-3 text-sm font-semibold text-wiley-navy-900 shadow-wiley-card"
               pRipple
-              [attr.aria-label]="appCopy().mobileMenuButtonAriaLabel"
+              [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
               [attr.aria-expanded]="sidebarVisible()"
               [attr.aria-controls]="sidebarVisible() ? 'mobile-menu-drawer' : null"
               (click)="openMobileMenu()"
@@ -180,55 +181,176 @@
         </div>
       </div>
 
-      <div class="hidden flex-col gap-3 lg:flex">
-        <nav
-          class="site-primary-nav mega-menu-root-link flex flex-wrap items-center gap-1"
+      <div class="hidden w-full lg:block">
+        <p-megamenu
+          [model]="menuItems()"
+          [pt]="desktopMegaMenuPt"
+          orientation="horizontal"
+          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
           data-testid="homepage-section-nav"
-          [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
         >
-          @for (link of primaryNavLinks(); track link.routerLink) {
+          <ng-template pTemplate="start">
             <a
-              class="primary-nav-link inline-flex min-h-11 items-center rounded-wiley-full px-4 py-2 font-sans text-sm font-semibold text-wiley-navy-800 no-underline transition hover:bg-wiley-sage-50 hover:text-wiley-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-              [routerLink]="link.routerLink"
-              [fragment]="link.fragment"
-              routerLinkActive="primary-nav-link--active bg-wiley-sage-100 text-wiley-navy-900"
-              [routerLinkActiveOptions]="{ exact: link.routerLink === '/' }"
+              class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
+              routerLink="/"
+              aria-label="Return to homepage"
             >
-              {{ link.label }}
+              <span
+                class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+                >{{ heroContent().status }}</span
+              >
+              <strong class="font-display text-lg font-bold leading-tight text-wiley-navy-900 sm:text-xl"
+                >Town of Wiley</strong
+              >
             </a>
-          }
-          <a
-            class="primary-nav-link mega-menu-root-link inline-flex min-h-11 items-center rounded-wiley-full px-4 py-2 font-sans text-sm font-semibold text-wiley-navy-800 no-underline transition hover:bg-wiley-sage-50 hover:text-wiley-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-            routerLink="/businesses"
-            routerLinkActive="primary-nav-link--active bg-wiley-sage-100 text-wiley-navy-900"
-          >
-            {{ appCopy().menuBusinessCommunityLabel }}
-          </a>
-        </nav>
-
-        <form
-            class="header-search-form w-full max-w-2xl"
-            role="search"
-            (submit)="performSearch($event)"
-          >
-            <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
-            <div
-              class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-2 focus-within:ring-wiley-teal-600/25"
-            >
-              <i class="pi pi-search text-wiley-sage-500" aria-hidden="true"></i>
-              <input
-                pInputText
-                id="mega-site-search"
-                class="search-input min-h-10 flex-1 border-0 bg-transparent shadow-none"
-                type="search"
-                [ngModel]="searchDraftQuery()"
-                (ngModelChange)="updateSearch($event)"
-                [ngModelOptions]="{ standalone: true }"
-                [placeholder]="appCopy().searchPlaceholder"
-                autocomplete="off"
-              />
+          </ng-template>
+          <ng-template #item let-item>
+            @if (item.root) {
+              @if (item.routerLink) {
+                <a
+                  pRipple
+                  class="mega-menu-root-link"
+                  [routerLink]="item.routerLink"
+                  [fragment]="item.fragment"
+                  (click)="item.command ? item.command($event) : null"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                  @if (item.items) {
+                    <i class="pi pi-angle-down" aria-hidden="true"></i>
+                  }
+                </a>
+              } @else if (item.url) {
+                <a
+                  pRipple
+                  class="mega-menu-root-link"
+                  [attr.href]="item.url"
+                  [attr.target]="item.target ?? null"
+                  [attr.rel]="item.target === '_blank' ? 'noopener noreferrer' : null"
+                  (click)="item.command ? item.command($event) : null"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                  @if (item.items) {
+                    <i class="pi pi-angle-down" aria-hidden="true"></i>
+                  }
+                </a>
+              } @else {
+                <button
+                  type="button"
+                  pRipple
+                  class="mega-menu-root-link"
+                  tabindex="-1"
+                  (click)="item.command ? item.command($event) : null"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                  @if (item.items) {
+                    <i class="pi pi-angle-down" aria-hidden="true"></i>
+                  }
+                </button>
+              }
+            } @else {
+              @if (item.routerLink) {
+                <a
+                  pRipple
+                  class="mega-menu-sub-link"
+                  [attr.href]="megaMenuLeafHref(item)"
+                  (click)="onMegaMenuLeafClick(item, $event)"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                </a>
+              } @else if (item.url) {
+                <a
+                  pRipple
+                  class="mega-menu-sub-link"
+                  [attr.href]="item.url"
+                  [attr.target]="item.target ?? null"
+                  [attr.rel]="item.target === '_blank' ? 'noopener noreferrer' : null"
+                  (click)="activateMegaMenuItem(item, $event)"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                </a>
+              } @else {
+                <span class="mega-menu-sub-link mega-menu-sub-link--inert">
+                  @if (item.icon) {
+                    <i [class]="item.icon" aria-hidden="true"></i>
+                  }
+                  <span>{{ item.label }}</span>
+                </span>
+              }
+            }
+          </ng-template>
+          <ng-template pTemplate="end">
+            <div class="header-end-controls flex flex-wrap items-center gap-3">
+              @if (!isFeaturePageMode() && !isNotFoundMode()) {
+                <form
+                  class="header-search-form w-full max-w-2xl"
+                  role="search"
+                  (submit)="performSearch($event)"
+                >
+                  <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
+                  <div
+                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-2 focus-within:ring-wiley-teal-600/25"
+                  >
+                    <i class="pi pi-search text-wiley-sage-500" aria-hidden="true"></i>
+                    <input
+                      pInputText
+                      id="mega-site-search"
+                      class="search-input min-h-10 flex-1 border-0 bg-transparent shadow-none"
+                      type="search"
+                      [ngModel]="searchDraftQuery()"
+                      (ngModelChange)="updateSearch($event)"
+                      [ngModelOptions]="{ standalone: true }"
+                      [placeholder]="appCopy().searchPlaceholder"
+                      [attr.aria-label]="appCopy().searchLabel"
+                      autocomplete="off"
+                    />
+                  </div>
+                </form>
+              }
+              <div
+                class="site-language-switcher shrink-0"
+                [attr.aria-label]="appCopy().languageLabel"
+              >
+                <div
+                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-cream-100 bg-wiley-sage-50 p-0.5"
+                  role="group"
+                  [attr.aria-label]="appCopy().languageLabel"
+                >
+                  @for (choice of languageChoices(); track choice.value) {
+                    <button
+                      type="button"
+                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
+                      [class.active]="siteLanguage() === choice.value"
+                      [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
+                      [class.text-wiley-inverse]="siteLanguage() === choice.value"
+                      [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                      [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                      [attr.aria-pressed]="siteLanguage() === choice.value"
+                      [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                      (click)="updateSiteLanguage(choice.value)"
+                    >
+                      {{ choice.label }}
+                    </button>
+                  }
+                </div>
+              </div>
             </div>
-          </form>
+          </ng-template>
+        </p-megamenu>
       </div>
     </div>
   </header>
@@ -272,20 +394,30 @@
           class="mobile-menu-nav flex flex-col gap-1"
           [attr.aria-labelledby]="'mobile-menu-drawer-title'"
         >
-          @for (link of primaryNavLinks(); track link.routerLink) {
-            <a
-              class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
-              [routerLink]="link.routerLink"
-              [fragment]="link.fragment"
-              (click)="closeMobileMenu()"
-              >{{ link.label }}</a
-            >
-          }
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
-            routerLink="/businesses"
+            routerLink="/"
             (click)="closeMobileMenu()"
-            >{{ appCopy().menuBusinessCommunityLabel }}</a
+            >{{ appCopy().homeLabel }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/"
+            fragment="top-tasks"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().menuQuickTasksLabel }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/meetings"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().menuGovernmentLabel }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/services"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().menuServicesPermitsLabel }}</a
           >
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
@@ -297,7 +429,19 @@
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
             routerLink="/weather"
             (click)="closeMobileMenu()"
-            >{{ appCopy().featureTitles.weather }}</a
+            >{{ appCopy().menuWeatherLabel }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/businesses"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().menuBusinessCommunityLabel }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/contact"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().menuContactHallLabel }}</a
           >
         </nav>
       </div>
@@ -505,6 +649,10 @@
               <router-outlet />
             </section>
           } @else if (isContactMode()) {
+            <section class="feature-detail-stack">
+              <router-outlet />
+            </section>
+          } @else if (isHelloFromMode()) {
             <section class="feature-detail-stack">
               <router-outlet />
             </section>

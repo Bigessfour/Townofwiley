@@ -2,14 +2,14 @@ import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  buildRuntimeConfigObject,
-  buildRuntimeConfigValues,
-  collectRequiredEnvErrors,
-  formatStrictEnvErrors,
-  loadAmplifyBranchEnvManifest,
-  readLocalSecrets,
-  repoRoot,
-  shouldUseStrictMode,
+    buildRuntimeConfigObject,
+    buildRuntimeConfigValues,
+    collectRequiredEnvErrors,
+    formatStrictEnvErrors,
+    loadAmplifyBranchEnvManifest,
+    readLocalSecrets,
+    repoRoot,
+    shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
 const runtimeConfigPath = join(repoRoot, 'public', 'runtime-config.js');
@@ -26,7 +26,7 @@ if (strict) {
 }
 
 const localSecrets = readLocalSecrets();
-const values = buildRuntimeConfigValues(localSecrets, process.env);
+const values = buildRuntimeConfigValues(localSecrets, process.env, { allowManifestFallbacks: !strict });
 
 const buildTimestamp = new Date().toISOString();
 let gitSha = 'unknown';

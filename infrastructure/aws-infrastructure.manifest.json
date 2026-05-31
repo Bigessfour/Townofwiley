@@ -72,6 +72,7 @@
       "runtime": "nodejs",
       "codePath": "infrastructure/nws-weather-proxy",
       "functionUrl": { "authType": "NONE", "required": true },
+      "functionUrlEndpoint": "https://a5wbyzz6iiawupk3xwpozdy5ji0awggh.lambda-url.us-east-2.on.aws/",
       "required": true
     },
     {
@@ -80,8 +81,10 @@
       "runtime": "python",
       "codePath": "infrastructure/severe-weather-signup",
       "functionUrl": { "authType": "NONE", "required": true },
+      "functionUrlEndpoint": "https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws",
       "deployScript": "scripts/deploy-severe-weather-backend.py",
-      "required": true
+      "required": true,
+      "notes": "EventBridge poller (5 min) fetches NWS alerts for zone COZ098 / ZIP 81092 and delivers SMS/email to confirmed subscribers."
     },
     {
       "functionName": "townofwiley-easy-peasy-chat-proxy",

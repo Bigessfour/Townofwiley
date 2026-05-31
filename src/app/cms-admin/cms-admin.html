@@ -12,6 +12,7 @@
       <a href="#start">Start here</a>
       <a href="#documents">Documents</a>
       <a href="#updates">Resident messages</a>
+      <a routerLink="/admin/hello-from">Hello-from visitor log</a>
       <a href="#advanced">Advanced (IT)</a>
       <a href="/">Public site</a>
       <a href="/admin/login">Staff sign in</a>
@@ -147,10 +148,11 @@
           <button
             pButton
             type="button"
-            [label]="connectionTestLoading() ? it.testingConnection : it.testConnection"
             [disabled]="connectionTestLoading()"
             (click)="testConnection()"
-          ></button>
+          >
+            {{ connectionTestLoading() ? it.testingConnection : it.testConnection }}
+          </button>
           <strong
             class="cms-connection-status"
             [class.is-ok]="connectionTestResult()?.ok === true"

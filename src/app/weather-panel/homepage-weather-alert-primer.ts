@@ -71,26 +71,31 @@ export class HomepageWeatherAlertPrimer {
   }
 
   private async loadAlert(): Promise<void> {
-    const config = readWeatherRuntimeConfig();
-    const proxyUrl = config.apiEndpoint.trim();
+    try {
+      const config = readWeatherRuntimeConfig();
+      const proxyUrl = config.apiEndpoint.trim();
 
-    if (proxyUrl) {
-      try {
-        await this.loadAlertFromProxy(proxyUrl);
-        return;
-      } catch (firstError) {
-        this.logPrimerFailure('weather-proxy', firstError);
-        if (!config.allowBrowserFallback) {
-          this.safeEmitAlert(null);
+      if (proxyUrl) {
+        try {
+          await this.loadAlertFromProxy(proxyUrl);
           return;
+        } catch (firstError) {
+          this.logPrimerFailure('weather-proxy', firstError);
+          if (!config.allowBrowserFallback) {
+            this.safeEmitAlert(null);
+            return;
+          }
         }
       }
-    }
 
-    try {
-      await this.loadAlertFromNwsBrowser();
-    } catch (secondError) {
-      this.logPrimerFailure('nws-direct', secondError);
+      try {
+        await this.loadAlertFromNwsBrowser();
+      } catch (secondError) {
+        this.logPrimerFailure('nws-direct', secondError);
+        this.safeEmitAlert(null);
+      }
+    } catch (error) {
+      this.logPrimerFailure('weather-proxy', error);
       this.safeEmitAlert(null);
     }
   }

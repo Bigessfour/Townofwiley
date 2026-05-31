@@ -414,6 +414,7 @@ interface AppCopy {
   menuGovernmentLabel: string;
   menuServicesPermitsLabel: string;
   menuNewsNoticesLabel: string;
+  menuWeatherLabel: string;
   menuBusinessCommunityLabel: string;
   menuContactHallLabel: string;
   menuLeadershipLabel: string;
@@ -739,6 +740,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Public records and FOIA', href: '/records' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
+      { label: 'Hello from…', href: '/hello-from' },
     ],
     communityFacts: [
       { label: 'Population', value: '~437', detail: 'Estimated residents, 2020 census' },
@@ -764,6 +766,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuGovernmentLabel: 'Government & Meetings',
     menuServicesPermitsLabel: 'Services & Permits',
     menuNewsNoticesLabel: 'News, Notices & Alerts',
+    menuWeatherLabel: 'Weather',
     menuBusinessCommunityLabel: 'Businesses & Community',
     menuContactHallLabel: 'Contact & Town Hall',
     menuLeadershipLabel: 'Leadership',
@@ -1168,6 +1171,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Registros publicos y FOIA', href: '/records' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
+      { label: 'Saludos desde…', href: '/hello-from' },
     ],
     communityFacts: [
       { label: 'Poblacion', value: '~437', detail: 'Residentes estimados, censo de 2020' },
@@ -1191,6 +1195,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuGovernmentLabel: 'Gobierno y Reuniones',
     menuServicesPermitsLabel: 'Servicios y Permisos',
     menuNewsNoticesLabel: 'Noticias, Avisos y Alertas',
+    menuWeatherLabel: 'Clima',
     menuBusinessCommunityLabel: 'Negocios y Comunidad',
     menuContactHallLabel: 'Contacto y Ayuntamiento',
     menuLeadershipLabel: 'Liderazgo',
@@ -1430,6 +1435,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
  *
  * Optionally set `columnLabel` so PrimeNG emits a `.p-megamenu-submenu-label` for that column’s group row.
  */
+/** In-page anchor for severe weather alert signup on `/weather`. */
+export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
+
 function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuItem[] {
   const row: MegaMenuItem = {
     items: links as MegaMenuItem[][],
@@ -1612,6 +1620,9 @@ export class App {
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
+  protected readonly isHelloFromAdminMode = computed(
+    () => this.currentPath() === '/admin/hello-from',
+  );
   protected readonly isAdminLoginMode = computed(() => this.currentPath() === '/admin/login');
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
   protected readonly isDocumentHubMode = computed(() => this.currentPath() === '/documents');
@@ -1621,6 +1632,7 @@ export class App {
   protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
   protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
+  protected readonly isHelloFromMode = computed(() => this.currentPath() === '/hello-from');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
@@ -1633,6 +1645,7 @@ export class App {
   protected readonly isTopLevelLazyRouteMode = computed(
     () =>
       this.isAdminMode() ||
+      this.isHelloFromAdminMode() ||
       this.isAdminLoginMode() ||
       this.isClerkSetupMode() ||
       this.isDocumentHubMode(),
@@ -1645,6 +1658,7 @@ export class App {
       this.isServicesMode() ||
       this.isRecordsMode() ||
       this.isContactMode() ||
+      this.isHelloFromMode() ||
       this.isAccessibilityMode() ||
       this.isPrivacyMode() ||
       this.isTermsMode() ||
@@ -1687,6 +1701,14 @@ export class App {
       return `${this.appCopy().notFoundBrowserTitle} | ${siteTitle}`;
     }
 
+    if (this.isHelloFromMode()) {
+      return `Hello from… | ${siteTitle}`;
+    }
+
+    if (this.isHelloFromAdminMode()) {
+      return `Hello-from visitor log | ${siteTitle}`;
+    }
+
     const featureTitle = this.currentFeaturePage()?.title?.trim();
 
     if (!featureTitle || featureTitle === siteTitle) {
@@ -1714,6 +1736,7 @@ export class App {
   protected readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
+  protected readonly weatherAlertSignupFragment = WEATHER_ALERT_SIGNUP_FRAGMENT;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
   protected readonly menuItems = computed<MegaMenuItem[]>(() => {
     const copy = this.appCopy();
@@ -1758,7 +1781,11 @@ export class App {
             [
               { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
               { label: copy.nwsAlertLabel, routerLink: '/weather' },
-              { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
+              {
+                label: copy.mobileWeatherAlertsLabel,
+                routerLink: '/weather',
+                fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
+              },
               { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
             ],
             copy.menuQuickTasksWeatherColumnLabel,
@@ -1818,9 +1845,19 @@ export class App {
           ]),
           megaMenuColumn([
             { label: copy.nwsAlertLabel, routerLink: '/weather' },
-            { label: copy.alertActionLabel, routerLink: '/weather' },
+            {
+              label: copy.alertActionLabel,
+              routerLink: '/weather',
+              fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
+            },
           ]),
         ],
+      },
+      {
+        root: true,
+        label: copy.menuWeatherLabel,
+        icon: 'pi pi-cloud',
+        routerLink: '/weather',
       },
       {
         root: true,
@@ -2735,7 +2772,7 @@ export class App {
 
   protected onNwsBannerSignup(): void {
     this.trackAlertSignupClick();
-    const anchorId = 'weather-alert-signup';
+    const anchorId = WEATHER_ALERT_SIGNUP_FRAGMENT;
     void this.router.navigate(['/weather'], { fragment: anchorId }).then(() => {
       this.scheduleFragmentScrollWithRetry(`#${anchorId}`);
     });

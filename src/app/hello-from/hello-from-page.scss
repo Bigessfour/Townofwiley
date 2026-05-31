@@ -1,0 +1,82 @@
+.hello-from-intro {
+  margin: 0;
+  max-width: 42rem;
+}
+
+.hello-from-muted {
+  color: var(--text-muted, #5c6670);
+  margin: 0 0 var(--space-3, 0.75rem);
+}
+
+.hello-from-map-section {
+  margin-top: var(--space-4, 1rem);
+}
+
+.hello-from-message-grid {
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 40rem) {
+  .hello-from-message-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.hello-from-message-card {
+  border: 1px solid var(--surface-border, #d8dee6);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: var(--space-3, 0.75rem);
+  background: var(--surface-card, #fff);
+}
+
+.hello-from-message-place {
+  font-weight: 600;
+  margin: 0 0 var(--space-2, 0.5rem);
+}
+
+.hello-from-message-body {
+  margin: 0 0 var(--space-2, 0.5rem);
+}
+
+.hello-from-message-meta {
+  font-size: 0.9rem;
+  margin: 0;
+  color: var(--text-muted, #5c6670);
+}
+
+.hello-from-form-card {
+  margin-top: var(--space-4, 1rem);
+}
+
+.hello-from-form-title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.hello-from-form {
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+}
+
+.hello-from-field {
+  display: grid;
+  gap: var(--space-1, 0.25rem);
+}
+
+.hello-from-consent {
+  display: flex;
+  gap: var(--space-2, 0.5rem);
+  align-items: flex-start;
+}
+
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

@@ -65,6 +65,11 @@
       "notes": "After deploy-contact-update-backend.py (AP-05)"
     },
     {
+      "name": "GUESTBOOK_API_ENDPOINT",
+      "runtimePath": "guestbook.apiEndpoint",
+      "notes": "After deploy-guestbook-backend.py (hello-from Lambda base URL)"
+    },
+    {
       "name": "CONTACT_UPDATE_REVIEW_PROXY_URL",
       "runtimePath": "contactUpdate.reviewProxyEndpoint",
       "notes": "DEPRECATED — remove after proxy Function URL deleted; use CONTACT_UPDATE_REVIEW_API_URL"

@@ -1,0 +1,135 @@
+<section class="hello-from-stack feature-detail-stack">
+  <p-card class="panel wiley-panel">
+    <ng-template pTemplate="header">
+      <div class="wiley-page-header feature-page-panel-header">
+        <p class="section-kicker">{{ copy().kicker }}</p>
+        <h1>{{ copy().title }}</h1>
+        <p class="hello-from-intro">{{ copy().intro }}</p>
+      </div>
+    </ng-template>
+
+    @if (!isConfigured) {
+      <p-message severity="warn" [text]="copy().notConfigured" />
+    }
+
+    <section class="hello-from-map-section" aria-labelledby="hello-from-map-heading">
+      <h2 id="hello-from-map-heading">{{ copy().mapHeading }}</h2>
+      <p class="hello-from-muted">{{ copy().mapHint }}</p>
+
+      @if (loading()) {
+        <p class="hello-from-muted" aria-live="polite">Loading…</p>
+      } @else if (loadError()) {
+        <p-message severity="warn" [text]="loadError()!" />
+      } @else if (!messages().length) {
+        <p class="public-empty-state" role="status">{{ copy().emptyMessages }}</p>
+      } @else {
+        <ul class="hello-from-message-grid">
+          @for (row of messages(); track row.id) {
+            <li class="hello-from-message-card">
+              <p class="hello-from-message-place">{{ formatLocation(row) }}</p>
+              <p class="hello-from-message-body">“{{ row.message }}”</p>
+              <p class="hello-from-message-meta">
+                — {{ displayNameFor(row) }}
+                <a [href]="mapLink(row)" target="_blank" rel="noopener noreferrer">
+                  {{ copy().viewOnMap }}
+                </a>
+              </p>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </p-card>
+
+  <p-card class="panel wiley-panel hello-from-form-card">
+    <ng-template pTemplate="header">
+      <h2 class="hello-from-form-title">{{ copy().formHeading }}</h2>
+    </ng-template>
+
+    @if (submitSuccess()) {
+      <p-message severity="success" [text]="copy().successDetail" />
+    }
+    @if (submitError()) {
+      <p-message severity="error" [text]="submitError()!" />
+    }
+
+    <form class="hello-from-form" (ngSubmit)="submit()">
+      <div class="hello-from-field hp-field" aria-hidden="true">
+        <label for="hello-from-hp">{{ copy().honeypotLabel }}</label>
+        <input
+          id="hello-from-hp"
+          type="text"
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+          [ngModel]="website()"
+          (ngModelChange)="website.set($event)"
+        />
+      </div>
+
+      <div class="hello-from-field">
+        <label for="hello-from-country">{{ copy().countryLabel }}</label>
+        <p-select
+          inputId="hello-from-country"
+          [options]="countryOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="copy().countryPlaceholder"
+          [ngModel]="selectedCountryCode()"
+          (ngModelChange)="selectedCountryCode.set($event)"
+          name="country"
+          required
+        />
+      </div>
+
+      <div class="hello-from-field">
+        <label for="hello-from-name">{{ copy().nameLabel }}</label>
+        <input
+          pInputText
+          id="hello-from-name"
+          type="text"
+          name="displayName"
+          [placeholder]="copy().namePlaceholder"
+          [ngModel]="displayName()"
+          (ngModelChange)="displayName.set($event)"
+        />
+      </div>
+
+      <div class="hello-from-field">
+        <label for="hello-from-message">{{ copy().messageLabel }}</label>
+        <textarea
+          pTextarea
+          id="hello-from-message"
+          name="message"
+          rows="3"
+          maxlength="200"
+          required
+          [placeholder]="copy().messagePlaceholder"
+          [ngModel]="message()"
+          (ngModelChange)="message.set($event)"
+        ></textarea>
+      </div>
+
+      <div class="hello-from-consent">
+        <p-checkbox
+          inputId="hello-from-consent"
+          [binary]="true"
+          [ngModel]="publicConsent()"
+          (ngModelChange)="publicConsent.set($event)"
+          name="consent"
+        />
+        <label for="hello-from-consent">
+          {{ copy().consentLabel }}
+          <a routerLink="/privacy">Privacy</a>
+        </label>
+      </div>
+
+      <p-button
+        type="submit"
+        [label]="submitting() ? copy().submittingLabel : copy().submitLabel"
+        [disabled]="submitting() || !publicConsent() || !isConfigured"
+        [loading]="submitting()"
+      />
+    </form>
+  </p-card>
+</section>

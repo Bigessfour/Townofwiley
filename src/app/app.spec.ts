@@ -78,6 +78,7 @@ describe('App', () => {
   };
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     window.localStorage.setItem('tow-site-language', 'en');
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
@@ -136,6 +137,7 @@ describe('App', () => {
     window.history.replaceState({}, '', '/');
     vi.restoreAllMocks();
     httpTesting.verify();
+    TestBed.resetTestingModule();
   });
 
   it('should create the app', async () => {
@@ -175,7 +177,7 @@ describe('App', () => {
 
     const mobileMenuButton = compiled.querySelector('.mobile-menu-button');
     expect(mobileMenuButton?.getAttribute('aria-label')).toBe(
-      APP_COPY.en.mobileMenuButtonAriaLabel,
+      APP_COPY.en.homepageSectionsAriaLabel,
     );
     expect(mobileMenuButton?.textContent).toContain(APP_COPY.en.mobileMenuLabel);
 
@@ -185,7 +187,8 @@ describe('App', () => {
 
     const primaryNav = compiled.querySelector('[data-testid="homepage-section-nav"]');
     expect(primaryNav).not.toBeNull();
-    expect(primaryNav?.querySelectorAll('.primary-nav-link').length).toBeGreaterThanOrEqual(6);
+    const component = fixture.componentInstance as App & { menuItems: () => MegaMenuItem[] };
+    expect(component.menuItems().length).toBeGreaterThanOrEqual(7);
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
@@ -829,9 +832,7 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
@@ -857,9 +858,7 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
@@ -876,6 +875,13 @@ describe('App', () => {
     await TestBed.inject(Router).navigateByUrl('/clerk-setup#documents');
     fixture.detectChanges();
     await fixture.whenStable();
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -890,9 +896,7 @@ describe('App', () => {
   it('should expose document publishing via jump nav on the admin hub', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-jump-nav a[href="#documents"]')?.getAttribute('href')).toBe(
@@ -962,8 +966,22 @@ describe('App', () => {
     };
   }
 
+  async function settleAdminRoute(fixture: ComponentFixture<App>): Promise<void> {
+    await TestBed.inject(Router).navigateByUrl('/admin');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
   /**
-   * Flush pending weather HTTP request(s) after detectChanges().
    *
    * By default the test suite configures the proxy endpoint so the weather panel
    * and homepage alert primer each issue GET /api/weather/nws (primer uses the proxy
@@ -1194,6 +1212,14 @@ describe('App', () => {
 
   function flushPendingWeatherRequests(): void {
     flushBuildCmsSnapshotNotFound(httpTesting);
+
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
 
     const directRequests = [
       {

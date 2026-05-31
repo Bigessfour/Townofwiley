@@ -1,0 +1,17 @@
+{
+  "name": "guestbook-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Town of Wiley hello-from guestbook and visitor log Lambda",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {},
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.750.0",
+    "@aws-sdk/lib-dynamodb": "^3.750.0",
+    "aws-jwt-verify": "^4.0.1"
+  }
+}

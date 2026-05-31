@@ -1,3 +1,5 @@
+import { isDevMode } from '@angular/core';
+
 /**
  * Browser runtime weather settings from `public/runtime-config.js`
  * (`window.__TOW_RUNTIME_CONFIG__` / `__TOW_RUNTIME_CONFIG_OVERRIDE__`).
@@ -57,7 +59,7 @@ export function readWeatherRuntimeConfig(): WeatherRuntimeConfig {
   };
 
   if (
-    import.meta.env.DEV &&
+    isDevMode() &&
     (!weatherConfig.apiEndpoint || weatherConfig.apiEndpoint.includes('placeholder'))
   ) {
     console.warn(

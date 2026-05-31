@@ -3,8 +3,8 @@
  * Internal panel destinations are covered in `megamenu-internal-links.spec.ts`.
  * Mobile drawer sanity is a separate describe (simplified nav vs desktop model).
  */
-import { expect, test } from '../../fixtures/town.fixture';
 import type { Page } from '@playwright/test';
+import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
 
 const roots = siteContent.megaMenuRootLabelsEn;
@@ -27,7 +27,7 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     );
   });
 
-  test('exposes menubar container with six root menu controls', async ({ homePage }) => {
+  test('exposes menubar container with seven root menu controls', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
     await expect(nav).toBeVisible();
@@ -49,28 +49,37 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     const nav = homePage.page.getByTestId('homepage-section-nav');
     const chevrons = nav.locator('.mega-menu-root-link .pi-angle-down');
     await expect(chevrons).toHaveCount(4);
-    const businesses = nav.getByRole('link', { name: roots[4], exact: true });
-    const contactRoot = nav.getByRole('link', { name: roots[5], exact: true });
+    const weather = nav.getByRole('link', { name: roots[4], exact: true });
+    const businesses = nav.getByRole('link', { name: roots[5], exact: true });
+    const contactRoot = nav.getByRole('link', { name: roots[6], exact: true });
+    await expect(weather.locator('.pi-angle-down')).toHaveCount(0);
     await expect(businesses.locator('.pi-angle-down')).toHaveCount(0);
     await expect(contactRoot.locator('.pi-angle-down')).toHaveCount(0);
   });
 
-  test('Businesses and Contact roots navigate by href', async ({ homePage }) => {
+  test('Weather, Businesses, and Contact roots navigate by href', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
     await expect(nav.getByRole('link', { name: roots[4], exact: true })).toHaveAttribute(
       'href',
-      /\/businesses$/,
+      /\/weather$/,
     );
     await expect(nav.getByRole('link', { name: roots[5], exact: true })).toHaveAttribute(
+      'href',
+      /\/businesses$/,
+    );
+    await expect(nav.getByRole('link', { name: roots[6], exact: true })).toHaveAttribute(
       'href',
       /\/contact$/,
     );
 
     await nav.getByRole('link', { name: roots[4], exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/businesses$/);
+    await expect(homePage.page).toHaveURL(/\/weather$/);
     await homePage.goto();
     await nav.getByRole('link', { name: roots[5], exact: true }).click();
+    await expect(homePage.page).toHaveURL(/\/businesses$/);
+    await homePage.goto();
+    await nav.getByRole('link', { name: roots[6], exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/contact$/);
   });
 
@@ -139,7 +148,7 @@ test.describe('mega menu chrome and roots (desktop)', () => {
   test('Contact & Town Hall mega menu root navigates to contact', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
-    const contactRoot = nav.getByRole('link', { name: roots[5], exact: true });
+    const contactRoot = nav.getByRole('link', { name: roots[6], exact: true });
     await expect(contactRoot).toHaveAttribute('href', /\/contact$/);
     await contactRoot.click();
     await expect(homePage.page).toHaveURL(/\/contact$/);

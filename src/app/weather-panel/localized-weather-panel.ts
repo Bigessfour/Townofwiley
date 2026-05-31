@@ -5,6 +5,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  isDevMode,
   output,
   signal,
 } from '@angular/core';
@@ -227,6 +228,9 @@ interface WeatherCopy {
   invalidSms: string;
   signupSuccess: string;
   signupError: string;
+  signupNavLabel: string;
+  signupUnavailableBody: string;
+  contactTownHallLabel: string;
   forecastMaps: string;
   sunriseLabel: string;
   sunsetLabel: string;
@@ -314,6 +318,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
       'Request received. Confirm the {language} alert link that was sent before alerts start flowing.',
     signupError:
       'Unable to start severe weather alerts right now. Please try again or contact Town Hall.',
+    signupNavLabel: 'Sign up for alerts',
+    signupUnavailableBody:
+      'Online alert signup is temporarily unavailable. Call Town Hall at (719) 829-4974 for help signing up for weather notifications.',
+    contactTownHallLabel: 'Contact Town Hall',
     forecastMaps: 'Browse national forecast maps',
     sunriseLabel: 'Sunrise',
     sunsetLabel: 'Sunset',
@@ -404,6 +412,10 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
       'Solicitud recibida. Confirme el enlace de alertas en {language} que se envio antes de que empiecen a llegar las alertas.',
     signupError:
       'No fue posible iniciar las alertas de clima severo en este momento. Intente de nuevo o contacte al ayuntamiento.',
+    signupNavLabel: 'Suscribirse a alertas',
+    signupUnavailableBody:
+      'El registro en linea de alertas no esta disponible temporalmente. Llame al Ayuntamiento al (719) 829-4974 para recibir ayuda con las notificaciones meteorologicas.',
+    contactTownHallLabel: 'Contactar al Ayuntamiento',
     forecastMaps: 'Explorar mapas nacionales del pronostico',
     sunriseLabel: 'Amanecer',
     sunsetLabel: 'Atardecer',
@@ -754,7 +766,7 @@ export class LocalizedWeatherPanel {
         this.loadError.set(isRefresh ? this.copy().refreshError : this.copy().unavailableError);
       }
 
-      if (import.meta.env.DEV) {
+      if (isDevMode()) {
         console.warn(
           '[Weather] NWS unavailable — verify Amplify env var NWS_PROXY_ENDPOINT and Lambda NWS_USER_AGENT',
         );

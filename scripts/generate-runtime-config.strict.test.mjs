@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  collectRequiredEnvErrors,
-  formatStrictEnvErrors,
-  shouldUseStrictMode,
+    buildRuntimeConfigValues,
+    collectRequiredEnvErrors,
+    formatStrictEnvErrors,
+    shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
 const REQUIRED = [
@@ -48,6 +49,24 @@ describe('shouldUseStrictMode', () => {
 
   it('is off for local dev without flags', () => {
     assert.equal(shouldUseStrictMode([], {}), false);
+  });
+});
+
+describe('buildRuntimeConfigValues manifest fallbacks', () => {
+  it('wires severe weather signup to deployed Lambda URL for local dev', () => {
+    const values = buildRuntimeConfigValues(
+      { weather: { alertSignup: { enabled: false, apiEndpoint: '' } } },
+      {},
+      { allowManifestFallbacks: true },
+    );
+    assert.match(values.severeWeatherSignupApiEndpoint, /lambda-url\.us-east-2\.on\.aws/);
+    assert.equal(values.severeWeatherSignupEnabled, true);
+  });
+
+  it('skips manifest fallbacks when strict (Amplify build)', () => {
+    const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: false });
+    assert.equal(values.severeWeatherSignupApiEndpoint, '');
+    assert.equal(values.severeWeatherSignupEnabled, false);
   });
 });
 

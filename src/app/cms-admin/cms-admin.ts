@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
@@ -58,6 +59,7 @@ interface CmsAdminSetupDetail {
   },
   imports: [
     DatePipe,
+    RouterLink,
     TableModule,
     ButtonModule,
     CardModule,

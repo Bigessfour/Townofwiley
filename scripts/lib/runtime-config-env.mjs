@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
@@ -112,8 +113,10 @@ export function shouldUseStrictMode(argv, env) {
  *
  * @param {Record<string, unknown>} localSecrets
  * @param {import('node:process').env} env
+ * @param {{ allowManifestFallbacks?: boolean }} [options]
  */
-export function buildRuntimeConfigValues(localSecrets, env) {
+export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
+  const { allowManifestFallbacks = true } = options;
   const amplifyOutputs = loadAmplifyOutputsFromRepo();
   const outputsData =
     amplifyOutputs && typeof amplifyOutputs === 'object' && 'data' in amplifyOutputs
@@ -139,10 +142,14 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     localSecrets.chatbot?.easyPeasy?.apiEndpoint?.trim() ||
     '';
   const weatherApiEndpoint =
-    env.NWS_PROXY_ENDPOINT?.trim() || localSecrets.weather?.nws?.apiEndpoint?.trim() || '';
+    env.NWS_PROXY_ENDPOINT?.trim() ||
+    localSecrets.weather?.nws?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyNWSWeatherProxy') : '') ||
+    '';
   const severeWeatherSignupApiEndpoint =
     env.SEVERE_WEATHER_SIGNUP_API_ENDPOINT?.trim() ||
     localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileySevereWeatherBackend') : '') ||
     '';
   const paystarPortalUrl =
     env.PAYSTAR_PORTAL_URL?.trim() || localSecrets.payments?.paystar?.portalUrl?.trim() || '';
@@ -205,14 +212,19 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     (clerkSetupAwsRegion && clerkSetupAmplifyAppId
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`
       : clerkSetupAwsConsoleUrl);
-  const severeWeatherSignupEnabled =
-    env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'false'
-      ? false
-      : env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase() === 'true'
-        ? true
-        : localSecrets.weather?.alertSignup?.enabled === false
-          ? false
-          : Boolean(severeWeatherSignupApiEndpoint || localSecrets.weather?.alertSignup?.enabled);
+  const severeWeatherSignupEnabled = (() => {
+    const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
+    if (envFlag === 'false') {
+      return false;
+    }
+    if (envFlag === 'true') {
+      return true;
+    }
+    if (severeWeatherSignupApiEndpoint) {
+      return true;
+    }
+    return localSecrets.weather?.alertSignup?.enabled === true;
+  })();
   const weatherAllowBrowserFallback =
     env.NWS_ALLOW_BROWSER_FALLBACK?.trim().toLowerCase() === 'false'
       ? false
@@ -236,6 +248,8 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||
     localSecrets.contactUpdate?.reviewProxyEndpoint?.trim() ||
     '';
+  const guestbookApiEndpoint =
+    env.GUESTBOOK_API_ENDPOINT?.trim() || localSecrets.guestbook?.apiEndpoint?.trim() || '';
   const paystarMode =
     explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
       ? explicitPaystarMode
@@ -269,6 +283,7 @@ export function buildRuntimeConfigValues(localSecrets, env) {
     contactUpdateApiEndpoint,
     contactUpdateReviewApiEndpoint,
     contactUpdateReviewProxyEndpoint,
+    guestbookApiEndpoint,
     paystarMode,
     mode,
     cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
@@ -354,6 +369,9 @@ export function buildRuntimeConfigObject(values, buildMeta) {
       apiEndpoint: values.contactUpdateApiEndpoint,
       reviewApiEndpoint: values.contactUpdateReviewApiEndpoint.replace(/\/$/, ''),
       reviewProxyEndpoint: values.contactUpdateReviewProxyEndpoint,
+    },
+    guestbook: {
+      apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),
     },
   };
 }
