@@ -4,6 +4,7 @@ import {
     buildRuntimeConfigValues,
     collectRequiredEnvErrors,
     formatStrictEnvErrors,
+    shouldAllowManifestFallbacks,
     shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
@@ -49,6 +50,23 @@ describe('shouldUseStrictMode', () => {
 
   it('is off for local dev without flags', () => {
     assert.equal(shouldUseStrictMode([], {}), false);
+  });
+});
+
+describe('shouldAllowManifestFallbacks', () => {
+  it('is off when strict', () => {
+    assert.equal(shouldAllowManifestFallbacks({}, { strict: true }), false);
+  });
+
+  it('is off when E2E_RUNTIME_MANIFEST_FALLBACKS=0', () => {
+    assert.equal(
+      shouldAllowManifestFallbacks({ E2E_RUNTIME_MANIFEST_FALLBACKS: '0' }, { strict: false }),
+      false,
+    );
+  });
+
+  it('is on for local dev by default', () => {
+    assert.equal(shouldAllowManifestFallbacks({}, { strict: false }), true);
   });
 });
 

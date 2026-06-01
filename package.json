@@ -60,7 +60,7 @@
     "test:infra:backend": "python -m pytest",
     "test:infra:monitor": "python3 -m unittest discover infrastructure/site-monitor/tests",
     "test:regression": "npm run test:unit:browser && npm run test:infra && npm run test:e2e:regression && npm run test:e2e:inventory",
-    "test:regression:e2e": "npm run test:e2e:smoke && npm run test:e2e:inventory",
+    "test:regression:e2e": "npm run pretest:e2e:smoke && playwright test --project=smoke-critical && playwright test e2e/specs/inventory --project=desktop-chromium --workers=2",
     "pretest:e2e": "node scripts/ensure-node-version.mjs && npx --yes kill-port 4200 4300 && node scripts/e2e-smoke-preflight.mjs",
     "pretest:e2e:smoke": "node scripts/ensure-node-version.mjs && npx --yes kill-port 4200 4300 && node scripts/e2e-smoke-preflight.mjs",
     "pretest:e2e:inventory": "node scripts/ensure-node-version.mjs && npx --yes kill-port 4200 4300 && node scripts/e2e-smoke-preflight.mjs",

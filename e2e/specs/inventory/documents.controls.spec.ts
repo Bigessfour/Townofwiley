@@ -1,9 +1,21 @@
 import { expect } from '@playwright/test';
 
 import { test } from '../../fixtures/town-pages.fixture';
+import type { DocumentsPage } from '../../pages/documents.page';
 import { activateSkipToMainContent } from '../../support/homepage-nws-alert';
 import { inventoryStep } from '../../support/inventory-step';
 import { expectDocumentsHub } from '../../support/route-assertions';
+import { siteContent } from '../../support/site-content';
+
+async function waitForDocumentsHubContent(documentsPage: DocumentsPage): Promise<void> {
+  await expect(
+    documentsPage.page.getByRole('heading', {
+      level: 1,
+      name: siteContent.cmsHeadings.documentsHub,
+    }),
+  ).toBeVisible({ timeout: 20_000 });
+  await expect(documentsPage.openDocumentLinks.first()).toBeVisible({ timeout: 20_000 });
+}
 
 test.describe('documents page inventory controls', () => {
   test('[shared.skip-to-content] document hub skip link targets main content', async ({
@@ -22,6 +34,7 @@ test.describe('documents page inventory controls', () => {
     documentsPage,
   }) => {
     await documentsPage.goto();
+    await waitForDocumentsHubContent(documentsPage);
 
     await inventoryStep('Filter documents by keyword', async () => {
       await documentsPage.searchInput.fill('Agenda');
@@ -35,6 +48,7 @@ test.describe('documents page inventory controls', () => {
     documentsPage,
   }) => {
     await documentsPage.goto();
+    await waitForDocumentsHubContent(documentsPage);
 
     await inventoryStep('Verify open document link', async () => {
       await expect(documentsPage.openDocumentLinks.first()).toBeVisible();
