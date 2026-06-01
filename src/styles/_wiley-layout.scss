@@ -419,6 +419,7 @@
   width: 100%;
   min-width: 0;
   min-height: var(--touch-target-min);
+  box-sizing: border-box;
   padding: 0.35rem 0;
   color: var(--wiley-cream-50);
   font-size: var(--font-size-small);

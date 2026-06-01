@@ -564,7 +564,7 @@
                 <section class="service-grid">
                   @for (service of serviceCards(); track service.title) {
                     <article class="service-card">
-                      <p class="meta-label">{{ service.availability }}</p>
+                      <p class="home-meta-label">{{ service.availability }}</p>
                       <h2>{{ service.title }}</h2>
                       <p>{{ service.description }}</p>
                       @if (resolveAppLink(service.href); as serviceLink) {
@@ -606,7 +606,7 @@
                 </ng-template>
                 <div class="stack-list">
                   @for (item of transparencyItems(); track item.title) {
-                    <article class="info-row">
+                    <article class="home-info-row">
                       <strong>{{ item.title }}</strong>
                       <span>{{ item.detail }}</span>
                     </article>
@@ -978,7 +978,7 @@
               aria-busy="true"
             >
               @for (_ of [0, 1, 2]; track $index) {
-                <div class="info-row meeting-card" aria-hidden="true">
+                <div class="home-info-row meeting-card" aria-hidden="true">
                   <p-skeleton width="72%" height="1.1rem" styleClass="mb-2" />
                   <p-skeleton width="44%" height="0.85rem" />
                 </div>
@@ -987,7 +987,7 @@
           } @else {
             <div class="stack-list grid gap-3">
               @for (meeting of meetings(); track meeting.title) {
-                <article class="info-row meeting-card">
+                <article class="home-info-row meeting-card">
                   <div class="meeting-card-headline">
                     <strong>{{ meeting.title }}</strong>
                     <span class="meeting-schedule">{{ meeting.schedule }}</span>
@@ -1058,7 +1058,7 @@
           } @else {
             <p-timeline class="landing-notice-timeline" [value]="homepageNotices()" align="left">
               <ng-template #opposite let-notice>
-                <span class="notice-timeline-date meta-label">{{ notice.date }}</span>
+                <span class="notice-timeline-date home-meta-label">{{ notice.date }}</span>
               </ng-template>
 
               <ng-template #content let-notice>
@@ -1092,11 +1092,7 @@
               >
                 {{ appCopy().homepageWeatherHeading }}
               </h2>
-              <a
-                class="text-link inline-flex min-h-11 items-center font-semibold text-wiley-teal-700 no-underline hover:text-wiley-teal-800"
-                routerLink="/weather"
-                >{{ appCopy().featureTitles.weather }}</a
-              >
+              <a class="text-link" routerLink="/weather">{{ appCopy().featureTitles.weather }}</a>
             </div>
           </header>
           <app-weather-panel class="block w-full" data-testid="homepage-weather-panel" />
@@ -1144,7 +1140,7 @@
                     [routerLink]="featureLink.path"
                     [fragment]="featureLink.fragment"
                   >
-                    <p class="meta-label">{{ feature.kicker }}</p>
+                    <p class="home-meta-label">{{ feature.kicker }}</p>
                     <strong>{{ feature.title }}</strong>
                     <span>{{ feature.summary }}</span>
                   </a>
@@ -1153,7 +1149,7 @@
                     class="feature-card flex h-full min-h-[11rem] flex-col gap-2 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 p-5 no-underline shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
                     [attr.href]="featureLink.href"
                   >
-                    <p class="meta-label">{{ feature.kicker }}</p>
+                    <p class="home-meta-label">{{ feature.kicker }}</p>
                     <strong>{{ feature.title }}</strong>
                     <span>{{ feature.summary }}</span>
                   </a>
@@ -1205,13 +1201,13 @@
                       [routerLink]="supportContactLink.path"
                       [fragment]="supportContactLink.fragment"
                     >
-                      <p class="meta-label">{{ primaryContact.label }}</p>
+                      <p class="home-meta-label">{{ primaryContact.label }}</p>
                       <strong>{{ primaryContact.value }}</strong>
                       <span>{{ appCopy().contactHeading }}</span>
                     </a>
                   } @else {
                     <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
-                      <p class="meta-label">{{ primaryContact.label }}</p>
+                      <p class="home-meta-label">{{ primaryContact.label }}</p>
                       <strong>{{ primaryContact.value }}</strong>
                       <span>{{ appCopy().contactHeading }}</span>
                     </a>
@@ -1224,7 +1220,7 @@
                 routerLink="/weather"
                 data-testid="support-weather"
               >
-                <p class="meta-label">{{ appCopy().nwsAlertLabel }}</p>
+                <p class="home-meta-label">{{ appCopy().nwsAlertLabel }}</p>
                 <strong>{{ appCopy().alertActionLabel }}</strong>
                 <span>{{ appCopy().weatherSupportDescription }}</span>
               </a>
@@ -1240,7 +1236,7 @@
     }
 
     <footer
-      class="site-footer mt-4 w-full rounded-wiley-xl border border-wiley-cream-100 bg-wiley-navy-900 px-6 py-10 text-wiley-cream-50 md:px-8"
+      class="site-footer mt-4 w-full rounded-wiley-xl border border-wiley-cream-100 bg-wiley-navy-900 px-6 py-8 text-wiley-cream-50 md:px-8"
     >
       <div class="site-footer__layout">
         <div class="site-footer__main">

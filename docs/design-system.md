@@ -31,6 +31,24 @@ Outputs `public/hero-wiley.webp` and `public/hero-wiley-800.webp`.
 
 Shared SCSS: [`src/styles/_wiley-layout.scss`](../src/styles/_wiley-layout.scss) (imported from `styles.scss`).
 
+### Style layering (avoid footer-style conflicts)
+
+| Layer | Scope | Use for |
+|-------|--------|---------|
+| `_wiley-layout.scss` | Global | `.text-link`, `.info-row`, `.meta-label`, `.site-footer`, feature shells |
+| `app.scss` | **App template only** (view encapsulation) | Header, homepage sections inside `.page-shell`, mega menu |
+| Feature `*.scss` | That component’s template | Page-specific overrides |
+
+Do **not** redefine global layout classes in `app.scss` without scoping (e.g. `.page-shell .text-link`). `--civic-blue` maps to Prime **primary slate**, not `--wiley-teal-*` — it is a poor match on `.site-footer` / dark backgrounds.
+
+Homepage-only marketing classes in `app.html` (avoid clashing with `_wiley-layout.scss`):
+
+| Class | Use |
+|-------|-----|
+| `.home-meta-label` | Rust kicker text on homepage cards (not public-page `.meta-label`) |
+| `.home-info-row` | Flat transparency/meeting rows (not card-style `.info-row`) |
+| `.page-shell .text-link` | Teal underlined links on the homepage shell |
+
 | Class | Use |
 |-------|-----|
 | `.wiley-page-shell` | News, businesses, document hub, CMS admin — left-aligned grid shell |

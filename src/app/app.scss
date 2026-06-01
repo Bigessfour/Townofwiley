@@ -892,7 +892,7 @@
 .eyebrow,
 .section-kicker,
 p-tag.section-kicker-tag,
-.meta-label {
+.home-meta-label {
   margin: 0;
   color: var(--civic-rust);
   font-size: var(--font-size-kicker);
@@ -991,8 +991,7 @@ h6 {
 }
 
 .main-nav,
-.text-link,
-.footer-links a {
+.page-shell .text-link {
   text-decoration: none;
 }
 
@@ -1414,7 +1413,7 @@ h6 {
 
 .task-card,
 .search-result,
-.text-link {
+.page-shell .text-link {
   transition:
     transform 160ms ease,
     border-color 160ms ease,
@@ -1714,7 +1713,7 @@ h6 {
   border-radius: var(--radius-lg);
 }
 
-.notice-card .meta-label {
+.notice-card .home-meta-label {
   display: inline-flex;
   align-items: center;
   width: fit-content;
@@ -1772,7 +1771,8 @@ h6 {
   color: var(--ink-700);
 }
 
-.info-row {
+/* Homepage transparency / meeting rows — not .info-row cards from _wiley-layout.scss */
+.home-info-row {
   display: grid;
   gap: var(--space-xs);
   padding: var(--space-sm) 0;
@@ -2364,9 +2364,8 @@ h6 {
 .service-card p,
 .contact-card p,
 .contact-card span,
-.contact-link,
-.text-link,
 .service-link span,
+.page-shell .text-link,
 .calendar-overview-copy,
 .calendar-overview-next strong,
 .calendar-overview-next span {
@@ -2511,46 +2510,18 @@ h6 {
   max-width: 100%;
 }
 
-.contact-link {
+/* Homepage shell links — matches _wiley-layout.scss .text-link (teal + underline). */
+.page-shell .text-link {
   display: inline-flex;
   align-items: center;
-  max-width: 100%;
-  margin-top: var(--space-xs);
-  font-size: var(--font-size-body);
-  font-weight: 700;
-  color: var(--civic-blue);
-  text-decoration: none;
-}
-
-.text-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+  min-height: var(--touch-target-min);
   max-width: 100%;
   margin-top: var(--space-lg);
-  color: var(--civic-blue);
+  color: var(--wiley-teal-700);
   font-weight: 700;
-  position: relative;
-  text-decoration: none;
-  padding-bottom: 0.12rem;
-}
-
-.text-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  border-radius: 999px;
-  background: currentColor;
-  transform: scaleX(0.25);
-  transform-origin: left center;
-  opacity: 0.58;
-  transition:
-    transform var(--motion-medium) var(--motion-ease),
-    opacity var(--motion-medium) var(--motion-ease),
-    background-color var(--motion-medium) var(--motion-ease);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  transition: color 160ms ease;
 }
 
 .contact-card span {
@@ -2613,34 +2584,7 @@ h6 {
   border-radius: 12px;
 }
 
-.footer-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md, 1.5rem);
-  column-gap: var(--space-md, 1.5rem);
-  row-gap: var(--space-md, 1.5rem);
-}
-
-.footer-links li {
-  list-style: none;
-}
-
-.footer-links a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--touch-target-min, 2.75rem);
-  min-width: var(--touch-target-min, 2.75rem);
-  box-sizing: border-box;
-  padding: var(--space-xs, 0.5rem) var(--space-sm, 1rem);
-  color: var(--civic-blue);
-  font-weight: 700;
-}
+/* Footer link list: styles/_wiley-layout.scss (.site-footer .footer-links) */
 
 a:focus-visible,
 button:focus-visible,
@@ -2679,15 +2623,15 @@ select:focus-visible {
     outline-offset var(--motion-fast) var(--motion-ease);
 }
 
-.text-link:hover::after,
-.text-link:focus-visible::after {
-  transform: scaleX(1);
-  opacity: 1;
+.page-shell .text-link:hover,
+.page-shell .text-link:focus-visible {
+  color: var(--wiley-teal-800);
 }
 
-.text-link:hover,
-.text-link:focus-visible {
-  color: var(--ink-900);
+.page-shell .text-link:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
 }
 
 button:not(:disabled):active,
