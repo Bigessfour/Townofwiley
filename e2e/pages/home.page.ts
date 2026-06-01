@@ -565,18 +565,13 @@ export class HomePage {
   }
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
-    const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    const megamenuButton = this.sectionNav.locator(selector);
-    const mobileButton = this.page.locator('.site-language-switcher').locator(selector);
-    if (await megamenuButton.isVisible().catch(() => false)) {
-      await megamenuButton.evaluate((btn) => {
-        (btn as HTMLButtonElement).click();
-      });
-    } else {
-      await mobileButton.evaluate((btn) => {
-        (btn as HTMLButtonElement).click();
-      });
-    }
+    const choiceLabel = language === 'es' ? 'ES' : 'EN';
+    const button = this.page.getByRole('button', {
+      name: new RegExp(`Site language: ${choiceLabel}`, 'i'),
+    });
+    const visibleButton = button.locator('visible=true');
+    await expect(visibleButton).toBeVisible();
+    await visibleButton.click();
     await expect(this.page.locator('html')).toHaveAttribute('lang', language);
   }
 
