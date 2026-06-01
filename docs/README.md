@@ -22,6 +22,7 @@
 | Hosting / DNS / CSP source of truth | [`AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md) |
 | Clerk CMS workflows | [`CLERK-CMS-GUIDE.md`](CLERK-CMS-GUIDE.md) |
 | E2E ↔ AWS feature mapping | [`e2e-feature-map.md`](e2e-feature-map.md) |
+| Public page interaction inventory & E2E IDs | [`SITE_INTERACTION_INVENTORY_AND_TESTING.md`](SITE_INTERACTION_INVENTORY_AND_TESTING.md) |
 | Agent Week 1 session prompt | [`week1-incremental-session-prompt.md`](week1-incremental-session-prompt.md) |
 | Pre-launch polish checklist (historical items) | [`incomplete-items-reference.md`](incomplete-items-reference.md) |
 | Remaining security/perf backlog (short) | [`feature-completion-spec.md`](feature-completion-spec.md) |

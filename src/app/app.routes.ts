@@ -1,7 +1,11 @@
 import { Routes } from '@angular/router';
-import { App } from './app';
+import { HomeRouteShell } from './home-route-shell';
 
 export const routes: Routes = [
+  {
+    path: 'admin/login',
+    loadComponent: () => import('./auth/admin-login.component').then((m) => m.AdminLoginComponent),
+  },
   {
     path: 'admin',
     loadComponent: () => import('./cms-admin/cms-admin').then((m) => m.CmsAdmin),
@@ -65,6 +69,15 @@ export const routes: Routes = [
     loadComponent: () => import('./contact-page/contact-page').then((m) => m.ContactPage),
   },
   {
+    path: 'hello-from',
+    loadComponent: () => import('./hello-from/hello-from-page').then((m) => m.HelloFromPage),
+  },
+  {
+    path: 'admin/hello-from',
+    loadComponent: () =>
+      import('./hello-from/hello-from-admin-page').then((m) => m.HelloFromAdminPage),
+  },
+  {
     path: 'accessibility',
     loadComponent: () =>
       import('./accessibility-page/accessibility-page').then((m) => m.AccessibilityPage),
@@ -78,10 +91,10 @@ export const routes: Routes = [
     loadComponent: () => import('./terms-page/terms-page').then((m) => m.TermsPage),
   },
   /**
-   * Empty path must exist so `app.routes.server.ts` `{ path: '' }` prerender matches `provideRouter`
-   * (bootstrap component is already `App`; this route is registry parity for SSR, not a second shell).
+   * Empty path must exist so `app.routes.server.ts` `{ path: '' }` prerender matches `provideRouter`.
+   * `HomeRouteShell` is an empty outlet placeholder — bootstrapped `App` renders the homepage UI.
    */
-  { path: '', component: App, pathMatch: 'full' },
+  { path: '', component: HomeRouteShell, pathMatch: 'full' },
   {
     path: '**',
     loadComponent: () => import('./not-found/not-found').then((m) => m.NotFoundComponent),
