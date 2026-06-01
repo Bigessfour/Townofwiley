@@ -566,12 +566,27 @@ export class HomePage {
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
     const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    const button = this.page.locator('.site-header').locator(selector).first();
-    await expect(button).toBeVisible();
-    await button.evaluate((btn) => {
-      (btn as HTMLButtonElement).click();
-    });
+    const megamenuButton = this.sectionNav.locator(selector);
+    const mobileButton = this.page.locator('.site-language-switcher').locator(selector);
+    if (await megamenuButton.isVisible().catch(() => false)) {
+      await megamenuButton.evaluate((btn) => {
+        (btn as HTMLButtonElement).click();
+      });
+    } else {
+      await mobileButton.evaluate((btn) => {
+        (btn as HTMLButtonElement).click();
+      });
+    }
     await expect(this.page.locator('html')).toHaveAttribute('lang', language);
+  }
+
+  async clickTownLogoHome(): Promise<void> {
+    const megamenuLogo = this.sectionNav.locator('a.town-logo');
+    if (await megamenuLogo.isVisible().catch(() => false)) {
+      await megamenuLogo.click();
+      return;
+    }
+    await this.page.locator('.site-header a.town-logo').first().click();
   }
 
   async openAssistantDialog(): Promise<void> {

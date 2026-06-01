@@ -126,6 +126,21 @@ test.describe('cms admin', () => {
   });
 
   test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
+    await homePage.page.addInitScript(() => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
+        };
+      };
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
+          reviewApiEndpoint: '',
+          reviewProxyEndpoint: '/api/contact-updates-review',
+        },
+      };
+    });
     await homePage.page.route(/contact-updates-review/, async (route) => {
       await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
     });

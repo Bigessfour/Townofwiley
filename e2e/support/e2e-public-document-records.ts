@@ -18,4 +18,22 @@ export const E2E_PUBLIC_DOCUMENT_RECORDS = [
     active: true,
     displayOrder: 20,
   },
+  {
+    id: 'budget-and-annual-reports-guide',
+    sectionId: 'financial-documents',
+    title: 'Budget and Annual Reports Guide',
+    titleEs: 'Guia de presupuesto e informes anuales',
+    summary:
+      'A resident-facing guide that explains where budget summaries and annual reports belong and how to request current finance documents.',
+    summaryEs:
+      'Una guia para residentes que explica donde encontrar resumenes de presupuesto e informes anuales y como solicitar documentos financieros actuales.',
+    status: 'Published guide',
+    statusEs: 'Guia publicada',
+    format: 'HTML reference',
+    href: '/documents/archive/budget-and-annual-reports-guide.html',
+    downloadFileName: 'budget-and-annual-reports-guide.html',
+    keywords: ['budget', 'annual report', 'finance', 'audit', 'town budget'],
+    active: true,
+    displayOrder: 30,
+  },
 ] as const;
