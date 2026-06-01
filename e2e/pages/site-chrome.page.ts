@@ -32,7 +32,7 @@ export class SiteChromePage {
     this.searchResults = page.locator('.search-result');
     this.emptySearchState = page.locator('.empty-state');
     this.footerLinks = page.locator('.footer-links a');
-    this.townLogo = page.locator('a.town-logo');
+    this.townLogo = page.locator('.site-header a.town-logo').first();
     this.languageGroup = page.getByRole('group', { name: 'Site language' });
     this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
     this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });

@@ -566,9 +566,12 @@ export class HomePage {
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
     const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    const button = this.page.locator(selector);
+    const button = this.page.locator('.site-header').locator(selector).first();
     await expect(button).toBeVisible();
-    await button.click();
+    await button.evaluate((btn) => {
+      (btn as HTMLButtonElement).click();
+    });
+    await expect(this.page.locator('html')).toHaveAttribute('lang', language);
   }
 
   async openAssistantDialog(): Promise<void> {

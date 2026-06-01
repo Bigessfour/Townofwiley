@@ -18,7 +18,9 @@ test.describe('homepage accessibility', () => {
       await expect(homePage.page.locator('#main-content')).toBeVisible();
       // The standalone document hub does not render the standard town header shell
       if (publicPage.standardShell !== false) {
-        await expect(homePage.page.locator('a.town-logo[href]')).toBeAttached({ timeout: 15000 });
+        await expect(
+          homePage.page.locator('.site-header a.town-logo[href]').first(),
+        ).toBeAttached({ timeout: 15000 });
       }
 
       const results = await new AxeBuilder({ page: homePage.page })

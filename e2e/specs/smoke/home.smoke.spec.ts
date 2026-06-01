@@ -349,7 +349,7 @@ test.describe('homepage smoke', () => {
     await expect(homePage.mainContent).toBeVisible();
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-    await homePage.page.locator('.town-logo').click();
+    await homePage.page.locator('.site-header a.town-logo').first().click();
 
     await expect(homePage.page).toHaveURL(/\/$/);
     await expect(homePage.heroHeading).toBeVisible();

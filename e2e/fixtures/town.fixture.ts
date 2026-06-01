@@ -1,5 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
+import { E2E_PUBLIC_DOCUMENT_RECORDS } from '../support/e2e-public-document-records';
 import { resolveE2eEnv } from '../support/resolve-e2e-env';
 import { mockDirectNwsRoutes } from '../support/weather-mocks';
 
@@ -79,6 +80,11 @@ export const test = base.extend<TownFixtures>({
           ...snapshot,
           eventRecords: [],
           businessRecords: [],
+          publicDocumentRecords:
+            Array.isArray(snapshot.publicDocumentRecords) &&
+            snapshot.publicDocumentRecords.length > 0
+              ? snapshot.publicDocumentRecords
+              : E2E_PUBLIC_DOCUMENT_RECORDS,
         }),
       });
     });

@@ -53,7 +53,7 @@ test.describe('public route health', () => {
       await expect(homePage.page.locator('#main-content')).toBeVisible();
 
       if (routeContract.standardShell !== false) {
-        await expect(homePage.page.locator('a.town-logo[href]')).toBeAttached();
+        await expect(homePage.page.locator('.site-header a.town-logo[href]').first()).toBeAttached();
         await expect(homePage.page.locator('.site-footer')).toBeVisible();
       }
 
