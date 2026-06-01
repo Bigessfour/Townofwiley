@@ -8,6 +8,7 @@
 
 # Node
 /node_modules
+/mcp/primeng/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -32,6 +33,11 @@ yarn-error.log
 # Cursor / local scratch (keep rules and skills; ignore session logs)
 .cursor/*.log
 .todo
+
+# Local codebase RAG (Chroma vector store + manifest; venv under rag/)
+.rag/
+rag/.venv/
+rag/**/__pycache__/
 
 # Miscellaneous
 /.scorer-source/
@@ -96,6 +102,7 @@ dist/
 node_modules/
 aws-exports.js
 awsconfiguration.json
+amplify_outputs.json
 amplifyconfiguration.json
 amplifyconfiguration.dart
 amplify-build-config.json
@@ -104,3 +111,31 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+# Local AI / tooling scratch, scans, and exports (never commit)
+"Scan ["*"].pdf"
+*.zip
+.tmp-grok-test/
+figma/
+.cursor/skills/
+.github/skills/townofwiley/
+docs/townofwiley-skill.md
+docs/figma-widgets-and-screens.md
+docs/townofwiley.zip
+docs/public-document-seed-export.json
+infrastructure/appsync-key-rotation-reminder/
+infrastructure/contact-updates-review/origin-check.mjs
+scripts/deploy-appsync-key-rotation-reminder.py
+scripts/deploy-contact-updates-review-api.py
+scripts/deploy-waf-contact-review-api.py
+scripts/figma-capture-local.mjs
+scripts/purge-contact-update-test-data.py
+scripts/rag-*.mjs
+scripts/rag-*.sh
+scripts/retire-contact-review-proxy.py
+scripts/setup-cognito-staff-group.py
+scripts/store-xai-api-key.sh
+scripts/verify-contact-review-security.mjs
+scripts/verify-runtime-config-cms.mjs
+rag/
+mcp/

@@ -30,12 +30,47 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-function buildStudioUrl(region: string, appId: string, consoleUrl: string): string {
+/** Gen 2 Amplify Console → Data manager (replaces Gen 1 hosted Studio). */
+export function buildAmplifyConsoleDataManagerUrl(
+  region: string,
+  appId: string,
+  branchName: string,
+  fallbackUrl: string,
+): string {
   if (!region || !appId) {
-    return consoleUrl;
+    return fallbackUrl;
   }
 
-  return `https://${region}.console.aws.amazon.com/amplify/home?region=${region}#/${appId}/main/studio/home`;
+  const branch = branchName.trim() || 'main';
+  return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
+}
+
+/**
+ * Best-effort deep link to a model in Amplify Console Data manager.
+ * If the console UI changes, callers should fall back to the branch data root.
+ */
+export function buildAmplifyConsoleDataManagerModelUrl(
+  region: string,
+  appId: string,
+  branchName: string,
+  model: string,
+  fallbackUrl: string,
+): string {
+  const base = buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
+  const trimmed = model.trim();
+  if (!trimmed) {
+    return base;
+  }
+  return `${base}/models/${encodeURIComponent(trimmed)}`;
+}
+
+/** @deprecated Gen 1 Studio home; use {@link buildAmplifyConsoleDataManagerUrl}. */
+export function buildAmplifyAdminStudioHomeUrl(
+  region: string,
+  appId: string,
+  fallbackUrl: string,
+): string {
+  return buildAmplifyConsoleDataManagerUrl(region, appId, 'main', fallbackUrl);
 }
 
 export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
@@ -60,6 +95,6 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     awsConsoleUrl,
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildStudioUrl(awsRegion, amplifyAppId, awsConsoleUrl),
+      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
   };
 }

@@ -13,6 +13,8 @@ export class OfflineConnectivityNotifier {
   private readonly toast = inject(MessageService);
   private readonly language = inject(SiteLanguageService);
   private readonly destroyRef = inject(DestroyRef);
+  /** Avoid "back online" toasts on every reconnect; offline warning is enough. */
+  private offlineToastShown = false;
 
   constructor() {
     afterNextRender(() => {
@@ -31,6 +33,11 @@ export class OfflineConnectivityNotifier {
   }
 
   private showOffline(): void {
+    if (this.offlineToastShown) {
+      return;
+    }
+
+    this.offlineToastShown = true;
     const es = this.language.currentLanguage() === 'es';
     this.toast.add({
       severity: 'warn',
@@ -44,14 +51,6 @@ export class OfflineConnectivityNotifier {
   }
 
   private showOnline(): void {
-    const es = this.language.currentLanguage() === 'es';
-    this.toast.add({
-      severity: 'success',
-      summary: es ? 'Conexión restablecida' : 'Back online',
-      detail: es
-        ? 'La conexión a Internet se restableció.'
-        : 'Your internet connection was restored.',
-      life: 6000,
-    });
+    this.offlineToastShown = false;
   }
 }

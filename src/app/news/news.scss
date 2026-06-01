@@ -3,7 +3,8 @@
   margin-top: 0.5rem;
 }
 
-.public-page-header h1 {
+.public-page-header h1,
+.news-page-shell h1 {
   margin: 0;
   color: var(--civic-blue-strong);
 }
@@ -21,6 +22,15 @@
   margin: 0;
   line-height: 1.65;
   color: var(--ink-700);
+}
+
+.news-card__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  margin-bottom: 0.75rem;
 }
 
 /* Consolidated with app.scss card styles + PrimeNG p-card templates/PT */

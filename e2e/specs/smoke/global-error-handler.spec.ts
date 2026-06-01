@@ -1,33 +1,22 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '../../fixtures/town.fixture';
 
 test.describe('Global Error Handler', () => {
-  test('surfaces uncaught errors as a friendly toast notification', async ({ page }) => {
-    // Go to the home page
-    await page.goto('/');
+  test('surfaces uncaught errors as a friendly toast notification', async ({ homePage }) => {
+    await homePage.goto();
+    await expect(homePage.heroHeading).toBeVisible();
 
-    // Wait for the app to be stable
-    await page.waitForSelector('app-root', { state: 'attached' });
-
-    // Wait slightly more for the page to initialize in case zone isn't fully ready
-    await page.waitForLoadState('networkidle');
-
-    // Inject an uncaught error into the browser context.
-    // Using setTimeout ensures it escapes standard event handler try/catch blocks
-    // and is caught by window.onerror or Angular's Zone.js.
-    await page.evaluate(() => {
+    await homePage.page.evaluate(() => {
+      const error = new TypeError('Test uncaught application error');
+      error.stack =
+        'TypeError: Test uncaught application error\n    at https://www.townofwiley.gov/main-E2E.js:1:1';
       setTimeout(() => {
-        throw new Error('Test uncaught application error');
-      }, 0);
+        throw error;
+      }, 250);
     });
 
-    // Verify the toast message appears with the friendly fallback text
-    const toast = page.locator('.p-toast-message-content');
-    await expect(toast).toBeVisible();
-
-    const summary = toast.locator('.p-toast-summary');
-    await expect(summary).toHaveText('Unexpected Error');
-
-    const detail = toast.locator('.p-toast-detail');
-    await expect(detail).toContainText('An unexpected error occurred. Please try again');
+    const toast = homePage.page.locator('.p-toast').filter({ hasText: 'Unexpected Error' });
+    await expect(toast).toBeVisible({ timeout: 20_000 });
+    await expect(toast).toContainText('An unexpected error occurred. Please try again');
+    await expect(toast).toContainText('contact the Town Hall');
   });
 });

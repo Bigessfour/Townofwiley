@@ -1,0 +1,48 @@
+.cms-task-guide {
+  margin: 1.25rem 0;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--wiley-cream-50, #faf8f5);
+  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+}
+
+.cms-task-guide__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+}
+
+.cms-task-guide__subtitle {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.cms-task-guide__steps {
+  margin: 0;
+  padding-left: 1.35rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.cms-task-guide__steps--compact {
+  margin-top: 0.5rem;
+}
+
+.cms-task-guide__glossary {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.cms-task-guide__glossary dt {
+  font-weight: 700;
+}
+
+.cms-task-guide__glossary dd {
+  margin: 0.15rem 0 0;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-task-guide__tech {
+  font-weight: 500;
+  font-size: 0.875rem;
+}

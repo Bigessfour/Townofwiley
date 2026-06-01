@@ -6,16 +6,16 @@ import testProviders from '../../test-providers';
 import { LoggingService } from '../logging.service';
 import { BillPayService } from './bill-pay.service';
 
-vi.mock('./bill-pay-config', () => ({
-  getBillPayRuntimeConfig: vi.fn(() => ({
-    apiEndpoint: 'https://api.wiley.gov/api/v1/bill-pay-requests',
+vi.mock('../contact-update/contact-update-config', () => ({
+  getContactUpdateRuntimeConfig: vi.fn(() => ({
+    apiEndpoint: 'https://lambda.example/contact-update',
   })),
 }));
 
 beforeEach(async () => {
-  const { getBillPayRuntimeConfig } = await import('./bill-pay-config');
-  vi.mocked(getBillPayRuntimeConfig).mockReturnValue({
-    apiEndpoint: 'https://api.wiley.gov/api/v1/bill-pay-requests',
+  const { getContactUpdateRuntimeConfig } = await import('../contact-update/contact-update-config');
+  vi.mocked(getContactUpdateRuntimeConfig).mockReturnValue({
+    apiEndpoint: 'https://lambda.example/contact-update',
   });
 });
 
@@ -63,15 +63,16 @@ describe('BillPayService (Unit)', () => {
     expect(postSpy).toHaveBeenCalled();
     expect(logging.log).toHaveBeenCalledWith(
       'warn',
-      expect.stringContaining('Bill pay request API failed'),
+      expect.stringContaining('Resident billing intake API failed'),
       expect.anything(),
     );
   });
 
   it('immediately uses mailto if no apiEndpoint configured', async () => {
     const { service, http } = setup();
-    const { getBillPayRuntimeConfig } = await import('./bill-pay-config');
-    vi.mocked(getBillPayRuntimeConfig).mockReturnValue({ apiEndpoint: '' });
+    const { getContactUpdateRuntimeConfig } =
+      await import('../contact-update/contact-update-config');
+    vi.mocked(getContactUpdateRuntimeConfig).mockReturnValue({ apiEndpoint: '' });
 
     const result = await service.submitRequest(samplePayload);
     expect(result.outcome).toBe('mailto');

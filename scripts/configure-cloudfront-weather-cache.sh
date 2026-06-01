@@ -19,7 +19,7 @@
 set -euo pipefail
 
 DRY_RUN=0
-if [[ "${1:-}" == "--dry-run" ]]; then
+if [[ ${1-} == "--dry-run" ]]; then
   DRY_RUN=1
 fi
 
@@ -41,8 +41,8 @@ if [[ $ACCOUNT != "$EXPECTED_ACCOUNT" ]]; then
 fi
 
 echo "Looking up CloudFront distribution for $CF_DOMAIN_HINT ..."
-DIST_ID="$(aws cloudfront list-distributions --output json \
-  | jq -r --arg d "$CF_DOMAIN_HINT" '
+DIST_ID="$(aws cloudfront list-distributions --output json |
+  jq -r --arg d "$CF_DOMAIN_HINT" '
     .DistributionList.Items[]?
     | select(.DomainName == $d or ((.Aliases.Items // []) | index("townofwiley.gov")) != null)
     | .Id' | head -n1)"
@@ -62,8 +62,8 @@ if [[ $DRY_RUN == 1 ]]; then
 fi
 
 CONFIG_JSON="$(mktemp)"
-ETAG="$(aws cloudfront get-distribution-config --id "$DIST_ID" --output json >"$CONFIG_JSON" \
-  && jq -r '.ETag' "$CONFIG_JSON")"
+ETAG="$(aws cloudfront get-distribution-config --id "$DIST_ID" --output json >"$CONFIG_JSON" &&
+  jq -r '.ETag' "$CONFIG_JSON")"
 
 HAS_WEATHER="$(jq '[.DistributionConfig.CacheBehaviors.Items[]?.PathPattern] | any(. == "/weather*")' "$CONFIG_JSON")"
 if [[ $HAS_WEATHER == "true" ]]; then

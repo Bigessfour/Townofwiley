@@ -25,6 +25,7 @@
     "**/coverage": true,
     "**/.angular": true
   },
+  "npm.exclude": "**/infrastructure/**",
   "terminal.integrated.env.osx": {
     "AWS_PROFILE": "townofwiley",
     "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}",

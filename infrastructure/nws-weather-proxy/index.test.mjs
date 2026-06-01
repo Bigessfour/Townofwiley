@@ -70,11 +70,13 @@ const successHourlyPayload = {
   },
 };
 
-function jsonFetchResponse(status, payload) {
+function jsonFetchResponse(status, payload, init = {}) {
+  const headers = new Headers(init.headers ?? {});
   return {
     ok: status >= 200 && status < 300,
     status,
-    text: async () => JSON.stringify(payload),
+    headers,
+    text: async () => (typeof payload === 'string' ? payload : JSON.stringify(payload)),
   };
 }
 
@@ -171,15 +173,18 @@ test('proxies the NWS forecast and alert payloads with the configured headers', 
   assert.ok(typeof body.solar.photoperiod === 'string', 'solar.photoperiod is a string');
 });
 
-test('returns 502 when the upstream NWS request fails', async (t) => {
+test('returns 502 when the upstream NWS request fails after retries', async (t) => {
   const originalFetch = global.fetch;
   const originalUserAgent = process.env.NWS_USER_AGENT;
+  const originalRetryBase = process.env.NWS_RETRY_BASE_MS;
 
   process.env.NWS_USER_AGENT = 'TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)';
+  process.env.NWS_RETRY_BASE_MS = '1';
   global.fetch = async () => {
     return {
       ok: false,
       status: 503,
+      headers: new Headers(),
       text: async () => 'Temporary NWS outage',
     };
   };
@@ -192,6 +197,12 @@ test('returns 502 when the upstream NWS request fails', async (t) => {
     } else {
       delete process.env.NWS_USER_AGENT;
     }
+
+    if (originalRetryBase !== undefined) {
+      process.env.NWS_RETRY_BASE_MS = originalRetryBase;
+    } else {
+      delete process.env.NWS_RETRY_BASE_MS;
+    }
   });
 
   const response = await handler({ requestContext: { http: { method: 'GET' } } });
@@ -199,6 +210,56 @@ test('returns 502 when the upstream NWS request fails', async (t) => {
 
   assert.equal(response.statusCode, 502);
   assert.match(body.error, /Temporary NWS outage/);
+});
+
+test('retries transient /points failures then succeeds', async (t) => {
+  const originalFetch = global.fetch;
+  const originalUserAgent = process.env.NWS_USER_AGENT;
+  const originalRetryBase = process.env.NWS_RETRY_BASE_MS;
+
+  process.env.NWS_USER_AGENT = 'TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)';
+  process.env.NWS_RETRY_BASE_MS = '1';
+
+  let pointHits = 0;
+
+  global.fetch = async (url) => {
+    if (url === 'https://api.weather.gov/points/38.154,-102.72') {
+      pointHits += 1;
+      if (pointHits < 3) {
+        return jsonFetchResponse(503, { message: 'busy' });
+      }
+      return jsonFetchResponse(200, successPointPayload);
+    }
+
+    if (url === 'https://api.weather.gov/gridpoints/PUB/162,56/forecast') {
+      return jsonFetchResponse(200, successForecastPayload);
+    }
+
+    if (url === 'https://api.weather.gov/alerts/active?zone=COZ098') {
+      return jsonFetchResponse(200, successAlertPayload);
+    }
+
+    if (url === 'https://api.weather.gov/gridpoints/PUB/162,56/forecast/hourly') {
+      return jsonFetchResponse(200, successHourlyPayload);
+    }
+
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+
+  t.after(() => {
+    global.fetch = originalFetch;
+    if (originalUserAgent) process.env.NWS_USER_AGENT = originalUserAgent;
+    else delete process.env.NWS_USER_AGENT;
+    if (originalRetryBase !== undefined) process.env.NWS_RETRY_BASE_MS = originalRetryBase;
+    else delete process.env.NWS_RETRY_BASE_MS;
+  });
+
+  const response = await handler({ requestContext: { http: { method: 'GET' } } });
+  const body = JSON.parse(response.body);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(pointHits, 3, '/points should be retried until success');
+  assert.equal(body.periods.length, 1);
 });
 
 test('returns 204 for OPTIONS preflight with CORS headers', async () => {

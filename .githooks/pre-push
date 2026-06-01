@@ -22,4 +22,3 @@ echo "→ Running trunk check..."
 trunk check
 
 echo "✅ Trunk pre-push checks passed. Pushing to GitHub..."
-

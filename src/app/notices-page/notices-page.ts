@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -7,7 +8,7 @@ import { SiteLanguageService } from '../site-language';
 
 @Component({
   selector: 'app-notices-page',
-  imports: [CardModule, SkeletonModule],
+  imports: [NgOptimizedImage, CardModule, SkeletonModule],
   templateUrl: './notices-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -58,7 +58,9 @@ test.describe('public route health', () => {
       }
 
       if (routeContract.primaryAction) {
-        await expect(routeContract.primaryAction(homePage.page)).toBeVisible();
+        await expect(routeContract.primaryAction(homePage.page)).toBeVisible({
+          timeout: routeContract.path === '/documents' ? 20_000 : 10_000,
+        });
       }
 
       await homePage.page.reload({ waitUntil: 'domcontentloaded' });

@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { describe, expect, it, vi } from 'vitest';
 import { GlobalErrorHandler } from './global-error-handler';
 import { LoggingService } from './logging.service';
-import { MessageService } from 'primeng/api';
 
 describe('GlobalErrorHandler', () => {
-  it('logs uncaught errors and displays a friendly toast', () => {
+  function createHandler() {
     const mockLogging = { log: vi.fn() };
     const mockMessageService = { add: vi.fn() };
 
@@ -13,30 +14,42 @@ describe('GlobalErrorHandler', () => {
       providers: [
         { provide: LoggingService, useValue: mockLogging },
         { provide: MessageService, useValue: mockMessageService },
+        {
+          provide: Router,
+          useValue: { url: '/', getCurrentNavigation: () => null },
+        },
       ],
     });
 
-    const handler = TestBed.inject(GlobalErrorHandler);
+    return {
+      handler: TestBed.inject(GlobalErrorHandler),
+      mockLogging,
+      mockMessageService,
+    };
+  }
 
-    const testError = new Error('Test backend exploded');
+  it('toasts operational TypeError from app code', () => {
+    const { handler, mockLogging, mockMessageService } = createHandler();
+    const testError = new TypeError('Cannot read properties of undefined');
+    testError.stack = 'TypeError: x\n    at https://www.townofwiley.gov/main-TEST.js:10:1';
+
     handler.handleError(testError);
 
     expect(mockLogging.log).toHaveBeenCalledWith(
       'error',
-      'Uncaught application error',
-      expect.objectContaining({ message: 'Test backend exploded' }),
+      'Uncaught operational application error',
+      expect.objectContaining({ message: 'Cannot read properties of undefined' }),
     );
     expect(mockMessageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
         severity: 'error',
         summary: 'Unexpected Error',
-        detail: expect.stringContaining('contact the Town Hall'),
-        life: 10000,
+        detail: expect.stringMatching(/Reference: err-[a-z0-9]+-[a-z0-9]+\./),
       }),
     );
   });
 
-  it('handles non-Error objects safely', () => {
+  it('logs auth failures without a toast', () => {
     const mockLogging = { log: vi.fn() };
     const mockMessageService = { add: vi.fn() };
 
@@ -44,40 +57,48 @@ describe('GlobalErrorHandler', () => {
       providers: [
         { provide: LoggingService, useValue: mockLogging },
         { provide: MessageService, useValue: mockMessageService },
+        {
+          provide: Router,
+          useValue: { url: '/admin/login', getCurrentNavigation: () => null },
+        },
       ],
     });
 
     const handler = TestBed.inject(GlobalErrorHandler);
+    const authError = new Error('Incorrect username or password.');
+    authError.name = 'NotAuthorizedException';
 
-    handler.handleError('A string error');
+    handler.handleError(authError);
 
+    expect(mockMessageService.add).not.toHaveBeenCalled();
     expect(mockLogging.log).toHaveBeenCalledWith(
-      'error',
-      'Uncaught application error',
-      expect.objectContaining({ message: 'A string error' }),
+      'warn',
+      'Handled application error (no global toast)',
+      expect.objectContaining({ showToast: false }),
     );
-    expect(mockMessageService.add).toHaveBeenCalled(); // Friendly message still shown
   });
 
   it('suppresses toast for expected network degradation', () => {
-    const mockLogging = { log: vi.fn() };
-    const mockMessageService = { add: vi.fn() };
-
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: LoggingService, useValue: mockLogging },
-        { provide: MessageService, useValue: mockMessageService },
-      ],
-    });
-
-    const handler = TestBed.inject(GlobalErrorHandler);
+    const { handler, mockLogging, mockMessageService } = createHandler();
     handler.handleError({ name: 'TimeoutError' });
 
     expect(mockLogging.log).toHaveBeenCalledWith(
       'warn',
-      'Expected service degradation',
+      'Handled application error (no global toast)',
       expect.objectContaining({ expectedDegradation: true }),
     );
     expect(mockMessageService.add).not.toHaveBeenCalled();
+  });
+
+  it('logs generic non-operational errors without a toast', () => {
+    const { handler, mockLogging, mockMessageService } = createHandler();
+    handler.handleError('A string error');
+
+    expect(mockMessageService.add).not.toHaveBeenCalled();
+    expect(mockLogging.log).toHaveBeenCalledWith(
+      'warn',
+      'Handled application error (no global toast)',
+      expect.objectContaining({ message: 'A string error', showToast: false }),
+    );
   });
 });

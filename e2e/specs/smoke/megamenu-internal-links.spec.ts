@@ -14,8 +14,8 @@
  *
  * @see https://primeng.org/megamenu#router
  */
-import { expect, test } from '../../fixtures/town.fixture';
 import type { Page } from '@playwright/test';
+import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
 
 const roots = siteContent.megaMenuRootLabelsEn;
@@ -96,12 +96,14 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#weather-heading')).toBeVisible();
   });
 
-  test('I Want To: Weather & Emergency Alerts → /weather', async ({ homePage }) => {
+  test('I Want To: Weather & Emergency Alerts → /weather#weather-alert-signup', async ({
+    homePage,
+  }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
     await panel.getByRole('link', { name: L.weatherEmergencyAlerts, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/weather$/);
-    await expect(homePage.page.locator('#weather-heading')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup$/);
+    await expect(homePage.page.locator('#weather-signup-heading')).toBeVisible();
   });
 
   test('I Want To: Open the full town calendar → meetings#calendar', async ({ homePage }) => {
@@ -243,11 +245,13 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#weather-heading')).toBeVisible();
   });
 
-  test('News & alerts: Sign up for alerts → /weather', async ({ homePage }) => {
+  test('News & alerts: Sign up for alerts → /weather#weather-alert-signup', async ({
+    homePage,
+  }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[3]);
     await panel.getByRole('link', { name: L.signUpAlerts, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/weather$/);
-    await expect(homePage.page.locator('#weather-heading')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup$/);
+    await expect(homePage.page.locator('#weather-signup-heading')).toBeVisible();
   });
 });

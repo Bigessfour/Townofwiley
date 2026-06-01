@@ -19,4 +19,10 @@ describe('staff-auth-error', () => {
     error.name = 'ExpiredCodeException';
     expect(readStaffAuthErrorMessage(error, 'fallback')).toContain('expired');
   });
+
+  it('detects Amplify auth failures', () => {
+    const error = new Error('Incorrect username or password.');
+    error.name = 'NotAuthorizedException';
+    expect(isAmplifyAuthFailure(error)).toBe(true);
+  });
 });

@@ -79,19 +79,37 @@ export const handler = async (event) => {
     }),
   );
 
+  const isBillingIntake =
+    sanitized.source === 'pay-bill-page' ||
+    sanitized.source === 'resident-services' ||
+    Boolean(sanitized.preferredContactMethod);
+
   // Format email body
   const lines = [
     `Full Name: ${sanitized.fullName || '(not provided)'}`,
     `Service Address: ${sanitized.serviceAddress || '(not provided)'}`,
     `PO Box: ${sanitized.poBox || '(not provided)'}`,
+    `Utility Account #: ${sanitized.accountNumber || '(not provided)'}`,
     `Phone: ${sanitized.phone || '(not provided)'}`,
     `Email: ${sanitized.email || '(not provided)'}`,
+    `Preferred Contact: ${sanitized.preferredContactMethod || '(not provided)'}`,
+    `Consent to Contact: ${
+      sanitized.consentToContact === true
+        ? 'yes'
+        : sanitized.consentToContact === false
+          ? 'no'
+          : '(not provided)'
+    }`,
     `Notes: ${sanitized.notes || '(none)'}`,
     '',
     `Submitted: ${timestamp}`,
     `Source: ${sanitized.source || 'unknown'}`,
     `Locale: ${sanitized.locale || 'en'}`,
   ].join('\n');
+
+  const subjectPrefix = isBillingIntake
+    ? 'Billing / Utility Assistance Request'
+    : 'Contact Info Update from Resident';
 
   // Notify clerk via SES; do not fail the request if email delivery fails after persistence.
   try {
@@ -101,7 +119,7 @@ export const handler = async (event) => {
         Source: FROM_ADDRESS,
         Message: {
           Subject: {
-            Data: `Contact Info Update from Resident – ${sanitized.fullName || 'Unknown'}`,
+            Data: `${subjectPrefix} – ${sanitized.fullName || 'Unknown'}`,
           },
           Body: {
             Text: { Data: lines },

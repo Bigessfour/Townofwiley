@@ -1,0 +1,48 @@
+<section class="cms-task-hub" aria-labelledby="cms-task-hub-heading">
+  <h2 id="cms-task-hub-heading" class="cms-task-hub__title">What do you want to update?</h2>
+  <p class="cms-task-hub__lead">
+    Pick a task, click <strong>Edit content</strong>, save in the editor, then <strong>See on website</strong>
+    and hard-refresh the page.
+  </p>
+
+  <ul class="cms-task-hub__grid">
+    @for (task of tasks; track task.id) {
+      <li>
+        <article class="cms-task-card" [attr.data-testid]="'cms-task-' + task.id">
+          <header class="cms-task-card__header">
+            <h3 class="cms-task-card__title">{{ task.title }}</h3>
+            @if (countLabel(task); as badge) {
+              <p-tag [value]="badge" [severity]="badge === 'None saved yet' ? 'warn' : 'secondary'" />
+            }
+          </header>
+          <p class="cms-task-card__body">{{ task.shortDescription }}</p>
+          @if (task.emptyStateMessage && countLabel(task) === 'None saved yet') {
+            <p class="cms-task-card__note" role="note">{{ task.emptyStateMessage }}</p>
+          }
+          <div class="cms-task-card__actions">
+            <a
+              class="button-cta button-cta--solid cms-task-card__btn"
+              [href]="editorUrl(task)"
+              target="_blank"
+              rel="noreferrer noopener"
+              [attr.data-testid]="'cms-task-edit-' + task.id"
+            >
+              Edit content
+            </a>
+            <a
+              class="button-cta button-cta--light cms-task-card__btn"
+              [href]="previewUrl(task)"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              See on website
+            </a>
+            <button type="button" class="cms-task-card__steps" (click)="onShowSteps(task.id)">
+              Show step-by-step
+            </button>
+          </div>
+        </article>
+      </li>
+    }
+  </ul>
+</section>

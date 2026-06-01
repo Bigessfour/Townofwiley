@@ -40,7 +40,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--civic-rust);
+  color: var(--wiley-sage-700);
 }
 
 .document-hub-title,
@@ -89,10 +89,28 @@
   border: 1px solid var(--surface-border);
 }
 
-.document-hub-button {
+.document-hub-button.primary {
   padding: 0.85rem 1.3rem;
-  background: var(--brand-gradient-strong);
-  color: var(--surface-inverse);
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--wiley-teal-600), var(--wiley-teal-700));
+  color: var(--wiley-inverse);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-subtle);
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.document-hub-button.primary:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-1px);
+}
+
+.document-hub-button.primary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .document-hub-button.secondary,

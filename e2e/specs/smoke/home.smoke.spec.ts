@@ -168,12 +168,8 @@ const sectionNavigationGateways: NavigationGateway[] = [
     assertDestination: expectBusinessesPage,
   },
   {
-    name: 'Contact mega menu root',
-    click: (page) =>
-      page.sectionNavLinks
-        .filter({ hasText: 'Contact & Town Hall' })
-        .first()
-        .click({ position: { x: 5, y: 5 } }),
+    name: 'Contact primary nav link',
+    click: (page) => page.sectionNav.getByRole('link', { name: 'Contact', exact: true }).click(),
     expectedUrl: /\/contact$/,
     assertDestination: expectContactPage,
   },
@@ -510,10 +506,11 @@ test.describe('homepage smoke', () => {
       siteContent.cmsHeadings.documentsHub,
     );
 
-    await homePage.page
+    const meetingGuideLink = homePage.page
       .locator('a[href="/documents/archive/city-council-meeting-access-guide.html"]')
-      .first()
-      .click();
+      .first();
+    await expect(meetingGuideLink).toBeVisible({ timeout: 20_000 });
+    await meetingGuideLink.click();
 
     await expect(homePage.page).toHaveURL(
       /\/documents\/archive\/city-council-meeting-access-guide\.html$/,

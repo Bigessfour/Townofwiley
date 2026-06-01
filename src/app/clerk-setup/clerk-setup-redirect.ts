@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
       <h1 id="clerk-setup-redirect-title">Redirecting to the CMS admin hub</h1>
       <p>
         The old /clerk-setup path now routes through /admin. The link below keeps your current
-        fragment so direct links still open the right CMS tab.
+        fragment so direct links still open the right section on /admin.
       </p>
       <p>
         <a class="clerk-setup-redirect__link" [href]="adminHref">Open the CMS admin hub now</a>
@@ -30,13 +30,28 @@ export class ClerkSetupRedirect {
 
   constructor() {
     const fragment = this.route.snapshot.fragment ?? undefined;
-    this.adminHref = fragment ? `/admin#${fragment}` : '/admin';
+    const adminFragment = mapLegacyClerkSetupFragment(fragment);
+    this.adminHref = adminFragment ? `/admin#${adminFragment}` : '/admin';
 
     queueMicrotask(() => {
       void this.router.navigate(['/admin'], {
-        fragment,
+        fragment: adminFragment,
         replaceUrl: true,
       });
     });
+  }
+}
+
+/** Map old clerk-setup tab hashes to /admin section ids. */
+function mapLegacyClerkSetupFragment(fragment: string | undefined): string | undefined {
+  if (!fragment) {
+    return undefined;
+  }
+  switch (fragment) {
+    case 'setup':
+    case 'content':
+      return 'start';
+    default:
+      return fragment;
   }
 }

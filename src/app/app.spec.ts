@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -11,7 +11,14 @@ import { MessageService, type MegaMenuItem } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
+import {
+  emptyCmsCoreGraphqlData,
+  emptyCmsExtendedGraphqlData,
+  flushBuildCmsSnapshotNotFound,
+  flushCmsSnapshotAndWait,
+} from './cms-test-support';
 import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
+import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import {
   LocalizedWeatherPanel,
   type HomepageWeatherAlert,
@@ -71,11 +78,12 @@ describe('App', () => {
   };
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     window.localStorage.setItem('tow-site-language', 'en');
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([nwsApiHttpInterceptor, nwsApiRetryInterceptor])),
         provideHttpClientTesting(),
         provideRouter(routes),
         provideAnimations(),
@@ -129,6 +137,7 @@ describe('App', () => {
     window.history.replaceState({}, '', '/');
     vi.restoreAllMocks();
     httpTesting.verify();
+    TestBed.resetTestingModule();
   });
 
   it('should create the app', async () => {
@@ -162,6 +171,24 @@ describe('App', () => {
 
     const taskAnchors = compiled.querySelectorAll('a.task-card');
     expect(taskAnchors.length).toBe(expectedTopTaskTitles.length);
+    for (const anchor of taskAnchors) {
+      expect(anchor.hasAttribute('aria-labelledby')).toBe(false);
+    }
+
+    const mobileMenuButton = compiled.querySelector('.mobile-menu-button');
+    expect(mobileMenuButton?.getAttribute('aria-label')).toBe(
+      APP_COPY.en.homepageSectionsAriaLabel,
+    );
+    expect(mobileMenuButton?.textContent).toContain(APP_COPY.en.mobileMenuLabel);
+
+    const townLogo = compiled.querySelector('a.town-logo');
+    expect(townLogo?.getAttribute('aria-label')).toBe(APP_COPY.en.townLogoAriaLabel);
+    expect(townLogo?.textContent).toContain('Town of Wiley');
+
+    const primaryNav = compiled.querySelector('[data-testid="homepage-section-nav"]');
+    expect(primaryNav).not.toBeNull();
+    const component = fixture.componentInstance as App & { menuItems: () => MegaMenuItem[] };
+    expect(component.menuItems().length).toBeGreaterThanOrEqual(7);
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
@@ -360,12 +387,12 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    cmsRequest.flush({
+    await flushCmsSnapshotAndWait(httpTesting);
+
+    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    coreRequest.flush({
       data: {
-        listSiteSettings: { items: [] },
-        listAlertBanners: { items: [] },
-        listAnnouncements: { items: [] },
+        ...emptyCmsCoreGraphqlData,
         listEvents: {
           items: [
             {
@@ -380,12 +407,15 @@ describe('App', () => {
             },
           ],
         },
-        listOfficialContacts: { items: [] },
-        listBusinesses: { items: [] },
-        listPublicDocuments: { items: [] },
-        listExternalNewsLinks: { items: [] },
       },
     });
+
+    await Promise.resolve();
+
+    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
+    for (const request of extendedRequest) {
+      request.flush({ data: emptyCmsExtendedGraphqlData });
+    }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
@@ -419,12 +449,12 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    const cmsRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    cmsRequest.flush({
+    await flushCmsSnapshotAndWait(httpTesting);
+
+    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
+    coreRequest.flush({
       data: {
-        listSiteSettings: { items: [] },
-        listAlertBanners: { items: [] },
-        listAnnouncements: { items: [] },
+        ...emptyCmsCoreGraphqlData,
         listEvents: {
           items: [
             {
@@ -439,12 +469,15 @@ describe('App', () => {
             },
           ],
         },
-        listOfficialContacts: { items: [] },
-        listBusinesses: { items: [] },
-        listPublicDocuments: { items: [] },
-        listExternalNewsLinks: { items: [] },
       },
     });
+
+    await Promise.resolve();
+
+    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
+    for (const request of extendedRequest) {
+      request.flush({ data: emptyCmsExtendedGraphqlData });
+    }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
@@ -799,25 +832,15 @@ describe('App', () => {
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Administracion de contenido del Pueblo de Wiley',
-    );
-    expect(compiled.textContent).toContain('Event');
-    expect(compiled.textContent).toContain('EmailAlias');
-    expect(compiled.textContent).toContain(
-      'Esta pagina solo muestra guia y estado actual del CMS. No guarda ni publica contenido del sitio.',
-    );
-    expect(compiled.textContent).toContain('Configuracion y credenciales');
-    expect(compiled.textContent).toContain('Referencia rapida');
-    expect(compiled.textContent).toContain('Copia de las instrucciones de la secretaria');
-    expect(compiled.querySelector('.cms-button.primary')?.textContent).toContain(
-      'Abrir Amplify Studio Data Manager',
-    );
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
+    expect(compiled.textContent).toContain('Post news or notice');
+    expect(compiled.textContent).toContain('Add meeting or event');
+    expect(compiled.textContent).toContain('Document publishing');
+    expect(compiled.textContent).toContain('Edit content');
+    expect(compiled.querySelector('[data-testid="cms-task-post-notice"]')).toBeTruthy();
   });
 
   it('should render the Deb Dillon setup details on the admin hub path', async () => {
@@ -829,25 +852,19 @@ describe('App', () => {
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
         studioUrl:
-          'https://us-east-2.console.aws.amazon.com/amplify/home?region=us-east-2#/d331voxr1fhoir/main/studio/home',
+          'https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data',
       },
     };
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-title')?.textContent).toContain(
-      'Town of Wiley Content Management',
-    );
-    expect(compiled.textContent).toContain('Setup & credentials');
-    expect(compiled.textContent).toContain('570912405222');
+    expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
+    expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('d331voxr1fhoir');
-    expect(compiled.textContent).toContain('Open Studio Home');
-    expect(compiled.textContent).toContain('Amplify Studio Data Manager');
+    expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
@@ -858,29 +875,32 @@ describe('App', () => {
     await TestBed.inject(Router).navigateByUrl('/clerk-setup#documents');
     fixture.detectChanges();
     await fixture.whenStable();
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(TestBed.inject(Router).url).toBe('/admin#documents');
-    expect(compiled.textContent).toContain('Supported document workflow');
-    expect(compiled.textContent).toContain('Supported document workflow');
-    expect(compiled.textContent).toContain('Website section map');
+    expect(compiled.textContent).toContain('Document publishing');
     expect(compiled.textContent).toContain('Meeting Documents');
     expect(compiled.textContent).toContain('meeting-documents');
-    expect(compiled.textContent).toContain('Open Amplify Studio Data Manager');
+    expect(compiled.textContent).toContain('Add a form or PDF');
   });
 
-  it('should link the admin document button to the admin document tab', async () => {
+  it('should expose document publishing via jump nav on the admin hub', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await TestBed.inject(Router).navigateByUrl('/admin');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-button.add')?.getAttribute('href')).toBe(
-      '/admin#documents',
+    expect(compiled.querySelector('.cms-jump-nav a[href="#documents"]')?.getAttribute('href')).toBe(
+      '#documents',
     );
   });
 
@@ -946,8 +966,22 @@ describe('App', () => {
     };
   }
 
+  async function settleAdminRoute(fixture: ComponentFixture<App>): Promise<void> {
+    await TestBed.inject(Router).navigateByUrl('/admin');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
   /**
-   * Flush pending weather HTTP request(s) after detectChanges().
    *
    * By default the test suite configures the proxy endpoint so the weather panel
    * and homepage alert primer each issue GET /api/weather/nws (primer uses the proxy
@@ -960,6 +994,8 @@ describe('App', () => {
    * three-step NWS direct chain (points → forecast → alerts).
    */
   async function flushWeatherRequests(alertFeatures: AlertFeature[] = []): Promise<void> {
+    await flushCmsSnapshotAndWait(httpTesting);
+
     const effectiveWeather = {
       ...(runtimeWindow.__TOW_RUNTIME_CONFIG__?.weather ?? {}),
       ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.weather ?? {}),
@@ -1175,6 +1211,16 @@ describe('App', () => {
   }
 
   function flushPendingWeatherRequests(): void {
+    flushBuildCmsSnapshotNotFound(httpTesting);
+
+    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+      request.flush({
+        version: 1,
+        discoveredAt: '2026-01-01T00:00:00.000Z',
+        models: [],
+      });
+    }
+
     const directRequests = [
       {
         url: 'https://api.weather.gov/points/38.154,-102.72',

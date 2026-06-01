@@ -1,0 +1,51 @@
+.cms-upload-panel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  border: 1px dashed var(--wiley-cream-100, #e8e0d4);
+  background: var(--wiley-inverse, #fff);
+}
+
+.cms-upload-panel__title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.cms-upload-panel__lead {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-upload-panel__banner {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.cms-upload-panel__file {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cms-upload-panel__value code {
+  display: block;
+  word-break: break-all;
+  padding: 0.5rem;
+  background: var(--wiley-cream-50, #faf8f5);
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+.cms-upload-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cms-upload-panel__signin {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+}

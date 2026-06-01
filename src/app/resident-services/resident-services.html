@@ -2,14 +2,14 @@
 
 <section
   id="resident-services"
-  class="resident-services panel grid gap-5"
+  class="resident-services panel wiley-panel grid gap-5 rounded-wiley-xl border border-wiley-cream-100 p-6 shadow-wiley-card md:p-8"
   aria-labelledby="resident-services-heading"
 >
-  <p class="section-kicker">{{ copy().sectionKicker }}</p>
-  <header class="resident-services-header grid gap-3">
-    <h2 id="resident-services-heading">{{ copy().sectionTitle }}</h2>
+  <div class="wiley-page-header resident-services-header grid gap-3">
+    <p class="section-kicker">{{ copy().sectionKicker }}</p>
+    <h1 id="resident-services-heading">{{ copy().sectionTitle }}</h1>
     <p class="resident-services-copy">{{ copy().sectionBody }}</p>
-  </header>
+  </div>
 
   <section class="resident-service-picker grid gap-4" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>

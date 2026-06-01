@@ -21,7 +21,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
@@ -38,22 +38,26 @@ import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import { TimelineModule } from 'primeng/timeline';
 import { TagModule } from 'primeng/tag';
+import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
-import { getChatbotRuntimeConfig } from './chatbot-config';
 import {
   createGoogleCalendarLinkForEvent,
   createGoogleCalendarLinkForSeed,
   createIcsDataUrlForEvent,
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
-import { DOCUMENT_ARCHIVE } from './document-hub/document-archive';
+import { getChatbotRuntimeConfig } from './chatbot-config';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
+import { localizeCmsPublicDocument } from './document-hub/localize-public-document';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
+import {
+  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+} from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import { RECORDS_CENTER_COPY } from './records-center/records-center';
@@ -62,16 +66,27 @@ import {
   CmsCalendarEvent,
   CmsContact,
   LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
-import type { HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
+import {
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
+} from './weather-panel/localized-weather-panel';
 
 interface NavLink {
   label: string;
   href: string;
   icon?: string;
+}
+
+interface PrimaryNavLink {
+  label: string;
+  routerLink: string;
+  fragment?: string;
 }
 
 interface TopTask {
@@ -189,7 +204,12 @@ interface PolicyPageCopy {
   lastUpdatedDate: string;
 }
 
-interface LeadershipGroup {
+export interface LeadershipGroup {
+  /**
+   * Stable key for `LeadershipRosterEntry.groupId` in Amplify Studio; drives which CMS lines
+   * replace this group's `members` on /contact when rows exist.
+   */
+  groupId: string;
   title: string;
   detail: string;
   members: string[];
@@ -239,9 +259,21 @@ interface FeaturePage {
 interface AppCopy {
   skipLinkLabel: string;
   homeLabel: string;
+  primaryNavServicesLabel: string;
+  primaryNavMeetingsLabel: string;
+  primaryNavDocumentsLabel: string;
+  primaryNavPayLabel: string;
+  primaryNavContactLabel: string;
+  homepageWeatherKicker: string;
+  homepageWeatherHeading: string;
+  footerTownInfoHeading: string;
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
   mobileMenuLabel: string;
+  /** Visible "Menu" + drawer purpose for label-in-name (WCAG 2.5.3). */
+  mobileMenuButtonAriaLabel: string;
+  /** Town name + return action for label-in-name on the header logo link. */
+  townLogoAriaLabel: string;
   /** Close control in the mobile navigation drawer header. */
   mobileMenuDrawerCloseLabel: string;
   meetingsQuickLinkLabel: string;
@@ -382,6 +414,7 @@ interface AppCopy {
   menuGovernmentLabel: string;
   menuServicesPermitsLabel: string;
   menuNewsNoticesLabel: string;
+  menuWeatherLabel: string;
   menuBusinessCommunityLabel: string;
   menuContactHallLabel: string;
   menuLeadershipLabel: string;
@@ -532,12 +565,22 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   en: {
     skipLinkLabel: 'Skip to main content',
     homeLabel: 'Home',
+    primaryNavServicesLabel: 'Services',
+    primaryNavMeetingsLabel: 'Meetings',
+    primaryNavDocumentsLabel: 'Documents',
+    primaryNavPayLabel: 'Pay',
+    primaryNavContactLabel: 'Contact',
+    homepageWeatherKicker: 'Local conditions',
+    homepageWeatherHeading: 'Wiley weather',
+    footerTownInfoHeading: 'Town Hall',
     languageLabel: 'Site language',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuButtonAriaLabel: 'Menu, homepage sections',
+    townLogoAriaLabel: 'Town of Wiley, return to homepage',
     mobileMenuDrawerCloseLabel: 'Close menu',
     meetingsQuickLinkLabel: 'Meetings and Calendar',
     siteAlertAriaLabel: 'Town alert banner',
@@ -697,6 +740,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Public records and FOIA', href: '/records' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
+      { label: 'Hello from…', href: '/hello-from' },
     ],
     communityFacts: [
       { label: 'Population', value: '~437', detail: 'Estimated residents, 2020 census' },
@@ -722,6 +766,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuGovernmentLabel: 'Government & Meetings',
     menuServicesPermitsLabel: 'Services & Permits',
     menuNewsNoticesLabel: 'News, Notices & Alerts',
+    menuWeatherLabel: 'Weather',
     menuBusinessCommunityLabel: 'Businesses & Community',
     menuContactHallLabel: 'Contact & Town Hall',
     menuLeadershipLabel: 'Leadership',
@@ -925,6 +970,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     leadershipGroups: [
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Mayor and Council',
         detail: 'Elected officials and meeting contact paths are listed below.',
         members: [
@@ -937,6 +983,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         ],
       },
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Town Administration',
         detail: 'Clerk and superintendent contacts for day-to-day town services.',
         members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
@@ -946,12 +993,22 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
   es: {
     skipLinkLabel: 'Saltar al contenido principal',
     homeLabel: 'Inicio',
+    primaryNavServicesLabel: 'Servicios',
+    primaryNavMeetingsLabel: 'Reuniones',
+    primaryNavDocumentsLabel: 'Documentos',
+    primaryNavPayLabel: 'Pagar',
+    primaryNavContactLabel: 'Contacto',
+    homepageWeatherKicker: 'Condiciones locales',
+    homepageWeatherHeading: 'Clima en Wiley',
+    footerTownInfoHeading: 'Ayuntamiento',
     languageLabel: 'Idioma del sitio',
     languageOptions: {
       en: 'EN',
       es: 'ES',
     },
     mobileMenuLabel: 'Menu',
+    mobileMenuButtonAriaLabel: 'Menu, secciones de la pagina principal',
+    townLogoAriaLabel: 'Pueblo de Wiley, volver a la pagina principal',
     mobileMenuDrawerCloseLabel: 'Cerrar menú',
     meetingsQuickLinkLabel: 'Reuniones y calendario',
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
@@ -1114,6 +1171,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Registros publicos y FOIA', href: '/records' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
+      { label: 'Saludos desde…', href: '/hello-from' },
     ],
     communityFacts: [
       { label: 'Poblacion', value: '~437', detail: 'Residentes estimados, censo de 2020' },
@@ -1137,6 +1195,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuGovernmentLabel: 'Gobierno y Reuniones',
     menuServicesPermitsLabel: 'Servicios y Permisos',
     menuNewsNoticesLabel: 'Noticias, Avisos y Alertas',
+    menuWeatherLabel: 'Clima',
     menuBusinessCommunityLabel: 'Negocios y Comunidad',
     menuContactHallLabel: 'Contacto y Ayuntamiento',
     menuLeadershipLabel: 'Liderazgo',
@@ -1342,6 +1401,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     leadershipGroups: [
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Alcalde y concejo',
         detail: 'Funcionarios electos y rutas de contacto para reuniones.',
         members: [
@@ -1354,6 +1414,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         ],
       },
       {
+        groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Administracion del pueblo',
         detail: 'Contactos de la secretaria y del superintendente para servicios cotidianos.',
         members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
@@ -1374,6 +1435,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
  *
  * Optionally set `columnLabel` so PrimeNG emits a `.p-megamenu-submenu-label` for that column’s group row.
  */
+/** In-page anchor for severe weather alert signup on `/weather`. */
+export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
+
 function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuItem[] {
   const row: MegaMenuItem = {
     items: links as MegaMenuItem[][],
@@ -1390,6 +1454,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
   imports: [
     NgOptimizedImage,
     RouterLink,
+    RouterLinkActive,
     DrawerModule,
     FormsModule,
     ButtonModule,
@@ -1412,6 +1477,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     LocalizedAiChat,
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
+    LocalizedWeatherPanel,
     Ripple,
   ],
   templateUrl: './app.html',
@@ -1480,9 +1546,19 @@ export class App {
   protected readonly taskCardPt = {
     content: { class: 'task-card-content' },
   };
+  /**
+   * PrimeNG MegaMenu sets aria-level on role=menuitem (invalid per ARIA) and aria-label on
+   * <li> nodes that can mismatch visible flyout copy. Strip those; names come from our #item template.
+   */
   protected readonly desktopMegaMenuPt = {
     panel: {
       class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
+    },
+    item: {
+      'aria-level': null,
+      'aria-setsize': null,
+      'aria-posinset': null,
+      'aria-label': null,
     },
     itemIcon: { 'aria-hidden': 'true' },
     submenuIcon: { 'aria-hidden': 'true' },
@@ -1544,6 +1620,10 @@ export class App {
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
+  protected readonly isHelloFromAdminMode = computed(
+    () => this.currentPath() === '/admin/hello-from',
+  );
+  protected readonly isAdminLoginMode = computed(() => this.currentPath() === '/admin/login');
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
   protected readonly isDocumentHubMode = computed(() => this.currentPath() === '/documents');
   protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');
@@ -1552,6 +1632,7 @@ export class App {
   protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
   protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
+  protected readonly isHelloFromMode = computed(() => this.currentPath() === '/hello-from');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
@@ -1562,7 +1643,12 @@ export class App {
   );
   protected readonly isPermitsMode = computed(() => this.currentPath() === '/permits');
   protected readonly isTopLevelLazyRouteMode = computed(
-    () => this.isAdminMode() || this.isClerkSetupMode() || this.isDocumentHubMode(),
+    () =>
+      this.isAdminMode() ||
+      this.isHelloFromAdminMode() ||
+      this.isAdminLoginMode() ||
+      this.isClerkSetupMode() ||
+      this.isDocumentHubMode(),
   );
   protected readonly isFeaturePageMode = computed(
     () =>
@@ -1572,6 +1658,7 @@ export class App {
       this.isServicesMode() ||
       this.isRecordsMode() ||
       this.isContactMode() ||
+      this.isHelloFromMode() ||
       this.isAccessibilityMode() ||
       this.isPrivacyMode() ||
       this.isTermsMode() ||
@@ -1614,6 +1701,14 @@ export class App {
       return `${this.appCopy().notFoundBrowserTitle} | ${siteTitle}`;
     }
 
+    if (this.isHelloFromMode()) {
+      return `Hello from… | ${siteTitle}`;
+    }
+
+    if (this.isHelloFromAdminMode()) {
+      return `Hello-from visitor log | ${siteTitle}`;
+    }
+
     const featureTitle = this.currentFeaturePage()?.title?.trim();
 
     if (!featureTitle || featureTitle === siteTitle) {
@@ -1641,6 +1736,7 @@ export class App {
   protected readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
+  protected readonly weatherAlertSignupFragment = WEATHER_ALERT_SIGNUP_FRAGMENT;
   protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
   protected readonly menuItems = computed<MegaMenuItem[]>(() => {
     const copy = this.appCopy();
@@ -1685,7 +1781,11 @@ export class App {
             [
               { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
               { label: copy.nwsAlertLabel, routerLink: '/weather' },
-              { label: copy.mobileWeatherAlertsLabel, routerLink: '/weather' },
+              {
+                label: copy.mobileWeatherAlertsLabel,
+                routerLink: '/weather',
+                fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
+              },
               { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
             ],
             copy.menuQuickTasksWeatherColumnLabel,
@@ -1745,9 +1845,19 @@ export class App {
           ]),
           megaMenuColumn([
             { label: copy.nwsAlertLabel, routerLink: '/weather' },
-            { label: copy.alertActionLabel, routerLink: '/weather' },
+            {
+              label: copy.alertActionLabel,
+              routerLink: '/weather',
+              fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
+            },
           ]),
         ],
+      },
+      {
+        root: true,
+        label: copy.menuWeatherLabel,
+        icon: 'pi pi-cloud',
+        routerLink: '/weather',
       },
       {
         root: true,
@@ -1846,16 +1956,29 @@ export class App {
     { label: this.appCopy().languageOptions.es, value: 'es' as SiteLanguage },
     { label: this.appCopy().languageOptions.en, value: 'en' as SiteLanguage },
   ]);
+  protected readonly primaryNavLinks = computed<PrimaryNavLink[]>(() => {
+    const copy = this.appCopy();
+    return [
+      { label: copy.homeLabel, routerLink: '/' },
+      { label: copy.primaryNavServicesLabel, routerLink: '/services' },
+      { label: copy.primaryNavMeetingsLabel, routerLink: '/meetings' },
+      { label: copy.primaryNavDocumentsLabel, routerLink: '/records' },
+      { label: copy.primaryNavPayLabel, routerLink: '/pay-bill' },
+      { label: copy.primaryNavContactLabel, routerLink: '/contact' },
+    ];
+  });
   protected readonly primaryContact = computed<CmsContact | null>(() => {
     return (
-      this.contacts().find((contact) => contact.id === 'town-information') ??
+      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION) ??
       this.contacts()[0] ??
       null
     );
   });
   protected readonly clerkContact = computed<CmsContact | null>(() => {
     return (
-      this.contacts().find((contact) => contact.id === 'city-clerk') ?? this.contacts()[1] ?? null
+      this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK) ??
+      this.contacts()[1] ??
+      null
     );
   });
   protected readonly alertBanner = computed<CmsAlertBanner>(() => {
@@ -2254,7 +2377,10 @@ export class App {
   });
   private readonly recordsSearchItems = computed<SearchItem[]>(() => {
     const recordsCopy = this.recordsCenterCopy();
-    const archive = DOCUMENT_ARCHIVE[this.siteLanguage()];
+    const language = this.siteLanguage();
+    const archive = this.cmsStore
+      .publicDocuments()
+      .map((doc) => localizeCmsPublicDocument(doc, language));
 
     return [
       ...recordsCopy.guides.map((guide) => ({
@@ -2529,6 +2655,14 @@ export class App {
       score += 24;
     }
 
+    if (
+      href.startsWith('mailto:') &&
+      title.includes('clerk') &&
+      terms.some((term) => ['clerk', 'deb', 'dillon'].includes(term))
+    ) {
+      score += 48;
+    }
+
     if (href.startsWith('/documents') && !hasDocumentIntent) {
       score -= 12;
     }
@@ -2644,7 +2778,7 @@ export class App {
 
   protected onNwsBannerSignup(): void {
     this.trackAlertSignupClick();
-    const anchorId = 'weather-alert-signup';
+    const anchorId = WEATHER_ALERT_SIGNUP_FRAGMENT;
     void this.router.navigate(['/weather'], { fragment: anchorId }).then(() => {
       this.scheduleFragmentScrollWithRetry(`#${anchorId}`);
     });

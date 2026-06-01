@@ -34,7 +34,7 @@ DEFAULT_PUBLIC_PAGE_MARKERS = {
         "Public Document Hub",
         "Stable public destinations for meetings, finance records, and code references",
     ),
-    "admin": ("Open Amplify Studio Data Manager", "CMS Connection Status"),
+    "admin": ("Open Amplify Console Data manager", "CMS Connection Status"),
 }
 DEFAULT_PUBLIC_PAGE_PATHS = {
     "homepage": "/",

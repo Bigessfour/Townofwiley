@@ -16,6 +16,7 @@ describe('normalizeAppRoutePath', () => {
 
 describe('isPathRegisteredAppRoute', () => {
   it('recognizes known routes after normalization', () => {
+    expect(isPathRegisteredAppRoute('/admin/login')).toBe(true);
     expect(isPathRegisteredAppRoute('/weather')).toBe(true);
     expect(isPathRegisteredAppRoute('/weather/')).toBe(true);
     expect(isPathRegisteredAppRoute('/services?x=y')).toBe(true);

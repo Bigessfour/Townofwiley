@@ -1,0 +1,29 @@
+@if (task(); as active) {
+  <section class="cms-task-guide" aria-labelledby="cms-task-guide-heading" data-testid="cms-task-guide">
+    <h2 id="cms-task-guide-heading" class="cms-task-guide__title">Steps: {{ active.title }}</h2>
+    <ol class="cms-task-guide__steps">
+      @for (step of active.steps; track step) {
+        <li>{{ step }}</li>
+      }
+    </ol>
+
+    @if (active.fieldGlossary.length) {
+      <h3 class="cms-task-guide__subtitle">Field names in the editor</h3>
+      <dl class="cms-task-guide__glossary">
+        @for (field of active.fieldGlossary; track field.technicalName) {
+          <div>
+            <dt>{{ field.plainLabel }} <span class="cms-task-guide__tech">({{ field.technicalName }})</span></dt>
+            <dd>{{ field.help }}</dd>
+          </div>
+        }
+      </dl>
+    }
+
+    <h3 class="cms-task-guide__subtitle">After you save</h3>
+    <ol class="cms-task-guide__steps cms-task-guide__steps--compact">
+      @for (step of verifySteps; track step) {
+        <li>{{ step }}</li>
+      }
+    </ol>
+  </section>
+}

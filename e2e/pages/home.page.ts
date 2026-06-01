@@ -1,11 +1,8 @@
 import { Locator, Page, expect } from '@playwright/test';
 
-import { SiteChromePage } from './site-chrome.page';
-
 export class HomePage {
   readonly page: Page;
   readonly baseURL: string;
-  readonly chrome: SiteChromePage;
   readonly skipLink: Locator;
   readonly mainContent: Locator;
   readonly mobileMenuButton: Locator;
@@ -105,18 +102,19 @@ export class HomePage {
   constructor(page: Page, baseURL: string) {
     this.page = page;
     this.baseURL = baseURL;
-    this.chrome = new SiteChromePage(page);
-    this.skipLink = this.chrome.skipLink;
-    this.mainContent = this.chrome.mainContent;
-    this.mobileMenuButton = this.chrome.mobileMenuButton;
+    this.skipLink = page.getByRole('link', { name: 'Skip to main content' });
+    this.mainContent = page.locator('#main-content');
+    this.mobileMenuButton = page.locator('button.mobile-menu-button');
     this.heroHeading = page.getByRole('heading', { level: 1, name: 'Town of Wiley' });
     this.communityFacts = page.locator('.fact-card');
     this.featureCards = page.locator('.feature-grid .feature-card');
     this.topTaskCards = page.locator('.task-card');
-    this.sectionNavLinks = this.chrome.sectionNavLinks;
-    this.sectionNav = this.chrome.sectionNav;
-    this.searchInput = this.chrome.searchInput;
-    this.searchResults = this.chrome.searchResults;
+    this.sectionNavLinks = page.locator(
+      '[data-testid="homepage-section-nav"] .primary-nav-link, [data-testid="homepage-section-nav"] .mega-menu-root-link',
+    );
+    this.sectionNav = page.getByTestId('homepage-section-nav');
+    this.searchInput = page.locator('#mega-site-search, #landing-site-search').first();
+    this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');
     this.weatherSource = page.locator('.weather-source');
@@ -153,7 +151,7 @@ export class HomePage {
     this.serviceCards = page.locator('.service-card');
     this.accessibilitySection = page.locator('#accessibility');
     this.contactCards = page.locator('.contact-card');
-    this.footerLinks = this.chrome.footerLinks;
+    this.footerLinks = page.locator('.footer-links a');
     this.residentServicesSection = page.locator('.resident-services');
     this.residentServicePicker = page.locator('.resident-service-picker');
     this.residentServiceToggles = page.locator('.resident-picker-wrap');
@@ -222,8 +220,8 @@ export class HomePage {
     );
     this.businessDirectoryCards = page.locator('.public-directory-card');
     this.businessDirectoryEmptyState = page.locator('.public-empty-state');
-    this.floatingChatButton = this.chrome.floatingChatButton;
-    this.assistantDialog = this.chrome.assistantDialog;
+    this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
+    this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
     this.assistantShell = page.locator('.assistant-shell');
     this.assistantStatus = page.locator('.assistant-status');
     this.assistantThreadStatus = page.locator('.assistant-thread-status');
@@ -233,7 +231,7 @@ export class HomePage {
     this.assistantMessages = page.locator('.assistant-message');
     this.assistantLinks = page.locator('.assistant-links a');
     this.weatherUpdatedLabel = page.locator('.weather-updated');
-    this.emptySearchState = this.chrome.emptySearchState;
+    this.emptySearchState = page.locator('.empty-state');
   }
 
   async goto(): Promise<void> {
@@ -427,13 +425,14 @@ export class HomePage {
     await this.page.addInitScript((endpoint) => {
       const runtimeWindow = window as Window & {
         __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-          billPay?: { apiEndpoint?: string };
+          contactUpdate?: { apiEndpoint?: string };
         };
       };
 
       runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
         ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        billPay: {
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
           apiEndpoint: endpoint,
         },
       };
@@ -566,22 +565,39 @@ export class HomePage {
   }
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
-    await this.chrome.switchLanguage(language);
+    const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
+    const button = this.page.locator(selector);
+    await expect(button).toBeVisible();
+    await button.click();
   }
 
   async openAssistantDialog(): Promise<void> {
-    await this.chrome.openChatbot();
+    await this.floatingChatButton.evaluate((button) => {
+      (button as HTMLButtonElement).click();
+    });
+    await expect(this.assistantDialog).toBeVisible();
   }
 
   async searchFor(query: string): Promise<void> {
+    await this.page
+      .locator('#search-panel')
+      .scrollIntoViewIfNeeded()
+      .catch(() => undefined);
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
-    await this.page.waitForSelector('.search-result, .empty-state', { timeout: 5000 });
+    await expect(this.page.locator('.search-results--loading')).toHaveCount(0, { timeout: 10_000 });
+    await expect
+      .poll(async () => this.page.locator('.search-results .search-result, .empty-state').count())
+      .toBeGreaterThan(0);
   }
 
   /** Submit header search (works when `#mega-site-search` is hidden under the mobile breakpoint). */
   async submitHeaderSiteSearch(query: string): Promise<void> {
-    await this.chrome.submitSiteSearch(query);
+    await this.setMegaSiteSearchDraft(query);
+    await expect(this.searchInput).toHaveValue(query);
+    await this.sectionNav.locator('form.header-search-form').evaluate((form) => {
+      (form as HTMLFormElement).requestSubmit();
+    });
   }
 
   /**

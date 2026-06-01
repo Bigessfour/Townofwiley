@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import os from 'node:os';
 import { resolve } from 'node:path';
+import { smokeCriticalGlobs } from './e2e/smoke-critical.manifest.mjs';
 import { resolveE2eEnv } from './e2e/support/resolve-e2e-env';
 import { resolveE2eNode } from './scripts/resolve-e2e-node.mjs';
 
@@ -144,6 +145,15 @@ export default defineConfig({
           env: webServerEnv,
         },
   projects: [
+    {
+      name: 'smoke-critical',
+      testMatch: smokeCriticalGlobs,
+      timeout: 60_000,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 1080 },
+      },
+    },
     {
       name: 'desktop-chromium',
       use: {

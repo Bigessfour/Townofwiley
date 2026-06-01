@@ -16,6 +16,8 @@ export const test = base.extend<TownFixtures>({
         window.localStorage.setItem('tow-site-language', 'en');
       }
       window.localStorage.removeItem('towCowPopupSeen');
+      // Stale snapshots can omit PublicDocument rows and break document-hub smoke tests.
+      window.localStorage.removeItem('tow-cms-snapshot-v1');
     });
 
     await page.addInitScript(() => {
@@ -33,6 +35,10 @@ export const test = base.extend<TownFixtures>({
 
       runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
         ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        e2e: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e ?? {}),
+          staffAuth: true,
+        },
         chatbot: {
           provider: 'easyPeasy',
           mode: 'none',
@@ -56,7 +62,25 @@ export const test = base.extend<TownFixtures>({
             apiEndpoint: '',
           },
         },
+        billPay: {
+          apiEndpoint: '',
+        },
       };
+    });
+
+    await page.route('**/cms-snapshot.json', async (route) => {
+      const response = await route.fetch();
+      const snapshot = (await response.json()) as Record<string, unknown>;
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ...snapshot,
+          eventRecords: [],
+          businessRecords: [],
+        }),
+      });
     });
 
     await mockDirectNwsRoutes(page);

@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getChatbotRuntimeConfig } from './chatbot-config';
 import { getPaystarRuntimeConfig } from './payments/paystar-config';
 
@@ -57,13 +57,15 @@ describe('runtime config helpers', () => {
 
     expect(configureArg.Auth.Cognito.allowGuestAccess).toBe(true);
     expect(configureArg.Auth.Cognito.identityPoolId).toBe(
-      'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
+      'us-east-2:f97d3d15-c898-4993-b547-4a8babf1b047',
     );
     expect(configureArg.API.GraphQL.endpoint).toBe(
-      'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
+      'https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql',
     );
     expect(configureArg.API.GraphQL.apiKey).toBe('');
-    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage');
+    expect(configureArg.Storage.S3.bucket).toBe(
+      'amplify-d331voxr1fhoir-mai-documentsbucket3df3f730-tp554yhsasnp',
+    );
     expect(configureArg.Storage.S3.region).toBe('us-east-2');
   });
 

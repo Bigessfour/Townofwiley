@@ -1,6 +1,7 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { shouldShowGlobalErrorToast } from './global-error-toast-policy';
 import { LoggingService } from './logging.service';
 import { isExpectedNetworkDegradation } from './network-degradation';
 
@@ -20,14 +21,16 @@ export class GlobalErrorHandler implements ErrorHandler {
   private readonly router = inject(Router);
 
   handleError(error: unknown): void {
+    const route = this.router.url;
     const expectedDegradation = isExpectedNetworkDegradation(error);
+    const showToast = shouldShowGlobalErrorToast(error, route);
     const errorId = this.createErrorId();
     const details = this.toErrorDetails(error);
     const currentNavigation = this.router.getCurrentNavigation();
 
     const context = {
       errorId,
-      route: this.router.url,
+      route,
       href: typeof window !== 'undefined' ? window.location.href : undefined,
       navId: currentNavigation?.id,
       navTrigger: currentNavigation?.trigger,
@@ -35,30 +38,41 @@ export class GlobalErrorHandler implements ErrorHandler {
       navFinalUrl: currentNavigation?.finalUrl?.toString(),
       historyNavigationId: this.getHistoryNavigationId(),
       expectedDegradation,
+      showToast,
       ...details,
     };
 
-    this.logging.log(
-      expectedDegradation ? 'warn' : 'error',
-      expectedDegradation ? 'Expected service degradation' : 'Uncaught application error',
-      context,
-    );
+    const logLevel = expectedDegradation || !showToast ? 'warn' : 'error';
+    const logMessage =
+      expectedDegradation || !showToast
+        ? 'Handled application error (no global toast)'
+        : 'Uncaught operational application error';
 
-    if (expectedDegradation) {
+    this.logging.log(logLevel, logMessage, context);
+
+    if (!showToast) {
+      if (!expectedDegradation) {
+        const errorLabel = details.name ? `${details.name}: ` : '';
+        console.warn(
+          `[${GlobalErrorHandler.name}] ${errorId} ${errorLabel}${details.message} (logged only)`,
+          error,
+          context,
+        );
+      }
       return;
     }
 
-    // Keep the raw object in console for local debugging sessions.
-    console.error(GlobalErrorHandler.name, {
-      ...context,
+    const errorLabel = details.name ? `${details.name}: ` : '';
+    console.error(
+      `[${GlobalErrorHandler.name}] ${errorId} ${errorLabel}${details.message}`,
       error,
-    });
+      context,
+    );
 
     this.messageService.add({
       severity: 'error',
       summary: 'Unexpected Error',
-      detail:
-        'An unexpected error occurred. Please try again or contact the Town Hall if the problem persists.',
+      detail: `An unexpected error occurred. Please try again or contact the Town Hall if the problem persists. Reference: ${errorId}.`,
       life: 10000,
       closable: true,
     });

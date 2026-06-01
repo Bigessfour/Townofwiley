@@ -25,6 +25,16 @@ Deployable paths touched:
 - [ ] `npm run test:e2e:smoke`
 - [ ] Not applicable
 
+## Content-Security-Policy (if you changed hosting headers or third-party embeds)
+
+- [ ] CSP edits are only in [`customHttp.yml`](customHttp.yml) (not `amplify.yml` `customHeaders` or inline in components)
+- [ ] `npm run verify:custom-http-yaml`
+- [ ] `npm run test:csp-inline-style-policy` (when `customHttp.yml` or `angular.json` CSP changed)
+- [ ] `npm run sync:angular-serve-csp` when `customHttp.yml` changed (commit updated `angular.json`)
+- [ ] [`docs/third-party-csp-registry.md`](docs/third-party-csp-registry.md) updated if origins changed
+- [ ] After deploy: `npm run verify:live-csp-probe` and `npm run verify:live-csp-vs-repo` (ops)
+- [ ] `npm run amplify:sync-headers` when pushing header changes to production Amplify
+
 ## Maintainer Visibility
 
 - [ ] I updated docs or runbooks that future maintainers need

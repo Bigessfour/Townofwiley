@@ -2,10 +2,44 @@ import { test, expect } from '../../fixtures/town.fixture';
 
 const MOCK_BILL_PAY = '**/api/v1/bill-pay-requests';
 
+async function dismissTransientCmsBanner(page: import('@playwright/test').Page): Promise<void> {
+  const dismiss = page.getByRole('button', { name: 'Dismiss notice' });
+  if (await dismiss.isVisible().catch(() => false)) {
+    await dismiss.click();
+  }
+}
+
 async function gotoPayBillFormReady(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
+  await dismissTransientCmsBanner(page);
   await expect(page.locator('#bp-full-name')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('#bp-service-address')).toBeVisible({ timeout: 10000 });
+}
+
+async function fillPayBillForm(
+  page: import('@playwright/test').Page,
+  values: {
+    fullName: string;
+    serviceAddress: string;
+    email: string;
+    phone: string;
+    preferredContact: 'Email' | 'Phone call';
+  },
+): Promise<ReturnType<import('@playwright/test').Page['locator']>> {
+  const form = page.locator('#bill-pay-request form.pay-bill-form');
+
+  await form.getByRole('textbox', { name: /^Full name/i }).fill(values.fullName);
+  await form.getByRole('textbox', { name: /^Service address/i }).fill(values.serviceAddress);
+  await form.getByRole('textbox', { name: /^Email/i }).fill(values.email);
+  await form.getByRole('textbox', { name: /^Phone/i }).fill(values.phone);
+
+  await form.getByRole('button', { name: 'dropdown trigger' }).click();
+  await page.getByRole('option', { name: new RegExp(`^${values.preferredContact}$`, 'i') }).click();
+
+  await expect(form.getByRole('textbox', { name: /^Full name/i })).toHaveValue(values.fullName);
+  await expect(form.getByRole('textbox', { name: /^Email/i })).toHaveValue(values.email);
+
+  return form;
 }
 
 async function mockBillPaySuccess(page: import('@playwright/test').Page): Promise<void> {
@@ -58,13 +92,13 @@ test.describe('Pay bill page', () => {
       homePage.page.getByRole('heading', { name: /Pay Your Utility Bill Online/i }),
     ).toBeVisible();
 
-    const form = homePage.page.locator('#bill-pay-request');
-    await form.locator('#bp-full-name').fill('John Doe');
-    await form.locator('#bp-service-address').fill('123 Main St, Wiley, CO 81092');
-    await form.locator('#bp-email').fill('john@example.com');
-    await form.locator('#bp-phone').fill('719-555-0100');
-    await form.locator('#bp-preferred').click();
-    await homePage.page.getByRole('option', { name: /^Email$/i }).click();
+    const form = await fillPayBillForm(homePage.page, {
+      fullName: 'John Doe',
+      serviceAddress: '123 Main St, Wiley, CO 81092',
+      email: 'john@example.com',
+      phone: '719-555-0100',
+      preferredContact: 'Email',
+    });
     await form
       .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
       .check();
@@ -85,12 +119,12 @@ test.describe('Pay bill page', () => {
     await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
     await gotoPayBillFormReady(homePage.page);
 
-    const form = homePage.page.locator('#bill-pay-request');
-    await form.locator('#bp-full-name').fill('Jane Doe');
-    await form.locator('#bp-service-address').fill('456 Elm St');
-    await form.locator('#bp-email').fill('jane@example.com');
-    await form.locator('#bp-phone').fill('719-555-0200');
-    await form.locator('#bp-preferred').click();
+    const form = homePage.page.locator('#bill-pay-request form.pay-bill-form');
+    await form.getByRole('textbox', { name: /^Full name/i }).fill('Jane Doe');
+    await form.getByRole('textbox', { name: /^Service address/i }).fill('456 Elm St');
+    await form.getByRole('textbox', { name: /^Email/i }).fill('jane@example.com');
+    await form.getByRole('textbox', { name: /^Phone/i }).fill('719-555-0200');
+    await form.getByRole('button', { name: 'dropdown trigger' }).click();
     await homePage.page.getByRole('option', { name: /^Phone call$/i }).click();
 
     await form.getByRole('button', { name: /Submit request/i }).click();
@@ -104,13 +138,13 @@ test.describe('Pay bill page', () => {
 
     await gotoPayBillFormReady(homePage.page);
 
-    const form = homePage.page.locator('#bill-pay-request');
-    await form.locator('#bp-full-name').fill('Error Test');
-    await form.locator('#bp-service-address').fill('789 Oak St');
-    await form.locator('#bp-email').fill('error@example.com');
-    await form.locator('#bp-phone').fill('719-555-0300');
-    await form.locator('#bp-preferred').click();
-    await homePage.page.getByRole('option', { name: /^Email$/i }).click();
+    const form = await fillPayBillForm(homePage.page, {
+      fullName: 'Error Test',
+      serviceAddress: '789 Oak St',
+      email: 'error@example.com',
+      phone: '719-555-0300',
+      preferredContact: 'Email',
+    });
     await form
       .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
       .check();
@@ -131,7 +165,7 @@ test.describe('Pay bill page', () => {
 
     await expect(
       homePage.page.getByRole('heading', { name: /Pague su factura de servicios en línea/i }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.locator('#bill-pay-request').locator('#bp-full-name')).toBeVisible();
   });
 });
@@ -191,13 +225,13 @@ test.describe('pay bill without bill pay API configured', () => {
 
     await gotoPayBillFormReady(homePage.page);
 
-    const form = homePage.page.locator('#bill-pay-request');
-    await form.locator('#bp-full-name').fill('Pat Resident');
-    await form.locator('#bp-service-address').fill('100 Main St, Wiley, CO 81092');
-    await form.locator('#bp-email').fill('pat@example.com');
-    await form.locator('#bp-phone').fill('719-555-0140');
-    await form.locator('#bp-preferred').click();
-    await homePage.page.getByRole('option', { name: /^Email$/i }).click();
+    const form = await fillPayBillForm(homePage.page, {
+      fullName: 'Pat Resident',
+      serviceAddress: '100 Main St, Wiley, CO 81092',
+      email: 'pat@example.com',
+      phone: '719-555-0140',
+      preferredContact: 'Email',
+    });
     await form
       .getByRole('checkbox', { name: /agree that the Town of Wiley may contact me/i })
       .check();

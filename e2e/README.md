@@ -17,12 +17,8 @@ e2e/
     town.fixture.ts
   pages/
     home.page.ts
-    site-chrome.page.ts
-    public-route.page.ts
-    …
   specs/
     accessibility/
-    inventory/
     responsive/
     smoke/
     typography/
@@ -46,7 +42,10 @@ Run `npx playwright init-agents --loop copilot -c playwright.config.ts --prompts
 
 ### MCP in VS Code / Cursor
 
-**Cursor** reads [`.cursor/mcp.json`](../.cursor/mcp.json) (`mcpServers`). **VS Code / Copilot** reads [`.vscode/mcp.json`](../.vscode/mcp.json) (`servers`). Both register the same Playwright stack: **`playwright-test`** uses the repo’s `@playwright/test` (see `package.json`); **`microsoft/playwright-mcp`** uses `@playwright/mcp@0.0.75` for ad-hoc browsing (not the same version number as `@playwright/test`).
+**Cursor** reads [`.cursor/mcp.json`](../.cursor/mcp.json) (`mcpServers`). **VS Code / Copilot** reads [`.vscode/mcp.json`](../.vscode/mcp.json) (`servers`). Both register the same Playwright stack:
+
+- **`playwright` / `@playwright/test`** — **1.x** (browser test runner; see `package.json` devDependencies).
+- **`@playwright/mcp`** — **0.x** only (exploratory browser MCP). Use `@playwright/mcp@latest` or the repo pin (`^0.0.75`). **Do not** pin `@playwright/mcp@1.59.x` — that version does not exist on npm (`ETARGET`).
 
 Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, **microsoft/playwright-mcp**, **playwright-test**.
 
@@ -56,16 +55,10 @@ Turn on **MCP**, reload the window, and confirm: **angular-cli**, **primeng**, *
 | **`microsoft/playwright-mcp`** | **Ad-hoc browsing** — explore staging, click flows, mock APIs. Uses [`playwright-mcp.config.json`](../playwright-mcp.config.json). Not a test runner. |
 | `angular-cli`, `primeng`       | Framework docs and scaffolding.                                                                                                                       |
 
-**MCP `test_run` examples** (CI parity):
+**MCP `test_run` example** (same scope as CI smoke):
 
-- Smoke: `locations`: `["e2e/specs/smoke"]`, `projects`: `["desktop-chromium"]`
-- Site interaction inventory: `locations`: `["e2e/specs/inventory"]`, `projects`: `["desktop-chromium"]` (or `npm run test:e2e:inventory`)
-
-**MCP troubleshooting:**
-
-- **PrimeNG** — `Tool get_migration_guide expected a Zod schema`: reload the window after pulling; [`.cursor/mcp.json`](../.cursor/mcp.json) pins `@modelcontextprotocol/sdk@1.24.3` with `@primeng/mcp@21.1.8` ([primeng#19504](https://github.com/primefaces/primeng/issues/19504)).
-- **`microsoft/playwright-mcp`** — `@playwright/mcp@1.59.1` does not exist on npm; config uses **`@playwright/mcp@0.0.75`**. Use **`playwright-test`** for `test_run`, not `microsoft/playwright-mcp`.
-- **Port 4300 in use** — If `npm run test:e2e:inventory` is already running, either stop it or rely on **`E2E_REUSE_SERVER=1`** (set in [`.cursor/mcp.json`](../.cursor/mcp.json) for **`playwright-test`**) so MCP reuses the existing `ng serve` webServer.
+- `locations`: `["e2e/specs/smoke"]`
+- `projects`: `["desktop-chromium"]`
 
 **Node.js:** MCP and `test_run` need **Node 24.15+** (see [`.nvmrc`](../.nvmrc)). Agent terminals may use the IDE’s bundled Node — set **`E2E_NODE`** to your NVM/Homebrew Node 24 binary ([`.vscode/settings.json`](../.vscode/settings.json) sets `E2E_NODE` on macOS and `NVM_SYMLINK` on Windows when nvm-windows is active).
 
@@ -100,14 +93,26 @@ Tasks use **`npm`** scripts so they work on Windows and macOS (integrated termin
 - **axe**: [`e2e/specs/accessibility/home.a11y.spec.ts`](specs/accessibility/home.a11y.spec.ts) runs WCAG-oriented tags plus an explicit `page-has-heading-one` rule for document outline hygiene.
 - **Computed styles**: [`e2e/specs/typography/home.typography.spec.ts`](specs/typography/home.typography.spec.ts) asserts fluid hero sizing, heading hierarchy (hero vs “Quick tasks” `h2`), and font stacks (`Fraunces` display vs `Source Sans 3` body) on desktop and mobile projects.
 
+## Test tiers
+
+| Tier                      | Command                                                       | Scope                                                                                                             |
+| ------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **PR smoke** (CI default) | `npm run test:e2e:smoke`                                      | [`smoke-critical`](../e2e/smoke-critical.manifest.mjs) — homepage, CSP, routes, payments, admin, documents, forms |
+| **Full smoke**            | `npm run test:e2e:smoke:full`                                 | All of `e2e/specs/smoke/` (~32 files)                                                                             |
+| **Live hosting**          | `npm run test:e2e:live:production` or `test:e2e:live:staging` | Requires `E2E_BASE_URL` (set by script or env)                                                                    |
+| **Regression**            | `npm run test:e2e:regression`                                 | Full smoke + `accessibility/` + `responsive/` + `typography/`                                                     |
+
+CI: [`frontend-smoke`](../.github/workflows/git-workflow.yml) runs PR smoke against local `ng serve`. Live checks: [`e2e-live-hosting.yml`](../.github/workflows/e2e-live-hosting.yml). Nightly: [`e2e-regression-nightly.yml`](../.github/workflows/e2e-regression-nightly.yml).
+
 ## Commands
 
 ```bash
 npm run test:e2e:install
 npm run test:e2e
-npm run test:e2e:smoke
-npm run test:e2e:inventory
+npm run test:e2e:smoke              # PR critical tier (Playwright project smoke-critical)
+npm run test:e2e:smoke:full           # entire smoke folder
 npm run test:e2e:smoke:all-projects  # desktop + mobile (single worker — avoids dev-server churn)
+npm run test:e2e:regression
 npm run test:e2e:headed
 npm run test:e2e:ui
 npm run test:e2e:trace   # PLAYWRIGHT_TRACE=on + Node --trace-warnings (full traces per test)
@@ -150,11 +155,11 @@ $env:E2E_SKIP_WEBSERVER = "1"
 npm run test:e2e:smoke
 ```
 
-PowerShell example (remote):
+PowerShell example (live hosting — not PR smoke):
 
 ```powershell
 $env:E2E_BASE_URL = 'https://main.d331voxr1fhoir.amplifyapp.com'
-npm run test:e2e:smoke
+npm run test:e2e:live:staging
 ```
 
 ## Expansion Plan

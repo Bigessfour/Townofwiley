@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-05-26T19:22:47.511Z",
-  "buildSha": "7ae828cf6d1c035199664b7502047c8af6c85633",
+  "savedAt": "2026-05-31T22:49:59.870Z",
+  "buildSha": "6f8351264b66f0829e626a4711ce847640832da7",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -170,5 +170,6 @@
       "active": true,
       "displayOrder": 1
     }
-  ]
+  ],
+  "leadershipRosterRecords": []
 }

@@ -152,13 +152,13 @@ _377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws
 
 Custom Lambdas and hosting alignment are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
 
-| Resource | SSOT in repo |
-| -------- | ------------- |
-| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json) |
-| Amplify `main` env var **names** (no secret values) | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) |
-| Hosting build + headers + SPA rules | [`amplify.yml`](amplify.yml), [`customHttp.yml`](customHttp.yml), [`scripts/amplify-spa-rewrite-rules.json`](scripts/amplify-spa-rewrite-rules.json) |
-| Operator runbook + deploy order | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md) |
-| Full product / AP tracker | [`docs/post-development-inventory.md`](docs/post-development-inventory.md) |
+| Resource                                                  | SSOT in repo                                                                                                                                                                                                                            |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json)                                                                                                                                    |
+| Amplify `main` env var **names** (no secret values)       | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json)                                                                                                                                    |
+| Hosting build + headers + SPA rules                       | [`amplify.yml`](amplify.yml), [`customHttp.yml`](customHttp.yml) (CSP SSOT), [`docs/third-party-csp-registry.md`](docs/third-party-csp-registry.md), [`scripts/amplify-spa-rewrite-rules.json`](scripts/amplify-spa-rewrite-rules.json) |
+| Operator runbook + deploy order                           | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)                                                                                                                                                                      |
+| Full product / AP tracker                                 | [`docs/post-development-inventory.md`](docs/post-development-inventory.md)                                                                                                                                                              |
 
 **Sync hosting to Amplify Console:**
 
@@ -256,14 +256,17 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
 | `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
 | `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)             |
-| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | Review proxy URL for `/admin` (not the IAM review URL)      |
+| `CONTACT_UPDATE_REVIEW_API_URL`      | JWT-protected staff review API for `/admin#updates`         |
+| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | **Deprecated** public proxy (use review API URL instead)    |
 | `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
 | `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
 | `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |
 | `CLERK_SETUP_AWS_CONSOLE_URL`        | Optional direct AWS console URL for the `/admin` CMS hub    |
 | `CLERK_SETUP_STUDIO_URL`             | Optional direct Amplify Studio URL for the `/admin` CMS hub |
 
-If a variable is missing, `generate-runtime-config.mjs` silently falls back to an empty string; the feature that depends on it will degrade gracefully rather than break the build.
+**Production builds are strict:** `npm run prebuild` / Amplify / GitHub Actions require every key in [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) (`requiredForProduction`). Missing vars fail the build with a clear error. Local `npm start` still allows empty values for optional dev work.
+
+Verify live CMS after deploy: `npm run verify:runtime-config-cms`. API key rotation: [`docs/appsync-api-key-rotation-runbook.md`](docs/appsync-api-key-rotation-runbook.md).
 
 ## Easy-Peasy Chatbot
 
@@ -299,6 +302,10 @@ Plain-language source of truth for staff:
 - Staff handoff and status page: `/admin`
 - Legacy `/clerk-setup` links redirect to `/admin` and preserve supported tab fragments
 - Non-technical instructions: `CLERK-CMS-GUIDE.md`
+- Model and route matrix (engineering): `docs/CMS-MODEL-ROUTE-MATRIX.md`
+- AWS / Studio operations checklist: `docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`
+- Verify CMS in Studio + live site: `docs/CMS-VERIFY-STUDIO.md`
+- Build-time check that the public GraphQL query matches schema auth: `npm run verify:public-cms-query` (also runs in `prebuild`)
 
 The `/admin` page now includes the Amplify Studio Data Manager link, setup details, document publishing guidance, contact updates, and a live CMS connection test, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
 
@@ -382,15 +389,13 @@ Current implementation status:
   - meeting documents
   - financial documents
   - code references
-- The `/documents` page now includes a first-pass downloadable archive with stable public files under `/documents/archive`.
-- Archive publishing is now driven by a central manifest in `src/app/document-hub/document-archive.ts` plus static public files under `public/documents/archive`.
-- Maintainers now have a repo guide for the publishing workflow in `docs/town-document-publishing-guide.md`.
-- This is still not a CMS-managed document library yet. Official packets, budgets, ordinances, and reports still need to be posted through the new workflow as those files become available.
+- The `/documents` page lists active **PublicDocument** rows from Amplify Studio (optional Spanish fields `titleEs`, `summaryEs`, `statusEs`).
+- Staff workflow: `docs/CLERK-CMS-GUIDE.md` and `docs/town-document-publishing-guide.md`. Legacy HTML guides remain under `public/documents/archive/` as href targets.
+- Ops one-time seed for former static guides: `npm run seed:public-documents` (after schema deploy).
 
 Traceability:
 
 - `src/app/document-hub/document-links.ts`
-- `src/app/document-hub/document-archive.ts`
 - `src/app/document-hub/document-hub.ts`
 - `src/app/records-center/records-center.ts`
 - [`docs/README.md`](docs/README.md) — documentation index and current status
@@ -606,6 +611,7 @@ Required runtime settings:
 - Optional Amplify environment variable: `NWS_ALLOW_BROWSER_FALLBACK`
 - Lambda environment variable: `NWS_USER_AGENT`
 - Optional Lambda environment variable: `NWS_API_KEY`
+- Optional Lambda retry tuning (see `infrastructure/nws-weather-proxy/index.mjs`): `NWS_RETRY_MAX_ATTEMPTS` (default `4`, min 2 max 8), `NWS_RETRY_BASE_MS` (default `1000`, exponential backoff base), `NWS_RETRY_MAX_DELAY_MS` (default `20000`, cap per wait including `Retry-After` for 429)
 
 Current resident-facing weather UI behavior:
 
@@ -641,7 +647,7 @@ AWS account and hosting identifiers that future maintainers will need:
 Expected runtime behavior:
 
 1. If `NWS_PROXY_ENDPOINT` is set, the weather panel uses the AWS proxy.
-2. If the proxy fails and browser fallback is enabled, the site retries against public `api.weather.gov`.
+2. If the proxy fails and browser fallback is enabled, the site retries against public `api.weather.gov` (with exponential backoff and `Retry-After` on 429, same policy as the Lambda proxy).
 3. If the proxy fails and browser fallback is disabled, the site shows an error state and links residents to the full forecast page.
 
 Common failure points and what to verify:

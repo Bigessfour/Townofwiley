@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+"""
+Cursor Agent Hook — Terminal Safety Policy (Town of Wiley)
+
+ACTIVE VERSION: .cursor/hooks/pre_tool_use.py (and session_start.py)
+
+This file is the source of truth for the hook logic.
+The active copies live in .cursor/hooks/ so Cursor can discover them automatically.
+
+See .cursor/rules/core-workflow.mdc for the human-readable Auto-Approval Policy.
+"""
+
 import argparse
 import json
 import re

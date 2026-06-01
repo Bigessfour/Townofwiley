@@ -1,11 +1,9 @@
 <section class="feature-detail-stack">
-  <p-card class="panel" id="alerts">
+  <p-card class="panel wiley-panel" id="alerts">
     <ng-template pTemplate="header">
-      <div class="feature-page-panel-header">
-        <div>
-          <p class="section-kicker">{{ copy().noticesKicker }}</p>
-          <h1>{{ copy().noticesHeading }}</h1>
-        </div>
+      <div class="wiley-page-header feature-page-panel-header">
+        <p class="section-kicker">{{ copy().noticesKicker }}</p>
+        <h1>{{ copy().noticesHeading }}</h1>
       </div>
     </ng-template>
     @if (cmsLoading()) {
@@ -24,6 +22,16 @@
       <section class="notice-grid">
         @for (notice of notices(); track notice.id) {
           <article class="notice-card">
+            @if (notice.imageUrl) {
+              <img
+                class="notice-card__image"
+                [ngSrc]="notice.imageUrl"
+                width="400"
+                height="225"
+                sizes="(max-width: 480px) 100vw, 400px"
+                [alt]="notice.title"
+              />
+            }
             <p class="meta-label">{{ notice.date }}</p>
             <p class="notice-card-title">{{ notice.title }}</p>
             <p class="notice-card-detail">{{ notice.detail }}</p>

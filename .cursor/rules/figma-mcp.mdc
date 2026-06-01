@@ -1,0 +1,44 @@
+---
+description: Figma MCP integration for Town of Wiley (design-to-code workflow)
+alwaysApply: true
+---
+
+# Figma MCP — Town of Wiley
+
+Use the **figma** MCP server from [`.cursor/mcp.json`](../mcp.json) (OAuth; no tokens in git). Paste frame/layer links from Figma; the agent extracts `node-id` from the URL.
+
+**Design file:** [Town of Wiley — Widgets & Screens](https://www.figma.com/design/NzC2Gh4R9xkAB59gWUgPCk) (`NzC2Gh4R9xkAB59gWUgPCk`). See [`docs/figma-widgets-and-screens.md`](../../docs/figma-widgets-and-screens.md) for widget ↔ code mapping and capture status.
+
+## Required flow (do not skip)
+
+1. Run **get_design_context** for the exact node(s) before writing UI code.
+2. If truncated, run **get_metadata**, then re-fetch only required nodes with **get_design_context**.
+3. Run **get_screenshot** for the variant being implemented.
+4. Download assets from the MCP payload when provided; then implement.
+5. Translate MCP output (often React + Tailwind) into this repo’s **Angular 21** conventions — not copy-paste as-is.
+6. Validate look and behavior against the screenshot before marking complete.
+
+## Map designs to this codebase
+
+| Figma concept | Town of Wiley |
+|---------------|----------------|
+| Components | Standalone Angular components under `src/app/<feature>/`; colocated `*.scss` |
+| UI library | **PrimeNG** — prefer existing PrimeNG usage and **primeng** MCP before new primitives |
+| Tokens | CSS variables in `src/styles.scss` and `src/app/app.scss` (`--space-*`, `--radius-*`, `--shadow-*`, theme colors) — do not hardcode hex/spacing |
+| Layout / pages | Match patterns in `src/app/` (e.g. `resident-services`, `weather-panel`, `notices-page`) |
+| Control flow | `@if` / `@for` / `@switch`; OnPush; signals (`input`, `output`, `computed`, `inject`) |
+| Copy | **English + Spanish** — follow existing bilingual patterns in `site-cms-content.ts` and feature specs |
+| Accessibility | WCAG AA; semantic HTML; see `.cursor/rules/angular-standards.mdc` |
+| Tests | Playwright e2e under `e2e/specs/` when behavior changes |
+
+## Implementation rules
+
+- Treat Figma MCP output as **design intent**, not final code style.
+- Reuse existing components and SCSS tokens; avoid duplicate buttons, inputs, or typography.
+- Do **not** add new icon packages if the MCP server returns localhost asset URLs — use those sources directly; no placeholders when assets are provided.
+- Do **not** commit Figma OAuth credentials or personal access tokens.
+- For code → canvas (live UI capture), use **cursor-ide-browser** or Playwright MCP with `ng serve` / deployed URL as documented in Figma’s Code to canvas guides.
+
+## Code Connect
+
+When Figma components are linked via Code Connect (`.figma.ts`), prefer mapped repo components over regenerating from scratch.

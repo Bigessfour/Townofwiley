@@ -86,6 +86,15 @@ More detail lives in **`docs/AMPLIFY_HOSTING_SOT.md` § 1.a (Build logs — capt
 
 ---
 
+## Gen 2 migration (in progress)
+
+See **[amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md)**. Summary:
+
+- Hosting branch **`gen2-main`** uses `amplify.yml` backend phase: `npx ampx pipeline-deploy`.
+- Clerks use **Amplify Console Data manager**, not Gen 1 Studio.
+- Production cutover: `scripts/gen2-production-cutover.sh` (checklist only).
+- Requires Amplify CLI **14.4+** for `npm run amplify:gen2:*`.
+
 ## Quick Reference: Amplify App Details
 
 | Field             | Value                                |
@@ -115,27 +124,40 @@ See `docs/git-workflow.md` for the full CI policy and path-based trigger rules.
 
 ## Runtime config verification (`/runtime-config.js`)
 
-**Source of truth:** Amplify Console → **Environment variables** on branch `main` (and any staging branch).  
-**Build step:** `npm run prebuild` → [`scripts/generate-runtime-config.mjs`](../scripts/generate-runtime-config.mjs) → `public/runtime-config.js` copied into the hosting artifact.  
+**Source of truth:** Amplify Console → **Environment variables** on branch `main` (and any staging branch).
+**Build step:** `npm run prebuild` → [`scripts/generate-runtime-config.mjs`](../scripts/generate-runtime-config.mjs) **`--strict`** → `public/runtime-config.js` copied into the hosting artifact.
 **Live asset:** `https://townofwiley.gov/runtime-config.js` (or `https://main.d331voxr1fhoir.amplifyapp.com/runtime-config.js` for Amplify default host).
+
+### Strict production build
+
+Required variable **names** are defined in [`infrastructure/amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json) (`requiredForProduction`). The generator exits non-zero if any are missing when:
+
+- `node scripts/generate-runtime-config.mjs --strict`
+- `STRICT_RUNTIME_CONFIG=1`
+- `AWS_APP_ID` is set (Amplify Hosting)
+
+[`amplify.yml`](../amplify.yml) runs strict generation before `npm run build`. GitHub Actions passes the same values from **repository secrets** (see table in [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)).
+
+Local `npm start` uses non-strict `generate:runtime-config` so developers without Amplify env vars can still run the app.
 
 ### Expected keys (compare live file to Amplify env)
 
-| Runtime path                       | Amplify env var(s)                                |
-| ---------------------------------- | ------------------------------------------------- |
-| `cms.appSync.apiEndpoint`          | `APPSYNC_CMS_ENDPOINT`                            |
-| `cms.appSync.apiKey`               | `APPSYNC_CMS_API_KEY` (redact in logs)            |
-| `cms.appSync.region`               | `APPSYNC_CMS_REGION`                              |
-| `weather.apiEndpoint`              | `NWS_PROXY_ENDPOINT`                              |
-| `weather.alertSignup.apiEndpoint`  | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`              |
-| `weather.alertSignup.enabled`      | `SEVERE_WEATHER_SIGNUP_ENABLED`                   |
-| `payments.paystar.mode`            | `PAYSTAR_MODE` (or inferred from portal/API URLs) |
-| `payments.paystar.portalUrl`       | `PAYSTAR_PORTAL_URL`                              |
-| `payments.paystar.apiEndpoint`     | `PAYSTAR_API_ENDPOINT`                            |
-| `contactUpdate.apiEndpoint`        | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda)      |
-| `contactUpdate.reviewProxyEndpoint`| `CONTACT_UPDATE_REVIEW_PROXY_URL` (admin proxy)   |
-| `chatbot.*`                        | `EASYPEASY_*`                                     |
-| `build.gitSha` / `build.timestamp` | From git at build time                            |
+| Runtime path                        | Amplify env var(s)                                     |
+| ----------------------------------- | ------------------------------------------------------ |
+| `cms.appSync.apiEndpoint`           | `APPSYNC_CMS_ENDPOINT`                                 |
+| `cms.appSync.apiKey`                | `APPSYNC_CMS_API_KEY` (redact in logs)                 |
+| `cms.appSync.region`                | `APPSYNC_CMS_REGION`                                   |
+| `weather.apiEndpoint`               | `NWS_PROXY_ENDPOINT`                                   |
+| `weather.alertSignup.apiEndpoint`   | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`                   |
+| `weather.alertSignup.enabled`       | `SEVERE_WEATHER_SIGNUP_ENABLED`                        |
+| `payments.paystar.mode`             | `PAYSTAR_MODE` (or inferred from portal/API URLs)      |
+| `payments.paystar.portalUrl`        | `PAYSTAR_PORTAL_URL`                                   |
+| `payments.paystar.apiEndpoint`      | `PAYSTAR_API_ENDPOINT`                                 |
+| `contactUpdate.apiEndpoint`         | `CONTACT_UPDATE_API_ENDPOINT` (write Lambda; billing assistance + contact updates) |
+| `contactUpdate.reviewApiEndpoint`   | `CONTACT_UPDATE_REVIEW_API_URL` (JWT staff review API) |
+| `contactUpdate.reviewProxyEndpoint` | `CONTACT_UPDATE_REVIEW_PROXY_URL` (**deprecated**)     |
+| `chatbot.*`                         | `EASYPEASY_*`                                          |
+| `build.gitSha` / `build.timestamp`  | From git at build time                                 |
 
 ### Verification commands (PowerShell)
 
@@ -155,6 +177,29 @@ npm run generate:runtime-config
 ```
 
 **Pass criteria:** Paystar `portalUrl` is the real Town URL when go-live is intended (no resident-facing placeholder links). CMS endpoint and API key present. Weather proxy URL matches deployed Lambda. `build.gitSha` matches the latest `main` deploy.
+
+**Post-deploy gate (every merge to `main` with hosting or infra changes):**
+
+```bash
+export AWS_PROFILE=townofwiley
+export AWS_REGION=us-east-2
+
+npm run amplify:sync-hosting
+npm run verify:aws-infra
+npm run verify:live-csp-probe
+npm run verify:live-csp-vs-repo
+```
+
+See the full checklist: [pre-launch-ops-workflow.md](./pre-launch-ops-workflow.md).
+
+**Post-deploy CMS probe:**
+
+```bash
+npm run verify:runtime-config-cms
+npm run verify:runtime-config-cms -- --require-events
+```
+
+AppSync API key rotation: [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md).
 
 **Evidence log (paste in PR or ops ticket):** date, verifier, branch, Amplify job id, `build.gitSha`, Paystar `mode` + whether `portalUrl` is set (not the URL itself if sensitive), CMS/weather endpoints non-empty yes/no.
 
@@ -203,10 +248,12 @@ AWS documents that **custom headers should live in `customHttp.yml` or the Ampli
 
 **CI enforces the migration:** `amplify.yml` must not reintroduce `customHeaders`, and [`customHttp.yml`](../customHttp.yml) must contain a CSP that satisfies [Google Tag Platform / GA4 + Google Signals](https://developers.google.com/tag-platform/security/guides/csp) (script-src, connect-src, img-src, frame-src for Google hosts), plus site baselines (`worker-src 'self'` for Angular `ngsw-worker.js`, `font-src` + `data:` for PrimeIcons, `object-src 'none'`). Google Analytics loads from [`public/google-analytics-init.js`](../public/google-analytics-init.js) so the service worker does not prefetch `gtag/js` during install (those SW `fetch()` calls follow `connect-src`; see [angular#35491](https://github.com/angular/angular/issues/35491)).
 
-- `npm run verify:custom-http-yaml` — [`scripts/verify-custom-http-yaml.mjs`](../scripts/verify-custom-http-yaml.mjs) (runs on every push/PR in GitHub Actions).
+- `npm run verify:custom-http-yaml` — [`scripts/verify-custom-http-yaml.mjs`](../scripts/verify-custom-http-yaml.mjs) (Site CI job **Verify CSP SSOT** on every push/PR).
 
 After `npm run amplify:sync-headers`, the sync script **reads back** `aws amplify get-app` and fails if the returned `customHeaders` blob is missing key CSP markers (catches silent API truncation).
 
-**Weekly production probe** (scheduled workflow): [`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) curls `https://www.townofwiley.gov/` and fails if `Content-Security-Policy` is missing baseline tokens (`googletagmanager`, `font-src` + `data:`, etc.). Run manually via **Actions → Hosting headers drift watch → Run workflow**.
+**Weekly production probe** (scheduled workflow): [`hosting-headers-drift-watch.yml`](../.github/workflows/hosting-headers-drift-watch.yml) curls `https://www.townofwiley.gov/` and fails if `Content-Security-Policy` is missing baseline tokens (`googletagmanager`, `font-src` + `data:`, `style-src 'unsafe-inline'`, etc.), compares the full header to `customHttp.yml`, and runs the live Playwright inline-style check. Run manually via **Actions → Hosting headers drift watch → Run workflow**.
+
+**After CSP header changes:** Some clients keep a stale policy until the Angular service worker updates. Operators should unregister the SW or use “Update on reload”, then confirm the **document** response for `/` includes `style-src 'self' 'unsafe-inline'`. See [third-party-csp-registry.md](./third-party-csp-registry.md) § “Service worker and stale CSP”.
 
 **Operational rule:** Do not maintain a conflicting copy of CSP in the Amplify Console **Hosting → Custom headers** editor unless it matches the repo; when `customHttp.yml` is in the repo and deployed, it **overrides** console custom headers for that deployment path—see AWS [custom headers](https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html) overview. Prefer editing **`customHttp.yml`** only, then sync + redeploy.
