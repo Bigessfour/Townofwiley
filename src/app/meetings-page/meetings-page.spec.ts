@@ -9,9 +9,14 @@ import { MeetingsPage } from './meetings-page';
 interface MeetingsPageStore {
   events: ReturnType<typeof signal<CmsCalendarEvent[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
+  agendaHubHrefByEventId: ReturnType<typeof signal<Record<string, string>>>;
 }
 
 function configure(store: MeetingsPageStore, language: 'en' | 'es' = 'en') {
+  const storeWithDefaults: MeetingsPageStore = {
+    agendaHubHrefByEventId: signal<Record<string, string>>({}),
+    ...store,
+  };
   TestBed.configureTestingModule({
     imports: [MeetingsPage],
     providers: [
@@ -19,7 +24,7 @@ function configure(store: MeetingsPageStore, language: 'en' | 'es' = 'en') {
       provideRouter([]),
       {
         provide: LocalizedCmsContentStore,
-        useValue: store as unknown as LocalizedCmsContentStore,
+        useValue: storeWithDefaults as unknown as LocalizedCmsContentStore,
       },
     ],
   });
