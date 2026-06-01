@@ -32,7 +32,7 @@ export class SiteChromePage {
     this.searchResults = page.locator('.search-result');
     this.emptySearchState = page.locator('.empty-state');
     this.footerLinks = page.locator('.footer-links a');
-    this.townLogo = page.locator('.site-header a.town-logo').first();
+    this.townLogo = page.locator('.site-header a.town-logo').filter({ visible: true }).first();
     this.languageGroup = page.getByRole('group', { name: 'Site language' });
     this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
     this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
@@ -50,7 +50,12 @@ export class SiteChromePage {
   }
 
   async clickLogoExpectHome(): Promise<void> {
-    await this.townLogo.click();
+    const megamenuLogo = this.sectionNav.getByRole('link', { name: /Return to homepage/i });
+    if (await megamenuLogo.isVisible().catch(() => false)) {
+      await megamenuLogo.click();
+    } else {
+      await this.townLogo.click();
+    }
     await expect(this.page).toHaveURL(/\/(\?.*)?$/);
   }
 
@@ -88,7 +93,10 @@ export class SiteChromePage {
   }
 
   async clickMegaMenuRoot(label: string): Promise<void> {
-    await this.sectionNavLinks.filter({ hasText: label }).first().click({ position: { x: 5, y: 5 } });
+    await this.sectionNavLinks
+      .filter({ hasText: label })
+      .first()
+      .click({ position: { x: 5, y: 5 } });
   }
 
   async clickFooterLink(href: string): Promise<void> {

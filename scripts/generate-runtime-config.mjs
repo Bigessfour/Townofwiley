@@ -9,6 +9,7 @@ import {
     loadAmplifyBranchEnvManifest,
     readLocalSecrets,
     repoRoot,
+    shouldAllowManifestFallbacks,
     shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
@@ -26,7 +27,8 @@ if (strict) {
 }
 
 const localSecrets = readLocalSecrets();
-const values = buildRuntimeConfigValues(localSecrets, process.env, { allowManifestFallbacks: !strict });
+const allowManifestFallbacks = shouldAllowManifestFallbacks(process.env, { strict });
+const values = buildRuntimeConfigValues(localSecrets, process.env, { allowManifestFallbacks });
 
 const buildTimestamp = new Date().toISOString();
 let gitSha = 'unknown';

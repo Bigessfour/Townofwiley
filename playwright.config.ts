@@ -108,6 +108,11 @@ function resolveTraceMode(): 'on' | 'off' | 'on-first-retry' | 'retain-on-failur
   return 'retain-on-failure';
 }
 
+/** CI: write JSON to disk so GitHub Actions logs are not truncated by stdout reporter output. */
+const playwrightReporters: Parameters<typeof defineConfig>[0]['reporter'] = process.env.CI
+  ? [['html'], ['list'], ['json', { outputFile: 'playwright-report/results.json' }]]
+  : [['html'], ['list'], ['json']];
+
 export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   testDir: './e2e/specs',
@@ -115,7 +120,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: [['html'], ['list'], ['json']],
+  reporter: playwrightReporters,
   expect: {
     timeout: 10_000,
   },

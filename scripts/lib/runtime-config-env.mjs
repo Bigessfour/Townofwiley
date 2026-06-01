@@ -108,6 +108,24 @@ export function shouldUseStrictMode(argv, env) {
 }
 
 /**
+ * Whether generate-runtime-config may read deployed Lambda URLs from infrastructure SSOT.
+ * Off for strict Amplify builds and when E2E_RUNTIME_MANIFEST_FALLBACKS=0 (CI E2E).
+ *
+ * @param {import('node:process').env} env
+ * @param {{ strict?: boolean }} [options]
+ */
+export function shouldAllowManifestFallbacks(env, { strict = false } = {}) {
+  if (strict) {
+    return false;
+  }
+  const flag = env.E2E_RUNTIME_MANIFEST_FALLBACKS?.trim().toLowerCase();
+  if (flag === '0' || flag === 'false' || flag === 'no') {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Resolve runtime config field values from process.env with optional local secrets fallback.
  * When strict production build runs, callers validate env before using local fallbacks for required keys.
  *
