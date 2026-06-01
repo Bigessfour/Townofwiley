@@ -91,7 +91,7 @@
     }
     @if (contactUpdatesLoading()) {
       <p>{{ it.contactUpdatesLoading }}</p>
-    } @else if (contactUpdates().length === 0) {
+    } @else if (!contactUpdatesLoadError() && contactUpdates().length === 0) {
       <p>{{ it.noContactUpdates }}</p>
     } @else {
       <div class="cms-actions">

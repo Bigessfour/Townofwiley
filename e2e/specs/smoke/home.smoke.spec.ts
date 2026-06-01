@@ -168,10 +168,10 @@ const sectionNavigationGateways: NavigationGateway[] = [
     assertDestination: expectBusinessesPage,
   },
   {
-    name: 'Contact primary nav link',
+    name: 'Contact mega menu root',
     click: (page) =>
-      page.sectionNav
-        .getByRole('link', { name: 'Contact', exact: true })
+      page.sectionNavLinks
+        .filter({ hasText: 'Contact & Town Hall' })
         .first()
         .click({ position: { x: 5, y: 5 } }),
     expectedUrl: /\/contact$/,
