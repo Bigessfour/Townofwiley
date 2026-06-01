@@ -1,9 +1,11 @@
 /**
  * This handler sets Access-Control-Allow-Origin per request. If the Lambda Function URL
- * also has CORS enabled in AWS (especially AllowOrigins: *), API Gateway can merge in a
- * second ACAO value and browsers will block with “multiple values”. Fix: in Lambda →
- * Configuration → Function URL → Edit CORS, clear allow origins / disable URL-level CORS
- * so only this function’s headers apply (or use URL CORS only and remove headers here).
+ * also has CORS enabled in AWS (especially AllowOrigins: *), the URL layer can merge in a
+ * second ACAO value and browsers will block with “multiple values”.
+ *
+ * Fix: deploy with `python scripts/deploy-nws-weather-proxy.py` (empty URL-level CORS) or
+ * manually clear Function URL CORS allow-origins so only this handler’s headers apply.
+ * Ref: https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors
  */
 const ALLOWED_ORIGINS = new Set([
   'https://townofwiley.gov',
@@ -48,18 +50,41 @@ function normalizeWhitespace(value) {
   return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
 }
 
-async function fetchNwsJson(url, userAgent, apiKey) {
-  const response = await fetch(url, {
-    headers: {
-      accept: 'application/geo+json',
-      'user-agent': userAgent,
-      ...(apiKey ? { 'api-key': apiKey } : {}),
-    },
-  });
+const NWS_RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
+const NWS_MAX_FETCH_ATTEMPTS = 3;
 
-  const responseText = await response.text();
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchNwsJson(url, userAgent, apiKey, attempt = 1) {
+  let response;
+  let responseText;
+
+  try {
+    response = await fetch(url, {
+      headers: {
+        accept: 'application/geo+json',
+        'user-agent': userAgent,
+        ...(apiKey ? { 'api-key': apiKey } : {}),
+      },
+    });
+    responseText = await response.text();
+  } catch (error) {
+    if (attempt < NWS_MAX_FETCH_ATTEMPTS) {
+      await sleep(250 * 2 ** (attempt - 1));
+      return fetchNwsJson(url, userAgent, apiKey, attempt + 1);
+    }
+
+    throw error;
+  }
 
   if (!response.ok) {
+    if (NWS_RETRYABLE_STATUSES.has(response.status) && attempt < NWS_MAX_FETCH_ATTEMPTS) {
+      await sleep(250 * 2 ** (attempt - 1));
+      return fetchNwsJson(url, userAgent, apiKey, attempt + 1);
+    }
+
     throw new Error(
       normalizeWhitespace(responseText).slice(0, 400) ||
         `NWS request failed with ${response.status}`,
@@ -220,7 +245,10 @@ export async function handler(event) {
         source: 'aws-proxy',
         locationLabel:
           location?.city && location?.state ? `${location.city}, ${location.state}` : 'Wiley, CO',
-        updatedAt: forecastResponse?.properties?.updatedAt ?? '',
+        updatedAt:
+          forecastResponse?.properties?.updatedAt ??
+          pointResponse?.properties?.updated ??
+          new Date().toISOString(),
         periods: Array.isArray(forecastResponse?.properties?.periods)
           ? forecastResponse.properties.periods
           : [],

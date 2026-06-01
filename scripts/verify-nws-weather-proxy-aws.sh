@@ -19,12 +19,13 @@
 # Optional: NWS_PROXY_AWS_REGION (default: us-east-2 or AWS_DEFAULT_REGION)
 # Optional: TOWN_OF_WILEY_AWS_ACCOUNT_ID (default: 570912405222) — script warns if caller account differs.
 # Optional: NWS_VERIFY_SKIP_CURL=1 — skip live HTTP checks to the function URL
+# Default function name matches infrastructure/aws-infrastructure.manifest.json.
 
 set -euo pipefail
 
 REGION="${NWS_PROXY_AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-2}}"
 EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-570912405222}"
-FN="${NWS_WEATHER_LAMBDA_FUNCTION_NAME-}"
+FN="${NWS_WEATHER_LAMBDA_FUNCTION_NAME:-TownOfWileyNWSWeatherProxy}"
 
 echo "== NWS weather proxy AWS verification (region: ${REGION}) =="
 
@@ -39,8 +40,7 @@ if [[ ${CALLER_ACCOUNT} != "${EXPECTED_ACCOUNT}" ]]; then
 fi
 
 if [[ -z ${FN} ]]; then
-  echo "Error: Set NWS_WEATHER_LAMBDA_FUNCTION_NAME to the Lambda that runs infrastructure/nws-weather-proxy/index.mjs." >&2
-  echo "  Example: export NWS_WEATHER_LAMBDA_FUNCTION_NAME='TownOfWileyNwsWeather'" >&2
+  echo "Error: NWS_WEATHER_LAMBDA_FUNCTION_NAME is empty." >&2
   exit 2
 fi
 
@@ -77,12 +77,13 @@ if command -v jq >/dev/null 2>&1 && [[ -n ${FURL_JSON} ]]; then
   echo "Function URL detail (first config):"
   echo "${FURL_JSON}" | jq '.FunctionUrlConfigs[0] | {FunctionUrl, AuthType, Cors}' 2>/dev/null || true
   ORIGINS="$(echo "${FURL_JSON}" | jq -r '.FunctionUrlConfigs[0].Cors.AllowOrigins[]? // empty' 2>/dev/null || true)"
-  if echo "${ORIGINS}" | grep -q '\*'; then
+  if [[ -n ${ORIGINS} ]]; then
     echo ""
-    echo "WARNING: Function URL CORS AllowOrigins includes '*'. Combined with the handler's own" >&2
-    echo "  Access-Control-Allow-Origin, browsers can see multiple ACAO values and block the site." >&2
-    echo "  Fix per AWS Lambda function URL CORS docs: clear URL-level CORS allow-origins or rely on the handler only." >&2
+    echo "Error: Function URL CORS AllowOrigins must be empty (handler-only CORS)." >&2
+    echo "  Live AllowOrigins: ${ORIGINS}" >&2
+    echo "  Fix: python scripts/deploy-nws-weather-proxy.py (or update-function-url-config with empty arrays)." >&2
     echo "  Ref: https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors" >&2
+    exit 4
   fi
   FUN_URL="$(echo "${FURL_JSON}" | jq -r '.FunctionUrlConfigs[0].FunctionUrl // empty' 2>/dev/null)"
   if [[ -n ${FUN_URL} && ${NWS_VERIFY_SKIP_CURL-} != "1" ]] && command -v curl >/dev/null 2>&1; then
@@ -99,7 +100,8 @@ if command -v jq >/dev/null 2>&1 && [[ -n ${FURL_JSON} ]]; then
     fi
     echo "  access-control-allow-origin header lines: ${ACAO_COUNT}"
     if [[ ${ACAO_COUNT} =~ ^[0-9]+$ ]] && [[ ${ACAO_COUNT} -gt 1 ]]; then
-      echo "  WARNING: Multiple Access-Control-Allow-Origin lines — browsers may reject (see live-audit artifacts)." >&2
+      echo "  Error: Multiple Access-Control-Allow-Origin lines — browsers reject responses." >&2
+      exit 5
     fi
     rm -f "${HDR_FILE}"
   elif [[ -n ${FUN_URL} && ${NWS_VERIFY_SKIP_CURL-} != "1" ]]; then

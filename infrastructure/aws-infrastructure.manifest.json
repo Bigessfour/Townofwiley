@@ -52,7 +52,9 @@
       "runtime": "nodejs",
       "codePath": "infrastructure/nws-weather-proxy",
       "functionUrl": { "authType": "NONE", "required": true },
-      "required": true
+      "deployScript": "scripts/deploy-nws-weather-proxy.py",
+      "required": true,
+      "notes": "Handler-only CORS on Function URL (empty AllowOrigins); deploy script enforces"
     },
     {
       "functionName": "TownOfWileySevereWeatherBackend",
@@ -144,42 +146,48 @@
     },
     {
       "step": 3,
+      "name": "NWS weather proxy",
+      "action": "python scripts/deploy-nws-weather-proxy.py",
+      "paths": ["infrastructure/nws-weather-proxy/"]
+    },
+    {
+      "step": 4,
       "name": "Severe weather backend",
       "action": "python scripts/deploy-severe-weather-backend.py",
       "paths": ["infrastructure/severe-weather-signup/"]
     },
     {
-      "step": 4,
+      "step": 5,
       "name": "Email alias router",
       "action": "python scripts/deploy-email-alias-router.py",
       "paths": ["infrastructure/email-alias-router/"]
     },
     {
-      "step": 5,
+      "step": 6,
       "name": "Contact update write + DynamoDB",
       "action": "python scripts/deploy-contact-update-backend.py",
       "paths": ["infrastructure/contact-update-lambda/"]
     },
     {
-      "step": 6,
+      "step": 7,
       "name": "Contact update review (IAM URL)",
       "action": "python scripts/deploy-contact-updates-review.py",
       "paths": ["infrastructure/contact-updates-review/"]
     },
     {
-      "step": 7,
+      "step": 8,
       "name": "Contact update review proxy (public URL for admin UI)",
       "action": "python scripts/deploy-contact-updates-review-proxy.py",
       "paths": ["infrastructure/contact-updates-review-proxy/"]
     },
     {
-      "step": 8,
+      "step": 9,
       "name": "Amplify env + redeploy main",
       "action": "Set branch env vars per infrastructure/amplify-branch-env.manifest.json; redeploy main; AP-01b verify runtime-config.js",
       "paths": ["scripts/generate-runtime-config.mjs"]
     },
     {
-      "step": 9,
+      "step": 10,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": ["infrastructure/aws-infrastructure.manifest.json"]

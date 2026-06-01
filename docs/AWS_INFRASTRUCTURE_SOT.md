@@ -35,13 +35,14 @@ Execute in order after code changes; skip steps that do not apply to your PR.
 
 1. **Amplify backend** — `amplify push` or Studio (GraphQL, Auth, Storage).
 2. **Hosting SSOT** — `npm run amplify:sync-hosting` (buildSpec + `customHttp.yml` + SPA rules).
-3. **Severe weather** — `python scripts/deploy-severe-weather-backend.py`
-4. **Email alias** — `python scripts/deploy-email-alias-router.py`
-5. **Contact write** — `python scripts/deploy-contact-update-backend.py` (DynamoDB + write Lambda, public Function URL `NONE`)
-6. **Contact review** — `python scripts/deploy-contact-updates-review.py` (Function URL **`AWS_IAM`** only)
-7. **Contact review proxy** — `python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>` → set **`CONTACT_UPDATE_REVIEW_PROXY_URL`** on Amplify `main` (maps to `contactUpdate.reviewProxyEndpoint` in `runtime-config.js`)
-8. **Amplify env** — Set `CONTACT_UPDATE_API_ENDPOINT`, proxy URL, and other keys per [amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json); redeploy **`main`**.
-9. **Verify** — `npm run verify:aws-infra` and [AP-01b](./amplify-deployment-runbook.md) (`/runtime-config.js` on production).
+3. **NWS weather proxy** — `python scripts/deploy-nws-weather-proxy.py` (handler-only Function URL CORS; sets `NWS_PROXY_ENDPOINT` on Amplify `main`)
+4. **Severe weather** — `python scripts/deploy-severe-weather-backend.py`
+5. **Email alias** — `python scripts/deploy-email-alias-router.py`
+6. **Contact write** — `python scripts/deploy-contact-update-backend.py` (DynamoDB + write Lambda, public Function URL `NONE`)
+7. **Contact review** — `python scripts/deploy-contact-updates-review.py` (Function URL **`AWS_IAM`** only)
+8. **Contact review proxy** — `python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>` → set **`CONTACT_UPDATE_REVIEW_PROXY_URL`** on Amplify `main` (maps to `contactUpdate.reviewProxyEndpoint` in `runtime-config.js`)
+9. **Amplify env** — Set `CONTACT_UPDATE_API_ENDPOINT`, proxy URL, and other keys per [amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json); redeploy **`main`**.
+10. **Verify** — `npm run verify:aws-infra` and [AP-01b](./amplify-deployment-runbook.md) (`/runtime-config.js` on production).
 
 ---
 
