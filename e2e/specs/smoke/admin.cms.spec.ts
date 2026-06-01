@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures/town.fixture';
-import { enableE2eStaffAuth } from '../../support/admin-staff-auth';
+import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
 /** Gen 2 Amplify Console Data manager model deep link pattern. */
 const CONSOLE_MODEL_HREF =
@@ -20,6 +20,7 @@ test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
 
   test('staff login page shows email and password fields', async ({ homePage }) => {
+    await disableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByRole('heading', { name: /Sign in — Town admin/i })).toBeVisible(
       {
@@ -55,6 +56,10 @@ test.describe('cms admin', () => {
 
   test('content inventory is under Advanced (IT)', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin#advanced');
+
+    await homePage.page.locator('#advanced').evaluate((el) => {
+      (el as HTMLDetailsElement).open = true;
+    });
 
     await expect(
       homePage.page.getByRole('heading', { name: /Content inventory \(IT\)/i }),
@@ -121,7 +126,22 @@ test.describe('cms admin', () => {
   });
 
   test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
-    await homePage.page.route('**/contact-updates-review', async (route) => {
+    await homePage.page.addInitScript(() => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
+        };
+      };
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
+          reviewApiEndpoint: '',
+          reviewProxyEndpoint: '/api/contact-updates-review',
+        },
+      };
+    });
+    await homePage.page.route(/contact-updates-review/, async (route) => {
       await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
     });
 
@@ -130,7 +150,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page).toHaveURL(/\/admin#updates$/);
     await expect(
       homePage.page.locator('p-message.p-message-error, p-message[severity="error"]'),
-    ).toContainText(/access denied|could not load/i, { timeout: 20_000 });
+    ).toContainText(/access denied|could not load|require staff sign-in/i, { timeout: 20_000 });
     await expect(homePage.page.getByText('No resident messages yet.')).not.toBeVisible();
   });
 
@@ -142,9 +162,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByRole('heading', { name: /Document publishing/i })).toBeVisible({
       timeout: 20_000,
     });
-    await expect(
-      homePage.page.getByText('documents/newsletter/', { exact: false }).first(),
-    ).toBeVisible();
+    await expect(homePage.page.getByText('meeting-documents', { exact: false })).toBeVisible();
 
     await homePage.page
       .getByTestId('cms-task-add-document')

@@ -2197,10 +2197,13 @@ export class App {
   );
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();
+    const agendaHubHrefByEventId = this.cmsStore.agendaHubHrefByEventId();
     const extraNotices = this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW;
 
     if (liveEvents.length) {
-      return liveEvents.map((event) => this.createMeetingItemFromEvent(event));
+      return liveEvents.map((event) =>
+        this.createMeetingItemFromEvent(event, agendaHubHrefByEventId),
+      );
     }
 
     return this.appCopy().meetings.map((m) => {
@@ -2226,9 +2229,12 @@ export class App {
   });
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
+    const agendaHubHrefByEventId = this.cmsStore.agendaHubHrefByEventId();
 
     return liveEvents.length
-      ? liveEvents.map((event, index) => this.createCalendarItemFromEvent(event, index === 0))
+      ? liveEvents.map((event, index) =>
+          this.createCalendarItemFromEvent(event, index === 0, agendaHubHrefByEventId),
+        )
       : this.appCopy().calendarSeeds.map((seed, index) =>
           this.createCalendarItem(seed, index === 0),
         );
@@ -2950,7 +2956,10 @@ export class App {
     };
   }
 
-  private createMeetingItemFromEvent(event: CmsCalendarEvent): MeetingItem {
+  private createMeetingItemFromEvent(
+    event: CmsCalendarEvent,
+    agendaHubHrefByEventId: Record<string, string> = {},
+  ): MeetingItem {
     const start = new Date(event.start);
     const end = this.resolveCalendarEventEnd(event);
 
@@ -2959,11 +2968,15 @@ export class App {
       schedule: this.formatCalendarEventDate(start, end),
       format: event.description || this.appCopy().calendarEventFallbackDetail,
       location: event.location || this.appCopy().calendarEventFallbackLocation,
-      agendaPdfHref: DOCUMENT_HUB_LINKS.meetings,
+      agendaPdfHref: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
     };
   }
 
-  private createCalendarItemFromEvent(event: CmsCalendarEvent, isFeatured: boolean): CalendarItem {
+  private createCalendarItemFromEvent(
+    event: CmsCalendarEvent,
+    isFeatured: boolean,
+    agendaHubHrefByEventId: Record<string, string> = {},
+  ): CalendarItem {
     const copy = this.appCopy();
     const start = new Date(event.start);
     const end = this.resolveCalendarEventEnd(event);
@@ -2995,7 +3008,7 @@ export class App {
         },
         {
           label: copy.calendarAgendaActionLabel,
-          href: DOCUMENT_HUB_LINKS.meetings,
+          href: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
         },
       ],
     };

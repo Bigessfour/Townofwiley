@@ -96,6 +96,18 @@ describe('meetings page helpers', () => {
     expect(calendarItems[0].endDate).toBeInstanceOf(Date);
   });
 
+  it('uses a linked agenda document when one is published for the event', () => {
+    const meetingItems = buildMeetingItems(LIVE_EVENTS, [], MEETINGS_COPY, 'en-US', {
+      'event-1': '/documents#cms-doc-doc-1',
+    });
+    const calendarItems = buildCalendarItems(LIVE_EVENTS, [], CALENDAR_COPY, 'en-US', {
+      'event-1': '/documents#cms-doc-doc-1',
+    });
+
+    expect(meetingItems[0].agendaPdfHref).toBe('/documents#cms-doc-doc-1');
+    expect(calendarItems[0].actions[2].href).toBe('/documents#cms-doc-doc-1');
+  });
+
   it('falls back to seed data when live events are unavailable', () => {
     const meetingItems = buildMeetingItems([], FALLBACK_MEETINGS, MEETINGS_COPY, 'en-US');
     const calendarItems = buildCalendarItems([], FALLBACK_SEEDS, CALENDAR_COPY, 'en-US');

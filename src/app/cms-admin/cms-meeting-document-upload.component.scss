@@ -1,0 +1,70 @@
+.cms-meeting-upload {
+  margin-block: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #0f172a) 18%, transparent);
+  border-radius: var(--border-radius, 0.75rem);
+  background: color-mix(in srgb, var(--surface-card, #fff) 92%, var(--primary-color, #0f172a));
+}
+
+.cms-meeting-upload__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.cms-meeting-upload__lead,
+.cms-meeting-upload__note,
+.cms-meeting-upload__filename,
+.cms-meeting-upload__signin {
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.cms-meeting-upload__field {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cms-meeting-upload__label {
+  font-weight: 600;
+}
+
+.cms-meeting-upload__select {
+  width: 100%;
+  max-width: 36rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--surface-border, #cbd5e1);
+  border-radius: var(--border-radius, 0.5rem);
+  background: var(--surface-card, #fff);
+}
+
+.cms-meeting-upload__file {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius, 0.5rem);
+  background: var(--primary-color, #0f172a);
+  color: #fff;
+  cursor: pointer;
+}
+
+.cms-meeting-upload__file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.cms-meeting-upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.cms-meeting-upload :global(.cms-meeting-upload__banner) {
+  margin-bottom: 1rem;
+}

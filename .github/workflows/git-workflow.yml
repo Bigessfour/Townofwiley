@@ -277,6 +277,7 @@ jobs:
         run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)
 
   frontend-smoke:
+    name: Test Browsers + Full E2E Regression
     needs: detect-changes
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     runs-on: ubuntu-latest
@@ -319,6 +320,7 @@ jobs:
 
       - name: Run PR smoke tier (critical paths, local ng serve)
         # Omit E2E_BASE_URL so Playwright starts local ng serve. Invalid org/repo variables fail fast in playwright.config (resolveE2eEnv).
+        # Full inventory suite: npm run test:e2e:inventory (nightly workflow) or npm run test:regression:e2e locally.
         run: npm run test:e2e:smoke
         env:
           CI: true

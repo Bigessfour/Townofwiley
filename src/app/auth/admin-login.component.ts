@@ -15,7 +15,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { ADMIN_LOGIN_COPY } from './admin-login-copy';
-import { readStaffAuthErrorMessage } from './staff-auth-error';
+import { readStaffAuthErrorMessage, readStaffPasswordResetErrorMessage } from './staff-auth-error';
 import { StaffAuthService } from './staff-auth.service';
 
 type LoginStep = 'signIn' | 'newPassword' | 'forgotPassword' | 'confirmReset';
@@ -165,7 +165,7 @@ export class AdminLoginComponent {
       this.successMessage.set(this.copy.resetCodeSent);
       this.step.set('confirmReset');
     } catch (error) {
-      this.loadError.set(readStaffAuthErrorMessage(error, this.copy.resetError));
+      this.loadError.set(readStaffPasswordResetErrorMessage(error, this.copy.resetError));
     } finally {
       this.submitting.set(false);
       this.cdr.markForCheck();
@@ -194,7 +194,7 @@ export class AdminLoginComponent {
       this.successMessage.set(this.copy.resetComplete);
       this.step.set('signIn');
     } catch (error) {
-      this.loadError.set(readStaffAuthErrorMessage(error, this.copy.resetError));
+      this.loadError.set(readStaffPasswordResetErrorMessage(error, this.copy.resetError));
     } finally {
       this.submitting.set(false);
       this.cdr.markForCheck();

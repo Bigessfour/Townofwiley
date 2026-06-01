@@ -5,7 +5,7 @@
       <h1 class="cms-title">Update the Town website</h1>
       <p class="cms-copy">
         Pick what you want to change, click <strong>Edit content</strong>, save, then
-        <strong>See on website</strong> and hard-refresh.         Need help? Call Town Hall at (719) 829-4974.
+        <strong>See on website</strong> and hard-refresh. Need help? Call Town Hall at (719) 829-4974.
       </p>
     </div>
     <nav class="cms-jump-nav" aria-label="Page sections">
@@ -52,14 +52,17 @@
   <section id="documents" class="cms-section cms-help" aria-labelledby="cms-documents-heading">
     <h2 id="cms-documents-heading">Document publishing</h2>
     <p>
-      Use the <strong>Add a form or PDF</strong> task above, or open PublicDocument in the editor. Use
-      the exact section name from this table.
+      Use the <strong>Add a form or PDF</strong> task above, upload a meeting agenda below, or open
+      PublicDocument in the editor. Use the exact section name from this table.
     </p>
     <ol class="cms-help-list">
       @for (step of documentPublishingSteps; track step) {
         <li>{{ step }}</li>
       }
     </ol>
+
+    <app-cms-meeting-document-upload />
+
     <p-card class="setup-primeng-card" [pt]="setupCardPt">
       <ng-template #title>Website section names</ng-template>
       <ul class="grid gap-3">
@@ -88,7 +91,7 @@
     }
     @if (contactUpdatesLoading()) {
       <p>{{ it.contactUpdatesLoading }}</p>
-    } @else if (contactUpdates().length === 0) {
+    } @else if (!contactUpdatesLoadError() && contactUpdates().length === 0) {
       <p>{{ it.noContactUpdates }}</p>
     } @else {
       <div class="cms-actions">

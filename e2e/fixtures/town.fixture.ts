@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { test as base, expect } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
+import { E2E_PUBLIC_DOCUMENT_RECORDS } from '../support/e2e-public-document-records';
 import { resolveE2eEnv } from '../support/resolve-e2e-env';
 import { mockDirectNwsRoutes } from '../support/weather-mocks';
 
@@ -8,6 +11,27 @@ interface TownFixtures {
 }
 
 const { baseURL: configuredBaseUrl } = resolveE2eEnv();
+const cmsSnapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
+let cachedCmsSnapshot: Record<string, unknown> | null = null;
+
+function loadCmsSnapshotForE2e(): Record<string, unknown> {
+  if (!cachedCmsSnapshot) {
+    cachedCmsSnapshot = JSON.parse(readFileSync(cmsSnapshotPath, 'utf8')) as Record<string, unknown>;
+  }
+  return cachedCmsSnapshot;
+}
+
+function buildE2eCmsSnapshotBody(snapshot: Record<string, unknown>): string {
+  return JSON.stringify({
+    ...snapshot,
+    eventRecords: [],
+    businessRecords: [],
+    publicDocumentRecords:
+      Array.isArray(snapshot.publicDocumentRecords) && snapshot.publicDocumentRecords.length > 0
+        ? snapshot.publicDocumentRecords
+        : E2E_PUBLIC_DOCUMENT_RECORDS,
+  });
+}
 
 export const test = base.extend<TownFixtures>({
   homePage: async ({ page, baseURL }, use) => {
@@ -69,22 +93,17 @@ export const test = base.extend<TownFixtures>({
     });
 
     await page.route('**/cms-snapshot.json', async (route) => {
-      const response = await route.fetch();
-      const snapshot = (await response.json()) as Record<string, unknown>;
-
+      const snapshot = loadCmsSnapshotForE2e();
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          ...snapshot,
-          eventRecords: [],
-          businessRecords: [],
-        }),
+        body: buildE2eCmsSnapshotBody(snapshot),
       });
     });
 
     await mockDirectNwsRoutes(page);
     await use(new HomePage(page, baseURL ?? configuredBaseUrl));
+    await page.unrouteAll({ behavior: 'ignoreErrors' });
   },
 });
 

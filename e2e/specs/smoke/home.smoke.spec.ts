@@ -168,8 +168,12 @@ const sectionNavigationGateways: NavigationGateway[] = [
     assertDestination: expectBusinessesPage,
   },
   {
-    name: 'Contact primary nav link',
-    click: (page) => page.sectionNav.getByRole('link', { name: 'Contact', exact: true }).click(),
+    name: 'Contact mega menu root',
+    click: (page) =>
+      page.sectionNavLinks
+        .filter({ hasText: 'Contact & Town Hall' })
+        .first()
+        .click({ position: { x: 5, y: 5 } }),
     expectedUrl: /\/contact$/,
     assertDestination: expectContactPage,
   },
@@ -349,7 +353,7 @@ test.describe('homepage smoke', () => {
     await expect(homePage.mainContent).toBeVisible();
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-    await homePage.page.locator('.town-logo').click();
+    await homePage.clickTownLogoHome();
 
     await expect(homePage.page).toHaveURL(/\/$/);
     await expect(homePage.heroHeading).toBeVisible();

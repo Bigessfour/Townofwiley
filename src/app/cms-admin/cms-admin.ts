@@ -26,6 +26,7 @@ import { CmsClerkTaskHubComponent } from './cms-clerk-task-hub.component';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 import { CmsClerkUploadPanelComponent } from './cms-clerk-upload-panel.component';
 import { CmsContentSnapshotComponent } from './cms-content-snapshot.component';
+import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
 import { CmsSiteStatusComponent } from './cms-site-status.component';
 
 /** Amplify Gen 2 Console Data manager (Angular). */
@@ -70,6 +71,7 @@ interface CmsAdminSetupDetail {
     CmsClerkTaskGuideComponent,
     CmsClerkUploadPanelComponent,
     CmsContentSnapshotComponent,
+    CmsMeetingDocumentUploadComponent,
   ],
 })
 export class CmsAdmin {

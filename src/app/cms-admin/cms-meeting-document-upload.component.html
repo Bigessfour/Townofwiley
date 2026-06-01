@@ -1,0 +1,82 @@
+<section
+  class="cms-meeting-upload"
+  aria-labelledby="cms-meeting-upload-heading"
+  data-testid="cms-meeting-document-upload"
+>
+  <h3 id="cms-meeting-upload-heading" class="cms-meeting-upload__title">{{ copy().title }}</h3>
+  <p class="cms-meeting-upload__lead">{{ copy().lead }}</p>
+
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="cms-meeting-upload__banner" />
+  }
+  @if (success()) {
+    <p-message severity="success" [text]="success()!" styleClass="cms-meeting-upload__banner" />
+  }
+
+  @if (meetingOptions().length === 0) {
+    <p class="cms-meeting-upload__note" role="note">{{ copy().noEvents }}</p>
+  } @else {
+    <div class="cms-meeting-upload__field">
+      <label class="cms-meeting-upload__label" for="cms-meeting-upload-event">
+        {{ copy().eventLabel }}
+      </label>
+      <select
+        id="cms-meeting-upload-event"
+        class="cms-meeting-upload__select"
+        [value]="selectedEventId()"
+        (change)="onEventChange($event)"
+        data-testid="cms-meeting-upload-event"
+      >
+        <option value="">{{ copy().eventPlaceholder }}</option>
+        @for (option of meetingOptions(); track option.id) {
+          <option [value]="option.id">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <div class="cms-meeting-upload__field">
+    <span class="cms-meeting-upload__label" id="cms-meeting-upload-file-label">{{ copy().fileLabel }}</span>
+    <label class="cms-meeting-upload__file">
+      <input
+        type="file"
+        accept="application/pdf,.pdf"
+        [disabled]="uploading() || meetingOptions().length === 0"
+        (change)="onFileSelected($event)"
+        aria-labelledby="cms-meeting-upload-file-label"
+        data-testid="cms-meeting-upload-file"
+      />
+      @if (uploading()) {
+        {{ copy().uploading }}
+      } @else {
+        {{ copy().chooseFile }}
+      }
+    </label>
+    @if (selectedFile(); as file) {
+      <p class="cms-meeting-upload__filename">{{ file.name }}</p>
+    }
+  </div>
+
+  <div class="cms-meeting-upload__actions">
+    <button
+      type="button"
+      class="cms-button add"
+      [disabled]="!canUpload()"
+      (click)="uploadSelectedFile()"
+      data-testid="cms-meeting-upload-submit"
+    >
+      {{ copy().uploadButton }}
+    </button>
+    @if (publishedDocumentsHref(); as documentsHref) {
+      <a class="cms-button secondary" [href]="documentsHref" target="_blank" rel="noreferrer noopener">
+        {{ copy().viewDocuments }}
+      </a>
+    }
+  </div>
+
+  <p class="cms-meeting-upload__signin">
+    {{ copy().signInHint }}
+    <a href="/admin/login">{{ copy().signInLink }}</a>
+    before uploading.
+  </p>
+</section>

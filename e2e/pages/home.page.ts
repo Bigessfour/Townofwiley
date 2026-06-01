@@ -565,10 +565,23 @@ export class HomePage {
   }
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
-    const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    const button = this.page.locator(selector);
-    await expect(button).toBeVisible();
-    await button.click();
+    const choiceLabel = language === 'es' ? 'ES' : 'EN';
+    const button = this.page.getByRole('button', {
+      name: new RegExp(`Site language: ${choiceLabel}`, 'i'),
+    });
+    const visibleButton = button.locator('visible=true');
+    await expect(visibleButton).toBeVisible();
+    await visibleButton.click();
+    await expect(this.page.locator('html')).toHaveAttribute('lang', language);
+  }
+
+  async clickTownLogoHome(): Promise<void> {
+    const megamenuLogo = this.sectionNav.locator('a.town-logo');
+    if (await megamenuLogo.isVisible().catch(() => false)) {
+      await megamenuLogo.click();
+      return;
+    }
+    await this.page.locator('.site-header a.town-logo').first().click();
   }
 
   async openAssistantDialog(): Promise<void> {

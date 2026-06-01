@@ -192,6 +192,10 @@
   gap: 0.75rem;
 }
 
+.document-file-card {
+  scroll-margin-top: var(--sticky-stack-offset, 6rem);
+}
+
 .document-archive-header h3,
 .document-file-title {
   margin: 0;

@@ -16,6 +16,7 @@ concurrency:
 permissions:
   contents: read
 
+# E2E regression (smoke + interaction inventory) runs in git-workflow.yml → frontend-smoke.
 jobs:
   run:
     uses: ./.github/workflows/git-workflow.yml

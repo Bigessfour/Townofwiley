@@ -7,8 +7,8 @@ export const ADMIN_LOGIN_COPY = {
   howToSteps: [
     'Use a current browser at townofwiley.gov/admin/login (bookmark this page).',
     'Enter your Town staff email and password in the form below.',
-    'First-time sign-in: use the temporary password from IT; you will be prompted to set a new password.',
-    'Forgot your password? Use "Forgot password?" on the form to receive a reset code by email.',
+    'First-time sign-in: use the temporary password from IT, then set a new password when prompted (do not use Forgot password until that step is done).',
+    'Forgot your password after first sign-in? Use "Forgot password?" to receive a code from noreply@townofwiley.gov.',
     'After sign-in, open townofwiley.gov/admin and use the task buttons (Edit content, See on website).',
   ],
   helpText:
@@ -21,12 +21,12 @@ export const ADMIN_LOGIN_COPY = {
   forgotPasswordLink: 'Forgot password?',
   forgotPasswordTitle: 'Reset password',
   forgotPasswordBody:
-    'Enter your Town staff email. We will send a verification code so you can choose a new password.',
+    'Enter your Town staff email. After your first sign-in is complete, we email a verification code from noreply@townofwiley.gov so you can choose a new password.',
   sendResetCodeLabel: 'Send reset code',
   sendingResetCodeLabel: 'Sending code…',
   forgotPasswordFormLabel: 'Password reset request',
   resetCodeSent:
-    'If a staff account exists for that email, you will receive a code within a few minutes. Check your spam folder.',
+    'If a staff account exists and has completed first-time sign-in, you will receive a code from noreply@townofwiley.gov within a few minutes. Check spam. If you never finished first-time setup, sign in with your temporary password from IT instead.',
   confirmResetTitle: 'Enter code and new password',
   confirmResetBody:
     'Enter the code from your email and choose a new password (at least 8 characters).',

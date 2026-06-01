@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen2 backend (AppSync/Cognito/S3) on production branch main (stack amplify-d331voxr1fhoir-main-branch-82345f229c); preview branch gen2-main retains a separate Gen2 stack. Gen1 AppSync j7b2x3… retained until stack refactor/decommission. Hosting: amplify.yml + customHttp.yml. See docs/amplify-gen2-migration-plan.md.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen1 backend (AppSync/Cognito/S3) is defined under amplify/backend/; hosting under amplify.yml and customHttp.yml.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -9,9 +9,6 @@
     "appId": "d331voxr1fhoir",
     "appName": "Townofwiley",
     "productionBranch": "main",
-    "gen2Branch": "gen2-main",
-    "gen2Backend": "amplify/backend.ts",
-    "gen2MigrationRunbook": "docs/amplify-gen2-migration-plan.md",
     "nodeVersion": "24.16.0",
     "customDomain": "townofwiley.gov",
     "syncScripts": {
@@ -23,24 +20,8 @@
   },
   "appsync": {
     "apiName": "townofwiley-main",
-    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
     "defaultAuthorizationType": "API_KEY",
-    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"],
-    "notes": "Gen1 CMS API — decommission after migration retain; production Hosting now reads Gen2 below."
-  },
-  "appsyncGen2Main": {
-    "apiName": "townofwiley",
-    "apiId": "x7poehudqvamneqni5s6e2cjxy",
-    "graphqlEndpoint": "https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql",
-    "amplifyBranch": "main",
-    "cloudFormationStack": "amplify-d331voxr1fhoir-main-branch-82345f229c"
-  },
-  "cloudWatch": {
-    "logRetentionDays": 90,
-    "configureScript": "npm run configure:cloudwatch-logging",
-    "amplifyBackendLogGroups": [
-      "/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF"
-    ]
+    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"]
   },
   "s3Buckets": [
     {
@@ -61,8 +42,7 @@
       "name": "TownOfWileyContactUpdates",
       "region": "us-east-2",
       "required": true,
-      "deployScript": "scripts/deploy-contact-update-backend.py",
-      "notes": "Resident intake: billing assistance (/pay-bill), portal access, optional contact updates. Items may include accountNumber, preferredContactMethod, consentToContact."
+      "deployScript": "scripts/deploy-contact-update-backend.py"
     }
   ],
   "lambdaFunctions": [
@@ -73,7 +53,9 @@
       "codePath": "infrastructure/nws-weather-proxy",
       "functionUrl": { "authType": "NONE", "required": true },
       "functionUrlEndpoint": "https://a5wbyzz6iiawupk3xwpozdy5ji0awggh.lambda-url.us-east-2.on.aws/",
-      "required": true
+      "deployScript": "scripts/deploy-nws-weather-proxy.py",
+      "required": true,
+      "notes": "Handler-only CORS on Function URL (empty AllowOrigins); deploy script enforces"
     },
     {
       "functionName": "TownOfWileySevereWeatherBackend",
@@ -83,8 +65,7 @@
       "functionUrl": { "authType": "NONE", "required": true },
       "functionUrlEndpoint": "https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws",
       "deployScript": "scripts/deploy-severe-weather-backend.py",
-      "required": true,
-      "notes": "EventBridge poller (5 min) fetches NWS alerts for zone COZ098 / ZIP 81092 and delivers SMS/email to confirmed subscribers."
+      "required": true
     },
     {
       "functionName": "townofwiley-easy-peasy-chat-proxy",
@@ -167,42 +148,48 @@
     },
     {
       "step": 3,
+      "name": "NWS weather proxy",
+      "action": "python scripts/deploy-nws-weather-proxy.py",
+      "paths": ["infrastructure/nws-weather-proxy/"]
+    },
+    {
+      "step": 4,
       "name": "Severe weather backend",
       "action": "python scripts/deploy-severe-weather-backend.py",
       "paths": ["infrastructure/severe-weather-signup/"]
     },
     {
-      "step": 4,
+      "step": 5,
       "name": "Email alias router",
       "action": "python scripts/deploy-email-alias-router.py",
       "paths": ["infrastructure/email-alias-router/"]
     },
     {
-      "step": 5,
+      "step": 6,
       "name": "Contact update write + DynamoDB",
       "action": "python scripts/deploy-contact-update-backend.py",
       "paths": ["infrastructure/contact-update-lambda/"]
     },
     {
-      "step": 6,
+      "step": 7,
       "name": "Contact update review (IAM URL)",
       "action": "python scripts/deploy-contact-updates-review.py",
       "paths": ["infrastructure/contact-updates-review/"]
     },
     {
-      "step": 7,
+      "step": 8,
       "name": "Contact update review proxy (public URL for admin UI)",
       "action": "python scripts/deploy-contact-updates-review-proxy.py",
       "paths": ["infrastructure/contact-updates-review-proxy/"]
     },
     {
-      "step": 8,
+      "step": 9,
       "name": "Amplify env + redeploy main",
       "action": "Set branch env vars per infrastructure/amplify-branch-env.manifest.json; redeploy main; AP-01b verify runtime-config.js",
       "paths": ["scripts/generate-runtime-config.mjs"]
     },
     {
-      "step": 9,
+      "step": 10,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": ["infrastructure/aws-infrastructure.manifest.json"]

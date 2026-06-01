@@ -81,7 +81,7 @@
     </div>
     <div class="document-file-grid">
       @for (document of visibleArchiveDocuments(); track document.id) {
-        <article class="document-file-card">
+        <article class="document-file-card" [attr.id]="'cms-doc-' + document.id">
           <div class="document-file-top">
             <h4 class="document-file-title">{{ document.title }}</h4>
             <span class="document-status">{{ document.status }}</span>
