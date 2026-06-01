@@ -9,11 +9,15 @@ import { MeetingsPage } from './meetings-page';
 interface MeetingsPageStore {
   events: ReturnType<typeof signal<CmsCalendarEvent[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
-  agendaHubHrefByEventId: ReturnType<typeof signal<Record<string, string>>>;
+  agendaHubHrefByEventId?: ReturnType<typeof signal<Record<string, string>>>;
 }
 
-function configure(store: MeetingsPageStore, language: 'en' | 'es' = 'en') {
-  const storeWithDefaults: MeetingsPageStore = {
+function configure(
+  store: Pick<MeetingsPageStore, 'events' | 'isLoading'> &
+    Partial<Pick<MeetingsPageStore, 'agendaHubHrefByEventId'>>,
+  language: 'en' | 'es' = 'en',
+) {
+  const storeWithDefaults = {
     agendaHubHrefByEventId: signal<Record<string, string>>({}),
     ...store,
   };
