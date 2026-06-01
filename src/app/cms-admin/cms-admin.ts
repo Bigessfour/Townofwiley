@@ -12,6 +12,7 @@ import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
 } from '../clerk-setup/contact-update-review.service';
+import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 
@@ -667,6 +668,7 @@ const CMS_ADMIN_COPY: Record<SiteLanguage, CmsAdminCopy> = {
     TagModule,
     SkeletonModule,
     MessageModule,
+    CmsMeetingDocumentUploadComponent,
   ],
 })
 export class CmsAdmin {

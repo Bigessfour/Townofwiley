@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { buildAgendaHubHrefByEventId } from './public-document-event-link';
 import { firstValueFrom, retry, throwError, timer, timeout } from 'rxjs';
 import { LoggingService } from './logging.service';
 import { SiteLanguage, SiteLanguageService } from './site-language';
@@ -671,6 +672,9 @@ export class LocalizedCmsContentStore {
   readonly businesses = computed(() => this.normalizeBusinesses(this.businessRecordsState()));
   readonly publicDocuments = computed(() =>
     this.normalizePublicDocuments(this.publicDocumentRecordsState()),
+  );
+  readonly agendaHubHrefByEventId = computed(() =>
+    buildAgendaHubHrefByEventId(this.publicDocuments()),
   );
   readonly externalNewsLinks = computed(() =>
     this.normalizeExternalNewsLinks(this.externalNewsLinkRecordsState()),

@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
 import { type DocumentArchiveSectionId } from './document-hub/document-archive';
 import { type UploadedDocument } from './document-upload.service';
+import {
+  eventDocumentKeyword,
+  formatMeetingDocumentSummary,
+  formatMeetingDocumentTitle,
+} from './public-document-event-link';
 
 interface CreatePublicDocumentResult {
   createPublicDocument?: {
@@ -26,6 +32,13 @@ const SECTION_SUMMARY: Record<DocumentArchiveSectionId, string> = {
 
 const client = generateClient();
 
+export interface MeetingDocumentUploadContext {
+  eventId: string;
+  eventTitle: string;
+  eventStart: string;
+  locale: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -33,23 +46,39 @@ export class CmsPublicDocumentAdminService {
   async createDocumentFromUpload(
     document: UploadedDocument,
     sectionId: DocumentArchiveSectionId,
+    meetingContext?: MeetingDocumentUploadContext,
   ): Promise<string> {
+    const title = meetingContext
+      ? formatMeetingDocumentTitle(meetingContext.eventTitle, meetingContext.eventStart, meetingContext.locale)
+      : this.toDisplayTitle(document.name);
+    const summary = meetingContext
+      ? formatMeetingDocumentSummary(
+          meetingContext.eventTitle,
+          meetingContext.eventStart,
+          meetingContext.locale,
+        )
+      : SECTION_SUMMARY[sectionId];
+    const keywords = meetingContext
+      ? this.toMeetingKeywords(document.name, sectionId, meetingContext)
+      : this.toKeywords(document.name, sectionId);
+
     const response = (await client.graphql({
       query: CREATE_PUBLIC_DOCUMENT_MUTATION,
       variables: {
         input: {
-          title: this.toDisplayTitle(document.name),
-          summary: SECTION_SUMMARY[sectionId],
+          title,
+          summary,
           sectionId,
           status: 'Published',
           format: this.toDisplayFormat(document.type, document.name),
           href: this.toStorageHref(document.id),
           downloadFileName: document.name,
-          keywords: this.toKeywords(document.name, sectionId),
+          keywords,
+          displayOrder: meetingContext ? this.toMeetingDisplayOrder(meetingContext.eventStart) : undefined,
           active: true,
         },
       },
-      authMode: 'iam',
+      authMode: await this.resolveStaffAuthMode(),
     })) as GraphQLResult<CreatePublicDocumentResult>;
 
     if (response.errors?.length) {
@@ -106,5 +135,45 @@ export class CmsPublicDocumentAdminService {
     const titleTerms = this.toDisplayTitle(fileName).toLowerCase().split(' ').filter(Boolean);
 
     return Array.from(new Set([sectionId, 'uploaded', 'cms', ...titleTerms]));
+  }
+
+  private toMeetingKeywords(
+    fileName: string,
+    sectionId: DocumentArchiveSectionId,
+    meetingContext: MeetingDocumentUploadContext,
+  ): string[] {
+    const base = this.toKeywords(fileName, sectionId);
+    const eventDate = meetingContext.eventStart.slice(0, 10);
+
+    return Array.from(
+      new Set([
+        ...base,
+        'agenda',
+        eventDocumentKeyword(meetingContext.eventId),
+        ...(eventDate ? [eventDate] : []),
+      ]),
+    );
+  }
+
+  private toMeetingDisplayOrder(eventStartIso: string): number | undefined {
+    const parsed = Date.parse(eventStartIso);
+    if (Number.isNaN(parsed)) {
+      return undefined;
+    }
+
+    return Math.floor(parsed / 1000);
+  }
+
+  private async resolveStaffAuthMode(): Promise<'userPool' | 'iam'> {
+    try {
+      const session = await fetchAuthSession();
+      if (session.tokens?.accessToken) {
+        return 'userPool';
+      }
+    } catch {
+      // Fall back to guest identity pool credentials when no staff session exists.
+    }
+
+    return 'iam';
   }
 }

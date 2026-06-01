@@ -80,9 +80,12 @@ export function buildMeetingItems(
   fallbackMeetings: MeetingItem[],
   copy: MeetingsCopy,
   locale: string,
+  agendaHubHrefByEventId: Record<string, string> = {},
 ): MeetingItem[] {
   if (liveEvents.length > 0) {
-    return liveEvents.map((event) => createMeetingItemFromEvent(event, copy, locale));
+    return liveEvents.map((event) =>
+      createMeetingItemFromEvent(event, copy, locale, agendaHubHrefByEventId),
+    );
   }
 
   return fallbackMeetings.map((row) => {
@@ -103,9 +106,12 @@ export function buildCalendarItems(
   fallbackSeeds: CalendarSeed[],
   copy: CalendarViewCopy,
   locale: string,
+  agendaHubHrefByEventId: Record<string, string> = {},
 ): CalendarItem[] {
   return liveEvents.length > 0
-    ? liveEvents.map((event) => createCalendarItemFromEvent(event, copy, locale))
+    ? liveEvents.map((event) =>
+        createCalendarItemFromEvent(event, copy, locale, agendaHubHrefByEventId),
+      )
     : fallbackSeeds.map((seed, index) => createCalendarItemFromSeed(seed, index, copy));
 }
 
@@ -160,6 +166,7 @@ export function createMeetingItemFromEvent(
   event: CmsCalendarEvent,
   copy: MeetingsCopy,
   locale: string,
+  agendaHubHrefByEventId: Record<string, string> = {},
 ): MeetingItem {
   const start = new Date(event.start);
   const end = resolveCalendarEventEnd(event);
@@ -169,7 +176,7 @@ export function createMeetingItemFromEvent(
     schedule: formatCalendarEventDate(start, end, locale),
     format: event.description || copy.calendarCopy,
     location: event.location || copy.calendarEventFallbackLocation,
-    agendaPdfHref: DEFAULT_AGENDA_HREF,
+    agendaPdfHref: agendaHubHrefByEventId[event.id] ?? DEFAULT_AGENDA_HREF,
   };
 }
 
@@ -177,6 +184,7 @@ export function createCalendarItemFromEvent(
   event: CmsCalendarEvent,
   copy: CalendarViewCopy,
   locale: string,
+  agendaHubHrefByEventId: Record<string, string> = {},
 ): CalendarItem {
   const start = new Date(event.start);
   const end = resolveCalendarEventEnd(event);
@@ -212,7 +220,7 @@ export function createCalendarItemFromEvent(
       },
       {
         label: copy.calendarAgendaActionLabel,
-        href: DOCUMENT_HUB_LINKS.meetings,
+        href: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
       },
     ],
     startDate: start,

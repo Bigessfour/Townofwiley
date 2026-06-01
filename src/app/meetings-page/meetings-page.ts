@@ -59,6 +59,7 @@ export class MeetingsPage {
         documentsHubButtonLabel: this.copy().meetingsDocumentsHubButtonLabel,
       },
       this.siteLanguageService.currentLanguage() === 'es' ? 'es-US' : 'en-US',
+      this.cmsStore.agendaHubHrefByEventId(),
     );
   });
   protected readonly calendarItems = computed<CalendarItem[]>(() => {
@@ -75,6 +76,7 @@ export class MeetingsPage {
         calendarAgendaActionLabel: this.copy().calendarAgendaActionLabel,
       },
       this.siteLanguageService.currentLanguage() === 'es' ? 'es-US' : 'en-US',
+      this.cmsStore.agendaHubHrefByEventId(),
     );
   });
   protected readonly calendarOptions = computed(() => ({
