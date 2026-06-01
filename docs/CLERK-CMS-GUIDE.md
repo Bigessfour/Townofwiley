@@ -146,7 +146,7 @@ If you delete one of these records and create a new row with a different `id`, t
 
 Use this for closures, reminders, utility updates, and general public notices.
 
-1. Open [Data Manager](https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home).
+1. Open [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) (Amplify Console → branch **main** → **Data** → **Data manager**).
 2. Click **Announcement** in the left sidebar.
 3. Click **Create announcement** (top-right button).
 4. Fill in **title** — keep it short and clear, like a headline.
@@ -472,8 +472,8 @@ Example:
 Print or screenshot this section and keep it at your desk.
 
 ```
-LOG IN:   https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
-EDIT:     https://us-east-2.admin.amplifyapp.com/admin/d331voxr1fhoir/main/home
+LOG IN:   https://townofwiley.gov/admin/login  (Town staff — contact updates)
+EDIT CMS: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data
 PUBLIC:   https://townofwiley.gov
 
 WHAT TO OPEN IN DATA MANAGER:

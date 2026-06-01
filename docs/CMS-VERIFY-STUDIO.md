@@ -1,21 +1,23 @@
-# CMS activity: Verify the CMS is functioning in Amplify Studio
+# CMS activity: Verify Gen 2 Data manager and live AppSync
 
-Use this checklist when onboarding staff, after AWS changes, or if the public site shows **bundled fallback** text instead of live content. Reference: [Amplify Studio (Gen 1)](https://docs.amplify.aws/gen1/angular/tools/console/) — Data Manager is the supported place to confirm and edit CMS records.
+Use this checklist when onboarding staff, after AWS changes, or if the public site shows **bundled fallback** text instead of live content. Reference: [Manage Data with Amplify console](https://docs.amplify.aws/angular/build-a-backend/data/manage-with-amplify-console/) (Gen 2 **Data manager** on branch **`main`**).
 
 ## Prerequisites
 
-- You can sign in to **hosted Amplify Studio** (use the **Open Amplify Studio Data Manager** or **Open Studio Home** button on [https://townofwiley.gov/admin](https://townofwiley.gov/admin), or your saved Studio URL).
-- You have a role that can open **Data** / **Data Manager** and see models (not access denied).
+- You can sign in to the **AWS Amplify Console** (link from [https://townofwiley.gov/admin](https://townofwiley.gov/admin) → **Content editor URL**, or [main branch Data](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data)).
+- You have IAM permission for Amplify app `d331voxr1fhoir`, branch **`main`**, Data manager (not access denied).
 
 ## Steps (about 5 minutes)
 
-### 1. Confirm Studio loads and Data Manager opens
+### 1. Confirm Data manager opens on branch `main`
 
-1. Open Studio from `/admin` (recommended) or your bookmark.
-2. From the Studio home environment for the **main** backend, open **Data Manager** (sometimes labeled **Content** / **Data** depending on Studio UI version).
-3. Confirm you see models such as **SiteSettings**, **Announcement**, **OfficialContact**, **PublicDocument** — not an empty list and not an error page.
+1. Open `/admin` and copy **Content editor URL**, or use the [main / Data](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) link.
+2. In Amplify Console: app → branch **`main`** → **Data** → **Data manager** (not Gen 1 `admin.amplifyapp.com` Studio).
+3. Confirm models **SiteSettings**, **Announcement**, **OfficialContact**, **PublicDocument** appear in the table dropdown.
 
-**If access is denied:** stop here; your IT contact must fix **Studio invitations** or IAM/role permissions (see [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md)).
+**If access is denied:** stop here; IT must fix IAM (see [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md)).
+
+**If lists look empty but you used to see many rows in old Studio:** run `npm run amplify:gen2:compare-cms` and `npm run amplify:gen2:migrate-cms` (see [cms-gen2-capabilities.md](./cms-gen2-capabilities.md)).
 
 ### 2. Confirm you can read live records (no edit required)
 

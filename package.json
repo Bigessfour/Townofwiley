@@ -39,6 +39,7 @@
     "amplify:copy-branch-env": "bash scripts/copy-amplify-branch-env.sh",
     "amplify:disassociate-gen1-backend": "bash scripts/disassociate-gen1-backend-from-branch.sh",
     "amplify:gen2:migrate-cms": "node scripts/migrate-cms-gen1-to-gen2-dynamodb.mjs",
+    "amplify:gen2:compare-cms": "node scripts/compare-cms-gen1-gen2-inventory.mjs",
     "amplify:gen2:discover-cms": "node scripts/discover-gen2-cms-capabilities.mjs --write-public",
     "amplify:gen2:configure-clerk": "node scripts/configure-gen2-clerk-cms.mjs",
     "mcp:primeng:install": "npm install --prefix mcp/primeng",

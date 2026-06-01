@@ -23,9 +23,11 @@ Operational runbook for moving from **Amplify Gen 1** (Studio + `amplify push`) 
 
 Clerk guide: [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md). Admin hub: https://townofwiley.gov/admin
 
-**Data manager URL (Gen 2):**
+**Data manager URL (Gen 2 production — branch `main`):**
 
-`https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data`
+`https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data`
+
+Preview branch `gen2-main` has its **own** backend tables if deployed; do not use it for production CMS edits.
 
 ## Repository layout
 
