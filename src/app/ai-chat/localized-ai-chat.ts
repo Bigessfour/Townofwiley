@@ -94,7 +94,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
       'This assistant uses the Town of Wiley Easy-Peasy bot through a secure proxy, so the API key stays off the public site.',
     onlineStatus: 'Programmatic chat is online.',
     embedStatus: 'The Easy-Peasy assistant is live on this page.',
-    offlineStatus: 'Ask Wiley is temporarily unavailable.',
+    offlineStatus: 'Ask Wiley (resident assistant) needs configuration.',
     questionLabel: 'Type a question for Ask Wiley',
     helper:
       'Enter a question below or tap one of the example prompts. The reply appears directly underneath in the conversation panel.',
@@ -122,9 +122,9 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     embedWelcome:
       'Ask Wiley is available through the embedded Easy-Peasy assistant on this page. Use the floating button or open the direct assistant link if you want a larger chat window.',
     offlineWelcome:
-      'Ask Wiley is temporarily unavailable. Please use the Town Hall contact links below if you need help right away.',
+      'Ask Wiley (the Town of Wiley resident assistant powered by Easy-Peasy) is not configured on this environment. The code, proxy, and detailed training model (bot-training/town-of-wiley-resident-assistant-knowledge-model.md) are all in place. Populate chatbot.easyPeasy in secrets/local/user-secrets.json (or set EASYPEASY_* env vars) and re-generate runtime-config to bring it fully online.',
     missingProgrammaticMessage:
-      'Ask Wiley is temporarily unavailable right now. Please try again later or contact Town Hall directly.',
+      'Ask Wiley (Easy-Peasy resident assistant) is not configured. Populate secrets for the proxy or chat URL, then regenerate runtime config. See bot-training/ for the knowledge model.',
     retryMessage:
       'The assistant is temporarily unavailable. Please try again in a moment or contact Town Hall directly.',
     malformedMessage: 'Malformed chatbot response.',
@@ -144,7 +144,7 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
       'Este asistente usa el bot Easy-Peasy del Pueblo de Wiley mediante un proxy seguro, por lo que la clave de API no vive en el sitio publico.',
     onlineStatus: 'El chat programatico esta en linea.',
     embedStatus: 'El asistente Easy-Peasy esta activo en esta pagina.',
-    offlineStatus: 'Pregunta a Wiley esta temporalmente fuera de servicio.',
+    offlineStatus: 'Pregunta a Wiley (asistente residente) requiere configuracion.',
     questionLabel: 'Escriba una pregunta para Pregunta a Wiley',
     helper:
       'Escriba una pregunta abajo o toque uno de los ejemplos. La respuesta aparece directamente debajo en el panel de conversacion.',
@@ -172,9 +172,9 @@ const AI_CHAT_COPY: Record<SiteLanguage, AiChatCopy> = {
     embedWelcome:
       'Pregunta a Wiley esta disponible mediante el asistente Easy-Peasy integrado en esta pagina. Use el boton flotante o abra el enlace directo del asistente si desea una ventana de chat mas amplia.',
     offlineWelcome:
-      'Pregunta a Wiley esta temporalmente fuera de servicio. Use los enlaces de contacto del ayuntamiento si necesita ayuda de inmediato.',
+      'Pregunta a Wiley (el asistente residente del Pueblo de Wiley con Easy-Peasy) no esta configurado en este entorno. El codigo, el proxy y el modelo de entrenamiento detallado (bot-training/town-of-wiley-resident-assistant-knowledge-model.md) estan listos. Configura chatbot.easyPeasy en secrets/local/user-secrets.json o las variables EASYPEASY_* y regenera el runtime-config.',
     missingProgrammaticMessage:
-      'Pregunta a Wiley no esta disponible en este momento. Intente de nuevo mas tarde o contacte directamente al ayuntamiento.',
+      'Pregunta a Wiley (asistente Easy-Peasy) no esta configurado. Configura los secrets del proxy o chatUrl y regenera el runtime-config. Ver bot-training/ para el modelo de conocimiento.',
     retryMessage:
       'El asistente no esta disponible temporalmente. Intente de nuevo en un momento o contacte directamente al ayuntamiento.',
     malformedMessage: 'La respuesta del chatbot llego con un formato no valido.',

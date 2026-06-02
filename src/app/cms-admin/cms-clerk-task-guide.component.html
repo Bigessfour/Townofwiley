@@ -1,5 +1,9 @@
 @if (task(); as active) {
-  <section class="cms-task-guide" aria-labelledby="cms-task-guide-heading" data-testid="cms-task-guide">
+  <section
+    class="cms-task-guide"
+    aria-labelledby="cms-task-guide-heading"
+    data-testid="cms-task-guide"
+  >
     <h2 id="cms-task-guide-heading" class="cms-task-guide__title">Steps: {{ active.title }}</h2>
     <ol class="cms-task-guide__steps">
       @for (step of active.steps; track step) {
@@ -12,7 +16,10 @@
       <dl class="cms-task-guide__glossary">
         @for (field of active.fieldGlossary; track field.technicalName) {
           <div>
-            <dt>{{ field.plainLabel }} <span class="cms-task-guide__tech">({{ field.technicalName }})</span></dt>
+            <dt>
+              {{ field.plainLabel }}
+              <span class="cms-task-guide__tech">({{ field.technicalName }})</span>
+            </dt>
             <dd>{{ field.help }}</dd>
           </div>
         }

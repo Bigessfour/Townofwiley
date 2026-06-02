@@ -14,7 +14,9 @@ export class PublicRoutePage {
     this.chrome = new SiteChromePage(page);
   }
 
-  async goto(waitUntil: 'domcontentloaded' | 'commit' | 'load' = 'domcontentloaded'): Promise<void> {
+  async goto(
+    waitUntil: 'domcontentloaded' | 'commit' | 'load' = 'domcontentloaded',
+  ): Promise<void> {
     await this.page.goto(this.path, { waitUntil });
   }
 }

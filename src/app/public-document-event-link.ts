@@ -58,7 +58,11 @@ export function buildAgendaHubHrefByEventId(
   return hrefByEventId;
 }
 
-export function formatMeetingDocumentTitle(eventTitle: string, eventStartIso: string, locale: string): string {
+export function formatMeetingDocumentTitle(
+  eventTitle: string,
+  eventStartIso: string,
+  locale: string,
+): string {
   const eventDate = formatEventDateLabel(eventStartIso, locale);
   const trimmedTitle = eventTitle.trim();
 
@@ -66,9 +70,7 @@ export function formatMeetingDocumentTitle(eventTitle: string, eventStartIso: st
     return trimmedTitle ? `${trimmedTitle} — Agenda` : 'Meeting agenda';
   }
 
-  return trimmedTitle
-    ? `${trimmedTitle} — Agenda (${eventDate})`
-    : `Meeting agenda (${eventDate})`;
+  return trimmedTitle ? `${trimmedTitle} — Agenda (${eventDate})` : `Meeting agenda (${eventDate})`;
 }
 
 export function formatMeetingDocumentSummary(

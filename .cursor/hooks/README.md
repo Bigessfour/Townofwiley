@@ -14,6 +14,7 @@ These hooks are part of the **Cursor Agent Auto-Approval & Execution Policy** de
 - [`.cursor/rules/core-workflow.mdc`](../rules/core-workflow.mdc) (the main always-apply rule)
 
 The policy tells the agent:
+
 - When it **may** auto-approve edits and safe commands
 - When it **must** ask the user
 

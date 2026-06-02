@@ -1,21 +1,23 @@
 # AWS infrastructure — single source of truth (SOT)
 
-Canonical reference for **custom AWS resources** in account **`570912405222`** (Town of Wiley). Hosting details remain in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md).
+Canonical reference for **custom AWS resources** in account **`570912405222`** (Town of Wiley).
 
-When Lambdas, DynamoDB, Function URL auth, or Amplify branch env keys change, update the manifests and this doc in the same PR.
+**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAI, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md).
+
+When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update the manifests and this doc in the same PR.
 
 ---
 
 ## Manifest files (repo SSOT)
 
-| File                                                                                                  | Purpose                                                                                                |
-| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json) | Expected Lambdas, DynamoDB, S3 buckets, Amplify app id, Function URL **AuthType**, deployment order    |
-| [infrastructure/amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json) | Required **names** of Amplify `main` branch env vars for `runtime-config.js` (no secret values in git) |
-| [amplify.yml](../amplify.yml)                                                                         | BuildSpec Node pin, `npm ci`, artifact path                                                            |
-| [customHttp.yml](../customHttp.yml)                                                                   | CSP, HSTS, cache-control for Amplify Hosting                                                           |
-| [scripts/amplify-spa-rewrite-rules.json](../scripts/amplify-spa-rewrite-rules.json)                   | SPA rewrites                                                                                           |
-| [amplify/backend/](../amplify/backend/)                                                               | AppSync schema, Cognito, Storage (Amplify Gen1 CloudFormation)                                         |
+| File                                                                                                  | Purpose                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json) | Expected Lambdas, DynamoDB, S3 buckets, Function URL **AuthType**, deployment order (Amplify app id retained for legacy backend references)                |
+| [infrastructure/amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json) | Required **names** of env vars for `runtime-config.js` (no secret values in git; still relevant for any Amplify-managed AppSync/Cognito or runtime config) |
+| [amplify.yml](../amplify.yml)                                                                         | Historical BuildSpec (Node pin, `npm ci`, artifact path); no longer used by Amplify Hosting                                                                |
+| [customHttp.yml](../customHttp.yml)                                                                   | CSP, HSTS, cache origins (SSOT for local `ng serve` parity + historical reference)                                                                         |
+| [scripts/amplify-spa-rewrite-rules.json](../scripts/amplify-spa-rewrite-rules.json)                   | Historical SPA rewrites                                                                                                                                    |
+| [amplify/backend/](../amplify/backend/)                                                               | Legacy / current AppSync schema, Cognito, Storage references (Gen2 stacks now `amplify-townofwiley-main-d1245-*`)                                          |
 
 **Verify live AWS matches repo:**
 

@@ -37,7 +37,8 @@ function aws(region, args) {
 }
 
 function updateEmailAliasTable(bindings) {
-  const { functionName, region, emailAliasTable, emailAliasTableRegion } = bindings.emailAliasRouter;
+  const { functionName, region, emailAliasTable, emailAliasTableRegion } =
+    bindings.emailAliasRouter;
   const current = awsJson(region, [
     'lambda',
     'get-function-configuration',
@@ -79,17 +80,19 @@ function configureCognitoStaff(bindings, inviteStaff) {
     STAFF_COGNITO_GROUP: c.staffGroup,
   };
   console.log('Configuring Cognito Staff group for Gen 2 pool…');
-  const base = spawnSync(
-    'python3',
-    [join(repoRoot, 'scripts', 'setup-cognito-staff-group.py')],
-    { cwd: repoRoot, env, stdio: 'inherit' },
-  );
+  const base = spawnSync('python3', [join(repoRoot, 'scripts', 'setup-cognito-staff-group.py')], {
+    cwd: repoRoot,
+    env,
+    stdio: 'inherit',
+  });
   if (base.status !== 0) {
     process.exit(base.status ?? 1);
   }
 
   if (!inviteStaff) {
-    console.log('Skip staff user invite (pass --invite-staff to create Gen2 users from Gen1 emails).');
+    console.log(
+      'Skip staff user invite (pass --invite-staff to create Gen2 users from Gen1 emails).',
+    );
     return;
   }
 

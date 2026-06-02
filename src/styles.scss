@@ -45,23 +45,33 @@
   --ink-800: var(--wiley-navy-800);
   --ink-700: var(--wiley-ink-700);
   --ink-600: var(--wiley-ink-500);
-  --surface-card: color-mix(in srgb, var(--p-surface-0) 96%, var(--p-primary-50));
-  --surface-card-soft: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-surface-100));
-  --surface-card-warm: color-mix(in srgb, var(--p-surface-0) 94%, var(--p-primary-50));
+  /* Consistent soft sage influence for card surfaces (pairs with new --wiley-surface-secondary) */
+  --surface-card: color-mix(in srgb, var(--wiley-surface-secondary) 96%, var(--p-primary-50));
+  --surface-card-soft: color-mix(in srgb, var(--wiley-surface-secondary) 94%, var(--p-surface-100));
+  --surface-card-warm: color-mix(in srgb, var(--wiley-surface-secondary) 95%, var(--p-primary-50));
   --surface-border: color-mix(in srgb, var(--p-primary-900) 10%, transparent);
   --surface-border-strong: color-mix(in srgb, var(--p-primary-900) 16%, transparent);
-  --surface-overlay: color-mix(in srgb, var(--p-surface-0) 82%, transparent);
+  --surface-overlay: color-mix(in srgb, var(--wiley-surface-secondary) 85%, transparent);
   --brand-gradient-strong: linear-gradient(135deg, var(--p-primary-800), var(--p-primary-950));
   --button-accent-start: var(--wiley-teal-600);
   --button-accent-end: var(--wiley-teal-700);
   --page-glow-warm: color-mix(in srgb, var(--accent-teal) 18%, transparent);
   --page-glow-cool: color-mix(in srgb, var(--p-primary-700) 14%, transparent);
-  --page-backdrop-start: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-primary-50));
-  --page-backdrop-mid: color-mix(in srgb, var(--p-surface-0) 88%, var(--p-primary-50));
-  --page-backdrop-end: color-mix(in srgb, var(--p-surface-0) 84%, var(--p-surface-100));
+  /* Soft sage-tinted page backdrops for consistent gentle color across large shells */
+  --page-backdrop-start: color-mix(
+    in srgb,
+    var(--wiley-surface-secondary) 92%,
+    var(--p-primary-50)
+  );
+  --page-backdrop-mid: color-mix(in srgb, var(--wiley-surface-secondary) 90%, var(--p-primary-50));
+  --page-backdrop-end: color-mix(in srgb, var(--wiley-surface-secondary) 86%, var(--p-surface-100));
   --surface-inverse: var(--p-surface-0);
   --surface-inverse-strong: color-mix(in srgb, var(--p-surface-0) 97%, var(--p-primary-50));
-  --surface-inverse-muted: color-mix(in srgb, var(--p-surface-0) 90%, var(--p-primary-100));
+  --surface-inverse-muted: color-mix(
+    in srgb,
+    var(--wiley-surface-secondary) 92%,
+    var(--p-primary-100)
+  );
   --alert-banner-start: color-mix(in srgb, var(--p-red-800) 86%, var(--p-primary-900));
   --alert-banner-end: color-mix(in srgb, var(--p-red-700) 88%, var(--p-primary-900));
   --alert-banner-shadow: color-mix(in srgb, var(--p-red-900) 22%, transparent);

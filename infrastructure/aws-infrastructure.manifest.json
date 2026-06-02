@@ -1,21 +1,34 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Amplify Gen1 backend (AppSync/Cognito/S3) is defined under amplify/backend/; hosting under amplify.yml and customHttp.yml.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (d34qrz3qxoppc5.cloudfront.net) with townofwiley-spa-redirect Function (June 2026 migration; old Amplify app d331voxr1fhoir deleted). Backend: AppSync/DynamoDB (current CFN stacks amplify-townofwiley-main-d1245-* and related), Lambda Function URLs (chatbot, guestbook, contact, etc.), minimal CloudWatch (1d retention), no WAF rate ACLs. Historical Amplify references retained for backend/runtime-config compatibility.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
+  "hosting": {
+    "type": "s3-cloudfront",
+    "s3Bucket": "townofwiley-static-site",
+    "region": "us-east-2",
+    "cloudFrontDistributionId": "E1NZ3XCY5CYR1J",
+    "cloudFrontDomain": "d34qrz3qxoppc5.cloudfront.net",
+    "spaRedirectFunction": "townofwiley-spa-redirect",
+    "aliases": ["townofwiley.gov", "www.townofwiley.gov"],
+    "acmCertArn": "arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90",
+    "deployCommand": "aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
+  },
   "amplify": {
+    "note": "Legacy hosting app d331voxr1fhoir DELETED June 2026 after S3+CF migration. App ID and old stack names retained here and in snapshots/inventories only for historical backend references (AppSync, document storage, runtime-config logic). Current backend stacks use 'amplify-townofwiley-main-d1245-*' naming. Sync scripts for Amplify Hosting are obsolete for production.",
     "appId": "d331voxr1fhoir",
-    "appName": "Townofwiley",
-    "productionBranch": "main",
+    "appName": "Townofwiley (hosting decommissioned)",
+    "productionBranch": "main (historical)",
     "nodeVersion": "24.16.0",
-    "customDomain": "townofwiley.gov",
+    "customDomain": "townofwiley.gov (now on CloudFront)",
     "syncScripts": {
-      "hosting": "npm run amplify:sync-hosting",
-      "buildSpec": "npm run amplify:sync-buildspec",
-      "headers": "npm run amplify:sync-headers",
-      "spaRules": "npm run amplify:sync-spa-rewrites"
+      "note": "amplify:sync-* scripts for hosting headers/buildspec are historical/dev-parity only",
+      "hosting": "npm run amplify:sync-hosting (no-op for prod)",
+      "buildSpec": "npm run amplify:sync-buildspec (no-op for prod)",
+      "headers": "npm run amplify:sync-headers (CSP now at CF level)",
+      "spaRules": "npm run amplify:sync-spa-rewrites (now via CloudFront Function)"
     }
   },
   "appsync": {

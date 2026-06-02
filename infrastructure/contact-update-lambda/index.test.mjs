@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    ALLOWED_FIELDS,
-    PREFERRED_CONTACT_METHODS,
-    sanitizeContactUpdateBody,
+  ALLOWED_FIELDS,
+  PREFERRED_CONTACT_METHODS,
+  sanitizeContactUpdateBody,
 } from './sanitize-body.mjs';
 
 test('sanitizeContactUpdateBody drops unknown keys and truncates strings', () => {

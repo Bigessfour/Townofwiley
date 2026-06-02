@@ -36,8 +36,8 @@ Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 ### Step 4 — Bookmark Amplify Console Data manager
 
-| Link | What it is |
-|------|------------|
+| Link                                                                                                                      | What it is                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | [Amplify Console — Data manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) | Edit CMS records (SiteSettings, Announcement, Event, etc.) on the **main** branch |
 
 Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
@@ -86,7 +86,7 @@ When you save a record in Data Manager, the website automatically shows the new 
 
 ### When IT changes payment or other website settings (not Studio)
 
-Some features—utility bill pay links, weather signup, chatbot—are controlled by **Amplify environment variables**, not by Data Manager. After your IT contact changes those settings, they must **redeploy the `main` branch** in Amplify Hosting. Until that finishes, the public site may still show old behavior.
+Some features—utility bill pay links, weather signup, chatbot—are controlled by environment variables / runtime-config (sourced via `scripts/generate-runtime-config.mjs`), not by Data Manager. After your IT contact changes those settings (in secrets or the generate script), rebuild and deploy the static site to S3 + CloudFront (see README "Deployment Record"). Until the invalidation completes, the public site may still show old behavior. (Amplify Hosting app decommissioned June 2026.)
 
 **What you should do after IT says a deploy is done:**
 
@@ -108,18 +108,18 @@ Some features—utility bill pay links, weather signup, chatbot—are controlled
 
 Every piece of content on the website lives in one of these models in Data Manager.
 
-| What you are updating                                      | Open this model    |
-| ---------------------------------------------------------- | ------------------ |
-| Homepage title, welcome text, and hero photo               | `SiteSettings`     |
-| Emergency banner shown at the top of the homepage          | `AlertBanner`      |
-| Public notices, closures, and general announcements        | `Announcement`     |
-| Meetings, hearings, and calendar events                    | `Event`            |
-| Staff contact cards for names, phones, and emails          | `OfficialContact`  |
+| What you are updating                                       | Open this model         |
+| ----------------------------------------------------------- | ----------------------- |
+| Homepage title, welcome text, and hero photo                | `SiteSettings`          |
+| Emergency banner shown at the top of the homepage           | `AlertBanner`           |
+| Public notices, closures, and general announcements         | `Announcement`          |
+| Meetings, hearings, and calendar events                     | `Event`                 |
+| Staff contact cards for names, phones, and emails           | `OfficialContact`       |
 | Mayor/Council and Town Administration bullets on `/contact` | `LeadershipRosterEntry` |
-| Business directory listings                                | `Business`         |
-| Public document archive for forms, guides, and downloads   | `PublicDocument`   |
-| External news links shown on the /news page                | `ExternalNewsLink` |
-| Town email forwarding rules for behind-the-scenes delivery | `EmailAlias`       |
+| Business directory listings                                 | `Business`              |
+| Public document archive for forms, guides, and downloads    | `PublicDocument`        |
+| External news links shown on the /news page                 | `ExternalNewsLink`      |
+| Town email forwarding rules for behind-the-scenes delivery  | `EmailAlias`            |
 
 ### Important: two contact cards use fixed record IDs
 

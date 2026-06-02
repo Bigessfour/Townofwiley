@@ -1,7 +1,4 @@
-<section
-  class="public-page wiley-page-shell news-page-shell"
-  aria-labelledby="news-page-heading"
->
+<section class="public-page wiley-page-shell news-page-shell" aria-labelledby="news-page-heading">
   <header class="public-page-header grid gap-4 max-w-[56rem]">
     <p class="section-kicker">{{ copy().pageKicker }}</p>
     <h1 id="news-page-heading">{{ copy().pageTitle }}</h1>
@@ -199,7 +196,10 @@
 
     <div class="public-card-grid news-card-grid">
       @for (item of externalLinks(); track item.url) {
-        <p-card class="public-card panel wiley-panel news-card news-card--external" [pt]="newsCardPt">
+        <p-card
+          class="public-card panel wiley-panel news-card news-card--external"
+          [pt]="newsCardPt"
+        >
           <ng-template pTemplate="header">
             <p class="meta-label">{{ item.source }}</p>
             <h3>{{ item.title }}</h3>

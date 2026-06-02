@@ -66,7 +66,9 @@ function main() {
   console.log('Gen 2 (production Data manager — Amplify branch main)');
   console.log(`  API: ${bindings.appSyncGen2.graphqlEndpoint}`);
   console.log(`  Suffix: ${gen2Suffix}`);
-  console.log(`  Console: ${bindings.amplify ? `https://us-east-2.console.aws.amazon.com/amplify/apps/${bindings.amplify.appId}/branches/main/data` : '(see gen2-cms-inventory.json)'}`);
+  console.log(
+    `  Console: ${bindings.amplify ? `https://us-east-2.console.aws.amazon.com/amplify/apps/${bindings.amplify.appId}/branches/main/data` : '(see gen2-cms-inventory.json)'}`,
+  );
   console.log('');
   console.log('Model'.padEnd(24), 'Gen1'.padStart(6), 'Gen2'.padStart(6), '  Note');
   console.log('-'.repeat(60));

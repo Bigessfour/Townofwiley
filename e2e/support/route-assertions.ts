@@ -77,9 +77,13 @@ export async function expectNewsPage(page: Page): Promise<void> {
 }
 
 export async function expectPrivacyPage(page: Page): Promise<void> {
-  await expect(page.getByRole('heading', { level: 1, name: 'Weather alert privacy notice' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Weather alert privacy notice' }),
+  ).toBeVisible();
 }
 
 export async function expectTermsPage(page: Page): Promise<void> {
-  await expect(page.getByRole('heading', { level: 1, name: 'Weather alert SMS terms' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Weather alert SMS terms' }),
+  ).toBeVisible();
 }

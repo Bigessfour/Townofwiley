@@ -1,7 +1,8 @@
 <section class="cms-task-hub" aria-labelledby="cms-task-hub-heading">
   <h2 id="cms-task-hub-heading" class="cms-task-hub__title">What do you want to update?</h2>
   <p class="cms-task-hub__lead">
-    Pick a task, click <strong>Edit content</strong>, save in the editor, then <strong>See on website</strong>
+    Pick a task, click <strong>Edit content</strong>, save in the editor, then
+    <strong>See on website</strong>
     and hard-refresh the page.
   </p>
 
@@ -12,7 +13,10 @@
           <header class="cms-task-card__header">
             <h3 class="cms-task-card__title">{{ task.title }}</h3>
             @if (countLabel(task); as badge) {
-              <p-tag [value]="badge" [severity]="badge === 'None saved yet' ? 'warn' : 'secondary'" />
+              <p-tag
+                [value]="badge"
+                [severity]="badge === 'None saved yet' ? 'warn' : 'secondary'"
+              />
             }
           </header>
           <p class="cms-task-card__body">{{ task.shortDescription }}</p>

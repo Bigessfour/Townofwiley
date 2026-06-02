@@ -1,8 +1,9 @@
 {
   "version": 1,
-  "description": "Required Amplify Hosting branch environment variable NAMES for production runtime-config (values live in Amplify Console or secrets only — never commit values).",
-  "amplifyAppId": "d331voxr1fhoir",
-  "branch": "main",
+  "description": "Environment variable NAMES consumed by scripts/generate-runtime-config.mjs to emit runtime-config.js for the (now S3+CloudFront) production site. Values come from secrets / local env only — never committed. Originally sourced from Amplify Hosting `main` branch (app d331voxr1fhoir, deleted June 2026 after migration).",
+  "note": "Hosting migration complete: frontend no longer on Amplify. This file documents var *names* for runtime config (GUESTBOOK_API_ENDPOINT, chatbot, etc.) and any remaining Amplify backend (AppSync) references. Legacy app/branch fields kept for script compatibility.",
+  "legacyAmplifyAppId": "d331voxr1fhoir",
+  "branch": "main (hosting historical)",
   "generator": "scripts/generate-runtime-config.mjs",
   "requiredForProduction": [
     {
@@ -42,6 +43,11 @@
       "name": "CONTACT_UPDATE_REVIEW_API_URL",
       "runtimePath": "contactUpdate.reviewApiEndpoint",
       "notes": "JWT-protected API Gateway GET URL (includes /contact-updates path)"
+    },
+    {
+      "name": "GUESTBOOK_API_ENDPOINT",
+      "runtimePath": "guestbook.apiEndpoint",
+      "notes": "After deploy-guestbook-backend.py (hello-from Lambda Function URL)"
     }
   ],
   "optionalOrModeDependent": [
@@ -63,11 +69,6 @@
       "name": "CONTACT_UPDATE_API_ENDPOINT",
       "runtimePath": "contactUpdate.apiEndpoint",
       "notes": "After deploy-contact-update-backend.py (AP-05)"
-    },
-    {
-      "name": "GUESTBOOK_API_ENDPOINT",
-      "runtimePath": "guestbook.apiEndpoint",
-      "notes": "After deploy-guestbook-backend.py (hello-from Lambda base URL)"
     },
     {
       "name": "CONTACT_UPDATE_REVIEW_PROXY_URL",

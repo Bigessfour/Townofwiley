@@ -2,7 +2,7 @@
 
 Operator checklist for [townofwiley.gov](https://townofwiley.gov). This file **links** canonical SSOT docs; it does not duplicate CSP or manifest content.
 
-**Account:** `570912405222` · **Profile:** `townofwiley` · **Region:** `us-east-2` · **Amplify app:** `d331voxr1fhoir`
+**Account:** `570912405222` · **Profile:** `townofwiley` · **Region:** `us-east-2` · **Hosting:** S3+CloudFront `E1NZ3XCY5CYR1J` (Amplify app `d331voxr1fhoir` deleted June 2026)
 
 ---
 
@@ -43,7 +43,7 @@ npm run test:e2e:smoke
 ```bash
 E2E_BASE_URL=https://www.townofwiley.gov/ npm run test:e2e:live:production
 # or
-E2E_BASE_URL=https://main.d331voxr1fhoir.amplifyapp.com npm run test:e2e:live:staging
+E2E_BASE_URL=https://townofwiley.gov npm run test:e2e:live:staging   # (or https://d34qrz3qxoppc5.cloudfront.net ; old Amplify hosts removed)
 ```
 
 **Weather CORS (two layers):**

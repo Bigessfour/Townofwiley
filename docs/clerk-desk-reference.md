@@ -4,11 +4,11 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 
 ## Bookmarks
 
-| Page | URL |
-|------|-----|
-| Staff sign-in | https://townofwiley.gov/admin/login |
-| Update website (task hub) | https://townofwiley.gov/admin |
-| Content editor (AWS) | https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data |
+| Page                      | URL                                                                                                                                                                                                                   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                                                   |
+| Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                                         |
+| Content editor (AWS)      | https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data (Amplify Hosting app deleted June 2026; link may 404 — use AppSync console or Studio for `townofwiley-main` API if available) |
 
 ## Every update (same steps)
 
@@ -19,17 +19,17 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 
 ## Common tasks
 
-| I want to… | Task on /admin | Editor model |
-|------------|----------------|--------------|
-| Post news or notice | Post news or notice | Announcement |
-| Add meeting | Add meeting or event | Event |
-| Change homepage photo/text | Change homepage photo or welcome text | SiteSettings |
-| Add a PDF/form | Add a form or PDF | PublicDocument |
-| Update Town Hall phone/email | Update Town Hall or clerk contact | OfficialContact |
-| Update mayor/council list | Update mayor and council list | LeadershipRosterEntry |
-| Update businesses | Update business directory | Business |
-| Outside news link | Add outside news link | ExternalNewsLink |
-| Emergency strip on homepage | Turn on emergency banner | AlertBanner |
+| I want to…                   | Task on /admin                        | Editor model          |
+| ---------------------------- | ------------------------------------- | --------------------- |
+| Post news or notice          | Post news or notice                   | Announcement          |
+| Add meeting                  | Add meeting or event                  | Event                 |
+| Change homepage photo/text   | Change homepage photo or welcome text | SiteSettings          |
+| Add a PDF/form               | Add a form or PDF                     | PublicDocument        |
+| Update Town Hall phone/email | Update Town Hall or clerk contact     | OfficialContact       |
+| Update mayor/council list    | Update mayor and council list         | LeadershipRosterEntry |
+| Update businesses            | Update business directory             | Business              |
+| Outside news link            | Add outside news link                 | ExternalNewsLink      |
+| Emergency strip on homepage  | Turn on emergency banner              | AlertBanner           |
 
 ## Spanish on the public site
 

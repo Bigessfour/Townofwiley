@@ -2,11 +2,11 @@
 
 ## What to use
 
-| Layer                                | Value                                     | Purpose                                                     |
-| ------------------------------------ | ----------------------------------------- | ----------------------------------------------------------- |
-| **Major**                            | **24.x LTS only** (`Krypton`)             | Matches Angular 21, Amplify Gen 2, and Playwright toolchain |
-| **`package.json` `engines.node`**    | `>=24.15.0 <25.0.0`                       | Any **24.15+** patch is acceptable for local `npm`          |
-| **Repo pin** (`.nvmrc`, CI, Amplify) | **Exact patch** (currently **`24.16.0`**) | Same binary on laptop, GitHub Actions, and Amplify builds   |
+| Layer                               | Value                                     | Purpose                                                                          |
+| ----------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------- |
+| **Major**                           | **24.x LTS only** (`Krypton`)             | Matches Angular 21, (historical Amplify Gen 2 backend), and Playwright toolchain |
+| **`package.json` `engines.node`**   | `>=24.15.0 <25.0.0`                       | Any **24.15+** patch is acceptable for local `npm`                               |
+| **Repo pin** (`.nvmrc`, CI, builds) | **Exact patch** (currently **`24.16.0`**) | Same binary on laptop, GitHub Actions, and (historical) Amplify builds           |
 
 **Unsupported for this repo:** Node 22, 23, 25+, odd majors, and Cursor’s bundled Node when it is not 24.x.
 
@@ -16,7 +16,7 @@
 
 We **pin an exact patch** (not “whatever `24` resolves to today”) so:
 
-1. **Amplify** `preBuild` (`amplify.yml`) and **GitHub Actions** use the same Node as your shell.
+1. **GitHub Actions** (and historical Amplify `preBuild` in `amplify.yml`) use the same Node as your shell.
 2. **Native addons** (esbuild, lmdb, etc.) do not drift between patch releases.
 3. **Support** can say “build failed on 24.16.0” with one version string.
 

@@ -4,13 +4,13 @@ TownOfWiley Website
 
 ## Git Workflow
 
-- Production deploys come from `main` through Amplify.
+- Production deploys come from `main` (build locally or via CI, then `aws s3 sync` to the static site bucket + CloudFront invalidation).
 - Use short-lived feature branches and merge into `main` only when the change is build-safe.
-- Keep deployable app changes in `src/`, `public/`, `package*.json`, `angular.json`, `tsconfig*`, `amplify.yml`, and `scripts/generate-runtime-config.mjs`.
+- Keep deployable app changes in `src/`, `public/`, `package*.json`, `angular.json`, `tsconfig*`, and `scripts/generate-runtime-config.mjs`.
 - Keep maintainer-facing docs and runbooks tracked in the repo under `docs/`, `README.md`, `CLERK-CMS-GUIDE.md`, `bot-training/`, and related operational paths.
 - Do not commit local reports, temp logs, or machine-specific artifacts.
-- GitHub Actions validates deployable paths; Amplify handles the production deployment after `main` updates.
-- GitHub Actions uses targeted caches for npm, Playwright browsers, and Angular CLI build artifacts; Amplify keeps its own build cache through `amplify.yml`.
+- GitHub Actions validates deployable paths (CSP parity, etc.). Production static hosting is S3 + CloudFront (see below).
+- GitHub Actions uses targeted caches for npm, Playwright browsers, and Angular CLI build artifacts.
 
 Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
 
@@ -38,135 +38,62 @@ nvm install && nvm use
 node -v   # v24.16.0 (or any 24.15+ satisfying engines)
 ```
 
-## Deployment Record
+## Deployment Record — Current (June 2026+)
 
-### AWS Amplify
+### S3 + CloudFront (Primary Hosting)
 
-- App name: `Townofwiley`
-- App ID: `d331voxr1fhoir`
-- Region: `us-east-2`
-- Repository: `https://github.com/Bigessfour/Townofwiley`
-- Default domain: `d331voxr1fhoir.amplifyapp.com`
-- Production branch: `main`
-- **AWS account:** only **`570912405222`** (Town of Wiley). Workspace and docs default to **`AWS_PROFILE=townofwiley`** (see `.vscode/settings.json`; Code Platoon **`388691194728`** is out of scope for this repo).
-- Build logs: stored automatically per job (**Hosting → Builds**). Enable **Build notifications** plus CloudWatch retention for CodeBuild-/Amplify-related log groups in `us-east-2` (`docs/AMPLIFY_HOSTING_SOT.md` § **1.a**).
-- Build command: `npm run build`
-- Build output: `dist/townofwiley-app/browser`
-- Node runtime for Amplify builds: **`24.16.0`** (`amplify.yml` `nvm install` / `nvm use`)
+Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1fhoir` was permanently deleted after migration).
 
-Amplify build spec (see repo [`amplify.yml`](amplify.yml) for the canonical file):
+- **S3 bucket (origin):** `townofwiley-static-site` (us-east-2)
+- **CloudFront distribution:** ID `E1NZ3XCY5CYR1J` → `d34qrz3qxoppc5.cloudfront.net`
+  - Origin: S3 `townofwiley-static-site` (OAI configured)
+  - Viewer request Function: `townofwiley-spa-redirect` (handles Angular SPA deep links / 403→index.html rewrite)
+  - Aliases: `townofwiley.gov`, `www.townofwiley.gov`
+  - ACM certificate: `arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90` (us-east-1)
+  - Default root: (none; SPA handled by function + pre-generated static route entrypoints)
+- **DNS (Route 53, zone `Z088746831TMIL67NZ0VF` for `townofwiley.gov`):**
+  - `townofwiley.gov` → A alias → `d34qrz3qxoppc5.cloudfront.net`
+  - `www.townofwiley.gov` → A alias → `d34qrz3qxoppc5.cloudfront.net`
+- **AWS account:** `570912405222` only. Default profile **`townofwiley`** (see `.vscode/settings.json`).
+- **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
+- **Deploy steps (manual after `npm run build` or CI artifact):**
+  ```bash
+  aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete
+  aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths "/*"
+  ```
+- **Runtime config:** Served as static `runtime-config.js` from the S3 bucket (generated at build or via `scripts/generate-runtime-config.mjs` using current env / secrets).
+- **CSP / headers:** Managed at CloudFront (or S3 origin) + `customHttp.yml` kept for dev server parity (`ng serve`) and historical reference. See `docs/third-party-csp-registry.md`.
 
-```yml
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - nvm install 24.16.0
-        - nvm use 24.16.0
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: dist/townofwiley-app/browser
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**/*
+**SPA routing note:** The CloudFront Function + static entrypoints ensure `/weather`, `/notices/foo`, etc. serve `index.html` (200) for client-side routing.
+
+**Verification (live):**
+
+```bash
+curl -I https://townofwiley.gov/          # 200 + security headers
+curl -I https://townofwiley.gov/weather   # 200 (SPA rewrite)
+nslookup townofwiley.gov
 ```
 
-Current public domain details:
+### Historical Amplify Hosting (Decommissioned)
 
-- Public hostnames: `townofwiley.gov` and `www.townofwiley.gov`
-- Known-good fallback hostname: `https://main.d331voxr1fhoir.amplifyapp.com`
-- Amplify status at last check: `AVAILABLE`
-- Current Amplify branch mapping:
-  - apex (`townofwiley.gov`) -> `main`
-  - `www` -> `main`
-- Current Amplify target:
-  - `townofwiley.gov` -> `d3fmdu29qcwosh.cloudfront.net`
-  - `www.townofwiley.gov` -> `d3fmdu29qcwosh.cloudfront.net`
-- Amplify verification CNAME:
-  - Name: `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov`
-  - Target: `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
+Old app ID `d331voxr1fhoir`, old targets (`d3fmdu29qcwosh.cloudfront.net`, `*.amplifyapp.com`) are no longer used. The `amplify.yml`, many `scripts/sync-amplify-*` scripts, and `docs/AMPLIFY_HOSTING_SOT.md` are retained for build process reference and legacy context only. See deprecation notes in those files and in `docs/AWS_INFRASTRUCTURE_SOT.md`.
 
-#### SPA routing — custom error response
+### Route 53 (unchanged)
 
-This is a client-side routed Angular SPA. Without a catch-all rule, deep links like `https://townofwiley.gov/weather` return a 403 or 404 from CloudFront on hard refresh.
-
-The `postbuild` script (`scripts/generate-static-route-entrypoints.mjs`) copies `index.html` into each route subdirectory **and** into `dist/.../404.html`, so the app side is handled. The hosting layer also needs to be configured once in the Amplify Console:
-
-1. Open **Amplify Console → App → Hosting → Rewrites and redirects**.
-2. Add a rule: Source `</>` — Target `/index.html` — Type `200 (Rewrite)`.
-3. Save and redeploy.
-
-If the distribution is custom-managed in CloudFront directly, add an **Error pages** rule: HTTP 403 → `/404.html` (response code 200), and the same for HTTP 404.
-
-Important custom-domain note for future maintainers:
-
-- Route 53 is the authoritative DNS provider for `townofwiley.gov`.
-- Both `townofwiley.gov` and `www.townofwiley.gov` are attached to Amplify and serve the live site.
-- The Route 53 hosted zone now includes an apex alias `A` record that points at the Amplify CloudFront target.
-- Keep the apex hosted through Route 53 alias records; do not replace it with a zone-apex `CNAME` or a random historical CloudFront hostname from a failed setup.
-- If the domain is ever rebuilt, update the Amplify domain association first, then verify the Route 53 apex alias and `www` record together.
-
-### Route 53
-
-- Hosted zone: `townofwiley.gov`
-- Hosted zone ID: `Z088746831TMIL67NZ0VF`
-- Authoritative nameservers:
-  - `ns-360.awsdns-45.com`
-  - `ns-1383.awsdns-44.org`
-  - `ns-1718.awsdns-22.co.uk`
-  - `ns-530.awsdns-02.net`
-
-Route 53 DNS records expected during the current recovery path:
-
-- `townofwiley.gov` `A` alias -> `d3fmdu29qcwosh.cloudfront.net`
-- `www.townofwiley.gov` `CNAME` -> `d3fmdu29qcwosh.cloudfront.net`
-- `_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov` `CNAME` -> `_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws`
-- Route 53 may also create or later require an apex `AAAA` alias if IPv6 is enabled for the attached CloudFront target.
-
-Current DNS note:
-
-- Public resolvers can disagree for a while after a nameserver migration. If a resolver still shows the old Cloudflare nameservers, wait for cache expiry and re-check against the four Route 53 nameservers above.
-- The AWS-side source of truth is the Route 53 hosted zone plus the Amplify domain association for `townofwiley.gov`.
-- Never use a `CNAME` at the zone apex.
-- When debugging apex outages, verify these in order:
-  1. `aws amplify get-domain-association --app-id d331voxr1fhoir --domain-name townofwiley.gov`
-  2. `aws route53 list-resource-record-sets --hosted-zone-id Z088746831TMIL67NZ0VF`
-  3. `Resolve-DnsName -Name townofwiley.gov -Type A -Server ns-360.awsdns-45.com`
-
-Verification check completed after creating the ACM CNAME:
-
-```text
-nslookup -type=CNAME _f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov
-
-_f4cd947025ff4f4f7e1f4fb150940ac9.townofwiley.gov canonical name =
-_377aa211e662dc086d0721e3a52067df.jkddzztszm.acm-validations.aws
-```
+- Hosted zone: `townofwiley.gov`, ID `Z088746831TMIL67NZ0VF`
+- Authoritative NS: `ns-360.awsdns-45.com`, `ns-1383.awsdns-44.org`, `ns-1718.awsdns-22.co.uk`, `ns-530.awsdns-02.net`
 
 ### AWS infrastructure (IaC SSOT)
 
-Custom Lambdas and hosting alignment are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
+Custom Lambdas, AppSync, DynamoDB, and remaining backends are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
 
-| Resource                                                  | SSOT in repo                                                                                                                                                                                                                            |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json)                                                                                                                                    |
-| Amplify `main` env var **names** (no secret values)       | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json)                                                                                                                                    |
-| Hosting build + headers + SPA rules                       | [`amplify.yml`](amplify.yml), [`customHttp.yml`](customHttp.yml) (CSP SSOT), [`docs/third-party-csp-registry.md`](docs/third-party-csp-registry.md), [`scripts/amplify-spa-rewrite-rules.json`](scripts/amplify-spa-rewrite-rules.json) |
-| Operator runbook + deploy order                           | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)                                                                                                                                                                      |
-| Full product / AP tracker                                 | [`docs/post-development-inventory.md`](docs/post-development-inventory.md)                                                                                                                                                              |
-
-**Sync hosting to Amplify Console:**
-
-```bash
-export AWS_PROFILE=townofwiley
-export AWS_DEFAULT_REGION=us-east-2
-npm run amplify:sync-hosting
-```
+| Resource                                                  | SSOT in repo                                                                                                                                                                                         |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expected Lambdas, DynamoDB, S3, Function URL **AuthType** | [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json)                                                                                                 |
+| Amplify Gen2 / backend env var **names** (no secrets)     | [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) (still relevant for runtime-config and any remaining Amplify-managed AppSync/Cognito resources) |
+| Hosting build + CSP origins + SPA rules                   | [`customHttp.yml`](customHttp.yml) (CSP SSOT for dev parity), [`docs/third-party-csp-registry.md`](docs/third-party-csp-registry.md), `scripts/generate-static-route-entrypoints.mjs`                |
+| Operator runbook + deploy order                           | [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)                                                                                                                                   |
+| Full product / AP tracker                                 | [`docs/post-development-inventory.md`](docs/post-development-inventory.md)                                                                                                                           |
 
 **Verify live AWS matches the manifest:**
 
@@ -174,20 +101,19 @@ npm run amplify:sync-hosting
 npm run verify:aws-infra
 ```
 
-**Deploy contact-update backends (after code review):**
+**Deploy contact / guestbook / chatbot backends (after code review):**
 
 ```bash
-python scripts/deploy-contact-update-backend.py
-python scripts/deploy-contact-updates-review.py   # Function URL AuthType AWS_IAM
-python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>
+python scripts/deploy-*.py   # see individual scripts
 ```
 
-### Recent work (2026-05-22)
+**Recent infra changes (June 2026):**
 
-- **AP-03** merged ([#30](https://github.com/Bigessfour/Townofwiley/pull/30)): Paystar portal CTA disabled when `portalUrl` unset.
-- **AP-06** in open PR [#35](https://github.com/Bigessfour/Townofwiley/pull/35): contact-update sanitization (client + Lambda `sanitize-body.mjs`).
-- **AP-02a/c, AP-24a** in open PR [#34](https://github.com/Bigessfour/Townofwiley/pull/34): Paystar hosted-only docs/E2E cleanup; Node **24.16.0** pin.
-- **AWS ops:** Amplify buildSpec/headers synced; CSP includes live documents bucket `townofwiley-documents-storage-main`; DynamoDB `TownOfWileyContactUpdates` provisioned; IaC manifests + `verify:aws-infra` added (see [`docs/AWS_INFRASTRUCTURE_SOT.md`](docs/AWS_INFRASTRUCTURE_SOT.md)).
+- Full migration of frontend hosting from Amplify to S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`.
+- Legacy Amplify app `d331voxr1fhoir` deleted.
+- Wiley Widget (Aurora, NAT, App Runner, separate Amplify app) fully decoupled and removed.
+- All WAF rate-limit WebACLs removed; CloudWatch retention minimized to 1 day.
+- Costs now free-tier safe. See [`docs/aws-cost-optimization-runbook.md`](docs/aws-cost-optimization-runbook.md) for details.
 
 ### Operational Note
 

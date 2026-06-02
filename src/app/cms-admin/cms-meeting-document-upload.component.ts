@@ -36,14 +36,16 @@ const MEETING_UPLOAD_COPY = {
     lead: 'Choose the meeting this file belongs to, then select a PDF from your computer. The file is published under Meeting documents and linked to that meeting on the Meetings page.',
     eventLabel: 'Which meeting is this for?',
     eventPlaceholder: 'Select a meeting',
-    noEvents: 'No upcoming meetings found. Add the meeting under Setup first, then return here to upload its agenda.',
+    noEvents:
+      'No upcoming meetings found. Add the meeting under Setup first, then return here to upload its agenda.',
     fileLabel: 'Agenda or meeting PDF',
     uploading: 'Uploading…',
     chooseFile: 'Choose file from computer',
     uploadButton: 'Upload and publish',
     signInHint: 'You must',
     signInLink: 'sign in as staff',
-    successTemplate: 'Published {title}. Residents can open it from the Meetings page and Documents hub.',
+    successTemplate:
+      'Published {title}. Residents can open it from the Meetings page and Documents hub.',
     viewDocuments: 'View on Documents page',
   },
   es: {
@@ -51,14 +53,16 @@ const MEETING_UPLOAD_COPY = {
     lead: 'Elija la reunion a la que corresponde este archivo y seleccione un PDF de su computadora. El archivo se publica en Documentos de reuniones y se vincula a esa reunion en la pagina de Reuniones.',
     eventLabel: '¿Para que reunion es?',
     eventPlaceholder: 'Seleccione una reunion',
-    noEvents: 'No hay reuniones proximas. Agregue la reunion primero y vuelva aqui para subir la agenda.',
+    noEvents:
+      'No hay reuniones proximas. Agregue la reunion primero y vuelva aqui para subir la agenda.',
     fileLabel: 'Agenda o PDF de reunion',
     uploading: 'Subiendo…',
     chooseFile: 'Elegir archivo de la computadora',
     uploadButton: 'Subir y publicar',
     signInHint: 'Debe',
     signInLink: 'iniciar sesion como personal',
-    successTemplate: 'Se publico {title}. Los residentes pueden abrirlo desde Reuniones y Documentos.',
+    successTemplate:
+      'Se publico {title}. Los residentes pueden abrirlo desde Reuniones y Documentos.',
     viewDocuments: 'Ver en pagina de Documentos',
   },
 } satisfies Record<'en' | 'es', MeetingUploadCopy>;
@@ -146,7 +150,9 @@ export class CmsMeetingDocumentUploadComponent {
 
     await this.staffAuth.refreshSession();
     if (!this.staffAuth.isStaff()) {
-      this.error.set(`${this.copy().signInHint} ${this.copy().signInLink} at /admin/login before uploading.`);
+      this.error.set(
+        `${this.copy().signInHint} ${this.copy().signInLink} at /admin/login before uploading.`,
+      );
       return;
     }
 

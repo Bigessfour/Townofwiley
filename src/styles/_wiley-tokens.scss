@@ -10,13 +10,17 @@
   --wiley-teal-700: #0f766e;
   --wiley-teal-800: #115e59;
 
-  /* Secondary — sage + earth */
+  /* Secondary — sage + earth (soft sage promoted for consistent secondary surfaces) */
   --wiley-sage-50: #f4f7f2;
   --wiley-sage-100: #e3ebe0;
+  --wiley-sage-200: #d0d9c9;
   --wiley-sage-500: #6b8f71;
   --wiley-sage-700: #4a6b50;
   --wiley-earth-500: #9a7b5a;
   --wiley-earth-700: #6b5344;
+
+  /* Consistent soft sage-tinted secondary surface (used repo-wide for cards, panels, supporting sections to add gentle color interest against the cream base) */
+  --wiley-surface-secondary: color-mix(in srgb, var(--wiley-cream-0) 86%, var(--wiley-sage-50));
 
   /* Accents — gold + warm neutrals */
   --wiley-gold-400: #d4a14b;

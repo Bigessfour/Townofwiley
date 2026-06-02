@@ -17,28 +17,28 @@ python scripts/configure-townofwiley-free-tier-security.py --dry-run
 
 ## What is free (or included)
 
-| Control | Cost | Notes |
-| -------- | ----- | ----- |
-| **AWS Shield Standard** | Included | Automatic on CloudFront + Route 53 (L3/L4 DDoS mitigation). |
-| **CloudTrail** (1st management trail) | Free delivery; S3 storage ~pennies | Multi-Region trail `townofwiley-account-trail`. |
-| **S3 Block Public Access** | Free | Account + manifest buckets. |
-| **IAM password policy** | Free | 14+ chars, rotation, reuse prevention. |
-| **EBS encryption by default** | Free | `us-east-2`, `us-east-1`. |
-| **IAM Access Analyzer** | Free | Account analyzer `townofwiley-account`. |
-| **Cognito deletion protection** | Free | Gen 2 pool `us-east-2_pkewJMUJF`. |
-| **API Gateway throttling** | Free | Contact review HTTP API stage `prod`. |
-| **Lambda reserved concurrency** | Free | Optional: `--try-lambda-concurrency` (may fail if account unreserved pool is under 10). |
-| **Security headers (CSP, HSTS)** | Free | [`customHttp.yml`](../customHttp.yml) via `npm run amplify:sync-headers`. |
-| **Route 53 DNS alignment** | Free | `*.townofwiley.gov` → production CloudFront. |
+| Control                               | Cost                               | Notes                                                                                   |
+| ------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| **AWS Shield Standard**               | Included                           | Automatic on CloudFront + Route 53 (L3/L4 DDoS mitigation).                             |
+| **CloudTrail** (1st management trail) | Free delivery; S3 storage ~pennies | Multi-Region trail `townofwiley-account-trail`.                                         |
+| **S3 Block Public Access**            | Free                               | Account + manifest buckets.                                                             |
+| **IAM password policy**               | Free                               | 14+ chars, rotation, reuse prevention.                                                  |
+| **EBS encryption by default**         | Free                               | `us-east-2`, `us-east-1`.                                                               |
+| **IAM Access Analyzer**               | Free                               | Account analyzer `townofwiley-account`.                                                 |
+| **Cognito deletion protection**       | Free                               | Gen 2 pool `us-east-2_pkewJMUJF`.                                                       |
+| **API Gateway throttling**            | Free                               | Contact review HTTP API stage `prod`.                                                   |
+| **Lambda reserved concurrency**       | Free                               | Optional: `--try-lambda-concurrency` (may fail if account unreserved pool is under 10). |
+| **Security headers (CSP, HSTS)**      | Free                               | [`customHttp.yml`](../customHttp.yml) via `npm run amplify:sync-headers`.               |
+| **Route 53 DNS alignment**            | Free                               | `*.townofwiley.gov` → production CloudFront.                                            |
 
 ## What costs money (defer until council approval)
 
-| Control | Typical cost | When approved |
-| -------- | ------------- | ------ |
+| Control                                      | Typical cost                       | When approved                                                 |
+| -------------------------------------------- | ---------------------------------- | ------------------------------------------------------------- |
 | **AWS WAF** (new Web ACL / Amplify Firewall) | ~$5+/mo per ACL + rules + requests | Amplify Console → Hosting → Firewall; see AP-16 in inventory. |
-| **AWS Shield Advanced** | ~$3,000+/mo | Sustained attack / enterprise requirement only. |
-| **Cognito Advanced Security** | Per MAU | Staff pool hardening. |
-| **GuardDuty / Security Hub** | After trial | Account threat detection. |
+| **AWS Shield Advanced**                      | ~$3,000+/mo                        | Sustained attack / enterprise requirement only.               |
+| **Cognito Advanced Security**                | Per MAU                            | Staff pool hardening.                                         |
+| **GuardDuty / Security Hub**                 | After trial                        | Account threat detection.                                     |
 
 The configure script **reuses** the existing regional Web ACL `TownOfWileyContactReviewApiRateLimit` on **AppSync** and **Cognito** (no new ACL). You already pay for that ACL; association does not add a second ACL base fee.
 

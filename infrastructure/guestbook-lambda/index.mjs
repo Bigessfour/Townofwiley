@@ -17,12 +17,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { randomUUID } from 'node:crypto';
-import {
-    extractClientIp,
-    hashIp,
-    lookupGeoFromIp,
-    readCloudFrontGeo,
-} from './geo-lookup.mjs';
+import { extractClientIp, hashIp, lookupGeoFromIp, readCloudFrontGeo } from './geo-lookup.mjs';
 import { sanitizeMessageBody, sanitizeVisitBody } from './sanitize.mjs';
 
 const TABLE_NAME = process.env.TABLE_NAME ?? 'TownOfWileyGuestbook';

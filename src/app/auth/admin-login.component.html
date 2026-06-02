@@ -42,7 +42,9 @@
               formControlName="email"
               data-testid="admin-login-email"
               class="admin-login__input"
-              [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched"
+              [attr.aria-invalid]="
+                signInForm.controls.email.invalid && signInForm.controls.email.touched
+              "
             />
           </label>
           <label class="admin-login__field" for="admin-login-password">
@@ -55,7 +57,9 @@
               formControlName="password"
               data-testid="admin-login-password"
               class="admin-login__input"
-              [attr.aria-invalid]="signInForm.controls.password.invalid && signInForm.controls.password.touched"
+              [attr.aria-invalid]="
+                signInForm.controls.password.invalid && signInForm.controls.password.touched
+              "
             />
           </label>
           <p class="admin-login__secondary-action">
@@ -114,7 +118,11 @@
             />
           </label>
           @if (newPasswordForm.hasError('passwordMismatch') && newPasswordForm.touched) {
-            <p-message severity="warn" [text]="copy.passwordMismatch" styleClass="admin-login__banner" />
+            <p-message
+              severity="warn"
+              [text]="copy.passwordMismatch"
+              styleClass="admin-login__banner"
+            />
           }
           <button
             type="submit"
@@ -228,7 +236,11 @@
               />
             </label>
             @if (confirmResetForm.hasError('passwordMismatch') && confirmResetForm.touched) {
-              <p-message severity="warn" [text]="copy.passwordMismatch" styleClass="admin-login__banner" />
+              <p-message
+                severity="warn"
+                [text]="copy.passwordMismatch"
+                styleClass="admin-login__banner"
+              />
             }
             <p class="admin-login__secondary-action">
               <button type="button" class="admin-login__text-button" (click)="showSignIn()">

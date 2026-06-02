@@ -4,11 +4,11 @@ Single pipeline: public forms POST to **TownOfWileyContactUpdate** Lambda → Dy
 
 ## Forms that write here
 
-| Source | Angular | `source` value |
-|--------|---------|----------------|
-| Billing assistance (`/pay-bill`) | `BillPayService` | `pay-bill-page` |
-| Portal access on Services | `BillPayService` | `resident-services` |
-| Optional contact update (Services payment panel) | `ContactUpdateService` | `payment-panel` |
+| Source                                           | Angular                | `source` value      |
+| ------------------------------------------------ | ---------------------- | ------------------- |
+| Billing assistance (`/pay-bill`)                 | `BillPayService`       | `pay-bill-page`     |
+| Portal access on Services                        | `BillPayService`       | `resident-services` |
+| Optional contact update (Services payment panel) | `ContactUpdateService` | `payment-panel`     |
 
 Billing submissions include: account number (optional), preferred contact method, consent to contact, and required contact fields.
 

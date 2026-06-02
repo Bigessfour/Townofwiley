@@ -11,11 +11,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
-    assertAngularInlineStylePolicy,
-    CSP_INLINE_STYLE_REGRESSION_FIXTURE,
-    CSP_INLINE_STYLE_VALID_FIXTURE,
-    hasInlineStyleElementRegression,
-    validateAngularInlineStylePolicy,
+  assertAngularInlineStylePolicy,
+  CSP_INLINE_STYLE_REGRESSION_FIXTURE,
+  CSP_INLINE_STYLE_VALID_FIXTURE,
+  hasInlineStyleElementRegression,
+  validateAngularInlineStylePolicy,
 } from './lib/csp-inline-style-policy.mjs';
 import { extractCspValueFromCustomHttpFile } from './lib/custom-http-csp.mjs';
 
@@ -43,10 +43,7 @@ describe('hasInlineStyleElementRegression (d22973b pattern)', () => {
 
 describe('validateAngularInlineStylePolicy', () => {
   it('rejects the d22973b regression with an actionable message', () => {
-    const result = validateAngularInlineStylePolicy(
-      CSP_INLINE_STYLE_REGRESSION_FIXTURE,
-      'fixture',
-    );
+    const result = validateAngularInlineStylePolicy(CSP_INLINE_STYLE_REGRESSION_FIXTURE, 'fixture');
     assert.equal(result.ok, false);
     if (!result.ok) {
       assert.match(result.message, /d22973b regression/i);
@@ -61,7 +58,10 @@ describe('validateAngularInlineStylePolicy', () => {
   });
 
   it('rejects style-src without unsafe-inline even when style-src-attr is absent', () => {
-    const result = validateAngularInlineStylePolicy("style-src 'self'; script-src 'self'", 'fixture');
+    const result = validateAngularInlineStylePolicy(
+      "style-src 'self'; script-src 'self'",
+      'fixture',
+    );
     assert.equal(result.ok, false);
     if (!result.ok) {
       assert.match(result.message, /style-src must include 'unsafe-inline'/i);

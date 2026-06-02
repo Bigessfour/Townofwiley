@@ -15,9 +15,7 @@ test.describe('static legal pages inventory controls', () => {
     });
   });
 
-  test('[privacy.sms-terms-anchor] privacy page links to SMS terms', async ({
-    privacyPage,
-  }) => {
+  test('[privacy.sms-terms-anchor] privacy page links to SMS terms', async ({ privacyPage }) => {
     await privacyPage.goto();
     await expectPrivacyPage(privacyPage.page);
 

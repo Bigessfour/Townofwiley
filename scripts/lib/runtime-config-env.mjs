@@ -138,9 +138,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const amplifyOutputs = loadAmplifyOutputsFromRepo();
   const outputsData =
     amplifyOutputs && typeof amplifyOutputs === 'object' && 'data' in amplifyOutputs
-      ? /** @type {{ url?: string; aws_region?: string; api_key?: string }} */ (
-          amplifyOutputs.data
-        )
+      ? /** @type {{ url?: string; aws_region?: string; api_key?: string }} */ (amplifyOutputs.data)
       : null;
   const outputsAuth =
     amplifyOutputs && typeof amplifyOutputs === 'object' && 'auth' in amplifyOutputs
@@ -220,8 +218,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     (clerkSetupAwsRegion
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
-  const amplifyBranch =
-    env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
+  const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||

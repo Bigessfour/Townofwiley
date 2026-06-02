@@ -8,8 +8,7 @@ const MAX = {
   source: 64,
 };
 
-const BLOCKED_MESSAGE =
-  /\b(https?:\/\/|www\.|@[\w.-]+\.\w{2,})\b/i;
+const BLOCKED_MESSAGE = /\b(https?:\/\/|www\.|@[\w.-]+\.\w{2,})\b/i;
 
 function capString(value, maxLen) {
   return String(value ?? '')
@@ -46,9 +45,7 @@ export function sanitizeMessageBody(body) {
   const lat = Number(input.lat);
   const lng = Number(input.lng);
   const publicConsent =
-    input.publicConsent === true ||
-    input.publicConsent === 'true' ||
-    input.publicConsent === 1;
+    input.publicConsent === true || input.publicConsent === 'true' || input.publicConsent === 1;
 
   if (!message || message.length < 2) {
     return { error: 'Message is required.' };

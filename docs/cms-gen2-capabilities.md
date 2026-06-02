@@ -16,12 +16,12 @@ Writes:
 
 ## Gen 2 production bindings
 
-| Resource | Value |
-|----------|--------|
-| AppSync API | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…` |
-| DynamoDB suffix | `x7poehudqvamneqni5s6e2cjxy-NONE` |
-| Data manager | [Amplify Console — main / Data](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) |
-| Documents S3 | `amplify-d331voxr1fhoir-mai-documentsbucket…` |
+| Resource        | Value                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| AppSync API     | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…`                                                                           |
+| DynamoDB suffix | `x7poehudqvamneqni5s6e2cjxy-NONE`                                                                                        |
+| Data manager    | [Amplify Console — main / Data](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) |
+| Documents S3    | `amplify-d331voxr1fhoir-mai-documentsbucket…`                                                                            |
 
 ## Models (parity with Gen 1)
 
@@ -31,12 +31,12 @@ See [`CMS-MODEL-ROUTE-MATRIX.md`](./CMS-MODEL-ROUTE-MATRIX.md) for route mapping
 
 ## Admin hub (`/admin`)
 
-| Tab | Purpose |
-|-----|---------|
-| Setup & credentials | Amplify/AWS links, connection test, task map |
+| Tab                   | Purpose                                                             |
+| --------------------- | ------------------------------------------------------------------- |
+| Setup & credentials   | Amplify/AWS links, connection test, task map                        |
 | **Content inventory** | Hero preview, live AppSync vs DynamoDB counts, empty-state warnings |
-| Document publishing | PublicDocument `sectionId` guide |
-| Contact updates | Resident PII (API Gateway, not AppSync) |
+| Document publishing   | PublicDocument `sectionId` guide                                    |
+| Contact updates       | Resident PII (API Gateway, not AppSync)                             |
 
 ## Not in Data Manager
 
@@ -48,9 +48,9 @@ See [`CMS-MODEL-ROUTE-MATRIX.md`](./CMS-MODEL-ROUTE-MATRIX.md) for route mapping
 
 ### 1. Wrong console (most common)
 
-| Console | Shows |
-|---------|--------|
-| **Gen 1** hosted Studio (`us-east-2.admin.amplifyapp.com/...`) | Legacy API `327diwc6…` / tables `*-j7b2x3…-main` |
+| Console                                                            | Shows                                                      |
+| ------------------------------------------------------------------ | ---------------------------------------------------------- |
+| **Gen 1** hosted Studio (`us-east-2.admin.amplifyapp.com/...`)     | Legacy API `327diwc6…` / tables `*-j7b2x3…-main`           |
 | **Gen 2** Amplify Console → app → branch **`main`** → Data manager | Production API `fpm2ifkbfnb7…` / tables `*-x7poehud…-NONE` |
 
 The public site and `/admin` inventory read **Gen 2 only**. Old Studio rows are not visible in Gen 2 until copied.
@@ -68,11 +68,11 @@ Each Hosting branch that runs `ampx pipeline-deploy` can have **separate** Dynam
 
 ### 3. “News” is not a separate model
 
-| Resident-facing | Data manager model |
-|-----------------|-------------------|
-| Bulletins on `/news` | `Announcement` (`announcementKind` blank, `active` true) |
-| Town newsletter block | `Announcement` (`announcementKind` = `newsletter`) |
-| Regional headline links | `ExternalNewsLink` |
+| Resident-facing         | Data manager model                                       |
+| ----------------------- | -------------------------------------------------------- |
+| Bulletins on `/news`    | `Announcement` (`announcementKind` blank, `active` true) |
+| Town newsletter block   | `Announcement` (`announcementKind` = `newsletter`)       |
+| Regional headline links | `ExternalNewsLink`                                       |
 
 There is no `NewsStory` table. PDF newsletters also need **`attachmentKey`** (S3 path), not a public URL.
 

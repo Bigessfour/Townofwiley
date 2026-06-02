@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto';
 
-const PRIVATE_IP =
-  /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1$|fc00:|fd)/;
+const PRIVATE_IP = /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1$|fc00:|fd)/;
 
 /**
  * @param {string | undefined} forwardedFor
@@ -23,10 +22,7 @@ export function hashIp(ip, salt) {
   if (!ip) {
     return '';
   }
-  return createHash('sha256')
-    .update(`${salt}:${ip}`)
-    .digest('hex')
-    .slice(0, 24);
+  return createHash('sha256').update(`${salt}:${ip}`).digest('hex').slice(0, 24);
 }
 
 /**
@@ -68,9 +64,7 @@ export async function lookupGeoFromIp(ip) {
  */
 export function readCloudFrontGeo(headers) {
   const country =
-    headers['cloudfront-viewer-country'] ??
-    headers['CloudFront-Viewer-Country'] ??
-    '';
+    headers['cloudfront-viewer-country'] ?? headers['CloudFront-Viewer-Country'] ?? '';
   const region =
     headers['cloudfront-viewer-country-region'] ??
     headers['CloudFront-Viewer-Country-Region'] ??

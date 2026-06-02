@@ -34,16 +34,16 @@ npm run start
 
 ## Environment / runtime (unchanged by theme, still verify after any release)
 
-| Area | What to confirm |
-|------|-----------------|
-| **Runtime config** | `public/runtime-config.json` generated at build; strict vars set in Amplify branch env (see `infrastructure/amplify-branch-env.manifest.json`). |
-| **CMS** | AppSync endpoint + API key; homepage notices/meetings populate (or fallback banner). |
-| **Weather** | NWS proxy URL; `/weather` and homepage deferred weather load forecasts. |
-| **Severe weather signup** | `/weather` signup form; `SEVERE_WEATHER_SIGNUP_*` env vars. |
-| **Pay bill** | Paystar portal URL or placeholder message on `/pay-bill`. |
-| **Resident intake** | `CONTACT_UPDATE_API_ENDPOINT` set → billing assistance POST persists to DynamoDB; clerk sees rows at `/admin#updates` (print/CSV). See [resident-intake-runbook.md](./resident-intake-runbook.md). |
-| **Chatbot** | “Ask Wiley” FAB + dialog when `EASYPEASY_*` configured. |
-| **CSP** | No console CSP violations on homepage (third-party: fonts, NWS, Paystar, etc.). |
+| Area                      | What to confirm                                                                                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Runtime config**        | `public/runtime-config.json` generated at build; strict vars set in Amplify branch env (see `infrastructure/amplify-branch-env.manifest.json`).                                                    |
+| **CMS**                   | AppSync endpoint + API key; homepage notices/meetings populate (or fallback banner).                                                                                                               |
+| **Weather**               | NWS proxy URL; `/weather` and homepage deferred weather load forecasts.                                                                                                                            |
+| **Severe weather signup** | `/weather` signup form; `SEVERE_WEATHER_SIGNUP_*` env vars.                                                                                                                                        |
+| **Pay bill**              | Paystar portal URL or placeholder message on `/pay-bill`.                                                                                                                                          |
+| **Resident intake**       | `CONTACT_UPDATE_API_ENDPOINT` set → billing assistance POST persists to DynamoDB; clerk sees rows at `/admin#updates` (print/CSV). See [resident-intake-runbook.md](./resident-intake-runbook.md). |
+| **Chatbot**               | “Ask Wiley” FAB + dialog when `EASYPEASY_*` configured.                                                                                                                                            |
+| **CSP**                   | No console CSP violations on homepage (third-party: fonts, NWS, Paystar, etc.).                                                                                                                    |
 
 ## Quick regression targets
 

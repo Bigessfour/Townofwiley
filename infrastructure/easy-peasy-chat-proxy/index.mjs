@@ -8,8 +8,14 @@ const ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:4300',
 ]);
 
-/** Limits chat prompt size to reduce proxy abuse (WAF/API limits are still recommended). */
-const MAX_MESSAGE_LENGTH = 8000;
+/**
+ * Limits chat prompt size to reduce proxy abuse.
+ * A free AWS WAF rate-based rule is also recommended in front of this public Function URL (see docs).
+ */
+const MAX_MESSAGE_LENGTH = 2000;
+
+/** Max history turns to forward (prevents prompt stuffing). */
+const MAX_HISTORY_TURNS = 6;
 
 function getRequestOrigin(event) {
   const headers = event.headers || {};
@@ -98,6 +104,15 @@ function extractSources(payload) {
   return [];
 }
 
+function sanitizeText(text) {
+  if (typeof text !== 'string') return '';
+  // Remove control characters and limit length per turn
+  return text
+    .replace(/[\x00-\x1F\x7F]/g, ' ')
+    .trim()
+    .slice(0, 1500);
+}
+
 function getHistory(history) {
   if (!Array.isArray(history)) {
     return [];
@@ -112,12 +127,12 @@ function getHistory(history) {
         message.text.trim()
       );
     })
-    .slice(-12)
+    .slice(-MAX_HISTORY_TURNS)
     .map((message) => {
       return {
         role: message.role,
         type: message.role,
-        text: message.text.trim(),
+        text: sanitizeText(message.text),
       };
     });
 }
@@ -183,7 +198,8 @@ export async function handler(event) {
     );
   }
 
-  const message = typeof requestBody.message === 'string' ? requestBody.message.trim() : '';
+  const rawMessage = typeof requestBody.message === 'string' ? requestBody.message : '';
+  const message = sanitizeText(rawMessage);
 
   if (!message) {
     return jsonResponse(
@@ -195,11 +211,12 @@ export async function handler(event) {
     );
   }
 
-  if (message.length > MAX_MESSAGE_LENGTH) {
+  if (rawMessage.length > MAX_MESSAGE_LENGTH) {
     return jsonResponse(
-      400,
+      429,
       {
-        error: 'Message is too long.',
+        error: 'Message is too long. Please shorten your question.',
+        retryAfter: 30,
       },
       cors,
     );
@@ -259,11 +276,13 @@ export async function handler(event) {
       },
       cors,
     );
-  } catch {
+  } catch (err) {
+    console.error('Easy-Peasy proxy error', { error: err?.message || err });
     return jsonResponse(
       502,
       {
-        error: 'Unable to reach Easy-Peasy right now.',
+        error:
+          'Unable to reach the town assistant right now. Please try again in a moment or contact Town Hall.',
       },
       cors,
     );

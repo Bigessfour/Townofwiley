@@ -13,7 +13,7 @@
 
   <section class="resident-service-picker grid gap-4" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
-    <div class="resident-service-picker-cards grid gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-4">
+    <div class="resident-service-picker-cards grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-4">
       @for (panel of servicePanels(); track panel.id) {
         <button
           type="button"
@@ -31,9 +31,9 @@
                 <span class="resident-picker-meta">{{ panel.meta }}</span>
               </div>
             </ng-template>
-            <div class="resident-picker-body grid gap-2">
-              <strong class="resident-picker-title">{{ panel.title }}</strong>
-              <p class="resident-picker-summary">{{ panel.summary }}</p>
+            <div class="resident-picker-body grid gap-3">
+              <strong class="resident-picker-title mb-0.5">{{ panel.title }}</strong>
+              <p class="resident-picker-summary leading-relaxed">{{ panel.summary }}</p>
             </div>
           </p-card>
         </button>

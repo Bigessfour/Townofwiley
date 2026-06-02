@@ -32,12 +32,14 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
           activeColor: '{primary.950}',
         },
         highlight: {
+          /* Soft sage highlight (complementary to our promoted sage surfaces) */
           background: '#eef4ec',
           focusBackground: '#e3ebe0',
           color: '{primary.900}',
           focusColor: '{primary.950}',
         },
         surface: {
+          /* Base surface remains cream-leaning; components use --wiley-surface-secondary for secondary cards/panels for consistent soft sage color */
           0: '#fffdfb',
           50: '#faf6f0',
           100: '#f1ebe3',
@@ -106,7 +108,8 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
       colorScheme: {
         light: {
           root: {
-            background: '{surface.0}',
+            /* Cards lean on the repo-wide --wiley-surface-secondary for soft sage consistency */
+            background: 'var(--wiley-surface-secondary)',
             color: '{surface.800}',
           },
           subtitle: {
@@ -138,7 +141,8 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
       colorScheme: {
         light: {
           root: {
-            background: '{surface.0}',
+            /* Panels use the consistent soft sage secondary surface */
+            background: 'var(--wiley-surface-secondary)',
             borderColor: '{surface.200}',
             color: '{surface.800}',
           },

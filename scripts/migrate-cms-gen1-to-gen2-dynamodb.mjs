@@ -66,12 +66,7 @@ function batchWrite(table, items) {
     const requestItems = {
       [table]: chunk.map((Item) => ({ PutRequest: { Item } })),
     };
-    awsJson([
-      'dynamodb',
-      'batch-write-item',
-      '--request-items',
-      JSON.stringify(requestItems),
-    ]);
+    awsJson(['dynamodb', 'batch-write-item', '--request-items', JSON.stringify(requestItems)]);
   }
 }
 

@@ -23,7 +23,9 @@ const headerKey = 'Content-Security-Policy';
 const currentCsp = serve.options.headers[headerKey];
 
 if (currentCsp === csp) {
-  console.log(`OK: angular.json serve.options.headers.${headerKey} already synced from customHttp.yml`);
+  console.log(
+    `OK: angular.json serve.options.headers.${headerKey} already synced from customHttp.yml`,
+  );
   process.exit(0);
 }
 

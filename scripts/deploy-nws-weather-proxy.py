@@ -105,7 +105,9 @@ def run_aws(command: list[str], expect_json: bool = True, region: str = "") -> A
     )
 
     if process.returncode != 0:
-        raise RuntimeError(process.stderr.strip() or process.stdout.strip() or "AWS CLI failed.")
+        raise RuntimeError(
+            process.stderr.strip() or process.stdout.strip() or "AWS CLI failed."
+        )
 
     output = process.stdout.strip()
     if not expect_json:
@@ -134,9 +136,9 @@ def wait_for_function_ready(function_name: str, region: str) -> None:
             ["lambda", "get-function-configuration", "--function-name", function_name],
             region=region,
         )
-        if (
-            config.get("State") == "Active"
-            and config.get("LastUpdateStatus") in (None, "Successful")
+        if config.get("State") == "Active" and config.get("LastUpdateStatus") in (
+            None,
+            "Successful",
         ):
             return
         time.sleep(2)
@@ -272,9 +274,13 @@ def main() -> None:
         DEFAULT_NWS_USER_AGENT,
     )
     nws_api_key = resolve_value(args.nws_api_key, weather_secrets.get("apiKey"))
-    airnow_api_key = resolve_value(args.airnow_api_key, secrets.get("weather", {}).get("airnowApiKey"))
+    airnow_api_key = resolve_value(
+        args.airnow_api_key, secrets.get("weather", {}).get("airnowApiKey")
+    )
 
-    region = resolve_value(args.region, secrets.get("aws", {}).get("region"), "us-east-2")
+    region = resolve_value(
+        args.region, secrets.get("aws", {}).get("region"), "us-east-2"
+    )
     function_name = args.function_name
 
     print(f"Packaging {BACKEND_DIR} …")
@@ -284,9 +290,13 @@ def main() -> None:
     update_function_code(function_name, archive_path, region)
 
     existing_env = read_existing_environment(function_name, region)
-    environment = build_environment(existing_env, nws_user_agent, nws_api_key, airnow_api_key)
+    environment = build_environment(
+        existing_env, nws_user_agent, nws_api_key, airnow_api_key
+    )
 
-    print(f"Updating Lambda configuration (timeout={args.timeout}s, memory={args.memory_size}MB) …")
+    print(
+        f"Updating Lambda configuration (timeout={args.timeout}s, memory={args.memory_size}MB) …"
+    )
     update_function_configuration(
         function_name,
         environment,
@@ -308,7 +318,9 @@ def main() -> None:
             print("Starting Amplify RELEASE job …")
             start_amplify_release(args.app_id, args.branch_name, region)
         else:
-            print("Skipped Amplify release (--skip-amplify-release). Redeploy main when ready.")
+            print(
+                "Skipped Amplify release (--skip-amplify-release). Redeploy main when ready."
+            )
     else:
         print("Skipped Amplify env update (--skip-amplify-update).")
 

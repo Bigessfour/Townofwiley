@@ -27,7 +27,10 @@
           />
         </div>
         <dl class="cms-snapshot__hero-meta">
-          <div><dt>Title</dt><dd>{{ hero().title }}</dd></div>
+          <div>
+            <dt>Title</dt>
+            <dd>{{ hero().title }}</dd>
+          </div>
           @if (heroUsesFallbackImage()) {
             <div class="cms-snapshot__hero-note">
               <p-message
@@ -57,7 +60,9 @@
       </ng-template>
       <ng-template #body let-row>
         <tr [attr.data-testid]="'cms-inventory-row-' + row.model">
-          <td><strong>{{ row.model }}</strong></td>
+          <td>
+            <strong>{{ row.model }}</strong>
+          </td>
           <td>{{ row.routes }}</td>
           <td>{{ row.liveCount }}</td>
           <td>{{ row.awsCount ?? '—' }}</td>

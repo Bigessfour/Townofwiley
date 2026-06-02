@@ -24,11 +24,11 @@ Local dev: add to `secrets/local/user-secrets.json`:
 
 ## Behavior
 
-| Endpoint | Who | Purpose |
-|----------|-----|---------|
-| `POST /visit` | Public | Logs a page view with coarse geo (CloudFront country headers when present, else IP lookup via ip-api.com) |
-| `POST /message` | Public | Publishes a voluntary “Hello from …” greeting after validation |
-| `GET /messages` | Public | Lists published greetings for the map cards |
-| `GET /admin/logs` | Staff JWT | Full visit + message log (hashed IP only, no raw IP on the page) |
+| Endpoint          | Who       | Purpose                                                                                                   |
+| ----------------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| `POST /visit`     | Public    | Logs a page view with coarse geo (CloudFront country headers when present, else IP lookup via ip-api.com) |
+| `POST /message`   | Public    | Publishes a voluntary “Hello from …” greeting after validation                                            |
+| `GET /messages`   | Public    | Lists published greetings for the map cards                                                               |
+| `GET /admin/logs` | Staff JWT | Full visit + message log (hashed IP only, no raw IP on the page)                                          |
 
 WAF rate limits on the Function URL are recommended (see `docs/AWS_INFRASTRUCTURE_SOT.md` AP-16).

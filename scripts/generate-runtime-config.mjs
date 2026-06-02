@@ -2,15 +2,15 @@ import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-    buildRuntimeConfigObject,
-    buildRuntimeConfigValues,
-    collectRequiredEnvErrors,
-    formatStrictEnvErrors,
-    loadAmplifyBranchEnvManifest,
-    readLocalSecrets,
-    repoRoot,
-    shouldAllowManifestFallbacks,
-    shouldUseStrictMode,
+  buildRuntimeConfigObject,
+  buildRuntimeConfigValues,
+  collectRequiredEnvErrors,
+  formatStrictEnvErrors,
+  loadAmplifyBranchEnvManifest,
+  readLocalSecrets,
+  repoRoot,
+  shouldAllowManifestFallbacks,
+  shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
 const runtimeConfigPath = join(repoRoot, 'public', 'runtime-config.js');

@@ -1,6 +1,8 @@
 # AWS cost optimization runbook
 
-Town of Wiley account **`570912405222`**, primary region **`us-east-2`**. Target steady-state spend: **~$20–30/month** for low traffic; **$50/month budget** with email alerts as a guardrail.
+Town of Wiley account **`570912405222`**, primary region **`us-east-2`**. Target steady-state spend: **under free tier** for low traffic (target <$5-10/mo guardrail with $50 budget alerts).
+
+**June 2026 final state:** Frontend migrated to S3 + CloudFront (minimal cost); all legacy Wiley Widget resources (Aurora PostgreSQL Serverless, NAT Gateway, App Runner `wiley-widget-api`, separate Amplify app) fully decoupled and deleted; WAF rate-limit WebACLs removed; CloudWatch log retention set to minimum 1 day on all groups. Main site now on `townofwiley-static-site` S3 + CloudFront `E1NZ3XCY5CYR1J`.
 
 Never commit AWS credentials. Use `source scripts/agent-aws-env.sh` (falls back to `steve` / `default` when `townofwiley` is not configured).
 
@@ -8,72 +10,40 @@ Never commit AWS credentials. Use `source scripts/agent-aws-env.sh` (falls back 
 
 ```bash
 source scripts/agent-aws-env.sh
-npm run aws:optimize:discover   # Cost Explorer, RDS, AppSync data sources
+npm run aws:optimize:discover   # Cost Explorer, current resources
 npm run aws:optimize:budget     # ALERT_EMAIL=admin@townofwiley.gov npm run aws:optimize:budget
-npm run aws:optimize:apply      # Budget + S3 lifecycle (+ Aurora CLI hints)
 npm run verify:aws-infra
 ```
 
-## Discovery gate (always first)
+## Current posture (post full cleanup)
 
-1. Run `npm run aws:optimize:discover`.
-2. Confirm AppSync API `j7b2x3sh7rcezekekkxxiak7hi` data sources — production CMS uses **DynamoDB only** (`amplify/backend/api/townofwiley/schema.graphql`).
-3. If Aurora/RDS exists but is **not** an AppSync data source, treat as **orphaned** (safe to scale down or delete after snapshot).
+- **No Aurora/RDS** (widget DB deleted after final snapshot).
+- **No NAT Gateway / VPC remnants** from widget.
+- **No App Runner**.
+- **No WAF** rate-based ACLs on public endpoints (removed after dissociation; saves ~$7+/mo).
+- **CloudWatch:** 1-day retention on all Lambda / custom log groups (via `configure-townofwiley-cloudwatch-logging.py` or manual).
+- **S3:** Document bucket lifecycle policies in place; static site bucket minimal.
+- **AppSync + DynamoDB:** Pay-per-use for CMS (low traffic).
+- **Lambda Function URLs:** Chatbot (Easy-Peasy proxy), guestbook, contact-review, etc. — pay per request, free tier eligible.
+- **Hosting:** S3 + CloudFront (very low cost for static SPA; free tier eligible).
+- **Budget:** `Townofwiley-Monthly-50` + email alerts active.
 
-### Baseline recorded (2026-05-29)
+## Discovery
 
-| Item | Finding |
-| ---- | ------- |
-| Aurora | `wiley-co-aurora-db-encrypted` — Serverless v2, was Min **0.5** / Max **2.0** ACU; **not** used by AppSync |
-| AppSync | All tables → `AMAZON_DYNAMODB` only |
-| May 2026 top spend (Cost Explorer) | EC2-Other ~$30, Amplify ~$21, WAF ~$7.29, ECS ~$7.20, App Runner ~$5.72, VPC/NAT ~$3.72, AppSync ~$2.37, Secrets Manager ~$1.85 |
-| Other resources | App Runner `wiley-widget-api`; NAT gateway `nat-0335d65959a2238a3` (likely Aurora VPC-related) |
-
-Snapshot before Aurora changes: `wiley-co-aurora-pre-cost-opt-20260529`.
-
-## Applied optimizations
-
-| Step | Action | Status |
-| ---- | ------ | ------ |
-| Budget | `Townofwiley-Monthly-50` + alerts to `admin@townofwiley.gov` | Applied — confirm email subscriptions in AWS Billing |
-| Aurora | Scale to MinCapacity **0**, MaxCapacity **1** | Applied 2026-05-29 (cluster status may show `modifying` briefly) |
-| S3 | `townofwiley-documents-storage-main` lifecycle: 90d → IA, 365d → Glacier | Applied |
-
-### Aurora scale (after snapshot is `available`)
-
-```bash
-source scripts/agent-aws-env.sh
-aws rds modify-db-cluster \
-  --db-cluster-identifier wiley-co-aurora-db-encrypted \
-  --serverless-v2-scaling-configuration MinCapacity=0,MaxCapacity=1 \
-  --apply-immediately
-```
-
-### Optional: delete orphaned Aurora (largest savings)
-
-Only after **one week** of monitoring and confirming no external consumers:
-
-1. Final cluster snapshot.
-2. Delete `wiley-co-aurora-db-encrypted-1` instance, then cluster.
-3. Review NAT gateway / VPC (`EC2-Other`, `VPC`) — may be removable if only Aurora used them.
-
-## Secondary tuning (week 2+)
-
-| Area | Notes |
-| ---- | ----- |
-| CloudWatch | Default **90-day** retention via `npm run configure:cloudwatch-logging`; consider `--log-retention-days 30` if compliance allows |
-| WAF | ~$7/mo in May 2026 — keep if needed for abuse protection (AP-16); remove unused Web ACLs |
-| App Runner | `wiley-widget-api` ~$5.72/mo — pause/delete if widget API is retired |
-| Secrets Manager | ~$1.85/mo — audit unused secrets |
-| Monthly | Re-run `npm run aws:optimize:discover`; watch budget alerts |
+1. `npm run aws:optimize:discover` (or manual Cost Explorer + `aws resourcegroupstaggingapi get-resources`).
+2. Confirm no stray EC2-Other / VPC / RDS / ECS / App Runner charges.
+3. Re-run after any infra changes.
 
 ## Scripts (repo)
 
-| Script | Purpose |
-| ------ | ------- |
-| [`scripts/agent-aws-env.sh`](../scripts/agent-aws-env.sh) | Export profile + region for agents |
-| [`scripts/optimize-aws-costs.sh`](../scripts/optimize-aws-costs.sh) | Discovery (macOS-safe Cost Explorer dates) |
-| [`scripts/setup-aws-budget.sh`](../scripts/setup-aws-budget.sh) | $50 budget + email alerts |
-| [`scripts/apply-aws-cost-optimizations.sh`](../scripts/apply-aws-cost-optimizations.sh) | Budget + S3 lifecycle + Aurora command template |
+| Script                                                                                                          | Purpose                                             |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [`scripts/agent-aws-env.sh`](../scripts/agent-aws-env.sh)                                                       | Export profile + region for agents                  |
+| [`scripts/optimize-aws-costs.sh`](../scripts/optimize-aws-costs.sh)                                             | Discovery (macOS-safe Cost Explorer dates)          |
+| [`scripts/setup-aws-budget.sh`](../scripts/setup-aws-budget.sh)                                                 | $50 budget + email alerts                           |
+| [`scripts/apply-aws-cost-optimizations.sh`](../scripts/apply-aws-cost-optimizations.sh)                         | (Legacy; most optimizations now manual or one-time) |
+| [`scripts/configure-townofwiley-cloudwatch-logging.py`](../scripts/configure-townofwiley-cloudwatch-logging.py) | Set 1-day retention on Lambda groups                |
 
-See also [`infrastructure/aws-infrastructure.manifest.json`](../infrastructure/aws-infrastructure.manifest.json) and [`docs/AWS_INFRASTRUCTURE_SOT.md`](./AWS_INFRASTRUCTURE_SOT.md).
+See also [`infrastructure/aws-infrastructure.manifest.json`](../infrastructure/aws-infrastructure.manifest.json) and [`docs/AWS_INFRASTRUCTURE_SOT.md`](./AWS_INFRASTRUCTURE_SOT.md) (updated for S3+CloudFront hosting).
+
+**If costs rise:** Re-run discovery, check for unexpected Lambda invocations, verify no old Amplify hosting remnants, confirm WAF ACLs are fully deleted.

@@ -38,7 +38,7 @@ python scripts/purge-contact-update-test-data.py
 | 1   | Unauthenticated access blocked | `node scripts/verify-contact-review-security.mjs --api-url "$CONTACT_UPDATE_REVIEW_API_URL"`     |
 | 1b  | Legacy proxy gone              | Same with `--proxy-url` → expect 404                                                             |
 | 2   | Staff browser flow             | Sign in at `/admin/login` → `/admin#updates` shows table; Network: `Authorization: Bearer` + 200 |
-| 2b  | Forgot password (self-service) | `/admin/login` → **Forgot password?** → email → code → new password → sign in |
+| 2b  | Forgot password (self-service) | `/admin/login` → **Forgot password?** → email → code → new password → sign in                    |
 | 3   | Test PII removed               | `python scripts/purge-contact-update-test-data.py`                                               |
 | 4   | No console errors              | Manual pass on `/admin` tabs after sign-in                                                       |
 
@@ -66,12 +66,12 @@ Requires verified domain **`townofwiley.gov`** in SES (us-east-2) and policy `Co
 
 ## Password reset troubleshooting
 
-| Symptom | Likely cause | Fix |
-| ------- | ------------- | --- |
+| Symptom                                    | Likely cause                                                           | Fix                                                                                           |
+| ------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Forgot password shows success but no email | User status **`FORCE_CHANGE_PASSWORD`** (never finished first sign-in) | User signs in with IT temp password, or IT runs `reset-cognito-staff-password.py --temporary` |
-| `AdminResetUserPassword` fails | Same **`FORCE_CHANGE_PASSWORD`** state | Use `--temporary` or `--permanent` on reset script first |
-| Code never arrives (CONFIRMED user) | Pool still on `COGNITO_DEFAULT`, spam, or SES quota | Run `configure-cognito-staff-email.py`; check spam for `noreply@townofwiley.gov` |
-| Invalid verification code | Expired or wrong code | Request a new code; codes are single-use |
+| `AdminResetUserPassword` fails             | Same **`FORCE_CHANGE_PASSWORD`** state                                 | Use `--temporary` or `--permanent` on reset script first                                      |
+| Code never arrives (CONFIRMED user)        | Pool still on `COGNITO_DEFAULT`, spam, or SES quota                    | Run `configure-cognito-staff-email.py`; check spam for `noreply@townofwiley.gov`              |
+| Invalid verification code                  | Expired or wrong code                                                  | Request a new code; codes are single-use                                                      |
 
 ```bash
 # Inspect user

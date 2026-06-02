@@ -1,10 +1,7 @@
 import type { Page } from '@playwright/test';
 
 /** CMS snapshot with more than three notices so `showBrowseNoticesLink()` is true on the homepage. */
-export async function mockCmsSnapshotWithExtraNotices(
-  page: Page,
-  noticeCount = 4,
-): Promise<void> {
+export async function mockCmsSnapshotWithExtraNotices(page: Page, noticeCount = 4): Promise<void> {
   await page.addInitScript(() => {
     window.localStorage.removeItem('tow-cms-snapshot-v1');
   });

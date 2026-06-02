@@ -1,11 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import type { HomePage } from '../pages/home.page';
-import {
-  mockDirectNwsRoutes,
-  mockWeatherProxyRoute,
-  type MockWeatherAlert,
-} from './weather-mocks';
+import { mockDirectNwsRoutes, mockWeatherProxyRoute, type MockWeatherAlert } from './weather-mocks';
 
 const DEFAULT_ACTIVE_ALERT: MockWeatherAlert = {
   event: 'Severe Thunderstorm Warning',

@@ -2,24 +2,24 @@
 
 Operational runbook for moving from **Amplify Gen 1** (Studio + `amplify push`) to **Gen 2** (TypeScript CDK + `npx ampx pipeline-deploy`).
 
-| Item | Value |
-|------|--------|
-| AWS account | `570912405222` |
-| Amplify app | `d331voxr1fhoir` |
-| Gen 1 env / stack | `main` / `amplify-townofwiley-main-d1245` |
-| Gen 2 Hosting branch (preview) | `gen2-main` |
-| Gen 2 production Hosting branch | `main` (stack `amplify-d331voxr1fhoir-main-branch-82345f229c`) |
-| Gen 2 production AppSync | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…` |
+| Item                               | Value                                                                  |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| AWS account                        | `570912405222`                                                         |
+| Amplify app                        | `d331voxr1fhoir`                                                       |
+| Gen 1 env / stack                  | `main` / `amplify-townofwiley-main-d1245`                              |
+| Gen 2 Hosting branch (preview)     | `gen2-main`                                                            |
+| Gen 2 production Hosting branch    | `main` (stack `amplify-d331voxr1fhoir-main-branch-82345f229c`)         |
+| Gen 2 production AppSync           | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…`                         |
 | Gen 1 AppSync (legacy data source) | `j7b2x3sh7rcezekekkxxiak7hi` → `327diwc6…` (decommission after retain) |
-| Region | `us-east-2` |
+| Region                             | `us-east-2`                                                            |
 
 ## What changed for staff
 
-| Gen 1 | Gen 2 |
-|-------|--------|
+| Gen 1                             | Gen 2                                                            |
+| --------------------------------- | ---------------------------------------------------------------- |
 | **Amplify Studio** → Data Manager | **Amplify Console** → app → branch → **Data** → **Data manager** |
-| `amplify push` / Studio deploy | Git push to `gen2-main` + Hosting build (`ampx pipeline-deploy`) |
-| `amplifyconfiguration.json` | `amplify_outputs.json` (build artifact; not committed) |
+| `amplify push` / Studio deploy    | Git push to `gen2-main` + Hosting build (`ampx pipeline-deploy`) |
+| `amplifyconfiguration.json`       | `amplify_outputs.json` (build artifact; not committed)           |
 
 Clerk guide: [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md). Admin hub: https://townofwiley.gov/admin
 
@@ -31,24 +31,24 @@ Preview branch `gen2-main` has its **own** backend tables if deployed; do not us
 
 ## Repository layout
 
-| Path | Role |
-|------|------|
-| `amplify/auth`, `data`, `storage`, `backend.ts` | Gen 2 backend (branch `gen2-main`) |
-| `gen1-amplify-backend/` | Archived Gen 1 `amplify/backend` on `gen2-main` only |
-| `amplify.yml` | Backend `pipeline-deploy` + Angular frontend build |
-| `scripts/copy-amplify-branch-env.sh` | Copy Hosting env vars between branches |
+| Path                                            | Role                                                 |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| `amplify/auth`, `data`, `storage`, `backend.ts` | Gen 2 backend (branch `gen2-main`)                   |
+| `gen1-amplify-backend/`                         | Archived Gen 1 `amplify/backend` on `gen2-main` only |
+| `amplify.yml`                                   | Backend `pipeline-deploy` + Angular frontend build   |
+| `scripts/copy-amplify-branch-env.sh`            | Copy Hosting env vars between branches               |
 
 On **`main`**, Gen 1 files remain under `amplify/backend/` until merge/cutover.
 
 ## Hosting deploy fixes (`gen2-main` job failures)
 
-| Issue | Fix |
-|-------|-----|
-| `npm ci --prefix amplify` EUSAGE | Commit **`amplify/package-lock.json`**; keep **`amplify/.npmrc`** (`legacy-peer-deps=true`) and **`overrides`** in `amplify/package.json` for `@aws-cdk/toolkit-lib` (npm ci vs nested CDK toolkit versions). |
-| Gen 1 `amplify pull` on `gen2-main` | Clear Gen 1 backend link: `aws amplify update-branch --app-id d331voxr1fhoir --branch-name gen2-main --backend-environment-arn ""` (branch `backend` becomes `{}`). **Do not** run this on `main`. |
-| `ampx pipeline-deploy` in CodeBuild | Set **`export CI=1`**; invoke **`npx --prefix amplify ampx pipeline-deploy`** (CLI is under `amplify/`, not repo root). |
-| Invalid `branchName` in `defineData` | Removed; not a valid `DataProps` field — shared DynamoDB for models is automatic per migration docs until refactor. |
-| Frontend missing CMS outputs | After backend deploy, assert **`amplify_outputs.json`** exists before `generate-runtime-config.mjs --strict`. |
+| Issue                                | Fix                                                                                                                                                                                                           |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm ci --prefix amplify` EUSAGE     | Commit **`amplify/package-lock.json`**; keep **`amplify/.npmrc`** (`legacy-peer-deps=true`) and **`overrides`** in `amplify/package.json` for `@aws-cdk/toolkit-lib` (npm ci vs nested CDK toolkit versions). |
+| Gen 1 `amplify pull` on `gen2-main`  | Clear Gen 1 backend link: `aws amplify update-branch --app-id d331voxr1fhoir --branch-name gen2-main --backend-environment-arn ""` (branch `backend` becomes `{}`). **Do not** run this on `main`.            |
+| `ampx pipeline-deploy` in CodeBuild  | Set **`export CI=1`**; invoke **`npx --prefix amplify ampx pipeline-deploy`** (CLI is under `amplify/`, not repo root).                                                                                       |
+| Invalid `branchName` in `defineData` | Removed; not a valid `DataProps` field — shared DynamoDB for models is automatic per migration docs until refactor.                                                                                           |
+| Frontend missing CMS outputs         | After backend deploy, assert **`amplify_outputs.json`** exists before `generate-runtime-config.mjs --strict`.                                                                                                 |
 
 Sync Console buildSpec after editing `amplify.yml`: `npm run amplify:sync-buildspec`.
 
@@ -65,14 +65,14 @@ Then trigger a `main` Hosting build (or wait for the next push) so `public/cms-s
 
 ## Gen 2 enablement status
 
-| Step | Status |
-|------|--------|
-| Gen 2 backend on `main` (job 223+) | Done — `ampx pipeline-deploy` + Hosting |
-| CMS DynamoDB copy Gen 1 → Gen 2 main | Done — `npm run amplify:gen2:migrate-cms` |
-| Production reads Gen 2 AppSync | Done — verify `/runtime-config.js` + public pages |
-| `gen2-migration` lock / refactor / retain | **Not done** — optional AWS CLI path to retire Gen 1 stack |
-| Decommission Gen 1 CloudFormation | **Not done** — wait 48h after refactor |
-| Point domain at `gen2-main` | **Not required** if production stays on `main` with Gen 2 backend |
+| Step                                      | Status                                                            |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| Gen 2 backend on `main` (job 223+)        | Done — `ampx pipeline-deploy` + Hosting                           |
+| CMS DynamoDB copy Gen 1 → Gen 2 main      | Done — `npm run amplify:gen2:migrate-cms`                         |
+| Production reads Gen 2 AppSync            | Done — verify `/runtime-config.js` + public pages                 |
+| `gen2-migration` lock / refactor / retain | **Not done** — optional AWS CLI path to retire Gen 1 stack        |
+| Decommission Gen 1 CloudFormation         | **Not done** — wait 48h after refactor                            |
+| Point domain at `gen2-main`               | **Not required** if production stays on `main` with Gen 2 backend |
 
 ## Prerequisites (done in this effort)
 
@@ -100,13 +100,13 @@ npm run amplify:gen2:assess
 
 ## npm scripts
 
-| Script | Command |
-|--------|---------|
-| `npm run amplify:gen2:assess` | `amplify gen2-migration assess` |
-| `npm run amplify:gen2:lock` | `amplify gen2-migration lock` |
-| `npm run amplify:gen2:generate` | `amplify gen2-migration generate` |
+| Script                          | Command                                        |
+| ------------------------------- | ---------------------------------------------- |
+| `npm run amplify:gen2:assess`   | `amplify gen2-migration assess`                |
+| `npm run amplify:gen2:lock`     | `amplify gen2-migration lock`                  |
+| `npm run amplify:gen2:generate` | `amplify gen2-migration generate`              |
 | `npm run amplify:gen2:refactor` | `amplify gen2-migration refactor --to <stack>` |
-| `npm run amplify:gen2:retain` | `amplify gen2-migration retain` |
+| `npm run amplify:gen2:retain`   | `amplify gen2-migration retain`                |
 
 Requires global **`@aws-amplify/cli@14.4.0`** or newer.
 

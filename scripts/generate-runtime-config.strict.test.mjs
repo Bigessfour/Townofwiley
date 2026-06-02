@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-    buildRuntimeConfigValues,
-    collectRequiredEnvErrors,
-    formatStrictEnvErrors,
-    shouldAllowManifestFallbacks,
-    shouldUseStrictMode,
+  buildRuntimeConfigValues,
+  collectRequiredEnvErrors,
+  formatStrictEnvErrors,
+  shouldAllowManifestFallbacks,
+  shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
 const REQUIRED = [

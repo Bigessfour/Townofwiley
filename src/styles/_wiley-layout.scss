@@ -154,12 +154,16 @@
 :where(.panel, .public-card, .notice-card, .service-card, .info-row) {
   border-radius: var(--radius-xl);
   border: 1px solid color-mix(in srgb, var(--wiley-navy-900) 8%, var(--wiley-cream-100));
-  background: var(--wiley-cream-0);
+  /* Consistent soft sage-tinted secondary surface for visual interest across cards/panels (complements cream while adding gentle color) */
+  background: var(--wiley-surface-secondary);
   box-shadow: var(--shadow-subtle);
 }
 
 /* Interactive cards only — avoid transform on large panels (layout shift). */
-:where(.feature-card, .task-card, .support-link-card, .resident-picker-wrap):is(:hover, :focus-visible) {
+:where(.feature-card, .task-card, .support-link-card, .resident-picker-wrap):is(
+  :hover,
+  :focus-visible
+) {
   border-color: color-mix(in srgb, var(--wiley-teal-600) 35%, var(--wiley-cream-100));
   box-shadow: var(--shadow-medium);
 }
@@ -241,7 +245,8 @@
   padding: 0.75rem 1rem;
   border-radius: var(--radius-xl);
   border: 1px solid var(--wiley-cream-100);
-  background: color-mix(in srgb, var(--wiley-cream-0) 94%, transparent);
+  /* Use the consistent secondary sage-tinted surface for harmony */
+  background: var(--wiley-surface-secondary);
   box-shadow: var(--shadow-subtle);
 }
 

@@ -15,21 +15,21 @@
 
 ## Which doc to use
 
-| Need                                            | Document                                                                                                         |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| What shipped, gaps, remediation slices (AP-01…) | [`post-development-inventory.md`](post-development-inventory.md)                                                 |
-| Amplify deploy, runtime config verification     | [`amplify-deployment-runbook.md`](amplify-deployment-runbook.md)                                                 |
-| Hosting / DNS / CSP source of truth             | [`AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md)                                                               |
-| Clerk CMS workflows                             | [`CLERK-CMS-GUIDE.md`](CLERK-CMS-GUIDE.md)                                                                       |
-| E2E ↔ AWS feature mapping                       | [`e2e-feature-map.md`](e2e-feature-map.md)                                                                       |
-| Agent Week 1 session prompt                     | [`week1-incremental-session-prompt.md`](week1-incremental-session-prompt.md)                                     |
-| Pre-launch polish checklist (historical items)  | [`incomplete-items-reference.md`](incomplete-items-reference.md)                                                 |
-| Remaining security/perf backlog (short)         | [`feature-completion-spec.md`](feature-completion-spec.md)                                                       |
-| PR / feature review                             | [`review-checklist.md`](review-checklist.md)                                                                     |
-| Page build standards (Angular 21 + PrimeNG)     | [`ANGULAR21_PRIMENG_AMPLIFY_PAGE_READINESS_CHECKLIST.md`](ANGULAR21_PRIMENG_AMPLIFY_PAGE_READINESS_CHECKLIST.md) |
-| Visual design target                            | [`visual-box-baseline.md`](visual-box-baseline.md)                                                               |
-| Visual implementation phases                    | [`visual-improvement-plan.md`](visual-improvement-plan.md)                                                       |
-| Git branch policy                               | [`git-workflow.md`](git-workflow.md)                                                                             |
+| Need                                            | Document                                                                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What shipped, gaps, remediation slices (AP-01…) | [`post-development-inventory.md`](post-development-inventory.md)                                                                                                                             |
+| Amplify deploy, runtime config verification     | [`amplify-deployment-runbook.md`](amplify-deployment-runbook.md)                                                                                                                             |
+| Hosting / DNS / CSP source of truth             | README.md (S3+CloudFront section) + [`AWS_INFRASTRUCTURE_SOT.md`](AWS_INFRASTRUCTURE_SOT.md) (historical Amplify details in [`AMPLIFY_HOSTING_SOT.md`](AMPLIFY_HOSTING_SOT.md) — deprecated) |
+| Clerk CMS workflows                             | [`CLERK-CMS-GUIDE.md`](CLERK-CMS-GUIDE.md)                                                                                                                                                   |
+| E2E ↔ AWS feature mapping                       | [`e2e-feature-map.md`](e2e-feature-map.md)                                                                                                                                                   |
+| Agent Week 1 session prompt                     | [`week1-incremental-session-prompt.md`](week1-incremental-session-prompt.md)                                                                                                                 |
+| Pre-launch polish checklist (historical items)  | [`incomplete-items-reference.md`](incomplete-items-reference.md)                                                                                                                             |
+| Remaining security/perf backlog (short)         | [`feature-completion-spec.md`](feature-completion-spec.md)                                                                                                                                   |
+| PR / feature review                             | [`review-checklist.md`](review-checklist.md)                                                                                                                                                 |
+| Page build standards (Angular 21 + PrimeNG)     | [`ANGULAR21_PRIMENG_AMPLIFY_PAGE_READINESS_CHECKLIST.md`](ANGULAR21_PRIMENG_AMPLIFY_PAGE_READINESS_CHECKLIST.md)                                                                             |
+| Visual design target                            | [`visual-box-baseline.md`](visual-box-baseline.md)                                                                                                                                           |
+| Visual implementation phases                    | [`visual-improvement-plan.md`](visual-improvement-plan.md)                                                                                                                                   |
+| Git branch policy                               | [`git-workflow.md`](git-workflow.md)                                                                                                                                                         |
 
 ## Retired / consolidated
 

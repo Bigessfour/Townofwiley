@@ -1,4 +1,7 @@
-<section class="cms-upload-panel" [attr.aria-label]="mode() === 'hero' ? 'Upload homepage photo' : 'Upload newsletter PDF'">
+<section
+  class="cms-upload-panel"
+  [attr.aria-label]="mode() === 'hero' ? 'Upload homepage photo' : 'Upload newsletter PDF'"
+>
   @if (mode() === 'hero') {
     <h3 class="cms-upload-panel__title">Upload homepage photo (optional)</h3>
     <p class="cms-upload-panel__lead">
@@ -8,7 +11,8 @@
   } @else {
     <h3 class="cms-upload-panel__title">Upload newsletter PDF (optional)</h3>
     <p class="cms-upload-panel__lead">
-      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter Announcement row.
+      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter
+      Announcement row.
     </p>
   }
 
@@ -39,7 +43,9 @@
       <code>{{ value }}</code>
     </p>
     <div class="cms-upload-panel__actions">
-      <button type="button" class="button-cta button-cta--light" (click)="copyToClipboard()">Copy</button>
+      <button type="button" class="button-cta button-cta--light" (click)="copyToClipboard()">
+        Copy
+      </button>
       <a
         class="button-cta button-cta--solid"
         [href]="editorUrlForMode()"

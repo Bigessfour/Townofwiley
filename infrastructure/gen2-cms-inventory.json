@@ -11,10 +11,7 @@
     "name": "townofwiley",
     "graphqlEndpoint": "https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql",
     "authenticationType": "API_KEY",
-    "additionalAuth": [
-      "AMAZON_COGNITO_USER_POOLS",
-      "AWS_IAM"
-    ]
+    "additionalAuth": ["AMAZON_COGNITO_USER_POOLS", "AWS_IAM"]
   },
   "cognito": {
     "userPoolId": "us-east-2_pkewJMUJF",
@@ -103,9 +100,7 @@
       "PublicDocument",
       "ExternalNewsLink"
     ],
-    "staffOnlyModels": [
-      "EmailAlias"
-    ],
+    "staffOnlyModels": ["EmailAlias"],
     "heroFields": [
       "heroEyebrow",
       "heroStatus",

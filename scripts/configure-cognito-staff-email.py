@@ -80,7 +80,9 @@ def main() -> None:
             "--user-attribute-update-settings",
             json.dumps({"AttributesRequireVerificationBeforeUpdate": ["email"]}),
             "--account-recovery-setting",
-            json.dumps({"RecoveryMechanisms": [{"Priority": 1, "Name": "verified_email"}]}),
+            json.dumps(
+                {"RecoveryMechanisms": [{"Priority": 1, "Name": "verified_email"}]}
+            ),
             "--email-configuration",
             json.dumps(
                 {
@@ -93,7 +95,9 @@ def main() -> None:
         ]
     )
 
-    print(f"Configured {user_pool_id} to send from {DEFAULT_FROM} via SES ({ses_identity}).")
+    print(
+        f"Configured {user_pool_id} to send from {DEFAULT_FROM} via SES ({ses_identity})."
+    )
 
 
 if __name__ == "__main__":

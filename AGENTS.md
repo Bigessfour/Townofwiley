@@ -1,6 +1,6 @@
 # Town of Wiley — Grok Build project rules
 
-Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeNG, SCSS, AWS Amplify, bilingual EN/ES.
+Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
 
 ## Stack and conventions
 

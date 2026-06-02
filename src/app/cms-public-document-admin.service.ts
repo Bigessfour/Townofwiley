@@ -49,7 +49,11 @@ export class CmsPublicDocumentAdminService {
     meetingContext?: MeetingDocumentUploadContext,
   ): Promise<string> {
     const title = meetingContext
-      ? formatMeetingDocumentTitle(meetingContext.eventTitle, meetingContext.eventStart, meetingContext.locale)
+      ? formatMeetingDocumentTitle(
+          meetingContext.eventTitle,
+          meetingContext.eventStart,
+          meetingContext.locale,
+        )
       : this.toDisplayTitle(document.name);
     const summary = meetingContext
       ? formatMeetingDocumentSummary(
@@ -74,7 +78,9 @@ export class CmsPublicDocumentAdminService {
           href: this.toStorageHref(document.id),
           downloadFileName: document.name,
           keywords,
-          displayOrder: meetingContext ? this.toMeetingDisplayOrder(meetingContext.eventStart) : undefined,
+          displayOrder: meetingContext
+            ? this.toMeetingDisplayOrder(meetingContext.eventStart)
+            : undefined,
           active: true,
         },
       },

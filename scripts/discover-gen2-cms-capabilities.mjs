@@ -66,8 +66,16 @@ function main() {
   const apiId = bindings.appSyncGen2.apiId;
   const region = bindings.storageGen2?.region || 'us-east-2';
 
-  const api = awsJson(['appsync', 'get-graphql-api', '--api-id', apiId, '--region', region, '--output', 'json'])
-    .graphqlApi;
+  const api = awsJson([
+    'appsync',
+    'get-graphql-api',
+    '--api-id',
+    apiId,
+    '--region',
+    region,
+    '--output',
+    'json',
+  ]).graphqlApi;
 
   const models = CMS_MODELS.map((model) => {
     const tableName = `${model}-${suffix}`;
@@ -89,7 +97,9 @@ function main() {
       name: api.name,
       graphqlEndpoint: api.uris?.GRAPHQL ?? bindings.appSyncGen2.graphqlEndpoint,
       authenticationType: api.authenticationType,
-      additionalAuth: (api.additionalAuthenticationProviders ?? []).map((p) => p.authenticationType),
+      additionalAuth: (api.additionalAuthenticationProviders ?? []).map(
+        (p) => p.authenticationType,
+      ),
     },
     cognito: bindings.cognitoGen2,
     storage: bindings.storageGen2,

@@ -761,6 +761,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Businesses', href: '/businesses', icon: 'pi pi-building' },
       { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contact', href: '/contact', icon: 'pi pi-envelope' },
+      { label: 'Hello from…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     menuQuickTasksLabel: 'I Want To...',
     menuGovernmentLabel: 'Government & Meetings',
@@ -1171,7 +1172,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Registros publicos y FOIA', href: '/records' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
-      { label: 'Saludos desde…', href: '/hello-from' },
+      { label: 'Saludos desde…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     communityFacts: [
       { label: 'Poblacion', value: '~437', detail: 'Residentes estimados, censo de 2020' },
@@ -1181,15 +1182,16 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Codigo postal', value: '81092', detail: 'Area postal de Wiley' },
     ],
     navLinks: [
-      { label: 'Tareas clave', href: '#top-tasks' },
-      { label: 'Clima', href: '/weather' },
-      { label: 'Avisos', href: '/notices' },
-      { label: 'Reuniones', href: '/meetings' },
-      { label: 'Servicios', href: '/services' },
-      { label: 'Registros', href: '/records' },
-      { label: 'Negocios', href: '/businesses' },
-      { label: 'Noticias', href: '/news' },
-      { label: 'Contacto', href: '/contact' },
+      { label: 'Tareas clave', href: '#top-tasks', icon: 'pi pi-list' },
+      { label: 'Clima', href: '/weather', icon: 'pi pi-cloud' },
+      { label: 'Avisos', href: '/notices', icon: 'pi pi-bell' },
+      { label: 'Reuniones', href: '/meetings', icon: 'pi pi-calendar' },
+      { label: 'Servicios', href: '/services', icon: 'pi pi-briefcase' },
+      { label: 'Registros', href: '/records', icon: 'pi pi-file' },
+      { label: 'Negocios', href: '/businesses', icon: 'pi pi-building' },
+      { label: 'Noticias', href: '/news', icon: 'pi pi-newspaper' },
+      { label: 'Contacto', href: '/contact', icon: 'pi pi-envelope' },
+      { label: 'Saludos desde…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     menuQuickTasksLabel: 'Quiero...',
     menuGovernmentLabel: 'Gobierno y Reuniones',
@@ -1690,7 +1692,14 @@ export class App {
   );
   protected readonly isProgrammaticChatEnabled =
     this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
-  protected readonly isAssistantEnabled = this.chatbotConfig.mode !== 'none';
+  /**
+   * The floating "Ask Wiley" chatbot affordance is now always available on public pages.
+   * When no Easy-Peasy configuration is present (common in fresh clones / local dev),
+   * the dialog gracefully explains setup and offers contact fallbacks.
+   * This brings the resident assistant link back to the main page without requiring
+   * secrets for basic visibility.
+   */
+  protected readonly isAssistantEnabled = true; // Always surface the chatbot entry point (dialog handles configured vs. setup states)
   protected readonly heroContent = this.cmsStore.hero;
   protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);

@@ -1,11 +1,17 @@
-# Amplify Hosting — Single Source of Truth (SOT)
+# Amplify Hosting — Single Source of Truth (SOT) — HISTORICAL / DEPRECATED
 
-This document is the canonical reference for how the Town of Wiley website is built,
+> **DEPRECATED (June 2026):** The Town of Wiley frontend was migrated from AWS Amplify Hosting (app `d331voxr1fhoir`) to S3 bucket `townofwiley-static-site` + CloudFront distribution `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`). The legacy Amplify app was permanently deleted after DNS cutover and verification. This file is preserved for historical reference on build process, CSP origin logic, and `amplify.yml` / `customHttp.yml` patterns.
+>
+> **Current hosting details and deploy steps:** See [README.md](../README.md) § "Deployment Record — Current (June 2026+)" and [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md).
+>
+> Amplify references below (build spec, rewrites, etc.) no longer apply to production hosting. `customHttp.yml` is now primarily for local `ng serve` CSP parity.
+
+This document was the canonical reference for how the Town of Wiley website is built,
 hosted, and routed on AWS Amplify Hosting. It is intentionally narrow: only the wiring
-that turns the Angular 21 SPA into a live, deep-linkable site belongs here.
+that turns the Angular 21 SPA into a live, deep-linkable site belonged here.
 
 When the build output, rewrite rules, CSP origins, or runtime-config flow change,
-update this file in the same PR.
+update this file (or its successor) in the same PR.
 
 **Custom Lambdas, DynamoDB, Function URL auth, and deployment order:** [AWS_INFRASTRUCTURE_SOT.md](./AWS_INFRASTRUCTURE_SOT.md) and [infrastructure/aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json).
 

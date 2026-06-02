@@ -158,7 +158,7 @@ npm run test:e2e:smoke
 PowerShell example (live hosting — not PR smoke):
 
 ```powershell
-$env:E2E_BASE_URL = 'https://main.d331voxr1fhoir.amplifyapp.com'
+$env:E2E_BASE_URL = 'https://townofwiley.gov'   # or https://d34qrz3qxoppc5.cloudfront.net (post-Amplify migration; old *.amplifyapp.com hosts gone)
 npm run test:e2e:live:staging
 ```
 

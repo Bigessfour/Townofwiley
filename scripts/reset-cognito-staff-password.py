@@ -51,7 +51,9 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Explicit password (otherwise a random compliant password is generated)",
     )
-    parser.add_argument("--print-password", action="store_true", help="Print generated password")
+    parser.add_argument(
+        "--print-password", action="store_true", help="Print generated password"
+    )
     return parser.parse_args()
 
 
@@ -61,13 +63,17 @@ def load_pool_id(cli_value: str) -> str:
     if BINDINGS_PATH.exists():
         bindings = json.loads(BINDINGS_PATH.read_text(encoding="utf-8"))
         return bindings["cognitoGen2"]["userPoolId"]
-    raise RuntimeError("Pass --user-pool-id or add infrastructure/gen2-production-bindings.json")
+    raise RuntimeError(
+        "Pass --user-pool-id or add infrastructure/gen2-production-bindings.json"
+    )
 
 
 def run_aws(command: list[str]) -> str:
     process = subprocess.run(["aws", *command], capture_output=True, text=True)
     if process.returncode != 0:
-        raise RuntimeError(process.stderr.strip() or process.stdout.strip() or "AWS CLI failed")
+        raise RuntimeError(
+            process.stderr.strip() or process.stdout.strip() or "AWS CLI failed"
+        )
     return process.stdout.strip()
 
 
@@ -131,7 +137,9 @@ def main() -> None:
                 region,
             ]
         )
-        print("AdminResetUserPassword invoked. User should complete reset via /admin/login forgot password.")
+        print(
+            "AdminResetUserPassword invoked. User should complete reset via /admin/login forgot password."
+        )
         return
 
     password = args.password.strip() or generate_password()
@@ -161,7 +169,9 @@ def main() -> None:
     if args.print_password or args.password:
         print(f"Password: {password}")
     else:
-        print("Password generated. Re-run with --print-password to display (share securely).")
+        print(
+            "Password generated. Re-run with --print-password to display (share securely)."
+        )
 
 
 if __name__ == "__main__":

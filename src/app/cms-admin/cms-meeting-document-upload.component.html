@@ -36,7 +36,9 @@
   }
 
   <div class="cms-meeting-upload__field">
-    <span class="cms-meeting-upload__label" id="cms-meeting-upload-file-label">{{ copy().fileLabel }}</span>
+    <span class="cms-meeting-upload__label" id="cms-meeting-upload-file-label">{{
+      copy().fileLabel
+    }}</span>
     <label class="cms-meeting-upload__file">
       <input
         type="file"
@@ -68,7 +70,12 @@
       {{ copy().uploadButton }}
     </button>
     @if (publishedDocumentsHref(); as documentsHref) {
-      <a class="cms-button secondary" [href]="documentsHref" target="_blank" rel="noreferrer noopener">
+      <a
+        class="cms-button secondary"
+        [href]="documentsHref"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
         {{ copy().viewDocuments }}
       </a>
     }

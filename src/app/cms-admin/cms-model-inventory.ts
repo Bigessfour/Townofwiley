@@ -32,9 +32,9 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
     publicApiKeyRead: true,
     routes: '/ (hero, welcome)',
     keyFields: 'heroImageUrl, heroTitle, heroMessage, welcomeHeading, townName',
-    emptyWarningEn: 'No SiteSettings row — homepage uses bundled fallback text and /hero-wiley.webp.',
-    emptyWarningEs:
-      'Sin fila SiteSettings — la portada usa texto de respaldo y /hero-wiley.webp.',
+    emptyWarningEn:
+      'No SiteSettings row — homepage uses bundled fallback text and /hero-wiley.webp.',
+    emptyWarningEs: 'Sin fila SiteSettings — la portada usa texto de respaldo y /hero-wiley.webp.',
   },
   {
     model: 'AlertBanner',

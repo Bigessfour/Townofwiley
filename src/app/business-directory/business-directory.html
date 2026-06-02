@@ -44,7 +44,9 @@
       class="public-card-grid directory-card-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-2 sm:px-0"
     >
       @for (business of filteredBusinesses(); track business.name) {
-        <article class="public-card panel wiley-panel public-directory-card grid gap-4 p-6 sm:p-5 h-full">
+        <article
+          class="public-card panel wiley-panel public-directory-card grid gap-4 p-6 sm:p-5 h-full"
+        >
           <div class="public-card-header grid gap-3 grid-cols-[minmax(0,1fr)_auto] items-start">
             <div>
               <p class="meta-label">{{ copy().metaLabel }}</p>

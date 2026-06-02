@@ -67,8 +67,7 @@ export function validateAngularInlineStylePolicy(csp, label = 'CSP') {
   if (!cspSourcesIncludeQuotedToken(styleSrc, 'unsafe-inline')) {
     return {
       ok: false,
-      message:
-        `${label}: style-src must include 'unsafe-inline' (Angular <style> tags from SSR/hydration).`,
+      message: `${label}: style-src must include 'unsafe-inline' (Angular <style> tags from SSR/hydration).`,
     };
   }
 
@@ -76,8 +75,7 @@ export function validateAngularInlineStylePolicy(csp, label = 'CSP') {
   if (!cspSourcesIncludeQuotedToken(styleSrcAttr, 'unsafe-inline')) {
     return {
       ok: false,
-      message:
-        `${label}: style-src-attr must include 'unsafe-inline' (Angular/PrimeNG style="" attributes).`,
+      message: `${label}: style-src-attr must include 'unsafe-inline' (Angular/PrimeNG style="" attributes).`,
     };
   }
 

@@ -200,7 +200,8 @@ export async function handler(event) {
     return jsonResponse(
       500,
       {
-        error: 'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
+        error:
+          'NWS proxy is missing the required NWS_USER_AGENT configuration. Check AWS Lambda environment variables.',
         hint: 'Set NWS_USER_AGENT to something like "townofwiley.gov/1.0 (your-email@domain.com)"',
       },
       requestOrigin,

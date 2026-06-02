@@ -1,9 +1,7 @@
-
 > townofwiley-app@0.0.0 amplify:gen2:assess
 > amplify gen2-migration assess
 
-
-⚠️  WARNING: AWS Amplify Gen 1 CLI is in maintenance mode and will reach end of life on May 1, 2027.
+⚠️ WARNING: AWS Amplify Gen 1 CLI is in maintenance mode and will reach end of life on May 1, 2027.
 During maintenance mode, only critical bug fixes and security patches will be provided.
 Migrate to Amplify Gen 2: https://docs.amplify.aws/react/start/migrate-to-gen2/
 
