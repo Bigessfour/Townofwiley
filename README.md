@@ -56,11 +56,18 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   - `www.townofwiley.gov` → A alias → `d34qrz3qxoppc5.cloudfront.net`
 - **AWS account:** `570912405222` only. Default profile **`townofwiley`** (see `.vscode/settings.json`).
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
+- **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
 - **Deploy steps (manual after `npm run build` or CI artifact):**
   ```bash
+  # From repo root with AWS_PROFILE=townofwiley
+  npm run build
   aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete
   aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths "/*"
   ```
+  **Critical:** Output must be at the S3 **bucket root** (no `browser/` prefix). CloudFront origin has no OriginPath.
+
+- **Hardening (applied June 2026):** CustomErrorResponses configured on the distribution so 403/404 serve `/index.html` (HTTP 200). This prevents raw S3 XML errors from ever being shown to visitors again.
+
 - **Runtime config:** Served as static `runtime-config.js` from the S3 bucket (generated at build or via `scripts/generate-runtime-config.mjs` using current env / secrets).
 - **CSP / headers:** Managed at CloudFront (or S3 origin) + `customHttp.yml` kept for dev server parity (`ng serve`) and historical reference. See `docs/third-party-csp-registry.md`.
 

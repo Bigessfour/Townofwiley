@@ -1,0 +1,208 @@
+- generic [ref=e2]:
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+        - /url: '#main-content'
+    - banner [ref=e4]:
+        - generic [ref=e5]:
+            - text: 
+            - generic [ref=e6]:
+                - link "Return to homepage" [ref=e8] [cursor=pointer]:
+                    - /url: /
+                    - generic [ref=e9]: Official Town Website
+                    - strong [ref=e10]: Town of Wiley
+                - menubar [ref=e11]:
+                    - menuitem "I Want To..." [ref=e12]:
+                        - button "I Want To..." [ref=e14] [cursor=pointer]:
+                            - generic [ref=e15]: 
+                            - generic [ref=e16]: I Want To...
+                            - generic [ref=e17]: 
+                        - text: 
+                    - menuitem "Government & Meetings" [ref=e18]:
+                        - button "Government & Meetings" [ref=e20] [cursor=pointer]:
+                            - generic [ref=e21]: 
+                            - generic [ref=e22]: Government & Meetings
+                            - generic [ref=e23]: 
+                        - text:  
+                    - menuitem "Services & Permits" [ref=e24]:
+                        - button "Services & Permits" [ref=e26] [cursor=pointer]:
+                            - generic [ref=e27]: 
+                            - generic [ref=e28]: Services & Permits
+                            - generic [ref=e29]: 
+                    - menuitem "News, Notices & Alerts" [ref=e30]:
+                        - button "News, Notices & Alerts" [ref=e32] [cursor=pointer]:
+                            - generic [ref=e33]: 
+                            - generic [ref=e34]: News, Notices & Alerts
+                            - generic [ref=e35]: 
+                        - text: 
+                    - menuitem "Businesses & Community" [ref=e36]:
+                        - link "Businesses & Community" [ref=e38] [cursor=pointer]:
+                            - /url: /businesses
+                            - generic [ref=e39]: 
+                            - generic [ref=e40]: Businesses & Community
+                    - menuitem "Contact & Town Hall" [ref=e41]:
+                        - link "Contact & Town Hall" [ref=e43] [cursor=pointer]:
+                            - /url: /contact
+                            - generic [ref=e44]: 
+                            - generic [ref=e45]: Contact & Town Hall
+                - generic [ref=e47]:
+                    - search [ref=e48]:
+                        - generic [ref=e49]: Find permits, taxes, meetings, utilities, records, and issue reporting in one place.
+                        - generic [ref=e50]:
+                            - generic [ref=e51]: 
+                            - searchbox "Find permits, taxes, meetings, utilities, records, and issue reporting in one place." [ref=e52]
+                    - generic "Site language" [ref=e53]:
+                        - group "Site language" [ref=e54]:
+                            - 'button "Site language: ES" [ref=e55] [cursor=pointer]': ES
+                            - 'button "Site language: EN" [pressed] [ref=e56] [cursor=pointer]': EN
+    - region "Town of Wiley" [ref=e57]:
+        - figure [ref=e58]:
+            - img "Wiley Town Hall at 304 Main Street in Wiley, Colorado, with the eastern plains and open sky in the background." [ref=e59]
+        - article [ref=e61]:
+            - generic [ref=e62]:
+                - paragraph [ref=e63]: Town of Wiley, Colorado
+                - paragraph [ref=e64]: Official Town Website
+                - heading "Town of Wiley" [level=1] [ref=e65]
+                - paragraph [ref=e66]: Town notices, meetings, weather, and services.
+                - paragraph [ref=e67]: Services, meetings, and Town Hall contacts for Wiley residents.
+                - generic [ref=e68]:
+                    - link "Explore resident services" [ref=e69] [cursor=pointer]:
+                        - /url: /services
+                    - link "View meetings and notices" [ref=e70] [cursor=pointer]:
+                        - /url: /meetings
+    - main [ref=e71]:
+        - region "How do I..." [ref=e72]:
+            - generic [ref=e73]:
+                - generic [ref=e74]:
+                    - generic [ref=e76]: Quick Tasks
+                    - heading "How do I..." [level=2] [ref=e77]
+                - paragraph
+            - separator
+            - region "Resident shortcuts" [ref=e78]:
+                - link "Pay utility bill" [ref=e79] [cursor=pointer]:
+                    - /url: /pay-bill
+                    - generic [ref=e83]:
+                        - img [ref=e85]
+                        - generic [ref=e88]:
+                            - strong [ref=e89]: Pay utility bill
+                            - generic [ref=e90]: Pay your water and utility bills online or find payment options.
+                            - generic [ref=e91]: Contact Town Hall for payment assistance.
+                - link "Report a street or utility issue" [ref=e92] [cursor=pointer]:
+                    - /url: /services#issue-report
+                    - generic [ref=e96]:
+                        - img [ref=e98]
+                        - generic [ref=e101]:
+                            - strong [ref=e102]: Report a street or utility issue
+                            - generic [ref=e103]: Report potholes, outages, drainage issues, or streetlight problems.
+                            - generic [ref=e104]: Submit your report directly to town services.
+                - link "Find a meeting or agenda" [ref=e105] [cursor=pointer]:
+                    - /url: /meetings
+                    - generic [ref=e109]:
+                        - img [ref=e111]
+                        - generic [ref=e113]:
+                            - strong [ref=e114]: Find a meeting or agenda
+                            - generic [ref=e115]: View upcoming meetings, agendas, and past minutes.
+                            - generic [ref=e116]: All meeting information is available here.
+                - link "Request records, permits, or clerk help" [ref=e117] [cursor=pointer]:
+                    - /url: /services#records-request
+                    - generic [ref=e121]:
+                        - img [ref=e123]
+                        - generic [ref=e126]:
+                            - strong [ref=e127]: Request records, permits, or clerk help
+                            - generic [ref=e128]: Request public records, permits, or assistance from the clerk.
+                            - generic [ref=e129]: Use the form to submit your request.
+        - region "Search Wiley services" [ref=e130]:
+            - generic [ref=e131]:
+                - generic [ref=e132]:
+                    - generic [ref=e134]: Wiley Search
+                    - heading "Search Wiley services" [level=2] [ref=e135]
+                - paragraph [ref=e136]: Find permits, taxes, meetings, utilities, records, and issue reporting in one place.
+            - paragraph [ref=e137]: Results update as you type; use the shortcuts below for common tasks.
+            - generic [ref=e138]:
+                - link "Local weather Severe weather and service alerts for Wiley, 81092 Local weather" [ref=e139] [cursor=pointer]:
+                    - /url: /weather
+                    - strong [ref=e140]: Local weather
+                    - generic [ref=e141]: Severe weather and service alerts for Wiley, 81092
+                    - generic [ref=e142]: Local weather
+                - link "Pay utility bill Pay your water and utility bills online or find payment options. Quick Tasks" [ref=e143] [cursor=pointer]:
+                    - /url: /pay-bill
+                    - strong [ref=e144]: Pay utility bill
+                    - generic [ref=e145]: Pay your water and utility bills online or find payment options.
+                    - generic [ref=e146]: Quick Tasks
+                - link "Report a street or utility issue Report potholes, outages, drainage issues, or streetlight problems. Quick Tasks" [ref=e147] [cursor=pointer]:
+                    - /url: /services#issue-report
+                    - strong [ref=e148]: Report a street or utility issue
+                    - generic [ref=e149]: Report potholes, outages, drainage issues, or streetlight problems.
+                    - generic [ref=e150]: Quick Tasks
+                - link "Find a meeting or agenda View upcoming meetings, agendas, and past minutes. Quick Tasks" [ref=e151] [cursor=pointer]:
+                    - /url: /meetings
+                    - strong [ref=e152]: Find a meeting or agenda
+                    - generic [ref=e153]: View upcoming meetings, agendas, and past minutes.
+                    - generic [ref=e154]: Quick Tasks
+                - link "Request records, permits, or clerk help Request public records, permits, or assistance from the clerk. Quick Tasks" [ref=e155] [cursor=pointer]:
+                    - /url: /services#records-request
+                    - strong [ref=e156]: Request records, permits, or clerk help
+                    - generic [ref=e157]: Request public records, permits, or assistance from the clerk.
+                    - generic [ref=e158]: Quick Tasks
+        - generic [ref=e159]:
+            - generic "Council meetings & schedules" [ref=e160]:
+                - generic [ref=e162]:
+                    - generic [ref=e163]:
+                        - generic [ref=e165]: Town calendar
+                        - heading "Council meetings & schedules" [level=2] [ref=e166]
+                    - link "Open the full town calendar" [ref=e167] [cursor=pointer]:
+                        - /url: /meetings#calendar
+                - generic [ref=e170]:
+                    - article [ref=e171]:
+                        - generic [ref=e172]:
+                            - strong [ref=e173]: Town council meeting
+                            - generic [ref=e174]: Second Monday each month · 6:00 PM
+                        - paragraph [ref=e175]: Wiley Town Hall, 304 Main Street
+                        - generic [ref=e176]: In person at Wiley Town Hall. Agendas post before each meeting.
+                        - paragraph [ref=e177]: 'Agenda requests: (719) 829-4974 or the town clerk before the meeting.'
+                    - article [ref=e178]:
+                        - generic [ref=e179]:
+                            - strong [ref=e180]: Town notices & deadlines
+                            - generic [ref=e181]: Posted year-round
+                        - paragraph [ref=e182]: Town-wide
+                        - generic [ref=e183]: Utility work, road closures, seasonal deadlines, and severe weather updates.
+            - generic "News & Announcements" [ref=e184]:
+                - generic [ref=e187]:
+                    - generic [ref=e189]: Latest Updates
+                    - heading "News & Announcements" [level=2] [ref=e190]
+                - generic [ref=e193]:
+                    - generic [ref=e194]:
+                        - generic [ref=e196]: Recent
+                        - article [ref=e201]:
+                            - paragraph [ref=e202]: Welcome to the Town of Wiley Official Website
+                            - paragraph [ref=e203]: Find town services, meetings, weather updates, and public notices. Call Town Hall at (719) 829-4974 for help.
+                    - generic [ref=e204]:
+                        - generic [ref=e206]: See calendar
+                        - article [ref=e211]:
+                            - paragraph [ref=e212]: Town Council Meeting Scheduled
+                            - paragraph [ref=e213]: Town Council meets on the second Monday of each month at 6:00 PM at Wiley Town Hall, 304 Main Street. Agendas post before each meeting.
+                    - generic [ref=e214]:
+                        - generic [ref=e216]: Ongoing
+                        - article [ref=e220]:
+                            - paragraph [ref=e221]: Severe Weather Alert Sign-Up Available
+                            - paragraph [ref=e222]: Sign up for local weather and emergency alerts on the Weather page. You can choose email or text.
+        - generic [ref=e225]:
+            - navigation "Footer links" [ref=e226]:
+                - list [ref=e227]:
+                    - listitem [ref=e228]:
+                        - link "Accessibility statement" [ref=e229] [cursor=pointer]:
+                            - /url: /accessibility
+                    - listitem [ref=e230]:
+                        - link "Weather alert privacy" [ref=e231] [cursor=pointer]:
+                            - /url: /privacy
+                    - listitem [ref=e232]:
+                        - link "Weather alert SMS terms" [ref=e233] [cursor=pointer]:
+                            - /url: /terms
+                    - listitem [ref=e234]:
+                        - link "Public records and FOIA" [ref=e235] [cursor=pointer]:
+                            - /url: /records
+                    - listitem [ref=e236]:
+                        - link "Meeting notices" [ref=e237] [cursor=pointer]:
+                            - /url: /meetings
+                    - listitem [ref=e238]:
+                        - link "Contact Town Hall" [ref=e239] [cursor=pointer]:
+                            - /url: /contact
+            - paragraph [ref=e240]: © 2026 Town of Wiley
