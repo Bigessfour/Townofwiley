@@ -2,16 +2,16 @@
 
 Operational runbook for moving from **Amplify Gen 1** (Studio + `amplify push`) to **Gen 2** (TypeScript CDK + `npx ampx pipeline-deploy`).
 
-| Item                               | Value                                                                  |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| AWS account                        | `570912405222`                                                         |
-| Amplify app                        | `d331voxr1fhoir`                                                       |
-| Gen 1 env / stack                  | `main` / `amplify-townofwiley-main-d1245`                              |
-| Gen 2 Hosting branch (preview)     | `gen2-main`                                                            |
-| Gen 2 production Hosting branch    | `main` (stack `amplify-d331voxr1fhoir-main-branch-82345f229c`)         |
-| Gen 2 production AppSync           | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7…`                         |
-| Gen 1 AppSync (legacy data source) | `j7b2x3sh7rcezekekkxxiak7hi` → `327diwc6…` (decommission after retain) |
-| Region                             | `us-east-2`                                                            |
+| Item                               | Value                                                                               |
+| ---------------------------------- | ----------------------------------------------------------------------------------- |
+| AWS account                        | `570912405222`                                                                      |
+| Amplify app                        | `d331voxr1fhoir`                                                                    |
+| Gen 1 env / stack                  | `main` / `amplify-townofwiley-main-d1245`                                           |
+| Gen 2 Hosting branch (preview)     | `gen2-main`                                                                         |
+| Gen 2 production Hosting branch    | `main` (stack `amplify-d331voxr1fhoir-main-branch-82345f229c`)                      |
+| Gen 2 production AppSync (current) | `x7poehudqvamneqni5s6e2cjxy` → `fpm2ifkbfnb7hphqsck6dj66wq` (use for CMS + runtime) |
+| Gen 1 AppSync (legacy data source) | `j7b2x3sh7rcezekekkxxiak7hi` → `327diwc6…` (decommission after cutover + retain)    |
+| Region                             | `us-east-2`                                                                         |
 
 ## What changed for staff
 
@@ -23,20 +23,26 @@ Operational runbook for moving from **Amplify Gen 1** (Studio + `amplify push`) 
 
 Clerk guide: [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md). Admin hub: https://townofwiley.gov/admin
 
-**Data manager URL (Gen 2 production — branch `main`):**
+**Content editor (Gen 2 AppSync production — current):**
 
-`https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data`
+<https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries>
+
+(Or use <https://townofwiley.gov/admin> "Content editor URL" which now points here. The old Amplify /data manager URL for d331 is decommissioned.)
+
+**Repo-side cutover to Gen 2 (runtime-config, /admin links, docs, tests, clerk-setup, model inventory defaults):** COMPLETE (Gen 1 IDs marked legacy everywhere in code/docs for clerk flows).
+
+**Prod backend cutover (data copy + runtime secrets to Gen2 endpoint + ampx deploy + verify public + /admin + decommission Gen1 stacks):** See "Workstation cutover steps" below. Use scripts/gen2-production-cutover.sh and migrate-cms-gen1-to-gen2-dynamodb.mjs after assess/lock.
 
 Preview branch `gen2-main` has its **own** backend tables if deployed; do not use it for production CMS edits.
 
 ## Repository layout
 
-| Path                                            | Role                                                 |
-| ----------------------------------------------- | ---------------------------------------------------- |
-| `amplify/auth`, `data`, `storage`, `backend.ts` | Gen 2 backend (branch `gen2-main`)                   |
-| `gen1-amplify-backend/`                         | Archived Gen 1 `amplify/backend` on `gen2-main` only |
-| `amplify.yml`                                   | Backend `pipeline-deploy` + Angular frontend build   |
-| `scripts/copy-amplify-branch-env.sh`            | Copy Hosting env vars between branches               |
+| Path                                            | Role                                                                                             |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `amplify/auth`, `data`, `storage`, `backend.ts` | Gen 2 backend (branch `gen2-main`)                                                               |
+| `gen1-amplify-backend/` (removed)               | Archived Gen 1 `amplify/backend` (history only; deleted in Gen2 repo cutover to avoid confusion) |
+| `amplify.yml`                                   | Backend `pipeline-deploy` + Angular frontend build                                               |
+| `scripts/copy-amplify-branch-env.sh`            | Copy Hosting env vars between branches                                                           |
 
 On **`main`**, Gen 1 files remain under `amplify/backend/` until merge/cutover.
 
@@ -87,7 +93,7 @@ Then trigger a `main` Hosting build (or wait for the next push) so `public/cms-s
 
 `amplify gen2-migration assess` reads **`#current-cloud-backend.zip`** from S3, not only local files. Production storage never had `storage/documents/cli-inputs.json` until we attempted a push; **override migration** for storage requires an interactive `amplify update storage` (not available in CI/agent shells).
 
-**Mitigation on `gen2-main`:** hand-authored Gen 2 backend matching [schema.graphql](../gen1-amplify-backend/backend/api/townofwiley/schema.graphql) in `amplify/data/resource.ts`.
+**Mitigation on `gen2-main`:** hand-authored Gen 2 backend (amplify/data/resource.ts) matching the prior Gen 1 schema (now in git history only; gen1-amplify-backend/ dir removed). Public query verify now uses gen2-cms-inventory.json.
 
 Before production **refactor**, complete storage override migration on a maintainer workstation:
 

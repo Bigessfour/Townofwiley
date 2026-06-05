@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "description": "Environment variable NAMES consumed by scripts/generate-runtime-config.mjs to emit runtime-config.js for the (now S3+CloudFront) production site. Values come from secrets / local env only — never committed. Originally sourced from Amplify Hosting `main` branch (app d331voxr1fhoir, deleted June 2026 after migration).",
-  "note": "Hosting migration complete: frontend no longer on Amplify. This file documents var *names* for runtime config (GUESTBOOK_API_ENDPOINT, chatbot, etc.) and any remaining Amplify backend (AppSync) references. Legacy app/branch fields kept for script compatibility.",
+  "description": "Environment variable NAMES consumed by scripts/generate-runtime-config.mjs to emit runtime-config.js for the (now S3+CloudFront) production site. Values come from secrets / local env only — never committed. Runtime CMS now uses Gen 2 AppSync (x7poehudqvamneqni5s6e2cjxy / fpm2ifkbfnb7hphqsck6dj66wq...). Gen 1 (j7b2x3sh7rcezekekkxxiak7hi) is legacy (see docs/amplify-gen2-migration-plan.md). ClerkSetup includes cfDistributionId: E1NZ3XCY5CYR1J and s3Bucket for /admin page info; studioUrl falls back to Gen2 AppSync console for CMS editing (legacy Amplify app ID d331voxr1fhoir deleted; Gen1 AppSync legacy).",
+  "note": "Hosting migration complete: frontend no longer on Amplify (CF dist E1NZ3XCY5CYR1J). Runtime CMS cut over to Gen 2 (x7poeh...). Gen 1 backend (j7b2...) is legacy/decommission candidate. Legacy app/branch fields kept for script compatibility only. CMS editing via /admin or Gen2 AppSync console (x7poehudqvamneqni5s6e2cjxy). See docs for cutover and gen1-decommission-evaluation.md.",
   "legacyAmplifyAppId": "d331voxr1fhoir",
   "branch": "main (hosting historical)",
   "generator": "scripts/generate-runtime-config.mjs",
@@ -84,5 +84,6 @@
       "runtimePath": "logging.endpoint"
     }
   ],
-  "amplifyManaged": ["AMPLIFY_BACKEND_APP_ID", "USER_BRANCH"]
+  "amplifyManaged": ["AMPLIFY_BACKEND_APP_ID", "USER_BRANCH"],
+  "clerkSetupNotes": "clerkSetup in runtime-config now includes cfDistributionId (E1NZ3XCY5CYR1J) and s3Bucket for display in /admin. studioUrl/dataManagerUrl falls back to AppSync Queries for CMS editing (no more Amplify Studio dependency for clerks)."
 }

@@ -56,13 +56,11 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Announcement',
     previewPath: '/news',
     steps: [
-      'Click Edit content below. In the editor, open Announcement.',
-      'Click Create, then fill in Title and Details (what happened, who is affected, dates).',
-      'When the editor shows Spanish title or body fields, fill them so Spanish-speaking residents see the notice.',
-      'Set Date to today or the notice date (YYYY-MM-DD).',
-      'Turn Active on. For a short bulletin, leave Announcement kind blank.',
-      'For a long Town newsletter with a PDF, set Announcement kind to newsletter and ask IT for a file code (see upload help on this page).',
-      'Click Save, then use See on website and hard-refresh the page (Ctrl+Shift+R or Cmd+Shift+R on Mac).',
+      'Click Edit content or use Quick Post in-app form below.',
+      'Use in-app form for simple notices, or the editor link for complex (Spanish, newsletter kind + attachment).',
+      'Fill Title/Details; include Spanish versions.',
+      'Set Date, Active. newsletter kind for long PDF posts.',
+      'Save and hard-refresh public view.',
     ],
     fieldGlossary: [
       {
@@ -89,16 +87,17 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Event',
     previewPath: '/meetings',
     steps: [
-      'Click Edit content and open Event.',
-      'Click Create. Enter Title, Start date and time, and turn Active on.',
+      'Use in-app Quick Add form below, or click Edit content (see the Content editor URL in Advanced or setup).',
+      'In the editor or form: create/update Event records for meetings (use createEvent or the in-app submit).',
+      'Enter Title, Start date and time, and turn Active on.',
       'Add Location and Description if residents need them.',
-      'Save, then check See on website and hard-refresh.',
+      'Save, then check See on website and hard-refresh /meetings.',
     ],
     fieldGlossary: [
       {
         plainLabel: 'Start',
         technicalName: 'start',
-        help: 'Required. Use the date and time picker for when the meeting begins.',
+        help: 'Required. Use the date and time picker for when the meeting begins (ISO format in editor).',
       },
     ],
   },
@@ -110,7 +109,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/',
     supportsUpload: 'hero',
     steps: [
-      'Usually there is only one SiteSettings row — open it (do not create extras unless IT asks).',
+      'Use in-app SiteSettings form below (or the Content editor URL) for the (usually single) SiteSettings row.',
       'Update welcome text fields residents read on the homepage.',
       'For the photo: paste a Photo web address (https://…) from IT or from Upload homepage photo below.',
       'Save, then open the homepage and hard-refresh.',
@@ -126,9 +125,79 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         technicalName: 'welcomeHeading',
         help: 'Main welcome headline on the homepage.',
       },
+      {
+        plainLabel: 'Town name',
+        technicalName: 'townName',
+        help: 'Official name, e.g. "Town of Wiley".',
+      },
+      {
+        plainLabel: 'Office hours',
+        technicalName: 'officeHours',
+        help: 'e.g. "Monday–Friday 8am–5pm".',
+      },
+      {
+        plainLabel: 'Address',
+        technicalName: 'address',
+        help: 'Physical address of Town Hall.',
+      },
+      {
+        plainLabel: 'Phone',
+        technicalName: 'phone',
+        help: 'Main phone number.',
+      },
+      {
+        plainLabel: 'Email',
+        technicalName: 'email',
+        help: 'Main contact email.',
+      },
+      {
+        plainLabel: 'Page title',
+        technicalName: 'pageTitle',
+        help: 'Browser tab title, e.g. "Town of Wiley | Official Website".',
+      },
+      {
+        plainLabel: 'Hero eyebrow',
+        technicalName: 'heroEyebrow',
+        help: 'Small text above the main hero title.',
+      },
+      {
+        plainLabel: 'Hero status',
+        technicalName: 'heroStatus',
+        help: 'Optional status line in hero.',
+      },
+      {
+        plainLabel: 'Hero title',
+        technicalName: 'heroTitle',
+        help: 'Large headline in the hero image area.',
+      },
+      {
+        plainLabel: 'Hero message',
+        technicalName: 'heroMessage',
+        help: 'Main welcome paragraph.',
+      },
+      {
+        plainLabel: 'Hero subtext',
+        technicalName: 'heroSubtext',
+        help: 'Smaller text below the message.',
+      },
+      {
+        plainLabel: 'Welcome label',
+        technicalName: 'welcomeLabel',
+        help: 'Label above the welcome section.',
+      },
+      {
+        plainLabel: 'Welcome body',
+        technicalName: 'welcomeBody',
+        help: 'Main body text in the welcome section.',
+      },
+      {
+        plainLabel: 'Welcome caption',
+        technicalName: 'welcomeCaption',
+        help: 'Caption or credit under the welcome text.',
+      },
     ],
     emptyStateMessage:
-      'Homepage text may be using default setup until SiteSettings is saved in the editor.',
+      'Homepage text may be using default setup until SiteSettings is saved via Content editor (editor).',
   },
   {
     id: 'add-document',
@@ -139,7 +208,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     supportsUpload: 'newsletter-pdf',
     steps: [
       'Read the Document publishing section on this page for the correct section name.',
-      'In the editor, open PublicDocument and create a record.',
+      'Use Content editor (editor) to open PublicDocument and create a record (or use the upload panel below for files).',
       'Match the section name exactly, add title and summary, and set Active on.',
       'For Spanish residents, fill Title (Spanish) and Summary (Spanish) when those fields appear.',
       'Save, then check /documents and hard-refresh.',
@@ -150,9 +219,64 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         technicalName: 'sectionId',
         help: 'Must match the list in Document publishing on this page (e.g. meeting-documents).',
       },
+      {
+        plainLabel: 'Title',
+        technicalName: 'title',
+        help: 'The name shown for the document link.',
+      },
+      {
+        plainLabel: 'Title (Spanish)',
+        technicalName: 'titleEs',
+        help: 'Spanish version of the title for bilingual visitors.',
+      },
+      {
+        plainLabel: 'Summary',
+        technicalName: 'summary',
+        help: 'Short description of what the document is.',
+      },
+      {
+        plainLabel: 'Summary (Spanish)',
+        technicalName: 'summaryEs',
+        help: 'Spanish version of the summary.',
+      },
+      {
+        plainLabel: 'Link / storage reference',
+        technicalName: 'href',
+        help: 'For manual entries: full https:// URL to the file. For uploads: the system sets this to a storage key (e.g. storage:documents/...).',
+      },
+      {
+        plainLabel: 'Download file name',
+        technicalName: 'downloadFileName',
+        help: 'Suggested name when someone downloads the file.',
+      },
+      {
+        plainLabel: 'Status',
+        technicalName: 'status',
+        help: 'Usually "Published".',
+      },
+      {
+        plainLabel: 'Format',
+        technicalName: 'format',
+        help: 'File type like PDF, DOCX.',
+      },
+      {
+        plainLabel: 'Keywords',
+        technicalName: 'keywords',
+        help: 'Search tags (array of words).',
+      },
+      {
+        plainLabel: 'Display order',
+        technicalName: 'displayOrder',
+        help: 'Optional number for sorting (lower first).',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Show or hide the document on the site.',
+      },
     ],
     emptyStateMessage:
-      'No documents in the editor yet — the site may still show setup guides until you add a PublicDocument.',
+      'No documents yet — the site may still show setup guides until you add a PublicDocument via Content editor or upload.',
   },
   {
     id: 'update-contacts',
@@ -161,7 +285,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'OfficialContact',
     previewPath: '/contact',
     steps: [
-      'Open OfficialContact in the editor.',
+      'Use Content editor (editor) to open OfficialContact.',
       'Find the row for Town Hall (id town-information) or City Clerk (id city-clerk). Do not change those id values unless IT helps.',
       'Update label, value, detail, and link fields. Save and check /contact.',
     ],
@@ -170,6 +294,36 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         plainLabel: 'Record id',
         technicalName: 'id',
         help: 'Keep town-information and city-clerk exactly — the website looks up these cards by id.',
+      },
+      {
+        plainLabel: 'Label (display name)',
+        technicalName: 'label',
+        help: 'What residents see as the heading, e.g. "Town Hall" or "City Clerk".',
+      },
+      {
+        plainLabel: 'Value (main info)',
+        technicalName: 'value',
+        help: 'The key detail, like phone number (719) 829-4974 or email address.',
+      },
+      {
+        plainLabel: 'Detail (extra info)',
+        technicalName: 'detail',
+        help: 'Optional extra text below the value, e.g. "304 Main Street" or office hours.',
+      },
+      {
+        plainLabel: 'Link URL (web address)',
+        technicalName: 'href',
+        help: 'Full web link starting with https:// that opens when clicked. Example: https://townofwiley.gov/contact. Leave blank if no clickable link.',
+      },
+      {
+        plainLabel: 'Link text',
+        technicalName: 'linkLabel',
+        help: 'The clickable text for the link, e.g. "Email us" or "Visit website". Only needed if you set a Link URL above.',
+      },
+      {
+        plainLabel: 'Display order',
+        technicalName: 'displayOrder',
+        help: 'Optional number to control sorting order (lower numbers appear first).',
       },
     ],
     emptyStateMessage:
@@ -182,7 +336,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'LeadershipRosterEntry',
     previewPath: '/contact',
     steps: [
-      'Open LeadershipRosterEntry in the editor.',
+      'Use Content editor (editor) to open LeadershipRosterEntry.',
       'For each person, create one row with groupId mayor-council or town-administration.',
       'Fill English line and Spanish line — residents who use Spanish on the site need the Spanish line.',
       'Set display order and Active on. Save and check /contact.',
@@ -196,16 +350,26 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'English line',
         technicalName: 'lineEn',
-        help: 'One bullet line in English.',
+        help: 'One bullet line in English, e.g. "Mayor: Jane Doe".',
       },
       {
         plainLabel: 'Spanish line',
         technicalName: 'lineEs',
-        help: 'Same bullet in Spanish for bilingual pages.',
+        help: 'Spanish translation of the bullet for bilingual display.',
+      },
+      {
+        plainLabel: 'Display order',
+        technicalName: 'displayOrder',
+        help: 'Optional number to sort within the group.',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Show or hide this entry.',
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — the Contact page shows the default name list until you add rows here.',
+      'No roster rows yet — the Contact page shows the default name list until you add rows via Content editor (editor).',
   },
   {
     id: 'business-directory',
@@ -214,10 +378,51 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Business',
     previewPath: '/businesses',
     steps: [
-      'Open Business in the editor, create or edit a row, set Active on, and save.',
+      'Use Content editor (editor) to open Business, create or edit a row, set Active on, and save.',
       'Use display order to control sort order. Check /businesses after a hard refresh.',
     ],
-    fieldGlossary: [],
+    fieldGlossary: [
+      {
+        plainLabel: 'Name',
+        technicalName: 'name',
+        help: 'Business or organization name.',
+      },
+      {
+        plainLabel: 'Phone',
+        technicalName: 'phone',
+        help: 'Phone number with area code.',
+      },
+      {
+        plainLabel: 'Address',
+        technicalName: 'address',
+        help: 'Street address or location.',
+      },
+      {
+        plainLabel: 'Website (URL)',
+        technicalName: 'website',
+        help: 'Full web address (https://...) if they have one.',
+      },
+      {
+        plainLabel: 'Description',
+        technicalName: 'description',
+        help: 'Short note about what they do.',
+      },
+      {
+        plainLabel: 'Image URL',
+        technicalName: 'imageUrl',
+        help: 'Optional photo link (https://...) for the listing.',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Show or hide in the directory.',
+      },
+      {
+        plainLabel: 'Display order',
+        technicalName: 'displayOrder',
+        help: 'Optional number to sort the list (lower first).',
+      },
+    ],
   },
   {
     id: 'external-news',
@@ -226,10 +431,36 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'ExternalNewsLink',
     previewPath: '/news',
     steps: [
-      'Open ExternalNewsLink, create a row with title, url, and source, set Active on, save.',
+      'Use Content editor (editor) to open ExternalNewsLink, create a row with title, url, and source, set Active on, save.',
       'Check /news after hard-refresh.',
     ],
-    fieldGlossary: [],
+    fieldGlossary: [
+      {
+        plainLabel: 'Title',
+        technicalName: 'title',
+        help: 'Headline of the news link.',
+      },
+      {
+        plainLabel: 'URL (web address)',
+        technicalName: 'url',
+        help: 'Full link to the external article (https://...).',
+      },
+      {
+        plainLabel: 'Source',
+        technicalName: 'source',
+        help: 'Where the news is from, e.g. "Prowers County News".',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Show or hide this link.',
+      },
+      {
+        plainLabel: 'Display order',
+        technicalName: 'displayOrder',
+        help: 'Optional number to sort the list.',
+      },
+    ],
   },
   {
     id: 'emergency-banner',
@@ -238,15 +469,41 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'AlertBanner',
     previewPath: '/',
     steps: [
-      'Open AlertBanner. Use one active banner at a time.',
-      'Set Enabled on, fill label, title, and detail. Optional button: link label and link address (https://).',
-      'Save and check the homepage.',
+      'Use the in-app form below (or Content editor URL) to open/create AlertBanner. Use one active banner at a time.',
+      'Set Enabled on, fill label (short tag like "URGENT"), title, and detail (the message).',
+      'Optional button: set "Link label" (e.g. "Learn more") and "Link address" (full https:// URL).',
+      'Save and check the homepage top strip. Hard-refresh after.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Link address',
+        plainLabel: 'Enabled',
+        technicalName: 'enabled',
+        help: 'Turn the banner on or off. Only one should be enabled at a time.',
+      },
+      {
+        plainLabel: 'Label (tag)',
+        technicalName: 'label',
+        help: 'Short bold tag at top of banner, e.g. "EMERGENCY" or "NOTICE".',
+      },
+      {
+        plainLabel: 'Title',
+        technicalName: 'title',
+        help: 'Main headline of the banner message.',
+      },
+      {
+        plainLabel: 'Detail (message)',
+        technicalName: 'detail',
+        help: 'The full text of the alert or notice.',
+      },
+      {
+        plainLabel: 'Link label',
+        technicalName: 'linkLabel',
+        help: 'Text for the optional button, e.g. "More info" or "Register here".',
+      },
+      {
+        plainLabel: 'Link address (URL)',
         technicalName: 'linkHref',
-        help: 'Full https:// URL for the optional button — not link URL.',
+        help: 'Full web address (https://...) the button links to. Example: https://example.com/page',
       },
     ],
     emptyStateMessage:
@@ -259,7 +516,7 @@ export function clerkTaskById(id: ClerkCmsTaskId): ClerkCmsTask | undefined {
 }
 
 export const CLERK_VERIFY_STEPS = [
-  'Save your changes in the editor.',
+  'Save your changes (in editor or the form).',
   'Open See on website (opens the live Town site).',
   'Hard-refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac).',
   'Still wrong? Call Town Hall at (719) 829-4974.',

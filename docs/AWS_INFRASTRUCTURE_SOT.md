@@ -2,7 +2,7 @@
 
 Canonical reference for **custom AWS resources** in account **`570912405222`** (Town of Wiley).
 
-**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAI, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md).
+**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAI (OAC prepared), custom Response Headers Policy (ID 22d4bac1... with CSP + security headers), managed CachingOptimized, access logging to townofwiley-cf-logs, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" (updated deploy with cache controls) and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md). Manifest has latest IDs.
 
 When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update the manifests and this doc in the same PR.
 
@@ -36,7 +36,7 @@ Options: `--skip-s3`, `--skip-amplify`, `--skip-amplify-env`.
 Execute in order after code changes; skip steps that do not apply to your PR.
 
 1. **Amplify backend** — `amplify push` or Studio (GraphQL, Auth, Storage).
-2. **Hosting SSOT** — `npm run amplify:sync-hosting` (buildSpec + `customHttp.yml` + SPA rules).
+2. **Hosting SSOT (historical)** — `npm run amplify:sync-hosting` (now no-op for prod S3+CF; CSP/cache rules live in CloudFront Response Headers Policy + object metadata on deploy; see README deploy steps and manifest). `customHttp.yml` remains SSOT for dev parity (`ng serve`) and reference.
 3. **NWS weather proxy** — `python scripts/deploy-nws-weather-proxy.py` (handler-only Function URL CORS; sets `NWS_PROXY_ENDPOINT` on Amplify `main`)
 4. **Severe weather** — `python scripts/deploy-severe-weather-backend.py`
 5. **Email alias** — `python scripts/deploy-email-alias-router.py`
@@ -86,13 +86,13 @@ Read-only verification policies for the `copilot` IAM user: [infrastructure/iam/
 
 Per [AWS Lambda logging](https://docs.aws.amazon.com/lambda/latest/dg/typescript-logging.html), [AppSync monitoring](https://docs.aws.amazon.com/appsync/latest/devguide/monitoring.html), and [Amplify Hosting metrics](https://docs.aws.amazon.com/amplify/latest/userguide/monitoring-with-cloudwatch.html):
 
-| Resource                             | Log / metric location                                               | Repo / ops                                                                                                                       |
-| ------------------------------------ | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Custom Lambdas                       | `/aws/lambda/<FunctionName>`                                        | Deploy scripts grant `logs:*`; retention via configure script                                                                    |
-| Amplify backend Lambdas              | `/aws/lambda/amplify-townofwiley-main--…`                           | Set retention in Console or configure script                                                                                     |
-| AppSync GraphQL (`townofwiley-main`) | `/aws/appsync/apis/<apiId>`                                         | Enable in configure script (`ERROR` field logs)                                                                                  |
-| Amplify Hosting SPA                  | `AWS/AmplifyHosting` metrics; build transcripts in S3 artifact URLs | [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md) § 1.a                                                                         |
-| Account audit                        | CloudTrail → S3 (+ optional CloudWatch Logs)                        | **Not in repo** — create multi-Region trail (see [AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md](./AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md)) |
+| Resource                             | Log / metric location                                                   | Repo / ops                                                                                                                       |
+| ------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Custom Lambdas                       | `/aws/lambda/<FunctionName>`                                            | Deploy scripts grant `logs:*`; retention via configure script                                                                    |
+| Amplify backend Lambdas              | `/aws/lambda/amplify-townofwiley-main--…`                               | Set retention in Console or configure script                                                                                     |
+| AppSync GraphQL (`townofwiley-main`) | `/aws/appsync/apis/<apiId>`                                             | Enable in configure script (`ERROR` field logs)                                                                                  |
+| (Historical) Amplify Hosting SPA     | `AWS/AmplifyHosting` metrics (no longer used); build transcripts legacy | [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md) § 1.a (retained for reference only)                                           |
+| Account audit                        | CloudTrail → S3 (+ optional CloudWatch Logs)                            | **Not in repo** — create multi-Region trail (see [AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md](./AWS_AMPLIFY_HOSTING_CHANGE_ALERTS.md)) |
 
 **Apply or repair Town of Wiley logging (account admin):**
 
@@ -118,10 +118,10 @@ Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and A
 
 ## Hybrid deployment model (why Amplify + scripts)
 
-| Layer                      | Tooling                                            | Owns                                                            |
-| -------------------------- | -------------------------------------------------- | --------------------------------------------------------------- |
-| **Public site + CMS read** | Amplify Gen1 (`amplify/backend/`, Hosting)         | Angular build, AppSync, Cognito, S3 documents, `customHttp.yml` |
-| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`) | NWS, weather signup, contact updates, email alias, site monitor |
+| Layer                      | Tooling                                                                                                                              | Owns                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| **Public site + CMS read** | S3+CloudFront (E1NZ3XCY5CYR1J); CMS backend Gen 2 AppSync (x7poeh...) in repo `amplify/data` (Gen 1 j7b2 legacy, see migration plan) | Angular build, AppSync (Gen2 primary), Cognito, S3 documents, `customHttp.yml` |
+| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                                                                   | NWS, weather signup, contact updates, email alias, site monitor                |
 
 This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
 

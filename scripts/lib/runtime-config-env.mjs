@@ -27,7 +27,11 @@ export function loadAmplifyOutputsFromRepo() {
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 export const DEFAULT_AWS_REGION = 'us-east-2';
+/** Legacy Amplify Hosting app ID (deleted June 2026). For reference only. */
 export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+/** Current prod AppSync ID (Gen 2: townofwiley) for CMS editing via console. Gen 1 (j7b2x3sh...) is legacy. */
+export const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
+export const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
 
 export function readLocalSecrets(secretsPath = localSecretsPath) {
   if (!existsSync(secretsPath)) {
@@ -205,7 +209,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     env.CLERK_SETUP_AMPLIFY_APP_ID?.trim() ||
     localSecrets.clerkSetup?.amplifyAppId?.trim() ||
     localSecrets.aws?.amplifyAppId?.trim() ||
-    DEFAULT_AMPLIFY_APP_ID;
+    DEFAULT_AMPLIFY_APP_ID; // legacy, see note in manifest
   const clerkSetupAwsRegion =
     env.CLERK_SETUP_AWS_REGION?.trim() ||
     localSecrets.clerkSetup?.awsRegion?.trim() ||
@@ -219,13 +223,16 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
   const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
+  // clerkSetupStudioUrl now defaults to Gen 2 AppSync console (x7poe...); Gen 1 j7b2... is legacy only.
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||
     localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
-    (clerkSetupAwsRegion && clerkSetupAmplifyAppId
-      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`
+    // For legacy/deleted Amplify hosting app (d331voxr1fhoir), use current AppSync (Gen 2) console for CMS editing.
+    // Gen 2 AppSync ID x7poehudqvamneqni5s6e2cjxy (Gen 1 j7b2x3sh... now legacy). CF dist E1NZ3XCY5CYR1J for hosting.
+    (clerkSetupAwsRegion
+      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/appsync/home?region=${clerkSetupAwsRegion}#/x7poehudqvamneqni5s6e2cjxy/v1/queries`
       : clerkSetupAwsConsoleUrl);
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
@@ -291,6 +298,8 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     clerkSetupAwsRegion,
     clerkSetupAwsConsoleUrl,
     clerkSetupStudioUrl,
+    clerkSetupCfDistributionId: 'E1NZ3XCY5CYR1J',
+    clerkSetupS3Bucket: 'townofwiley-static-site',
     severeWeatherSignupEnabled,
     weatherAllowBrowserFallback,
     buttonPosition,
@@ -376,6 +385,8 @@ export function buildRuntimeConfigObject(values, buildMeta) {
       awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
       studioUrl: values.clerkSetupStudioUrl,
       dataManagerUrl: values.clerkSetupStudioUrl,
+      cfDistributionId: values.clerkSetupCfDistributionId,
+      s3Bucket: values.clerkSetupS3Bucket,
     },
     logging: {
       endpoint: values.logEndpoint || undefined,

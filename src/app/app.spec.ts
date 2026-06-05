@@ -33,6 +33,8 @@ interface TestRuntimeConfig {
     awsRegion?: string;
     awsConsoleUrl?: string;
     studioUrl?: string;
+    cfDistributionId?: string;
+    s3Bucket?: string;
   };
   payments?: {
     paystar?: {
@@ -848,11 +850,13 @@ describe('App', () => {
       clerkSetup: {
         clerkName: 'Deb Dillon',
         awsAccountId: '570912405222',
-        amplifyAppId: 'd331voxr1fhoir',
+        amplifyAppId: 'd331voxr1fhoir', // legacy hosting
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
         studioUrl:
-          'https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/gen2-main/data',
+          'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries', // Gen 2 current
+        cfDistributionId: 'E1NZ3XCY5CYR1J',
+        s3Bucket: 'townofwiley-static-site',
       },
     };
 
@@ -863,7 +867,9 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
     expect(compiled.textContent).toContain('What do you want to update?');
-    expect(compiled.textContent).toContain('d331voxr1fhoir');
+    expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
+    expect(compiled.textContent).toContain('d331voxr1fhoir'); // still shows legacy hosting for reference
+    expect(compiled.textContent).toContain('x7poehudqvamneqni5s6e2cjxy'); // Gen 2 AppSync current
     expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 

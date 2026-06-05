@@ -36,9 +36,9 @@ Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 ### Step 4 — Bookmark Amplify Console Data manager
 
-| Link                                                                                                                      | What it is                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| [Amplify Console — Data manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) | Edit CMS records (SiteSettings, Announcement, Event, etc.) on the **main** branch |
+| Link                                                                 | What it is                                                                                                                                                                                                                                   |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AppSync Console (Gen 2 current for CMS models; Gen 1 j7b2... legacy) | [Gen 2 AppSync Queries](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries) (search schema for Event/AlertBanner/Announcement etc.; use /admin for guidance and "See on website") | Edit CMS records (SiteSettings, Announcement, Event, AlertBanner, Business, etc.). Amplify Hosting app deleted; use Gen 2 AppSync (x7poe...) for data mutations. Gen 1 (j7b2...) legacy. |
 
 Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
 
@@ -68,7 +68,7 @@ If you do not receive the email or do not have an account yet, call Town Hall at
 
 All website content is managed in one place: **Amplify Console Data manager**.
 
-Direct link: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data
+Current editor: Use the Content editor URL from <https://townofwiley.gov/admin> (points to Gen 2 AppSync Queries x7poehudqvamneqni5s6e2cjxy). Search AWS Console for "townofwiley" or the AppSync API ID x7poehudqvamneqni5s6e2cjxy. Gen 1 ID j7b2x3sh... is legacy. Prefer /admin buttons (in-app forms for Event/Announcement/AlertBanner/SiteSettings) and hard-refresh after edits.
 
 Start here if you are not sure where to go: https://townofwiley.gov/admin
 
@@ -86,7 +86,7 @@ When you save a record in Data Manager, the website automatically shows the new 
 
 ### When IT changes payment or other website settings (not Studio)
 
-Some features—utility bill pay links, weather signup, chatbot—are controlled by environment variables / runtime-config (sourced via `scripts/generate-runtime-config.mjs`), not by Data Manager. After your IT contact changes those settings (in secrets or the generate script), rebuild and deploy the static site to S3 + CloudFront (see README "Deployment Record"). Until the invalidation completes, the public site may still show old behavior. (Amplify Hosting app decommissioned June 2026.)
+Some features—utility bill pay links, weather signup, chatbot—are controlled by environment variables / runtime-config (sourced via `scripts/generate-runtime-config.mjs`), not by Data Manager. After your IT contact changes those settings (in secrets or the generate script), rebuild and deploy the static site to S3 + CloudFront (see README "Deployment Record" and best-practice cache headers + invalidation). Until the invalidation completes, the public site may still show old behavior. (Amplify Hosting app decommissioned June 2026; current hosting uses CloudFront Response Headers Policy for CSP/security headers and managed cache policies.)
 
 **What you should do after IT says a deploy is done:**
 
@@ -146,7 +146,7 @@ If you delete one of these records and create a new row with a different `id`, t
 
 Use this for closures, reminders, utility updates, and general public notices.
 
-1. Open [Data Manager](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) (Amplify Console → branch **main** → **Data** → **Data manager**).
+1. Open the Content editor URL from <https://townofwiley.gov/admin> (Gen 2 AppSync console for current models x7poehudqvamneqni5s6e2cjxy; Gen 1 j7b2... legacy).
 2. Click **Announcement** in the left sidebar.
 3. Click **Create announcement** (top-right button).
 4. Fill in **title** — keep it short and clear, like a headline.
@@ -473,7 +473,7 @@ Print or screenshot this section and keep it at your desk.
 
 ```
 LOG IN:   https://townofwiley.gov/admin/login  (Town staff — contact updates)
-EDIT CMS: https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data
+EDIT CMS: Use https://townofwiley.gov/admin → Content editor URL (AppSync)
 PUBLIC:   https://townofwiley.gov
 
 WHAT TO OPEN IN DATA MANAGER:
