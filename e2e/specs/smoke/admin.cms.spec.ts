@@ -65,7 +65,9 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /Content inventory \(IT\)/i }),
     ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.getByTestId('cms-inventory-row-SiteSettings')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-snapshot-open-data-manager')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('redirects the legacy clerk setup document link to the admin documents section', async ({
