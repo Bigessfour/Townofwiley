@@ -88,7 +88,7 @@
     }
   ],
   "capabilities": {
-    "dataManagerUrl": "https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data",
+    "dataManagerUrl": "https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries",
     "publicSiteModels": [
       "SiteSettings",
       "AlertBanner",

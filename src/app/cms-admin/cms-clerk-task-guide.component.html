@@ -32,5 +32,295 @@
         <li>{{ step }}</li>
       }
     </ol>
+
+    @if (isAddMeetingTask()) {
+      <div class="cms-inline-form">
+        <h3 class="cms-task-guide__subtitle">Quick Add Meeting or Event (in-app form)</h3>
+        <p class="cms-task-guide__note">
+          Fill in the details below and submit. This creates the record directly in the website
+          database. For edits or more options, use the AppSync link from the Advanced section.
+        </p>
+        <form (submit)="submitEvent(); $event.preventDefault()">
+          <label>
+            Meeting or Event Title *
+            <input
+              type="text"
+              [value]="eventForm().title"
+              (input)="updateEventForm('title', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Start Date &amp; Time * (example: 2026-06-15T14:00:00-06:00 for June 15 at 2pm Mountain
+            Time)
+            <input
+              type="text"
+              [value]="eventForm().start"
+              (input)="updateEventForm('start', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Location (e.g. Town Hall or Zoom link)
+            <input
+              type="text"
+              [value]="eventForm().location"
+              (input)="updateEventForm('location', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            Description or Details
+            <textarea
+              [value]="eventForm().description"
+              (input)="updateEventForm('description', $any($event.target).value)"
+            ></textarea>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="eventForm().active"
+              (change)="updateEventForm('active', $any($event.target).checked)"
+            />
+            Show on website (Active)
+          </label>
+          <button type="submit" [disabled]="eventSubmitting()">Create Event</button>
+        </form>
+        @if (eventResult()) {
+          <p class="cms-success">{{ eventResult() }}</p>
+        }
+        @if (eventError()) {
+          <p class="cms-error">{{ eventError() }}</p>
+        }
+      </div>
+    }
+
+    @if (isPostNoticeTask()) {
+      <div class="cms-inline-form">
+        <h3 class="cms-task-guide__subtitle">Quick Post Notice or Announcement (in-app form)</h3>
+        <p class="cms-task-guide__note">
+          Use this form for simple notices. For long newsletters with PDF, use the upload panel +
+          Announcement record. For complex, use AppSync link.
+        </p>
+        <form (submit)="submitAnnouncement(); $event.preventDefault()">
+          <label>
+            Title *
+            <input
+              type="text"
+              [value]="announcementForm().title"
+              (input)="updateAnnouncementForm('title', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Detail / Message *
+            <textarea
+              [value]="announcementForm().detail"
+              (input)="updateAnnouncementForm('detail', $any($event.target).value)"
+              required
+            ></textarea>
+          </label>
+          <label>
+            Date (YYYY-MM-DD, optional)
+            <input
+              type="text"
+              [value]="announcementForm().date"
+              (input)="updateAnnouncementForm('date', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            Kind (e.g. 'newsletter' for long posts with attachment, leave blank for short)
+            <input
+              type="text"
+              [value]="announcementForm().announcementKind"
+              (input)="updateAnnouncementForm('announcementKind', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="announcementForm().active"
+              (change)="updateAnnouncementForm('active', $any($event.target).checked)"
+            />
+            Active / Show on site
+          </label>
+          <button type="submit" [disabled]="announcementSubmitting()">Post Notice</button>
+        </form>
+        @if (announcementResult()) {
+          <p class="cms-success">{{ announcementResult() }}</p>
+        }
+        @if (announcementError()) {
+          <p class="cms-error">{{ announcementError() }}</p>
+        }
+      </div>
+    }
+
+    <!-- New: Emergency Banner in-app form (AlertBanner model) -->
+    @if (isEmergencyBannerTask()) {
+      <div class="cms-inline-form">
+        <h3 class="cms-task-guide__subtitle">Quick Add Emergency / Alert Banner (in-app form)</h3>
+        <p class="cms-task-guide__note">
+          Creates an AlertBanner row. Set enabled=true to show the top strip on homepage. Use
+          linkHref for optional call-to-action. For edits, use AppSync or extend generic table.
+        </p>
+        <form (submit)="submitBanner(); $event.preventDefault()">
+          <label>
+            Label (short badge text e.g. "ALERT" or "NOTICE") *
+            <input
+              type="text"
+              [value]="bannerForm().label"
+              (input)="updateBannerForm('label', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Title *
+            <input
+              type="text"
+              [value]="bannerForm().title"
+              (input)="updateBannerForm('title', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Detail / Message *
+            <textarea
+              [value]="bannerForm().detail"
+              (input)="updateBannerForm('detail', $any($event.target).value)"
+              required
+            ></textarea>
+          </label>
+          <label>
+            Link Label (optional, shown if link present)
+            <input
+              type="text"
+              [value]="bannerForm().linkLabel"
+              (input)="updateBannerForm('linkLabel', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            Link URL / Href (full https:// address; leave blank for no link)
+            <input
+              type="text"
+              [value]="bannerForm().linkHref"
+              (input)="updateBannerForm('linkHref', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="bannerForm().enabled"
+              (change)="updateBannerForm('enabled', $any($event.target).checked)"
+            />
+            Enabled / Show banner strip
+          </label>
+          <button type="submit" [disabled]="bannerSubmitting()">Create Alert Banner</button>
+        </form>
+        @if (bannerResult()) {
+          <p class="cms-success">{{ bannerResult() }}</p>
+        }
+        @if (bannerError()) {
+          <p class="cms-error">{{ bannerError() }}</p>
+        }
+      </div>
+    }
+
+    <!-- New: Homepage / SiteSettings quick create (in-app); usually edit the single row via AppSync or generic -->
+    @if (isHomepageTask()) {
+      <div class="cms-inline-form">
+        <h3 class="cms-task-guide__subtitle">
+          Quick Update Homepage Hero/Welcome (SiteSettings in-app form)
+        </h3>
+        <p class="cms-task-guide__note">
+          Creates a SiteSettings row (if none exists). For the single production row, prefer edit
+          via Content editor URL or the generic CRUD foundation below. Use Upload panel for hero
+          image.
+        </p>
+        <form (submit)="submitSettings(); $event.preventDefault()">
+          <label>
+            Town Name *
+            <input
+              type="text"
+              [value]="settingsForm().townName"
+              (input)="updateSettingsForm('townName', $any($event.target).value)"
+              required
+            />
+          </label>
+          <label>
+            Hero Title
+            <input
+              type="text"
+              [value]="settingsForm().heroTitle"
+              (input)="updateSettingsForm('heroTitle', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            Hero Message
+            <textarea
+              [value]="settingsForm().heroMessage"
+              (input)="updateSettingsForm('heroMessage', $any($event.target).value)"
+            ></textarea>
+          </label>
+          <label>
+            Welcome Heading
+            <input
+              type="text"
+              [value]="settingsForm().welcomeHeading"
+              (input)="updateSettingsForm('welcomeHeading', $any($event.target).value)"
+            />
+          </label>
+          <label>
+            Welcome Body
+            <textarea
+              [value]="settingsForm().welcomeBody"
+              (input)="updateSettingsForm('welcomeBody', $any($event.target).value)"
+            ></textarea>
+          </label>
+          <label>
+            Hero Image URL (https link; use Upload above or paste from IT)
+            <input
+              type="text"
+              [value]="settingsForm().heroImageUrl"
+              (input)="updateSettingsForm('heroImageUrl', $any($event.target).value)"
+            />
+          </label>
+          <button type="submit" [disabled]="settingsSubmitting()">
+            Create / Update SiteSettings
+          </button>
+        </form>
+        @if (settingsResult()) {
+          <p class="cms-success">{{ settingsResult() }}</p>
+        }
+        @if (settingsError()) {
+          <p class="cms-error">{{ settingsError() }}</p>
+        }
+      </div>
+    }
+
+    <!-- Generic CRUD foundation demo (uses cms-model-inventory + generic service) -->
+    @if (task()) {
+      <div class="cms-inline-form cms-generic-editor">
+        <h3 class="cms-task-guide__subtitle">
+          Generic Model Editor (foundation for full CRUD table)
+        </h3>
+        <p class="cms-task-guide__note">
+          This uses <code>cms-model-inventory.ts</code> + generic AppSync client for any model
+          without hard-coded forms. Click demo to exercise create via generic for the current task's
+          model. Extend this section into a p-table + dialog form (per PrimeNG patterns) for live
+          list/edit/delete of AlertBanner, Business, ExternalNewsLink, LeadershipRosterEntry,
+          OfficialContact etc.
+        </p>
+        <button type="button" (click)="demoGenericCreate(task()!.model)">
+          Demo generic create for {{ task()!.model }}
+        </button>
+        @if (genericResult()) {
+          <p class="cms-success">{{ genericResult() }}</p>
+        }
+        <p class="cms-task-guide__note">
+          Full generic table + per-field editor coming next; current in-app covers Event,
+          Announcement, AlertBanner, SiteSettings. All other lifecycle via Gen 2 AppSync console
+          link + glossaries above.
+        </p>
+      </div>
+    }
   </section>
 }

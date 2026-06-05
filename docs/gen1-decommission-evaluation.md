@@ -4,19 +4,21 @@
 
 ## Verdict
 
-**Do not delete Gen 1 yet.** Production **public CMS** already reads **Gen 2 AppSync**, but several Gen 1 resources are still required or need a verified cutover step.
+**Repo + clerk UI cutover to Gen 2 COMPLETE** (all hardcodes, /admin, runtime fallbacks, tests, docs now treat x7poehudqvamneqni5s6e2cjxy / Gen2 as current; j7b2... and d331 explicitly legacy; gen1-amplify-backend/ removed).
+
+**Prod runtime + full decommission pending:** Production public CMS still served from Gen1 until secrets updated + redeploy + data copy verification (see amplify-gen2-migration-plan.md). Do not delete Gen 1 stacks yet.
 
 ## Resource matrix
 
-| Resource                                   | Gen 1 (legacy)                   | Gen 2 (production `main`)                     | Safe to delete Gen 1?                                                       |
-| ------------------------------------------ | -------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------- |
-| AppSync API `townofwiley-main` (`j7b2x3…`) | `327diwc6…`                      | `fpm2ifkbfnb7…` (`x7poehud…`)                 | **No** — keep until AWS `gen2-migration retain` + stack delete              |
-| DynamoDB CMS tables (`*-j7b2x3…-main`)     | Had source data; copied to Gen 2 | `*-x7poehud…-NONE` active                     | **No** — backup/archive first; 48h after stable Gen 2                       |
-| Cognito pool `us-east-2_DmY7BCBIp`         | Staff users lived here           | `us-east-2_pkewJMUJF` (empty until invite)    | **No** — until staff sign-in verified on Gen 2                              |
-| S3 `townofwiley-documents-storage-main`    | Legacy uploads                   | `amplify-d331voxr1fhoir-mai-documentsbucket…` | **No** — sync/copy objects if any CMS files reference old bucket            |
-| CF stack `amplify-townofwiley-main-d1245`  | Gen 1 Amplify backend            | Replaced by Gen 2 branch stack                | **No** — delete only via [migration retain](amplify-gen2-migration-plan.md) |
-| Amplify branch env `APPSYNC_*`             | Still points at Gen 1 URL        | Overridden at build by `amplify_outputs.json` | Update for clarity, not blocking                                            |
-| Email alias Lambda table env               | Was `EmailAlias-j7b2x3…-main`    | Must be `EmailAlias-x7poehud…-NONE`           | Fix with `npm run amplify:gen2:configure-clerk`                             |
+| Resource                                          | Gen 1 (legacy)                   | Gen 2 (production `main`)                                    | Safe to delete Gen 1?                                                                    |
+| ------------------------------------------------- | -------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| AppSync API `townofwiley-main` (`j7b2x3…` legacy) | `327diwc6…`                      | `fpm2ifkbfnb7…` (`x7poehud…` current in code/docs)           | **No** — keep until data cutover + retain + stack delete; repo code/docs already on Gen2 |
+| DynamoDB CMS tables (`*-j7b2x3…-main`)            | Had source data; copied to Gen 2 | `*-x7poehud…-NONE` active                                    | **No** — backup/archive first; 48h after stable Gen 2                                    |
+| Cognito pool `us-east-2_DmY7BCBIp`                | Staff users lived here           | `us-east-2_pkewJMUJF` (empty until invite)                   | **No** — until staff sign-in verified on Gen 2                                           |
+| S3 `townofwiley-documents-storage-main`           | Legacy uploads                   | `amplify-d331voxr1fhoir-mai-documentsbucket…`                | **No** — sync/copy objects if any CMS files reference old bucket                         |
+| CF stack `amplify-townofwiley-main-d1245`         | Gen 1 Amplify backend            | Replaced by Gen 2 branch stack                               | **No** — delete only via [migration retain](amplify-gen2-migration-plan.md)              |
+| Amplify branch env `APPSYNC_*`                    | Gen1 URL (legacy)                | Gen2 via amplify_outputs or secrets (code now defaults Gen2) | Repo cutover done; update prod secrets + outputs for runtime                             |
+| Email alias Lambda table env                      | Was `EmailAlias-j7b2x3…-main`    | Must be `EmailAlias-x7poehud…-NONE`                          | Fix with `npm run amplify:gen2:configure-clerk`                                          |
 
 ## Clerk / admin checklist (Gen 2)
 

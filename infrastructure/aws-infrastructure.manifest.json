@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (d34qrz3qxoppc5.cloudfront.net) with townofwiley-spa-redirect Function (June 2026 migration; old Amplify app d331voxr1fhoir deleted). Backend: AppSync/DynamoDB (current CFN stacks amplify-townofwiley-main-d1245-* and related), Lambda Function URLs (chatbot, guestbook, contact, etc.), minimal CloudWatch (1d retention), no WAF rate ACLs. Historical Amplify references retained for backend/runtime-config compatibility.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (d34qrz3qxoppc5.cloudfront.net) with townofwiley-spa-redirect Function (June 2026 migration; old Amplify app d331voxr1fhoir deleted). Best practices applied: managed CachingOptimized policy, custom Response Headers Policy (security + CSP ID 22d4bac1-d4fc-4e81-bb48-ab7df3a37c59), standard logging to townofwiley-cf-logs, OAC prepared (E1UXALBLRIDL2E created; bucket policy dual-grant ready; origin switch pending Console). Backend: Gen1 AppSync/DynamoDB/Cognito/Storage (stacks amplify-townofwiley-main-d1245-*) still prod; Gen2 definition + schema in amplify/ (data/resource.ts etc.) + inventory files ready but cutover incomplete (see docs/amplify-gen2-migration-plan.md: storage override + gen2-migration refactor/lock/retain blocked; runtime-config still Gen1; only Gen1 AppSync live). Lambda Function URLs (chatbot, guestbook, contact, etc.), CloudWatch 90d (post-configure), no WAF rate ACLs. Historical Amplify references retained for backend/runtime-config compatibility.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -14,20 +14,26 @@
     "spaRedirectFunction": "townofwiley-spa-redirect",
     "aliases": ["townofwiley.gov", "www.townofwiley.gov"],
     "acmCertArn": "arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90",
-    "deployCommand": "aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
+    "responseHeadersPolicyId": "22d4bac1-d4fc-4e81-bb48-ab7df3a37c59",
+    "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+    "loggingBucket": "townofwiley-cf-logs",
+    "loggingPrefix": "cf-access/",
+    "oacPreparedId": "E1UXALBLRIDL2E",
+    "note": "OAI still active in origin (OAC migration prepared: dual bucket policy + OAC resource E1UXALBLRIDL2E exists; CLI origin switch blocked with 'origin server' validation — complete via AWS Console: edit origin > Origin access control settings). Deploy uses improved cache controls (see README + scripts/deploy-static-site.sh).",
+    "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
   },
   "amplify": {
-    "note": "Legacy hosting app d331voxr1fhoir DELETED June 2026 after S3+CF migration. App ID and old stack names retained here and in snapshots/inventories only for historical backend references (AppSync, document storage, runtime-config logic). Current backend stacks use 'amplify-townofwiley-main-d1245-*' naming. Sync scripts for Amplify Hosting are obsolete for production.",
+    "note": "Legacy hosting app d331voxr1fhoir DELETED June 2026 after S3+CF migration. App ID and old stack names retained for historical backend references only. Repo + code cutover to Gen 2 complete (runtime links, /admin, docs, tests use x7poehudqvamneqni5s6e2cjxy as CURRENT; j7b2x3sh... marked GEN 1 LEGACY everywhere). Prod runtime CMS still on Gen1 pending full backend cutover (data copy via migrate script, update secrets for APPSYNC_CMS_*, ampx deploy or pipeline, verify, then decommission Gen1 stacks). Gen2 schema + inventory in amplify/ + infrastructure/gen2-*.json. See docs/amplify-gen2-migration-plan.md + gen1-decommission-evaluation.md.",
     "appId": "d331voxr1fhoir",
     "appName": "Townofwiley (hosting decommissioned)",
     "productionBranch": "main (historical)",
     "nodeVersion": "24.16.0",
     "customDomain": "townofwiley.gov (now on CloudFront)",
     "syncScripts": {
-      "note": "amplify:sync-* scripts for hosting headers/buildspec are historical/dev-parity only",
+      "note": "amplify:sync-* scripts for hosting headers/buildspec are historical/dev-parity only (no-op for prod S3+CF; CSP at CloudFront Response Headers Policy)",
       "hosting": "npm run amplify:sync-hosting (no-op for prod)",
       "buildSpec": "npm run amplify:sync-buildspec (no-op for prod)",
-      "headers": "npm run amplify:sync-headers (CSP now at CF level)",
+      "headers": "npm run amplify:sync-headers (CSP now at CF level via policy ID 22d4bac1...)",
       "spaRules": "npm run amplify:sync-spa-rewrites (now via CloudFront Function)"
     }
   },

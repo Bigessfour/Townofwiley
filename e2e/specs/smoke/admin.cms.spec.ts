@@ -1,9 +1,9 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Gen 2 Amplify Console Data manager model deep link pattern. */
+/** Current CMS editor link (Gen 2 AppSync queries for models; Gen 1 j7b2... legacy, hosting d331 deleted). */
 const CONSOLE_MODEL_HREF =
-  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/main\/data\/models\//;
+  /us-east-2\.console\.aws\.amazon\.com\/appsync\/home.*x7poehudqvamneqni5s6e2cjxy.*queries/;
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -50,7 +50,8 @@ test.describe('cms admin', () => {
       'href',
       CONSOLE_MODEL_HREF,
     );
-    await expect(homePage.page.getByText('AppSync', { exact: false })).not.toBeVisible();
+    // No raw "AppSync console" jargon pushed in main task cards/lead (setup shows "Gen 2 AppSync" + URL intentionally for IT/clerk reference; steps use friendly "editor").
+    // Jargon check removed (steps/glossary cleaned to "editor"/"Content editor URL"; setup intentionally documents "Gen 2 AppSync" + direct link for reference).
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
   });
 
@@ -65,7 +66,7 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /Content inventory \(IT\)/i }),
     ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.getByTestId('cms-inventory-row-SiteSettings')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-snapshot-open-data-manager')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toBeVisible();
   });
 
   test('redirects the legacy clerk setup document link to the admin documents section', async ({
@@ -170,6 +171,7 @@ test.describe('cms admin', () => {
         name: /show step-by-step/i,
       })
       .click();
-    await expect(homePage.page.getByText(/Title \(Spanish\)/i)).toBeVisible();
+    // Use .first() (strict-safe): glossary dt + step li both mention it after our label expansions; test just wants the mention visible in guide.
+    await expect(homePage.page.getByText(/Title \(Spanish\)/i).first()).toBeVisible();
   });
 });

@@ -78,7 +78,7 @@
 
 - **Frontend:** Angular 21, standalone + signals + OnPush, PrimeNG 21, Tailwind 4
 - **Hosting:** S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) → `townofwiley.gov` (account `570912405222`; Amplify Hosting app `d331voxr1fhoir` deleted June 2026 after migration; Node **24.16.0** pin remains for builds/CI)
-- **CMS:** Amplify AppSync API `townofwiley-main` (`j7b2x3sh7rcezekekkxxiak7hi`, default `API_KEY`) + S3 documents bucket **`townofwiley-documents-storage-main`** (`us-east-2`; logical name `townofwiley-documents-storage` in `amplify-config.ts`)
+- **CMS:** (historical) Amplify AppSync API `townofwiley-main` Gen1 (`j7b2x3sh7rcezekekkxxiak7hi`); current is Gen 2 AppSync `townofwiley` (`x7poehudqvamneqni5s6e2cjxy`) + S3 docs etc. See infrastructure/gen2-\*.json and migration docs. (S3 bucket historical note)
 - **Config:** `scripts/generate-runtime-config.mjs` → `public/runtime-config.js` (Amplify `main` branch env vars)
 - **Tests:** Vitest, `ng test`, Playwright smoke, Node `test:infra`
 

@@ -1,9 +1,0 @@
-{
-  "bucketName": "townofwiley-documents-storage",
-  "authRoleName": {
-    "Ref": "AuthRoleName"
-  },
-  "unauthRoleName": {
-    "Ref": "UnauthRoleName"
-  }
-}

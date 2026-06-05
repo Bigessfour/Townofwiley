@@ -4,7 +4,7 @@ Use this checklist when onboarding staff, after AWS changes, or if the public si
 
 ## Prerequisites
 
-- You can sign in to the **AWS Amplify Console** (link from [https://townofwiley.gov/admin](https://townofwiley.gov/admin) → **Content editor URL**, or historical [main branch Data](https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data) — note: hosting app `d331voxr1fhoir` deleted June 2026 after S3+CF migration; use current AppSync API or Studio links for the `townofwiley-main` backend if the old URL no longer resolves).
+- You can sign in to the **AWS AppSync console** (link from [https://townofwiley.gov/admin](https://townofwiley.gov/admin) → **Content editor URL** now points to Gen 2 AppSync x7poehudqvamneqni5s6e2cjxy; historical Amplify Data links for d331voxr1fhoir and Gen1 AppSync j7b2x3sh7rcezekekkxxiak7hi are legacy — use current Gen 2 or search AWS for "townofwiley" backend).
 - You have IAM permission for Amplify app `d331voxr1fhoir`, branch **`main`**, Data manager (not access denied).
 
 ## Steps (about 5 minutes)

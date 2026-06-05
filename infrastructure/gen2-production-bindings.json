@@ -1,5 +1,5 @@
 {
-  "description": "Gen 2 production bindings (main branch stack). Used by staff-auth and migration scripts. Update after stack replace.",
+  "description": "Gen 2 production bindings (main branch stack). Repo cutover complete: code/docs/tests now default to Gen2 appSync x7poeh... as current (Gen1 j7b2... legacy only, removed from runtime paths). Used by staff-auth, runtime-config fallbacks, migration scripts, verify. Prod data cutover pending (see migration plan).",
   "amplify": {
     "appId": "d331voxr1fhoir",
     "branch": "main",

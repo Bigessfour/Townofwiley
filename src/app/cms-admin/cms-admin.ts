@@ -6,10 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import {
-  buildAmplifyConsoleDataManagerUrl,
-  getClerkSetupRuntimeConfig,
-} from '../clerk-setup/clerk-setup-config';
+import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -124,21 +121,27 @@ export class CmsAdmin {
     Boolean(this.appSyncRuntimeConfig.apiEndpoint) && Boolean(this.appSyncRuntimeConfig.apiKey);
 
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
-  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
+  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId; // d331 legacy hosting; see Gen 2 cutover notes
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
-  protected readonly dataManagerUrl = buildAmplifyConsoleDataManagerUrl(
-    this.clerkSetupConfig.awsRegion,
-    this.clerkSetupConfig.amplifyAppId,
-    'main',
-    this.clerkSetupConfig.studioUrl,
-  );
+  // Hardcode current good editor URL (Gen 2 AppSync) to avoid any legacy references.
+  // Legacy: d331voxr1fhoir (hosting deleted), Gen1 AppSync j7b2x3sh7rcezekekkxxiak7hi; current is Gen 2 x7poehudqvamneqni5s6e2cjxy.
+  protected readonly dataManagerUrl =
+    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
+  protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId || 'E1NZ3XCY5CYR1J';
+  protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket || 'townofwiley-static-site';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Content editor URL',
+      label: 'Content editor URL (Gen 2 AppSync for current CMS models; Gen 1 legacy)',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
+    },
+    {
+      key: 'hosting',
+      label: 'Current hosting (S3 + CloudFront)',
+      value: `CF: ${this.cfDistributionId} | S3: ${this.s3Bucket}`,
+      copyValue: this.cfDistributionId,
     },
     {
       key: 'region',
@@ -148,7 +151,8 @@ export class CmsAdmin {
     },
     {
       key: 'amplify-app',
-      label: 'Amplify app id',
+      label:
+        'Legacy Amplify app id (hosting deleted) + Gen 1 AppSync (j7b2... legacy); current Gen 2',
       value: this.amplifyAppId,
       copyValue: this.amplifyAppId,
     },

@@ -9,11 +9,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
-const SCHEMA_CANDIDATES = [
-  join(repoRoot, 'amplify/backend/api/townofwiley/schema.graphql'),
-  join(repoRoot, 'gen1-amplify-backend/backend/api/townofwiley/schema.graphql'),
-];
-const schemaPath = SCHEMA_CANDIDATES.find((path) => existsSync(path));
+// Gen 2 schema is in TS (amplify/data/resource.ts); use the inventory (which records publicApiKeyRead per model) for verification.
+// This removes any runtime dep on legacy gen1-amplify-backend/ or generated graphql.
+const INVENTORY_PATH = join(repoRoot, 'infrastructure', 'gen2-cms-inventory.json');
+const PUBLIC_INVENTORY_PATH = join(repoRoot, 'public', 'gen2-cms-inventory.json');
 const siteCmsPath = join(repoRoot, 'src/app/site-cms-content.ts');
 
 const LIST_OPERATION_TO_MODEL = {
@@ -52,34 +51,30 @@ function extractPublicCmsQueries(source) {
   );
 }
 
-function modelAllowsPublicApiKeyRead(schema, modelName) {
-  const marker = `type ${modelName}`;
-  const start = schema.indexOf(marker);
-  if (start === -1) {
-    return { ok: false, reason: `type ${modelName} not found` };
+function modelAllowsPublicApiKeyReadFromInventory(inventory, modelName) {
+  const models = inventory?.models || [];
+  const entry = models.find((m) => m.model === modelName);
+  if (!entry) {
+    return { ok: false, reason: `model ${modelName} not found in gen2-cms-inventory.json` };
   }
-  const nextType = schema.indexOf('\ntype ', start + marker.length);
-  const block = nextType === -1 ? schema.slice(start) : schema.slice(start, nextType);
-  const hasPublic = /allow:\s*public/.test(block);
-  const hasApiKey = /provider:\s*apiKey/.test(block);
-  const hasRead = /operations:\s*\[[^\]]*\bread\b/.test(block);
-  if (!hasPublic || !hasApiKey || !hasRead) {
+  if (entry.publicApiKeyRead !== true) {
     return {
       ok: false,
-      reason: `type ${modelName} missing public+apiKey+read (${JSON.stringify({ hasPublic, hasApiKey, hasRead })})`,
+      reason: `model ${modelName} publicApiKeyRead=${entry.publicApiKeyRead} (expected true for public CMS)`,
     };
   }
   return { ok: true };
 }
 
 function main() {
-  if (!schemaPath) {
+  const inventoryPath = existsSync(INVENTORY_PATH) ? INVENTORY_PATH : PUBLIC_INVENTORY_PATH;
+  if (!existsSync(inventoryPath)) {
     console.error(
-      `verify-public-cms-query: no schema.graphql found (tried: ${SCHEMA_CANDIDATES.join(', ')})`,
+      `verify-public-cms-query: no gen2-cms-inventory.json found (tried ${INVENTORY_PATH} and public copy).`,
     );
     process.exit(1);
   }
-  const schema = readFileSync(schemaPath, 'utf8');
+  const inventory = JSON.parse(readFileSync(inventoryPath, 'utf8'));
   const siteCms = readFileSync(siteCmsPath, 'utf8');
   const queries = extractPublicCmsQueries(siteCms);
   const query = queries.join('\n');
@@ -98,9 +93,11 @@ function main() {
       console.error(`Unexpected list operation in public CMS queries: ${op}`);
       process.exit(1);
     }
-    const { ok, reason } = modelAllowsPublicApiKeyRead(schema, model);
+    const { ok, reason } = modelAllowsPublicApiKeyReadFromInventory(inventory, model);
     if (!ok) {
-      console.error(`Public CMS queries use ${op} -> ${model}, but schema check failed: ${reason}`);
+      console.error(
+        `Public CMS queries use ${op} -> ${model}, but inventory check failed: ${reason}`,
+      );
       process.exit(1);
     }
   }
@@ -115,7 +112,7 @@ function main() {
   }
 
   console.log(
-    `verify-public-cms-query: OK (${unique.length} list operations across ${PUBLIC_CMS_QUERY_CONSTANTS.length} queries match public apiKey read models).`,
+    `verify-public-cms-query: OK (${unique.length} list operations across ${PUBLIC_CMS_QUERY_CONSTANTS.length} queries match public apiKey read models from Gen2 inventory).`,
   );
 }
 

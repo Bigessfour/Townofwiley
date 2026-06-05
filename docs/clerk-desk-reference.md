@@ -4,11 +4,11 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 
 ## Bookmarks
 
-| Page                      | URL                                                                                                                                                                                                                   |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                                                   |
-| Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                                         |
-| Content editor (AWS)      | https://us-east-2.console.aws.amazon.com/amplify/apps/d331voxr1fhoir/branches/main/data (Amplify Hosting app deleted June 2026; link may 404 — use AppSync console or Studio for `townofwiley-main` API if available) |
+| Page                      | URL                                                                                                                                                                                                                                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                                                                                                                                        |
+| Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                                                                                                                              |
+| Content editor (AWS)      | Use https://townofwiley.gov/admin → "Content editor URL" (Gen 2 AppSync console: https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries ; search "townofwiley"). Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi and Amplify ID d331voxr1fhoir are legacy. |
 
 ## Every update (same steps)
 
