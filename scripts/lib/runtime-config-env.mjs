@@ -2,46 +2,32 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
-import {
-    loadProductionBindings,
-    readProductionAppSyncApiId,
-    readProductionCmsGraphqlEndpoint,
-    readProductionCmsRegion,
-    readProductionCognitoBindings,
-    readProductionStorageBindings,
-} from './gen1-cms-ssot.mjs';
-import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
 export const manifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.manifest.json');
 export const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
-export const productionBindingsPath = join(
-  repoRoot,
-  'infrastructure',
-  'gen1-production-bindings.json',
-);
+export const amplifyOutputsPath = join(repoRoot, 'amplify_outputs.json');
 
-/** @returns {Record<string, unknown> | null} */
-export function loadProductionBindingsFromRepo() {
-  return loadProductionBindings();
-}
-
-export { readProductionAppSyncApiId, readProductionCmsGraphqlEndpoint };
-
-export function buildAppSyncQueriesConsoleUrl(region, apiId = readProductionAppSyncApiId()) {
-  const trimmedRegion = region?.trim() || DEFAULT_AWS_REGION;
-  const trimmedApiId = apiId?.trim() || readProductionAppSyncApiId();
-  return `https://${trimmedRegion}.console.aws.amazon.com/appsync/home?region=${trimmedRegion}#/${trimmedApiId}/v1/queries`;
+/**
+ * @returns {Record<string, unknown> | null}
+ */
+export function loadAmplifyOutputsFromRepo() {
+  if (!existsSync(amplifyOutputsPath)) {
+    return null;
+  }
+  try {
+    return JSON.parse(readFileSync(amplifyOutputsPath, 'utf8'));
+  } catch (error) {
+    console.warn(`Unable to parse ${amplifyOutputsPath}: ${error.message}`);
+    return null;
+  }
 }
 
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 export const DEFAULT_AWS_REGION = 'us-east-2';
-export const DEFAULT_AMPLIFY_APP_ID = '';
-export const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
-export const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
-export const DEFAULT_PAYSTAR_PORTAL_URL = 'https://secure.paystar.io/pay/town-of-wiley-utilitybill';
+export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 
 export function readLocalSecrets(secretsPath = localSecretsPath) {
   if (!existsSync(secretsPath)) {
@@ -60,25 +46,42 @@ export function loadAmplifyBranchEnvManifest(path = manifestPath) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-/** Env vars that may be satisfied from infrastructure/gen1-production-bindings.json in strict builds. */
-const BINDINGS_ENV_FALLBACKS = {
-  APPSYNC_CMS_ENDPOINT: () => readProductionCmsGraphqlEndpoint(),
-  APPSYNC_CMS_REGION: () => readProductionCmsRegion(),
-  CONTACT_UPDATE_REVIEW_API_URL: () =>
-    loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ?? '',
-};
+/**
+ * @param {import('node:process').env} env
+ * @param {Array<{ name: string; runtimePath?: string }>} requiredList
+ * @returns {Array<{ name: string; runtimePath: string }>}
+ */
+/**
+ * Env vars satisfied by amplify_outputs.json (Gen 2 Hosting backend phase).
+ * @param {Record<string, unknown> | null} outputs
+ */
+export function envFromAmplifyOutputs(outputs) {
+  if (!outputs || typeof outputs !== 'object') {
+    return {};
+  }
+  const data =
+    'data' in outputs && outputs.data && typeof outputs.data === 'object'
+      ? /** @type {{ url?: string; api_key?: string; aws_region?: string }} */ (outputs.data)
+      : null;
+  const out = {};
+  if (data?.url?.trim()) {
+    out.APPSYNC_CMS_ENDPOINT = data.url.trim();
+  }
+  if (data?.api_key?.trim()) {
+    out.APPSYNC_CMS_API_KEY = data.api_key.trim();
+  }
+  if (data?.aws_region?.trim()) {
+    out.APPSYNC_CMS_REGION = data.aws_region.trim();
+  }
+  return out;
+}
 
-export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
-  const secretsEnv = envFromLocalSecrets(
-    typeof localSecrets === 'object' && localSecrets !== null ? localSecrets : {},
-  );
-  const effectiveEnv = { ...secretsEnv, ...env };
+export function collectRequiredEnvErrors(requiredList, env) {
+  const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
+  const effectiveEnv = { ...outputsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
-    let value = effectiveEnv[entry.name];
-    if ((typeof value !== 'string' || value.trim() === '') && BINDINGS_ENV_FALLBACKS[entry.name]) {
-      value = BINDINGS_ENV_FALLBACKS[entry.name]();
-    }
+    const value = effectiveEnv[entry.name];
     if (typeof value !== 'string' || value.trim() === '') {
       missing.push({
         name: entry.name,
@@ -105,15 +108,6 @@ export function shouldUseStrictMode(argv, env) {
 }
 
 /**
- * Site CI (`npm run build:ci`) — strict from env only, never from `--strict` argv.
- *
- * @param {import('node:process').env} env
- */
-export function shouldRunStrictProductionBuild(env) {
-  return shouldUseStrictMode([], env);
-}
-
-/**
  * Whether generate-runtime-config may read deployed Lambda URLs from infrastructure SSOT.
  * Off for strict Amplify builds and when E2E_RUNTIME_MANIFEST_FALLBACKS=0 (CI E2E).
  *
@@ -133,7 +127,7 @@ export function shouldAllowManifestFallbacks(env, { strict = false } = {}) {
 
 /**
  * Resolve runtime config field values from process.env with optional local secrets fallback.
- * CMS/auth/storage use Gen 1 bindings only — never amplify_outputs.json (Gen 2 retired).
+ * When strict production build runs, callers validate env before using local fallbacks for required keys.
  *
  * @param {Record<string, unknown>} localSecrets
  * @param {import('node:process').env} env
@@ -141,12 +135,28 @@ export function shouldAllowManifestFallbacks(env, { strict = false } = {}) {
  */
 export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const { allowManifestFallbacks = true } = options;
-  const cognitoBindings = readProductionCognitoBindings();
-  const storageBindings = readProductionStorageBindings();
+  const amplifyOutputs = loadAmplifyOutputsFromRepo();
+  const outputsData =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'data' in amplifyOutputs
+      ? /** @type {{ url?: string; aws_region?: string; api_key?: string }} */ (amplifyOutputs.data)
+      : null;
+  const outputsAuth =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'auth' in amplifyOutputs
+      ? /** @type {{ user_pool_id?: string; user_pool_client_id?: string; identity_pool_id?: string; aws_region?: string }} */ (
+          amplifyOutputs.auth
+        )
+      : null;
+  const outputsStorage =
+    amplifyOutputs && typeof amplifyOutputs === 'object' && 'storage' in amplifyOutputs
+      ? /** @type {{ bucket_name?: string; aws_region?: string }} */ (amplifyOutputs.storage)
+      : null;
 
-  // Chatbot (Easy-Peasy) decommissioned June 2026 — keep runtime shape for compatibility.
-  const chatUrl = '';
-  const apiEndpoint = '';
+  const chatUrl =
+    env.EASYPEASY_CHAT_URL?.trim() || localSecrets.chatbot?.easyPeasy?.chatUrl?.trim() || '';
+  const apiEndpoint =
+    env.EASYPEASY_API_ENDPOINT?.trim() ||
+    localSecrets.chatbot?.easyPeasy?.apiEndpoint?.trim() ||
+    '';
   const weatherApiEndpoint =
     env.NWS_PROXY_ENDPOINT?.trim() ||
     localSecrets.weather?.nws?.apiEndpoint?.trim() ||
@@ -157,26 +167,29 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileySevereWeatherBackend') : '') ||
     '';
-  const communityCalendarApiEndpoint =
-    env.COMMUNITY_CALENDAR_ENDPOINT?.trim() ||
-    localSecrets.communityCalendar?.apiEndpoint?.trim() ||
-    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCommunityCalendar') : '') ||
-    '';
   const paystarPortalUrl =
-    env.PAYSTAR_PORTAL_URL?.trim() ||
-    localSecrets.payments?.paystar?.portalUrl?.trim() ||
-    DEFAULT_PAYSTAR_PORTAL_URL;
+    env.PAYSTAR_PORTAL_URL?.trim() || localSecrets.payments?.paystar?.portalUrl?.trim() || '';
+  const paystarApiEndpoint =
+    env.PAYSTAR_API_ENDPOINT?.trim() || localSecrets.payments?.paystar?.apiEndpoint?.trim() || '';
+  const explicitPaystarMode =
+    env.PAYSTAR_MODE?.trim().toLowerCase() ||
+    localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
+    '';
   const cmsApiEndpoint =
+    outputsData?.url?.trim() ||
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
     localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
-    (allowManifestFallbacks ? readProductionCmsGraphqlEndpoint() : '') ||
     '';
   const cmsApiKey =
-    env.APPSYNC_CMS_API_KEY?.trim() || localSecrets.cms?.appSync?.apiKey?.trim() || '';
+    outputsData?.api_key?.trim() ||
+    env.APPSYNC_CMS_API_KEY?.trim() ||
+    localSecrets.cms?.appSync?.apiKey?.trim() ||
+    '';
   const cmsRegion =
+    outputsData?.aws_region?.trim() ||
+    outputsAuth?.aws_region?.trim() ||
     env.APPSYNC_CMS_REGION?.trim() ||
     localSecrets.cms?.appSync?.region?.trim() ||
-    readProductionCmsRegion() ||
     localSecrets.aws?.region?.trim() ||
     DEFAULT_AWS_REGION;
   const clerkSetupAwsAccountId =
@@ -205,35 +218,26 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     (clerkSetupAwsRegion
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
-  // CMS editing: in-app /admin forms (primary) or AppSync Queries console (IT).
-  const computedStudioUrl = clerkSetupAwsRegion
-    ? buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion)
-    : clerkSetupAwsConsoleUrl;
-
+  const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
+  // Compute a good studioUrl / dataManagerUrl for the clerkSetup in runtime-config.js.
+  // If the (legacy) amplifyAppId is the deleted d331voxr1fhoir hosting app, point to current
+  // Gen 2 AppSync console instead of the 404ing Amplify Data manager URL.
+  let computedClerkSetupStudioUrl;
+  if (clerkSetupAmplifyAppId === 'd331voxr1fhoir') {
+    computedClerkSetupStudioUrl = clerkSetupAwsRegion
+      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/appsync/home?region=${clerkSetupAwsRegion}#/x7poehudqvamneqni5s6e2cjxy/v1/queries`
+      : clerkSetupAwsConsoleUrl;
+  } else if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
+    computedClerkSetupStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
+  } else {
+    computedClerkSetupStudioUrl = clerkSetupAwsConsoleUrl;
+  }
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||
     localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
-    computedStudioUrl;
-  const clerkSetupCfDistributionId =
-    env.CLERK_SETUP_CF_DISTRIBUTION_ID?.trim() ||
-    localSecrets.clerkSetup?.cfDistributionId?.trim() ||
-    DEFAULT_CF_DISTRIBUTION_ID;
-  const clerkSetupS3Bucket =
-    env.CLERK_SETUP_S3_BUCKET?.trim() ||
-    localSecrets.clerkSetup?.s3Bucket?.trim() ||
-    DEFAULT_STATIC_SITE_BUCKET;
-  const cmsMediaUploadEndpoint =
-    env.CMS_MEDIA_UPLOAD_API_ENDPOINT?.trim() ||
-    localSecrets.cms?.mediaUpload?.apiEndpoint?.trim() ||
-    readDeployedFunctionUrl('TownOfWileyCmsMediaUpload') ||
-    '';
-  const cmsAuditLogEndpoint =
-    env.CMS_AUDIT_LOG_API_ENDPOINT?.trim() ||
-    localSecrets.cms?.auditLog?.apiEndpoint?.trim() ||
-    readDeployedFunctionUrl('TownOfWileyCmsChangeNotifier') ||
-    '';
+    computedClerkSetupStudioUrl;
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
     if (envFlag === 'false') {
@@ -258,16 +262,37 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
     'bottom-right';
   const logEndpoint = env.LOG_ENDPOINT?.trim() || localSecrets.logging?.endpoint?.trim() || '';
-  const paystarMode = paystarPortalUrl ? 'hosted' : 'none';
-  const mode = 'none';
+  const contactUpdateApiEndpoint =
+    env.CONTACT_UPDATE_API_ENDPOINT?.trim() ||
+    localSecrets.contactUpdate?.apiEndpoint?.trim() ||
+    '';
+  const contactUpdateReviewApiEndpoint =
+    env.CONTACT_UPDATE_REVIEW_API_URL?.trim() ||
+    localSecrets.contactUpdate?.reviewApiEndpoint?.trim() ||
+    '';
+  const contactUpdateReviewProxyEndpoint =
+    env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||
+    localSecrets.contactUpdate?.reviewProxyEndpoint?.trim() ||
+    '';
+  const guestbookApiEndpoint =
+    env.GUESTBOOK_API_ENDPOINT?.trim() || localSecrets.guestbook?.apiEndpoint?.trim() || '';
+  const paystarMode =
+    explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
+      ? explicitPaystarMode
+      : paystarApiEndpoint
+        ? 'api'
+        : paystarPortalUrl
+          ? 'hosted'
+          : 'none';
+  const mode = apiEndpoint ? 'api' : chatUrl ? 'embed' : 'none';
 
   return {
     chatUrl,
     apiEndpoint,
     weatherApiEndpoint,
     severeWeatherSignupApiEndpoint,
-    communityCalendarApiEndpoint,
     paystarPortalUrl,
+    paystarApiEndpoint,
     cmsApiEndpoint,
     cmsApiKey,
     cmsRegion,
@@ -277,91 +302,21 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     clerkSetupAwsRegion,
     clerkSetupAwsConsoleUrl,
     clerkSetupStudioUrl,
-    clerkSetupCfDistributionId,
-    clerkSetupS3Bucket,
-    cmsMediaUploadEndpoint,
-    cmsAuditLogEndpoint,
     severeWeatherSignupEnabled,
     weatherAllowBrowserFallback,
     buttonPosition,
     logEndpoint,
+    contactUpdateApiEndpoint,
+    contactUpdateReviewApiEndpoint,
+    contactUpdateReviewProxyEndpoint,
+    guestbookApiEndpoint,
     paystarMode,
     mode,
-    cognitoUserPoolId:
-      env.COGNITO_USER_POOL_ID?.trim() ||
-      localSecrets.auth?.cognito?.userPoolId?.trim() ||
-      cognitoBindings.userPoolId?.trim() ||
-      '',
-    cognitoUserPoolClientId:
-      env.COGNITO_USER_POOL_CLIENT_ID?.trim() ||
-      localSecrets.auth?.cognito?.userPoolClientId?.trim() ||
-      cognitoBindings.userPoolClientId?.trim() ||
-      '',
-    cognitoIdentityPoolId:
-      env.COGNITO_IDENTITY_POOL_ID?.trim() ||
-      localSecrets.auth?.cognito?.identityPoolId?.trim() ||
-      cognitoBindings.identityPoolId?.trim() ||
-      '',
-    cognitoHostedUiDomain:
-      env.COGNITO_HOSTED_UI_DOMAIN?.trim() ||
-      localSecrets.auth?.cognito?.hostedUiDomain?.trim() ||
-      cognitoBindings.hostedUiDomain?.trim() ||
-      '',
-    storageBucketName:
-      env.STORAGE_S3_BUCKET?.trim() ||
-      localSecrets.storage?.s3?.bucket?.trim() ||
-      storageBindings.bucket?.trim() ||
-      '',
-    storageRegion:
-      env.STORAGE_S3_REGION?.trim() ||
-      localSecrets.storage?.s3?.region?.trim() ||
-      storageBindings.region?.trim() ||
-      '',
-  };
-}
-
-function buildClerkSetupBlock(values) {
-  return {
-    clerkName: values.clerkSetupClerkName,
-    awsAccountId: values.clerkSetupAwsAccountId,
-    amplifyAppId: values.clerkSetupAmplifyAppId,
-    awsRegion: values.clerkSetupAwsRegion,
-    awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
-    studioUrl: values.clerkSetupStudioUrl,
-    dataManagerUrl: values.clerkSetupStudioUrl,
-    cfDistributionId: values.clerkSetupCfDistributionId,
-    s3Bucket: values.clerkSetupS3Bucket,
-  };
-}
-
-function buildAdminCmsBlock(values) {
-  return {
-    ...(values.cmsMediaUploadEndpoint
-      ? {
-          mediaUpload: {
-            apiEndpoint: values.cmsMediaUploadEndpoint,
-          },
-        }
-      : {}),
-    ...(values.cmsAuditLogEndpoint
-      ? {
-          auditLog: {
-            apiEndpoint: values.cmsAuditLogEndpoint,
-          },
-        }
-      : {}),
-  };
-}
-
-/**
- * Staff-only runtime settings (loaded on /admin, not on the public homepage).
- * @param {ReturnType<typeof buildRuntimeConfigValues>} values
- */
-export function buildAdminRuntimeConfigObject(values) {
-  const cms = buildAdminCmsBlock(values);
-  return {
-    clerkSetup: buildClerkSetupBlock(values),
-    ...(Object.keys(cms).length > 0 ? { cms } : {}),
+    cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
+    cognitoUserPoolClientId: outputsAuth?.user_pool_client_id?.trim() || '',
+    cognitoIdentityPoolId: outputsAuth?.identity_pool_id?.trim() || '',
+    storageBucketName: outputsStorage?.bucket_name?.trim() || '',
+    storageRegion: outputsStorage?.aws_region?.trim() || '',
   };
 }
 
@@ -369,14 +324,14 @@ export function buildAdminRuntimeConfigObject(values) {
  * @param {ReturnType<typeof buildRuntimeConfigValues>} values
  * @param {{ timestamp: string; gitSha: string }} buildMeta
  */
-export function buildPublicRuntimeConfigObject(values, buildMeta) {
+export function buildRuntimeConfigObject(values, buildMeta) {
   return {
     chatbot: {
-      provider: 'none',
-      mode: 'none',
-      chatUrl: '',
+      provider: 'easyPeasy',
+      mode: values.mode,
+      chatUrl: values.chatUrl,
       buttonPosition: values.buttonPosition,
-      apiEndpoint: '',
+      apiEndpoint: values.apiEndpoint,
     },
     build: {
       timestamp: buildMeta.timestamp,
@@ -391,14 +346,12 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
         apiEndpoint: values.severeWeatherSignupApiEndpoint,
       },
     },
-    communityCalendar: {
-      apiEndpoint: values.communityCalendarApiEndpoint,
-    },
     payments: {
       provider: 'paystar',
       paystar: {
         mode: values.paystarMode,
         portalUrl: values.paystarPortalUrl,
+        apiEndpoint: values.paystarApiEndpoint,
       },
     },
     cms: {
@@ -415,7 +368,6 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
             userPoolId: values.cognitoUserPoolId,
             userPoolClientId: values.cognitoUserPoolClientId,
             identityPoolId: values.cognitoIdentityPoolId,
-            hostedUiDomain: values.cognitoHostedUiDomain || undefined,
           },
         }
       : undefined,
@@ -427,26 +379,25 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
           },
         }
       : undefined,
+    clerkSetup: {
+      clerkName: values.clerkSetupClerkName,
+      awsAccountId: values.clerkSetupAwsAccountId,
+      amplifyAppId: values.clerkSetupAmplifyAppId,
+      awsRegion: values.clerkSetupAwsRegion,
+      awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
+      studioUrl: values.clerkSetupStudioUrl,
+      dataManagerUrl: values.clerkSetupStudioUrl,
+    },
     logging: {
       endpoint: values.logEndpoint || undefined,
     },
-  };
-}
-
-/**
- * Full merged config (tests and local overrides only).
- * @param {ReturnType<typeof buildRuntimeConfigValues>} values
- * @param {{ timestamp: string; gitSha: string }} buildMeta
- */
-export function buildRuntimeConfigObject(values, buildMeta) {
-  const admin = buildAdminRuntimeConfigObject(values);
-  const publicConfig = buildPublicRuntimeConfigObject(values, buildMeta);
-  return {
-    ...publicConfig,
-    clerkSetup: admin.clerkSetup,
-    cms: {
-      ...publicConfig.cms,
-      ...admin.cms,
+    contactUpdate: {
+      apiEndpoint: values.contactUpdateApiEndpoint,
+      reviewApiEndpoint: values.contactUpdateReviewApiEndpoint.replace(/\/$/, ''),
+      reviewProxyEndpoint: values.contactUpdateReviewProxyEndpoint,
+    },
+    guestbook: {
+      apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),
     },
   };
 }
@@ -457,7 +408,7 @@ export function formatStrictEnvErrors(missing) {
     'Strict runtime config: missing required production environment variables:',
     ...lines,
     '',
-    'Set them in GitHub Actions repository secrets, local user-secrets (npm run secrets:sync-runtime), or process.env.',
-    'CMS/auth/storage use Gen 1 only — see infrastructure/gen1-production-bindings.json and docs/gen2-decommissioned.md',
+    'Set them in Amplify Console (branch main) and GitHub Actions repository secrets.',
+    'See infrastructure/amplify-branch-env.manifest.json and docs/amplify-deployment-runbook.md',
   ].join('\n');
 }

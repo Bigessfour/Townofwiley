@@ -1,9 +1,11 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Gen 1 AppSync Queries console URL for Advanced (IT) section only. */
-const IT_CONSOLE_EDITOR_HREF =
-  /appsync\/home\?region=us-east-2#\/j7b2x3sh7rcezekekkxxiak7hi\/v1\/queries/;
+/** Current editor link pattern for task card "Edit content" buttons.
+ * Points to Gen 2 AppSync console (Queries) for the live backend. Legacy d331 Amplify URLs are gone.
+ */
+const CONSOLE_MODEL_HREF =
+  /us-east-2\.console\.aws\.amazon\.com\/appsync\/home.*x7poehudqvamneqni5s6e2cjxy.*queries/;
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -19,7 +21,7 @@ async function gotoAdminHub(page: import('@playwright/test').Page, path: string)
 test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
 
-  test('staff login page shows Hosted UI redirect status', async ({ homePage }) => {
+  test('staff login page shows email and password fields', async ({ homePage }) => {
     await disableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByRole('heading', { name: /Sign in — Town admin/i })).toBeVisible(
@@ -27,17 +29,14 @@ test.describe('cms admin', () => {
         timeout: 20_000,
       },
     );
-    await expect(homePage.page.getByTestId('admin-login-status')).toContainText(
-      /Redirecting to Town sign-in/i,
-    );
+    await expect(homePage.page.getByTestId('admin-login-email')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-password')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-submit')).toBeVisible();
     await expect(homePage.page.getByRole('heading', { name: /how to sign in/i })).toBeVisible();
-  });
-
-  test('admin hub requires staff sign-in when bypass is disabled', async ({ homePage }) => {
-    await disableE2eStaffAuth(homePage.page);
-    await homePage.page.goto('/admin', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page).toHaveURL(/\/admin\/login\?returnUrl=/);
-    await expect(homePage.page.getByTestId('admin-login-status')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-forgot-password')).toBeVisible();
+    await homePage.page.getByTestId('admin-login-forgot-password').click();
+    await expect(homePage.page.getByTestId('admin-login-forgot-email')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-forgot-submit')).toBeVisible();
   });
 
   test('admin hub shows task cards without AppSync jargon on the main view', async ({
@@ -49,70 +48,12 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /What do you want to update\?/i }),
     ).toBeVisible();
     await expect(homePage.page.getByTestId('cms-task-post-notice')).toBeVisible();
-    const editNotice = homePage.page.getByTestId('cms-task-edit-post-notice');
-    await expect(editNotice).toHaveRole('button');
-    await editNotice.click();
-    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
-    await expect(
-      homePage.page
-        .getByTestId('cms-task-guide')
-        .getByRole('heading', { name: /Edit:\s*Post news or notice/i }),
-    ).toBeVisible();
-    await expect(homePage.page.locator('#cms-field-post-notice-title')).toBeVisible();
-    // Task cards should not push raw "AppSync" as jargon.
-    await expect(
-      homePage.page.locator('.cms-task-card').getByText('AppSync', { exact: false }),
-    ).not.toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-edit-post-notice')).toHaveAttribute(
+      'href',
+      CONSOLE_MODEL_HREF,
+    );
+    await expect(homePage.page.getByText('AppSync', { exact: false })).not.toBeVisible();
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-force-refresh')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-content-source')).toBeVisible();
-  });
-
-  test('edit-site-copy task opens SiteCopy editor without load error', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
-
-    await homePage.page.getByTestId('cms-task-edit-edit-site-copy').click();
-    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
-    await expect(
-      homePage.page.getByRole('heading', {
-        name: /Edit: Homepage & menu labels \(SiteCopy\)/i,
-      }),
-    ).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
-    await expect(homePage.page.getByText(/Could not list SiteCopy/i)).toHaveCount(0, {
-      timeout: 15_000,
-    });
-    await expect(homePage.page.locator('#cms-field-edit-site-copy-key')).toBeVisible();
-    await expect(homePage.page.getByText('Loading saved records…')).toHaveCount(0, {
-      timeout: 15_000,
-    });
-  });
-
-  test('admin hub shows email forwarding task with dedicated editor', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
-
-    const emailTask = homePage.page.getByTestId('cms-task-manage-email-aliases');
-    await expect(emailTask).toBeVisible();
-    await expect(
-      emailTask.getByRole('heading', { name: /Manage email forwarding/i }),
-    ).toBeVisible();
-    await expect(emailTask.getByRole('link', { name: /See on website/i })).toHaveCount(0);
-
-    await homePage.page.getByTestId('cms-task-edit-manage-email-aliases').click();
-    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
-    await expect(
-      homePage.page.getByRole('heading', { name: /Edit: Manage email forwarding/i }),
-    ).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-email-alias-editor-slot')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-email-alias-admin')).toBeVisible();
-    await expect(homePage.page.getByText('Loading forwarding rules…')).toHaveCount(0, {
-      timeout: 15_000,
-    });
-    await expect(homePage.page.getByTestId('cms-email-alias-table')).toBeVisible();
-    await expect(homePage.page.getByText('No forwarding rules saved yet.')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-email-alias-add')).toBeVisible();
-    await expect(homePage.page.locator('#cms-field-post-notice-title')).toHaveCount(0);
   });
 
   test('content inventory is under Advanced (IT)', async ({ homePage }) => {
@@ -126,13 +67,7 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /Content inventory \(IT\)/i }),
     ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.getByTestId('cms-inventory-row-SiteSettings')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toHaveAttribute(
-      'href',
-      IT_CONSOLE_EDITOR_HREF,
-    );
+    await expect(homePage.page.getByTestId('cms-snapshot-open-data-manager')).toBeVisible();
   });
 
   test('redirects the legacy clerk setup document link to the admin documents section', async ({
@@ -160,14 +95,16 @@ test.describe('cms admin', () => {
     ).toBeVisible();
   });
 
-  test('preserves the legacy /clerk-setup#updates deep link to the admin start section', async ({
+  test('preserves the legacy /clerk-setup#updates deep link to contact updates', async ({
     homePage,
   }) => {
     await enableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/clerk-setup#updates', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#start$/, { timeout: 20_000 });
-    await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/, { timeout: 20_000 });
+    await expect(
+      homePage.page.getByRole('heading', { name: /Resident contact and billing messages/i }),
+    ).toBeVisible();
   });
 
   test('opens directly to the documents section when /admin#documents is loaded', async ({
@@ -181,51 +118,42 @@ test.describe('cms admin', () => {
     });
   });
 
-  test('redirects legacy /admin#updates to the admin start section', async ({ homePage }) => {
-    await enableE2eStaffAuth(homePage.page);
-    await homePage.page.goto('/admin#updates', { waitUntil: 'load' });
+  test('opens directly to contact updates when /admin#updates is loaded', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin#updates');
 
-    await expect(homePage.page).toHaveURL(/\/admin#start$/, { timeout: 20_000 });
-    await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible({ timeout: 20_000 });
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
+    await expect(
+      homePage.page.getByRole('heading', { name: /Resident contact and billing messages/i }),
+    ).toBeVisible({ timeout: 20_000 });
   });
 
-  test('meeting task exposes a working native date/time picker input', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
+  test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
+    await homePage.page.addInitScript(() => {
+      const runtimeWindow = window as Window & {
+        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+          contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
+        };
+      };
+      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+        contactUpdate: {
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
+          reviewApiEndpoint: '',
+          reviewProxyEndpoint: '/api/contact-updates-review',
+        },
+      };
+    });
+    await homePage.page.route(/contact-updates-review/, async (route) => {
+      await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
+    });
 
-    await homePage.page.getByTestId('cms-task-edit-add-meeting').click();
-    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
-    await expect(
-      homePage.page.locator('#cms-field-add-meeting-start[type="datetime-local"]'),
-    ).toBeVisible();
-    await expect(
-      homePage.page.locator('#cms-field-add-meeting-start[type="datetime-local"]'),
-    ).toBeEditable();
-  });
+    await gotoAdminHub(homePage.page, '/admin#updates');
 
-  test('post-notice form supports newsletter PDF upload and auto-kind', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
-
-    await homePage.page.getByTestId('cms-task-edit-post-notice').click();
-    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
     await expect(
-      homePage.page.getByTestId('cms-field-select-post-notice-announcementKind'),
-    ).toBeVisible();
-    await expect(
-      homePage.page.getByTestId('cms-field-file-input-post-notice-attachmentKey'),
-    ).toBeVisible();
-    await expect(homePage.page.locator('#cms-field-post-notice-date')).toHaveValue(
-      /\d{4}-\d{2}-\d{2}/,
-    );
-
-    const fileCode = 'documents/newsletter/2026-06-09-town-newsletter.pdf';
-    await homePage.page
-      .getByTestId('cms-field-file-or-url-post-notice-attachmentKey')
-      .fill(fileCode);
-
-    await expect(
-      homePage.page.getByTestId('cms-field-select-post-notice-announcementKind'),
-    ).toContainText(/Newsletter/i);
-    await expect(homePage.page.getByText(`File code: ${fileCode}`)).toBeVisible();
+      homePage.page.locator('p-message.p-message-error, p-message[severity="error"]'),
+    ).toContainText(/access denied|could not load|require staff sign-in/i, { timeout: 20_000 });
+    await expect(homePage.page.getByText('No resident messages yet.')).not.toBeVisible();
   });
 
   test('document publishing lists newsletter path and task guide mentions Spanish fields', async ({
@@ -239,30 +167,11 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByText('meeting-documents', { exact: false })).toBeVisible();
 
     await homePage.page
-      .getByTestId('cms-task-add-meeting')
-      .getByTestId('cms-task-edit-add-meeting')
+      .getByTestId('cms-task-add-document')
+      .getByRole('button', {
+        name: /show step-by-step/i,
+      })
       .click();
-    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
-    await expect(
-      homePage.page.getByTestId('cms-task-form').getByLabel(/Meeting or Event Title/i),
-    ).toBeVisible();
-  });
-
-  test('admin hub shows recent changes panel', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
-
-    await expect(homePage.page.getByTestId('cms-clerk-coverage')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-recent-changes')).toBeVisible();
-    await expect(homePage.page.getByRole('heading', { name: /Recent changes/i })).toBeVisible();
-    await expect(
-      homePage.page.getByText(/No changes recorded yet|Loading recent changes/i),
-    ).toBeVisible();
-  });
-
-  test('hero upload panel is visible on admin start section', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin');
-
-    await expect(homePage.page.getByText(/homepage photo|hero photo/i).first()).toBeVisible();
-    await expect(homePage.page.getByText(/Choose file|Choose PDF/i).first()).toBeVisible();
+    await expect(homePage.page.getByText(/Title \(Spanish\)/i)).toBeVisible();
   });
 });

@@ -1,6 +1,3 @@
-import { readAdminRuntimeConfig } from '../admin-runtime-config';
-import { buildAppSyncQueriesConsoleUrl } from './appsync-console-url';
-
 interface RuntimeClerkSetupConfig {
   clerkName: string;
   awsAccountId: string;
@@ -8,8 +5,6 @@ interface RuntimeClerkSetupConfig {
   awsRegion: string;
   awsConsoleUrl: string;
   studioUrl: string;
-  cfDistributionId: string;
-  s3Bucket: string;
 }
 
 interface RuntimeConfigShape {
@@ -19,8 +14,10 @@ interface RuntimeConfigShape {
 const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
-const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
-const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
+const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+/** Current Gen 2 AppSync for CMS editing (replaces legacy Amplify Studio/Data Manager for d331voxr1fhoir). */
+const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
+const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
 
 type ClerkSetupRuntimeWindow = Window & {
@@ -36,38 +33,53 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-/**
- * AppSync Queries console URL for IT troubleshooting (staff CMS editing is on /admin).
- */
-export function buildCmsEditorConsoleUrl(region: string, fallbackUrl: string): string {
-  if (!region) {
-    return fallbackUrl;
-  }
-  return buildAppSyncQueriesConsoleUrl(region);
-}
-
-/** @deprecated Use buildCmsEditorConsoleUrl — Amplify Hosting/Data manager removed June 2026. */
+/** Gen 2 Amplify Console → Data manager (replaces Gen 1 hosted Studio). */
 export function buildAmplifyConsoleDataManagerUrl(
   region: string,
-  _appId: string,
-  _branchName: string,
+  appId: string,
+  branchName: string,
   fallbackUrl: string,
 ): string {
-  return buildCmsEditorConsoleUrl(region, fallbackUrl);
+  if (!region || !appId) {
+    return fallbackUrl;
+  }
+
+  // Legacy Amplify Hosting app (d331voxr1fhoir) was deleted June 2026 after S3+CloudFront migration.
+  // CMS content (Events, Announcements, SiteSettings, etc.) is now managed via the current
+  // Gen 2 AppSync console (Queries tab or schema). The old /amplify/apps/.../data URLs 404.
+  if (appId === 'd331voxr1fhoir') {
+    return `${CURRENT_APPSYNC_CONSOLE_BASE}/queries`;
+  }
+
+  const branch = branchName.trim() || 'main';
+  return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
 }
 
-/** @deprecated Prefer in-app /admin forms; deep links to Amplify Data manager are no longer used. */
+/**
+ * Best-effort deep link to a model in Amplify Console Data manager.
+ * If the console UI changes, callers should fall back to the branch data root.
+ */
 export function buildAmplifyConsoleDataManagerModelUrl(
   region: string,
   appId: string,
   branchName: string,
-  _model: string,
+  model: string,
   fallbackUrl: string,
 ): string {
-  return buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
+  const base = buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
+  const trimmed = model.trim();
+  if (!trimmed) {
+    return base;
+  }
+  // For legacy d331 (now AppSync), there is no /models/ deep-link equivalent in the same way;
+  // the queries page is the editor entrypoint. The base will already be the good AppSync URL.
+  if (appId === 'd331voxr1fhoir') {
+    return base;
+  }
+  return `${base}/models/${encodeURIComponent(trimmed)}`;
 }
 
-/** @deprecated Use buildCmsEditorConsoleUrl. */
+/** @deprecated Gen 1 Studio home; use {@link buildAmplifyConsoleDataManagerUrl}. */
 export function buildAmplifyAdminStudioHomeUrl(
   region: string,
   appId: string,
@@ -81,25 +93,23 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     typeof window === 'undefined' ? undefined : (window as ClerkSetupRuntimeWindow);
   const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
-  const adminClerkSetup = readAdminRuntimeConfig()?.clerkSetup;
   const clerkSetupConfig = {
     ...(runtimeConfig?.clerkSetup ?? {}),
-    ...(adminClerkSetup ?? {}),
     ...(runtimeConfigOverride?.clerkSetup ?? {}),
   };
 
   const awsRegion = trimOrEmpty(clerkSetupConfig.awsRegion) || DEFAULT_AWS_REGION;
   const awsConsoleUrl = trimOrEmpty(clerkSetupConfig.awsConsoleUrl) || buildConsoleUrl(awsRegion);
+  const amplifyAppId = trimOrEmpty(clerkSetupConfig.amplifyAppId) || DEFAULT_AMPLIFY_APP_ID;
 
   return {
     clerkName: trimOrEmpty(clerkSetupConfig.clerkName) || DEFAULT_CLERK_NAME,
     awsAccountId: trimOrEmpty(clerkSetupConfig.awsAccountId) || DEFAULT_AWS_ACCOUNT_ID,
-    amplifyAppId: trimOrEmpty(clerkSetupConfig.amplifyAppId) || '',
+    amplifyAppId,
     awsRegion,
     awsConsoleUrl,
     studioUrl:
-      trimOrEmpty(clerkSetupConfig.studioUrl) || buildCmsEditorConsoleUrl(awsRegion, awsConsoleUrl),
-    cfDistributionId: trimOrEmpty(clerkSetupConfig.cfDistributionId) || DEFAULT_CF_DISTRIBUTION_ID,
-    s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket) || DEFAULT_STATIC_SITE_BUCKET,
+      trimOrEmpty(clerkSetupConfig.studioUrl) ||
+      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
   };
 }
