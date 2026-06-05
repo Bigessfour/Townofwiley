@@ -15,6 +15,9 @@ const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+/** Current Gen 2 AppSync for CMS editing (replaces legacy Amplify Studio/Data Manager for d331voxr1fhoir). */
+const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
+const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
 
 type ClerkSetupRuntimeWindow = Window & {
@@ -41,6 +44,13 @@ export function buildAmplifyConsoleDataManagerUrl(
     return fallbackUrl;
   }
 
+  // Legacy Amplify Hosting app (d331voxr1fhoir) was deleted June 2026 after S3+CloudFront migration.
+  // CMS content (Events, Announcements, SiteSettings, etc.) is now managed via the current
+  // Gen 2 AppSync console (Queries tab or schema). The old /amplify/apps/.../data URLs 404.
+  if (appId === 'd331voxr1fhoir') {
+    return `${CURRENT_APPSYNC_CONSOLE_BASE}/queries`;
+  }
+
   const branch = branchName.trim() || 'main';
   return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
 }
@@ -59,6 +69,11 @@ export function buildAmplifyConsoleDataManagerModelUrl(
   const base = buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
   const trimmed = model.trim();
   if (!trimmed) {
+    return base;
+  }
+  // For legacy d331 (now AppSync), there is no /models/ deep-link equivalent in the same way;
+  // the queries page is the editor entrypoint. The base will already be the good AppSync URL.
+  if (appId === 'd331voxr1fhoir') {
     return base;
   }
   return `${base}/models/${encodeURIComponent(trimmed)}`;

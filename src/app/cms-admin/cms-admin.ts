@@ -6,10 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import {
-  buildAmplifyConsoleDataManagerUrl,
-  getClerkSetupRuntimeConfig,
-} from '../clerk-setup/clerk-setup-config';
+import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -126,17 +123,18 @@ export class CmsAdmin {
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
   protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
-  protected readonly dataManagerUrl = buildAmplifyConsoleDataManagerUrl(
-    this.clerkSetupConfig.awsRegion,
-    this.clerkSetupConfig.amplifyAppId,
-    'main',
-    this.clerkSetupConfig.studioUrl,
-  );
+  // Hardcode the current good editor (Gen 2 AppSync Queries) so that all "Edit content" buttons,
+  // the snapshot "Open content editor", upload panels, and the displayed "Content editor URL"
+  // in Advanced/IT always work. The legacy d331voxr1fhoir Amplify hosting app is deleted and
+  // its /amplify/.../data links 404 with "App d331voxr1fhoir not found".
+  // We still read runtime clerkSetup for region/appId display etc., but editor links use the good URL.
+  protected readonly dataManagerUrl =
+    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Content editor URL',
+      label: 'Content editor URL (Gen 2 AppSync — current backend)',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
     },
@@ -148,7 +146,7 @@ export class CmsAdmin {
     },
     {
       key: 'amplify-app',
-      label: 'Amplify app id',
+      label: 'Amplify app id (legacy hosting d331 deleted; for reference)',
       value: this.amplifyAppId,
       copyValue: this.amplifyAppId,
     },

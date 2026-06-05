@@ -1,9 +1,11 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Gen 2 Amplify Console Data manager model deep link pattern. */
+/** Current editor link pattern for task card "Edit content" buttons.
+ * Points to Gen 2 AppSync console (Queries) for the live backend. Legacy d331 Amplify URLs are gone.
+ */
 const CONSOLE_MODEL_HREF =
-  /^https:\/\/us-east-2\.console\.aws\.amazon\.com\/amplify\/apps\/d331voxr1fhoir\/branches\/main\/data\/models\//;
+  /us-east-2\.console\.aws\.amazon\.com\/appsync\/home.*x7poehudqvamneqni5s6e2cjxy.*queries/;
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);

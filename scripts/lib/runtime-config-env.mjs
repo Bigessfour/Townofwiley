@@ -219,14 +219,25 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
   const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
+  // Compute a good studioUrl / dataManagerUrl for the clerkSetup in runtime-config.js.
+  // If the (legacy) amplifyAppId is the deleted d331voxr1fhoir hosting app, point to current
+  // Gen 2 AppSync console instead of the 404ing Amplify Data manager URL.
+  let computedClerkSetupStudioUrl;
+  if (clerkSetupAmplifyAppId === 'd331voxr1fhoir') {
+    computedClerkSetupStudioUrl = clerkSetupAwsRegion
+      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/appsync/home?region=${clerkSetupAwsRegion}#/x7poehudqvamneqni5s6e2cjxy/v1/queries`
+      : clerkSetupAwsConsoleUrl;
+  } else if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
+    computedClerkSetupStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
+  } else {
+    computedClerkSetupStudioUrl = clerkSetupAwsConsoleUrl;
+  }
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||
     localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
-    (clerkSetupAwsRegion && clerkSetupAmplifyAppId
-      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`
-      : clerkSetupAwsConsoleUrl);
+    computedClerkSetupStudioUrl;
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
     if (envFlag === 'false') {
