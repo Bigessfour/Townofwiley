@@ -53,7 +53,12 @@ test.describe('cms admin', () => {
       'href',
       CONSOLE_MODEL_HREF,
     );
-    await expect(homePage.page.getByText('AppSync', { exact: false })).not.toBeVisible();
+    // Task cards themselves should not push raw "AppSync" as jargon (the lead now intentionally notes "(opens AppSync console for current backend)" for clarity).
+    await expect(
+      homePage.page
+        .locator('.cms-task-card, [data-testid*="cms-task"]')
+        .getByText('AppSync', { exact: false }),
+    ).not.toBeVisible();
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
   });
 
@@ -68,7 +73,9 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /Content inventory \(IT\)/i }),
     ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.getByTestId('cms-inventory-row-SiteSettings')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-snapshot-open-data-manager')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('redirects the legacy clerk setup document link to the admin documents section', async ({
