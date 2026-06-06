@@ -1,5 +1,8 @@
-# Gen 2 Hosting + backend deploy. Headers SSOT: customHttp.yml (npm run amplify:sync-headers).
-# See docs/amplify-gen2-migration-plan.md and docs/AMPLIFY_HOSTING_SOT.md.
+# HISTORICAL / DEPRECATED for frontend hosting (Amplify Hosting app deleted June 2026).
+# Retained for backend (ampx pipeline-deploy / AppSync/Gen2) and dev parity.
+# Current prod frontend: S3+CloudFront (see README deploy steps, manifest, customHttp.yml for CSP reference only).
+# Headers SSOT for legacy: customHttp.yml (npm run amplify:sync-headers — no-op for prod CF).
+# See docs/AMPLIFY_HOSTING_SOT.md (historical) and docs/AWS_INFRASTRUCTURE_SOT.md.
 version: 1
 backend:
   phases:

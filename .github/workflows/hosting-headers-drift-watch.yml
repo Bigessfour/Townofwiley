@@ -1,14 +1,15 @@
-# Probes production hosting for baseline security headers (CSP) so drift is caught
+# Probes production hosting for baseline security headers (CSP) so drift is caught.
 # Complements scripts/verify-custom-http-yaml.mjs (repo) and e2e live header checks.
-# (repo file parity) and e2e/specs/smoke/live-hosting-headers.spec.ts (full header set).
 #
-# Noise control: when repository secrets provide Wiley AWS credentials, push
-# customHttp.yml via npm run amplify:sync-headers before the live check; always
-# wait 30s so CloudFront can pick up app-level header changes after sync/deploy.
+# Current hosting (S3 + CloudFront): CSP + security headers served via CloudFront
+# Response Headers Policy (attached to default behavior; see policy ID in manifest
+# and customHttp.yml as SSOT). Amplify sync is historical/no-op for prod (app deleted).
+# The probe + compare steps act as canary for missing/mismatched headers.
 #
-# AWS context: custom headers can be set in the Amplify console, in customHttp.yml
-# (repo), or historically in amplify.yml — see:
-# https://docs.aws.amazon.com/amplify/latest/userguide/custom-headers.html
+# If AWS secrets present, the (historical) sync step will now gracefully skip for
+# decommissioned Amplify app.
+#
+# See: docs/AWS_INFRASTRUCTURE_SOT.md, README (S3+CF section), customHttp.yml.
 name: Hosting headers drift watch
 
 on:
@@ -40,7 +41,7 @@ jobs:
       - name: Install jq (Amplify sync script)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Sync Amplify custom headers from customHttp.yml
+      - name: Sync Amplify custom headers (historical; skipped for S3+CF prod)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -49,12 +50,12 @@ jobs:
           AWS_REGION: us-east-2
         run: |
           if [ -z "${AWS_ACCESS_KEY_ID:-}" ]; then
-            echo "Skipping Amplify sync (no AWS_ACCESS_KEY_ID repository secret)"
+            echo "Skipping Amplify sync (no AWS_ACCESS_KEY_ID repository secret; CSP now via CloudFront Response Headers Policy)"
             exit 0
           fi
           npm run amplify:sync-headers
 
-      - name: Wait for Hosting header propagation
+      - name: Wait for edge propagation (if any sync)
         run: sleep 30
 
       - name: Probe live CSP baseline tokens

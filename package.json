@@ -105,6 +105,8 @@
     "deploy:nws-weather-proxy": "python scripts/deploy-nws-weather-proxy.py",
     "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",
     "deploy:site-monitor": "python scripts/deploy-site-monitor.py",
+    "deploy:site": "bash scripts/deploy-static-site.sh",
+    "deploy:site:dry": "bash scripts/deploy-static-site.sh --dry-run",
     "deploy:guestbook": "python scripts/deploy-guestbook-backend.py",
     "deploy:appsync-key-reminder": "python scripts/deploy-appsync-key-rotation-reminder.py",
     "assets:hero": "node scripts/convert-hero.mjs",

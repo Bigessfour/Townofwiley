@@ -332,13 +332,13 @@
                   [attr.aria-label]="appCopy().languageLabel"
                 >
                   @for (choice of languageChoices(); track choice.value) {
+                    <!-- duplicate id avoided here (menu context); header instance provides the site-language-es/en ids -->
                     <button
                       type="button"
                       class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
                       [class.active]="siteLanguage() === choice.value"
                       [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
                       [class.text-wiley-inverse]="siteLanguage() === choice.value"
-                      [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
                       [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                       [attr.aria-pressed]="siteLanguage() === choice.value"
                       [attr.title]="appCopy().languageLabel + ': ' + choice.label"

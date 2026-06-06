@@ -56,7 +56,7 @@ aws rds describe-db-instances --profile "$PROFILE" --region "$REGION" --output t
 
 echo ""
 echo "=== 4. Check AppSync Data Sources (may point to Aurora) ==="
-APPSYNC_API_ID="j7b2x3sh7rcezekekkxxiak7hi" # from infrastructure manifest
+APPSYNC_API_ID="x7poehudqvamneqni5s6e2cjxy" # Gen 2 (from gen2-production-bindings; Gen 1 j7b2 legacy)
 aws appsync list-data-sources \
   --profile "$PROFILE" \
   --region "$REGION" \

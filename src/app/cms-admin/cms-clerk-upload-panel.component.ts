@@ -9,7 +9,6 @@ import {
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { DocumentUploadService } from '../document-upload.service';
-import { clerkTaskEditorUrl } from './cms-clerk-tasks';
 
 export type ClerkUploadMode = 'hero' | 'newsletter-pdf';
 
@@ -41,14 +40,8 @@ export class CmsClerkUploadPanelComponent {
   protected readonly loginUrl = '/admin/login';
 
   protected editorUrlForMode(): string {
-    const model = this.mode() === 'hero' ? 'SiteSettings' : 'Announcement';
-    return clerkTaskEditorUrl(
-      this.region(),
-      this.appId(),
-      this.branch(),
-      model,
-      this.fallbackEditorUrl(),
-    );
+    // Use fallback (AppSync) ; ignore legacy appId.
+    return this.fallbackEditorUrl();
   }
 
   protected async onFileSelected(event: Event): Promise<void> {
@@ -77,17 +70,19 @@ export class CmsClerkUploadPanelComponent {
         this.httpsUrl.set(doc.url);
         this.copyValue.set(doc.url);
         this.resultMessage.set(
-          'Copy the web address below into Photo web address (heroImageUrl) in Homepage settings.',
+          'Copy the web address below into Photo web address (heroImageUrl) in the SiteSettings record (use Content editor URL from Advanced section or AppSync).',
         );
       } else {
         const doc = await this.uploads.uploadDocument(file, 'newsletter');
         this.copyValue.set(doc.id);
         this.resultMessage.set(
-          'Copy the file code below into File code from IT (attachmentKey) on your newsletter Announcement row.',
+          'Copy the file code below into File code from IT (attachmentKey) on your newsletter Announcement row (use Content editor URL from Advanced or AppSync).',
         );
       }
     } catch {
-      this.error.set('Upload failed. Ask IT for help or use the editor without an upload.');
+      this.error.set(
+        'Upload failed. Ask IT for help or use the Content editor URL (AppSync) without an upload.',
+      );
     } finally {
       this.uploading.set(false);
       inputEl.value = '';
