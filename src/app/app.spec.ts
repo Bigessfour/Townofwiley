@@ -58,6 +58,9 @@ interface TestRuntimeConfig {
       apiEndpoint?: string;
     };
   };
+  e2e?: {
+    staffAuth?: boolean;
+  };
 }
 
 /** Render @defer blocks to Complete so viewport-triggered homepage sections appear in tests. */
@@ -874,6 +877,7 @@ describe('App', () => {
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
+    enableE2eStaffAuth();
     // Pre-set the hash so the legacy redirect preserves the intended admin tab.
     window.history.replaceState({}, '', '/clerk-setup#documents');
     const fixture = TestBed.createComponent(App);
@@ -972,7 +976,18 @@ describe('App', () => {
     };
   }
 
+  function enableE2eStaffAuth(): void {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+      e2e: {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e ?? {}),
+        staffAuth: true,
+      },
+    };
+  }
+
   async function settleAdminRoute(fixture: ComponentFixture<App>): Promise<void> {
+    enableE2eStaffAuth();
     await TestBed.inject(Router).navigateByUrl('/admin');
     fixture.detectChanges();
     await fixture.whenStable();
