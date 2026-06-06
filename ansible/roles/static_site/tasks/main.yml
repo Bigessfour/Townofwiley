@@ -1,0 +1,59 @@
+---
+- name: Require repo deploy script
+  ansible.builtin.stat:
+    path: '{{ deploy_script }}'
+  register: deploy_script_stat
+  failed_when: not deploy_script_stat.stat.exists
+
+- name: Require AWS CLI credentials for Town account
+  ansible.builtin.command: aws sts get-caller-identity --query Account --output text
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+    AWS_REGION: '{{ aws_region }}'
+  register: caller_identity
+  changed_when: false
+  failed_when: caller_identity.stdout != aws_account_id
+
+- name: Preflight strict runtime-config (when building)
+  ansible.builtin.command: npm run generate:runtime-config:strict
+  args:
+    chdir: '{{ repo_root }}'
+  register: runtime_config_preflight
+  changed_when: false
+  failed_when: runtime_config_preflight.rc != 0
+  when: not (deploy_skip_build_effective | bool)
+
+- name: Deploy static site to S3 + CloudFront (dry-run)
+  ansible.builtin.shell: >
+    bash "{{ deploy_script }}" --dry-run
+    {{ '--skip-build' if deploy_skip_build_effective else '' }}
+  args:
+    chdir: '{{ repo_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+    AWS_REGION: '{{ aws_region }}'
+  when: deploy_dry_run | bool
+  changed_when: false
+
+- name: Deploy static site to S3 + CloudFront
+  ansible.builtin.shell: >
+    bash "{{ deploy_script }}"
+    {{ '--skip-build' if deploy_skip_build_effective else '' }}
+  args:
+    chdir: '{{ repo_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+    AWS_REGION: '{{ aws_region }}'
+  when: not (deploy_dry_run | bool)
+  register: static_site_deploy
+  changed_when: static_site_deploy.rc == 0
+
+- name: Post-deploy homepage probe
+  ansible.builtin.uri:
+    url: '{{ production_url }}/'
+    method: HEAD
+    status_code: 200
+  when: not (deploy_dry_run | bool)

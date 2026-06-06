@@ -76,3 +76,52 @@ In short:
 - Incorporate rules from `.cursor/rules/`, TownOfWiley-Dev skill, accessibility expectations, MCP priority, and git workflow (no destructive commands unless requested).
 - Keep responses focused on task. Use markdown code blocks only per tone guidelines. Prefer implementation aligned with rules.
 - Default to PrimeNG + Angular 21 standalone/signals/OnPush/native control flow, WCAG AA, Trunk formatting.
+
+## Pipeline workflow (CI/CD — mandatory reference)
+
+Full runbook: [`docs/pipeline-workflow.md`](../docs/pipeline-workflow.md). Production deploy is **GitHub Actions → S3 + CloudFront** on merge to `main` (not Amplify Hosting).
+
+### Every agent session (shell)
+
+```bash
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"   # macOS Homebrew Node 24
+source scripts/agent-aws-env.sh
+node -v && aws sts get-caller-identity
+```
+
+### Runtime secrets (strict build + CI)
+
+Required keys: [`infrastructure/amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json) → `requiredForProduction`.
+
+```bash
+source scripts/agent-aws-env.sh
+npm run pipeline:secrets                   # sync + lock + strict checks
+npm run secrets:sync-runtime -- --github     # mirror GitHub Actions secrets
+npm run generate:runtime-config:strict
+npm run test:runtime-config-strict
+```
+
+After Lambda deploys or AppSync key rotation, re-run sync before expecting green CI/local `npm run build`.
+
+### Before PR / local validation (frontend changes)
+
+```bash
+npm ci --prefer-offline --no-audit
+npm run lint
+npm run test:vitest
+npm run build
+npm run test:e2e:smoke
+trunk check --fix
+```
+
+Required merge check name: **`site-ci / CI gate (merge required)`**. Deploy runs on push to `main` when `app_changed` — see [`docs/github-actions-production-deploy.md`](../docs/github-actions-production-deploy.md).
+
+### Break-glass deploy (human only — confirm with user)
+
+```bash
+source scripts/agent-aws-env.sh
+npm run deploy:site
+# or: npm run deploy:ansible:dry / npm run deploy:ansible
+```
+
+CI failures: `gh run view <run-id> --log-failed` — not Grok fetch of GitHub URLs.

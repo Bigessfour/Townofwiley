@@ -2,6 +2,8 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadAmplifyBranchEnvManifest } from './lib/runtime-config-env.mjs';
+import { envFromLocalSecrets, runtimeSecretEnvMappings } from './lib/runtime-secret-mappings.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const paths = {
@@ -95,6 +97,17 @@ const templateSecrets = {
       apiKey: '',
     },
   },
+  contactUpdate: {
+    apiEndpoint: '',
+    reviewApiEndpoint: '',
+    reviewProxyEndpoint: '',
+  },
+  guestbook: {
+    apiEndpoint: '',
+  },
+  logging: {
+    endpoint: '',
+  },
 };
 
 const envMappings = [
@@ -106,28 +119,9 @@ const envMappings = [
   { env: 'XAI_USERNAME', path: ['xai', 'username'] },
   { env: 'XAI_PASSWORD', path: ['xai', 'password'] },
   { env: 'XAI_API_KEY', path: ['xai', 'apiKey'] },
-  { env: 'EASYPEASY_API_KEY', path: ['chatbot', 'easyPeasy', 'apiKey'] },
-  { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },
-  { env: 'EASYPEASY_API_ENDPOINT', path: ['chatbot', 'easyPeasy', 'apiEndpoint'] },
-  { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BUTTON_POSITION', path: ['chatbot', 'easyPeasy', 'buttonPosition'] },
-  { env: 'NWS_PROXY_ENDPOINT', path: ['weather', 'nws', 'apiEndpoint'] },
-  {
-    env: 'NWS_ALLOW_BROWSER_FALLBACK',
-    path: ['weather', 'nws', 'allowBrowserFallback'],
-    transform: (value) => value.trim().toLowerCase() !== 'false',
-  },
   { env: 'NWS_USER_AGENT', path: ['weather', 'nws', 'userAgent'] },
   { env: 'NWS_API_KEY', path: ['weather', 'nws', 'apiKey'] },
-  {
-    env: 'SEVERE_WEATHER_SIGNUP_ENABLED',
-    path: ['weather', 'alertSignup', 'enabled'],
-    transform: (value) => value.trim().toLowerCase() === 'true',
-  },
-  {
-    env: 'SEVERE_WEATHER_SIGNUP_API_ENDPOINT',
-    path: ['weather', 'alertSignup', 'apiEndpoint'],
-  },
   {
     env: 'SEVERE_WEATHER_SIGNUP_SENDER_EMAIL',
     path: ['weather', 'alertSignup', 'senderEmail'],
@@ -148,12 +142,8 @@ const envMappings = [
     env: 'SEVERE_WEATHER_SIGNUP_CLOUDWATCH_NAMESPACE',
     path: ['weather', 'alertSignup', 'cloudwatchNamespace'],
   },
-  { env: 'PAYSTAR_MODE', path: ['payments', 'paystar', 'mode'] },
-  { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },
-  { env: 'PAYSTAR_API_ENDPOINT', path: ['payments', 'paystar', 'apiEndpoint'] },
-  { env: 'APPSYNC_CMS_REGION', path: ['cms', 'appSync', 'region'] },
-  { env: 'APPSYNC_CMS_ENDPOINT', path: ['cms', 'appSync', 'apiEndpoint'] },
-  { env: 'APPSYNC_CMS_API_KEY', path: ['cms', 'appSync', 'apiKey'] },
+  { env: 'CONTACT_UPDATE_REVIEW_PROXY_URL', path: ['contactUpdate', 'reviewProxyEndpoint'] },
+  ...runtimeSecretEnvMappings,
 ];
 
 function ensureStructure() {
@@ -365,7 +355,11 @@ function importEnvSecrets() {
       continue;
     }
 
-    setDeepValue(secrets, mapping.path, mapping.transform ? mapping.transform(value) : value);
+    setDeepValue(
+      secrets,
+      mapping.path,
+      coerceStoredSecretValue(mapping.path, mapping.transform ? mapping.transform(value) : value),
+    );
     imported.push(mapping.env);
   }
 
@@ -385,6 +379,43 @@ function importEnvSecrets() {
 
 function quoteShellValue(value) {
   return `'${String(value).replaceAll("'", `'"'"'`)}'`;
+}
+
+function coerceStoredSecretValue(path, value) {
+  const key = path.at(-1);
+  if (key === 'enabled') {
+    return String(value).trim().toLowerCase() === 'true';
+  }
+  if (key === 'allowBrowserFallback') {
+    return String(value).trim().toLowerCase() !== 'false';
+  }
+  return value;
+}
+
+function exportRuntimeEnvSecrets() {
+  ensureStructure();
+
+  const secrets = existsSync(paths.localSecrets)
+    ? readJson(paths.localSecrets)
+    : structuredClone(templateSecrets);
+  const manifest = loadAmplifyBranchEnvManifest();
+  const resolved = { ...envFromLocalSecrets(secrets), ...process.env };
+  const exported = [];
+
+  for (const entry of manifest.requiredForProduction) {
+    const value = resolved[entry.name];
+    if (!value || process.env[entry.name]) {
+      continue;
+    }
+    exported.push(`export ${entry.name}=${quoteShellValue(value)}`);
+  }
+
+  if (exported.length === 0) {
+    console.log('No runtime production env vars were available to export from local secrets.');
+    return;
+  }
+
+  console.log(exported.join('\n'));
 }
 
 function exportEnvSecrets() {
@@ -476,6 +507,9 @@ try {
       break;
     case 'export-env':
       exportEnvSecrets();
+      break;
+    case 'export-runtime-env':
+      exportRuntimeEnvSecrets();
       break;
     case 'prune-local':
       pruneLocalSecrets();

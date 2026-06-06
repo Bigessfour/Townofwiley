@@ -17,7 +17,9 @@ Supported commands:
 - `npm run secrets:lock:prune`
 - `npm run secrets:prune-local`
 - `npm run secrets:export-env`
+- `npm run secrets:export-runtime-env`
 - `npm run secrets:import-env`
+- `npm run secrets:sync-runtime` — pull production + AWS SSOT into local secrets (and optional `--github`)
 
 The encrypted lockbox is portable across machines. The passphrase is not committed and must be provided by either:
 
@@ -29,4 +31,7 @@ Do not commit plaintext files from `secrets/local`.
 Recommended usage:
 
 1. Unlock when you need to edit or inspect local secrets.
-2. Lock and prune when you are done so the repo only carries the encrypted lockbox.
+2. After Lambda/AppSync changes or before strict local builds: `npm run secrets:sync-runtime` (add `-- --github` for CI).
+3. Lock when you are done so the repo only carries the encrypted lockbox (`npm run secrets:lock`).
+
+Full pipeline commands: [`docs/pipeline-workflow.md`](../docs/pipeline-workflow.md).

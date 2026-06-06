@@ -1,0 +1,16 @@
+---
+# SSOT: infrastructure/aws-infrastructure.manifest.json (hosting block)
+# repo_root is set in playbooks/site.yml (playbook_dir relative)
+aws_account_id: '570912405222'
+aws_region: us-east-2
+aws_profile: "{{ lookup('env', 'AWS_PROFILE') | default('townofwiley', true) }}"
+
+static_site_bucket: townofwiley-static-site
+cloudfront_distribution_id: E1NZ3XCY5CYR1J
+production_url: https://townofwiley.gov
+
+# Operator toggles (override with -e)
+deploy_dry_run: false
+deploy_skip_build: false
+# When true with deploy_dry_run, still runs npm run build (needs runtime env / secrets)
+deploy_force_build: false

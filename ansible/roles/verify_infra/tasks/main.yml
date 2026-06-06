@@ -1,0 +1,10 @@
+---
+- name: Run offline infrastructure manifest verification
+  ansible.builtin.command: npm run verify:aws-infra -- --offline
+  args:
+    chdir: '{{ repo_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+    AWS_REGION: '{{ aws_region }}'
+  changed_when: false
