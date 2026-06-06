@@ -219,14 +219,27 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
   const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
+  // If the (legacy) Amplify app ID is the deleted d331voxr1fhoir hosting app,
+  // force the studioUrl / dataManagerUrl that ends up in runtime-config.js to
+  // the current Gen 2 AppSync console. This prevents the client from ever
+  // emitting a link that produces "App d331voxr1fhoir not found".
+  let computedStudioUrl;
+  if (clerkSetupAmplifyAppId === 'd331voxr1fhoir') {
+    computedStudioUrl = clerkSetupAwsRegion
+      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/appsync/home?region=${clerkSetupAwsRegion}#/x7poehudqvamneqni5s6e2cjxy/v1/queries`
+      : clerkSetupAwsConsoleUrl;
+  } else if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
+    computedStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
+  } else {
+    computedStudioUrl = clerkSetupAwsConsoleUrl;
+  }
+
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
     env.CLERK_SETUP_STUDIO_URL?.trim() ||
     localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
-    (clerkSetupAwsRegion && clerkSetupAmplifyAppId
-      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`
-      : clerkSetupAwsConsoleUrl);
+    computedStudioUrl;
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
     if (envFlag === 'false') {

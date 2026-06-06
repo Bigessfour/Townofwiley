@@ -6,10 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import {
-  buildAmplifyConsoleDataManagerUrl,
-  getClerkSetupRuntimeConfig,
-} from '../clerk-setup/clerk-setup-config';
+import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -126,12 +123,13 @@ export class CmsAdmin {
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
   protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
-  protected readonly dataManagerUrl = buildAmplifyConsoleDataManagerUrl(
-    this.clerkSetupConfig.awsRegion,
-    this.clerkSetupConfig.amplifyAppId,
-    'main',
-    this.clerkSetupConfig.studioUrl,
-  );
+  // Hard-code the current working editor URL (Gen 2 AppSync console for the live
+  // backend). This guarantees that every "Edit content" button, the IT snapshot
+  // "Open content editor" link, the upload panels, and the URL shown in the
+  // Advanced section always produce a working link instead of the deleted
+  // d331voxr1fhoir Amplify Studio/Data Manager URL.
+  protected readonly dataManagerUrl =
+    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
