@@ -8,6 +8,37 @@ export const repoRoot = resolve(libDir, '..', '..');
 export const manifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.manifest.json');
 export const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
 export const amplifyOutputsPath = join(repoRoot, 'amplify_outputs.json');
+export const productionBindingsPath = join(
+  repoRoot,
+  'infrastructure',
+  'gen2-production-bindings.json',
+);
+
+/** @returns {{ appSyncGen1Legacy?: { graphqlEndpoint?: string }; appSyncGen2?: { graphqlEndpoint?: string } } | null} */
+export function loadProductionBindingsFromRepo() {
+  if (!existsSync(productionBindingsPath)) {
+    return null;
+  }
+  try {
+    return JSON.parse(readFileSync(productionBindingsPath, 'utf8'));
+  } catch (error) {
+    console.warn(`Unable to parse ${productionBindingsPath}: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Live CMS GraphQL endpoint from infrastructure SSOT when env/secrets are empty.
+ * Gen 2 API may not exist in the account yet; prefer Gen 1 legacy when it is the only deployed API.
+ */
+export function readProductionCmsGraphqlEndpoint() {
+  const bindings = loadProductionBindingsFromRepo();
+  return (
+    bindings?.appSyncGen1Legacy?.graphqlEndpoint?.trim() ||
+    bindings?.appSyncGen2?.graphqlEndpoint?.trim() ||
+    ''
+  );
+}
 
 /**
  * @returns {Record<string, unknown> | null}
@@ -178,20 +209,21 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
     '';
   const cmsApiEndpoint =
-    outputsData?.url?.trim() ||
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
     localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
+    outputsData?.url?.trim() ||
+    (allowManifestFallbacks ? readProductionCmsGraphqlEndpoint() : '') ||
     '';
   const cmsApiKey =
-    outputsData?.api_key?.trim() ||
     env.APPSYNC_CMS_API_KEY?.trim() ||
     localSecrets.cms?.appSync?.apiKey?.trim() ||
+    outputsData?.api_key?.trim() ||
     '';
   const cmsRegion =
-    outputsData?.aws_region?.trim() ||
-    outputsAuth?.aws_region?.trim() ||
     env.APPSYNC_CMS_REGION?.trim() ||
     localSecrets.cms?.appSync?.region?.trim() ||
+    outputsData?.aws_region?.trim() ||
+    outputsAuth?.aws_region?.trim() ||
     localSecrets.aws?.region?.trim() ||
     DEFAULT_AWS_REGION;
   const clerkSetupAwsAccountId =
