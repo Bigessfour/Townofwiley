@@ -121,7 +121,10 @@ CI passes `--skip-build` because the artifact is already at `dist/townofwiley-ap
 
 ### OIDC `Not authorized to perform sts:AssumeRoleWithWebIdentity`
 
-- Confirm IAM role exists and trust policy matches repo + `refs/heads/main`.
+- Confirm IAM role exists (`bash scripts/setup-github-actions-deploy-role.sh`).
+- Trust policy must allow **both** OIDC subject forms used by deploy jobs:
+  - `repo:Bigessfour/Townofwiley:ref:refs/heads/main` (branch context)
+  - `repo:Bigessfour/Townofwiley:environment:production` (jobs with `environment: production`)
 - Confirm workflow job has `permissions: id-token: write`.
 - Manual deploy workflow must run from **`main`** branch.
 
