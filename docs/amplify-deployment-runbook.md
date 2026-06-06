@@ -1,5 +1,7 @@
 # Amplify Deployment Self-Healing Runbook
 
+> **Frontend hosting (June 2026):** The public site is **S3 + CloudFront**, not Amplify Hosting. Production deploys run from GitHub Actions after Site CI on `main`. See **[`docs/github-actions-production-deploy.md`](./github-actions-production-deploy.md)** for OIDC setup, auto-deploy triggers, rollback, and manual **Deploy production (manual)** workflow. Local break-glass: `npm run deploy:site`.
+
 This runbook is for maintainers who need to diagnose and fix AWS Amplify build failures
 for the Town of Wiley site. It documents the repeatable path using GitHub Copilot coding
 agent and GitHub Actions failure logs.
@@ -180,15 +182,18 @@ npm run generate:runtime-config
 
 **Post-deploy gate (every merge to `main` with hosting or infra changes):**
 
+Auto-deploy runs post-deploy curl + CSP probe in the `deploy-production` CI job. For manual verification:
+
 ```bash
 export AWS_PROFILE=townofwiley
 export AWS_REGION=us-east-2
 
-npm run amplify:sync-hosting
 npm run verify:aws-infra
 npm run verify:live-csp-probe
 npm run verify:live-csp-vs-repo
 ```
+
+(Historical: `npm run amplify:sync-hosting` applied when Amplify Hosting was live.)
 
 See the full checklist: [pre-launch-ops-workflow.md](./pre-launch-ops-workflow.md).
 

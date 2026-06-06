@@ -119,6 +119,24 @@ export AWS_PROFILE=townofwiley AWS_DEFAULT_REGION=us-east-2
 aws logs tail /aws/lambda/TownOfWileySevereWeatherBackend --since 1h --format short | tail -20
 ```
 
+## GitHub Actions — production static site deploy (OIDC)
+
+GitHub Actions assumes **`GitHubActions-TownOfWiley-StaticSiteDeploy`** to sync `dist/townofwiley-app/browser` to S3 and invalidate CloudFront. No long-lived access keys in GitHub secrets for deploy.
+
+**Policy files:**
+
+- [github-actions-static-site-deploy-trust.json](./github-actions-static-site-deploy-trust.json)
+- [github-actions-static-site-deploy-policy.json](./github-actions-static-site-deploy-policy.json)
+
+**Apply (account administrator):**
+
+```bash
+source scripts/agent-aws-env.sh
+bash scripts/setup-github-actions-deploy-role.sh
+```
+
+Runbook: [docs/github-actions-production-deploy.md](../../docs/github-actions-production-deploy.md).
+
 ## Gen 2 migration — CloudFormation stack refactor
 
 Required for `amplify gen2-migration refactor` (see [docs/amplify-gen2-migration-plan.md](../../docs/amplify-gen2-migration-plan.md)).

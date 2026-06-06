@@ -61,6 +61,8 @@ playwright-report/
 test-results/
 # Playwright browser binaries (local cache; see playwright.config.ts)
 .playwright-browsers/
+# Playwright MCP session logs and page snapshots (local agent tooling)
+.playwright-mcp/
 blob-report/
 /secrets/local/*
 !/secrets/local/.gitignore
