@@ -15,9 +15,10 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write # OIDC for deploy-production job in reusable workflow
 
 # E2E regression (smoke + interaction inventory) runs in git-workflow.yml → frontend-smoke.
 jobs:
-  run:
+  site-ci:
     uses: ./.github/workflows/git-workflow.yml
     secrets: inherit

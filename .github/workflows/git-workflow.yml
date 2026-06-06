@@ -121,7 +121,7 @@ jobs:
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/hosting-headers-drift-watch.yml|docs/third-party-csp-registry.md)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|docs/third-party-csp-registry.md)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -276,6 +276,13 @@ jobs:
 
       - name: Verify build output contains WebP reference
         run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: production-browser-dist
+          path: dist/townofwiley-app/browser/
+          retention-days: 1
+          if-no-files-found: error
 
   frontend-smoke:
     name: Test Browsers + Full E2E Regression
@@ -483,3 +490,72 @@ jobs:
       - name: Run npm audit (warn on high)
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  ci-gate:
+    name: CI gate (merge required)
+    needs:
+      - detect-changes
+      - custom-headers-parity
+      - verify-playwright-mcp-package
+      - csp-angular-sync-check
+      - verify-aws-infra-manifest
+      - frontend-lint-build
+      - frontend-smoke
+      - site-monitor-tests
+      - site-runtime-proxy-tests
+      - contact-infra-tests
+      - backend-python-tests
+      - security-audit
+      - maintainer-only-summary
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Fail if any required job failed
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node scripts/ci-gate-check.mjs
+
+  deploy-production:
+    name: Deploy production (S3 + CloudFront)
+    needs: [detect-changes, frontend-lint-build, frontend-smoke]
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.detect-changes.outputs.app_changed == 'true' &&
+      needs.frontend-lint-build.result == 'success' &&
+      (needs.frontend-smoke.result == 'success' || needs.frontend-smoke.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: production-browser-dist
+          path: dist/townofwiley-app/browser
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::570912405222:role/GitHubActions-TownOfWiley-StaticSiteDeploy
+          aws-region: us-east-2
+
+      - name: Deploy static site to S3 + CloudFront
+        run: bash scripts/deploy-static-site.sh --skip-build
+
+      - name: Post-deploy smoke (homepage headers)
+        run: curl -sfI https://townofwiley.gov/
+
+      - name: Post-deploy smoke (runtime-config JSON)
+        run: |
+          curl -sf https://townofwiley.gov/runtime-config.js | node -e "JSON.parse(require('fs').readFileSync(0,'utf8')); console.log('runtime-config ok')"
+
+      - name: Post-deploy CSP probe
+        run: bash scripts/probe-live-hosting-csp.sh

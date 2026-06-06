@@ -4,7 +4,7 @@ TownOfWiley Website
 
 ## Git Workflow
 
-- Production deploys come from `main` (build locally or via CI, then `aws s3 sync` to the static site bucket + CloudFront invalidation).
+- Production deploys: **merges to `main` auto-deploy** after Site CI passes (S3 + CloudFront via GitHub Actions OIDC). Manual `npm run deploy:site` is break-glass only.
 - Use short-lived feature branches and merge into `main` only when the change is build-safe.
 - Keep deployable app changes in `src/`, `public/`, `package*.json`, `angular.json`, `tsconfig*`, and `scripts/generate-runtime-config.mjs`.
 - Keep maintainer-facing docs and runbooks tracked in the repo under `docs/`, `README.md`, `CLERK-CMS-GUIDE.md`, `bot-training/`, and related operational paths.
@@ -13,6 +13,8 @@ TownOfWiley Website
 - GitHub Actions uses targeted caches for npm, Playwright browsers, and Angular CLI build artifacts.
 
 Detailed policy: [docs/git-workflow.md](docs/git-workflow.md)
+
+Branch protection and required CI gate: [docs/github-branch-protection.md](docs/github-branch-protection.md)
 
 ## Runtime Baseline
 
@@ -57,14 +59,16 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
 - **AWS account:** `570912405222` only. Default profile **`townofwiley`** (see `.vscode/settings.json`).
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
 - **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
-- **Deploy steps (manual after `npm run build` or CI artifact):**
+- **Deploy steps:**
+  - **Automatic (normal):** merge to `main` with deployable app changes → Site CI builds and uploads artifact → `deploy-production` syncs to S3 + CloudFront invalidation. See [`docs/github-actions-production-deploy.md`](docs/github-actions-production-deploy.md).
+  - **Manual (break-glass):**
 
   ```bash
   # From repo root with AWS_PROFILE (see scripts/agent-aws-env.sh)
-  npm run build
   npm run deploy:site
   # or: bash scripts/deploy-static-site.sh
   # dry-run: npm run deploy:site:dry
+  # GitHub: Actions → Deploy production (manual) on main
   ```
 
   The helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.

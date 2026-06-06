@@ -4,7 +4,7 @@
 
 This repository serves two jobs at the same time:
 
-- it is the source of truth for the live Amplify site
+- it is the source of truth for the live site (S3 + CloudFront; see [`docs/github-actions-production-deploy.md`](../../docs/github-actions-production-deploy.md))
 - it is the long-term maintainer record for docs, runbooks, content models, and supporting tooling
 
 Industry best practice is not to force those into separate repositories by default. The usual professional approach is:
@@ -20,7 +20,7 @@ That is the workflow this repository now follows.
 
 ### Deployable Site Files
 
-These files can affect what Amplify builds or what the public site serves:
+These files can affect what the public site serves or how it is deployed:
 
 - `src/**`
 - `public/**`
@@ -71,7 +71,7 @@ Those are ignored in `.gitignore`.
 ### Main
 
 - `main` is the production branch
-- Amplify deploys from `main`
+- Amplify deploys from `main` (historical — frontend hosting is now S3 + CloudFront via GitHub Actions)
 - every commit merged to `main` should be safe to build and publish
 
 ### Feature Branches
@@ -246,15 +246,33 @@ That is the intended separation:
 
 ## CD Model
 
-This repository uses GitHub Actions for deterministic CI and AWS Amplify for deployment.
+This repository uses GitHub Actions for CI **and** production frontend deployment.
 
-That is a normal professional setup.
+- Pull requests are validated in GitHub Actions (lint, strict build, E2E smoke).
+- Merges to **`main`** with deployable app changes trigger **`deploy-production`**: OIDC auth → tiered S3 sync → CloudFront invalidation.
+- Docs-only merges skip deploy.
+- Manual break-glass: `npm run deploy:site` locally or **Actions → Deploy production (manual)** on `main`.
 
-- Pull requests are validated in GitHub Actions.
-- Merges to `main` trigger Amplify builds from the same repository.
-- Amplify remains the deployment authority for the public site.
+Runbook: [`docs/github-actions-production-deploy.md`](./github-actions-production-deploy.md).
 
-This keeps deployment simple while still giving strong regression protection before code reaches production.
+Amplify Hosting is decommissioned for the public site; remaining Amplify references are for backend/AppSync context or historical docs.
+
+## Governance
+
+Production changes flow through **pull requests** to **`main`** — do not push directly to `main`.
+
+| Control | Implementation |
+|---------|------------------|
+| Merge gate | GitHub ruleset on `main`: require PR + status check **`site-ci / CI gate (merge required)`** |
+| CI validation | Path-aware Site CI in [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml) |
+| Merge check logic | [`scripts/ci-gate-check.mjs`](../scripts/ci-gate-check.mjs) — skipped conditional jobs are OK; failures are not |
+| Code ownership | [`.github/CODEOWNERS`](../.github/CODEOWNERS) — auto-requests review on deployable paths |
+| Production deploy | Auto **`deploy-production`** on merge when `app_changed` (no environment approval gate) |
+| Solo maintainer | Required approvals **0** until a backup GitHub collaborator exists |
+
+Setup runbook: [`docs/github-branch-protection.md`](./github-branch-protection.md)
+
+Helper: `bash scripts/setup-github-governance.sh` (auto-merge, delete-branch-on-merge, prints ruleset checklist).
 
 ## When To Split Repositories
 
