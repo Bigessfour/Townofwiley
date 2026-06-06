@@ -74,7 +74,13 @@ jobs:
 
       - name: Post-deploy smoke (runtime-config JSON)
         run: |
-          curl -sf https://townofwiley.gov/runtime-config.js | node -e "JSON.parse(require('fs').readFileSync(0,'utf8')); console.log('runtime-config ok')"
+          curl -sf https://townofwiley.gov/runtime-config.js | node -e "
+          const src = require('fs').readFileSync(0, 'utf8');
+          const match = src.match(/window\.__TOW_RUNTIME_CONFIG__\s*=\s*(\{[\s\S]*\});?\s*$/);
+          if (!match) { console.error('::error::runtime-config.js missing window.__TOW_RUNTIME_CONFIG__ payload'); process.exit(1); }
+          JSON.parse(match[1]);
+          console.log('runtime-config ok');
+          "
 
       - name: Post-deploy CSP probe
         run: bash scripts/probe-live-hosting-csp.sh
