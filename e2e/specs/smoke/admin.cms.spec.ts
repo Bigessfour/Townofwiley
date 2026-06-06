@@ -180,6 +180,8 @@ test.describe('cms admin', () => {
         name: /show step-by-step/i,
       })
       .click();
-    await expect(homePage.page.getByText(/Title \(Spanish\)/i)).toBeVisible();
+    await expect(
+      homePage.page.locator('dt').getByText(/Title \(Spanish\)/i),
+    ).toBeVisible();
   });
 });

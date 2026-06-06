@@ -123,6 +123,8 @@ export class CmsAdmin {
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
   protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
+  protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
+  protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
   // Hard-code the current working editor URL (Gen 2 AppSync console for the live
   // backend). This guarantees that every "Edit content" button, the IT snapshot
   // "Open content editor" link, the upload panels, and the URL shown in the
@@ -149,6 +151,18 @@ export class CmsAdmin {
       label: 'Amplify app id',
       value: this.amplifyAppId,
       copyValue: this.amplifyAppId,
+    },
+    {
+      key: 'cloudfront',
+      label: 'CloudFront distribution id',
+      value: this.cfDistributionId,
+      copyValue: this.cfDistributionId,
+    },
+    {
+      key: 's3-bucket',
+      label: 'Static site bucket',
+      value: this.s3Bucket,
+      copyValue: this.s3Bucket,
     },
   ]);
 

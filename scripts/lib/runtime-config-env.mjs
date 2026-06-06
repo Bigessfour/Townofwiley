@@ -28,6 +28,8 @@ export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 export const DEFAULT_AWS_REGION = 'us-east-2';
 export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+export const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
+export const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
 
 export function readLocalSecrets(secretsPath = localSecretsPath) {
   if (!existsSync(secretsPath)) {
@@ -240,6 +242,14 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.clerkSetup?.dataManagerUrl?.trim() ||
     localSecrets.clerkSetup?.studioUrl?.trim() ||
     computedStudioUrl;
+  const clerkSetupCfDistributionId =
+    env.CLERK_SETUP_CF_DISTRIBUTION_ID?.trim() ||
+    localSecrets.clerkSetup?.cfDistributionId?.trim() ||
+    DEFAULT_CF_DISTRIBUTION_ID;
+  const clerkSetupS3Bucket =
+    env.CLERK_SETUP_S3_BUCKET?.trim() ||
+    localSecrets.clerkSetup?.s3Bucket?.trim() ||
+    DEFAULT_STATIC_SITE_BUCKET;
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
     if (envFlag === 'false') {
@@ -304,6 +314,8 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     clerkSetupAwsRegion,
     clerkSetupAwsConsoleUrl,
     clerkSetupStudioUrl,
+    clerkSetupCfDistributionId,
+    clerkSetupS3Bucket,
     severeWeatherSignupEnabled,
     weatherAllowBrowserFallback,
     buttonPosition,
@@ -389,6 +401,8 @@ export function buildRuntimeConfigObject(values, buildMeta) {
       awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
       studioUrl: values.clerkSetupStudioUrl,
       dataManagerUrl: values.clerkSetupStudioUrl,
+      cfDistributionId: values.clerkSetupCfDistributionId,
+      s3Bucket: values.clerkSetupS3Bucket,
     },
     logging: {
       endpoint: values.logEndpoint || undefined,

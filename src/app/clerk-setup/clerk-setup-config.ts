@@ -5,6 +5,8 @@ interface RuntimeClerkSetupConfig {
   awsRegion: string;
   awsConsoleUrl: string;
   studioUrl: string;
+  cfDistributionId: string;
+  s3Bucket: string;
 }
 
 interface RuntimeConfigShape {
@@ -15,6 +17,8 @@ const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
+const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
 /** Current production Gen 2 AppSync ID for CMS (the live backend after Gen1 decommission). */
 const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
 const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
@@ -112,5 +116,7 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
       buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
+    cfDistributionId: trimOrEmpty(clerkSetupConfig.cfDistributionId) || DEFAULT_CF_DISTRIBUTION_ID,
+    s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket) || DEFAULT_STATIC_SITE_BUCKET,
   };
 }
