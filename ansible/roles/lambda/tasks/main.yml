@@ -1,0 +1,19 @@
+---
+- name: Deploy backend Lambda functions (via existing per-service scripts)
+  ansible.builtin.command:
+    cmd: '{{ project_root }}/{{ item.value.deploy_script }}'
+    chdir: '{{ project_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  loop: '{{ lambdas | dict2items }}'
+  loop_control:
+    label: '{{ item.key }}'
+  register: lambda_deploys
+  changed_when: "'Updated function' in lambda_deploys.stdout or 'Created function' in lambda_deploys.stdout or 'upload' in lambda_deploys.stdout | lower"
+
+- name: Summarize Lambda deployments
+  ansible.builtin.debug:
+    msg: 'Deployed {{ item.item.key }} - rc={{ item.rc }}'
+  loop: '{{ lambda_deploys.results }}'
+  when: lambda_deploys.results is defined

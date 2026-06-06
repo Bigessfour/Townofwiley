@@ -1,0 +1,63 @@
+---
+- name: Ensure IAM policies directory exists (for templating if needed)
+  ansible.builtin.file:
+    path: '{{ project_root }}/infrastructure/iam'
+    state: directory
+  delegate_to: localhost
+
+- name: Load IAM policy JSONs from repo (SSOT in infrastructure/iam/)
+  ansible.builtin.debug:
+    msg: "IAM policies in repo: {{ lookup('fileglob', project_root + '/infrastructure/iam/*.json') | list }}"
+  changed_when: false
+
+# Actively apply the copilot user policies from the JSON SSOT files.
+# These are the operational policies for the `copilot` IAM user (logs, lambda verify, etc.).
+# Safe to re-apply (idempotent in effect); run with --tags iam or as part of full deploy.
+# The managed policy (gen2-stack-refactor) is attached via attach-user-policy in docs;
+# we surface a task here for it too (attach is safe to re-run).
+# Requires the caller to have iam:PutUserPolicy / iam:AttachUserPolicy on the copilot user
+# in account 570912405222 (typically account admins or sufficiently privileged ops role).
+
+- name: Apply copilot CloudWatch logs read policy (from JSON SSOT)
+  ansible.builtin.command:
+    cmd: >
+      aws iam put-user-policy
+      --user-name copilot
+      --policy-name TownOfWileyCloudWatchLogsRead
+      --policy-document file://{{ project_root }}/infrastructure/iam/copilot-cloudwatch-logs-read-policy.json
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  changed_when: false
+  tags: iam
+
+- name: Apply copilot Lambda read/verify policy (from JSON SSOT)
+  ansible.builtin.command:
+    cmd: >
+      aws iam put-user-policy
+      --user-name copilot
+      --policy-name TownOfWileyLambdaReadVerify
+      --policy-document file://{{ project_root }}/infrastructure/iam/copilot-lambda-read-verify-policy.json
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  changed_when: false
+  tags: iam
+
+- name: Attach Gen2 stack refactor managed policy (from JSON SSOT)
+  ansible.builtin.command:
+    cmd: >
+      aws iam attach-user-policy
+      --user-name copilot
+      --policy-arn arn:aws:iam::{{ aws_account_id }}:policy/TownOfWileyGen2StackRefactor
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  changed_when: false
+  tags: iam
+
+- name: IAM policies applied from infrastructure/iam/ JSONs (SSOT)
+  ansible.builtin.debug:
+    msg: 'Applied operational IAM policies for copilot user from repo JSONs via Ansible (tags: iam). See infrastructure/iam/README.md and docs for removal steps if needed.'
+  changed_when: false
+  tags: iam

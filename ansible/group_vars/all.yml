@@ -1,0 +1,38 @@
+# Common variables for Town of Wiley deployments
+# These align with infrastructure/aws-infrastructure.manifest.json
+
+aws_account_id: '570912405222'
+primary_region: us-east-2
+
+# Hosting
+s3_bucket: townofwiley-static-site
+cloudfront_distribution_id: E1NZ3XCY5CYR1J
+
+# Key Lambda functions (from manifest)
+lambdas:
+  nws_weather_proxy:
+    name: TownOfWileyNWSWeatherProxy
+    path: infrastructure/nws-weather-proxy
+    deploy_script: scripts/deploy-nws-weather-proxy.py
+  severe_weather:
+    name: TownOfWileySevereWeatherBackend
+    path: infrastructure/severe-weather-signup
+    deploy_script: scripts/deploy-severe-weather-backend.py
+  guestbook:
+    name: TownOfWileyGuestbook
+    path: infrastructure/guestbook-lambda
+    deploy_script: scripts/deploy-guestbook-backend.py
+  contact_update:
+    name: TownOfWileyContactUpdate
+    path: infrastructure/contact-update-lambda
+    deploy_script: scripts/deploy-contact-update-backend.py
+  # Add more as needed from manifest
+
+# Deploy order (mirrors docs/AWS_INFRASTRUCTURE_SOT.md)
+deploy_order:
+  - frontend
+  - lambdas
+  - verify
+
+# Note: Source scripts/agent-aws-env.sh before running playbooks
+# or ensure AWS_PROFILE=townofwiley and region are set.

@@ -1,0 +1,15 @@
+---
+- name: Verify deployed infrastructure matches manifest (SSOT)
+  ansible.builtin.command:
+    cmd: npm run verify:aws-infra
+    chdir: '{{ project_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  register: verify_result
+  changed_when: false
+  failed_when: verify_result.rc != 0
+
+- name: Show verification summary
+  ansible.builtin.debug:
+    var: verify_result.stdout_lines
