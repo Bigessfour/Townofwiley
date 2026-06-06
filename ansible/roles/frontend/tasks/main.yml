@@ -1,0 +1,15 @@
+---
+- name: Deploy static frontend site (S3 + CloudFront)
+  ansible.builtin.command:
+    cmd: '{{ project_root }}/scripts/deploy-static-site.sh'
+    chdir: '{{ project_root }}'
+  environment:
+    AWS_PROFILE: '{{ aws_profile }}'
+    AWS_DEFAULT_REGION: '{{ aws_region }}'
+  register: deploy_result
+  changed_when: "'upload:' in deploy_result.stdout or 'delete:' in deploy_result.stdout"
+
+- name: Show deploy output
+  ansible.builtin.debug:
+    var: deploy_result.stdout_lines
+  when: deploy_result.stdout_lines is defined

@@ -1,0 +1,40 @@
+---
+# Main deployment playbook for Town of Wiley AWS resources.
+# Run after: source scripts/agent-aws-env.sh
+#
+# Examples:
+#   ansible-playbook ansible/playbooks/deploy.yml --tags frontend
+#   ansible-playbook ansible/playbooks/deploy.yml --tags lambdas
+#   ansible-playbook ansible/playbooks/deploy.yml --tags "frontend,lambdas,verify"
+
+- name: Deploy Town of Wiley infrastructure and applications
+  hosts: local
+  connection: local
+  gather_facts: false
+
+  pre_tasks:
+    - name: Ensure AWS credentials are available (via agent-aws-env.sh or env)
+      ansible.builtin.command: aws sts get-caller-identity
+      register: aws_identity
+      changed_when: false
+      failed_when: aws_identity.rc != 0
+
+    - name: Show AWS identity
+      ansible.builtin.debug:
+        msg: 'Using AWS account: {{ (aws_identity.stdout | from_json).Account }} in region {{ aws_region }}'
+
+  roles:
+    - role: common
+      tags: always
+
+    - role: iam
+      tags: iam
+
+    - role: frontend
+      tags: frontend
+
+    - role: lambda
+      tags: lambdas
+
+    - role: verify
+      tags: verify

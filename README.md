@@ -71,6 +71,17 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   # GitHub: Actions → Deploy production (manual) on main
   ```
 
+  For full orchestrated deploys (frontend + lambdas + IAM policy application from `infrastructure/iam/` JSONs + verification), use the Ansible entrypoints (now the consistent pipeline path):
+
+  ```bash
+  npm run ansible:deploy            # full (or -- --tags frontend etc.)
+  npm run ansible:deploy:frontend
+  npm run ansible:verify
+  npm run ansible:check             # syntax/inventory validation (no AWS)
+  ```
+
+  The `scripts/ansible-deploy.sh` wrapper + root `ansible.cfg` hide sourcing and config details. See `ansible/README.md` and `package.json` scripts.
+
   The helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.
   **Critical:** Output must be at the S3 **bucket root** (no `browser/` prefix). CloudFront origin has no OriginPath.
   Current hosting uses managed CachingOptimized policy + custom Response Headers Policy (CSP + security headers from customHttp.yml) + access logging. See manifest for IDs. OAC migration prepared (see SOT).

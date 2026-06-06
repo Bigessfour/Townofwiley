@@ -79,6 +79,7 @@ jobs:
       contact_infra_changed: ${{ steps.classify.outputs.contact_infra_changed }}
       infra_manifest_changed: ${{ steps.classify.outputs.infra_manifest_changed }}
       custom_http_changed: ${{ steps.classify.outputs.custom_http_changed }}
+      ansible_changed: ${{ steps.classify.outputs.ansible_changed }}
       docs_only: ${{ steps.classify.outputs.docs_only }}
       changed_files: ${{ steps.classify.outputs.changed_files }}
     steps:
@@ -110,6 +111,7 @@ jobs:
           CONTACT_INFRA_CHANGED=false
           INFRA_MANIFEST_CHANGED=false
           CUSTOM_HTTP_CHANGED=false
+          ANSIBLE_CHANGED=false
           DOCS_ONLY=true
 
           for FILE in "${FILES[@]}"; do
@@ -153,6 +155,10 @@ jobs:
                 INFRA_MANIFEST_CHANGED=true
                 DOCS_ONLY=false
                 ;;
+              ansible/**|scripts/ansible-deploy.sh|infrastructure/iam/**)
+                ANSIBLE_CHANGED=true
+                DOCS_ONLY=false
+                ;;
               docs/*|README.md|CLERK-CMS-GUIDE.md|bot-training/*|scripts/deploy-severe-weather-backend.py|scripts/user-secrets.mjs)
                 ;;
               *)
@@ -171,6 +177,7 @@ jobs:
             echo "contact_infra_changed=$CONTACT_INFRA_CHANGED"
             echo "infra_manifest_changed=$INFRA_MANIFEST_CHANGED"
             echo "custom_http_changed=$CUSTOM_HTTP_CHANGED"
+            echo "ansible_changed=$ANSIBLE_CHANGED"
             echo "docs_only=$DOCS_ONLY"
             echo "changed_files<<EOF"
             printf '%s\n' "${FILES[@]}"
@@ -192,6 +199,7 @@ jobs:
           - Contact infrastructure changed: ${{ steps.classify.outputs.contact_infra_changed }}
           - Infrastructure manifest / SSOT changed: ${{ steps.classify.outputs.infra_manifest_changed }}
           - customHttp.yml changed: ${{ steps.classify.outputs.custom_http_changed }}
+          - Ansible / IaC orchestration changed: ${{ steps.classify.outputs.ansible_changed }}
           - Docs or maintainer-only change set: ${{ steps.classify.outputs.docs_only }}
 
           ### Changed Files
@@ -216,6 +224,35 @@ jobs:
 
       - name: Validate infrastructure manifest (offline)
         run: node scripts/verify-aws-infrastructure.mjs --offline
+
+  ansible-validation:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.ansible_changed == 'true' ||
+      needs.detect-changes.outputs.infra_manifest_changed == 'true'
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install Ansible (core) for validation
+        run: python -m pip install --quiet ansible
+
+      - name: Ansible syntax check (playbook)
+        run: ANSIBLE_CONFIG=ansible.cfg ansible-playbook --syntax-check ansible/playbooks/deploy.yml
+
+      - name: Ansible inventory validation (resolve hosts + vars)
+        run: ANSIBLE_CONFIG=ansible.cfg ansible-inventory --list
+
+      - name: Advisory ansible-lint (non-blocking)
+        run: |
+          python -m pip install --quiet ansible-lint || true
+          ansible-lint ansible/ --parseable || echo 'ansible-lint completed with warnings or not fully installed (advisory only for this PR)'
 
   frontend-lint-build:
     runs-on: ubuntu-latest
