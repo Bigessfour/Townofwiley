@@ -6,6 +6,7 @@ import {
   getCurrentUser,
   resetPassword,
   signIn,
+  signInWithRedirect,
   signOut,
   type SignInInput,
 } from 'aws-amplify/auth';
@@ -13,6 +14,7 @@ import { cognitoConfig } from '../amplify-config';
 
 interface RuntimeE2eConfig {
   staffAuth?: boolean;
+  skipHostedSignInRedirect?: boolean;
 }
 
 interface AppRuntimeConfig {
@@ -89,6 +91,27 @@ export class StaffAuthService {
     }
   }
 
+  /** Redirects to Cognito Hosted UI for staff sign-in. */
+  async beginStaffHostedSignIn(): Promise<void> {
+    if (this.isE2eStaffBypass() || this.shouldSkipHostedSignInRedirect()) {
+      return;
+    }
+    await signInWithRedirect();
+  }
+
+  /** After OAuth callback, load session and verify Staff group membership. */
+  async completeHostedSignIn(): Promise<void> {
+    await this.assertStaffSession();
+  }
+
+  isHostedSignInCallback(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    const params = new URLSearchParams(window.location.search);
+    return params.has('code') && params.has('state');
+  }
+
   /** Starts staff sign-in; returns when a new temporary password must be set. */
   async beginStaffSignIn(input: StaffSignInInput): Promise<StaffSignInStep> {
     const credentials: SignInInput = {
@@ -119,7 +142,7 @@ export class StaffAuthService {
     await this.assertStaffSession();
   }
 
-  /** @deprecated Prefer beginStaffSignIn for UI flows that handle password challenges. */
+  /** @deprecated Prefer beginStaffHostedSignIn for UI flows. */
   async signInStaff(input: StaffSignInInput): Promise<void> {
     const step = await this.beginStaffSignIn(input);
     if (step === 'newPasswordRequired') {
@@ -130,7 +153,7 @@ export class StaffAuthService {
   }
 
   async signOutStaff(): Promise<void> {
-    await signOut();
+    await signOut({ global: true });
     await this.refreshSession();
   }
 
@@ -159,22 +182,32 @@ export class StaffAuthService {
   private async assertStaffSession(): Promise<void> {
     await this.refreshSession();
     if (!this.isStaff()) {
-      await signOut();
+      await signOut({ global: true });
       throw new Error('This account is not authorized for staff admin access.');
     }
   }
 
   private isE2eStaffBypass(): boolean {
+    return this.readE2eFlag('staffAuth') === true;
+  }
+
+  private shouldSkipHostedSignInRedirect(): boolean {
+    return this.readE2eFlag('skipHostedSignInRedirect') === true;
+  }
+
+  private readE2eFlag(key: keyof RuntimeE2eConfig): boolean | undefined {
     if (typeof window === 'undefined') {
-      return false;
+      return undefined;
     }
     const runtimeWindow = window as Window & {
       __TOW_RUNTIME_CONFIG__?: AppRuntimeConfig;
       __TOW_RUNTIME_CONFIG_OVERRIDE__?: AppRuntimeConfig;
     };
-    const override = runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e?.staffAuth === true;
-    const base = runtimeWindow.__TOW_RUNTIME_CONFIG__?.e2e?.staffAuth === true;
-    return override || base;
+    const override = runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e?.[key];
+    if (override !== undefined) {
+      return override;
+    }
+    return runtimeWindow.__TOW_RUNTIME_CONFIG__?.e2e?.[key];
   }
 
   private readGroupsFromToken(payload: Record<string, unknown> | undefined): string[] {

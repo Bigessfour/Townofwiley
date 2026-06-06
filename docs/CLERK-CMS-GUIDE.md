@@ -44,15 +44,16 @@ Task cards on `/admin` open the right model when possible (`…/data/models/Anno
 
 ### Step 5 — Log in to the Town admin hub
 
-1. Open **https://townofwiley.gov/admin/login** (bookmark this page).
-2. Enter your **Town staff email** and **password**.
-3. **First time only:** If IT gave you a temporary password, sign in with it; the site will ask you to choose a new password.
-4. After sign-in, open **https://townofwiley.gov/admin** and use the task buttons (**Edit content**, **See on website**).
+1. Open **https://townofwiley.gov/admin** (bookmark this page).
+2. Your browser redirects to the **secure Cognito sign-in page** (Amazon Cognito Hosted UI).
+3. Enter your **Town staff email** and **password**.
+4. **First time only:** If IT gave you a temporary password, sign in with it; Cognito will ask you to choose a new password.
+5. After sign-in, you return to **https://townofwiley.gov/admin** — use the task buttons (**Edit content**, **See on website**).
 
 **Forgot your password?**
 
-1. On `/admin/login`, click **Forgot password?**
-2. Enter your staff email and click **Send reset code**.
+1. On the Cognito sign-in page, click **Forgot password?**
+2. Enter your staff email and follow the prompts.
 3. Check your inbox (and spam) for a verification code from Amazon Cognito.
 4. Enter the code and a new password (at least 8 characters), then sign in with the new password.
 

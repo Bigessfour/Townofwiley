@@ -2,17 +2,18 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { StaffAuthService } from './staff-auth.service';
 
-export const staffAuthGuard: CanActivateFn = async (_route, state) => {
+/** Requires Staff Cognito session; sends unauthenticated users to Hosted UI login flow. */
+export const staffAuthGuard: CanActivateFn = async (route, state) => {
   const auth = inject(StaffAuthService);
   const router = inject(Router);
 
   await auth.refreshSession();
-
   if (auth.isStaff()) {
     return true;
   }
 
+  const returnUrl = state.url || '/admin';
   return router.createUrlTree(['/admin/login'], {
-    queryParams: { returnUrl: state.url },
+    queryParams: { returnUrl },
   });
 };

@@ -105,6 +105,7 @@
     "pipeline:validate": "npm run lint && npm run test:vitest && npm run verify:aws-infra -- --offline",
     "deploy:email-alias-router": "python scripts/deploy-email-alias-router.py",
     "configure:cognito-staff-email": "python scripts/configure-cognito-staff-email.py",
+    "configure:cognito-hosted-ui": "python scripts/setup-cognito-hosted-ui.py",
     "reset:cognito-staff-password": "python scripts/reset-cognito-staff-password.py",
     "deploy:nws-weather-proxy": "python scripts/deploy-nws-weather-proxy.py",
     "deploy:severe-weather-backend": "python scripts/deploy-severe-weather-backend.py",

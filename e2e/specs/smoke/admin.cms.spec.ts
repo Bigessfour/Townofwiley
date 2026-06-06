@@ -19,7 +19,7 @@ async function gotoAdminHub(page: import('@playwright/test').Page, path: string)
 test.describe('cms admin', () => {
   test.describe.configure({ timeout: 90000 });
 
-  test('staff login page shows email and password fields', async ({ homePage }) => {
+  test('staff login page shows Hosted UI redirect status', async ({ homePage }) => {
     await disableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByRole('heading', { name: /Sign in — Town admin/i })).toBeVisible(
@@ -27,14 +27,17 @@ test.describe('cms admin', () => {
         timeout: 20_000,
       },
     );
-    await expect(homePage.page.getByTestId('admin-login-email')).toBeVisible();
-    await expect(homePage.page.getByTestId('admin-login-password')).toBeVisible();
-    await expect(homePage.page.getByTestId('admin-login-submit')).toBeVisible();
+    await expect(homePage.page.getByTestId('admin-login-status')).toContainText(
+      /Redirecting to Town sign-in/i,
+    );
     await expect(homePage.page.getByRole('heading', { name: /how to sign in/i })).toBeVisible();
-    await expect(homePage.page.getByTestId('admin-login-forgot-password')).toBeVisible();
-    await homePage.page.getByTestId('admin-login-forgot-password').click();
-    await expect(homePage.page.getByTestId('admin-login-forgot-email')).toBeVisible();
-    await expect(homePage.page.getByTestId('admin-login-forgot-submit')).toBeVisible();
+  });
+
+  test('admin hub requires staff sign-in when bypass is disabled', async ({ homePage }) => {
+    await disableE2eStaffAuth(homePage.page);
+    await homePage.page.goto('/admin', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page).toHaveURL(/\/admin\/login\?returnUrl=/);
+    await expect(homePage.page.getByTestId('admin-login-status')).toBeVisible();
   });
 
   test('admin hub shows task cards without AppSync jargon on the main view', async ({

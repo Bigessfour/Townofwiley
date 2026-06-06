@@ -1,8 +1,9 @@
-import './browser-global-polyfill';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import 'aws-amplify/auth/enable-oauth-listener';
 import './app/amplify-config';
+import { App } from './app/app';
+import { appConfig } from './app/app.config';
+import './browser-global-polyfill';
 
 function sanitizeBootstrapError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);

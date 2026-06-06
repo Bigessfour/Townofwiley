@@ -20,8 +20,9 @@
   },
   "cognitoGen2": {
     "userPoolId": "us-east-2_pkewJMUJF",
-    "userPoolClientId": "qss58u25b1kl9ih902o5i6cui",
+    "userPoolClientId": "2av73ehrkera414otok5i67dk3",
     "identityPoolId": "us-east-2:f97d3d15-c898-4993-b547-4a8babf1b047",
+    "hostedUiDomain": "townofwiley-staff.auth.us-east-2.amazoncognito.com",
     "authenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-d331voxr1fhoir-ma-amplifyAuthauthenticatedU-zKG4uQ0t19Gj",
     "unauthenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-d331voxr1fhoir-ma-amplifyAuthunauthenticate-HO0vTSVfhXea",
     "staffGroup": "Staff"

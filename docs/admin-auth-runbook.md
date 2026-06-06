@@ -8,10 +8,10 @@ Staff access to `/admin` and resident contact-update PII uses **Amazon Cognito**
 export AWS_PROFILE=townofwiley
 export AWS_REGION=us-east-2
 
-# 1) Cognito Staff group + app client callback URLs
-python scripts/setup-cognito-staff-group.py
-python scripts/setup-cognito-staff-group.py --create-user clerk@townofwiley.gov --set-temp-password
+# 1) Cognito Hosted UI (OAuth) + staff email via SES
+npm run configure:cognito-hosted-ui
 python scripts/configure-cognito-staff-email.py
+# Create staff users in Cognito console or with reset-cognito-staff-password.py
 
 # 2) Review Lambda (code) + HTTP API + WAF
 python scripts/deploy-contact-updates-review.py
@@ -37,19 +37,21 @@ python scripts/purge-contact-update-test-data.py
 | --- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
 | 1   | Unauthenticated access blocked | `node scripts/verify-contact-review-security.mjs --api-url "$CONTACT_UPDATE_REVIEW_API_URL"`     |
 | 1b  | Legacy proxy gone              | Same with `--proxy-url` → expect 404                                                             |
-| 2   | Staff browser flow             | Sign in at `/admin/login` → `/admin#updates` shows table; Network: `Authorization: Bearer` + 200 |
-| 2b  | Forgot password (self-service) | `/admin/login` → **Forgot password?** → email → code → new password → sign in                    |
+| 2   | Staff browser flow             | Open `/admin` → Cognito Hosted UI → return to `/admin#updates`; Network: `Authorization: Bearer` + 200 |
+| 2b  | Forgot password (self-service) | Cognito Hosted UI → **Forgot password?** → email → code → new password → sign in                       |
 | 3   | Test PII removed               | `python scripts/purge-contact-update-test-data.py`                                               |
 | 4   | No console errors              | Manual pass on `/admin` tabs after sign-in                                                       |
 
 ## Staff onboarding
 
-1. IT runs `setup-cognito-staff-group.py --create-user <email> --set-temp-password` (or creates the user in the Cognito console).
-2. The script attaches group **Staff** to the Gen 2 Amplify **authenticated IAM role** (see `infrastructure/gen2-production-bindings.json`) for AppSync CMS mutations and S3 document uploads, and maps the group in the identity pool.
-3. Staff opens https://www.townofwiley.gov/admin/login, signs in with email + password, and changes the temporary password when prompted.
-4. **Forgot password:** On `/admin/login`, use **Forgot password?** only after the user has completed first-time sign-in (status **CONFIRMED** in Cognito). Cognito sends the code to the verified email via Amazon SES (`noreply@townofwiley.gov`). If email does not arrive, check spam or run the ops checks below.
-5. **Stuck on first sign-in (`FORCE_CHANGE_PASSWORD`):** Forgot password **does not send a code** ([AWS re:Post](https://repost.aws/knowledge-center/cognito-forgot-password)). The user must **Sign in** with the IT temporary password, then set a new password. IT reset: `python scripts/reset-cognito-staff-password.py --email <staff@email> --temporary --print-password`
+1. IT creates the user in the Cognito console (Gen 2 pool `us-east-2_pkewJMUJF`) and adds them to group **Staff**, or runs `python scripts/reset-cognito-staff-password.py --email <email> --temporary --print-password`.
+2. The **Staff** group maps to the Gen 2 Amplify **authenticated IAM role** (see `infrastructure/gen2-production-bindings.json`) for AppSync CMS mutations and S3 document uploads.
+3. Staff opens **https://townofwiley.gov/admin** — they are redirected to the **Cognito Hosted UI** sign-in page, then return to `/admin` after successful sign-in.
+4. **Forgot password:** Use **Forgot password?** on the Cognito Hosted UI only after the user has completed first-time sign-in (status **CONFIRMED** in Cognito). Cognito sends the code to the verified email via Amazon SES (`noreply@townofwiley.gov`).
+5. **Stuck on first sign-in (`FORCE_CHANGE_PASSWORD`):** Forgot password **does not send a code** ([AWS re:Post](https://repost.aws/knowledge-center/cognito-forgot-password)). The user must sign in with the IT temporary password on Hosted UI, then set a new password when prompted. IT reset: `python scripts/reset-cognito-staff-password.py --email <staff@email> --temporary --print-password`
 6. MFA: optional (pool default OFF); enable in Cognito if required later.
+
+**Hosted UI domain:** `townofwiley-staff.auth.us-east-2.amazoncognito.com` (see `cognitoGen2.hostedUiDomain` in `infrastructure/gen2-production-bindings.json`). Re-apply OAuth callback URLs with `npm run configure:cognito-hosted-ui` after changing production domains. If the Gen 2 app client was deleted, the setup script creates a new `townofwiley-staff-web` client and updates `userPoolClientId` in bindings — sync `src/app/amplify-config.ts` fallbacks and production runtime secrets if the client ID changes.
 
 **Note:** Staff auth is **Cognito + IAM via identity pool**, not a separate AWS IAM console user. Do not create IAM users for routine `/admin` access. The **Staff** group is a **Cognito user pool group** (JWT claim `cognito:groups`), not an IAM console group.
 
