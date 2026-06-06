@@ -102,4 +102,6 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## Git
 
-- Feature branches; merge to `main` when CI is green. Do not force-push `main`.
+- Feature branches; **never push directly to `main`** — open a PR and wait for **`site-ci / CI gate (merge required)`** to pass before merge.
+- Merge to `main` when CI is green. Do not force-push `main`.
+- Branch protection setup: [`docs/github-branch-protection.md`](docs/github-branch-protection.md).

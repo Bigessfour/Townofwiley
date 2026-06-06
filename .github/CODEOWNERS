@@ -1,0 +1,15 @@
+# Town of Wiley — code owners for deployable site and pipeline paths.
+# See docs/github-branch-protection.md (do not require Code Owner review until a backup collaborator exists).
+
+/src/                                    @Bigessfour
+/public/                                 @Bigessfour
+/e2e/                                    @Bigessfour
+/package.json                            @Bigessfour
+/package-lock.json                       @Bigessfour
+/angular.json                            @Bigessfour
+/tsconfig*.json                          @Bigessfour
+/customHttp.yml                          @Bigessfour
+/scripts/generate-runtime-config.mjs     @Bigessfour
+/scripts/deploy-static-site.sh           @Bigessfour
+/.github/workflows/                      @Bigessfour
+/infrastructure/iam/                     @Bigessfour

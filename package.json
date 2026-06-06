@@ -16,7 +16,7 @@
     "test": "ng test",
     "test:unit": "ng test",
     "test:unit:browser": "ng test --watch=false --browsers=chromiumHeadless",
-    "test:vitest": "vitest run && npm run test:runtime-config-strict && npm run test:csp-inline-style-policy",
+    "test:vitest": "vitest run && npm run test:runtime-config-strict && npm run test:csp-inline-style-policy && node --test scripts/ci-gate-check.test.mjs scripts/deploy-static-site.manifest.test.mjs",
     "test:coverage": "vitest run --coverage",
     "test:vitest:watch": "vitest",
     "audit:done:local": "npm run lint && npm run verify:public-cms-query && npm run test:vitest && npm run test:coverage && npm run build && npm run test:e2e:smoke",
