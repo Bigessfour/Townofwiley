@@ -6,6 +6,7 @@ const confirmResetPassword = vi.fn();
 const confirmSignIn = vi.fn();
 const resetPassword = vi.fn();
 const signIn = vi.fn();
+const signInWithRedirect = vi.fn();
 const signOut = vi.fn();
 
 vi.mock('aws-amplify/auth', () => ({
@@ -15,6 +16,7 @@ vi.mock('aws-amplify/auth', () => ({
   getCurrentUser,
   resetPassword,
   signIn,
+  signInWithRedirect,
   signOut,
 }));
 
@@ -27,6 +29,7 @@ describe('StaffAuthService', () => {
     confirmSignIn.mockReset();
     resetPassword.mockReset();
     signIn.mockReset();
+    signInWithRedirect.mockReset();
     signOut.mockReset();
   });
 
@@ -52,6 +55,16 @@ describe('StaffAuthService', () => {
 
     expect(service.isStaff()).toBe(true);
     expect(service.accessToken()).toBe('access-token');
+  });
+
+  it('redirects to Cognito Hosted UI', async () => {
+    signInWithRedirect.mockResolvedValue(undefined);
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.beginStaffHostedSignIn();
+
+    expect(signInWithRedirect).toHaveBeenCalled();
   });
 
   it('returns newPasswordRequired when Cognito requires a password change', async () => {
@@ -133,5 +146,17 @@ describe('StaffAuthService', () => {
 
     expect(service.isAuthenticated()).toBe(true);
     expect(service.isStaff()).toBe(false);
+  });
+
+  it('detects OAuth callback query parameters', async () => {
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+
+    vi.stubGlobal('window', {
+      location: { search: '?code=abc&state=xyz' },
+    } as Window);
+
+    expect(service.isHostedSignInCallback()).toBe(true);
+    vi.unstubAllGlobals();
   });
 });

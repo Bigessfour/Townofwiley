@@ -395,6 +395,11 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       loadProductionBindingsFromRepo()?.cognitoGen2?.identityPoolId?.trim() ||
       outputsAuth?.identity_pool_id?.trim() ||
       '',
+    cognitoHostedUiDomain:
+      env.COGNITO_HOSTED_UI_DOMAIN?.trim() ||
+      localSecrets.auth?.cognito?.hostedUiDomain?.trim() ||
+      loadProductionBindingsFromRepo()?.cognitoGen2?.hostedUiDomain?.trim() ||
+      '',
     storageBucketName:
       env.STORAGE_S3_BUCKET?.trim() ||
       localSecrets.storage?.s3?.bucket?.trim() ||
@@ -458,6 +463,7 @@ export function buildRuntimeConfigObject(values, buildMeta) {
             userPoolId: values.cognitoUserPoolId,
             userPoolClientId: values.cognitoUserPoolClientId,
             identityPoolId: values.cognitoIdentityPoolId,
+            hostedUiDomain: values.cognitoHostedUiDomain || undefined,
           },
         }
       : undefined,

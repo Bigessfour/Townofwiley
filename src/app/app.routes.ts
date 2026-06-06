@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { staffAuthGuard } from './auth/staff-auth.guard';
 import { HomeRouteShell } from './home-route-shell';
 
 export const routes: Routes = [
@@ -8,6 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    canActivate: [staffAuthGuard],
     loadComponent: () => import('./cms-admin/cms-admin').then((m) => m.CmsAdmin),
   },
   {
@@ -74,6 +76,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/hello-from',
+    canActivate: [staffAuthGuard],
     loadComponent: () =>
       import('./hello-from/hello-from-admin-page').then((m) => m.HelloFromAdminPage),
   },
