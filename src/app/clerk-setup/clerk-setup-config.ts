@@ -1,3 +1,5 @@
+import { buildAppSyncQueriesConsoleUrl } from './appsync-console-url';
+
 interface RuntimeClerkSetupConfig {
   clerkName: string;
   awsAccountId: string;
@@ -19,9 +21,6 @@ const DEFAULT_AWS_REGION = 'us-east-2';
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
 const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
-/** Current production Gen 2 AppSync ID for CMS (the live backend after Gen1 decommission). */
-const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
-const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
 
 type ClerkSetupRuntimeWindow = Window & {
@@ -49,11 +48,9 @@ export function buildAmplifyConsoleDataManagerUrl(
   }
 
   // The old Amplify Hosting app d331voxr1fhoir was deleted June 2026.
-  // All "Edit content" buttons and Content editor URLs must point at the live
-  // Gen 2 AppSync console (Queries) instead of the old /amplify/.../data paths
-  // that produce "App d331voxr1fhoir not found".
+  // IT Advanced links use the live Gen 1 AppSync Queries console (only deployed CMS API).
   if (appId === 'd331voxr1fhoir') {
-    return `${CURRENT_APPSYNC_CONSOLE_BASE}/queries`;
+    return buildAppSyncQueriesConsoleUrl(region);
   }
 
   const branch = branchName.trim() || 'main';

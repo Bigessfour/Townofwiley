@@ -32,6 +32,9 @@ const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
 const runtimeAuth = runtimeConfig?.auth?.cognito;
 const runtimeStorage = runtimeConfig?.storage?.s3;
 
+/** Gen 1 live CMS GraphQL endpoint (fallback when runtime-config.js is absent). */
+const GEN1_CMS_GRAPHQL_FALLBACK =
+  'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql';
 /** Gen 2 production Cognito (fallback when runtime-config.js is absent — e.g. local ng serve). */
 const GEN2_COGNITO_FALLBACK = {
   userPoolId: 'us-east-2_pkewJMUJF',
@@ -58,9 +61,7 @@ Amplify.configure({
   },
   API: {
     GraphQL: {
-      endpoint:
-        cmsAppSyncConfig?.apiEndpoint ??
-        'https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql',
+      endpoint: cmsAppSyncConfig?.apiEndpoint ?? GEN1_CMS_GRAPHQL_FALLBACK,
       defaultAuthMode: 'apiKey',
       apiKey: cmsAppSyncConfig?.apiKey ?? '',
     },

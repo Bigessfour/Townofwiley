@@ -6,13 +6,13 @@
     <h3 class="cms-upload-panel__title">Upload homepage photo (optional)</h3>
     <p class="cms-upload-panel__lead">
       Choose a JPG or PNG. After upload, copy the web address into
-      <strong>Photo web address</strong> in Homepage settings.
+      <strong>Photo web address</strong> in the homepage form.
     </p>
   } @else {
     <h3 class="cms-upload-panel__title">Upload newsletter PDF (optional)</h3>
     <p class="cms-upload-panel__lead">
-      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter
-      Announcement row.
+      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter notice
+      form.
     </p>
   }
 
@@ -46,14 +46,13 @@
       <button type="button" class="button-cta button-cta--light" (click)="copyToClipboard()">
         Copy
       </button>
-      <a
-        class="button-cta button-cta--solid"
-        [href]="editorUrlForMode()"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        Open Content editor (AppSync) to paste
-      </a>
+      <button type="button" class="button-cta button-cta--solid" (click)="onOpenTaskGuide()">
+        @if (mode() === 'hero') {
+          Go to homepage task
+        } @else {
+          Go to post notice task
+        }
+      </button>
     </div>
   }
 

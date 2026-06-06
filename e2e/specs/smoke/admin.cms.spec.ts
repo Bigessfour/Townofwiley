@@ -1,12 +1,9 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Current "Edit content" link pattern used by task cards.
- * All such links must resolve to the live Gen 2 AppSync console (the old d331
- * Amplify Hosting app was deleted and its URLs 404 with "App d331voxr1fhoir not found").
- */
-const CONSOLE_MODEL_HREF =
-  /appsync\/home\?region=us-east-2#\/x7poehudqvamneqni5s6e2cjxy\/v1\/queries/;
+/** Gen 1 AppSync Queries console URL for Advanced (IT) section only. */
+const IT_CONSOLE_EDITOR_HREF =
+  /appsync\/home\?region=us-east-2#\/j7b2x3sh7rcezekekkxxiak7hi\/v1\/queries/;
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -49,15 +46,20 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /What do you want to update\?/i }),
     ).toBeVisible();
     await expect(homePage.page.getByTestId('cms-task-post-notice')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-task-edit-post-notice')).toHaveAttribute(
-      'href',
-      CONSOLE_MODEL_HREF,
-    );
-    // Task cards themselves should not push raw "AppSync" as jargon (the lead now intentionally notes "(opens AppSync console for current backend)" for clarity).
+    const editNotice = homePage.page.getByTestId('cms-task-edit-post-notice');
+    await expect(editNotice).toHaveRole('button');
+    await editNotice.click();
+    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
     await expect(
       homePage.page
-        .locator('.cms-task-card, [data-testid*="cms-task"]')
-        .getByText('AppSync', { exact: false }),
+        .getByTestId('cms-task-form')
+        .getByRole('heading', { name: /Post news or notice/i }),
+    ).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-form').getByLabel(/Title \*/i)).toBeVisible();
+    // Task cards should not push raw "AppSync" as jargon.
+    await expect(
+      homePage.page.locator('.cms-task-card').getByText('AppSync', { exact: false }),
     ).not.toBeVisible();
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
   });
@@ -76,6 +78,10 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toBeVisible({
       timeout: 20_000,
     });
+    await expect(homePage.page.getByTestId('cms-snapshot-open-editor')).toHaveAttribute(
+      'href',
+      IT_CONSOLE_EDITOR_HREF,
+    );
   });
 
   test('redirects the legacy clerk setup document link to the admin documents section', async ({
@@ -176,12 +182,11 @@ test.describe('cms admin', () => {
 
     await homePage.page
       .getByTestId('cms-task-add-document')
-      .getByRole('button', {
-        name: /show step-by-step/i,
-      })
+      .getByTestId('cms-task-edit-add-document')
       .click();
+    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
     await expect(
-      homePage.page.locator('dt').getByText(/Title \(Spanish\)/i),
+      homePage.page.getByTestId('cms-task-form').getByLabel(/Title \(Spanish\)/i),
     ).toBeVisible();
   });
 });

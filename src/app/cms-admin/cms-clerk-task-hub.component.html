@@ -1,8 +1,8 @@
 <section class="cms-task-hub" aria-labelledby="cms-task-hub-heading">
   <h2 id="cms-task-hub-heading" class="cms-task-hub__title">What do you want to update?</h2>
   <p class="cms-task-hub__lead">
-    Pick a task, click <strong>Edit content</strong> (opens AppSync console for current backend), or
-    use in-app forms below for simple adds, then
+    Pick a task and click <strong>Edit content</strong> to open the form on this page (sign in at
+    <a href="/admin/login">/admin/login</a> first). Then use
     <strong>See on website</strong>
     and hard-refresh the page.
   </p>
@@ -25,15 +25,14 @@
             <p class="cms-task-card__note" role="note">{{ task.emptyStateMessage }}</p>
           }
           <div class="cms-task-card__actions">
-            <a
+            <button
+              type="button"
               class="button-cta button-cta--solid cms-task-card__btn"
-              [href]="editorUrl(task)"
-              target="_blank"
-              rel="noreferrer noopener"
               [attr.data-testid]="'cms-task-edit-' + task.id"
+              (click)="onEditContent(task.id)"
             >
               Edit content
-            </a>
+            </button>
             <a
               class="button-cta button-cta--light cms-task-card__btn"
               [href]="previewUrl(task)"

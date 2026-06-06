@@ -16,23 +16,12 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CmsClerkTaskHubComponent {
-  readonly region = input.required<string>();
-  readonly appId = input.required<string>();
-  readonly branch = input('main');
-  readonly fallbackEditorUrl = input.required<string>();
   readonly modelCounts = input.required<Record<string, number>>();
 
+  readonly editContent = output<ClerkCmsTaskId>();
   readonly showSteps = output<ClerkCmsTaskId>();
 
   protected readonly tasks = CLERK_CMS_TASKS;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected editorUrl(_task: ClerkCmsTask): string {
-    // Use the fallbackEditorUrl provided (hardcoded to current AppSync in parent).
-    // Legacy Amplify app links (d331voxr1fhoir) + Gen1 AppSync (j7b2...) are legacy; editing via Gen 2 AppSync (x7poeh...).
-    // The passed appId/region/branch are legacy and ignored for editor links.
-    return this.fallbackEditorUrl();
-  }
 
   protected previewUrl(task: ClerkCmsTask): string {
     return clerkTaskPreviewUrl(task.previewPath);
@@ -52,6 +41,10 @@ export class CmsClerkTaskHubComponent {
       return `${n} saved`;
     }
     return null;
+  }
+
+  protected onEditContent(taskId: ClerkCmsTaskId): void {
+    this.editContent.emit(taskId);
   }
 
   protected onShowSteps(taskId: ClerkCmsTaskId): void {

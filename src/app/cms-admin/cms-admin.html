@@ -4,9 +4,9 @@
       <p class="cms-kicker">Town staff</p>
       <h1 class="cms-title">Update the Town website</h1>
       <p class="cms-copy">
-        Pick what you want to change, click <strong>Edit content</strong>, save, then
-        <strong>See on website</strong> and hard-refresh. Need help? Call Town Hall at (719)
-        829-4974.
+        Pick what you want to change, click <strong>Edit content</strong> to open the form on this
+        page, save, then <strong>See on website</strong> and hard-refresh. Need help? Call Town Hall
+        at (719) 829-4974.
       </p>
     </div>
     <nav class="cms-jump-nav" aria-label="Page sections">
@@ -24,29 +24,16 @@
     <app-cms-site-status />
 
     <app-cms-clerk-task-hub
-      [region]="awsRegion"
-      [appId]="amplifyAppId"
-      [branch]="'main'"
-      [fallbackEditorUrl]="dataManagerUrl"
       [modelCounts]="modelCounts()"
+      (editContent)="onShowTaskSteps($event)"
       (showSteps)="onShowTaskSteps($event)"
     />
 
     <app-cms-clerk-task-guide [taskId]="selectedTaskId()" />
 
     <div class="cms-upload-blocks">
-      <app-cms-clerk-upload-panel
-        mode="hero"
-        [region]="awsRegion"
-        [appId]="amplifyAppId"
-        [fallbackEditorUrl]="dataManagerUrl"
-      />
-      <app-cms-clerk-upload-panel
-        mode="newsletter-pdf"
-        [region]="awsRegion"
-        [appId]="amplifyAppId"
-        [fallbackEditorUrl]="dataManagerUrl"
-      />
+      <app-cms-clerk-upload-panel mode="hero" (openTaskGuide)="onShowTaskSteps($event)" />
+      <app-cms-clerk-upload-panel mode="newsletter-pdf" (openTaskGuide)="onShowTaskSteps($event)" />
     </div>
   </section>
 
@@ -54,7 +41,7 @@
     <h2 id="cms-documents-heading">Document publishing</h2>
     <p>
       Use the <strong>Add a form or PDF</strong> task above, upload a meeting agenda below, or open
-      PublicDocument via the Content editor URL (AppSync) in Advanced. Use the exact section name
+      PublicDocument via the Content editor URL in Advanced (IT). Use the exact section name
       from this table.
     </p>
     <ol class="cms-help-list">

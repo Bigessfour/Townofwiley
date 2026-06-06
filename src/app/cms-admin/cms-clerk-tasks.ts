@@ -48,6 +48,17 @@ export function clerkTaskEditorUrl(
   return buildAmplifyConsoleDataManagerModelUrl(region, appId, branch, model, fallbackUrl);
 }
 
+export const CLERK_IN_APP_EDITOR_TASK_IDS = [
+  'post-notice',
+  'add-meeting',
+  'homepage',
+  'emergency-banner',
+] as const satisfies readonly ClerkCmsTaskId[];
+
+export function clerkTaskHasInAppEditor(id: ClerkCmsTaskId): boolean {
+  return (CLERK_IN_APP_EDITOR_TASK_IDS as readonly ClerkCmsTaskId[]).includes(id);
+}
+
 export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'post-notice',
@@ -56,11 +67,10 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Announcement',
     previewPath: '/news',
     steps: [
-      'Click Edit content or use Quick Post in-app form below.',
-      'Use in-app form for simple notices, or the editor link for complex (Spanish, newsletter kind + attachment).',
-      'Fill Title/Details; include Spanish versions.',
-      'Set Date, Active. newsletter kind for long PDF posts.',
-      'Save and hard-refresh public view.',
+      'Click Edit content to open the in-app form (sign in at /admin/login first).',
+      'Fill Title and Details; include Spanish versions when needed.',
+      'Set Date and Active. Use newsletter kind for long PDF posts.',
+      'Save and hard-refresh the public News page.',
     ],
     fieldGlossary: [
       {
@@ -87,8 +97,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Event',
     previewPath: '/meetings',
     steps: [
-      'Use in-app Quick Add form below, or click Edit content (see the Content editor URL in Advanced or setup).',
-      'In the editor or form: create/update Event records for meetings (use createEvent or the in-app submit).',
+      'Click Edit content to open the in-app form (sign in at /admin/login first).',
       'Enter Title, Start date and time, and turn Active on.',
       'Add Location and Description if residents need them.',
       'Save, then check See on website and hard-refresh /meetings.',
@@ -109,9 +118,9 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/',
     supportsUpload: 'hero',
     steps: [
-      'Use in-app SiteSettings form below (or the Content editor URL) for the (usually single) SiteSettings row.',
+      'Click Edit content to open the in-app form (sign in at /admin/login first).',
       'Update welcome text fields residents read on the homepage.',
-      'For the photo: paste a Photo web address (https://…) from IT or from Upload homepage photo below.',
+      'For the photo: paste a Photo web address (https://…) from Upload homepage photo below.',
       'Save, then open the homepage and hard-refresh.',
     ],
     fieldGlossary: [
@@ -197,7 +206,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'Homepage text may be using default setup until SiteSettings is saved via Content editor (editor).',
+      'Homepage text may be using default setup until SiteSettings is saved via Edit content.',
   },
   {
     id: 'add-document',
@@ -207,8 +216,9 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/documents',
     supportsUpload: 'newsletter-pdf',
     steps: [
+      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
       'Read the Document publishing section on this page for the correct section name.',
-      'Use Content editor (editor) to open PublicDocument and create a record (or use the upload panel below for files).',
+      'Use the meeting document upload below or ask IT for complex PDF entries.',
       'Match the section name exactly, add title and summary, and set Active on.',
       'For Spanish residents, fill Title (Spanish) and Summary (Spanish) when those fields appear.',
       'Save, then check /documents and hard-refresh.',
@@ -276,7 +286,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'No documents yet — the site may still show setup guides until you add a PublicDocument via Content editor or upload.',
+      'No documents yet — the site may still show setup guides until you add a PublicDocument via upload or ask IT.',
   },
   {
     id: 'update-contacts',
@@ -285,9 +295,10 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'OfficialContact',
     previewPath: '/contact',
     steps: [
-      'Use Content editor (editor) to open OfficialContact.',
+      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
       'Find the row for Town Hall (id town-information) or City Clerk (id city-clerk). Do not change those id values unless IT helps.',
-      'Update label, value, detail, and link fields. Save and check /contact.',
+      'Update label, value, detail, and link fields. Ask IT to apply changes until an in-app form is available.',
+      'Save and check /contact.',
     ],
     fieldGlossary: [
       {
@@ -336,10 +347,11 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'LeadershipRosterEntry',
     previewPath: '/contact',
     steps: [
-      'Use Content editor (editor) to open LeadershipRosterEntry.',
+      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
       'For each person, create one row with groupId mayor-council or town-administration.',
       'Fill English line and Spanish line — residents who use Spanish on the site need the Spanish line.',
-      'Set display order and Active on. Save and check /contact.',
+      'Set display order and Active on. Ask IT to apply changes until an in-app form is available.',
+      'Save and check /contact.',
     ],
     fieldGlossary: [
       {
@@ -369,7 +381,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — the Contact page shows the default name list until you add rows via Content editor (editor).',
+      'No roster rows yet — the Contact page shows the default name list until IT adds rows.',
   },
   {
     id: 'business-directory',
@@ -378,7 +390,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'Business',
     previewPath: '/businesses',
     steps: [
-      'Use Content editor (editor) to open Business, create or edit a row, set Active on, and save.',
+      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
+      'Create or edit a Business row, set Active on, and save (ask IT until an in-app form is available).',
       'Use display order to control sort order. Check /businesses after a hard refresh.',
     ],
     fieldGlossary: [
@@ -431,7 +444,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'ExternalNewsLink',
     previewPath: '/news',
     steps: [
-      'Use Content editor (editor) to open ExternalNewsLink, create a row with title, url, and source, set Active on, save.',
+      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
+      'Create a row with title, url, and source, set Active on, save (ask IT until an in-app form is available).',
       'Check /news after hard-refresh.',
     ],
     fieldGlossary: [
@@ -469,8 +483,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     model: 'AlertBanner',
     previewPath: '/',
     steps: [
-      'Use the in-app form below (or Content editor URL) to open/create AlertBanner. Use one active banner at a time.',
-      'Set Enabled on, fill label (short tag like "URGENT"), title, and detail (the message).',
+      'Click Edit content to open the in-app form (sign in at /admin/login first).',
+      'Use one active banner at a time. Set Enabled on, fill label (short tag like "URGENT"), title, and detail.',
       'Optional button: set "Link label" (e.g. "Learn more") and "Link address" (full https:// URL).',
       'Save and check the homepage top strip. Hard-refresh after.',
     ],

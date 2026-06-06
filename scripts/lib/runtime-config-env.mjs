@@ -40,6 +40,22 @@ export function readProductionCmsGraphqlEndpoint() {
   );
 }
 
+/** Live AppSync API id (Gen 1 is the only deployed CMS API in production). */
+export function readProductionAppSyncApiId() {
+  const bindings = loadProductionBindingsFromRepo();
+  return (
+    bindings?.appSyncGen1Legacy?.apiId?.trim() ||
+    bindings?.appSyncGen2?.apiId?.trim() ||
+    'j7b2x3sh7rcezekekkxxiak7hi'
+  );
+}
+
+export function buildAppSyncQueriesConsoleUrl(region, apiId = readProductionAppSyncApiId()) {
+  const trimmedRegion = region?.trim() || DEFAULT_AWS_REGION;
+  const trimmedApiId = apiId?.trim() || readProductionAppSyncApiId();
+  return `https://${trimmedRegion}.console.aws.amazon.com/appsync/home?region=${trimmedRegion}#/${trimmedApiId}/v1/queries`;
+}
+
 /**
  * @returns {Record<string, unknown> | null}
  */
@@ -255,12 +271,11 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
   // If the (legacy) Amplify app ID is the deleted d331voxr1fhoir hosting app,
   // force the studioUrl / dataManagerUrl that ends up in runtime-config.js to
-  // the current Gen 2 AppSync console. This prevents the client from ever
-  // emitting a link that produces "App d331voxr1fhoir not found".
+  // the live Gen 1 AppSync Queries console (IT Advanced only).
   let computedStudioUrl;
   if (clerkSetupAmplifyAppId === 'd331voxr1fhoir') {
     computedStudioUrl = clerkSetupAwsRegion
-      ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/appsync/home?region=${clerkSetupAwsRegion}#/x7poehudqvamneqni5s6e2cjxy/v1/queries`
+      ? buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion)
       : clerkSetupAwsConsoleUrl;
   } else if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
     computedStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
@@ -358,11 +373,36 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     guestbookApiEndpoint,
     paystarMode,
     mode,
-    cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
-    cognitoUserPoolClientId: outputsAuth?.user_pool_client_id?.trim() || '',
-    cognitoIdentityPoolId: outputsAuth?.identity_pool_id?.trim() || '',
-    storageBucketName: outputsStorage?.bucket_name?.trim() || '',
-    storageRegion: outputsStorage?.aws_region?.trim() || '',
+    cognitoUserPoolId:
+      env.COGNITO_USER_POOL_ID?.trim() ||
+      localSecrets.auth?.cognito?.userPoolId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognitoGen2?.userPoolId?.trim() ||
+      outputsAuth?.user_pool_id?.trim() ||
+      '',
+    cognitoUserPoolClientId:
+      env.COGNITO_USER_POOL_CLIENT_ID?.trim() ||
+      localSecrets.auth?.cognito?.userPoolClientId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognitoGen2?.userPoolClientId?.trim() ||
+      outputsAuth?.user_pool_client_id?.trim() ||
+      '',
+    cognitoIdentityPoolId:
+      env.COGNITO_IDENTITY_POOL_ID?.trim() ||
+      localSecrets.auth?.cognito?.identityPoolId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognitoGen2?.identityPoolId?.trim() ||
+      outputsAuth?.identity_pool_id?.trim() ||
+      '',
+    storageBucketName:
+      env.STORAGE_S3_BUCKET?.trim() ||
+      localSecrets.storage?.s3?.bucket?.trim() ||
+      loadProductionBindingsFromRepo()?.storageGen2?.bucket?.trim() ||
+      outputsStorage?.bucket_name?.trim() ||
+      '',
+    storageRegion:
+      env.STORAGE_S3_REGION?.trim() ||
+      localSecrets.storage?.s3?.region?.trim() ||
+      loadProductionBindingsFromRepo()?.storageGen2?.region?.trim() ||
+      outputsStorage?.aws_region?.trim() ||
+      '',
   };
 }
 

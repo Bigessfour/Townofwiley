@@ -854,7 +854,7 @@ describe('App', () => {
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
         studioUrl:
-          'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries', // Gen 2 current
+          'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries',
         cfDistributionId: 'E1NZ3XCY5CYR1J',
         s3Bucket: 'townofwiley-static-site',
       },
@@ -869,7 +869,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
     expect(compiled.textContent).toContain('d331voxr1fhoir'); // still shows legacy hosting for reference
-    expect(compiled.textContent).toContain('x7poehudqvamneqni5s6e2cjxy'); // Gen 2 AppSync current
+    expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // live Gen 1 AppSync (IT Advanced)
     expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 

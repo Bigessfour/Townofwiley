@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { buildAppSyncQueriesConsoleUrl } from '../clerk-setup/appsync-console-url';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
@@ -125,13 +126,8 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // Hard-code the current working editor URL (Gen 2 AppSync console for the live
-  // backend). This guarantees that every "Edit content" button, the IT snapshot
-  // "Open content editor" link, the upload panels, and the URL shown in the
-  // Advanced section always produce a working link instead of the deleted
-  // d331voxr1fhoir Amplify Studio/Data Manager URL.
-  protected readonly dataManagerUrl =
-    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
+  // Gen 1 AppSync Queries console for Advanced (IT) only — clerks use in-app forms on task cards.
+  protected readonly dataManagerUrl = buildAppSyncQueriesConsoleUrl(this.awsRegion);
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
@@ -192,9 +188,16 @@ export class CmsAdmin {
 
   protected onShowTaskSteps(taskId: ClerkCmsTaskId): void {
     this.selectedTaskId.set(taskId);
-    if (typeof document !== 'undefined') {
-      document.getElementById('cms-task-guide-heading')?.scrollIntoView({ behavior: 'smooth' });
+    if (typeof document === 'undefined') {
+      return;
     }
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        document
+          .getElementById('cms-task-form')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   protected async testConnection(): Promise<void> {

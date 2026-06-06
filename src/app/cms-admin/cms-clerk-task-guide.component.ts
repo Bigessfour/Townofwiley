@@ -1,10 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { CLERK_VERIFY_STEPS, clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
-import { CmsEventAdminService } from '../cms-event-admin.service';
-import { CmsAnnouncementAdminService } from '../cms-announcement-admin.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsAlertBannerAdminService } from '../cms-alert-banner-admin.service';
-import { CmsSiteSettingsAdminService } from '../cms-site-settings-admin.service';
+import { CmsAnnouncementAdminService } from '../cms-announcement-admin.service';
+import { CmsEventAdminService } from '../cms-event-admin.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
+import { CmsSiteSettingsAdminService } from '../cms-site-settings-admin.service';
+import {
+  clerkTaskFormFields,
+  clerkTaskHasDynamicForm,
+  defaultDynamicFormValues,
+  type ClerkFormFieldDefinition,
+} from './cms-clerk-task-form-fields';
+import {
+  CLERK_VERIFY_STEPS,
+  clerkTaskById,
+  clerkTaskHasInAppEditor,
+  type ClerkCmsTaskId,
+} from './cms-clerk-tasks';
 
 @Component({
   selector: 'app-cms-clerk-task-guide',
@@ -16,6 +36,8 @@ import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service'
 export class CmsClerkTaskGuideComponent {
   readonly taskId = input<ClerkCmsTaskId | null>(null);
 
+  private readonly staffAuth = inject(StaffAuthService);
+
   private readonly eventService = inject(CmsEventAdminService);
   private readonly announcementService = inject(CmsAnnouncementAdminService);
   private readonly alertBannerService = inject(CmsAlertBannerAdminService);
@@ -26,6 +48,39 @@ export class CmsClerkTaskGuideComponent {
     const id = this.taskId();
     return id ? clerkTaskById(id) : undefined;
   });
+
+  protected readonly showStaffSignInNote = computed(() => {
+    const id = this.taskId();
+    return (
+      id != null &&
+      (clerkTaskHasInAppEditor(id) || clerkTaskHasDynamicForm(id)) &&
+      !this.staffAuth.isStaff()
+    );
+  });
+
+  protected readonly dynamicFormFields = computed(() => {
+    const id = this.taskId();
+    return id ? clerkTaskFormFields(id) : [];
+  });
+
+  protected readonly showDynamicForm = computed(() => {
+    const id = this.taskId();
+    return id != null && clerkTaskHasDynamicForm(id) && !clerkTaskHasInAppEditor(id);
+  });
+
+  protected readonly dynamicForm = signal<Record<string, string | boolean>>({});
+  protected readonly dynamicSubmitting = signal(false);
+  protected readonly dynamicSubmitResult = signal<string | null>(null);
+  protected readonly dynamicSubmitError = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      const fields = this.dynamicFormFields();
+      this.dynamicForm.set(defaultDynamicFormValues(fields));
+      this.dynamicSubmitResult.set(null);
+      this.dynamicSubmitError.set(null);
+    });
+  }
 
   protected readonly verifySteps = CLERK_VERIFY_STEPS;
 
@@ -88,6 +143,7 @@ export class CmsClerkTaskGuideComponent {
     detail: '',
     date: '',
     announcementKind: '',
+    attachmentKey: '',
     active: true,
   });
   protected readonly announcementSubmitting = signal(false);
@@ -113,6 +169,7 @@ export class CmsClerkTaskGuideComponent {
         detail: form.detail,
         date: form.date || undefined,
         announcementKind: form.announcementKind || undefined,
+        attachmentKey: form.attachmentKey || undefined,
         active: form.active,
       });
       this.announcementResult.set(
@@ -124,6 +181,7 @@ export class CmsClerkTaskGuideComponent {
         detail: '',
         date: '',
         announcementKind: '',
+        attachmentKey: '',
         active: true,
       });
     } catch (err: unknown) {
@@ -262,7 +320,7 @@ export class CmsClerkTaskGuideComponent {
             ? String((err as { message?: unknown }).message)
             : '';
       this.settingsError.set(
-        msg || 'Failed to create settings. Use AppSync edit for existing row or check login.',
+        msg || 'Failed to create settings. Ask IT to update existing rows or check staff login.',
       );
     } finally {
       this.settingsSubmitting.set(false);
@@ -273,30 +331,75 @@ export class CmsClerkTaskGuideComponent {
     return this.taskId() === 'homepage';
   }
 
-  // Demo of generic CRUD helper (lists count for any model from inventory; create via generic)
-  protected readonly genericResult = signal<string | null>(null);
-  protected async demoGenericCreate(model: string) {
-    this.genericResult.set(null);
+  protected updateDynamicForm(field: string, value: string | boolean): void {
+    this.dynamicForm.update((current) => ({ ...current, [field]: value }));
+  }
+
+  protected dynamicFieldValue(field: ClerkFormFieldDefinition): string | boolean {
+    const value = this.dynamicForm()[field.name];
+    if (field.type === 'checkbox') {
+      return value === true;
+    }
+    return typeof value === 'string' ? value : '';
+  }
+
+  protected async submitDynamicForm(): Promise<void> {
+    const task = this.task();
+    if (!task) {
+      return;
+    }
+
+    const fields = this.dynamicFormFields();
+    const raw = this.dynamicForm();
+    const input: Record<string, unknown> = {};
+
+    for (const field of fields) {
+      const value = raw[field.name];
+      if (field.type === 'checkbox') {
+        input[field.name] = value === true;
+        continue;
+      }
+      const text = typeof value === 'string' ? value.trim() : '';
+      if (!text) {
+        if (field.required) {
+          this.dynamicSubmitError.set(`${field.label} is required.`);
+          return;
+        }
+        continue;
+      }
+      if (field.type === 'number') {
+        const parsed = Number(text);
+        if (Number.isNaN(parsed)) {
+          this.dynamicSubmitError.set(`${field.label} must be a number.`);
+          return;
+        }
+        input[field.name] = parsed;
+      } else {
+        input[field.name] = text;
+      }
+    }
+
+    this.dynamicSubmitting.set(true);
+    this.dynamicSubmitError.set(null);
+    this.dynamicSubmitResult.set(null);
     try {
-      // Minimal input for demo - real use would pull from dynamic form
-      const id = await this.genericModelService.createModel(model, {
-        title: `Demo ${model} via generic`,
-        active: true,
-        detail: 'Created from /admin generic editor foundation.',
-      });
-      this.genericResult.set(
-        `Generic create for ${model} OK, id=${id}. Extend form per cms-model-inventory.ts for full CRUD table.`,
+      const id = await this.genericModelService.createModel(task.model, input);
+      this.dynamicSubmitResult.set(
+        `${task.model} saved with ID ${id}. Open See on website and hard-refresh ${task.previewPath}.`,
       );
-    } catch (e: unknown) {
+      this.dynamicForm.set(defaultDynamicFormValues(fields));
+    } catch (err: unknown) {
       const msg =
-        e instanceof Error
-          ? e.message
-          : typeof e === 'object' && e !== null && 'message' in e
-            ? String((e as { message?: unknown }).message)
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err
+            ? String((err as { message?: unknown }).message)
             : '';
-      this.genericResult.set(
-        `Generic create demo for ${model} note: ${msg || 'see console (may require full input fields or existing row)'}`,
+      this.dynamicSubmitError.set(
+        msg || `Could not save ${task.model}. Sign in at /admin/login and try again.`,
       );
+    } finally {
+      this.dynamicSubmitting.set(false);
     }
   }
 }

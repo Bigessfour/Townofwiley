@@ -4,11 +4,13 @@ import {
   Component,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { DocumentUploadService } from '../document-upload.service';
+import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 
 export type ClerkUploadMode = 'hero' | 'newsletter-pdf';
 
@@ -22,10 +24,8 @@ export type ClerkUploadMode = 'hero' | 'newsletter-pdf';
 })
 export class CmsClerkUploadPanelComponent {
   readonly mode = input.required<ClerkUploadMode>();
-  readonly region = input.required<string>();
-  readonly appId = input.required<string>();
-  readonly branch = input('main');
-  readonly fallbackEditorUrl = input.required<string>();
+
+  readonly openTaskGuide = output<ClerkCmsTaskId>();
 
   private readonly uploads = inject(DocumentUploadService);
   private readonly staffAuth = inject(StaffAuthService);
@@ -39,9 +39,12 @@ export class CmsClerkUploadPanelComponent {
 
   protected readonly loginUrl = '/admin/login';
 
-  protected editorUrlForMode(): string {
-    // Use fallback (AppSync) ; ignore legacy appId.
-    return this.fallbackEditorUrl();
+  protected taskGuideId(): ClerkCmsTaskId {
+    return this.mode() === 'hero' ? 'homepage' : 'post-notice';
+  }
+
+  protected onOpenTaskGuide(): void {
+    this.openTaskGuide.emit(this.taskGuideId());
   }
 
   protected async onFileSelected(event: Event): Promise<void> {
@@ -70,19 +73,17 @@ export class CmsClerkUploadPanelComponent {
         this.httpsUrl.set(doc.url);
         this.copyValue.set(doc.url);
         this.resultMessage.set(
-          'Copy the web address below into Photo web address (heroImageUrl) in the SiteSettings record (use Content editor URL from Advanced section or AppSync).',
+          'Copy the web address below into Photo web address in the homepage form (click Go to homepage task).',
         );
       } else {
         const doc = await this.uploads.uploadDocument(file, 'newsletter');
         this.copyValue.set(doc.id);
         this.resultMessage.set(
-          'Copy the file code below into File code from IT (attachmentKey) on your newsletter Announcement row (use Content editor URL from Advanced or AppSync).',
+          'Copy the file code below into File code from IT on your newsletter notice form (click Go to post notice task).',
         );
       }
     } catch {
-      this.error.set(
-        'Upload failed. Ask IT for help or use the Content editor URL (AppSync) without an upload.',
-      );
+      this.error.set('Upload failed. Ask IT for help or try again after signing in.');
     } finally {
       this.uploading.set(false);
       inputEl.value = '';
