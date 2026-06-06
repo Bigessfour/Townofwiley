@@ -255,6 +255,8 @@ This repository uses GitHub Actions for CI **and** production frontend deploymen
 
 Runbook: [`docs/github-actions-production-deploy.md`](./github-actions-production-deploy.md).
 
+Command reference (secrets, PR validation, deploy verification): [`docs/pipeline-workflow.md`](./pipeline-workflow.md).
+
 Amplify Hosting is decommissioned for the public site; remaining Amplify references are for backend/AppSync context or historical docs.
 
 ## Governance

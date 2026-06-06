@@ -73,6 +73,15 @@ Deploy consumes the **artifact from `frontend-lint-build`**, which runs `npm run
 
 No new secrets are required for S3/CloudFront when using OIDC.
 
+Refresh all `requiredForProduction` values from live site + AWS SSOT (full workflow: [`docs/pipeline-workflow.md`](./pipeline-workflow.md#runtime-secrets-required-for-strict-build--ci)):
+
+```bash
+source scripts/agent-aws-env.sh
+npm run secrets:sync-runtime          # local user-secrets.json
+npm run secrets:sync-runtime -- --github   # mirror to GitHub Actions
+npm run secrets:lock                  # update encrypted lockbox (safe to commit)
+```
+
 ### Workflows
 
 | Workflow | Trigger | Deploy |

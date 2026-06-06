@@ -14,6 +14,7 @@ Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeN
 - **Node 24.x only** (pinned in `.nvmrc`; see `docs/NODE_VERSION.md`). On macOS agents: `PATH="/opt/homebrew/opt/node@24/bin:$PATH"`.
 - Format/lint: `trunk fmt --all` then `trunk check --fix`; resolve remaining issues manually.
 - Build/test: `npm run lint`, `npm run build`, `npm run test:unit:browser`, `npm run test:e2e:smoke`.
+- **Pipeline commands (CI/CD, secrets, deploy):** [`docs/pipeline-workflow.md`](docs/pipeline-workflow.md) and [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
 ## Codebase RAG (local retrieval)
 

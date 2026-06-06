@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  buildRuntimeConfigValues,
-  collectRequiredEnvErrors,
-  formatStrictEnvErrors,
-  shouldAllowManifestFallbacks,
-  shouldUseStrictMode,
+    buildRuntimeConfigValues,
+    collectRequiredEnvErrors,
+    formatStrictEnvErrors,
+    shouldAllowManifestFallbacks,
+    shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
 const REQUIRED = [
@@ -20,6 +20,14 @@ describe('collectRequiredEnvErrors', () => {
       APPSYNC_CMS_ENDPOINT: 'https://example.appsync-api.us-east-2.amazonaws.com/graphql',
       APPSYNC_CMS_API_KEY: 'da2-key',
       NWS_PROXY_ENDPOINT: 'https://example.lambda-url.us-east-2.on.aws/',
+    });
+    assert.equal(missing.length, 0);
+  });
+
+  it('accepts required values from local user-secrets when env is empty', () => {
+    const missing = collectRequiredEnvErrors(REQUIRED, {}, {
+      cms: { appSync: { apiEndpoint: 'https://example.appsync-api.us-east-2.amazonaws.com/graphql', apiKey: 'da2-key' } },
+      weather: { nws: { apiEndpoint: 'https://example.lambda-url.us-east-2.on.aws/' } },
     });
     assert.equal(missing.length, 0);
   });

@@ -103,7 +103,7 @@ fi
 
 echo "Syncing ${DIST_DIR} -> s3://${S3_BUCKET}/ (immutable assets)..."
 aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
-  "${SYNC_EXTRA[@]}" \
+  ${SYNC_EXTRA[@]+"${SYNC_EXTRA[@]}"} \
   --cache-control 'public, max-age=31536000, immutable' \
   --exclude 'index.html' \
   --exclude 'runtime-config.js' \
@@ -111,7 +111,7 @@ aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
 
 echo "Syncing HTML + runtime-config (no-cache)..."
 aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
-  "${SYNC_EXTRA[@]}" \
+  ${SYNC_EXTRA[@]+"${SYNC_EXTRA[@]}"} \
   --cache-control 'no-cache, no-store, must-revalidate' \
   --include 'index.html' \
   --include 'runtime-config.js' \

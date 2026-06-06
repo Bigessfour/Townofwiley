@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
+import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
@@ -125,9 +126,12 @@ export function envFromAmplifyOutputs(outputs) {
   return out;
 }
 
-export function collectRequiredEnvErrors(requiredList, env) {
+export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
   const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
-  const effectiveEnv = { ...outputsEnv, ...env };
+  const secretsEnv = envFromLocalSecrets(
+    typeof localSecrets === 'object' && localSecrets !== null ? localSecrets : {},
+  );
+  const effectiveEnv = { ...outputsEnv, ...secretsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
     const value = effectiveEnv[entry.name];
@@ -496,7 +500,7 @@ export function formatStrictEnvErrors(missing) {
     'Strict runtime config: missing required production environment variables:',
     ...lines,
     '',
-    'Set them in Amplify Console (branch main) and GitHub Actions repository secrets.',
+    'Set them in GitHub Actions repository secrets, local user-secrets (npm run secrets:sync-runtime), or process.env.',
     'See infrastructure/amplify-branch-env.manifest.json and docs/amplify-deployment-runbook.md',
   ].join('\n');
 }
