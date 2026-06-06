@@ -72,6 +72,7 @@ checks=(
   'g.doubleclick.net'
   'execute-api.us-east-2.amazonaws.com'
   "frame-src 'self' https://www.googletagmanager.com"
+  "https://bots.easy-peasy.ai"
   "object-src 'none'"
 )
 
@@ -79,7 +80,7 @@ for token in "${checks[@]}"; do
   if [[ ${CSP} != *"${token}"* ]]; then
     echo "error: CSP on ${BASE} missing expected token: ${token}" >&2
     echo "CSP (truncated): ${CSP:0:400}..." >&2
-    echo "hint: if repo customHttp.yml includes this token, run npm run amplify:sync-headers (Wiley AWS) then redeploy Amplify." >&2
+    echo "hint: for S3+CloudFront hosting, ensure the CloudFront dist has the Response Headers Policy attached (with CSP from customHttp.yml); see prior attach of policy 22d4bac1... or run equivalent aws cloudfront update. Amplify sync is historical only." >&2
     exit 1
   fi
 done

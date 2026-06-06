@@ -272,6 +272,7 @@ jobs:
           EASYPEASY_API_ENDPOINT: ${{ secrets.EASYPEASY_API_ENDPOINT }}
           EASYPEASY_CHAT_URL: ${{ secrets.EASYPEASY_CHAT_URL }}
           CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
+          GUESTBOOK_API_ENDPOINT: ${{ secrets.GUESTBOOK_API_ENDPOINT }}
 
       - name: Verify build output contains WebP reference
         run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)

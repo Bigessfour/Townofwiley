@@ -10,7 +10,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = REPO_ROOT / "infrastructure" / "aws-infrastructure.manifest.json"
 
-DEFAULT_APPSYNC_API_ID = "j7b2x3sh7rcezekekkxxiak7hi"
+DEFAULT_APPSYNC_API_ID = "x7poehudqvamneqni5s6e2cjxy"  # Gen 2; update to j7b2... only for legacy Gen1 log groups if needed
 DEFAULT_AMPLIFY_APP_ID = "d331voxr1fhoir"
 DEFAULT_OPS_ALERTS_TOPIC = "TownOfWileyOpsAlerts"
 DEFAULT_APPSYNC_LOGS_ROLE = "TownOfWileyAppSyncCloudWatchLogsRole"

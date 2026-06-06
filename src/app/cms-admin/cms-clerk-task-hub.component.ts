@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { TagModule } from 'primeng/tag';
 import {
   CLERK_CMS_TASKS,
-  clerkTaskEditorUrl,
   clerkTaskPreviewUrl,
   type ClerkCmsTask,
   type ClerkCmsTaskId,
@@ -27,14 +26,12 @@ export class CmsClerkTaskHubComponent {
 
   protected readonly tasks = CLERK_CMS_TASKS;
 
-  protected editorUrl(task: ClerkCmsTask): string {
-    return clerkTaskEditorUrl(
-      this.region(),
-      this.appId(),
-      this.branch(),
-      task.model,
-      this.fallbackEditorUrl(),
-    );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected editorUrl(_task: ClerkCmsTask): string {
+    // Use the fallbackEditorUrl provided (hardcoded to current AppSync in parent).
+    // Legacy Amplify app links (d331voxr1fhoir) + Gen1 AppSync (j7b2...) are legacy; editing via Gen 2 AppSync (x7poeh...).
+    // The passed appId/region/branch are legacy and ignored for editor links.
+    return this.fallbackEditorUrl();
   }
 
   protected previewUrl(task: ClerkCmsTask): string {

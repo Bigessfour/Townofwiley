@@ -64,7 +64,7 @@ if (repoNorm === liveNorm) {
 console.error(`error: Content-Security-Policy on ${base} does not match repo customHttp.yml`);
 console.error('');
 console.error(
-  'Remediation (Wiley AWS account): npm run amplify:sync-headers, then redeploy Amplify so CloudFront serves updated headers.',
+  'Remediation: for current S3+CF hosting, the CF Response Headers Policy (e.g. 22d4bac1-d4fc-4e81-bb48-ab7df3a37c59) must include the exact CSP from customHttp.yml. Update policy if customHttp changed (Amplify sync is historical).',
 );
 console.error('');
 const liveConnect = extractConnectSrc(liveNorm);

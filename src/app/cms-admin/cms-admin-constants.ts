@@ -5,7 +5,7 @@ export interface CmsAdminDocumentSection {
 }
 
 export const DOCUMENT_PUBLISHING_STEPS: string[] = [
-  'Click Edit content on a task card above, or open the content editor from Advanced (IT).',
+  'Click Edit content on a task card above (AppSync), or open the Content editor URL from Advanced (IT).',
   'Open PublicDocument and create or update a record (do not use the old in-page uploader).',
   'Use the exact section name from the table below.',
   'Save, open /documents on the live site, and hard-refresh to confirm.',
@@ -41,7 +41,7 @@ export const DOCUMENT_SECTIONS: CmsAdminDocumentSection[] = [
 ];
 
 export const DOCUMENT_PUBLISHING_CHECKS: string[] = [
-  'If the editor says access denied, ask IT to fix your login first.',
+  'If the AppSync editor says access denied or not authorized, ask IT to fix your staff login or permissions first.',
   'Keep file details in PublicDocument so the website and database stay together.',
   'Use Add meeting or event for calendar dates on the Meetings page.',
 ];
