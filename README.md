@@ -46,7 +46,7 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
 
 - **S3 bucket (origin):** `townofwiley-static-site` (us-east-2)
 - **CloudFront distribution:** ID `E1NZ3XCY5CYR1J` → `d34qrz3qxoppc5.cloudfront.net`
-  - Origin: S3 `townofwiley-static-site` (OAI configured)
+  - Origin: S3 `townofwiley-static-site` (OAI; OAC E1UXALBLRIDL2E prepared + bucket policy updated for migration; complete in console if needed)
   - Viewer request Function: `townofwiley-spa-redirect` (handles Angular SPA deep links / 403→index.html rewrite)
   - Aliases: `townofwiley.gov`, `www.townofwiley.gov`
   - ACM certificate: `arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90` (us-east-1)
@@ -58,13 +58,18 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
 - **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
 - **Deploy steps (manual after `npm run build` or CI artifact):**
+
   ```bash
-  # From repo root with AWS_PROFILE=townofwiley
+  # From repo root with AWS_PROFILE (see scripts/agent-aws-env.sh)
   npm run build
-  aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete
-  aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths "/*"
+  npm run deploy:site
+  # or: bash scripts/deploy-static-site.sh
+  # dry-run: npm run deploy:site:dry
   ```
+
+  The helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.
   **Critical:** Output must be at the S3 **bucket root** (no `browser/` prefix). CloudFront origin has no OriginPath.
+  Current hosting uses managed CachingOptimized policy + custom Response Headers Policy (CSP + security headers from customHttp.yml) + access logging. See manifest for IDs. OAC migration prepared (see SOT).
 
 - **Hardening (applied June 2026):** CustomErrorResponses configured on the distribution so 403/404 serve `/index.html` (HTTP 200). This prevents raw S3 XML errors from ever being shown to visitors again.
 
@@ -83,7 +88,7 @@ nslookup townofwiley.gov
 
 ### Historical Amplify Hosting (Decommissioned)
 
-Old app ID `d331voxr1fhoir`, old targets (`d3fmdu29qcwosh.cloudfront.net`, `*.amplifyapp.com`) are no longer used. The `amplify.yml`, many `scripts/sync-amplify-*` scripts, and `docs/AMPLIFY_HOSTING_SOT.md` are retained for build process reference and legacy context only. See deprecation notes in those files and in `docs/AWS_INFRASTRUCTURE_SOT.md`.
+Old app ID `d331voxr1fhoir`, old targets (`d3fmdu29qcwosh.cloudfront.net`, `*.amplifyapp.com`) are no longer used. The `amplify.yml`, many `scripts/sync-amplify-*` scripts, and `docs/AMPLIFY_HOSTING_SOT.md` are retained **only** for build process reference, CSP patterns (now also in CloudFront Response Headers Policy), and legacy context. Hosting sync scripts are no-ops for prod. See deprecation notes in `docs/AWS_INFRASTRUCTURE_SOT.md` and `docs/AMPLIFY_HOSTING_SOT.md`. Current: S3+CF with managed cache policy, custom security/CSP headers policy, and logging (see manifest + this section).
 
 ### Route 53 (unchanged)
 
@@ -431,7 +436,7 @@ What this means now:
 - Outbound Town mail through SES in `us-east-2` is available.
 - The live alias router is now configured to forward mail using `steve.mckitrick@townofwiley.gov` as the sender.
 - The remaining mail work is now primarily bucket hardening, rollout of the rest of the alias records, and live end-to-end mail validation.
-- The `EmailAlias` backend model is now deployed on the live AppSync API and its current main-environment DynamoDB table is `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main`.
+- The `EmailAlias` backend model is now deployed on the live AppSync API (Gen 2 x7poehudqvamneqni5s6e2cjxy-NONE tables). Legacy Gen 1 table name was `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main`. See gen2-production-bindings.json and migration plan.
 - The alias router now supports split-region operation so inbound processing can run in an SES-receiving region such as `us-east-1` while forwarded outbound mail continues through the verified `us-east-2` SES sender.
 - The first-pass alias router infrastructure is now deployed with Lambda `TownOfWileyEmailAliasRouter`, IAM role `TownOfWileyEmailAliasRouterRole`, S3 bucket `townofwiley-email-alias-570912405222-us-east-1`, and active SES receipt rule set `TownOfWileyAliasForwarding` in `us-east-1`.
 - Route 53 now publishes `townofwiley.gov MX 10 inbound-smtp.us-east-1.amazonaws.com` and the change is fully in sync.

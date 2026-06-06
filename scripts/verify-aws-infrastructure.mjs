@@ -80,7 +80,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
 
 const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 90;
-const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
+const appsyncApiId = manifest.appsync?.apiId ?? 'x7poehudqvamneqni5s6e2cjxy'; // Gen 2 default (Gen 1 j7b2 legacy)
 const amplifyBackendLogGroups = manifest.cloudWatch?.amplifyBackendLogGroups ?? [
   '/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF',
 ];
@@ -391,6 +391,74 @@ if (!skipS3) {
       fail(`S3 ${bucket.name}: Block Public Access not fully enabled`);
     } else {
       pass(`S3 ${bucket.name}: Block Public Access OK`);
+    }
+  }
+}
+
+// Hosting (S3 + CloudFront) best-practice checks (current post-migration config)
+const h = manifest.hosting;
+if (h && h.cloudFrontDistributionId && !skipS3) {
+  const dist = tryAwsJson(
+    `cloudfront get-distribution --id ${h.cloudFrontDistributionId}`,
+    'us-east-1',
+  );
+  if (!dist?.Distribution) {
+    fail(`CloudFront dist ${h.cloudFrontDistributionId} not found`);
+  } else {
+    const dc = dist.Distribution.DistributionConfig || {};
+    const db = dc.DefaultCacheBehavior || {};
+    pass(`CloudFront ${h.cloudFrontDistributionId} exists and enabled=${dc.Enabled}`);
+    if (
+      dc.Aliases?.Items?.includes('townofwiley.gov') &&
+      dc.Aliases?.Items?.includes('www.townofwiley.gov')
+    ) {
+      pass('CloudFront aliases include townofwiley.gov + www');
+    } else {
+      warn('CloudFront aliases missing expected custom domains');
+    }
+    if (db.CachePolicyId === h.cachePolicyId) {
+      pass(`CloudFront using managed CachePolicy ${h.cachePolicyId}`);
+    } else {
+      warn(`CloudFront CachePolicyId ${db.CachePolicyId} (expected ${h.cachePolicyId})`);
+    }
+    if (db.ResponseHeadersPolicyId === h.responseHeadersPolicyId) {
+      pass(`CloudFront using ResponseHeadersPolicy ${h.responseHeadersPolicyId}`);
+    } else {
+      warn(
+        `CloudFront ResponseHeadersPolicyId ${db.ResponseHeadersPolicyId} (expected ${h.responseHeadersPolicyId})`,
+      );
+    }
+    if (dc.Logging?.Enabled) {
+      pass(`CloudFront logging enabled to ${dc.Logging.Bucket}`);
+    } else {
+      warn('CloudFront logging not enabled');
+    }
+    const origin = (dc.Origins?.Items || [])[0] || {};
+    if (origin.OriginAccessControlId) {
+      pass(`CloudFront origin using OAC ${origin.OriginAccessControlId}`);
+    } else if (origin.S3OriginConfig?.OriginAccessIdentity) {
+      pass('CloudFront origin using legacy OAI (OAC migration prepared)');
+    }
+  }
+
+  // Static bucket hosting checks (beyond the generic s3Buckets list)
+  const staticBpa = tryAwsJson(`s3api get-public-access-block --bucket ${h.s3Bucket}`, h.region);
+  if (staticBpa?.PublicAccessBlockConfiguration) {
+    const c = staticBpa.PublicAccessBlockConfiguration;
+    if (c.BlockPublicAcls && c.IgnorePublicAcls && c.BlockPublicPolicy && c.RestrictPublicBuckets) {
+      pass(`Static site bucket ${h.s3Bucket} full BPA OK`);
+    } else {
+      fail(`Static site bucket ${h.s3Bucket} missing full public access blocks`);
+    }
+  }
+  const policy = tryAwsJson(`s3api get-bucket-policy --bucket ${h.s3Bucket}`, h.region);
+  if (policy?.Policy) {
+    const polStr =
+      typeof policy.Policy === 'string' ? policy.Policy : JSON.stringify(policy.Policy);
+    if (polStr.includes('cloudfront.amazonaws.com') || polStr.includes('Origin Access Control')) {
+      pass(`Static site bucket policy grants CloudFront (OAC/OAI)`);
+    } else {
+      warn('Static site bucket policy may not grant CF access');
     }
   }
 }

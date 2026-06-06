@@ -1,6 +1,6 @@
 # AppSync CMS API key rotation
 
-Public CMS reads use an **AppSync API key** embedded in `runtime-config.js` at build time. Keys expire (current API `townofwiley-main`, id `j7b2x3sh7rcezekekkxxiak7hi`). Rotate before expiry so the site does not fall back to bundled content.
+Public CMS reads use an **AppSync API key** embedded in `runtime-config.js` at build time. Keys expire (current Gen 2 API `townofwiley`, id `x7poehudqvamneqni5s6e2cjxy`). Gen 1 id `j7b2x3sh7rcezekekkxxiak7hi` is legacy. Rotate before expiry so the site does not fall back to bundled content.
 
 **Related:** [amplify-deployment-runbook.md](./amplify-deployment-runbook.md), [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md), [infrastructure/amplify-branch-env.manifest.json](../infrastructure/amplify-branch-env.manifest.json).
 
@@ -18,18 +18,18 @@ Confirm the SNS email subscription in your inbox after the first deploy.
 
 ## Rotation procedure
 
-| Step | Action                                                                                                                                       |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | List keys: `aws appsync list-api-keys --api-id j7b2x3sh7rcezekekkxxiak7hi --region us-east-2`                                                |
-| 2    | Create replacement: `aws appsync create-api-key --api-id j7b2x3sh7rcezekekkxxiak7hi --expires $(date -u -v+365d +%s)` (macOS) or use Console |
-| 3    | Update **Amplify Console → main → Environment variables**: `APPSYNC_CMS_API_KEY` = new value                                                 |
-| 4    | Update **GitHub repository secrets** with the same name (keeps CI green)                                                                     |
-| 5    | Redeploy `main` (Amplify build must pass strict runtime config)                                                                              |
-| 6    | Verify live config: `curl -s https://townofwiley.gov/runtime-config.js` — `cms.appSync.apiKey` non-empty (do not paste key into tickets)     |
-| 7    | Verify GraphQL: `npm run verify:runtime-config-cms`                                                                                          |
-| 8    | Studio: confirm or create an **Event**; spot-check https://townofwiley.gov/meetings#calendar                                                 |
-| 9    | After 24–48h bake-in, delete the old key: `aws appsync delete-api-key --api-id … --id <old-key-id>`                                          |
-| 10   | Log evidence (date, job id, verifier) in your ops ticket                                                                                     |
+| Step | Action                                                                                                                                        |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | List keys: `aws appsync list-api-keys --api-id x7poehudqvamneqni5s6e2cjxy --region us-east-2` (Gen 2; use j7b2 only if targeting legacy Gen1) |
+| 2    | Create replacement: `aws appsync create-api-key --api-id x7poehudqvamneqni5s6e2cjxy --expires $(date -u -v+365d +%s)` (macOS) or use Console  |
+| 3    | Update **Amplify Console → main → Environment variables**: `APPSYNC_CMS_API_KEY` = new value                                                  |
+| 4    | Update **GitHub repository secrets** with the same name (keeps CI green)                                                                      |
+| 5    | Redeploy `main` (Amplify build must pass strict runtime config)                                                                               |
+| 6    | Verify live config: `curl -s https://townofwiley.gov/runtime-config.js` — `cms.appSync.apiKey` non-empty (do not paste key into tickets)      |
+| 7    | Verify GraphQL: `npm run verify:runtime-config-cms`                                                                                           |
+| 8    | Studio: confirm or create an **Event**; spot-check https://townofwiley.gov/meetings#calendar                                                  |
+| 9    | After 24–48h bake-in, delete the old key: `aws appsync delete-api-key --api-id … --id <old-key-id>`                                           |
+| 10   | Log evidence (date, job id, verifier) in your ops ticket                                                                                      |
 
 ## Completeness checks (post-rotation)
 

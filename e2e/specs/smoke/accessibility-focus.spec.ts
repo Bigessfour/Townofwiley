@@ -113,13 +113,14 @@ test.describe('accessibility and focus behavior', () => {
 
     await homePage.goto();
 
-    const spanishButton = homePage.page.locator('#site-language-es');
+    // Use role+name (resilient to id changes/duplication in switchers); .first() for the primary (header) instance.
+    const spanishButton = homePage.page.getByRole('button', { name: /ES|Español/i }).first();
     await expect(spanishButton).toBeVisible();
     await spanishButton.focus();
     await homePage.page.keyboard.press('Space');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', 'es');
 
-    const englishButton = homePage.page.locator('#site-language-en');
+    const englishButton = homePage.page.getByRole('button', { name: /EN|English/i }).first();
     await expect(englishButton).toBeVisible();
     await englishButton.focus();
     await homePage.page.keyboard.press('Space');
