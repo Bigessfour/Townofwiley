@@ -60,7 +60,7 @@ describe('runtime config helpers', () => {
       'us-east-2:f97d3d15-c898-4993-b547-4a8babf1b047',
     );
     expect(configureArg.API.GraphQL.endpoint).toBe(
-      'https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql',
+      'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
     );
     expect(configureArg.API.GraphQL.apiKey).toBe('');
     expect(configureArg.Storage.S3.bucket).toBe(
