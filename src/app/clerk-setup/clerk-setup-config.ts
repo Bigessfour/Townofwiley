@@ -5,8 +5,6 @@ interface RuntimeClerkSetupConfig {
   awsRegion: string;
   awsConsoleUrl: string;
   studioUrl: string;
-  cfDistributionId?: string;
-  s3Bucket?: string;
 }
 
 interface RuntimeConfigShape {
@@ -16,9 +14,8 @@ interface RuntimeConfigShape {
 const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
-/** Legacy Amplify Hosting app ID (deleted June 2026 after S3+CloudFront migration). Retained only for reference in runtime/secrets. */
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
-/** Current prod AppSync (Gen 2 backend, used for CMS models like Event, AlertBanner etc.). Gen 1 (j7b2...) is legacy. */
+/** Current production Gen 2 AppSync ID for CMS (the live backend after Gen1 decommission). */
 const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
 const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
@@ -36,11 +33,7 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-/**
- * Legacy Amplify Data Manager link (for historical app ID).
- * For current backend (Gen 2 AppSync x7poeh...), falls back to AppSync console
- * (use Queries tab or schema to manage Event, Announcement, AlertBanner, etc. models). Gen 1 j7b2 is legacy.
- */
+/** Gen 2 Amplify Console → Data manager (replaces Gen 1 hosted Studio). */
 export function buildAmplifyConsoleDataManagerUrl(
   region: string,
   appId: string,
@@ -51,7 +44,10 @@ export function buildAmplifyConsoleDataManagerUrl(
     return fallbackUrl;
   }
 
-  // Legacy/deleted hosting app: use AppSync (Gen 2) console for CMS model editing instead.
+  // The old Amplify Hosting app d331voxr1fhoir was deleted June 2026.
+  // All "Edit content" buttons and Content editor URLs must point at the live
+  // Gen 2 AppSync console (Queries) instead of the old /amplify/.../data paths
+  // that produce "App d331voxr1fhoir not found".
   if (appId === 'd331voxr1fhoir') {
     return `${CURRENT_APPSYNC_CONSOLE_BASE}/queries`;
   }
@@ -61,9 +57,8 @@ export function buildAmplifyConsoleDataManagerUrl(
 }
 
 /**
- * Best-effort deep link to a model.
- * For legacy hosting app, points to Gen 2 AppSync queries (filter by model name or use create* mutations).
- * Gen 1 backend (j7b2...) legacy only.
+ * Best-effort deep link to a model in Amplify Console Data manager.
+ * If the console UI changes, callers should fall back to the branch data root.
  */
 export function buildAmplifyConsoleDataManagerModelUrl(
   region: string,
@@ -78,8 +73,9 @@ export function buildAmplifyConsoleDataManagerModelUrl(
     return base;
   }
   if (appId === 'd331voxr1fhoir') {
-    // For AppSync (Gen 2), user can search schema or use queries for the model.
-    return base; // points to /queries
+    // For the legacy app we already returned the AppSync queries page; there is
+    // no equivalent /models/ deep link in the same console UI.
+    return base;
   }
   return `${base}/models/${encodeURIComponent(trimmed)}`;
 }
@@ -116,7 +112,5 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
       buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
-    cfDistributionId: trimOrEmpty(clerkSetupConfig.cfDistributionId),
-    s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket),
   };
 }

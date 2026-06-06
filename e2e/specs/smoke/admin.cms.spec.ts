@@ -1,9 +1,12 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Current CMS editor link (Gen 2 AppSync queries for models; Gen 1 j7b2... legacy, hosting d331 deleted). */
+/** Current "Edit content" link pattern used by task cards.
+ * All such links must resolve to the live Gen 2 AppSync console (the old d331
+ * Amplify Hosting app was deleted and its URLs 404 with "App d331voxr1fhoir not found").
+ */
 const CONSOLE_MODEL_HREF =
-  /us-east-2\.console\.aws\.amazon\.com\/appsync\/home.*x7poehudqvamneqni5s6e2cjxy.*queries/;
+  /appsync\/home\?region=us-east-2#\/x7poehudqvamneqni5s6e2cjxy\/v1\/queries/;
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -177,7 +180,6 @@ test.describe('cms admin', () => {
         name: /show step-by-step/i,
       })
       .click();
-    // Use .first() (strict-safe): glossary dt + step li both mention it after our label expansions; test just wants the mention visible in guide.
-    await expect(homePage.page.getByText(/Title \(Spanish\)/i).first()).toBeVisible();
+    await expect(homePage.page.getByText(/Title \(Spanish\)/i)).toBeVisible();
   });
 });

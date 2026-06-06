@@ -121,27 +121,22 @@ export class CmsAdmin {
     Boolean(this.appSyncRuntimeConfig.apiEndpoint) && Boolean(this.appSyncRuntimeConfig.apiKey);
 
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
-  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId; // d331 legacy hosting; see Gen 2 cutover notes
+  protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
-  // Hardcode current good editor URL (Gen 2 AppSync) to avoid any legacy references.
-  // Legacy: d331voxr1fhoir (hosting deleted), Gen1 AppSync j7b2x3sh7rcezekekkxxiak7hi; current is Gen 2 x7poehudqvamneqni5s6e2cjxy.
+  // Hard-code the current working editor URL (Gen 2 AppSync console for the live
+  // backend). This guarantees that every "Edit content" button, the IT snapshot
+  // "Open content editor" link, the upload panels, and the URL shown in the
+  // Advanced section always produce a working link instead of the deleted
+  // d331voxr1fhoir Amplify Studio/Data Manager URL.
   protected readonly dataManagerUrl =
     'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
-  protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId || 'E1NZ3XCY5CYR1J';
-  protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket || 'townofwiley-static-site';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Content editor URL (Gen 2 AppSync for current CMS models; Gen 1 legacy)',
+      label: 'Content editor URL',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
-    },
-    {
-      key: 'hosting',
-      label: 'Current hosting (S3 + CloudFront)',
-      value: `CF: ${this.cfDistributionId} | S3: ${this.s3Bucket}`,
-      copyValue: this.cfDistributionId,
     },
     {
       key: 'region',
@@ -151,8 +146,7 @@ export class CmsAdmin {
     },
     {
       key: 'amplify-app',
-      label:
-        'Legacy Amplify app id (hosting deleted) + Gen 1 AppSync (j7b2... legacy); current Gen 2',
+      label: 'Amplify app id',
       value: this.amplifyAppId,
       copyValue: this.amplifyAppId,
     },
