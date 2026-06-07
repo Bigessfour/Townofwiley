@@ -13,7 +13,7 @@ alwaysApply: true
 - Use repo-local files: .instructions.md, .github/skills/TownOfWiley-Dev/SKILL.md, .github/instructions/*.instructions.md.
 
 ## Mandatory Practices
-- **Node.js**: Use **24.x LTS only** — repo pins **`24.16.0`** in `.nvmrc` (Volta/mise/asdf, Amplify, GitHub Actions); `engines` allows **`>=24.15.0 <25.0.0`**. See [`docs/NODE_VERSION.md`](../docs/NODE_VERSION.md). **Node 25+ is unsupported.** On Windows/Cursor agents, put **`NVM_SYMLINK`** before other `node` on PATH (`scripts/setup-repo-node.ps1`). Avoid `SKIP_NODE_VERSION_CHECK` except emergencies.
+- **Node.js**: Use **24.x LTS only** — repo pins **`24.16.0`** in `.nvmrc` (Volta/mise/asdf, Amplify, GitHub Actions); `engines` allows **`>=24.15.0 <25.0.0`**. See [`docs/NODE_VERSION.md`](../docs/NODE_VERSION.md). **Node 25+ is unsupported.** On **Windows**, prefer **WSL Ubuntu** terminals (`.vscode/settings.json` default); run **`bash scripts/setup-repo-node.sh`** once for nvm + Node 24 in WSL. PowerShell fallback: **`.\scripts\setup-repo-node.ps1`** or put **`NVM_SYMLINK`** before Cursor’s bundled Node on PATH. Avoid `SKIP_NODE_VERSION_CHECK` except emergencies.
 - **Angular**: Standalone APIs, signals, OnPush, native control flow over *ngIf etc. Avoid ngClass/ngStyle; use [class] and [style] bindings. Keep templates semantic and accessible.
 - **Changes**: Minimal, match existing src/ patterns and structure. Consult MCP before editing.
 - **Formatting & Quality**: Run Trunk (trunk check --fix) before commits. Use existing npm scripts for test/build/lint.
@@ -26,7 +26,7 @@ alwaysApply: true
 
 ## Cursor agent terminal (Town of Wiley)
 - If Agent terminal sessions are **read-only**, **stall**, or **ignore input**, turn on **Legacy Terminal Tool**: **Cursor → Settings → Cursor Settings → Chat → Inline Editing & Terminal → Legacy Terminal Tool** (then reload the window if needed). This is a Cursor-side switch, not `angular.json`.
-- Agent-invoked shells may **not** inherit `.vscode/settings.json` **`terminal.integrated.env`**. On macOS + Homebrew, prefix **`PATH="/opt/homebrew/opt/node@24/bin:$PATH"`** (Intel: `/usr/local/opt/node@24/bin`). On Windows + nvm-windows, run **`.\scripts\setup-repo-node.ps1`** or **`$env:Path = "$env:NVM_SYMLINK;$env:Path"`** after **`nvm use`** so Cursor’s bundled Node 22/25 is not first on PATH.
+- Agent-invoked shells may **not** inherit `.vscode/settings.json` **`terminal.integrated.env`**. On macOS + Homebrew, prefix **`PATH="/opt/homebrew/opt/node@24/bin:$PATH"`** (Intel: `/usr/local/opt/node@24/bin`). On **Windows**, default integrated/agent terminals use **WSL** — run **`bash scripts/setup-repo-node.sh`** in Ubuntu first. PowerShell-only fallback: **`.\scripts\setup-repo-node.ps1`** or **`$env:Path = "$env:NVM_SYMLINK;$env:Path"`** after **`nvm use`**.
 
 ## Cursor Agent Auto-Approval & Execution Policy (Composer / Agent Chat)
 

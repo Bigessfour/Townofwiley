@@ -18,7 +18,7 @@
     />
   }
 
-  @if ((cmsContentLoadFailed() || cmsUsingCachedSnapshot()) && !cmsLoadFallbackDismissed()) {
+  @if ((cmsContentLoadFailed() || cmsLoadError()) && !cmsLoadFallbackDismissed()) {
     <section
       class="cms-load-status"
       role="status"

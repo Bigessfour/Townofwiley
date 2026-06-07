@@ -636,7 +636,7 @@ Production recommendation:
    - NWS_PROXY_ENDPOINT = your-lambda-function-url.lambda-url.us-east-2.on.aws/
    - NWS_ALLOW_BROWSER_FALLBACK = true
 2. Lambda Console → NWS proxy function → Environment variables:
-   - NWS_USER_AGENT = townofwiley.gov/1.0 (your-email@domain.com)
+   - NWS_USER_AGENT = `townofwiley.gov/1.0 (your-email@domain.com)`
 3. Lambda → Function URL → CORS: clear Allow Origins (let code handle it)
 4. Run: npm run verify:nws-weather-proxy-aws
 5. Redeploy Amplify (forces runtime-config.js update)

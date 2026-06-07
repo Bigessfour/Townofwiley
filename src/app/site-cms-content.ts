@@ -692,6 +692,8 @@ export class LocalizedCmsContentStore {
   private readonly loadErrorState = signal<string | null>(null);
   private readonly contentSourceState = signal<CmsContentSource>('bundled');
   private readonly extendedLoadState = signal<CmsExtendedLoadState>('idle');
+  /** True after `/cms-snapshot.json` or localStorage hydrate; used when live AppSync fails. */
+  private offlineSnapshotApplied = false;
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -778,7 +780,6 @@ export class LocalizedCmsContentStore {
     const hydratedOffline = await this.hydrateFromOfflineSnapshots();
     if (hydratedOffline) {
       this.loadState.set('studio');
-      this.contentSourceState.set('cached');
     }
 
     if (this.hasCmsCredentials()) {
@@ -880,7 +881,7 @@ export class LocalizedCmsContentStore {
       this.persistSnapshot();
       void this.loadExtendedContent();
     } catch (error) {
-      if (this.restorePersistedSnapshot()) {
+      if (this.restorePersistedSnapshot() || this.offlineSnapshotApplied) {
         this.loadState.set('studio');
         this.contentSourceState.set('cached');
         this.loadErrorState.set(this.readCachedFallbackMessage());
@@ -1057,10 +1058,16 @@ export class LocalizedCmsContentStore {
   private async hydrateFromOfflineSnapshots(): Promise<boolean> {
     const buildSnapshotLoaded = await this.hydrateFromBuildSnapshot();
     if (buildSnapshotLoaded) {
+      this.offlineSnapshotApplied = true;
       return true;
     }
 
-    return this.restorePersistedSnapshot();
+    if (this.restorePersistedSnapshot()) {
+      this.offlineSnapshotApplied = true;
+      return true;
+    }
+
+    return false;
   }
 
   private async hydrateFromBuildSnapshot(): Promise<boolean> {

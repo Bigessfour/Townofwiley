@@ -12,7 +12,8 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "!/runtime-config.js"
         ]
       }
     },
@@ -34,16 +35,6 @@
         "maxSize": 20,
         "maxAge": "1h",
         "timeout": "5s"
-      }
-    },
-    {
-      "name": "runtime-config",
-      "urls": ["/runtime-config.js"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 10,
-        "maxAge": "4h",
-        "timeout": "10s"
       }
     }
   ],

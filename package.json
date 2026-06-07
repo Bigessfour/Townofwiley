@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "setup:node": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup-repo-node.ps1",
+    "setup:node:wsl": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup-repo-node-wsl.ps1",
     "prestart": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config",
     "start": "ng serve",
     "start:polling": "node scripts/ensure-node-version.mjs && ng serve --poll=2000",
@@ -115,6 +117,7 @@
     "deploy:ansible": "ansible-playbook ansible/playbooks/site.yml --tags static-site",
     "deploy:ansible:dry": "ansible-playbook ansible/playbooks/site.yml --tags static-site -e deploy_dry_run=true",
     "deploy:guestbook": "python scripts/deploy-guestbook-backend.py",
+    "deploy:static-site": "node scripts/deploy-static-site.mjs",
     "deploy:appsync-key-reminder": "python scripts/deploy-appsync-key-rotation-reminder.py",
     "assets:hero": "node scripts/convert-hero.mjs",
     "ansible:deploy": "bash scripts/ansible-deploy.sh",
