@@ -74,9 +74,7 @@ export class StaffAuthService {
         forceRefresh: options?.forceRefresh ?? false,
       });
       const accessToken = session.tokens?.accessToken?.toString() ?? null;
-      const idGroups = this.readGroupsFromToken(session.tokens?.idToken?.payload);
-      const accessGroups = this.readGroupsFromToken(session.tokens?.accessToken?.payload);
-      const groups = idGroups.length ? idGroups : accessGroups;
+      const groups = this.resolveStaffGroups(session.tokens);
       const isStaff = groups.includes(this.staffGroup);
 
       this.accessTokenValue.set(accessToken);
@@ -137,9 +135,8 @@ export class StaffAuthService {
 
   /** After OAuth callback, load session and verify Staff group membership. */
   async completeHostedSignIn(): Promise<void> {
-    await this.waitForAuthenticatedSession();
-    await this.refreshSession({ forceRefresh: true });
-    await this.assertStaffSession();
+    await this.waitForAuthenticatedSession(15, 300);
+    await this.waitForStaffSession();
   }
 
   /** Loads identity-pool credentials for Staff S3 uploads after Cognito sign-in. */
@@ -195,7 +192,7 @@ export class StaffAuthService {
         `Additional sign-in steps are required (${result.nextStep.signInStep}). Contact IT for staff account setup.`,
       );
     }
-    await this.assertStaffSession();
+    await this.waitForStaffSession();
     return 'complete';
   }
 
@@ -207,7 +204,7 @@ export class StaffAuthService {
         `Additional sign-in steps are required (${result.nextStep.signInStep}). Contact IT for staff account setup.`,
       );
     }
-    await this.assertStaffSession();
+    await this.waitForStaffSession();
   }
 
   /** @deprecated Prefer beginStaffHostedSignIn for UI flows. */
@@ -245,6 +242,26 @@ export class StaffAuthService {
       confirmationCode: input.confirmationCode.trim(),
       newPassword: input.newPassword,
     });
+  }
+
+  /**
+   * Polls until cognito:groups includes Staff or times out.
+   * OAuth Hosted UI can return an access token before group claims are present on either token.
+   */
+  async waitForStaffSession(maxAttempts = 20, delayMs = 250): Promise<void> {
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await this.refreshSession({ forceRefresh: attempt > 0 });
+      if (this.isStaff()) {
+        return;
+      }
+      if (!this.isAuthenticated()) {
+        break;
+      }
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+    await this.assertStaffSession();
   }
 
   private async assertStaffSession(): Promise<void> {
@@ -295,5 +312,13 @@ export class StaffAuthService {
       return [raw.trim()];
     }
     return [];
+  }
+
+  private resolveStaffGroups(
+    tokens: { idToken?: { payload?: Record<string, unknown> }; accessToken?: { payload?: Record<string, unknown> } } | undefined,
+  ): string[] {
+    const idGroups = this.readGroupsFromToken(tokens?.idToken?.payload);
+    const accessGroups = this.readGroupsFromToken(tokens?.accessToken?.payload);
+    return [...new Set([...idGroups, ...accessGroups])];
   }
 }
