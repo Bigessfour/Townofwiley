@@ -606,6 +606,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
     topTasksBody: '',
+    // Note: these can now be overridden at runtime via SiteCopy CMS records (keys "topTasksKicker", "topTasksHeading").
+    // The component applies getDynamicLabel() for the live values shown to residents.
     featureHubKicker: 'Town features',
     featureHubHeading: 'Open the town section you need',
     featureHubBody: 'Weather, notices, meetings, services, records, and Town Hall contacts.',
@@ -2018,7 +2020,26 @@ export class App {
   });
   protected readonly communityFacts = computed(() => this.appCopy().communityFacts);
   private readonly logging = inject(LoggingService);
+
+  // Dynamic CMS-backed overrides for frequently changed UI copy (SiteCopy model).
+  // Falls back to bundled APP_COPY when no active CMS row for the key.
+  // Example of closing the "homepage chrome / top tasks" gap.
+  private getDynamicLabel(key: string, fallback: string): string {
+    const override = this.cmsStore.getSiteCopy(key);
+    if (!override) return fallback;
+    return this.siteLanguage() === 'es' && override.es ? override.es : override.en;
+  }
+
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
+
+  // Live (CMS-overridable) values for the top "How do I..." section.
+  protected readonly topTasksKicker = computed(() =>
+    this.getDynamicLabel('topTasksKicker', this.appCopy().topTasksKicker),
+  );
+  protected readonly topTasksHeading = computed(() =>
+    this.getDynamicLabel('topTasksHeading', this.appCopy().topTasksHeading),
+  );
+
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
     const alertBanner = this.alertBanner();

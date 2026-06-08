@@ -25,9 +25,13 @@
         "PLAYWRIGHT_BROWSERS_PATH": ".playwright-browsers"
       }
     },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
     "townofwiley-rag": {
-      "command": "node",
-      "args": ["scripts/rag-mcp.mjs"]
+      "command": "wsl",
+      "args": ["bash", "-c", "cd \"$(wslpath -u '$PWD')\" && node scripts/rag-mcp.mjs"]
     }
   }
 }

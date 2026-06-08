@@ -1,0 +1,30 @@
+---
+# Town of Wiley — ansible-lint configuration
+# Advisory only (see `npm run ansible:lint` and the redhat.ansible VS Code extension).
+# The project uses a thin orchestration model: roles primarily delegate to
+# existing scripts (deploy-*.py, deploy-static-site.sh) and the AWS CLI under
+# the townofwiley profile. Pure Ansible modules (amazon.aws etc.) are optional/future.
+
+profile: production
+
+# We intentionally shell out for complex, well-tested deploy logic.
+# Warn (do not fail) on common patterns that are by design here.
+warn_list:
+  - command-instead-of-module
+  - no-changed-when
+  - risky-shell-pipe
+  - name[template]
+
+# Ignore generated / non-Ansible paths
+exclude_paths:
+  - .git/
+  - node_modules/
+  - dist/
+  - amplify/
+  - gen1-amplify-backend/
+  - .playwright-browsers/
+  - infrastructure/*/tests/
+
+# Keep rules practical for localhost + AWS CLI driven playbooks
+# (all hosts use ansible_connection: local)
+skip_list: []

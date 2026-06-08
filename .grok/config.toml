@@ -37,6 +37,17 @@ enabled = true
 startup_timeout_sec = 30
 tool_timeout_sec = 180
 
+# Chrome DevTools for agents (MCP server for Chrome AI / DevTools integration).
+# See https://developer.chrome.com/docs/devtools/agents/get-started
+# and the Chrome 149 "DevTools for agents" announcement.
+# Allows agents to inspect, emulate, audit (Lighthouse), debug, etc. a live Chrome instance.
+[mcp_servers."chrome-devtools"]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 180
+
 [mcp_servers.figma]
 url = "https://mcp.figma.com/mcp"
 enabled = true
@@ -44,8 +55,10 @@ startup_timeout_sec = 15
 tool_timeout_sec = 120
 
 [mcp_servers.townofwiley-rag]
-command = "node"
-args = ["scripts/rag-mcp.mjs"]
+# WSL launch required for proper Linux environment (Node + any future Python venv/rg behavior).
+# This ensures the RAG MCP is instantly available and reliable from Windows hosts using WSL terminals.
+command = "wsl"
+args = ["bash", "-c", "cd \"$(wslpath -u '$PWD')\" && node scripts/rag-mcp.mjs"]
 enabled = true
-startup_timeout_sec = 60
+startup_timeout_sec = 90
 tool_timeout_sec = 120

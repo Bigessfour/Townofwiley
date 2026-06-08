@@ -85,6 +85,12 @@
       "tableName": "ExternalNewsLink-x7poehudqvamneqni5s6e2cjxy-NONE",
       "itemCount": 2,
       "publicApiKeyRead": true
+    },
+    {
+      "model": "SiteCopy",
+      "tableName": "SiteCopy-x7poehudqvamneqni5s6e2cjxy-NONE",
+      "itemCount": 0,
+      "publicApiKeyRead": true
     }
   ],
   "capabilities": {
@@ -98,7 +104,8 @@
       "LeadershipRosterEntry",
       "Business",
       "PublicDocument",
-      "ExternalNewsLink"
+      "ExternalNewsLink",
+      "SiteCopy"
     ],
     "staffOnlyModels": ["EmailAlias"],
     "heroFields": [

@@ -2,28 +2,34 @@
 
 Semantic search over this repository for **IDE agents** (Cursor, VS Code Copilot, Grok). Embeddings run locally; **generation stays with your IDE model** (Claude, GPT, Grok, etc.).
 
-## Architecture
+## Architecture (current high-availability local implementation)
 
 | Layer        | Technology                                                                 |
 | ------------ | -------------------------------------------------------------------------- |
-| Embeddings   | [sentence-transformers](https://www.sbert.net/) — `BAAI/bge-small-en-v1.5` |
-| Vector store | [ChromaDB](https://www.trychroma.com/) — `.rag/vectorstore/` (gitignored)  |
-| Agent access | MCP `townofwiley-rag` or `npm run rag:query`                               |
+| Search       | ripgrep (primary when available) + Node lexical + path/structural scoring  |
+| Storage      | In-memory per-process (instant startup); optional manifest for incremental |
+| Agent access | MCP `townofwiley-rag` (via WSL launch) or `npm run rag:query`              |
 
-No Ollama required. Optional future swap: same Chroma store, different embedder.
+**Design goals (per user requirements)**: Local only (never deployed), WSL terminal environment, "instantly available" with no failing tool calls or long first-time setup, reusable via MCP tool + best-practice skill.
 
-## First-time setup
+The original Python sentence-transformers + ChromaDB vision (see previous version of this doc) can be restored later by re-adding `rag/requirements.txt` + `rag/tow_rag/` package. The current JS implementation delivers the required reliability and zero-setup experience while covering the same high-signal paths.
 
-Requires **Python 3.11+** (Trunk in this repo uses 3.14).
+## First-time setup (current reliable mode)
+
+No Python or long setup required for instant availability.
 
 ```bash
-npm run rag:setup      # creates rag/.venv, installs deps (~1–2 min)
-npm run rag:index      # first index ~2–5 min (downloads embedding model once)
+# (optional) one-time environment sanity in WSL
+npm run rag:setup
+npm run rag:status          # should report "ok (JS local)" + file count
 npm run rag:query -- "How does staff admin login work?"
-npm run rag:status
 ```
 
-Reload Cursor / VS Code after MCP config changes so **`townofwiley-rag`** appears.
+The MCP server (`townofwiley-rag`) starts in <1s once the config uses the WSL launch (see `.grok/config.toml`).
+
+Reload Cursor / VS Code / Grok after MCP config changes so **`townofwiley-rag`** appears in the tool list.
+
+(If you want the heavier original Python `BAAI/bge-small-en-v1.5` + Chroma version, restore the requirements + tow_rag package and update the wrappers.)
 
 ## npm scripts
 
@@ -77,4 +83,6 @@ High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/`, `rag/
 
 ## Implementation
 
-Python package: [`rag/tow_rag/`](../rag/tow_rag/). Wrappers: [`scripts/rag-setup.mjs`](../scripts/rag-setup.mjs), [`scripts/rag-run.mjs`](../scripts/rag-run.mjs), [`scripts/rag-mcp.mjs`](../scripts/rag-mcp.mjs).
+- Wrappers (Node, WSL-launched): [`scripts/rag-mcp.mjs`](../scripts/rag-mcp.mjs) (MCP stdio server), [`scripts/rag-run.mjs`](../scripts/rag-run.mjs), [`scripts/rag-setup.mjs`](../scripts/rag-setup.mjs).
+- Self-description for the RAG (indexed): [`rag/tow_rag/self-description.md`](../rag/tow_rag/self-description.md).
+- The implementation is intentionally lightweight JS + ripgrep so the tool is **always available** the moment the MCP server starts (no venv, no model download, no multi-minute `rag:index` required for basic use).

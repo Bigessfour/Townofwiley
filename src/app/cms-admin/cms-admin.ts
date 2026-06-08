@@ -6,8 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { buildAppSyncQueriesConsoleUrl } from '../clerk-setup/appsync-console-url';
-import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
+import { buildAmplifyConsoleDataManagerUrl, getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -126,8 +125,15 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // Gen 1 AppSync Queries console for Advanced (IT) only — clerks use in-app forms on task cards.
-  protected readonly dataManagerUrl = buildAppSyncQueriesConsoleUrl(this.awsRegion);
+  // Primary "Content editor URL" for the clerk task hub. Uses the (fixed) Gen 2 Data manager deep link
+  // under the Amplify app/branch. Advanced users can still open the AppSync Queries tab from the link
+  // or by appending /queries in Console. In-app forms cover the most common clerk tasks.
+  protected readonly dataManagerUrl = buildAmplifyConsoleDataManagerUrl(
+    this.awsRegion,
+    this.amplifyAppId,
+    'main',
+    this.awsConsoleUrl,
+  );
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {

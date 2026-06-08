@@ -9,7 +9,8 @@ export type ClerkCmsTaskId =
   | 'update-leadership'
   | 'business-directory'
   | 'external-news'
-  | 'emergency-banner';
+  | 'emergency-banner'
+  | 'edit-site-copy';   // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
 
 export interface ClerkCmsFieldGlossaryEntry {
   /** Label clerks see in Data Manager (technical name in parentheses for IT). */
@@ -522,6 +523,49 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     ],
     emptyStateMessage:
       'No emergency banner is active until you create AlertBanner with Enabled on.',
+  },
+  {
+    id: 'edit-site-copy',
+    title: 'Edit navigation labels, headings, and Quick Tasks text',
+    shortDescription: 'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
+    model: 'SiteCopy',
+    previewPath: '/',
+    steps: [
+      'Click Edit content to open the form (sign in at /admin/login first).',
+      'Create or edit a row with a stable key (examples: "topTasksKicker", "topTasksHeading", "nav.services", "homepage.featureHub.heading").',
+      'Fill valueEn (required) and valueEs for Spanish visitors.',
+      'Set Active on. Use description to note where the text appears.',
+      'Save and hard-refresh the homepage (or relevant page) to see the change.',
+    ],
+    fieldGlossary: [
+      {
+        plainLabel: 'Key (stable ID)',
+        technicalName: 'key',
+        help: 'Use consistent keys the site understands, e.g. "topTasksKicker", "topTasksHeading", "primaryNavServicesLabel". Ask IT for the current list of supported keys.',
+      },
+      {
+        plainLabel: 'English text',
+        technicalName: 'valueEn',
+        help: 'The text residents see when the site is in English.',
+      },
+      {
+        plainLabel: 'Spanish text',
+        technicalName: 'valueEs',
+        help: 'Optional Spanish version. If blank, English is used for both languages.',
+      },
+      {
+        plainLabel: 'Description (for clerks)',
+        technicalName: 'description',
+        help: 'Where this text appears on the site (e.g. "Top of the How do I... section").',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Only active rows override the default text.',
+      },
+    ],
+    emptyStateMessage:
+      'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
   },
 ];
 

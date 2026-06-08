@@ -168,6 +168,27 @@ const schema = a.schema({
       allow.guest().to(['read', 'create', 'update', 'delete']),
       allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
+
+  /**
+   * Lightweight editable UI copy for frequently changing labels, headings, and task text.
+   * Used to make APP_COPY / nav / topTasks / section text clerk-editable without code deploys.
+   * Keys are stable identifiers (e.g. "topTasks.pay-utility.title", "nav.services", "homepage.featureHub.heading").
+   * Bilingual (valueEn + optional valueEs). Falls back to bundled APP_COPY when no active CMS row exists.
+   */
+  SiteCopy: a
+    .model({
+      key: a.string().required(), // stable lookup key used by the frontend
+      valueEn: a.string().required(),
+      valueEs: a.string(),
+      description: a.string(), // clerk-facing help text: "Where this text appears"
+      active: a.boolean().required(),
+      displayOrder: a.integer(),
+    })
+    .authorization((allow) => [
+      allow.publicApiKey().to(['read']),
+      allow.guest().to(['read', 'create', 'update', 'delete']),
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

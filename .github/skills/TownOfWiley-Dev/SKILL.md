@@ -27,6 +27,9 @@ description: '**WORKFLOW SKILL** — TownOfWiley development agent with project-
 ## Tools and Extensions
 
 - See `.vscode/extensions.json` (includes trunk.io, angular, playwright, AWS tools).
-- MCP servers configured in `.vscode/mcp.json` for angular-cli, primeng, playwright.
+- **MCP servers** (including the critical local RAG):
+  - `townofwiley-rag` (search_codebase + rag_status) — **mandatory reusable tool** for any codebase exploration or "where is X" questions.
+  - angular-cli, primeng, playwright-*, etc. (see `.grok/config.toml`, `.cursor/mcp.json`, `.vscode/mcp.json` — all RAG entries are launched under WSL).
+- **RAG best practice (always follow)**: For cross-cutting questions about implementation, architecture, auth, infra, skills, or agent rules — **first** call the `townofwiley-rag` MCP tool `search_codebase` (with a precise query). Then read only the cited `path:startLine-endLine` ranges. This is required by AGENTS.md, `.cursor/rules/codebase-rag.mdc`, and `docs/codebase-rag.md`. Never do three+ speculative greps before using RAG.
 - Settings in `.vscode/settings.json` and `.cursor/rules/` for AI guidance.
 - **Auto-approval policy**: Follow the "Cursor Agent Auto-Approval & Execution Policy" in `.cursor/rules/core-workflow.mdc`. A safety hook is active at `.cursor/hooks/pre_tool_use.py`.

@@ -25,6 +25,7 @@ const LIST_OPERATION_TO_MODEL = {
   listPublicDocuments: 'PublicDocument',
   listExternalNewsLinks: 'ExternalNewsLink',
   listLeadershipRosterEntries: 'LeadershipRosterEntry',
+  listSiteCopies: 'SiteCopy',
 };
 
 const PUBLIC_CMS_QUERY_CONSTANTS = ['PUBLIC_CMS_CORE_QUERY', 'PUBLIC_CMS_EXTENDED_QUERY'];

@@ -19,6 +19,7 @@
     "ms-playwright.playwright",
     "ms-python.python",
     "ms-python.vscode-pylance",
+    "redhat.ansible",
     "trunk.io",
     "usernamehw.auto-rename-tag",
     "christian-kohler.path-intellisense",

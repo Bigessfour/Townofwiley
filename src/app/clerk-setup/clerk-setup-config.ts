@@ -1,5 +1,3 @@
-import { buildAppSyncQueriesConsoleUrl } from './appsync-console-url';
-
 interface RuntimeClerkSetupConfig {
   clerkName: string;
   awsAccountId: string;
@@ -36,7 +34,12 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-/** Gen 2 Amplify Console → Data manager (replaces Gen 1 hosted Studio). */
+/**
+ * Gen 2 Amplify Console → Data manager (primary clerk-friendly editor for the current backend).
+ * The Amplify app ID d331voxr1fhoir remains the container for Gen 2 backend/pipeline deploys
+ * (Hosting itself moved to S3+CloudFront). This yields the /branches/main/data Data manager.
+ * For the raw AppSync Queries tab (Gen 2), call buildAppSyncQueriesConsoleUrl(region, GEN2_APPSYNC_API_ID).
+ */
 export function buildAmplifyConsoleDataManagerUrl(
   region: string,
   appId: string,
@@ -47,19 +50,16 @@ export function buildAmplifyConsoleDataManagerUrl(
     return fallbackUrl;
   }
 
-  // The old Amplify Hosting app d331voxr1fhoir was deleted June 2026.
-  // IT Advanced links use the live Gen 1 AppSync Queries console (only deployed CMS API).
-  if (appId === 'd331voxr1fhoir') {
-    return buildAppSyncQueriesConsoleUrl(region);
-  }
-
+  // d331voxr1fhoir is the historical Amplify app (hosting decommissioned). Gen 2 data
+  // is managed under the same app ID via Console → branch → Data (or direct AppSync queries).
   const branch = branchName.trim() || 'main';
   return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
 }
 
 /**
- * Best-effort deep link to a model in Amplify Console Data manager.
- * If the console UI changes, callers should fall back to the branch data root.
+ * Best-effort deep link to a model in Amplify Console Data manager (Gen 2).
+ * Task cards on /admin use this (or the in-app form) to jump straight to e.g. Announcement.
+ * Falls back gracefully if the Console UI evolves.
  */
 export function buildAmplifyConsoleDataManagerModelUrl(
   region: string,
@@ -73,15 +73,13 @@ export function buildAmplifyConsoleDataManagerModelUrl(
   if (!trimmed) {
     return base;
   }
-  if (appId === 'd331voxr1fhoir') {
-    // For the legacy app we already returned the AppSync queries page; there is
-    // no equivalent /models/ deep link in the same console UI.
-    return base;
-  }
   return `${base}/models/${encodeURIComponent(trimmed)}`;
 }
 
-/** @deprecated Gen 1 Studio home; use {@link buildAmplifyConsoleDataManagerUrl}. */
+/**
+ * @deprecated Prefer buildAmplifyConsoleDataManagerUrl (or the "Content editor URL" shown on /admin).
+ * Kept for any legacy callers; now resolves to the Gen 2 Data manager path.
+ */
 export function buildAmplifyAdminStudioHomeUrl(
   region: string,
   appId: string,

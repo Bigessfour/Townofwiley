@@ -479,6 +479,16 @@ interface ExternalNewsLinkRecord {
   displayOrder?: number | null;
 }
 
+interface SiteCopyRecord {
+  id: string;
+  key: string;
+  valueEn: string;
+  valueEs?: string | null;
+  description?: string | null;
+  active: boolean;
+  displayOrder?: number | null;
+}
+
 interface CmsGraphqlResponse {
   data?: {
     listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
@@ -490,6 +500,7 @@ interface CmsGraphqlResponse {
     listPublicDocuments?: CmsGraphqlList<PublicDocumentRecord>;
     listExternalNewsLinks?: CmsGraphqlList<ExternalNewsLinkRecord>;
     listLeadershipRosterEntries?: CmsGraphqlList<LeadershipRosterEntryRecord>;
+    listSiteCopies?: CmsGraphqlList<SiteCopyRecord>;
   };
   errors?: {
     message?: string;
@@ -621,6 +632,17 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
       active
     }
   }
+  listSiteCopies(filter: { active: { eq: true } }, limit: 200) {
+    items {
+      id
+      key
+      valueEn
+      valueEs
+      description
+      active
+      displayOrder
+    }
+  }
 }`;
 
 const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
@@ -688,6 +710,7 @@ export class LocalizedCmsContentStore {
   private readonly publicDocumentRecordsState = signal<PublicDocumentRecord[]>([]);
   private readonly externalNewsLinkRecordsState = signal<ExternalNewsLinkRecord[]>([]);
   private readonly leadershipRosterRecordsState = signal<LeadershipRosterEntryRecord[]>([]);
+  private readonly siteCopyRecordsState = signal<SiteCopyRecord[]>([]);
   private readonly loadState = signal<'fallback' | 'loading' | 'studio' | 'error'>('fallback');
   private readonly loadErrorState = signal<string | null>(null);
   private readonly contentSourceState = signal<CmsContentSource>('bundled');
@@ -723,6 +746,20 @@ export class LocalizedCmsContentStore {
   readonly leadershipRosterLinesByGroup = computed(() =>
     this.normalizeLeadershipRosterByGroup(this.leadershipRosterRecordsState(), this.siteLanguage()),
   );
+
+  /**
+   * Returns the active CMS override for a UI copy key (if present).
+   * Consumers should fall back to bundled APP_COPY when this returns undefined.
+   * Keys are stable (e.g. "topTasks.pay-utility.title", "nav.services").
+   */
+  getSiteCopy(key: string): { en: string; es?: string } | undefined {
+    const record = this.siteCopyRecordsState().find((r) => r.key === key && r.active);
+    if (!record) return undefined;
+    return {
+      en: record.valueEn,
+      es: record.valueEs || undefined,
+    };
+  }
   /** Active record counts after the latest AppSync load (for `/admin` inventory). */
   readonly modelCounts = computed(() => ({
     SiteSettings: this.siteSettingsState() ? 1 : 0,
@@ -734,6 +771,7 @@ export class LocalizedCmsContentStore {
     Business: this.businessRecordsState().filter((r) => r.active).length,
     PublicDocument: this.publicDocumentRecordsState().filter((r) => r.active).length,
     ExternalNewsLink: this.externalNewsLinkRecordsState().filter((r) => r.active).length,
+    SiteCopy: this.siteCopyRecordsState().filter((r) => r.active).length,
   }));
   readonly isLoading = computed(() => this.loadState() === 'loading');
   readonly loadError = computed(() => this.loadErrorState());
@@ -972,6 +1010,11 @@ export class LocalizedCmsContentStore {
     this.leadershipRosterRecordsState.set(
       (response.data?.listLeadershipRosterEntries?.items ?? []).filter(
         (item): item is LeadershipRosterEntryRecord => Boolean(item),
+      ),
+    );
+    this.siteCopyRecordsState.set(
+      (response.data?.listSiteCopies?.items ?? []).filter(
+        (item): item is SiteCopyRecord => Boolean(item),
       ),
     );
   }

@@ -29,25 +29,25 @@ export function loadProductionBindingsFromRepo() {
 }
 
 /**
- * Live CMS GraphQL endpoint from infrastructure SSOT when env/secrets are empty.
- * Gen 2 API may not exist in the account yet; prefer Gen 1 legacy when it is the only deployed API.
+ * Live CMS GraphQL endpoint from infrastructure SSOT (Gen 2 primary post-migration).
+ * Falls back to Gen 1 legacy only if Gen 2 bindings are absent (migration safety).
  */
 export function readProductionCmsGraphqlEndpoint() {
   const bindings = loadProductionBindingsFromRepo();
   return (
-    bindings?.appSyncGen1Legacy?.graphqlEndpoint?.trim() ||
     bindings?.appSyncGen2?.graphqlEndpoint?.trim() ||
+    bindings?.appSyncGen1Legacy?.graphqlEndpoint?.trim() ||
     ''
   );
 }
 
-/** Live AppSync API id (Gen 1 is the only deployed CMS API in production). */
+/** Live AppSync API id (Gen 2 is current production CMS API). */
 export function readProductionAppSyncApiId() {
   const bindings = loadProductionBindingsFromRepo();
   return (
-    bindings?.appSyncGen1Legacy?.apiId?.trim() ||
     bindings?.appSyncGen2?.apiId?.trim() ||
-    'j7b2x3sh7rcezekekkxxiak7hi'
+    bindings?.appSyncGen1Legacy?.apiId?.trim() ||
+    'x7poehudqvamneqni5s6e2cjxy'
   );
 }
 
@@ -273,16 +273,14 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
   const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
-  // If the (legacy) Amplify app ID is the deleted d331voxr1fhoir hosting app,
-  // force the studioUrl / dataManagerUrl that ends up in runtime-config.js to
-  // the live Gen 1 AppSync Queries console (IT Advanced only).
+  // Compute editor URL for /admin display and fallbacks. For the (still-present) d331voxr1fhoir
+  // Amplify app container + Gen 2 backend, emit the Data manager URL. Otherwise fall back to
+  // AppSync Queries (the local dupe build fn now defaults to Gen 2 via readProductionAppSyncApiId).
   let computedStudioUrl;
-  if (clerkSetupAmplifyAppId === 'd331voxr1fhoir') {
-    computedStudioUrl = clerkSetupAwsRegion
-      ? buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion)
-      : clerkSetupAwsConsoleUrl;
-  } else if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
+  if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
     computedStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
+  } else if (clerkSetupAwsRegion) {
+    computedStudioUrl = buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion);
   } else {
     computedStudioUrl = clerkSetupAwsConsoleUrl;
   }
