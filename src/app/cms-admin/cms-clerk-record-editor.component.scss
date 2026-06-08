@@ -1,0 +1,67 @@
+.cms-record-editor__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.cms-record-editor__lead {
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.cms-record-editor__status {
+  margin: 0 0 1rem;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-record-editor__picker {
+  margin-bottom: 1.25rem;
+}
+
+.cms-record-editor__picker-label {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+}
+
+.cms-record-editor__new {
+  margin-top: 0.5rem;
+}
+
+.cms-record-editor__form {
+  display: grid;
+  gap: 1rem;
+}
+
+.cms-record-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cms-record-field > span:first-child {
+  font-weight: 700;
+}
+
+.cms-record-field--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cms-record-field--checkbox label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.cms-record-field__help {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-record-editor__actions {
+  margin-top: 0.25rem;
+}
+
+.cms-record-editor__message {
+  margin-top: 0.75rem;
+  width: 100%;
+}

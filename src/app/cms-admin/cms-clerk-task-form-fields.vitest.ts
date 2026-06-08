@@ -2,21 +2,18 @@ import { describe, expect, it } from 'vitest';
 import {
   CLERK_TASK_FORM_FIELDS,
   clerkTaskFormFields,
-  clerkTaskHasDynamicForm,
+  clerkTaskHasForm,
   defaultDynamicFormValues,
+  formValuesToMutationInput,
+  recordToFormValues,
 } from './cms-clerk-task-form-fields';
 import { CLERK_CMS_TASKS } from './cms-clerk-tasks';
 
 describe('cms-clerk-task-form-fields', () => {
-  it('provides dynamic forms for every clerk task without a dedicated in-app editor', () => {
-    const dynamicTaskIds = CLERK_CMS_TASKS.filter(
-      (task) =>
-        !['post-notice', 'add-meeting', 'homepage', 'emergency-banner'].includes(task.id),
-    ).map((task) => task.id);
-
-    for (const taskId of dynamicTaskIds) {
-      expect(clerkTaskHasDynamicForm(taskId), `${taskId} should have a dynamic form`).toBe(true);
-      expect(clerkTaskFormFields(taskId).length).toBeGreaterThan(0);
+  it('provides PrimeNG form fields for every clerk CMS task', () => {
+    for (const task of CLERK_CMS_TASKS) {
+      expect(clerkTaskHasForm(task.id), `${task.id} should have a form`).toBe(true);
+      expect(clerkTaskFormFields(task.id).length).toBeGreaterThan(0);
     }
   });
 
@@ -27,17 +24,46 @@ describe('cms-clerk-task-form-fields', () => {
     );
   });
 
-  it('includes document publishing metadata on add-document', () => {
-    const fields = clerkTaskFormFields('add-document');
-    expect(fields.map((field) => field.name)).toEqual(
-      expect.arrayContaining(['downloadFileName', 'status', 'format', 'keywords']),
+  it('includes announcement and homepage fields for in-app editors', () => {
+    expect(clerkTaskFormFields('post-notice').map((field) => field.name)).toEqual(
+      expect.arrayContaining(['title', 'detail', 'active']),
+    );
+    expect(clerkTaskFormFields('homepage').map((field) => field.name)).toEqual(
+      expect.arrayContaining(['townName', 'heroImageUrl', 'welcomeHeading']),
     );
   });
 
   it('defaults checkbox fields to true and text fields to empty strings', () => {
-    const values = defaultDynamicFormValues(CLERK_TASK_FORM_FIELDS['edit-site-copy'] ?? []);
+    const values = defaultDynamicFormValues(CLERK_TASK_FORM_FIELDS['edit-site-copy']);
     expect(values.active).toBe(true);
     expect(values.key).toBe('');
     expect(values.valueEn).toBe('');
+  });
+
+  it('maps saved records back into form values', () => {
+    const fields = clerkTaskFormFields('update-contacts');
+    const values = recordToFormValues(fields, {
+      id: 'town-information',
+      label: 'Town Hall',
+      value: '(719) 829-4974',
+      detail: '304 Main Street',
+    });
+    expect(values.id).toBe('town-information');
+    expect(values.label).toBe('Town Hall');
+  });
+
+  it('builds mutation input with custom OfficialContact id on create', () => {
+    const fields = clerkTaskFormFields('update-contacts');
+    const input = formValuesToMutationInput(fields, {
+      id: 'city-clerk',
+      label: 'City Clerk',
+      value: 'clerk@townofwiley.gov',
+      detail: '304 Main Street',
+      href: '',
+      linkLabel: '',
+      displayOrder: '',
+    });
+    expect(input.id).toBe('city-clerk');
+    expect(input.label).toBe('City Clerk');
   });
 });

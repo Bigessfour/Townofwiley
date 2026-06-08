@@ -1,0 +1,265 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { TableModule } from 'primeng/table';
+import { TextareaModule } from 'primeng/textarea';
+import { StaffAuthService } from '../auth/staff-auth.service';
+import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
+import {
+  CmsSiteSettingsAdminService,
+  type SiteSettingsInput,
+} from '../cms-site-settings-admin.service';
+import {
+  CMS_SINGLETON_MODELS,
+  cmsRecordSummaryLabel,
+} from './cms-model-admin-fields';
+import {
+  clerkTaskFormFields,
+  defaultDynamicFormValues,
+  formValuesToMutationInput,
+  recordToFormValues,
+  type ClerkFormFieldDefinition,
+} from './cms-clerk-task-form-fields';
+import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
+
+@Component({
+  selector: 'app-cms-clerk-record-editor',
+  imports: [
+    FormsModule,
+    ButtonModule,
+    CheckboxModule,
+    DatePickerModule,
+    InputNumberModule,
+    InputTextModule,
+    MessageModule,
+    TableModule,
+    TextareaModule,
+  ],
+  templateUrl: './cms-clerk-record-editor.component.html',
+  styleUrl: './cms-clerk-record-editor.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CmsClerkRecordEditorComponent implements OnInit {
+  readonly taskId = input<ClerkCmsTaskId | null>(null);
+
+  private readonly staffAuth = inject(StaffAuthService);
+  private readonly genericModel = inject(CmsGenericModelAdminService);
+  private readonly siteSettings = inject(CmsSiteSettingsAdminService);
+
+  protected readonly isSignedIn = this.staffAuth.isStaff;
+  protected readonly recordsLoading = signal(false);
+  protected readonly records = signal<Record<string, unknown>[]>([]);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly formValues = signal<Record<string, string | boolean>>({});
+  protected readonly submitting = signal(false);
+  protected readonly submitResult = signal<string | null>(null);
+  protected readonly submitError = signal<string | null>(null);
+
+  protected readonly task = computed(() => {
+    const id = this.taskId();
+    return id ? clerkTaskById(id) : undefined;
+  });
+
+  protected readonly fields = computed(() => {
+    const id = this.taskId();
+    return id ? clerkTaskFormFields(id) : [];
+  });
+
+  protected readonly isSingleton = computed(() => {
+    const active = this.task();
+    return active ? CMS_SINGLETON_MODELS.has(active.model) : false;
+  });
+
+  protected readonly formTitle = computed(() => {
+    const active = this.task();
+    if (!active) {
+      return '';
+    }
+    return this.editingId() ? `Edit ${active.title}` : `Add ${active.title}`;
+  });
+
+  protected readonly showRecordPicker = computed(() => {
+    return Boolean(this.task()) && !this.isSingleton() && this.records().length > 0;
+  });
+
+  constructor() {
+    effect(() => {
+      const id = this.taskId();
+      this.editingId.set(null);
+      this.submitResult.set(null);
+      this.submitError.set(null);
+      const fieldDefs = id ? clerkTaskFormFields(id) : [];
+      this.formValues.set(defaultDynamicFormValues(fieldDefs));
+      if (id) {
+        void this.loadRecords(id);
+      } else {
+        this.records.set([]);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    void this.staffAuth.refreshSession();
+  }
+
+  protected fieldInputId(fieldName: string): string {
+    const task = this.taskId() ?? 'task';
+    return `cms-field-${task}-${fieldName}`;
+  }
+
+  protected fieldValue(field: ClerkFormFieldDefinition): string | boolean {
+    const value = this.formValues()[field.name];
+    if (field.type === 'checkbox') {
+      return value === true;
+    }
+    return typeof value === 'string' ? value : '';
+  }
+
+  protected dateFieldValue(fieldName: string): Date | null {
+    const raw = this.formValues()[fieldName];
+    if (typeof raw !== 'string' || !raw.trim()) {
+      return null;
+    }
+    const parsed = Date.parse(raw);
+    return Number.isNaN(parsed) ? null : new Date(parsed);
+  }
+
+  protected updateField(fieldName: string, value: string | boolean): void {
+    this.formValues.update((current) => ({ ...current, [fieldName]: value }));
+  }
+
+  protected numberToFieldValue(value: number | null): string {
+    return value == null ? '' : String(value);
+  }
+
+  protected updateDateField(fieldName: string, value: Date | null, mode: 'date' | 'datetime'): void {
+    if (!value) {
+      this.updateField(fieldName, '');
+      return;
+    }
+    if (mode === 'date') {
+      const yyyy = value.getFullYear();
+      const mm = String(value.getMonth() + 1).padStart(2, '0');
+      const dd = String(value.getDate()).padStart(2, '0');
+      this.updateField(fieldName, `${yyyy}-${mm}-${dd}`);
+      return;
+    }
+    this.updateField(fieldName, value.toISOString());
+  }
+
+  protected startNewRecord(): void {
+    this.editingId.set(null);
+    this.submitResult.set(null);
+    this.submitError.set(null);
+    this.formValues.set(defaultDynamicFormValues(this.fields()));
+  }
+
+  protected editRecord(record: Record<string, unknown>): void {
+    const id = record['id'];
+    if (typeof id !== 'string') {
+      return;
+    }
+    this.editingId.set(id);
+    this.submitResult.set(null);
+    this.submitError.set(null);
+    this.formValues.set(recordToFormValues(this.fields(), record));
+  }
+
+  protected recordLabel(record: Record<string, unknown>): string {
+    const active = this.task();
+    if (!active) {
+      return 'Record';
+    }
+    return cmsRecordSummaryLabel(active.model, record);
+  }
+
+  protected async submitForm(): Promise<void> {
+    const active = this.task();
+    if (!active) {
+      return;
+    }
+
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.submitError.set('Sign in at /admin/login before saving changes.');
+      return;
+    }
+
+    this.submitting.set(true);
+    this.submitResult.set(null);
+    this.submitError.set(null);
+
+    try {
+      const input = formValuesToMutationInput(
+        this.fields(),
+        this.formValues(),
+        this.editingId(),
+      );
+      let savedId: string;
+
+      if (active.model === 'SiteSettings') {
+        savedId = await this.siteSettings.saveSiteSettings(input as unknown as SiteSettingsInput);
+      } else if (this.editingId()) {
+        savedId = await this.genericModel.updateModel(active.model, input);
+      } else {
+        savedId = await this.genericModel.createModel(active.model, input);
+      }
+
+      this.submitResult.set(
+        `${active.model} saved (ID ${savedId}). Open See on website and hard-refresh ${active.previewPath}.`,
+      );
+      await this.loadRecords(active.id);
+      if (!this.isSingleton()) {
+        this.startNewRecord();
+      }
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err
+            ? String((err as { message?: unknown }).message)
+            : '';
+      this.submitError.set(msg || `Could not save ${active.model}. Try signing in again.`);
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  private async loadRecords(taskId: ClerkCmsTaskId): Promise<void> {
+    const active = clerkTaskById(taskId);
+    if (!active) {
+      return;
+    }
+
+    this.recordsLoading.set(true);
+    try {
+      const items =
+        active.model === 'SiteSettings'
+          ? await this.siteSettings.listSiteSettings(1)
+          : await this.genericModel.listRecords(active.model, 50);
+      this.records.set(items);
+
+      if (CMS_SINGLETON_MODELS.has(active.model) && items[0]) {
+        this.editRecord(items[0]);
+      }
+    } catch {
+      this.records.set([]);
+    } finally {
+      this.recordsLoading.set(false);
+    }
+  }
+}
