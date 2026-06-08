@@ -138,7 +138,6 @@ scripts/retire-contact-review-proxy.py
 
 scripts/store-xai-api-key.sh
 scripts/verify-contact-review-security.mjs
-scripts/verify-runtime-config-cms.mjs
 rag/
 mcp/
 mcps/
