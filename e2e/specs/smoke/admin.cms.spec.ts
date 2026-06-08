@@ -59,7 +59,9 @@ test.describe('cms admin', () => {
         .getByTestId('cms-task-form')
         .getByRole('heading', { name: /Post news or notice/i }),
     ).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-task-form').getByLabel(/Title \*/i)).toBeVisible();
+    await expect(
+      homePage.page.locator('#cms-field-post-notice-title'),
+    ).toBeVisible();
     // Task cards should not push raw "AppSync" as jargon.
     await expect(
       homePage.page.locator('.cms-task-card').getByText('AppSync', { exact: false }),
@@ -171,6 +173,19 @@ test.describe('cms admin', () => {
       homePage.page.locator('p-message.p-message-error, p-message[severity="error"]'),
     ).toContainText(/access denied|could not load|require staff sign-in/i, { timeout: 20_000 });
     await expect(homePage.page.getByText('No resident messages yet.')).not.toBeVisible();
+  });
+
+  test('meeting task exposes a working native date/time picker input', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-add-meeting').click();
+    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
+    await expect(
+      homePage.page.locator('#cms-field-add-meeting-start[type="datetime-local"]'),
+    ).toBeVisible();
+    await expect(
+      homePage.page.locator('#cms-field-add-meeting-start[type="datetime-local"]'),
+    ).toBeEditable();
   });
 
   test('document publishing lists newsletter path and task guide mentions Spanish fields', async ({

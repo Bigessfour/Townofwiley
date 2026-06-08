@@ -1,3 +1,4 @@
+import { datetimeLocalToIso, isoToDateInput, isoToDatetimeLocal } from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 
 export type ClerkFormFieldType =
@@ -235,6 +236,14 @@ export function recordToFormValues(
       values[field.name] = raw.map(String).join(', ');
       continue;
     }
+    if (field.type === 'datetime') {
+      values[field.name] = isoToDatetimeLocal(String(raw));
+      continue;
+    }
+    if (field.type === 'date') {
+      values[field.name] = isoToDateInput(String(raw));
+      continue;
+    }
     values[field.name] = String(raw);
   }
   return values;
@@ -278,6 +287,8 @@ export function formValuesToMutationInput(
         .split(',')
         .map((keyword) => keyword.trim())
         .filter(Boolean);
+    } else if (field.type === 'datetime') {
+      input[field.name] = datetimeLocalToIso(text);
     } else {
       input[field.name] = text;
     }

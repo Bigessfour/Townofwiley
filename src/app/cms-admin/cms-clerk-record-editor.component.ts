@@ -11,7 +11,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
-import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -42,7 +41,6 @@ import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
     FormsModule,
     ButtonModule,
     CheckboxModule,
-    DatePickerModule,
     InputNumberModule,
     InputTextModule,
     MessageModule,
@@ -129,13 +127,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return typeof value === 'string' ? value : '';
   }
 
-  protected dateFieldValue(fieldName: string): Date | null {
-    const raw = this.formValues()[fieldName];
-    if (typeof raw !== 'string' || !raw.trim()) {
-      return null;
-    }
-    const parsed = Date.parse(raw);
-    return Number.isNaN(parsed) ? null : new Date(parsed);
+  protected nativeDateInputType(field: ClerkFormFieldDefinition): 'date' | 'datetime-local' {
+    return field.type === 'datetime' ? 'datetime-local' : 'date';
   }
 
   protected updateField(fieldName: string, value: string | boolean): void {
@@ -144,21 +137,6 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
   protected numberToFieldValue(value: number | null): string {
     return value == null ? '' : String(value);
-  }
-
-  protected updateDateField(fieldName: string, value: Date | null, mode: 'date' | 'datetime'): void {
-    if (!value) {
-      this.updateField(fieldName, '');
-      return;
-    }
-    if (mode === 'date') {
-      const yyyy = value.getFullYear();
-      const mm = String(value.getMonth() + 1).padStart(2, '0');
-      const dd = String(value.getDate()).padStart(2, '0');
-      this.updateField(fieldName, `${yyyy}-${mm}-${dd}`);
-      return;
-    }
-    this.updateField(fieldName, value.toISOString());
   }
 
   protected startNewRecord(): void {
