@@ -31,7 +31,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = REPO_ROOT / "infrastructure" / "aws-infrastructure.manifest.json"
-BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen2-production-bindings.json"
+BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
 
 ACCOUNT_ID = "570912405222"
 PRIMARY_REGION = "us-east-2"
@@ -403,8 +403,8 @@ def associate_waf(resource_arn: str, *, dry_run: bool) -> None:
 
 def ensure_waf_on_regional_services(bindings: dict[str, Any], *, dry_run: bool) -> None:
     print("WAF (reuse existing regional ACL; marginal cost only) …")
-    appsync_id = bindings["appSyncGen2"]["apiId"]
-    pool_id = bindings["cognitoGen2"]["userPoolId"]
+    appsync_id = bindings["appSync"]["apiId"]
+    pool_id = bindings["cognito"]["userPoolId"]
     associate_waf(
         f"arn:aws:appsync:{PRIMARY_REGION}:{ACCOUNT_ID}:apis/{appsync_id}",
         dry_run=dry_run,
@@ -537,7 +537,7 @@ def main() -> int:
             str(bucket.get("region", PRIMARY_REGION)),
             dry_run=args.dry_run,
         )
-    storage_bucket = bindings.get("storageGen2", {}).get("bucket")
+    storage_bucket = bindings.get("storage", {}).get("bucket")
     if storage_bucket:
         ensure_bucket_public_access_block(
             str(storage_bucket), PRIMARY_REGION, dry_run=args.dry_run
@@ -551,7 +551,7 @@ def main() -> int:
         ensure_cloudtrail(dry_run=args.dry_run)
 
     cognito_deletion_protection(
-        bindings["cognitoGen2"]["userPoolId"], dry_run=args.dry_run
+        bindings["cognito"]["userPoolId"], dry_run=args.dry_run
     )
     api_gateway_throttle(dry_run=args.dry_run)
     if args.try_lambda_concurrency:

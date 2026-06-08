@@ -12,10 +12,10 @@ export const amplifyOutputsPath = join(repoRoot, 'amplify_outputs.json');
 export const productionBindingsPath = join(
   repoRoot,
   'infrastructure',
-  'gen2-production-bindings.json',
+  'gen1-production-bindings.json',
 );
 
-/** @returns {{ appSyncGen1Legacy?: { graphqlEndpoint?: string }; appSyncGen2?: { graphqlEndpoint?: string } } | null} */
+/** @returns {Record<string, unknown> | null} */
 export function loadProductionBindingsFromRepo() {
   if (!existsSync(productionBindingsPath)) {
     return null;
@@ -28,27 +28,16 @@ export function loadProductionBindingsFromRepo() {
   }
 }
 
-/**
- * Live CMS GraphQL endpoint from infrastructure SSOT (Gen 2 primary post-migration).
- * Falls back to Gen 1 legacy only if Gen 2 bindings are absent (migration safety).
- */
+/** Live CMS GraphQL endpoint from infrastructure SSOT (Gen 1 production). */
 export function readProductionCmsGraphqlEndpoint() {
   const bindings = loadProductionBindingsFromRepo();
-  return (
-    bindings?.appSyncGen2?.graphqlEndpoint?.trim() ||
-    bindings?.appSyncGen1Legacy?.graphqlEndpoint?.trim() ||
-    ''
-  );
+  return bindings?.appSync?.graphqlEndpoint?.trim() || '';
 }
 
-/** Live AppSync API id (Gen 2 is current production CMS API). */
+/** Live AppSync API id (Gen 1 production CMS API). */
 export function readProductionAppSyncApiId() {
   const bindings = loadProductionBindingsFromRepo();
-  return (
-    bindings?.appSyncGen2?.apiId?.trim() ||
-    bindings?.appSyncGen1Legacy?.apiId?.trim() ||
-    'x7poehudqvamneqni5s6e2cjxy'
-  );
+  return bindings?.appSync?.apiId?.trim() || 'j7b2x3sh7rcezekekkxxiak7hi';
 }
 
 export function buildAppSyncQueriesConsoleUrl(region, apiId = readProductionAppSyncApiId()) {
@@ -75,7 +64,7 @@ export function loadAmplifyOutputsFromRepo() {
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 export const DEFAULT_AWS_REGION = 'us-east-2';
-export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+export const DEFAULT_AMPLIFY_APP_ID = '';
 export const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
 export const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
 
@@ -272,18 +261,10 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     (clerkSetupAwsRegion
       ? `https://${clerkSetupAwsRegion}.console.aws.amazon.com/`
       : 'https://console.aws.amazon.com/');
-  const amplifyBranch = env.AWS_BRANCH?.trim() || env.AMPLIFY_BRANCH?.trim() || 'main';
-  // Compute editor URL for /admin display and fallbacks. For the (still-present) d331voxr1fhoir
-  // Amplify app container + Gen 2 backend, emit the Data manager URL. Otherwise fall back to
-  // AppSync Queries (the local dupe build fn now defaults to Gen 2 via readProductionAppSyncApiId).
-  let computedStudioUrl;
-  if (clerkSetupAwsRegion && clerkSetupAmplifyAppId) {
-    computedStudioUrl = `https://${clerkSetupAwsRegion}.console.aws.amazon.com/amplify/apps/${clerkSetupAmplifyAppId}/branches/${amplifyBranch}/data`;
-  } else if (clerkSetupAwsRegion) {
-    computedStudioUrl = buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion);
-  } else {
-    computedStudioUrl = clerkSetupAwsConsoleUrl;
-  }
+  // CMS editing: in-app /admin forms (primary) or AppSync Queries console (IT).
+  const computedStudioUrl = clerkSetupAwsRegion
+    ? buildAppSyncQueriesConsoleUrl(clerkSetupAwsRegion)
+    : clerkSetupAwsConsoleUrl;
 
   const clerkSetupStudioUrl =
     env.CLERK_SETUP_DATA_MANAGER_URL?.trim() ||
@@ -378,36 +359,36 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     cognitoUserPoolId:
       env.COGNITO_USER_POOL_ID?.trim() ||
       localSecrets.auth?.cognito?.userPoolId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognitoGen2?.userPoolId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognito?.userPoolId?.trim() ||
       outputsAuth?.user_pool_id?.trim() ||
       '',
     cognitoUserPoolClientId:
       env.COGNITO_USER_POOL_CLIENT_ID?.trim() ||
       localSecrets.auth?.cognito?.userPoolClientId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognitoGen2?.userPoolClientId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognito?.userPoolClientId?.trim() ||
       outputsAuth?.user_pool_client_id?.trim() ||
       '',
     cognitoIdentityPoolId:
       env.COGNITO_IDENTITY_POOL_ID?.trim() ||
       localSecrets.auth?.cognito?.identityPoolId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognitoGen2?.identityPoolId?.trim() ||
+      loadProductionBindingsFromRepo()?.cognito?.identityPoolId?.trim() ||
       outputsAuth?.identity_pool_id?.trim() ||
       '',
     cognitoHostedUiDomain:
       env.COGNITO_HOSTED_UI_DOMAIN?.trim() ||
       localSecrets.auth?.cognito?.hostedUiDomain?.trim() ||
-      loadProductionBindingsFromRepo()?.cognitoGen2?.hostedUiDomain?.trim() ||
+      loadProductionBindingsFromRepo()?.cognito?.hostedUiDomain?.trim() ||
       '',
     storageBucketName:
       env.STORAGE_S3_BUCKET?.trim() ||
       localSecrets.storage?.s3?.bucket?.trim() ||
-      loadProductionBindingsFromRepo()?.storageGen2?.bucket?.trim() ||
+      loadProductionBindingsFromRepo()?.storage?.bucket?.trim() ||
       outputsStorage?.bucket_name?.trim() ||
       '',
     storageRegion:
       env.STORAGE_S3_REGION?.trim() ||
       localSecrets.storage?.s3?.region?.trim() ||
-      loadProductionBindingsFromRepo()?.storageGen2?.region?.trim() ||
+      loadProductionBindingsFromRepo()?.storage?.region?.trim() ||
       outputsStorage?.aws_region?.trim() ||
       '',
   };

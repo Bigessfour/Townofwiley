@@ -1,4 +1,4 @@
-/** Gen 2 AppSync model metadata (aligned with `amplify/data/resource.ts` and AWS inventory). */
+/** Gen 1 AppSync model metadata (aligned with live CMS inventory). */
 
 export interface CmsModelDefinition {
   model: string;
@@ -9,22 +9,28 @@ export interface CmsModelDefinition {
   emptyWarningEs?: string;
 }
 
-export interface Gen2CmsInventoryModel {
+export interface CmsInventoryModel {
   model: string;
   tableName: string;
   itemCount: number | null;
   publicApiKeyRead: boolean;
 }
 
-export interface Gen2CmsInventory {
+export interface CmsInventory {
   version: number;
   discoveredAt: string;
-  models: Gen2CmsInventoryModel[];
+  models: CmsInventoryModel[];
   capabilities?: {
-    dataManagerUrl?: string;
+    appSyncQueriesUrl?: string;
     heroFields?: string[];
   };
 }
+
+/** @deprecated Use CmsInventoryModel */
+export type Gen2CmsInventoryModel = CmsInventoryModel;
+
+/** @deprecated Use CmsInventory */
+export type Gen2CmsInventory = CmsInventory;
 
 export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
   {

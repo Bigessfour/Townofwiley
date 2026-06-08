@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CMS_MODEL_DEFINITIONS, liveCountForModel } from './cms-model-inventory';
 
 describe('cms-model-inventory', () => {
-  it('lists all ten Gen 2 CMS models', () => {
+  it('lists all CMS models tracked in inventory', () => {
     expect(CMS_MODEL_DEFINITIONS.map((d) => d.model)).toEqual([
       'SiteSettings',
       'AlertBanner',

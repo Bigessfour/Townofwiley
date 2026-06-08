@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-Ensure the Gen 2 Cognito Staff group exists and maps to the authenticated IAM role.
+Ensure the Gen 1 Cognito Staff group exists and maps to the authenticated IAM role.
 
-Used by scripts/configure-gen2-clerk-cms.mjs after Amplify Gen 2 deploy.
-
-Environment (optional — defaults from infrastructure/gen2-production-bindings.json):
+Environment (optional — defaults from infrastructure/gen1-production-bindings.json):
   COGNITO_USER_POOL_ID
   COGNITO_AUTH_ROLE_ARN
   STAFF_COGNITO_GROUP (default: Staff)
@@ -26,7 +24,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen2-production-bindings.json"
+BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
 DEFAULT_REGION = "us-east-2"
 
 
@@ -58,7 +56,7 @@ def load_bindings() -> dict:
 
 def resolve_config(args: argparse.Namespace) -> tuple[str, str, str, str]:
     bindings = load_bindings()
-    cognito = bindings.get("cognitoGen2", {})
+    cognito = bindings.get("cognito", {})
     user_pool_id = (
         args.user_pool_id.strip()
         or os.environ.get("COGNITO_USER_POOL_ID", "").strip()

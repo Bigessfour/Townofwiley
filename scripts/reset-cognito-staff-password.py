@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen2-production-bindings.json"
+BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
 
 
 def parse_args() -> argparse.Namespace:
@@ -62,9 +62,9 @@ def load_pool_id(cli_value: str) -> str:
         return cli_value.strip()
     if BINDINGS_PATH.exists():
         bindings = json.loads(BINDINGS_PATH.read_text(encoding="utf-8"))
-        return bindings["cognitoGen2"]["userPoolId"]
+        return bindings["cognito"]["userPoolId"]
     raise RuntimeError(
-        "Pass --user-pool-id or add infrastructure/gen2-production-bindings.json"
+        "Pass --user-pool-id or add infrastructure/gen1-production-bindings.json"
     )
 
 

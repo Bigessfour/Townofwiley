@@ -80,7 +80,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
 
 const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 90;
-const appsyncApiId = manifest.appsync?.apiId ?? 'x7poehudqvamneqni5s6e2cjxy'; // Gen 2 default (Gen 1 j7b2 legacy)
+const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
 const amplifyBackendLogGroups = manifest.cloudWatch?.amplifyBackendLogGroups ?? [
   '/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF',
 ];

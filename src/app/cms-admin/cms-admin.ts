@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { buildAmplifyConsoleDataManagerUrl, getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
+import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
   ContactUpdateReviewService,
@@ -26,9 +26,9 @@ import { CmsContentSnapshotComponent } from './cms-content-snapshot.component';
 import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
 import { CmsSiteStatusComponent } from './cms-site-status.component';
 
-/** Amplify Gen 2 Console Data manager (Angular). */
-export const AMPLIFY_DATA_MANAGER_DOCS_URL =
-  'https://docs.amplify.aws/angular/build-a-backend/data/manage-with-amplify-console/';
+/** AppSync console reference for IT staff. */
+export const APPSYNC_CONSOLE_DOCS_URL =
+  'https://docs.aws.amazon.com/appsync/latest/devguide/welcome.html';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
@@ -125,15 +125,8 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // Primary "Content editor URL" for the clerk task hub. Uses the (fixed) Gen 2 Data manager deep link
-  // under the Amplify app/branch. Advanced users can still open the AppSync Queries tab from the link
-  // or by appending /queries in Console. In-app forms cover the most common clerk tasks.
-  protected readonly dataManagerUrl = buildAmplifyConsoleDataManagerUrl(
-    this.awsRegion,
-    this.amplifyAppId,
-    'main',
-    this.awsConsoleUrl,
-  );
+  // IT troubleshooting: AppSync Queries console. Clerks use in-app forms on /admin.
+  protected readonly dataManagerUrl = this.clerkSetupConfig.studioUrl;
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
