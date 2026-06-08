@@ -179,6 +179,7 @@ test.describe('pay bill without bill pay API configured', () => {
   test('shows the disabled portal CTA fallback when no Paystar mode is configured', async ({
     homePage,
   }) => {
+    await homePage.disablePaystarPortal();
     await gotoPayBillFormReady(homePage.page);
 
     await expect(
@@ -196,6 +197,7 @@ test.describe('pay bill without bill pay API configured', () => {
   test('shows the disabled portal CTA fallback in Spanish after switching site language', async ({
     homePage,
   }) => {
+    await homePage.disablePaystarPortal();
     await gotoPayBillFormReady(homePage.page);
     await homePage.clickSiteLanguage('es');
 

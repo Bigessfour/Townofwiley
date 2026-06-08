@@ -79,14 +79,6 @@ export const test = base.extend<TownFixtures>({
               apiKey: '',
             },
           },
-          payments: {
-            provider: 'paystar',
-            paystar: {
-              mode: 'none',
-              portalUrl: '',
-              apiEndpoint: '',
-            },
-          },
           billPay: {
             apiEndpoint: '',
           },

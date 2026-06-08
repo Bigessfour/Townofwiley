@@ -67,6 +67,7 @@ export const DEFAULT_AWS_REGION = 'us-east-2';
 export const DEFAULT_AMPLIFY_APP_ID = '';
 export const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
 export const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
+export const DEFAULT_PAYSTAR_PORTAL_URL = 'https://secure.paystar.io/pay/town-of-wiley-utilitybill';
 
 export function readLocalSecrets(secretsPath = localSecretsPath) {
   if (!existsSync(secretsPath)) {
@@ -216,7 +217,9 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileySevereWeatherBackend') : '') ||
     '';
   const paystarPortalUrl =
-    env.PAYSTAR_PORTAL_URL?.trim() || localSecrets.payments?.paystar?.portalUrl?.trim() || '';
+    env.PAYSTAR_PORTAL_URL?.trim() ||
+    localSecrets.payments?.paystar?.portalUrl?.trim() ||
+    DEFAULT_PAYSTAR_PORTAL_URL;
   const paystarApiEndpoint =
     env.PAYSTAR_API_ENDPOINT?.trim() || localSecrets.payments?.paystar?.apiEndpoint?.trim() || '';
   const explicitPaystarMode =

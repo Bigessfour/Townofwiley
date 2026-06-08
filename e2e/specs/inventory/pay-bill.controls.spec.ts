@@ -8,7 +8,20 @@ async function gotoPayBillFormReady(page: import('@playwright/test').Page): Prom
   await expect(page.locator('#bp-full-name')).toBeVisible({ timeout: 30_000 });
 }
 
+const DEFAULT_PAYSTAR_PORTAL_URL = 'https://secure.paystar.io/pay/town-of-wiley-utilitybill';
+
 test.describe('pay bill page inventory controls', () => {
+  test('[pay-bill.paystar-portal-cta-default] Paystar portal link uses the built-in default URL', async ({
+    payBillPage,
+  }) => {
+    await payBillPage.goto();
+
+    await inventoryStep('Verify default Paystar portal CTA href', async () => {
+      await expect(payBillPage.portalCta).toBeVisible({ timeout: 20_000 });
+      await expect(payBillPage.portalCta).toHaveAttribute('href', DEFAULT_PAYSTAR_PORTAL_URL);
+    });
+  });
+
   test('[pay-bill.paystar-portal-cta] Paystar portal link is exposed when configured', async ({
     homePage,
     payBillPage,
