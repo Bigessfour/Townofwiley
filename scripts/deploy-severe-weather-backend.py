@@ -66,6 +66,11 @@ def load_local_secrets() -> dict[str, Any]:
 def ensure_env_from_secrets(secrets: dict[str, Any]) -> None:
     aws_secrets = secrets.get("aws", {})
 
+    if os.environ.get("AWS_PROFILE") or os.environ.get("AWS_DEFAULT_PROFILE"):
+        if not os.environ.get("AWS_REGION") and aws_secrets.get("region"):
+            os.environ["AWS_REGION"] = aws_secrets["region"]
+        return
+
     if not os.environ.get("AWS_ACCESS_KEY_ID") and aws_secrets.get("accessKeyId"):
         os.environ["AWS_ACCESS_KEY_ID"] = aws_secrets["accessKeyId"]
 

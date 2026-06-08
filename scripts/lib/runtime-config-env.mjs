@@ -193,12 +193,9 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       ? /** @type {{ bucket_name?: string; aws_region?: string }} */ (amplifyOutputs.storage)
       : null;
 
-  const chatUrl =
-    env.EASYPEASY_CHAT_URL?.trim() || localSecrets.chatbot?.easyPeasy?.chatUrl?.trim() || '';
-  const apiEndpoint =
-    env.EASYPEASY_API_ENDPOINT?.trim() ||
-    localSecrets.chatbot?.easyPeasy?.apiEndpoint?.trim() ||
-    '';
+  // Chatbot (Easy-Peasy) decommissioned June 2026 — keep runtime shape for compatibility.
+  const chatUrl = '';
+  const apiEndpoint = '';
   const weatherApiEndpoint =
     env.NWS_PROXY_ENDPOINT?.trim() ||
     localSecrets.weather?.nws?.apiEndpoint?.trim() ||
@@ -316,8 +313,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||
     localSecrets.contactUpdate?.reviewProxyEndpoint?.trim() ||
     '';
-  const guestbookApiEndpoint =
-    env.GUESTBOOK_API_ENDPOINT?.trim() || localSecrets.guestbook?.apiEndpoint?.trim() || '';
+  const guestbookApiEndpoint = '';
   const paystarMode =
     explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
       ? explicitPaystarMode
@@ -326,7 +322,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
         : paystarPortalUrl
           ? 'hosted'
           : 'none';
-  const mode = apiEndpoint ? 'api' : chatUrl ? 'embed' : 'none';
+  const mode = 'none';
 
   return {
     chatUrl,
@@ -401,11 +397,11 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
 export function buildRuntimeConfigObject(values, buildMeta) {
   return {
     chatbot: {
-      provider: 'easyPeasy',
-      mode: values.mode,
-      chatUrl: values.chatUrl,
+      provider: 'none',
+      mode: 'none',
+      chatUrl: '',
       buttonPosition: values.buttonPosition,
-      apiEndpoint: values.apiEndpoint,
+      apiEndpoint: '',
     },
     build: {
       timestamp: buildMeta.timestamp,

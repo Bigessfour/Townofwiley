@@ -666,10 +666,6 @@
             <section class="feature-detail-stack">
               <router-outlet />
             </section>
-          } @else if (isHelloFromMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
           } @else if (isBusinessesMode()) {
             <section class="feature-detail-stack">
               <router-outlet />
@@ -1304,32 +1300,4 @@
     </footer>
   </main>
 
-  @if (isAssistantEnabled) {
-    <button
-      type="button"
-      class="floating-chat-button"
-      (click)="openAiChat()"
-      aria-label="Open Ask Wiley — ask questions about town services, meetings, and more"
-      title="Ask Wiley — town assistant"
-    >
-      <i class="pi pi-comments" aria-hidden="true"></i>
-      <span class="floating-chat-label" aria-hidden="true">Ask Wiley</span>
-    </button>
-
-    @if (aiChatVisible()) {
-      <p-dialog
-        [visible]="aiChatVisible()"
-        (visibleChange)="aiChatVisible.set($event)"
-        [modal]="true"
-        [blockScroll]="true"
-        [closable]="true"
-        header="Ask Wiley — Town Assistant"
-        [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"
-        styleClass="ai-chat-dialog"
-        appendTo="body"
-      >
-        <app-ai-chat />
-      </p-dialog>
-    }
-  }
 }

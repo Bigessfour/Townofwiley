@@ -22,8 +22,7 @@ const APP_ROUTE_PATHS = new Set([
   '/businesses',
   '/news',
   '/contact',
-  '/hello-from',
-  '/admin/hello-from',
+
   '/accessibility',
   '/privacy',
   '/terms',

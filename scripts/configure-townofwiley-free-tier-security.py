@@ -10,8 +10,7 @@ Free / included (no WAF/Shield Advanced subscription):
   - IAM Access Analyzer (account)
   - Cognito user pool deletion protection
   - API Gateway HTTP API stage throttling (contact review API)
-  - Reuse existing regional WAF Web ACL on AppSync + Cognito (no new ACL; ~$0 marginal)
-  - Lambda reserved concurrency caps on public Function URL Lambdas
+  - Lambda reserved concurrency caps on public Function URL Lambdas (optional)
   - Route 53: align *.townofwiley.gov with production CloudFront
 
 Paid (skipped unless --enable-amplify-waf):
@@ -41,17 +40,13 @@ CONTACT_REVIEW_API_ID = "lmppzxwh3h"
 CLOUDTRAIL_NAME = "townofwiley-account-trail"
 CLOUDTRAIL_BUCKET = f"townofwiley-cloudtrail-{ACCOUNT_ID}"
 
-WAF_ACL_NAME = "TownOfWileyContactReviewApiRateLimit"
-WAF_ACL_ID = "a648156e-2e04-4427-a7d7-03bb7a47e3ec"
-
-# Production CloudFront (Amplify domain association, May 2026)
-PRODUCTION_CF_HOST = "d1tkcm7820z9y8.cloudfront.net"
+# Production CloudFront (S3 static site, June 2026)
+PRODUCTION_CF_HOST = "d34qrz3qxoppc5.cloudfront.net"
 STALE_WILDCARD_CF_HOST = "d3fmdu29qcwosh.cloudfront.net"
 
 PUBLIC_LAMBDA_CONCURRENCY = {
     "TownOfWileyNWSWeatherProxy": 25,
     "TownOfWileySevereWeatherBackend": 10,
-    "townofwiley-easy-peasy-chat-proxy": 8,
     "TownOfWileyContactUpdate": 5,
 }
 
@@ -66,7 +61,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--skip-dns", action="store_true")
     parser.add_argument("--skip-cloudtrail", action="store_true")
-    parser.add_argument("--skip-waf-associate", action="store_true")
+    parser.add_argument(
+        "--web-acl-arn",
+        default="",
+        help="Optional regional WAF Web ACL ARN for AppSync/Cognito (paid; omitted by default).",
+    )
     parser.add_argument(
         "--try-lambda-concurrency",
         action="store_true",
@@ -363,14 +362,7 @@ def api_gateway_throttle(*, dry_run: bool) -> None:
     )
 
 
-def waf_acl_arn() -> str:
-    return (
-        f"arn:aws:wafv2:{PRIMARY_REGION}:{ACCOUNT_ID}:regional/webacl/"
-        f"{WAF_ACL_NAME}/{WAF_ACL_ID}"
-    )
-
-
-def associate_waf(resource_arn: str, *, dry_run: bool) -> None:
+def associate_waf(web_acl_arn: str, resource_arn: str, *, dry_run: bool) -> None:
     print(f"  WAF associate → {resource_arn}")
     existing = run_aws(
         [
@@ -391,7 +383,7 @@ def associate_waf(resource_arn: str, *, dry_run: bool) -> None:
             "wafv2",
             "associate-web-acl",
             "--web-acl-arn",
-            waf_acl_arn(),
+            web_acl_arn,
             "--resource-arn",
             resource_arn,
         ],
@@ -401,15 +393,19 @@ def associate_waf(resource_arn: str, *, dry_run: bool) -> None:
     )
 
 
-def ensure_waf_on_regional_services(bindings: dict[str, Any], *, dry_run: bool) -> None:
-    print("WAF (reuse existing regional ACL; marginal cost only) …")
+def ensure_waf_on_regional_services(
+    bindings: dict[str, Any], *, web_acl_arn: str, dry_run: bool
+) -> None:
+    print("WAF associate (paid; requires existing regional Web ACL ARN) …")
     appsync_id = bindings["appSync"]["apiId"]
     pool_id = bindings["cognito"]["userPoolId"]
     associate_waf(
+        web_acl_arn,
         f"arn:aws:appsync:{PRIMARY_REGION}:{ACCOUNT_ID}:apis/{appsync_id}",
         dry_run=dry_run,
     )
     associate_waf(
+        web_acl_arn,
         f"arn:aws:cognito-idp:{PRIMARY_REGION}:{ACCOUNT_ID}:userpool/{pool_id}",
         dry_run=dry_run,
     )
@@ -557,8 +553,10 @@ def main() -> int:
     if args.try_lambda_concurrency:
         lambda_reserved_concurrency(dry_run=args.dry_run)
 
-    if not args.skip_waf_associate:
-        ensure_waf_on_regional_services(bindings, dry_run=args.dry_run)
+    if args.web_acl_arn.strip():
+        ensure_waf_on_regional_services(
+            bindings, web_acl_arn=args.web_acl_arn.strip(), dry_run=args.dry_run
+        )
 
     if not args.skip_dns:
         fix_wildcard_dns(dry_run=args.dry_run)

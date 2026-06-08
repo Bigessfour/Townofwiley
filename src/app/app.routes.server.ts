@@ -12,7 +12,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'permits', renderMode: RenderMode.Prerender },
   { path: 'news', renderMode: RenderMode.Prerender },
   { path: 'contact', renderMode: RenderMode.Prerender },
-  { path: 'hello-from', renderMode: RenderMode.Prerender },
+
   { path: 'accessibility', renderMode: RenderMode.Prerender },
   { path: 'privacy', renderMode: RenderMode.Prerender },
   { path: 'terms', renderMode: RenderMode.Prerender },

@@ -21,8 +21,6 @@ const envManifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.man
 
 const args = process.argv.slice(2);
 const skipS3 = args.includes('--skip-s3');
-const skipAmplify = args.includes('--skip-amplify');
-const skipEnv = args.includes('--skip-amplify-env');
 const skipLogRetention = args.includes('--skip-log-retention');
 const offline = args.includes('--offline');
 
@@ -79,7 +77,13 @@ function hasNoneAuthFunctionUrlPermissions(policyDocument) {
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const envManifest = JSON.parse(readFileSync(envManifestPath, 'utf8'));
 
-const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 90;
+const hostingIsS3CloudFront = manifest.hosting?.type === 's3-cloudfront';
+const skipAmplify =
+  args.includes('--skip-amplify') || (hostingIsS3CloudFront && !args.includes('--check-amplify'));
+const skipEnv =
+  args.includes('--skip-amplify-env') || (hostingIsS3CloudFront && !args.includes('--check-amplify'));
+
+const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 1;
 const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
 const amplifyBackendLogGroups = manifest.cloudWatch?.amplifyBackendLogGroups ?? [
   '/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF',
@@ -238,6 +242,10 @@ try {
   process.exit(1);
 }
 
+if (hostingIsS3CloudFront && skipAmplify) {
+  pass('Amplify Hosting checks skipped (production on S3+CloudFront)');
+}
+
 if (!skipAmplify) {
   const appId = manifest.amplify.appId;
   const region = manifest.primaryRegion;
@@ -263,6 +271,10 @@ if (!skipAmplify) {
       pass('Amplify customHeaders include live documents bucket hostname');
     }
   }
+}
+
+if (hostingIsS3CloudFront && skipEnv) {
+  pass('Amplify branch env checks skipped (runtime-config via GitHub secrets)');
 }
 
 if (!skipEnv) {

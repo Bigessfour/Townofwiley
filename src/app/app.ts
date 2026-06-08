@@ -28,7 +28,7 @@ import { MegaMenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
-import { DialogModule } from 'primeng/dialog';
+
 import { DividerModule } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -43,14 +43,12 @@ import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
-import { LocalizedAiChat } from './ai-chat/localized-ai-chat';
 import {
   createGoogleCalendarLinkForEvent,
   createGoogleCalendarLinkForSeed,
   createIcsDataUrlForEvent,
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
-import { getChatbotRuntimeConfig } from './chatbot-config';
 import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
 import { localizeCmsPublicDocument } from './document-hub/localize-public-document';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
@@ -742,7 +740,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Public records and FOIA', href: '/records' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
-      { label: 'Hello from…', href: '/hello-from' },
     ],
     communityFacts: [
       { label: 'Population', value: '~437', detail: 'Estimated residents, 2020 census' },
@@ -763,7 +760,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Businesses', href: '/businesses', icon: 'pi pi-building' },
       { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contact', href: '/contact', icon: 'pi pi-envelope' },
-      { label: 'Hello from…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     menuQuickTasksLabel: 'I Want To...',
     menuGovernmentLabel: 'Government & Meetings',
@@ -1174,7 +1170,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Registros publicos y FOIA', href: '/records' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
-      { label: 'Saludos desde…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     communityFacts: [
       { label: 'Poblacion', value: '~437', detail: 'Residentes estimados, censo de 2020' },
@@ -1193,7 +1188,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Negocios', href: '/businesses', icon: 'pi pi-building' },
       { label: 'Noticias', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contacto', href: '/contact', icon: 'pi pi-envelope' },
-      { label: 'Saludos desde…', href: '/hello-from', icon: 'pi pi-globe' },
     ],
     menuQuickTasksLabel: 'Quiero...',
     menuGovernmentLabel: 'Gobierno y Reuniones',
@@ -1464,7 +1458,6 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     ButtonModule,
     DividerModule,
     DatePickerModule,
-    DialogModule,
     InputGroupModule,
     InputTextModule,
     TimelineModule,
@@ -1478,7 +1471,6 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     CardModule,
     FullCalendarModule,
     RouterOutlet,
-    LocalizedAiChat,
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
     LocalizedWeatherPanel,
@@ -1497,7 +1489,6 @@ export class App {
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
-  private readonly chatbotConfig = getChatbotRuntimeConfig();
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
@@ -1533,7 +1524,6 @@ export class App {
   protected readonly calendarJumpMonth = signal<Date | null>(null);
   protected readonly meetingsTab = signal<'month' | 'list'>('month');
   protected readonly calendarHelpVisible = signal(false);
-  protected readonly aiChatVisible = signal(false);
   protected readonly headerScrolled = signal(false);
   protected readonly sidebarVisible = signal(false);
   protected readonly mobileMenuItems = computed(() => this.menuItems());
@@ -1624,9 +1614,6 @@ export class App {
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
-  protected readonly isHelloFromAdminMode = computed(
-    () => this.currentPath() === '/admin/hello-from',
-  );
   protected readonly isAdminLoginMode = computed(() => this.currentPath() === '/admin/login');
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
   protected readonly isDocumentHubMode = computed(() => this.currentPath() === '/documents');
@@ -1636,7 +1623,6 @@ export class App {
   protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
   protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
-  protected readonly isHelloFromMode = computed(() => this.currentPath() === '/hello-from');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
@@ -1649,7 +1635,6 @@ export class App {
   protected readonly isTopLevelLazyRouteMode = computed(
     () =>
       this.isAdminMode() ||
-      this.isHelloFromAdminMode() ||
       this.isAdminLoginMode() ||
       this.isClerkSetupMode() ||
       this.isDocumentHubMode(),
@@ -1662,7 +1647,6 @@ export class App {
       this.isServicesMode() ||
       this.isRecordsMode() ||
       this.isContactMode() ||
-      this.isHelloFromMode() ||
       this.isAccessibilityMode() ||
       this.isPrivacyMode() ||
       this.isTermsMode() ||
@@ -1692,16 +1676,6 @@ export class App {
       !this.isDocumentHubMode() &&
       !this.isWeatherMode(),
   );
-  protected readonly isProgrammaticChatEnabled =
-    this.chatbotConfig.mode === 'api' && Boolean(this.chatbotConfig.apiEndpoint);
-  /**
-   * The floating "Ask Wiley" chatbot affordance is now always available on public pages.
-   * When no Easy-Peasy configuration is present (common in fresh clones / local dev),
-   * the dialog gracefully explains setup and offers contact fallbacks.
-   * This brings the resident assistant link back to the main page without requiring
-   * secrets for basic visibility.
-   */
-  protected readonly isAssistantEnabled = true; // Always surface the chatbot entry point (dialog handles configured vs. setup states)
   protected readonly heroContent = this.cmsStore.hero;
   protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);
@@ -1710,14 +1684,6 @@ export class App {
 
     if (this.isNotFoundMode()) {
       return `${this.appCopy().notFoundBrowserTitle} | ${siteTitle}`;
-    }
-
-    if (this.isHelloFromMode()) {
-      return `Hello from… | ${siteTitle}`;
-    }
-
-    if (this.isHelloFromAdminMode()) {
-      return `Hello-from visitor log | ${siteTitle}`;
     }
 
     const featureTitle = this.currentFeaturePage()?.title?.trim();
@@ -2787,14 +2753,6 @@ export class App {
 
   protected closeCalendarHelp(): void {
     this.calendarHelpVisible.set(false);
-  }
-
-  protected openAiChat(): void {
-    this.aiChatVisible.set(true);
-  }
-
-  protected closeAiChat(): void {
-    this.aiChatVisible.set(false);
   }
 
   protected updateHomepageWeatherAlert(alert: HomepageWeatherAlert | null): void {

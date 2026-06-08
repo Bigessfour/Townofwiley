@@ -1,8 +1,8 @@
 {
   "version": 1,
   "description": "Environment variable NAMES for scripts/generate-runtime-config.mjs → runtime-config.js on S3+CloudFront production. Values from GitHub secrets / user-secrets only. CMS: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi. Staff auth: Gen 1 Cognito us-east-2_DmY7BCBIp. Bindings SSOT: infrastructure/gen1-production-bindings.json.",
-  "note": "Production hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J. CMS editing via /admin (primary) or AppSync Queries console. Optional COGNITO_* and STORAGE_S3_* env vars inject staff auth + documents bucket into runtime-config.",
-  "legacyAmplifyAppId": "",
+  "note": "Production hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J. Amplify Hosting branch env vars are historical only (app deleted June 2026).",
+  "legacyAmplifyAppId": "d331voxr1fhoir",
   "branch": "main (hosting historical)",
   "generator": "scripts/generate-runtime-config.mjs",
   "requiredForProduction": [
@@ -32,48 +32,21 @@
       "runtimePath": "weather.alertSignup.enabled"
     },
     {
-      "name": "EASYPEASY_API_ENDPOINT",
-      "runtimePath": "chatbot.apiEndpoint"
-    },
-    {
-      "name": "EASYPEASY_CHAT_URL",
-      "runtimePath": "chatbot.chatUrl"
-    },
-    {
       "name": "CONTACT_UPDATE_REVIEW_API_URL",
       "runtimePath": "contactUpdate.reviewApiEndpoint",
       "notes": "JWT-protected API Gateway GET URL (includes /contact-updates path)"
-    },
-    {
-      "name": "GUESTBOOK_API_ENDPOINT",
-      "runtimePath": "guestbook.apiEndpoint",
-      "notes": "After deploy-guestbook-backend.py (hello-from Lambda Function URL)"
     }
   ],
   "optionalOrModeDependent": [
     {
       "name": "PAYSTAR_PORTAL_URL",
       "runtimePath": "payments.paystar.portalUrl",
-      "notes": "Hosted Paystar (AP-10)"
-    },
-    {
-      "name": "PAYSTAR_API_ENDPOINT",
-      "runtimePath": "payments.paystar.apiEndpoint",
-      "notes": "API mode only (AP-02 Path B)"
-    },
-    {
-      "name": "PAYSTAR_MODE",
-      "runtimePath": "payments.paystar.mode"
+      "notes": "Hosted Paystar only (https://docs.paystar.io/api/query/)"
     },
     {
       "name": "CONTACT_UPDATE_API_ENDPOINT",
       "runtimePath": "contactUpdate.apiEndpoint",
       "notes": "After deploy-contact-update-backend.py (AP-05)"
-    },
-    {
-      "name": "CONTACT_UPDATE_REVIEW_PROXY_URL",
-      "runtimePath": "contactUpdate.reviewProxyEndpoint",
-      "notes": "DEPRECATED — remove after proxy Function URL deleted; use CONTACT_UPDATE_REVIEW_API_URL"
     },
     {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",
@@ -84,6 +57,14 @@
       "runtimePath": "logging.endpoint"
     }
   ],
+  "decommissionedJune2026": [
+    "EASYPEASY_API_ENDPOINT",
+    "EASYPEASY_CHAT_URL",
+    "GUESTBOOK_API_ENDPOINT",
+    "CONTACT_UPDATE_REVIEW_PROXY_URL",
+    "PAYSTAR_API_ENDPOINT",
+    "PAYSTAR_MODE"
+  ],
   "amplifyManaged": ["AMPLIFY_BACKEND_APP_ID", "USER_BRANCH"],
-  "clerkSetupNotes": "clerkSetup in runtime-config now includes cfDistributionId (E1NZ3XCY5CYR1J) and s3Bucket for display in /admin. studioUrl/dataManagerUrl falls back to AppSync Queries for CMS editing (no more Amplify Studio dependency for clerks)."
+  "clerkSetupNotes": "Staff sign-in: /admin/login (Gen 1 Cognito us-east-2_DmY7BCBIp, Staff group). Content editing: /admin clerk task hub (in-app forms) — primary path for town staff; AppSync Queries console linked from Advanced (IT). Cognito and storage IDs default from infrastructure/gen1-production-bindings.json when COGNITO_* env vars are unset."
 }
