@@ -41,8 +41,11 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   private navigationStarted = false;
 
   ngOnInit(): void {
-    this.hubStop = Hub.listen('auth', ({ payload }) => {
-      void this.handleAuthHubEvent(payload.event, payload.data);
+    this.hubStop = Hub.listen('auth', (message) => {
+      const { event } = message.payload;
+      const data =
+        'data' in message.payload ? (message.payload.data as unknown) : undefined;
+      void this.handleAuthHubEvent(event, data);
     });
     void this.runLoginFlow();
   }
