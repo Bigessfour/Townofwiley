@@ -18,7 +18,7 @@ python scripts/configure-cognito-staff-email.py
 
 # 2) Review Lambda (code) + HTTP API + WAF
 python scripts/deploy-contact-updates-review.py
-python scripts/deploy-contact-updates-review-api.py
+# JWT HTTP API: TownOfWileyContactUpdatesReviewApi (lmppzxwh3h) — already deployed; set CONTACT_UPDATE_REVIEW_API_URL in secrets.
 python scripts/deploy-waf-contact-review-api.py
 
 # 3) GitHub secrets / user-secrets — paste URL from deploy script

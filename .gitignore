@@ -137,7 +137,7 @@ scripts/rag-*.sh
 scripts/retire-contact-review-proxy.py
 
 scripts/store-xai-api-key.sh
-scripts/verify-contact-review-security.mjs
+
 rag/
 mcp/
 mcps/

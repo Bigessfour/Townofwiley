@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { MessageModule } from 'primeng/message';
@@ -42,8 +43,8 @@ const MEETING_UPLOAD_COPY = {
     uploading: 'Uploading…',
     chooseFile: 'Choose file from computer',
     uploadButton: 'Upload and publish',
-    signInHint: 'You must',
-    signInLink: 'sign in as staff',
+    signInHint: 'Sign in to',
+    signInLink: 'Town admin',
     successTemplate:
       'Published {title}. Residents can open it from the Meetings page and Documents hub.',
     viewDocuments: 'View on Documents page',
@@ -59,8 +60,8 @@ const MEETING_UPLOAD_COPY = {
     uploading: 'Subiendo…',
     chooseFile: 'Elegir archivo de la computadora',
     uploadButton: 'Subir y publicar',
-    signInHint: 'Debe',
-    signInLink: 'iniciar sesion como personal',
+    signInHint: 'Inicie sesion en',
+    signInLink: 'Administracion municipal',
     successTemplate:
       'Se publico {title}. Los residentes pueden abrirlo desde Reuniones y Documentos.',
     viewDocuments: 'Ver en pagina de Documentos',
@@ -75,7 +76,7 @@ const MEETING_UPLOAD_COPY = {
   styleUrl: './cms-meeting-document-upload.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CmsMeetingDocumentUploadComponent {
+export class CmsMeetingDocumentUploadComponent implements OnInit {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly uploads = inject(DocumentUploadService);
   private readonly publicDocuments = inject(CmsPublicDocumentAdminService);
@@ -83,6 +84,12 @@ export class CmsMeetingDocumentUploadComponent {
   private readonly documentRefresh = inject(DocumentRefreshService);
   private readonly siteLanguage = inject(SiteLanguageService);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  protected readonly isSignedIn = this.staffAuth.isStaff;
+
+  ngOnInit(): void {
+    void this.staffAuth.refreshSession().then(() => this.cdr.markForCheck());
+  }
 
   protected readonly selectedEventId = signal('');
   protected readonly selectedFile = signal<File | null>(null);

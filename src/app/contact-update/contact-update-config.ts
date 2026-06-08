@@ -62,3 +62,18 @@ export function getContactUpdateReviewRuntimeConfig(): RuntimeContactUpdateRevie
     reviewProxyEndpoint: pick('reviewProxyEndpoint'),
   };
 }
+
+const CONTACT_REVIEW_PLACEHOLDER_MARKERS = [
+  'contact-review-not-deployed',
+  '.townofwiley.local',
+] as const;
+
+/** True when runtime-config exposes a real HTTP(S) review URL (not a build placeholder). */
+export function isContactReviewEndpointConfigured(endpoint: string): boolean {
+  const trimmed = endpoint.trim();
+  if (!trimmed.startsWith('https://')) {
+    return false;
+  }
+  const lower = trimmed.toLowerCase();
+  return !CONTACT_REVIEW_PLACEHOLDER_MARKERS.some((marker) => lower.includes(marker));
+}

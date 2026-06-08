@@ -30,5 +30,11 @@
     "s3Bucket": "townofwiley-static-site",
     "cloudFrontDistributionId": "E1NZ3XCY5CYR1J",
     "region": "us-east-2"
+  },
+  "contactReview": {
+    "apiId": "lmppzxwh3h",
+    "reviewApiEndpoint": "https://lmppzxwh3h.execute-api.us-east-2.amazonaws.com/contact-updates",
+    "dynamoDbTable": "TownOfWileyContactUpdates",
+    "lambdaFunctionName": "TownOfWileyContactUpdatesReview"
   }
 }

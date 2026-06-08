@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   getContactUpdateReviewRuntimeConfig,
   getContactUpdateRuntimeConfig,
+  isContactReviewEndpointConfigured,
 } from './contact-update-config';
 
 type RuntimeWindow = Window & {
@@ -44,6 +45,20 @@ describe('contact-update-config', () => {
     };
 
     expect(getContactUpdateRuntimeConfig().apiEndpoint).toBe('/api/local');
+  });
+
+  it('rejects placeholder review API URLs', () => {
+    expect(isContactReviewEndpointConfigured('')).toBe(false);
+    expect(
+      isContactReviewEndpointConfigured(
+        'https://contact-review-not-deployed.townofwiley.local/contact-updates',
+      ),
+    ).toBe(false);
+    expect(
+      isContactReviewEndpointConfigured(
+        'https://lmppzxwh3h.execute-api.us-east-2.amazonaws.com/contact-updates',
+      ),
+    ).toBe(true);
   });
 
   it('honors empty-string review overrides so E2E can force the proxy path', () => {

@@ -7,6 +7,7 @@ export const IT_ADMIN_COPY = {
   printReportLabel: 'Print report',
   contactUpdatesLoading: 'Loading messages…',
   contactUpdatesLoadError: 'Could not load messages. Sign in at /admin/login or call Town Hall.',
+  contactUpdatesRetryLabel: 'Try again',
   noContactUpdates: 'No resident messages yet.',
   connectionKicker: 'Technical check (IT)',
   connectionTitle: 'Test connection to the content database',

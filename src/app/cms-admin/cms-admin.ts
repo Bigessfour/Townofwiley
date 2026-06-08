@@ -5,6 +5,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { StaffAuthService } from '../auth/staff-auth.service';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
@@ -77,6 +78,7 @@ export class CmsAdmin {
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly contactUpdateReview = inject(ContactUpdateReviewService);
+  private readonly staffAuth = inject(StaffAuthService);
   protected readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
 
   private readonly appSyncRuntimeConfig = (() => {
@@ -219,6 +221,10 @@ export class CmsAdmin {
     }
   }
 
+  protected retryContactUpdates(): void {
+    void this.loadContactUpdates();
+  }
+
   protected downloadCSV(): void {
     this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
   }
@@ -231,6 +237,7 @@ export class CmsAdmin {
     this.contactUpdatesLoading.set(true);
     this.contactUpdatesLoadError.set(null);
     try {
+      await this.staffAuth.refreshSession();
       const result = await this.contactUpdateReview.getAllUpdates();
       if (result.ok) {
         this.contactUpdates.set(result.data);
