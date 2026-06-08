@@ -155,7 +155,7 @@
     "@angular/router": "21.2.14",
     "@angular/service-worker": "21.2.14",
     "@angular/ssr": "21.2.12",
-    "@aws-amplify/ui-angular": "^5.3.3",
+    "@aws-amplify/ui-angular": "^5.3.5",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/source-sans-3": "^5.2.9",
     "@fullcalendar/angular": "^6.1.20",
