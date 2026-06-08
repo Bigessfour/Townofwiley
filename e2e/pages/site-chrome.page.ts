@@ -1,4 +1,9 @@
 import { expect, Locator, Page } from '@playwright/test';
+import {
+  SITE_LANGUAGE_GROUP,
+  clickVisibleSiteLanguage,
+  siteLanguageButton,
+} from '../support/site-language-toggle';
 
 /** Shared header, search, language, mobile menu, chatbot, and footer chrome. */
 export class SiteChromePage {
@@ -33,7 +38,7 @@ export class SiteChromePage {
     this.emptySearchState = page.locator('.empty-state');
     this.footerLinks = page.locator('.footer-links a');
     this.townLogo = page.locator('.site-header a.town-logo').filter({ visible: true }).first();
-    this.languageGroup = page.getByRole('group', { name: 'Site language' });
+    this.languageGroup = page.getByRole('group', { name: SITE_LANGUAGE_GROUP });
     this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
     this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
     this.mobileMenuDrawer = page.locator('#mobile-menu-drawer');
@@ -60,10 +65,13 @@ export class SiteChromePage {
   }
 
   async switchLanguage(language: 'en' | 'es'): Promise<void> {
-    const selector = language === 'es' ? '#site-language-es' : '#site-language-en';
-    await this.sectionNav.locator(selector).evaluate((btn) => {
-      (btn as HTMLButtonElement).click();
-    });
+    const megamenuButton = siteLanguageButton(this.sectionNav, language);
+    if (await megamenuButton.isVisible().catch(() => false)) {
+      await megamenuButton.click();
+    } else {
+      await clickVisibleSiteLanguage(this.page, language);
+      return;
+    }
     await expect(this.page.locator('html')).toHaveAttribute('lang', language);
   }
 

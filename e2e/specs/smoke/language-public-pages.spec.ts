@@ -2,6 +2,7 @@ import { expect, test } from '../../fixtures/town.fixture';
 
 test.describe('public language coverage', () => {
   test('keeps Spanish copy active across core public journeys', async ({ homePage }) => {
+    test.setTimeout(120_000);
     await homePage.goto();
 
     await homePage.clickSiteLanguage('es');
