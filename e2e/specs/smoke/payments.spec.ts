@@ -10,7 +10,12 @@ async function dismissTransientCmsBanner(page: import('@playwright/test').Page):
 }
 
 async function gotoPayBillFormReady(page: import('@playwright/test').Page): Promise<void> {
+  const hydrated = page.waitForEvent('console', {
+    predicate: (msg) => msg.text().includes('Angular hydrated'),
+    timeout: 30_000,
+  });
   await page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
+  await hydrated;
   await dismissTransientCmsBanner(page);
   await expect(page.locator('#bp-full-name')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('#bp-service-address')).toBeVisible({ timeout: 10000 });
@@ -28,16 +33,16 @@ async function fillPayBillForm(
 ): Promise<ReturnType<import('@playwright/test').Page['locator']>> {
   const form = page.locator('#bill-pay-request form.pay-bill-form');
 
-  await form.getByRole('textbox', { name: /^Full name/i }).fill(values.fullName);
-  await form.getByRole('textbox', { name: /^Service address/i }).fill(values.serviceAddress);
-  await form.getByRole('textbox', { name: /^Email/i }).fill(values.email);
-  await form.getByRole('textbox', { name: /^Phone/i }).fill(values.phone);
+  await form.locator('#bp-full-name').fill(values.fullName);
+  await form.locator('#bp-service-address').fill(values.serviceAddress);
+  await form.locator('#bp-email').fill(values.email);
+  await form.locator('#bp-phone').fill(values.phone);
 
   await form.getByRole('button', { name: 'dropdown trigger' }).click();
   await page.getByRole('option', { name: new RegExp(`^${values.preferredContact}$`, 'i') }).click();
 
-  await expect(form.getByRole('textbox', { name: /^Full name/i })).toHaveValue(values.fullName);
-  await expect(form.getByRole('textbox', { name: /^Email/i })).toHaveValue(values.email);
+  await expect(form.locator('#bp-full-name')).toHaveValue(values.fullName);
+  await expect(form.locator('#bp-email')).toHaveValue(values.email);
 
   return form;
 }

@@ -49,10 +49,13 @@ export function getContactUpdateReviewRuntimeConfig(): RuntimeContactUpdateRevie
   const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
 
-  const pick = (key: 'reviewApiEndpoint' | 'reviewProxyEndpoint'): string =>
-    runtimeConfigOverride?.contactUpdate?.[key]?.trim() ||
-    runtimeConfig?.contactUpdate?.[key]?.trim() ||
-    '';
+  const pick = (key: 'reviewApiEndpoint' | 'reviewProxyEndpoint'): string => {
+    const overrideValue = runtimeConfigOverride?.contactUpdate?.[key];
+    if (overrideValue !== undefined) {
+      return overrideValue.trim();
+    }
+    return runtimeConfig?.contactUpdate?.[key]?.trim() ?? '';
+  };
 
   return {
     reviewApiEndpoint: pick('reviewApiEndpoint'),

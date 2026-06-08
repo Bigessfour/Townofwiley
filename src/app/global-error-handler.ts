@@ -1,4 +1,4 @@
-import { ErrorHandler, Injectable, inject } from '@angular/core';
+import { ApplicationRef, ErrorHandler, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { shouldShowGlobalErrorToast } from './global-error-toast-policy';
@@ -19,6 +19,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   private readonly logging = inject(LoggingService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly appRef = inject(ApplicationRef);
 
   handleError(error: unknown): void {
     const route = this.router.url;
@@ -76,6 +77,8 @@ export class GlobalErrorHandler implements ErrorHandler {
       life: 10000,
       closable: true,
     });
+    // Zoneless apps do not auto-run change detection for browser global error listeners.
+    this.appRef.tick();
   }
 
   private toErrorDetails(error: unknown): ErrorDetails {

@@ -60,6 +60,15 @@ export class StaffAuthService {
       return;
     }
 
+    if (this.isE2eStaffAuthDisabled()) {
+      this.accessTokenValue.set(null);
+      this.authenticated.set(false);
+      this.staffMember.set(false);
+      this.userEmail.set(null);
+      this.sessionReady.set(true);
+      return;
+    }
+
     try {
       const session = await fetchAuthSession({
         forceRefresh: options?.forceRefresh ?? false,
@@ -248,6 +257,11 @@ export class StaffAuthService {
 
   private isE2eStaffBypass(): boolean {
     return this.readE2eFlag('staffAuth') === true;
+  }
+
+  /** Playwright sets staffAuth: false to exercise /admin/login without Cognito network calls. */
+  private isE2eStaffAuthDisabled(): boolean {
+    return this.readE2eFlag('staffAuth') === false;
   }
 
   private shouldSkipHostedSignInRedirect(): boolean {

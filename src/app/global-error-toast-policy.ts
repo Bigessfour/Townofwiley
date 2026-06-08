@@ -162,6 +162,7 @@ function hasTownAppStackTrace(error: Error): boolean {
     /townofwiley\.gov/i.test(stack) ||
     /\/src\//i.test(stack) ||
     /main-[A-Z0-9]+\.js/i.test(stack) ||
-    /chunk-[A-Z0-9]+\.js/i.test(stack)
+    /chunk-[A-Z0-9]+\.js/i.test(stack) ||
+    /\/main\.js/i.test(stack)
   );
 }

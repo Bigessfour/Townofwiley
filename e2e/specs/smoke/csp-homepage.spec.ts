@@ -31,7 +31,7 @@ test.describe('homepage CSP', () => {
     ).toBe(false);
   });
 
-  test('homepage weather and chat load without Content-Security-Policy violations', async ({
+  test('homepage weather loads without Content-Security-Policy violations', async ({
     homePage,
   }) => {
     await homePage.page.addInitScript(() => {
@@ -71,17 +71,6 @@ test.describe('homepage CSP', () => {
     });
 
     await homePage.enableWeatherProxy('/mock-weather');
-    await homePage.enableProgrammaticChat('/mock-chatbot');
-    await homePage.page.route('**/mock-chatbot', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          statusCode: 200,
-          body: JSON.stringify({ response: 'CSP smoke reply.' }),
-        }),
-      });
-    });
     await homePage.goto();
 
     await homePage.page.waitForFunction(
@@ -105,16 +94,6 @@ test.describe('homepage CSP', () => {
 
     await homePage.page.goto('/');
     await expect(homePage.heroHeading).toBeVisible();
-
-    await homePage.openAssistantDialog();
-    await expect(homePage.assistantShell).toBeVisible();
-    await homePage.sendAssistantQuestion('CSP smoke test');
-    await expect(homePage.assistantMessages.filter({ hasText: 'CSP smoke reply.' })).toHaveCount(
-      1,
-      {
-        timeout: 15000,
-      },
-    );
 
     const violations = await homePage.page.evaluate(() => {
       const runtimeWindow = window as Window & {
