@@ -82,7 +82,8 @@ Amplify.configure({
       loginWith: {
         oauth: {
           domain: cognitoConfig.hostedUiDomain,
-          scopes: ['openid', 'email', 'profile'],
+          // aws.cognito.signin.user.admin ensures cognito:groups on the access token (OAuth race fallback).
+          scopes: ['openid', 'email', 'profile', 'aws.cognito.signin.user.admin'],
           redirectSignIn: oauthUrlsForPath('/admin/login'),
           redirectSignOut: oauthUrlsForPath('/admin'),
           responseType: 'code',

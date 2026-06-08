@@ -37,6 +37,28 @@ describe('StaffAuthService', () => {
     vi.clearAllMocks();
   });
 
+  it('marks staff when cognito:groups is only on the access token', async () => {
+    fetchAuthSession.mockResolvedValue({
+      tokens: {
+        accessToken: {
+          toString: () => 'access-token',
+          payload: { 'cognito:groups': ['Staff'] },
+        },
+        idToken: { payload: {} },
+      },
+    });
+    getCurrentUser.mockResolvedValue({
+      username: 'clerk@town.gov',
+      signInDetails: { loginId: 'clerk@town.gov' },
+    });
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.refreshSession();
+
+    expect(service.isStaff()).toBe(true);
+  });
+
   it('marks staff when cognito:groups includes Staff', async () => {
     fetchAuthSession.mockResolvedValue({
       tokens: {
@@ -203,7 +225,48 @@ describe('StaffAuthService', () => {
     expect(service.isStaff()).toBe(false);
   });
 
-  it('force-refreshes session when completing hosted sign-in', async () => {
+  it('retries until Staff group appears after hosted OAuth callback', async () => {
+    fetchAuthSession
+      .mockResolvedValueOnce({
+        tokens: {
+          accessToken: { toString: () => 'access-token', payload: {} },
+          idToken: { payload: {} },
+        },
+      })
+      .mockResolvedValueOnce({
+        tokens: {
+          accessToken: { toString: () => 'access-token', payload: {} },
+          idToken: { payload: {} },
+        },
+      })
+      .mockResolvedValueOnce({
+        tokens: {
+          accessToken: { toString: () => 'access-token', payload: {} },
+          idToken: { payload: {} },
+        },
+      })
+      .mockResolvedValue({
+        tokens: {
+          accessToken: {
+            toString: () => 'access-token',
+            payload: { 'cognito:groups': ['Staff'] },
+          },
+          idToken: { payload: { 'cognito:groups': ['Staff'] } },
+        },
+      });
+    getCurrentUser.mockResolvedValue({ username: 'clerk@town.gov' });
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.completeHostedSignIn();
+
+    expect(fetchAuthSession.mock.calls.some((call) => call[0]?.forceRefresh === true)).toBe(
+      true,
+    );
+    expect(service.isStaff()).toBe(true);
+  });
+
+  it('completes hosted sign-in when Staff group is present on first token read', async () => {
     fetchAuthSession.mockResolvedValue({
       tokens: {
         accessToken: { toString: () => 'access-token', payload: {} },
@@ -216,7 +279,6 @@ describe('StaffAuthService', () => {
     const service = new StaffAuthService();
     await service.completeHostedSignIn();
 
-    expect(fetchAuthSession).toHaveBeenCalledWith({ forceRefresh: true });
     expect(service.isStaff()).toBe(true);
   });
 
