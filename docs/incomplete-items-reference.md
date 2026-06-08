@@ -24,7 +24,7 @@ This site is a small-town local resource, so the best return comes from improvin
 - [x] Add loading states for form submits and any async UI action that can leave the page feeling frozen.
 - [x] Tighten mobile spacing and header behavior on the most important public pages.
 - [x] Add unit tests for shared copy helpers, language toggles, and any conditional UI rendering.
-- [x] Expand integration tests for contact-update, paystar-proxy, and weather proxy request/response handling. Paystar portal placeholder removed in repo (AP-03, PR #30); production `portalUrl` still ops-owned (AP-10).
+- [x] Expand integration tests for contact-update, paystar-proxy, and weather proxy request/response handling. Paystar hosted portal URL committed as default (`https://secure.paystar.io/pay/town-of-wiley-utilitybill`; AP-10 closed).
 - [x] Add i18n coverage for all new validation, loading, and error strings.
 
 ### P3: Good Cleanup, Lower Urgency
@@ -45,13 +45,13 @@ This site is a small-town local resource, so the best return comes from improvin
 
 ### Done When
 
-_Reconciled 2026-05-22 per AP-33 — see [`post-development-inventory.md`](post-development-inventory.md) for open ops slices (AP-01b, AP-02, AP-10)._
+_Reconciled 2026-06-08 — see [`post-development-inventory.md`](post-development-inventory.md) for open ops slices (AP-01b)._
 
 - [x] The site clearly explains validation failures to a real user. (Resident services + payment panels; AP-03 bilingual disabled-state copy.)
 - [x] Failed API calls produce a visible, friendly recovery path. (Global error handler, weather/payment fallbacks.)
 - [x] The main public flows work with keyboard only. (`accessibility-focus.spec.ts` and related smoke.)
 - [x] Unit and integration tests cover the highest-risk logic. (Vitest + smoke E2E baseline on `main`.)
-- [ ] The remaining issues are mostly cosmetic or optional enhancements, not blockers. **Still open:** production runtime-config verification (AP-01b), Paystar portal URL + product decision (AP-10, AP-02), WAF on public Lambdas (AP-16), leadership roster CMS (PR #28).
+- [ ] The remaining issues are mostly cosmetic or optional enhancements, not blockers. **Still open:** production runtime-config verification (AP-01b), WAF on public Lambdas (AP-16), leadership roster CMS (PR #28). **Resolved:** Paystar hosted portal URL (AP-10; Path A — redirect to `https://secure.paystar.io/pay/town-of-wiley-utilitybill`).
 
 ## 1. Document & Records Hub (High Priority)
 
