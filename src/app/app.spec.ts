@@ -23,6 +23,7 @@ import {
   LocalizedWeatherPanel,
   type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
+import { buildAmplifyConsoleDataManagerUrl } from './clerk-setup/clerk-setup-config';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
@@ -849,6 +850,12 @@ describe('App', () => {
   });
 
   it('should render the Deb Dillon setup details on the admin hub path', async () => {
+    const gen2DataManagerUrl = buildAmplifyConsoleDataManagerUrl(
+      'us-east-2',
+      'd331voxr1fhoir',
+      'main',
+      'https://us-east-2.console.aws.amazon.com/',
+    );
     runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       clerkSetup: {
         clerkName: 'Deb Dillon',
@@ -856,8 +863,7 @@ describe('App', () => {
         amplifyAppId: 'd331voxr1fhoir', // legacy hosting
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
-        studioUrl:
-          'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries',
+        studioUrl: gen2DataManagerUrl,
         cfDistributionId: 'E1NZ3XCY5CYR1J',
         s3Bucket: 'townofwiley-static-site',
       },
@@ -872,7 +878,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
     expect(compiled.textContent).toContain('d331voxr1fhoir'); // still shows legacy hosting for reference
-    expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // live Gen 1 AppSync (IT Advanced)
+    expect(compiled.textContent).toContain('branches/main/data'); // Gen 2 Amplify Data manager (IT Advanced)
     expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 
