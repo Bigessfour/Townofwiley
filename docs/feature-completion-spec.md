@@ -1,9 +1,9 @@
 # Feature Completion — Remaining Backlog
 
-**Last updated:** 2026-05-22
+**Last updated:** 2026-06-08
 Shipped work is **removed** from this list so only open or ops-owned items remain. Full audit: [`post-development-inventory.md`](post-development-inventory.md).
 
-**Recently merged:** AP-03 — Paystar hosted CTA disabled when `portalUrl` empty ([PR #30](https://github.com/Bigessfour/Townofwiley/pull/30)).
+**Recently merged:** AP-03 — Paystar hosted CTA disabled when `portalUrl` empty ([PR #30](https://github.com/Bigessfour/Townofwiley/pull/30)). **AP-10 closed in repo:** default hosted portal URL `https://secure.paystar.io/pay/town-of-wiley-utilitybill` (Path A redirect; embedded/API remains optional future work).
 
 ## Security (ops / cloud)
 
