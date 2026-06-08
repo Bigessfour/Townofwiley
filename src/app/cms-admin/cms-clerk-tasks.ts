@@ -49,17 +49,6 @@ export function clerkTaskEditorUrl(
   return buildAmplifyConsoleDataManagerModelUrl(region, appId, branch, model, fallbackUrl);
 }
 
-export const CLERK_IN_APP_EDITOR_TASK_IDS = [
-  'post-notice',
-  'add-meeting',
-  'homepage',
-  'emergency-banner',
-] as const satisfies readonly ClerkCmsTaskId[];
-
-export function clerkTaskHasInAppEditor(id: ClerkCmsTaskId): boolean {
-  return (CLERK_IN_APP_EDITOR_TASK_IDS as readonly ClerkCmsTaskId[]).includes(id);
-}
-
 export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'post-notice',
@@ -568,6 +557,14 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
   },
 ];
+
+export const CLERK_IN_APP_EDITOR_TASK_IDS = CLERK_CMS_TASKS.map(
+  (task) => task.id,
+) as ClerkCmsTaskId[];
+
+export function clerkTaskHasInAppEditor(id: ClerkCmsTaskId): boolean {
+  return CLERK_IN_APP_EDITOR_TASK_IDS.includes(id);
+}
 
 export function clerkTaskById(id: ClerkCmsTaskId): ClerkCmsTask | undefined {
   return CLERK_CMS_TASKS.find((task) => task.id === id);

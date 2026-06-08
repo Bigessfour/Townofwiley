@@ -1,0 +1,157 @@
+@if (task(); as active) {
+  <div class="cms-record-editor" data-testid="cms-record-editor">
+    <h3 class="cms-record-editor__title">{{ formTitle() }}</h3>
+    <p class="cms-record-editor__lead">
+      @if (isSingleton()) {
+        Changes save directly to the live website through Town content storage (AWS AppSync).
+      } @else if (editingId()) {
+        You are editing an existing {{ active.model }} row. Save updates the live site immediately.
+      } @else {
+        Fill in the fields below to add a new {{ active.model }} row on the live site.
+      }
+    </p>
+
+    @if (recordsLoading()) {
+      <p class="cms-record-editor__status" role="status">Loading saved records…</p>
+    }
+
+    @if (showRecordPicker()) {
+      <div class="cms-record-editor__picker">
+        <p class="cms-record-editor__picker-label">Saved on the website</p>
+        <p-table [value]="records()" styleClass="cms-record-table" dataKey="id">
+          <ng-template #header>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-record>
+            <tr>
+              <td>{{ recordLabel(record) }}</td>
+              <td>
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-outlined"
+                  [attr.data-testid]="'cms-edit-record-' + record['id']"
+                  (click)="editRecord(record)"
+                >
+                  Edit
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <button
+          pButton
+          type="button"
+          class="p-button-text cms-record-editor__new"
+          data-testid="cms-new-record"
+          (click)="startNewRecord()"
+        >
+          + Add new instead
+        </button>
+      </div>
+    }
+
+    <form class="cms-record-editor__form" (submit)="submitForm(); $event.preventDefault()">
+      @for (field of fields(); track field.name) {
+        @if (field.type === 'checkbox') {
+          <div class="cms-record-field cms-record-field--checkbox">
+            <p-checkbox
+              [inputId]="fieldInputId(field.name)"
+              [binary]="true"
+              [ngModel]="fieldValue(field) === true"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <label [for]="fieldInputId(field.name)">
+              {{ field.label }}
+            </label>
+          </div>
+        } @else if (field.type === 'textarea') {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span>{{ field.label }}@if (field.required) { * }</span>
+            <textarea
+              pTextarea
+              [id]="fieldInputId(field.name)"
+              [attr.placeholder]="field.placeholder ?? null"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+              rows="4"
+            ></textarea>
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        } @else if (field.type === 'number') {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span>{{ field.label }}@if (field.required) { * }</span>
+            <p-inputNumber
+              [inputId]="fieldInputId(field.name)"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, numberToFieldValue($event))"
+              [ngModelOptions]="{ standalone: true }"
+              [useGrouping]="false"
+            />
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        } @else if (field.type === 'date' || field.type === 'datetime') {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span>{{ field.label }}@if (field.required) { * }</span>
+            <p-datepicker
+              [inputId]="fieldInputId(field.name)"
+              [ngModel]="dateFieldValue(field.name)"
+              (ngModelChange)="updateDateField(field.name, $event, field.type)"
+              [ngModelOptions]="{ standalone: true }"
+              [showTime]="field.type === 'datetime'"
+              [hourFormat]="'12'"
+              dateFormat="yy-mm-dd"
+              fluid
+            />
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        } @else {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span>{{ field.label }}@if (field.required) { * }</span>
+            <input
+              pInputText
+              [id]="fieldInputId(field.name)"
+              type="text"
+              [attr.placeholder]="field.placeholder ?? null"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        }
+      }
+
+      <div class="cms-record-editor__actions">
+        <button
+          pButton
+          type="submit"
+          [disabled]="submitting()"
+          data-testid="cms-save-record"
+        >
+          {{ editingId() ? 'Save changes' : 'Save to website' }}
+        </button>
+      </div>
+    </form>
+
+    @if (submitResult()) {
+      <p-message severity="success" [text]="submitResult()!" styleClass="cms-record-editor__message" />
+    }
+    @if (submitError()) {
+      <p-message severity="error" [text]="submitError()!" styleClass="cms-record-editor__message" />
+    }
+  </div>
+}
