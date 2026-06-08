@@ -100,17 +100,15 @@
             }
           </label>
         } @else if (field.type === 'date' || field.type === 'datetime') {
-          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+          <label class="cms-record-field cms-record-field--date" [for]="fieldInputId(field.name)">
             <span>{{ field.label }}@if (field.required) { * }</span>
-            <p-datepicker
-              [inputId]="fieldInputId(field.name)"
-              [ngModel]="dateFieldValue(field.name)"
-              (ngModelChange)="updateDateField(field.name, $event, field.type)"
+            <input
+              class="cms-record-date-input"
+              [id]="fieldInputId(field.name)"
+              [type]="nativeDateInputType(field)"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
               [ngModelOptions]="{ standalone: true }"
-              [showTime]="field.type === 'datetime'"
-              [hourFormat]="'12'"
-              dateFormat="yy-mm-dd"
-              fluid
             />
             @if (field.help) {
               <span class="cms-record-field__help">{{ field.help }}</span>
