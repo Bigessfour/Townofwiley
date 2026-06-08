@@ -76,6 +76,16 @@
 
     @if (contactUpdatesLoadError()) {
       <p-message severity="error" [text]="contactUpdatesLoadError()!" />
+      <div class="cms-actions">
+        <button
+          type="button"
+          class="cms-button secondary"
+          [disabled]="contactUpdatesLoading()"
+          (click)="retryContactUpdates()"
+        >
+          {{ it.contactUpdatesRetryLabel }}
+        </button>
+      </div>
     }
     @if (contactUpdatesLoading()) {
       <p>{{ it.contactUpdatesLoading }}</p>

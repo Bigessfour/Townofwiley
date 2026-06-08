@@ -115,6 +115,12 @@ export function envFromAmplifyOutputs(outputs) {
   return out;
 }
 
+/** Env vars that may be satisfied from infrastructure/gen1-production-bindings.json in strict builds. */
+const BINDINGS_ENV_FALLBACKS = {
+  CONTACT_UPDATE_REVIEW_API_URL: () =>
+    loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ?? '',
+};
+
 export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
   const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
   const secretsEnv = envFromLocalSecrets(
@@ -123,7 +129,10 @@ export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
   const effectiveEnv = { ...outputsEnv, ...secretsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
-    const value = effectiveEnv[entry.name];
+    let value = effectiveEnv[entry.name];
+    if ((typeof value !== 'string' || value.trim() === '') && BINDINGS_ENV_FALLBACKS[entry.name]) {
+      value = BINDINGS_ENV_FALLBACKS[entry.name]();
+    }
     if (typeof value !== 'string' || value.trim() === '') {
       missing.push({
         name: entry.name,
@@ -308,6 +317,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const contactUpdateReviewApiEndpoint =
     env.CONTACT_UPDATE_REVIEW_API_URL?.trim() ||
     localSecrets.contactUpdate?.reviewApiEndpoint?.trim() ||
+    loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ||
     '';
   const contactUpdateReviewProxyEndpoint =
     env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||

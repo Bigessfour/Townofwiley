@@ -8,7 +8,11 @@
 
     @if (showStaffSignInNote()) {
       <p class="cms-task-guide__note" role="note">
-        <a href="/admin/login">Sign in as staff</a> before submitting the form below.
+        <a href="/admin/login">Sign in to Town admin</a> before submitting the form below.
+      </p>
+    } @else if (isSignedIn()) {
+      <p class="cms-task-guide__note cms-task-guide__note--ok" role="status">
+        Signed in — you can save changes below.
       </p>
     }
 
@@ -165,6 +169,63 @@
               />
             </label>
             <label class="field-group">
+              Office hours
+              <input
+                type="text"
+                placeholder="Monday–Friday 8am–5pm"
+                [value]="settingsForm().officeHours"
+                (input)="updateSettingsForm('officeHours', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Address
+              <input
+                type="text"
+                [value]="settingsForm().address"
+                (input)="updateSettingsForm('address', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Phone
+              <input
+                type="text"
+                [value]="settingsForm().phone"
+                (input)="updateSettingsForm('phone', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Email
+              <input
+                type="text"
+                [value]="settingsForm().email"
+                (input)="updateSettingsForm('email', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Page title (browser tab)
+              <input
+                type="text"
+                [value]="settingsForm().pageTitle"
+                (input)="updateSettingsForm('pageTitle', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Hero eyebrow
+              <input
+                type="text"
+                [value]="settingsForm().heroEyebrow"
+                (input)="updateSettingsForm('heroEyebrow', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Hero status
+              <input
+                type="text"
+                [value]="settingsForm().heroStatus"
+                (input)="updateSettingsForm('heroStatus', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
               Hero Title
               <input
                 type="text"
@@ -178,6 +239,30 @@
                 [value]="settingsForm().heroMessage"
                 (input)="updateSettingsForm('heroMessage', $any($event.target).value)"
               ></textarea>
+            </label>
+            <label class="field-group">
+              Hero subtext
+              <input
+                type="text"
+                [value]="settingsForm().heroSubtext"
+                (input)="updateSettingsForm('heroSubtext', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Photo web address (https://)
+              <input
+                type="text"
+                [value]="settingsForm().heroImageUrl"
+                (input)="updateSettingsForm('heroImageUrl', $any($event.target).value)"
+              />
+            </label>
+            <label class="field-group">
+              Welcome label
+              <input
+                type="text"
+                [value]="settingsForm().welcomeLabel"
+                (input)="updateSettingsForm('welcomeLabel', $any($event.target).value)"
+              />
             </label>
             <label class="field-group">
               Welcome Heading
@@ -195,11 +280,11 @@
               ></textarea>
             </label>
             <label class="field-group">
-              Photo web address (https://)
+              Welcome caption
               <input
                 type="text"
-                [value]="settingsForm().heroImageUrl"
-                (input)="updateSettingsForm('heroImageUrl', $any($event.target).value)"
+                [value]="settingsForm().welcomeCaption"
+                (input)="updateSettingsForm('welcomeCaption', $any($event.target).value)"
               />
             </label>
             <button type="submit" class="button-cta button-cta--solid" [disabled]="settingsSubmitting()">

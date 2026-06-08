@@ -15,7 +15,11 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './lib/deployed-function-urls.mjs';
-import { loadAmplifyBranchEnvManifest, repoRoot } from './lib/runtime-config-env.mjs';
+import {
+  loadAmplifyBranchEnvManifest,
+  loadProductionBindingsFromRepo,
+  repoRoot,
+} from './lib/runtime-config-env.mjs';
 import {
     applyEnvVarsToLocalSecrets
 } from './lib/runtime-secret-mappings.mjs';
@@ -187,8 +191,11 @@ function applyAwsSupplements(env) {
   }
 
   env.APPSYNC_CMS_REGION ??= 'us-east-2';
-  env.CONTACT_UPDATE_REVIEW_API_URL ??=
-    'https://contact-review-not-deployed.townofwiley.local/contact-updates';
+  const bindingsReviewApi =
+    loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ?? '';
+  if (bindingsReviewApi) {
+    env.CONTACT_UPDATE_REVIEW_API_URL ??= bindingsReviewApi.replace(/\/$/, '');
+  }
 
   return env;
 }

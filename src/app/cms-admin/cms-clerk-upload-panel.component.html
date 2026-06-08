@@ -56,7 +56,13 @@
     </div>
   }
 
-  <p class="cms-upload-panel__signin">
-    You must <a href="/admin/login">sign in</a> as staff before uploading.
-  </p>
+  @if (!isSignedIn()) {
+    <p class="cms-upload-panel__signin">
+      <a href="/admin/login">Sign in to Town admin</a> before uploading.
+    </p>
+  } @else {
+    <p class="cms-upload-panel__signin cms-upload-panel__signin--ok" role="status">
+      Signed in — choose a file above to upload.
+    </p>
+  }
 </section>

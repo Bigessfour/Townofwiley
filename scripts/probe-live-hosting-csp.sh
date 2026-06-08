@@ -72,7 +72,6 @@ checks=(
   'g.doubleclick.net'
   'execute-api.us-east-2.amazonaws.com'
   "frame-src 'self' https://www.googletagmanager.com"
-  "https://bots.easy-peasy.ai"
   "object-src 'none'"
 )
 

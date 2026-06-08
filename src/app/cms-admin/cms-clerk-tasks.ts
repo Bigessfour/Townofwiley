@@ -298,7 +298,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     steps: [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
       'Find the row for Town Hall (id town-information) or City Clerk (id city-clerk). Do not change those id values unless IT helps.',
-      'Update label, value, detail, and link fields. Ask IT to apply changes until an in-app form is available.',
+      'Update label, value, detail, and link fields in the form below.',
       'Save and check /contact.',
     ],
     fieldGlossary: [
@@ -351,7 +351,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
       'For each person, create one row with groupId mayor-council or town-administration.',
       'Fill English line and Spanish line — residents who use Spanish on the site need the Spanish line.',
-      'Set display order and Active on. Ask IT to apply changes until an in-app form is available.',
+      'Set display order and Active on in the form below.',
       'Save and check /contact.',
     ],
     fieldGlossary: [
@@ -392,7 +392,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/businesses',
     steps: [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'Create or edit a Business row, set Active on, and save (ask IT until an in-app form is available).',
+      'Create or edit a Business row in the form below and set Active on.',
       'Use display order to control sort order. Check /businesses after a hard refresh.',
     ],
     fieldGlossary: [
@@ -446,7 +446,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/news',
     steps: [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'Create a row with title, url, and source, set Active on, save (ask IT until an in-app form is available).',
+      'Create a row with title, url, and source in the form below and set Active on.',
       'Check /news after hard-refresh.',
     ],
     fieldGlossary: [

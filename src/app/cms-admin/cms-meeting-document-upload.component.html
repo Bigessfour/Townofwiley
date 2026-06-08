@@ -81,9 +81,15 @@
     }
   </div>
 
-  <p class="cms-meeting-upload__signin">
-    {{ copy().signInHint }}
-    <a href="/admin/login">{{ copy().signInLink }}</a>
-    before uploading.
-  </p>
+  @if (!isSignedIn()) {
+    <p class="cms-meeting-upload__signin">
+      {{ copy().signInHint }}
+      <a href="/admin/login">{{ copy().signInLink }}</a>
+      at /admin/login before uploading.
+    </p>
+  } @else {
+    <p class="cms-meeting-upload__signin cms-meeting-upload__signin--ok" role="status">
+      Signed in — choose a meeting and PDF above to publish.
+    </p>
+  }
 </section>

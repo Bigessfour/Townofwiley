@@ -4,6 +4,7 @@ import {
   Component,
   inject,
   input,
+  OnInit,
   output,
   signal,
 } from '@angular/core';
@@ -22,7 +23,7 @@ export type ClerkUploadMode = 'hero' | 'newsletter-pdf';
   styleUrl: './cms-clerk-upload-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CmsClerkUploadPanelComponent {
+export class CmsClerkUploadPanelComponent implements OnInit {
   readonly mode = input.required<ClerkUploadMode>();
 
   readonly openTaskGuide = output<ClerkCmsTaskId>();
@@ -31,6 +32,8 @@ export class CmsClerkUploadPanelComponent {
   private readonly staffAuth = inject(StaffAuthService);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  protected readonly isSignedIn = this.staffAuth.isStaff;
+
   protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly resultMessage = signal<string | null>(null);
@@ -38,6 +41,10 @@ export class CmsClerkUploadPanelComponent {
   protected readonly httpsUrl = signal<string | null>(null);
 
   protected readonly loginUrl = '/admin/login';
+
+  ngOnInit(): void {
+    void this.staffAuth.refreshSession().then(() => this.cdr.markForCheck());
+  }
 
   protected taskGuideId(): ClerkCmsTaskId {
     return this.mode() === 'hero' ? 'homepage' : 'post-notice';
@@ -61,7 +68,7 @@ export class CmsClerkUploadPanelComponent {
 
     await this.staffAuth.refreshSession();
     if (!this.staffAuth.isStaff()) {
-      this.error.set('Sign in at /admin/login before uploading files.');
+      this.error.set('Sign in to Town admin at /admin/login before uploading files.');
       inputEl.value = '';
       return;
     }

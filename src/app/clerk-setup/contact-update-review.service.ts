@@ -2,7 +2,10 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { StaffAuthService } from '../auth/staff-auth.service';
-import { getContactUpdateReviewRuntimeConfig } from '../contact-update/contact-update-config';
+import {
+  getContactUpdateReviewRuntimeConfig,
+  isContactReviewEndpointConfigured,
+} from '../contact-update/contact-update-config';
 import { printContactUpdateReport, type ContactUpdateReportLabels } from './contact-update-report';
 
 export interface ContactUpdateRecord {
@@ -32,8 +35,18 @@ export class ContactUpdateReviewService {
 
   async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
     const reviewConfig = getContactUpdateReviewRuntimeConfig();
+    const reviewApiEndpoint = reviewConfig.reviewApiEndpoint;
+    const requiresStaffJwt = isContactReviewEndpointConfigured(reviewApiEndpoint);
+
+    if (reviewApiEndpoint && !requiresStaffJwt) {
+      return {
+        ok: false,
+        error:
+          'Contact updates are not configured on this site yet. Ask IT to set CONTACT_UPDATE_REVIEW_API_URL and redeploy runtime-config.js.',
+      };
+    }
+
     const reviewEndpoint = this.resolveReviewEndpoint(reviewConfig);
-    const requiresStaffJwt = Boolean(reviewConfig.reviewApiEndpoint);
 
     try {
       if (requiresStaffJwt) {
@@ -148,7 +161,9 @@ export class ContactUpdateReviewService {
           : 'Contact updates are not available (access denied). Ask IT to deploy the review proxy.';
       }
       if (err.status === 0) {
-        return 'Could not reach the contact updates service. Check your network or try again.';
+        return requiresStaffJwt
+          ? 'Could not reach the contact updates service. Ask IT to verify CONTACT_UPDATE_REVIEW_API_URL in runtime-config.js, then try again.'
+          : 'Could not reach the contact updates service. Ask IT to deploy the review API proxy or set CONTACT_UPDATE_REVIEW_API_URL.';
       }
       if (err.status === 200) {
         return 'Could not load contact updates (received the site home page instead of data). Sign in at /admin/login or contact IT.';

@@ -112,6 +112,20 @@ describe('ContactUpdateReviewService', () => {
     }
   });
 
+  it('returns IT message when review API is a build placeholder', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://contact-review-not-deployed.townofwiley.local/contact-updates',
+      },
+    };
+
+    const result = await service.getAllUpdates();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('CONTACT_UPDATE_REVIEW_API_URL');
+    }
+  });
+
   it('returns sign-in message when review API is configured but user has no token', async () => {
     (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
       contactUpdate: {

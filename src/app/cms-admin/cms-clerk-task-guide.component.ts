@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  OnInit,
   signal,
 } from '@angular/core';
 import { StaffAuthService } from '../auth/staff-auth.service';
@@ -33,10 +34,11 @@ import {
   styleUrl: './cms-clerk-task-guide.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CmsClerkTaskGuideComponent {
+export class CmsClerkTaskGuideComponent implements OnInit {
   readonly taskId = input<ClerkCmsTaskId | null>(null);
 
   private readonly staffAuth = inject(StaffAuthService);
+  protected readonly isSignedIn = this.staffAuth.isStaff;
 
   private readonly eventService = inject(CmsEventAdminService);
   private readonly announcementService = inject(CmsAnnouncementAdminService);
@@ -80,6 +82,10 @@ export class CmsClerkTaskGuideComponent {
       this.dynamicSubmitResult.set(null);
       this.dynamicSubmitError.set(null);
     });
+  }
+
+  ngOnInit(): void {
+    void this.staffAuth.refreshSession();
   }
 
   protected readonly verifySteps = CLERK_VERIFY_STEPS;
@@ -269,11 +275,21 @@ export class CmsClerkTaskGuideComponent {
   // Simple form state for Homepage / SiteSettings (create example; typically edit existing row)
   protected readonly settingsForm = signal({
     townName: 'Town of Wiley',
+    officeHours: '',
+    address: '',
+    phone: '',
+    email: '',
+    pageTitle: '',
+    heroEyebrow: '',
+    heroStatus: '',
     heroTitle: '',
     heroMessage: '',
+    heroSubtext: '',
+    heroImageUrl: '',
+    welcomeLabel: '',
     welcomeHeading: '',
     welcomeBody: '',
-    heroImageUrl: '',
+    welcomeCaption: '',
   });
   protected readonly settingsSubmitting = signal(false);
   protected readonly settingsResult = signal<string | null>(null);
@@ -295,10 +311,20 @@ export class CmsClerkTaskGuideComponent {
     try {
       const id = await this.siteSettingsService.createSiteSettings({
         townName: form.townName,
+        officeHours: form.officeHours || undefined,
+        address: form.address || undefined,
+        phone: form.phone || undefined,
+        email: form.email || undefined,
+        pageTitle: form.pageTitle || undefined,
+        heroEyebrow: form.heroEyebrow || undefined,
+        heroStatus: form.heroStatus || undefined,
         heroTitle: form.heroTitle || undefined,
         heroMessage: form.heroMessage || undefined,
+        heroSubtext: form.heroSubtext || undefined,
+        welcomeLabel: form.welcomeLabel || undefined,
         welcomeHeading: form.welcomeHeading || undefined,
         welcomeBody: form.welcomeBody || undefined,
+        welcomeCaption: form.welcomeCaption || undefined,
         heroImageUrl: form.heroImageUrl || undefined,
       });
       this.settingsResult.set(
@@ -306,11 +332,21 @@ export class CmsClerkTaskGuideComponent {
       );
       this.settingsForm.set({
         townName: 'Town of Wiley',
+        officeHours: '',
+        address: '',
+        phone: '',
+        email: '',
+        pageTitle: '',
+        heroEyebrow: '',
+        heroStatus: '',
         heroTitle: '',
         heroMessage: '',
+        heroSubtext: '',
+        heroImageUrl: '',
+        welcomeLabel: '',
         welcomeHeading: '',
         welcomeBody: '',
-        heroImageUrl: '',
+        welcomeCaption: '',
       });
     } catch (err: unknown) {
       const msg =
@@ -374,6 +410,11 @@ export class CmsClerkTaskGuideComponent {
           return;
         }
         input[field.name] = parsed;
+      } else if (field.name === 'keywords') {
+        input[field.name] = text
+          .split(',')
+          .map((keyword) => keyword.trim())
+          .filter(Boolean);
       } else {
         input[field.name] = text;
       }

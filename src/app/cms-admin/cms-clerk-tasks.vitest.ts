@@ -8,7 +8,7 @@ import {
 
 describe('cms-clerk-tasks', () => {
   it('defines clerk tasks with unique ids', () => {
-    expect(CLERK_CMS_TASKS.length).toBeGreaterThanOrEqual(9);
+    expect(CLERK_CMS_TASKS.length).toBeGreaterThanOrEqual(10);
     const ids = CLERK_CMS_TASKS.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
