@@ -66,7 +66,27 @@ function mapStaffAuthError(error: unknown): string | null {
     return 'This account does not have a verified email for password recovery. Contact Town Hall so IT can verify your staff email in Cognito.';
   }
 
+  if (
+    name.includes('useralreadyauthenticated') ||
+    message.includes('there is already a signed in user')
+  ) {
+    return (
+      'A previous sign-in session is still active in this browser. ' +
+      'Wait a moment while we refresh your session, or sign out and try again.'
+    );
+  }
+
   return null;
+}
+
+/** True when Amplify Auth refuses a new sign-in because a session already exists. */
+export function isUserAlreadyAuthenticatedError(error: unknown): boolean {
+  const name = readErrorName(error).toLowerCase();
+  const message = readErrorMessage(error).toLowerCase();
+  return (
+    name.includes('useralreadyauthenticated') ||
+    message.includes('there is already a signed in user')
+  );
 }
 
 function readErrorName(error: unknown): string {

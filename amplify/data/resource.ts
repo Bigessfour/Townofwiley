@@ -1,5 +1,16 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
+/** Public site reads via API key; clerk CMS mutations require Cognito Staff group. */
+const publicReadStaffCrud = (allow: {
+  publicApiKey: () => { to: (operations: ['read']) => unknown };
+  groups: (names: string[]) => {
+    to: (operations: ('read' | 'create' | 'update' | 'delete')[]) => unknown;
+  };
+}) => [
+  allow.publicApiKey().to(['read']),
+  allow.groups(['Staff']).to(['read', 'create', 'update', 'delete']),
+];
+
 const schema = a.schema({
   SiteSettings: a
     .model({
@@ -20,11 +31,7 @@ const schema = a.schema({
       welcomeBody: a.string(),
       welcomeCaption: a.string(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   AlertBanner: a
     .model({
@@ -35,11 +42,7 @@ const schema = a.schema({
       linkLabel: a.string(),
       linkHref: a.url(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   Announcement: a
     .model({
@@ -52,11 +55,7 @@ const schema = a.schema({
       imageUrl: a.url(),
       active: a.boolean().required(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   Event: a
     .model({
@@ -67,11 +66,7 @@ const schema = a.schema({
       end: a.datetime(),
       active: a.boolean().required(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   OfficialContact: a
     .model({
@@ -82,11 +77,7 @@ const schema = a.schema({
       linkLabel: a.string(),
       displayOrder: a.integer(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   LeadershipRosterEntry: a
     .model({
@@ -96,11 +87,7 @@ const schema = a.schema({
       lineEs: a.string().required(),
       active: a.boolean().required(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   EmailAlias: a
     .model({
@@ -112,8 +99,7 @@ const schema = a.schema({
       notes: a.string(),
     })
     .authorization((allow) => [
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
+      allow.groups(['Staff']).to(['read', 'create', 'update', 'delete']),
     ]),
 
   Business: a
@@ -127,11 +113,7 @@ const schema = a.schema({
       active: a.boolean().required(),
       displayOrder: a.integer(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   PublicDocument: a
     .model({
@@ -149,11 +131,7 @@ const schema = a.schema({
       active: a.boolean().required(),
       displayOrder: a.integer(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   ExternalNewsLink: a
     .model({
@@ -163,11 +141,7 @@ const schema = a.schema({
       active: a.boolean().required(),
       displayOrder: a.integer(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 
   /**
    * Lightweight editable UI copy for frequently changing labels, headings, and task text.
@@ -184,11 +158,7 @@ const schema = a.schema({
       active: a.boolean().required(),
       displayOrder: a.integer(),
     })
-    .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
-      allow.guest().to(['read', 'create', 'update', 'delete']),
-      allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    ]),
+    .authorization(publicReadStaffCrud),
 });
 
 export type Schema = ClientSchema<typeof schema>;

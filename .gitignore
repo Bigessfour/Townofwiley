@@ -135,7 +135,7 @@ scripts/purge-contact-update-test-data.py
 scripts/rag-*.mjs
 scripts/rag-*.sh
 scripts/retire-contact-review-proxy.py
-scripts/setup-cognito-staff-group.py
+
 scripts/store-xai-api-key.sh
 scripts/verify-contact-review-security.mjs
 scripts/verify-runtime-config-cms.mjs

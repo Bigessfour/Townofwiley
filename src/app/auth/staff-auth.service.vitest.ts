@@ -57,14 +57,69 @@ describe('StaffAuthService', () => {
     expect(service.accessToken()).toBe('access-token');
   });
 
-  it('redirects to Cognito Hosted UI', async () => {
+  it('redirects to Cognito Hosted UI when no session exists', async () => {
+    fetchAuthSession.mockResolvedValue({ tokens: undefined });
     signInWithRedirect.mockResolvedValue(undefined);
 
     const { StaffAuthService } = await import('./staff-auth.service');
     const service = new StaffAuthService();
     await service.beginStaffHostedSignIn();
 
-    expect(signInWithRedirect).toHaveBeenCalled();
+    expect(signInWithRedirect).toHaveBeenCalledTimes(1);
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
+  it('skips redirect when the session is already staff', async () => {
+    fetchAuthSession.mockResolvedValue({
+      tokens: {
+        accessToken: { toString: () => 'access-token', payload: {} },
+        idToken: { payload: { 'cognito:groups': ['Staff'] } },
+      },
+    });
+    getCurrentUser.mockResolvedValue({ username: 'clerk@town.gov' });
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.beginStaffHostedSignIn();
+
+    expect(signInWithRedirect).not.toHaveBeenCalled();
+  });
+
+  it('signs out a stale non-staff session before redirecting', async () => {
+    fetchAuthSession.mockResolvedValue({
+      tokens: {
+        accessToken: { toString: () => 'access-token', payload: {} },
+        idToken: { payload: { 'cognito:groups': ['Residents'] } },
+      },
+    });
+    signOut.mockResolvedValue(undefined);
+    signInWithRedirect.mockResolvedValue(undefined);
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.beginStaffHostedSignIn();
+
+    expect(signOut).toHaveBeenCalledWith({ global: true });
+    expect(signInWithRedirect).toHaveBeenCalledTimes(1);
+  });
+
+  it('recovers from UserAlreadyAuthenticatedException during hosted sign-in', async () => {
+    fetchAuthSession.mockResolvedValue({ tokens: undefined });
+    signInWithRedirect
+      .mockRejectedValueOnce(
+        Object.assign(new Error('There is already a signed in user.'), {
+          name: 'UserAlreadyAuthenticatedException',
+        }),
+      )
+      .mockResolvedValueOnce(undefined);
+    signOut.mockResolvedValue(undefined);
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.beginStaffHostedSignIn();
+
+    expect(signOut).toHaveBeenCalledWith({ global: true });
+    expect(signInWithRedirect).toHaveBeenCalledTimes(2);
   });
 
   it('returns newPasswordRequired when Cognito requires a password change', async () => {
@@ -146,6 +201,23 @@ describe('StaffAuthService', () => {
 
     expect(service.isAuthenticated()).toBe(true);
     expect(service.isStaff()).toBe(false);
+  });
+
+  it('force-refreshes session when completing hosted sign-in', async () => {
+    fetchAuthSession.mockResolvedValue({
+      tokens: {
+        accessToken: { toString: () => 'access-token', payload: {} },
+        idToken: { payload: { 'cognito:groups': ['Staff'] } },
+      },
+    });
+    getCurrentUser.mockResolvedValue({ username: 'clerk@town.gov' });
+
+    const { StaffAuthService } = await import('./staff-auth.service');
+    const service = new StaffAuthService();
+    await service.completeHostedSignIn();
+
+    expect(fetchAuthSession).toHaveBeenCalledWith({ forceRefresh: true });
+    expect(service.isStaff()).toBe(true);
   });
 
   it('detects OAuth callback query parameters', async () => {

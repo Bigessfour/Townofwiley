@@ -18,4 +18,5 @@ export const ADMIN_LOGIN_COPY = {
   returnHome: 'Return to public site',
   authError:
     'Sign-in could not be completed. Confirm you are in the Staff group or contact Town Hall for help.',
+  retrySignIn: 'Sign in again',
 };

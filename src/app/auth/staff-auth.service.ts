@@ -11,6 +11,7 @@ import {
   type SignInInput,
 } from 'aws-amplify/auth';
 import { cognitoConfig } from '../amplify-config';
+import { isUserAlreadyAuthenticatedError } from './staff-auth-error';
 
 interface RuntimeE2eConfig {
   staffAuth?: boolean;
@@ -49,7 +50,7 @@ export class StaffAuthService {
   readonly email = computed(() => this.userEmail());
   readonly accessToken = computed(() => this.accessTokenValue());
 
-  async refreshSession(): Promise<void> {
+  async refreshSession(options?: { forceRefresh?: boolean }): Promise<void> {
     if (this.isE2eStaffBypass()) {
       this.accessTokenValue.set('e2e-staff-token');
       this.authenticated.set(true);
@@ -60,7 +61,9 @@ export class StaffAuthService {
     }
 
     try {
-      const session = await fetchAuthSession();
+      const session = await fetchAuthSession({
+        forceRefresh: options?.forceRefresh ?? false,
+      });
       const accessToken = session.tokens?.accessToken?.toString() ?? null;
       const idGroups = this.readGroupsFromToken(session.tokens?.idToken?.payload);
       const accessGroups = this.readGroupsFromToken(session.tokens?.accessToken?.payload);
@@ -96,12 +99,62 @@ export class StaffAuthService {
     if (this.isE2eStaffBypass() || this.shouldSkipHostedSignInRedirect()) {
       return;
     }
-    await signInWithRedirect();
+
+    await this.refreshSession();
+    if (this.isStaff()) {
+      return;
+    }
+
+    if (this.isAuthenticated()) {
+      await signOut({ global: true });
+      await this.refreshSession();
+    }
+
+    try {
+      await signInWithRedirect();
+    } catch (error) {
+      if (!isUserAlreadyAuthenticatedError(error)) {
+        throw error;
+      }
+      await this.refreshSession();
+      if (this.isStaff()) {
+        return;
+      }
+      await signOut({ global: true });
+      await this.refreshSession();
+      await signInWithRedirect();
+    }
   }
 
   /** After OAuth callback, load session and verify Staff group membership. */
   async completeHostedSignIn(): Promise<void> {
+    await this.waitForAuthenticatedSession();
+    await this.refreshSession({ forceRefresh: true });
     await this.assertStaffSession();
+  }
+
+  /** Loads identity-pool credentials for Staff S3 uploads after Cognito sign-in. */
+  async ensureIdentityCredentials(): Promise<void> {
+    if (this.isE2eStaffBypass()) {
+      return;
+    }
+    await fetchAuthSession({ forceRefresh: true });
+  }
+
+  /**
+   * Gives the OAuth listener time to finish after Cognito redirects back to /admin/login.
+   * The listener can sign in and strip ?code= before Angular runs the login flow.
+   */
+  async waitForAuthenticatedSession(maxAttempts = 10, delayMs = 200): Promise<void> {
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await this.refreshSession();
+      if (this.isAuthenticated()) {
+        return;
+      }
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
   }
 
   isHostedSignInCallback(): boolean {
@@ -114,6 +167,12 @@ export class StaffAuthService {
 
   /** Starts staff sign-in; returns when a new temporary password must be set. */
   async beginStaffSignIn(input: StaffSignInInput): Promise<StaffSignInStep> {
+    await this.refreshSession();
+    if (this.isAuthenticated()) {
+      await signOut({ global: true });
+      await this.refreshSession();
+    }
+
     const credentials: SignInInput = {
       username: input.username.trim(),
       password: input.password,

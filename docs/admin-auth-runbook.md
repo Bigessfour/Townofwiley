@@ -8,10 +8,15 @@ Staff access to `/admin` and resident contact-update PII uses **Amazon Cognito**
 export AWS_PROFILE=townofwiley
 export AWS_REGION=us-east-2
 
-# 1) Cognito Hosted UI (OAuth) + staff email via SES
+# 0) Gen 2 backend (Staff group + AppSync/Storage auth rules) — after code changes
+# npx --prefix amplify ampx pipeline-deploy --branch main --app-id d331voxr1fhoir
+
+# 1) Cognito Staff group + Hosted UI (OAuth) + staff email via SES
+python scripts/setup-cognito-staff-group.py
 npm run configure:cognito-hosted-ui
 python scripts/configure-cognito-staff-email.py
-# Create staff users in Cognito console or with reset-cognito-staff-password.py
+# Or: AWS_PROFILE=townofwiley node scripts/configure-gen2-clerk-cms.mjs
+# Create staff users: setup-cognito-staff-group.py --create-user <email> --set-temp-password --print-password
 
 # 2) Review Lambda (code) + HTTP API + WAF
 python scripts/deploy-contact-updates-review.py
@@ -42,9 +47,21 @@ python scripts/purge-contact-update-test-data.py
 | 3   | Test PII removed               | `python scripts/purge-contact-update-test-data.py`                                               |
 | 4   | No console errors              | Manual pass on `/admin` tabs after sign-in                                                       |
 
+## OAuth sign-in flow (`/admin/login`)
+
+The Angular app completes Cognito Hosted UI OAuth per [Amplify external sign-in guidance](https://docs.amplify.aws/javascript/build-a-backend/auth/concepts/external-identity-providers/):
+
+- `src/main.ts` imports `aws-amplify/auth/enable-oauth-listener` (global listener).
+- `/admin/login` subscribes to `Hub.listen('auth')` for `signInWithRedirect` and `signInWithRedirect_failure`.
+- Unauthenticated clerks are auto-redirected to Hosted UI after a short delay; **Sign in again** appears on errors.
+
+If staff see **UserAlreadyAuthenticatedException**, hard-refresh once or click **Sign in again** (stale browser session).
+
 ## Staff onboarding
 
-1. IT creates the user in the Cognito console (Gen 2 pool `us-east-2_pkewJMUJF`) and adds them to group **Staff**, or runs `python scripts/reset-cognito-staff-password.py --email <email> --temporary --print-password`.
+1. IT creates the user in the Cognito console (Gen 2 pool `us-east-2_pkewJMUJF`) and adds them to group **Staff**, or runs:
+   `python scripts/setup-cognito-staff-group.py --create-user <email> --set-temp-password --print-password`
+   (or `python scripts/reset-cognito-staff-password.py --email <email> --temporary --print-password` for existing users).
 2. The **Staff** group maps to the Gen 2 Amplify **authenticated IAM role** (see `infrastructure/gen2-production-bindings.json`) for AppSync CMS mutations and S3 document uploads.
 3. Staff opens **https://townofwiley.gov/admin** — they are redirected to the **Cognito Hosted UI** sign-in page, then return to `/admin` after successful sign-in.
 4. **Forgot password:** Use **Forgot password?** on the Cognito Hosted UI only after the user has completed first-time sign-in (status **CONFIRMED** in Cognito). Cognito sends the code to the verified email via Amazon SES (`noreply@townofwiley.gov`).
@@ -74,6 +91,8 @@ Requires verified domain **`townofwiley.gov`** in SES (us-east-2) and policy `Co
 | `AdminResetUserPassword` fails             | Same **`FORCE_CHANGE_PASSWORD`** state                                 | Use `--temporary` or `--permanent` on reset script first                                      |
 | Code never arrives (CONFIRMED user)        | Pool still on `COGNITO_DEFAULT`, spam, or SES quota                    | Run `configure-cognito-staff-email.py`; check spam for `noreply@townofwiley.gov`              |
 | Invalid verification code                  | Expired or wrong code                                                  | Request a new code; codes are single-use                                                      |
+| `UserAlreadyAuthenticatedException`        | OAuth listener signed in before `/admin/login` retried redirect        | Hard-refresh `/admin/login` or click **Sign in again**; deploy latest frontend                  |
+| CMS mutation fails after sign-in           | User not in **Staff** group or backend auth rules not deployed         | Run `setup-cognito-staff-group.py`; redeploy Gen 2 backend (`ampx pipeline-deploy`)           |
 
 ```bash
 # Inspect user
