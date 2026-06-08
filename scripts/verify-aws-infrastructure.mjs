@@ -132,11 +132,9 @@ function checkLogGroupRetention(logGroupName, region) {
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
 
-/** Contact Function URL auth matrix (SSOT / AP-05). */
+/** Lambdas with public Function URLs (SSOT / AP-05). Review Lambda uses JWT API Gateway, not a Function URL. */
 const CONTACT_FUNCTION_URL_AUTH = {
-  TownOfWileyContactUpdatesReview: 'AWS_IAM',
   TownOfWileyContactUpdate: 'NONE',
-  TownOfWileyContactUpdatesReviewProxy: 'NONE',
 };
 
 if (offline) {
@@ -169,7 +167,6 @@ if (offline) {
     const requiredMarkers = [
       'execute-api',
       'googletagmanager',
-      'easy-peasy',
       'appsync-api',
       'unsafe-inline',
     ];
@@ -201,11 +198,31 @@ if (offline) {
       fail(
         `${name}: functionUrl.authType ${actual ?? '(missing)'} (expected ${expectedAuth} per SSOT)`,
       );
-    } else if (name === 'TownOfWileyContactUpdatesReview' && actual === 'NONE') {
-      fail(`${name}: review Lambda must not use public NONE auth (PII)`);
     } else {
       pass(`${name}: Function URL authType ${actual}`);
     }
+  }
+
+  const reviewEntry = manifest.lambdaFunctions.find(
+    (fn) => fn.functionName === 'TownOfWileyContactUpdatesReview',
+  );
+  if (!reviewEntry) {
+    fail('TownOfWileyContactUpdatesReview: missing from aws-infrastructure.manifest.json');
+  } else if (reviewEntry.functionUrl?.required) {
+    fail(
+      'TownOfWileyContactUpdatesReview: must not expose a public Function URL (JWT API Gateway only)',
+    );
+  } else {
+    pass('TownOfWileyContactUpdatesReview: no public Function URL (API Gateway)');
+  }
+
+  const decommissionedProxy = (manifest.decommissionedJune2026?.lambdaFunctions ?? []).includes(
+    'TownOfWileyContactUpdatesReviewProxy',
+  );
+  if (!decommissionedProxy) {
+    fail('decommissionedJune2026.lambdaFunctions must list TownOfWileyContactUpdatesReviewProxy');
+  } else {
+    pass('TownOfWileyContactUpdatesReviewProxy: decommissioned (not in live manifest)');
   }
 
   const reviewDeployScript = join(repoRoot, 'scripts', 'deploy-contact-updates-review.py');
