@@ -71,16 +71,6 @@ export const routes: Routes = [
     loadComponent: () => import('./contact-page/contact-page').then((m) => m.ContactPage),
   },
   {
-    path: 'hello-from',
-    loadComponent: () => import('./hello-from/hello-from-page').then((m) => m.HelloFromPage),
-  },
-  {
-    path: 'admin/hello-from',
-    canActivate: [staffAuthGuard],
-    loadComponent: () =>
-      import('./hello-from/hello-from-admin-page').then((m) => m.HelloFromAdminPage),
-  },
-  {
     path: 'accessibility',
     loadComponent: () =>
       import('./accessibility-page/accessibility-page').then((m) => m.AccessibilityPage),

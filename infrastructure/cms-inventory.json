@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "discoveredAt": "2026-06-08T00:00:00.000Z",
+  "appSync": {
+    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
+    "name": "townofwiley-main",
+    "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
+    "authenticationType": "API_KEY",
+    "additionalAuth": ["AMAZON_COGNITO_USER_POOLS", "AWS_IAM"]
+  },
+  "cognito": {
+    "userPoolId": "us-east-2_DmY7BCBIp",
+    "userPoolClientId": "2m6vp91m9938jpbg2efivr2p8k",
+    "identityPoolId": "us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56",
+    "authenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-authRole",
+    "unauthenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-unauthRole",
+    "staffGroup": "Staff"
+  },
+  "storage": {
+    "bucket": "townofwiley-documents-storage-main",
+    "region": "us-east-2"
+  },
+  "models": [
+    {
+      "model": "SiteSettings",
+      "tableName": "SiteSettings-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "AlertBanner",
+      "tableName": "AlertBanner-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "Announcement",
+      "tableName": "Announcement-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "Event",
+      "tableName": "Event-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "OfficialContact",
+      "tableName": "OfficialContact-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "LeadershipRosterEntry",
+      "tableName": "LeadershipRosterEntry-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "EmailAlias",
+      "tableName": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": false
+    },
+    {
+      "model": "Business",
+      "tableName": "Business-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "PublicDocument",
+      "tableName": "PublicDocument-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "ExternalNewsLink",
+      "tableName": "ExternalNewsLink-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    },
+    {
+      "model": "SiteCopy",
+      "tableName": "SiteCopy-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "itemCount": null,
+      "publicApiKeyRead": true
+    }
+  ],
+  "capabilities": {
+    "appSyncQueriesUrl": "https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries",
+    "publicSiteModels": [
+      "SiteSettings",
+      "AlertBanner",
+      "Announcement",
+      "Event",
+      "OfficialContact",
+      "LeadershipRosterEntry",
+      "Business",
+      "PublicDocument",
+      "ExternalNewsLink",
+      "SiteCopy"
+    ],
+    "staffOnlyModels": ["EmailAlias"],
+    "heroFields": [
+      "heroEyebrow",
+      "heroStatus",
+      "heroTitle",
+      "heroMessage",
+      "heroSubtext",
+      "heroImageUrl",
+      "welcomeLabel",
+      "welcomeHeading",
+      "welcomeBody",
+      "welcomeCaption"
+    ]
+  }
+}

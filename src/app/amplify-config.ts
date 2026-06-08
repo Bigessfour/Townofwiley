@@ -33,14 +33,19 @@ const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
 const runtimeAuth = runtimeConfig?.auth?.cognito;
 const runtimeStorage = runtimeConfig?.storage?.s3;
 
-/** Gen 1 live CMS GraphQL endpoint (fallback when runtime-config.js is absent). */
+/**
+ * Gen 1 production CMS AppSync GraphQL endpoint (fallback when runtime-config.js is absent,
+ * e.g. local `ng serve`). Runtime-injected value (from APPSYNC_CMS_ENDPOINT) always wins in prod.
+ * Cross-ref: infrastructure/gen1-production-bindings.json (apiId j7b2x3sh7rcezekekkxxiak7hi).
+ */
 const GEN1_CMS_GRAPHQL_FALLBACK =
   'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql';
-/** Gen 2 production Cognito (fallback when runtime-config.js is absent — e.g. local ng serve). */
-const GEN2_COGNITO_FALLBACK = {
-  userPoolId: 'us-east-2_pkewJMUJF',
-  userPoolClientId: '2av73ehrkera414otok5i67dk3',
-  identityPoolId: 'us-east-2:f97d3d15-c898-4993-b547-4a8babf1b047',
+
+/** Gen 1 production Cognito (fallback when runtime-config.js is absent — e.g. local ng serve). */
+const GEN1_COGNITO_FALLBACK = {
+  userPoolId: 'us-east-2_DmY7BCBIp',
+  userPoolClientId: '2m6vp91m9938jpbg2efivr2p8k',
+  identityPoolId: 'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
   hostedUiDomain: 'townofwiley-staff.auth.us-east-2.amazoncognito.com',
 } as const;
 
@@ -60,10 +65,10 @@ function oauthUrlsForPath(path: string): string[] {
 
 /** Cognito identifiers for staff admin (see docs/admin-auth-runbook.md). */
 export const cognitoConfig = {
-  userPoolId: runtimeAuth?.userPoolId ?? GEN2_COGNITO_FALLBACK.userPoolId,
-  userPoolClientId: runtimeAuth?.userPoolClientId ?? GEN2_COGNITO_FALLBACK.userPoolClientId,
-  identityPoolId: runtimeAuth?.identityPoolId ?? GEN2_COGNITO_FALLBACK.identityPoolId,
-  hostedUiDomain: runtimeAuth?.hostedUiDomain ?? GEN2_COGNITO_FALLBACK.hostedUiDomain,
+  userPoolId: runtimeAuth?.userPoolId ?? GEN1_COGNITO_FALLBACK.userPoolId,
+  userPoolClientId: runtimeAuth?.userPoolClientId ?? GEN1_COGNITO_FALLBACK.userPoolClientId,
+  identityPoolId: runtimeAuth?.identityPoolId ?? GEN1_COGNITO_FALLBACK.identityPoolId,
+  hostedUiDomain: runtimeAuth?.hostedUiDomain ?? GEN1_COGNITO_FALLBACK.hostedUiDomain,
   staffGroup: 'Staff',
 } as const;
 
@@ -94,8 +99,7 @@ Amplify.configure({
   },
   Storage: {
     S3: {
-      bucket:
-        runtimeStorage?.bucket ?? 'amplify-d331voxr1fhoir-mai-documentsbucket3df3f730-tp554yhsasnp',
+      bucket: runtimeStorage?.bucket ?? 'townofwiley-documents-storage-main',
       region: runtimeStorage?.region ?? cmsAppSyncConfig?.region ?? 'us-east-2',
     },
   },

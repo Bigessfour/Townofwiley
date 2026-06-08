@@ -1,12 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { buildAppSyncQueriesConsoleUrl } from '../clerk-setup/appsync-console-url';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import {
   ContactUpdateRecord,
@@ -27,9 +25,9 @@ import { CmsContentSnapshotComponent } from './cms-content-snapshot.component';
 import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
 import { CmsSiteStatusComponent } from './cms-site-status.component';
 
-/** Amplify Gen 2 Console Data manager (Angular). */
-export const AMPLIFY_DATA_MANAGER_DOCS_URL =
-  'https://docs.amplify.aws/angular/build-a-backend/data/manage-with-amplify-console/';
+/** AppSync console reference for IT staff. */
+export const APPSYNC_CONSOLE_DOCS_URL =
+  'https://docs.aws.amazon.com/appsync/latest/devguide/welcome.html';
 
 interface CmsAdminRuntimeConfig {
   cms?: {
@@ -58,7 +56,6 @@ interface CmsAdminSetupDetail {
   },
   imports: [
     DatePipe,
-    RouterLink,
     TableModule,
     ButtonModule,
     CardModule,
@@ -126,8 +123,8 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // Gen 1 AppSync Queries console for Advanced (IT) only — clerks use in-app forms on task cards.
-  protected readonly dataManagerUrl = buildAppSyncQueriesConsoleUrl(this.awsRegion);
+  // IT troubleshooting: AppSync Queries console. Clerks use in-app forms on /admin.
+  protected readonly dataManagerUrl = this.clerkSetupConfig.studioUrl;
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {

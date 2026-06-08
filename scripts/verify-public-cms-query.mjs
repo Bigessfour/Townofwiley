@@ -9,10 +9,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
-// Gen 2 schema is in TS (amplify/data/resource.ts); use the inventory (which records publicApiKeyRead per model) for verification.
-// This removes any runtime dep on legacy gen1-amplify-backend/ or generated graphql.
-const INVENTORY_PATH = join(repoRoot, 'infrastructure', 'gen2-cms-inventory.json');
-const PUBLIC_INVENTORY_PATH = join(repoRoot, 'public', 'gen2-cms-inventory.json');
+// CMS auth rules are verified via infrastructure/cms-inventory.json (publicApiKeyRead per model).
+const INVENTORY_PATH = join(repoRoot, 'infrastructure', 'cms-inventory.json');
+const PUBLIC_INVENTORY_PATH = join(repoRoot, 'public', 'cms-inventory.json');
 const siteCmsPath = join(repoRoot, 'src/app/site-cms-content.ts');
 
 const LIST_OPERATION_TO_MODEL = {
@@ -25,6 +24,7 @@ const LIST_OPERATION_TO_MODEL = {
   listPublicDocuments: 'PublicDocument',
   listExternalNewsLinks: 'ExternalNewsLink',
   listLeadershipRosterEntries: 'LeadershipRosterEntry',
+  listSiteCopies: 'SiteCopy',
 };
 
 const PUBLIC_CMS_QUERY_CONSTANTS = ['PUBLIC_CMS_CORE_QUERY', 'PUBLIC_CMS_EXTENDED_QUERY'];
@@ -55,7 +55,7 @@ function modelAllowsPublicApiKeyReadFromInventory(inventory, modelName) {
   const models = inventory?.models || [];
   const entry = models.find((m) => m.model === modelName);
   if (!entry) {
-    return { ok: false, reason: `model ${modelName} not found in gen2-cms-inventory.json` };
+    return { ok: false, reason: `model ${modelName} not found in cms-inventory.json` };
   }
   if (entry.publicApiKeyRead !== true) {
     return {
@@ -70,7 +70,7 @@ function main() {
   const inventoryPath = existsSync(INVENTORY_PATH) ? INVENTORY_PATH : PUBLIC_INVENTORY_PATH;
   if (!existsSync(inventoryPath)) {
     console.error(
-      `verify-public-cms-query: no gen2-cms-inventory.json found (tried ${INVENTORY_PATH} and public copy).`,
+      `verify-public-cms-query: no cms-inventory.json found (tried ${INVENTORY_PATH} and public copy).`,
     );
     process.exit(1);
   }
@@ -112,7 +112,7 @@ function main() {
   }
 
   console.log(
-    `verify-public-cms-query: OK (${unique.length} list operations across ${PUBLIC_CMS_QUERY_CONSTANTS.length} queries match public apiKey read models from Gen2 inventory).`,
+    `verify-public-cms-query: OK (${unique.length} list operations across ${PUBLIC_CMS_QUERY_CONSTANTS.length} queries match public apiKey read models from CMS inventory).`,
   );
 }
 

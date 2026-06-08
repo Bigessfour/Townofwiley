@@ -9,7 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import {
   CMS_MODEL_DEFINITIONS,
-  type Gen2CmsInventory,
+  type CmsInventory,
   liveCountForModel,
 } from './cms-model-inventory';
 
@@ -40,7 +40,7 @@ export class CmsContentSnapshotComponent {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly http = inject(HttpClient);
 
-  protected readonly awsInventory = signal<Gen2CmsInventory | null>(null);
+  protected readonly awsInventory = signal<CmsInventory | null>(null);
 
   protected readonly hero = computed(() => this.cmsStore.hero());
   protected readonly heroImageSrc = computed(
@@ -119,7 +119,7 @@ export class CmsContentSnapshotComponent {
   private async loadAwsInventory(): Promise<void> {
     try {
       const inventory = await firstValueFrom(
-        this.http.get<Gen2CmsInventory>('/gen2-cms-inventory.json', {
+        this.http.get<CmsInventory>('/cms-inventory.json', {
           headers: { 'Cache-Control': 'no-cache' },
         }),
       );

@@ -16,11 +16,31 @@ Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeN
 - Build/test: `npm run lint`, `npm run build`, `npm run test:unit:browser`, `npm run test:e2e:smoke`.
 - **Pipeline commands (CI/CD, secrets, deploy):** [`docs/pipeline-workflow.md`](docs/pipeline-workflow.md) and [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
-## Codebase RAG (local retrieval)
+## Codebase RAG (local retrieval) — MANDATORY before code changes
+
+**Hard rule for every agent turn in this workspace:**
+
+You **must** retrieve relevant context from the RAG system **before** reading files for edit purposes or making **any** code changes, refactors, new features, CMS updates, or copy modifications.
+
+**Required sequence:**
+1. Run a targeted RAG query (MCP `townofwiley-rag` `search_codebase` or `npm run rag:query -- "precise question about the code area"`) for the feature, component, pattern, or content you intend to touch.
+2. Review the top results (with their `path:line` citations).
+3. Read only the specific cited ranges.
+4. Only after incorporating that context may you plan or apply edits.
+
+This guarantees you operate with the freshest semantic picture of the current codebase (src, docs, instructions, skills, existing CMS patterns, etc.) instead of relying on stale training data or partial greps.
+
+See full details and setup in [`docs/codebase-rag.md`](docs/codebase-rag.md) and the corresponding section in [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+
+- Re-index (prefer incremental) when the index is stale per `npm run rag:status`.
+- Use RAG before wide `grep` for exploration.
+- Exact symbol lookups can use grep *after* the RAG step.
+
+## Codebase RAG (local retrieval) — quick reference
 
 - Setup: `npm run rag:setup` then `npm run rag:index` (see [`docs/codebase-rag.md`](docs/codebase-rag.md)).
 - Search: MCP **`townofwiley-rag`** → `search_codebase`, or `npm run rag:query -- "<question>"`.
-- Use before wide grep when exploring; generation stays with the IDE model.
+- Use **before** any code inspection for modification or any edit. Generation stays with the IDE model.
 
 ## MCP (prefer before guessing)
 

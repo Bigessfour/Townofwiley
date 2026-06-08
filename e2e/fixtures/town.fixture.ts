@@ -64,12 +64,8 @@ export const test = base.extend<TownFixtures>({
 
         runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
           ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-          e2e: {
-            ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.e2e ?? {}),
-            staffAuth: true,
-          },
           chatbot: {
-            provider: 'easyPeasy',
+            provider: 'none',
             mode: 'none',
             chatUrl: '',
             buttonPosition: 'bottom-right',

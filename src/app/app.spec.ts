@@ -23,6 +23,7 @@ import {
   LocalizedWeatherPanel,
   type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
+import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
@@ -849,15 +850,15 @@ describe('App', () => {
   });
 
   it('should render the Deb Dillon setup details on the admin hub path', async () => {
+    const appSyncQueriesUrl = buildAppSyncQueriesConsoleUrl('us-east-2');
     runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       clerkSetup: {
         clerkName: 'Deb Dillon',
         awsAccountId: '570912405222',
-        amplifyAppId: 'd331voxr1fhoir', // legacy hosting
+        amplifyAppId: '',
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
-        studioUrl:
-          'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries',
+        studioUrl: appSyncQueriesUrl,
         cfDistributionId: 'E1NZ3XCY5CYR1J',
         s3Bucket: 'townofwiley-static-site',
       },
@@ -871,8 +872,7 @@ describe('App', () => {
     expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
     expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
-    expect(compiled.textContent).toContain('d331voxr1fhoir'); // still shows legacy hosting for reference
-    expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // live Gen 1 AppSync (IT Advanced)
+    expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // Gen 1 AppSync Queries (IT Advanced)
     expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
   });
 
@@ -885,7 +885,7 @@ describe('App', () => {
     await TestBed.inject(Router).navigateByUrl('/clerk-setup#documents');
     fixture.detectChanges();
     await fixture.whenStable();
-    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+    for (const request of httpTesting.match('/cms-inventory.json')) {
       request.flush({
         version: 1,
         discoveredAt: '2026-01-01T00:00:00.000Z',
@@ -991,7 +991,7 @@ describe('App', () => {
     await TestBed.inject(Router).navigateByUrl('/admin');
     fixture.detectChanges();
     await fixture.whenStable();
-    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+    for (const request of httpTesting.match('/cms-inventory.json')) {
       request.flush({
         version: 1,
         discoveredAt: '2026-01-01T00:00:00.000Z',
@@ -1234,7 +1234,7 @@ describe('App', () => {
   function flushPendingWeatherRequests(): void {
     flushBuildCmsSnapshotNotFound(httpTesting);
 
-    for (const request of httpTesting.match('/gen2-cms-inventory.json')) {
+    for (const request of httpTesting.match('/cms-inventory.json')) {
       request.flush({
         version: 1,
         discoveredAt: '2026-01-01T00:00:00.000Z',

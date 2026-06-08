@@ -17,12 +17,12 @@ test.describe('homepage navigation', () => {
     await expect(homePage.sectionNavLinks.first()).toBeAttached();
     await expect(homePage.sectionNavLinks).toHaveText(siteContent.megaMenuRootLabelsEn);
 
-    const navHrefs = await homePage.sectionNavLinks.evaluateAll((links) => {
-      return links.map((link) => link.getAttribute('href'));
-    });
-
-    expect(navHrefs[4]).toMatch(/businesses/);
-    expect(navHrefs[5]).toMatch(/contact/);
+    await expect(
+      homePage.sectionNavLinks.filter({ hasText: siteContent.megaMenuRootLabelsEn[5] }).first(),
+    ).toHaveAttribute('href', /businesses/);
+    await expect(
+      homePage.sectionNavLinks.filter({ hasText: siteContent.megaMenuRootLabelsEn[6] }).first(),
+    ).toHaveAttribute('href', /contact/);
 
     for (const label of siteContent.megaMenuRootLabelsEn) {
       await expect(homePage.sectionNavLinks.filter({ hasText: label }).first()).toBeAttached();

@@ -102,7 +102,7 @@ python scripts/configure-townofwiley-cloudwatch-logging.py
 # or: npm run configure:cloudwatch-logging
 ```
 
-The script is idempotent: sets **90-day** retention on manifest Lambdas (default; override with `--log-retention-days`), enables AppSync CloudWatch logs (`ERROR` by default; use `--appsync-field-log-level INFO` during incidents only), subscribes **`TownOfWileyOpsAlerts`** and severe-weather SNS topics, and creates Lambda **Errors** + Amplify **5xxErrors** alarms. Confirm pending SNS email subscriptions after each run.
+The script is idempotent: sets **1-day** retention on manifest Lambdas (default; override with `--log-retention-days`), enables AppSync CloudWatch logs (`ERROR` by default; use `--appsync-field-log-level INFO` during incidents only), subscribes **`TownOfWileyOpsAlerts`**, and creates Lambda **Errors** + CloudFront **5xxErrorRate** alarms. Confirm pending SNS email subscriptions after each run.
 
 **Verify retention after configure:**
 
@@ -120,8 +120,8 @@ Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and A
 
 | Layer                      | Tooling                                                                                                                              | Owns                                                                           |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| **Public site + CMS read** | S3+CloudFront (E1NZ3XCY5CYR1J); CMS backend Gen 2 AppSync (x7poeh...) in repo `amplify/data` (Gen 1 j7b2 legacy, see migration plan) | Angular build, AppSync (Gen2 primary), Cognito, S3 documents, `customHttp.yml` |
-| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                                                                   | NWS, weather signup, contact updates, email alias, site monitor                |
+| **Public site + CMS read** | S3+CloudFront (E1NZ3XCY5CYR1J); CMS backend Gen 1 AppSync (`j7b2x3sh7rcezekekkxxiak7hi`) | Angular build, AppSync, Cognito, S3 documents, CloudFront response headers |
+| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                                                                   | NWS weather proxy, contact updates, email alias router                         |
 
 This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
 
@@ -129,17 +129,9 @@ This is intentional for a small municipal team: Amplify ships the SPA; scripts d
 
 ## WAF and rate limits (AP-16)
 
-Public Function URLs (`AuthType: NONE`) accept browser traffic with CORS only. Add **AWS WAF** rate-based rules per URL (ops; not generated from this repo).
+**June 2026:** Regional WAF Web ACLs were **removed** to stay within the ~$15–25/mo budget. Public Function URLs (`AuthType: NONE`) rely on CORS, optional Lambda reserved concurrency (`npm run configure:free-tier-security -- --try-lambda-concurrency`), and **API Gateway throttling** on the contact-review JWT API.
 
-| Priority | Function URL resource                                                  | Notes                              |
-| -------- | ---------------------------------------------------------------------- | ---------------------------------- |
-| Pilot    | `TownOfWileyNWSWeatherProxy`                                           | High traffic weather proxy         |
-| Next     | `TownOfWileySevereWeatherBackend`, `townofwiley-easy-peasy-chat-proxy` | Resident-facing                    |
-| Next     | `TownOfWileyContactUpdate` (write)                                     | After AP-05 deploy                 |
-| Next     | `TownOfWileyContactUpdatesReviewProxy`                                 | Admin proxy only; still rate-limit |
-| Optional | `TownOfWileyPaystarProxy`                                              | If API mode deploys                |
-
-WAF association options: CloudFront distribution in front of a URL, or [API Gateway HTTP API](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html) as a façade. Document the chosen pattern per URL in an ops ticket. **Acceptance:** manual test returns **429** after threshold.
+Re-enable WAF only after city council approves recurring spend (~$5+/mo per ACL). See [aws-free-tier-security.md](./aws-free-tier-security.md).
 
 ---
 

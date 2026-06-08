@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Configure Cognito Hosted UI domain + OAuth on the Gen 2 staff user pool app client."""
+"""Configure Cognito Hosted UI domain + OAuth on the Gen 1 staff user pool app client."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen2-production-bindings.json"
+BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
 DEFAULT_DOMAIN_PREFIX = "townofwiley-staff"
 DEFAULT_REGION = "us-east-2"
 
@@ -200,7 +200,7 @@ def resolve_app_client_id(
 
 def update_bindings_client_id(client_id: str) -> None:
     bindings = load_bindings()
-    cognito = bindings.setdefault("cognitoGen2", {})
+    cognito = bindings.setdefault("cognito", {})
     if cognito.get("userPoolClientId") == client_id:
         return
     cognito["userPoolClientId"] = client_id
@@ -257,7 +257,7 @@ def configure_app_client_oauth(
 def update_bindings_hosted_ui_domain(domain_prefix: str, region: str) -> None:
     bindings = load_bindings()
     hosted_domain = f"{domain_prefix}.auth.{region}.amazoncognito.com"
-    cognito = bindings.setdefault("cognitoGen2", {})
+    cognito = bindings.setdefault("cognito", {})
     if cognito.get("hostedUiDomain") == hosted_domain:
         print(f"Bindings already record hostedUiDomain={hosted_domain}")
         return
@@ -272,7 +272,7 @@ def main() -> None:
         domain_prefix = sys.argv[1].strip()
 
     bindings = load_bindings()
-    cognito = bindings["cognitoGen2"]
+    cognito = bindings["cognito"]
     user_pool_id = cognito["userPoolId"]
     preferred_client_id = cognito["userPoolClientId"]
     region = DEFAULT_REGION

@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen2-production-bindings.json"
+BINDINGS_PATH = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
 SES_POLICY_PATH = REPO_ROOT / "infrastructure" / "cognito-staff-ses-policy.json"
 DEFAULT_FROM = "noreply@townofwiley.gov"
 DEFAULT_REPLY_TO = "alerts@townofwiley.gov"
@@ -29,15 +29,15 @@ def load_bindings() -> dict:
     if BINDINGS_PATH.exists():
         return json.loads(BINDINGS_PATH.read_text(encoding="utf-8"))
     return {
-        "cognitoGen2": {
-            "userPoolId": "us-east-2_pkewJMUJF",
+        "cognito": {
+            "userPoolId": "us-east-2_DmY7BCBIp",
         }
     }
 
 
 def main() -> None:
     bindings = load_bindings()
-    user_pool_id = bindings["cognitoGen2"]["userPoolId"]
+    user_pool_id = bindings["cognito"]["userPoolId"]
     region = "us-east-2"
     account_id = "570912405222"
     ses_identity = DEFAULT_SES_IDENTITY

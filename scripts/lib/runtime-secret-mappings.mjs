@@ -36,6 +36,12 @@ export const runtimeSecretEnvMappings = [
   { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },
   { env: 'PAYSTAR_API_ENDPOINT', path: ['payments', 'paystar', 'apiEndpoint'] },
   { env: 'LOG_ENDPOINT', path: ['logging', 'endpoint'] },
+  { env: 'COGNITO_USER_POOL_ID', path: ['auth', 'cognito', 'userPoolId'] },
+  { env: 'COGNITO_USER_POOL_CLIENT_ID', path: ['auth', 'cognito', 'userPoolClientId'] },
+  { env: 'COGNITO_IDENTITY_POOL_ID', path: ['auth', 'cognito', 'identityPoolId'] },
+  { env: 'COGNITO_HOSTED_UI_DOMAIN', path: ['auth', 'cognito', 'hostedUiDomain'] },
+  { env: 'STORAGE_S3_BUCKET', path: ['storage', 's3', 'bucket'] },
+  { env: 'STORAGE_S3_REGION', path: ['storage', 's3', 'region'] },
 ];
 
 /**

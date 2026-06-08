@@ -12,7 +12,7 @@ Secrets block (optional) in secrets/local/user-secrets.json:
         "roleName": "TownOfWileyGuestbookRole",
         "tableName": "TownOfWileyGuestbook",
         "allowedOrigin": "https://www.townofwiley.gov",
-        "cognitoUserPoolId": "us-east-2_pkewJMUJF",
+        "cognitoUserPoolId": "us-east-2_DmY7BCBIp",
         "cognitoClientId": "qss58u25b1kl9ih902o5i6cui"
       }
     }
@@ -45,7 +45,7 @@ from _deploy_npm import npm_install_cmd  # noqa: E402
 SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
 BACKEND_DIR = REPO_ROOT / "infrastructure" / "guestbook-lambda"
 
-DEFAULT_USER_POOL_ID = "us-east-2_pkewJMUJF"
+DEFAULT_USER_POOL_ID = "us-east-2_DmY7BCBIp"
 DEFAULT_CLIENT_ID = "qss58u25b1kl9ih902o5i6cui"
 
 

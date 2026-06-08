@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { uploadData, getUrl, list, remove } from '@aws-amplify/storage';
+import { StaffAuthService } from './auth/staff-auth.service';
 
 export interface UploadedDocument {
   id: string;
@@ -15,6 +16,8 @@ export interface UploadedDocument {
   providedIn: 'root',
 })
 export class DocumentUploadService {
+  private readonly staffAuth = inject(StaffAuthService);
+
   async resolveDocumentHref(href: string): Promise<string> {
     const storageKey = this.getStorageKeyFromHref(href);
     if (!storageKey) {
@@ -52,6 +55,7 @@ export class DocumentUploadService {
     const key = `documents/${sectionId}/${fileName}`;
 
     try {
+      await this.staffAuth.ensureIdentityCredentials();
       await uploadData({
         key,
         data: file,
@@ -120,6 +124,7 @@ export class DocumentUploadService {
 
   async deleteDocument(key: string): Promise<void> {
     try {
+      await this.staffAuth.ensureIdentityCredentials();
       await remove({ key });
     } catch (error) {
       console.error('Error deleting document:', error);

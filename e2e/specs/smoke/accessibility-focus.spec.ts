@@ -1,5 +1,6 @@
 import type { Locator } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
+import { siteLanguageButton } from '../../support/site-language-toggle';
 import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 async function expectVisibleKeyboardFocus(locator: Locator): Promise<void> {
@@ -113,14 +114,14 @@ test.describe('accessibility and focus behavior', () => {
 
     await homePage.goto();
 
-    // Use role+name (resilient to id changes/duplication in switchers); .first() for the primary (header) instance.
-    const spanishButton = homePage.page.getByRole('button', { name: /ES|Español/i }).first();
+    const nav = homePage.page.getByTestId('homepage-section-nav');
+    const spanishButton = siteLanguageButton(nav, 'es');
     await expect(spanishButton).toBeVisible();
     await spanishButton.focus();
     await homePage.page.keyboard.press('Space');
     await expect(homePage.page.locator('html')).toHaveAttribute('lang', 'es');
 
-    const englishButton = homePage.page.getByRole('button', { name: /EN|English/i }).first();
+    const englishButton = siteLanguageButton(nav, 'en');
     await expect(englishButton).toBeVisible();
     await englishButton.focus();
     await homePage.page.keyboard.press('Space');

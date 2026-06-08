@@ -10,7 +10,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = REPO_ROOT / "infrastructure" / "aws-infrastructure.manifest.json"
 
-DEFAULT_APPSYNC_API_ID = "x7poehudqvamneqni5s6e2cjxy"  # Gen 2; update to j7b2... only for legacy Gen1 log groups if needed
+DEFAULT_APPSYNC_API_ID = "j7b2x3sh7rcezekekkxxiak7hi"
 DEFAULT_AMPLIFY_APP_ID = "d331voxr1fhoir"
 DEFAULT_OPS_ALERTS_TOPIC = "TownOfWileyOpsAlerts"
 DEFAULT_APPSYNC_LOGS_ROLE = "TownOfWileyAppSyncCloudWatchLogsRole"
@@ -28,11 +28,11 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--primary-region", default="us-east-2")
-    parser.add_argument("--log-retention-days", type=int, default=90)
+    parser.add_argument("--log-retention-days", type=int, default=1)
     parser.add_argument(
         "--ops-notification-email",
         default="steve.mckitrick@townofwiley.gov",
-        help="Email subscribed to TownOfWileyOpsAlerts and re-confirmed severe-weather topics.",
+        help="Email subscribed to TownOfWileyOpsAlerts SNS topic.",
     )
     parser.add_argument("--appsync-api-id", default=DEFAULT_APPSYNC_API_ID)
     parser.add_argument("--amplify-app-id", default=DEFAULT_AMPLIFY_APP_ID)
@@ -244,10 +244,10 @@ def ensure_lambda_error_alarm(
     )
 
 
-def ensure_amplify_hosting_alarm(
+def ensure_cloudfront_5xx_alarm(
     *,
     region: str,
-    app_id: str,
+    distribution_id: str,
     topic_arn: str,
     dry_run: bool,
 ) -> None:
@@ -256,17 +256,17 @@ def ensure_amplify_hosting_alarm(
             "cloudwatch",
             "put-metric-alarm",
             "--alarm-name",
-            f"TownOfWiley-AmplifyHosting-{app_id}-5xxErrors",
+            f"TownOfWiley-CloudFront-{distribution_id}-5xxErrors",
             "--alarm-description",
-            "Amplify Hosting 5xx errors for townofwiley.gov",
+            "CloudFront 5xx errors for townofwiley.gov static hosting",
             "--namespace",
-            "AWS/AmplifyHosting",
+            "AWS/CloudFront",
             "--metric-name",
-            "5xxErrors",
+            "5xxErrorRate",
             "--dimensions",
-            f"Name=App,Value={app_id}",
+            f"Name=DistributionId,Value={distribution_id}",
             "--statistic",
-            "Sum",
+            "Average",
             "--period",
             "300",
             "--evaluation-periods",
@@ -554,13 +554,28 @@ def main() -> int:
                 dry_run=args.dry_run,
             )
 
-        print(f"  alarm -> Amplify Hosting 5xx ({args.amplify_app_id})")
-        ensure_amplify_hosting_alarm(
-            region=primary_region,
-            app_id=args.amplify_app_id,
-            topic_arn=ops_topic_arn,
-            dry_run=args.dry_run,
-        )
+        hosting = manifest.get("hosting", {})
+        distribution_id = str(hosting.get("cloudFrontDistributionId", "")).strip()
+        if distribution_id:
+            # CloudFront metrics and alarms must live in us-east-1; SNS action same region.
+            cloudfront_alarm_topic_arn = ensure_sns_topic(
+                DEFAULT_OPS_ALERTS_TOPIC,
+                region="us-east-1",
+                dry_run=args.dry_run,
+            )
+            ensure_sns_email_subscription(
+                cloudfront_alarm_topic_arn,
+                args.ops_notification_email,
+                region="us-east-1",
+                dry_run=args.dry_run,
+            )
+            print(f"  alarm -> CloudFront 5xx ({distribution_id})")
+            ensure_cloudfront_5xx_alarm(
+                region="us-east-1",
+                distribution_id=distribution_id,
+                topic_arn=cloudfront_alarm_topic_arn,
+                dry_run=args.dry_run,
+            )
 
     if not args.skip_appsync:
         role_arn = ensure_appsync_logs_role(

@@ -1,4 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
+import { clickVisibleSiteLanguage } from '../support/site-language-toggle';
 
 export class HomePage {
   readonly page: Page;
@@ -565,14 +566,7 @@ export class HomePage {
   }
 
   async clickSiteLanguage(language: 'en' | 'es'): Promise<void> {
-    const choiceLabel = language === 'es' ? 'ES' : 'EN';
-    const button = this.page.getByRole('button', {
-      name: new RegExp(`Site language: ${choiceLabel}`, 'i'),
-    });
-    const visibleButton = button.locator('visible=true');
-    await expect(visibleButton).toBeVisible();
-    await visibleButton.click();
-    await expect(this.page.locator('html')).toHaveAttribute('lang', language);
+    await clickVisibleSiteLanguage(this.page, language);
   }
 
   async clickTownLogoHome(): Promise<void> {

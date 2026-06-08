@@ -310,6 +310,12 @@ jobs:
           EASYPEASY_CHAT_URL: ${{ secrets.EASYPEASY_CHAT_URL }}
           CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
           GUESTBOOK_API_ENDPOINT: ${{ secrets.GUESTBOOK_API_ENDPOINT }}
+          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          COGNITO_USER_POOL_CLIENT_ID: ${{ secrets.COGNITO_USER_POOL_CLIENT_ID }}
+          COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
+          COGNITO_HOSTED_UI_DOMAIN: ${{ secrets.COGNITO_HOSTED_UI_DOMAIN }}
+          STORAGE_S3_BUCKET: ${{ secrets.STORAGE_S3_BUCKET }}
+          STORAGE_S3_REGION: ${{ secrets.STORAGE_S3_REGION }}
 
       - name: Verify build output contains WebP reference
         run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)

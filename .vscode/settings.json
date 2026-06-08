@@ -12,6 +12,22 @@
   "terminal.integrated.shellIntegration.enabled": false,
   "terminal.integrated.tabs.enabled": true,
   "terminal.integrated.tabs.hideCondition": "never",
+  "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+  "terminal.integrated.profiles.windows": {
+    "Ubuntu (WSL)": {
+      "path": "C:\\Windows\\System32\\wsl.exe",
+      "args": ["-d", "Ubuntu"],
+      "icon": "terminal-linux"
+    },
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    }
+  },
+  "terminal.integrated.automationProfile.windows": {
+    "path": "C:\\Windows\\System32\\wsl.exe",
+    "args": ["-d", "Ubuntu"]
+  },
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
@@ -34,7 +50,8 @@
   },
   "terminal.integrated.env.linux": {
     "AWS_PROFILE": "townofwiley",
-    "E2E_NODE": "${env:E2E_NODE}",
+    "AWS_CONFIG_FILE": "${env:HOME}/.aws/config",
+    "AWS_SHARED_CREDENTIALS_FILE": "${env:HOME}/.aws/credentials",
     "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright-browsers"
   },
   "terminal.integrated.env.windows": {
@@ -203,6 +220,13 @@
   "mcpAwsCli.maxRetries": 3,
   "mcpAwsCli.cacheTimeout": 300,
   "mcpAwsCli.enableDebugLogs": false,
+  "ansible.python.interpreterPath": "/usr/bin/python3",
+  "ansible.ansible.path": "ansible",
+  "ansible.ansibleLint.enabled": true,
+  "ansible.ansibleLint.path": "ansible-lint",
+  "ansible.cfg": "${workspaceFolder}/ansible.cfg",
+  "ansible.executionEnvironment.enabled": false,
+  "ansibleServer.trace.server": "off",
   "amplifyBackend.explorerFilters": ["amplify/backend", "amplify/#current-cloud-backend"],
   "trunk.addToolsToPath": true,
   "trunk.inlineDecorators": true,

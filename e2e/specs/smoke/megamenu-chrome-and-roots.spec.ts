@@ -6,6 +6,7 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '../../fixtures/town.fixture';
 import { siteContent } from '../../support/site-content';
+import { siteLanguageButton } from '../../support/site-language-toggle';
 
 const roots = siteContent.megaMenuRootLabelsEn;
 const L = siteContent.megaMenuPanelLinksEn;
@@ -129,8 +130,8 @@ test.describe('mega menu chrome and roots (desktop)', () => {
   test('end slot: language toggles update aria-pressed and document lang', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
-    const en = nav.locator('#site-language-en');
-    const es = nav.locator('#site-language-es');
+    const en = siteLanguageButton(nav, 'en');
+    const es = siteLanguageButton(nav, 'es');
     await expect(en).toHaveAttribute('aria-pressed', 'true');
     await expect(es).toHaveAttribute('aria-pressed', 'false');
 
@@ -161,7 +162,7 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     const nav = homePage.page.getByTestId('homepage-section-nav');
     await expect(nav.locator('#mega-site-search')).toHaveCount(0);
     await expect(nav.locator('form.header-search-form')).toHaveCount(0);
-    await expect(nav.locator('#site-language-en')).toBeVisible();
+    await expect(siteLanguageButton(nav, 'en')).toBeVisible();
     await expect(homePage.sectionNavLinks.filter({ hasText: roots[4] })).toBeVisible();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
     await expect(panel.getByRole('link', { name: L.localWeather, exact: true })).toBeVisible();

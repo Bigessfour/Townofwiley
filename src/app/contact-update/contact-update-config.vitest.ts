@@ -45,4 +45,24 @@ describe('contact-update-config', () => {
 
     expect(getContactUpdateRuntimeConfig().apiEndpoint).toBe('/api/local');
   });
+
+  it('honors empty-string review overrides so E2E can force the proxy path', () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://api.example/contact-updates',
+        reviewProxyEndpoint: '',
+      },
+    };
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      contactUpdate: {
+        reviewApiEndpoint: '',
+        reviewProxyEndpoint: '/api/contact-updates-review',
+      },
+    };
+
+    expect(getContactUpdateReviewRuntimeConfig()).toEqual({
+      reviewApiEndpoint: '',
+      reviewProxyEndpoint: '/api/contact-updates-review',
+    });
+  });
 });

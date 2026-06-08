@@ -24,13 +24,18 @@ npm run start
 # /accessibility, /privacy, /contact, /news, /businesses, EN + ES toggle
 ```
 
-## Amplify redeploy
+## Production deploy (S3 + CloudFront)
 
-1. **Commit pushed to `main`** (or the branch connected to production).
-2. **Amplify Console** → app **townofwiley** → branch **main** → confirm build started (or **Redeploy this version** on last green build).
-3. Wait for **Provision → Build → Deploy → Verify** all green.
-4. **Cache:** if styles look stale, invalidate CloudFront (if custom distribution) or hard-refresh; Amplify Hosting cache headers are in `customHttp.yml` — no manual step unless you changed CSP/cache rules.
-5. **Smoke production:** `https://townofwiley.gov/` — hero, nav, search, pay bill link, weather panel (scroll), footer contact.
+Frontend hosting is **S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`** (Amplify Hosting app decommissioned June 2026). See [README.md](../README.md) § Deployment Record.
+
+1. **Merge to `main`** when CI is green.
+2. **Deploy** (invalidates CloudFront automatically):
+   ```bash
+   AWS_PROFILE=townofwiley npm run deploy:static-site
+   ```
+   Use `--skip-build` only if you already ran `npm run build` with production env/secrets.
+3. **Cache:** if anything still looks stale after invalidation, hard-refresh (`Ctrl+Shift+R`) or check `https://www.townofwiley.gov/runtime-config.js` for the expected `gitSha`. If the CMS fallback banner persists with a valid `cms.appSync.apiKey`, unregister the site service worker once (DevTools → Application → Service Workers → Unregister) so an old cached `runtime-config.js` is not reused.
+4. **Smoke production:** `https://townofwiley.gov/` — hero, nav, search, pay bill link, weather panel (scroll), footer contact.
 
 ## Environment / runtime (unchanged by theme, still verify after any release)
 

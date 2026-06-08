@@ -18,7 +18,7 @@
     />
   }
 
-  @if ((cmsContentLoadFailed() || cmsUsingCachedSnapshot()) && !cmsLoadFallbackDismissed()) {
+  @if ((cmsContentLoadFailed() || cmsLoadError()) && !cmsLoadFallbackDismissed()) {
     <section
       class="cms-load-status"
       role="status"
@@ -666,10 +666,6 @@
             <section class="feature-detail-stack">
               <router-outlet />
             </section>
-          } @else if (isHelloFromMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
           } @else if (isBusinessesMode()) {
             <section class="feature-detail-stack">
               <router-outlet />
@@ -701,7 +697,7 @@
           <div class="grid gap-2">
             <p-tag
               class="section-kicker-tag w-fit"
-              [value]="appCopy().topTasksKicker"
+              [value]="topTasksKicker()"
               severity="secondary"
               [rounded]="true"
             />
@@ -709,7 +705,7 @@
               id="top-tasks-heading"
               class="m-0 font-display text-2xl font-bold text-wiley-navy-900 md:text-3xl"
             >
-              {{ appCopy().topTasksHeading }}
+              {{ topTasksHeading() }}
             </h2>
           </div>
           @if (appCopy().topTasksBody) {
@@ -1197,7 +1193,7 @@
 
             <section
               class="support-link-grid grid gap-4 md:grid-cols-2"
-              [attr.aria-label]="appCopy().topTasksHeading"
+              [attr.aria-label]="topTasksHeading()"
             >
               @if (cmsContentLoading()) {
                 <div class="support-link-skeleton" aria-live="polite" aria-busy="true">
@@ -1304,32 +1300,4 @@
     </footer>
   </main>
 
-  @if (isAssistantEnabled) {
-    <button
-      type="button"
-      class="floating-chat-button"
-      (click)="openAiChat()"
-      aria-label="Open Ask Wiley — ask questions about town services, meetings, and more"
-      title="Ask Wiley — town assistant"
-    >
-      <i class="pi pi-comments" aria-hidden="true"></i>
-      <span class="floating-chat-label" aria-hidden="true">Ask Wiley</span>
-    </button>
-
-    @if (aiChatVisible()) {
-      <p-dialog
-        [visible]="aiChatVisible()"
-        (visibleChange)="aiChatVisible.set($event)"
-        [modal]="true"
-        [blockScroll]="true"
-        [closable]="true"
-        header="Ask Wiley — Town Assistant"
-        [style]="{ width: 'min(92vw, 640px)', height: '85vh' }"
-        styleClass="ai-chat-dialog"
-        appendTo="body"
-      >
-        <app-ai-chat />
-      </p-dialog>
-    }
-  }
 }

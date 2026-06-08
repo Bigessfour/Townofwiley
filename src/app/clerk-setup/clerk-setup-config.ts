@@ -18,7 +18,6 @@ interface RuntimeConfigShape {
 const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
-const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
 const DEFAULT_STATIC_SITE_BUCKET = 'townofwiley-static-site';
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
@@ -36,52 +35,38 @@ function buildConsoleUrl(region: string): string {
   return region ? `https://${region}.console.aws.amazon.com/` : FALLBACK_CONSOLE_URL;
 }
 
-/** Gen 2 Amplify Console → Data manager (replaces Gen 1 hosted Studio). */
-export function buildAmplifyConsoleDataManagerUrl(
-  region: string,
-  appId: string,
-  branchName: string,
-  fallbackUrl: string,
-): string {
-  if (!region || !appId) {
+/**
+ * AppSync Queries console URL for IT troubleshooting (staff CMS editing is on /admin).
+ */
+export function buildCmsEditorConsoleUrl(region: string, fallbackUrl: string): string {
+  if (!region) {
     return fallbackUrl;
   }
-
-  // The old Amplify Hosting app d331voxr1fhoir was deleted June 2026.
-  // IT Advanced links use the live Gen 1 AppSync Queries console (only deployed CMS API).
-  if (appId === 'd331voxr1fhoir') {
-    return buildAppSyncQueriesConsoleUrl(region);
-  }
-
-  const branch = branchName.trim() || 'main';
-  return `https://${region}.console.aws.amazon.com/amplify/apps/${appId}/branches/${branch}/data`;
+  return buildAppSyncQueriesConsoleUrl(region);
 }
 
-/**
- * Best-effort deep link to a model in Amplify Console Data manager.
- * If the console UI changes, callers should fall back to the branch data root.
- */
+/** @deprecated Use buildCmsEditorConsoleUrl — Amplify Hosting/Data manager removed June 2026. */
+export function buildAmplifyConsoleDataManagerUrl(
+  region: string,
+  _appId: string,
+  _branchName: string,
+  fallbackUrl: string,
+): string {
+  return buildCmsEditorConsoleUrl(region, fallbackUrl);
+}
+
+/** @deprecated Prefer in-app /admin forms; deep links to Amplify Data manager are no longer used. */
 export function buildAmplifyConsoleDataManagerModelUrl(
   region: string,
   appId: string,
   branchName: string,
-  model: string,
+  _model: string,
   fallbackUrl: string,
 ): string {
-  const base = buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
-  const trimmed = model.trim();
-  if (!trimmed) {
-    return base;
-  }
-  if (appId === 'd331voxr1fhoir') {
-    // For the legacy app we already returned the AppSync queries page; there is
-    // no equivalent /models/ deep link in the same console UI.
-    return base;
-  }
-  return `${base}/models/${encodeURIComponent(trimmed)}`;
+  return buildAmplifyConsoleDataManagerUrl(region, appId, branchName, fallbackUrl);
 }
 
-/** @deprecated Gen 1 Studio home; use {@link buildAmplifyConsoleDataManagerUrl}. */
+/** @deprecated Use buildCmsEditorConsoleUrl. */
 export function buildAmplifyAdminStudioHomeUrl(
   region: string,
   appId: string,
@@ -102,17 +87,16 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
 
   const awsRegion = trimOrEmpty(clerkSetupConfig.awsRegion) || DEFAULT_AWS_REGION;
   const awsConsoleUrl = trimOrEmpty(clerkSetupConfig.awsConsoleUrl) || buildConsoleUrl(awsRegion);
-  const amplifyAppId = trimOrEmpty(clerkSetupConfig.amplifyAppId) || DEFAULT_AMPLIFY_APP_ID;
 
   return {
     clerkName: trimOrEmpty(clerkSetupConfig.clerkName) || DEFAULT_CLERK_NAME,
     awsAccountId: trimOrEmpty(clerkSetupConfig.awsAccountId) || DEFAULT_AWS_ACCOUNT_ID,
-    amplifyAppId,
+    amplifyAppId: trimOrEmpty(clerkSetupConfig.amplifyAppId) || '',
     awsRegion,
     awsConsoleUrl,
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
+      buildCmsEditorConsoleUrl(awsRegion, awsConsoleUrl),
     cfDistributionId: trimOrEmpty(clerkSetupConfig.cfDistributionId) || DEFAULT_CF_DISTRIBUTION_ID,
     s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket) || DEFAULT_STATIC_SITE_BUCKET,
   };

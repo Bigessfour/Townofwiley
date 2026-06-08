@@ -1,19 +1,7 @@
-# HISTORICAL / DEPRECATED for frontend hosting (Amplify Hosting app deleted June 2026).
-# Retained for backend (ampx pipeline-deploy / AppSync/Gen2) and dev parity.
-# Current prod frontend: S3+CloudFront (see README deploy steps, manifest, customHttp.yml for CSP reference only).
-# Headers SSOT for legacy: customHttp.yml (npm run amplify:sync-headers — no-op for prod CF).
-# See docs/AMPLIFY_HOSTING_SOT.md (historical) and docs/AWS_INFRASTRUCTURE_SOT.md.
+# HISTORICAL — Amplify Hosting decommissioned June 2026. Production frontend: S3+CloudFront.
+# Retained for reference only. CI/CD uses GitHub Actions + scripts/deploy-static-site.sh.
+# See docs/AWS_INFRASTRUCTURE_SOT.md and docs/pipeline-workflow.md.
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - nvm install 24.16.0
-        - nvm use 24.16.0
-        - export CI=1
-        - npm ci --cache .npm --prefer-offline
-        - npm ci --prefix amplify --cache .npm --prefer-offline
-        - npx --prefix amplify ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     preBuild:
@@ -24,7 +12,6 @@ frontend:
     build:
       commands:
         - nvm use 24.16.0
-        - test -f amplify_outputs.json || (echo "Missing amplify_outputs.json from backend deploy" && exit 1)
         - node scripts/generate-runtime-config.mjs --strict
         - npm run build
   artifacts:
@@ -34,5 +21,4 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - amplify/node_modules/**/*
       - .npm/**/*

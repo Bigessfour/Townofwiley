@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (d34qrz3qxoppc5.cloudfront.net) with townofwiley-spa-redirect Function (June 2026 migration; old Amplify app d331voxr1fhoir deleted). Best practices applied: managed CachingOptimized policy, custom Response Headers Policy (security + CSP ID 22d4bac1-d4fc-4e81-bb48-ab7df3a37c59), standard logging to townofwiley-cf-logs, OAC prepared (E1UXALBLRIDL2E created; bucket policy dual-grant ready; origin switch pending Console). Backend: Gen1 AppSync/DynamoDB/Cognito/Storage (stacks amplify-townofwiley-main-d1245-*) still prod; Gen2 definition + schema in amplify/ (data/resource.ts etc.) + inventory files ready but cutover incomplete (see docs/amplify-gen2-migration-plan.md: storage override + gen2-migration refactor/lock/retain blocked; runtime-config still Gen1; only Gen1 AppSync live). Lambda Function URLs (chatbot, guestbook, contact, etc.), CloudWatch 90d (post-configure), no WAF rate ACLs. Historical Amplify references retained for backend/runtime-config compatibility.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, contact update/review (JWT API Gateway for admin PII), SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -23,7 +23,7 @@
     "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
   },
   "amplify": {
-    "note": "Legacy hosting app d331voxr1fhoir DELETED June 2026 after S3+CF migration. App ID and old stack names retained for historical backend references only. Repo + code cutover to Gen 2 complete (runtime links, /admin, docs, tests use x7poehudqvamneqni5s6e2cjxy as CURRENT; j7b2x3sh... marked GEN 1 LEGACY everywhere). Prod runtime CMS still on Gen1 pending full backend cutover (data copy via migrate script, update secrets for APPSYNC_CMS_*, ampx deploy or pipeline, verify, then decommission Gen1 stacks). Gen2 schema + inventory in amplify/ + infrastructure/gen2-*.json. See docs/amplify-gen2-migration-plan.md + gen1-decommission-evaluation.md.",
+    "note": "Amplify Hosting app d331voxr1fhoir DELETED June 2026. Gen 1 backend (amplify-townofwiley-main-d1245) remains production CMS. Gen 2/ampx path removed from repo June 2026.",
     "appId": "d331voxr1fhoir",
     "appName": "Townofwiley (hosting decommissioned)",
     "productionBranch": "main (historical)",
@@ -38,9 +38,12 @@
     }
   },
   "appsync": {
+    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
     "apiName": "townofwiley-main",
+    "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
     "defaultAuthorizationType": "API_KEY",
-    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"]
+    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"],
+    "bindingsFile": "infrastructure/gen1-production-bindings.json"
   },
   "s3Buckets": [
     {
@@ -53,6 +56,12 @@
       "name": "townofwiley-email-alias-570912405222-us-east-1",
       "region": "us-east-1",
       "purpose": "SES inbound email alias storage",
+      "requireBlockPublicAccess": true
+    },
+    {
+      "name": "townofwiley-cf-logs",
+      "region": "us-east-2",
+      "purpose": "CloudFront access logs for townofwiley.gov (lifecycle: expire after 30 days)",
       "requireBlockPublicAccess": true
     }
   ],
@@ -82,17 +91,10 @@
       "runtime": "python",
       "codePath": "infrastructure/severe-weather-signup",
       "functionUrl": { "authType": "NONE", "required": true },
-      "functionUrlEndpoint": "https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws",
+      "functionUrlEndpoint": "https://gldmik4rmy6clmuysb4slzvzda0whlfh.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-severe-weather-backend.py",
-      "required": true
-    },
-    {
-      "functionName": "townofwiley-easy-peasy-chat-proxy",
-      "region": "us-east-2",
-      "runtime": "nodejs",
-      "codePath": "infrastructure/easy-peasy-chat-proxy",
-      "functionUrl": { "authType": "NONE", "required": true },
-      "required": true
+      "required": true,
+      "notes": "Resident severe weather alert signup (email + SMS)"
     },
     {
       "functionName": "TownOfWileyContactUpdate",
@@ -101,28 +103,17 @@
       "codePath": "infrastructure/contact-update-lambda",
       "functionUrl": { "authType": "NONE", "required": true },
       "deployScript": "scripts/deploy-contact-update-backend.py",
-      "required": false,
-      "notes": "Public resident POST; pair with client sanitization (AP-06) and WAF (AP-16)"
+      "required": true,
+      "notes": "Public resident POST; pair with client sanitization (AP-06) and API Gateway throttling"
     },
     {
       "functionName": "TownOfWileyContactUpdatesReview",
       "region": "us-east-2",
       "runtime": "nodejs",
       "codePath": "infrastructure/contact-updates-review",
-      "functionUrl": { "authType": "AWS_IAM", "required": true },
       "deployScript": "scripts/deploy-contact-updates-review.py",
-      "required": false,
-      "notes": "Admin PII scan; must use SigV4 proxy (AP-05b/c), never public NONE"
-    },
-    {
-      "functionName": "TownOfWileyContactUpdatesReviewProxy",
-      "region": "us-east-2",
-      "runtime": "nodejs",
-      "codePath": "infrastructure/contact-updates-review-proxy",
-      "functionUrl": { "authType": "NONE", "required": true },
-      "deployScript": "scripts/deploy-contact-updates-review-proxy.py",
-      "required": false,
-      "notes": "Browser-facing proxy; origin-restricted; signs IAM review URL (AP-05b)"
+      "required": true,
+      "notes": "Admin PII scan; invoked via JWT API Gateway HTTP API (lmppzxwh3h) — no public Function URL"
     },
     {
       "functionName": "TownOfWileyEmailAliasRouter",
@@ -130,28 +121,38 @@
       "runtime": "python",
       "codePath": "infrastructure/email-alias-router",
       "deployScript": "scripts/deploy-email-alias-router.py",
-      "required": false,
-      "notes": "SES-triggered; no Function URL"
-    },
-    {
-      "functionName": "TownOfWileyDeveloperMonitor",
-      "region": "us-east-2",
-      "runtime": "python",
-      "codePath": "infrastructure/site-monitor",
-      "deployScript": "scripts/deploy-site-monitor.py",
-      "required": false,
-      "notes": "EventBridge schedule; no public URL"
-    },
-    {
-      "functionName": "TownOfWileyPaystarProxy",
-      "region": "us-east-2",
-      "runtime": "nodejs",
-      "codePath": "infrastructure/paystar-proxy",
-      "functionUrl": { "authType": "NONE", "required": false },
-      "required": false,
-      "notes": "Optional if Paystar API mode; hosted-only may omit Lambda"
+      "required": true,
+      "notes": "SES-triggered; no Function URL; required for town email alias forwarding"
     }
   ],
+  "cloudWatch": {
+    "logRetentionDays": 1,
+    "configureScript": "npm run configure:cloudwatch-logging",
+    "opsAlertsTopic": "TownOfWileyOpsAlerts",
+    "amplifyBackendLogGroups": [
+      "/aws/lambda/amplify-townofwiley-main--UpdateRolesWithIDPFuncti-1Z2Jfsrc9zLF"
+    ]
+  },
+  "decommissionedJune2026": {
+    "note": "Removed from AWS and manifest after cost review; code paths may remain in repo for reference until a follow-up PR strips UI.",
+    "lambdaFunctions": [
+      "townofwiley-easy-peasy-chat-proxy",
+      "TownOfWileyGuestbook",
+      "TownOfWileyDeveloperMonitor",
+      "TownOfWileyContactUpdatesReviewProxy",
+      "TownOfWileyPaystarProxy"
+    ],
+    "other": [
+      "WAF Web ACLs (TownOfWileyContactReviewApiRateLimit and Amplify Firewall)",
+      "Secrets Manager secret Grok (Wiley Widget)",
+      "Wiley Widget VPC wiley-co-aurora-vpc and interface endpoints",
+      "DynamoDB WileyWidgetMessages, Guestbook, DeveloperMonitorState",
+      "Gen 2 Cognito us-east-2_pkewJMUJF",
+      "ECR cdk-hnb659fds-container-assets-570912405222-us-east-2"
+    ],
+    "paystar": "Hosted portal only per https://docs.paystar.io/api/query/ — PAYSTAR_PORTAL_URL in runtime-config; no API proxy Lambda",
+    "stephenmckitrick": "CloudFront E1VI8ZZ8L1HW1F remains in this account until DNS/assets migrate to the other account (low-volume bill pay site)"
+  },
   "deploymentOrder": [
     {
       "step": 1,
@@ -161,54 +162,48 @@
     },
     {
       "step": 2,
-      "name": "Amplify hosting SSOT",
-      "action": "npm run amplify:sync-hosting",
-      "paths": ["amplify.yml", "customHttp.yml", "scripts/amplify-spa-rewrite-rules.json"]
-    },
-    {
-      "step": 3,
       "name": "NWS weather proxy",
       "action": "python scripts/deploy-nws-weather-proxy.py",
       "paths": ["infrastructure/nws-weather-proxy/"]
     },
     {
-      "step": 4,
+      "step": 3,
       "name": "Severe weather backend",
       "action": "python scripts/deploy-severe-weather-backend.py",
       "paths": ["infrastructure/severe-weather-signup/"]
     },
     {
-      "step": 5,
+      "step": 4,
       "name": "Email alias router",
       "action": "python scripts/deploy-email-alias-router.py",
       "paths": ["infrastructure/email-alias-router/"]
     },
     {
-      "step": 6,
+      "step": 5,
       "name": "Contact update write + DynamoDB",
       "action": "python scripts/deploy-contact-update-backend.py",
       "paths": ["infrastructure/contact-update-lambda/"]
     },
     {
-      "step": 7,
-      "name": "Contact update review (IAM URL)",
+      "step": 6,
+      "name": "Contact update review (JWT HTTP API)",
       "action": "python scripts/deploy-contact-updates-review.py",
       "paths": ["infrastructure/contact-updates-review/"]
     },
     {
+      "step": 7,
+      "name": "Runtime config + static deploy",
+      "action": "Set GitHub secrets per infrastructure/gen1-production-bindings.json; deploy runtime-config.js + S3/CloudFront",
+      "paths": ["scripts/generate-runtime-config.mjs", "infrastructure/hosting/"]
+    },
+    {
       "step": 8,
-      "name": "Contact update review proxy (public URL for admin UI)",
-      "action": "python scripts/deploy-contact-updates-review-proxy.py",
-      "paths": ["infrastructure/contact-updates-review-proxy/"]
+      "name": "CloudWatch logging + alarms",
+      "action": "python scripts/configure-townofwiley-cloudwatch-logging.py",
+      "paths": ["scripts/configure-townofwiley-cloudwatch-logging.py"]
     },
     {
       "step": 9,
-      "name": "Amplify env + redeploy main",
-      "action": "Set branch env vars per infrastructure/amplify-branch-env.manifest.json; redeploy main; AP-01b verify runtime-config.js",
-      "paths": ["scripts/generate-runtime-config.mjs"]
-    },
-    {
-      "step": 10,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": ["infrastructure/aws-infrastructure.manifest.json"]

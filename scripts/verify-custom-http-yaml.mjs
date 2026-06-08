@@ -78,10 +78,6 @@ function assertGoogleAnalyticsAndSiteBaselines(csp, label) {
       /frame-src[^;]*https:\/\/www\.googletagmanager\.com/i,
       'frame-src must allow https://www.googletagmanager.com (GA4 / GTM iframes per Google CSP guide)',
     ],
-    [
-      /frame-src[^;]*https:\/\/bots\.easy-peasy\.ai/i,
-      'frame-src must allow https://bots.easy-peasy.ai (Easy-Peasy chatbot embed iframe)',
-    ],
     [/object-src\s+'none'/, "object-src must be 'none'"],
     [
       /connect-src[^;]*\*\.execute-api\.us-east-2\.amazonaws\.com/i,

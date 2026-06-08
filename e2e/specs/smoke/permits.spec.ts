@@ -20,7 +20,7 @@ test.describe('Permits Page', () => {
       await expect(page.locator('[href^="mailto:"]')).toBeVisible();
     }
     if ((await page.locator('[href^="tel:"]').count()) > 0) {
-      await expect(page.locator('[href^="tel:"]')).toBeVisible();
+      await expect(page.locator('[href^="tel:"]').first()).toBeVisible();
     }
 
     // Back link (label depends on site language)

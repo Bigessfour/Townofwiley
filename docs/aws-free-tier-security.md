@@ -25,7 +25,7 @@ python scripts/configure-townofwiley-free-tier-security.py --dry-run
 | **IAM password policy**               | Free                               | 14+ chars, rotation, reuse prevention.                                                  |
 | **EBS encryption by default**         | Free                               | `us-east-2`, `us-east-1`.                                                               |
 | **IAM Access Analyzer**               | Free                               | Account analyzer `townofwiley-account`.                                                 |
-| **Cognito deletion protection**       | Free                               | Gen 2 pool `us-east-2_pkewJMUJF`.                                                       |
+| **Cognito deletion protection**       | Free                               | Gen 1 staff pool `us-east-2_DmY7BCBIp` (Townofwiley-main).                              |
 | **API Gateway throttling**            | Free                               | Contact review HTTP API stage `prod`.                                                   |
 | **Lambda reserved concurrency**       | Free                               | Optional: `--try-lambda-concurrency` (may fail if account unreserved pool is under 10). |
 | **Security headers (CSP, HSTS)**      | Free                               | [`customHttp.yml`](../customHttp.yml) via `npm run amplify:sync-headers`.               |
@@ -40,9 +40,9 @@ python scripts/configure-townofwiley-free-tier-security.py --dry-run
 | **Cognito Advanced Security**                | Per MAU                            | Staff pool hardening.                                         |
 | **GuardDuty / Security Hub**                 | After trial                        | Account threat detection.                                     |
 
-The configure script **reuses** the existing regional Web ACL `TownOfWileyContactReviewApiRateLimit` on **AppSync** and **Cognito** (no new ACL). You already pay for that ACL; association does not add a second ACL base fee.
+**WAF is off by default** (regional ACL deleted June 2026 to save ~$5+/mo). To re-enable after council approval, create a Web ACL in the console and pass `--web-acl-arn` to the configure script.
 
-**HTTP API (contact review)** cannot use WAF directly; the script uses **API Gateway throttling** instead (free).
+**HTTP API (contact review)** uses **API Gateway throttling** instead of WAF (free).
 
 ## After running the script
 

@@ -49,12 +49,38 @@
 - HTTP commands that send a body or use mutating methods such as `POST`, `PUT`, `PATCH`, or `DELETE` should still require confirmation.
 - When direct shell web utilities are blocked by host policy, prefer Python `urllib` or .NET `HttpClient` as the fallback for the same diagnostic purpose.
 
-## Codebase RAG (local semantic search)
+## Codebase RAG — MANDATORY before any code inspection or edits
 
-- Before broad repo exploration, use [`docs/codebase-rag.md`](../docs/codebase-rag.md): `npm run rag:query -- "<question>"` (after `npm run rag:setup` and `npm run rag:index`).
-- VS Code MCP: **`townofwiley-rag`** → `search_codebase`; then read cited `path:line` ranges only.
-- The index includes the RAG implementation (`rag/tow_rag/`), `.github/skills/`, and all instruction files — great for meta-questions.
-- Re-index when `npm run rag:status` reports stale (prefer `:incremental` after large changes). Prefer grep for exact symbol names.
+**This is a hard requirement for all agent turns.**
+
+You **MUST** query the RAG system for relevant current context **before**:
+- Reading any source file (`src/`, `docs/`, scripts, etc.) with the intent to understand it for modification.
+- Planning, describing, or applying **any** code change, `search_replace`, or edit.
+- Proposing refactors, new components, CMS models, copy changes, or config updates.
+
+**Required workflow (every time):**
+1. Formulate a precise question about the area/feature you are about to touch (e.g. "how APP_COPY topTasks and navigation labels are structured and consumed in app.ts and app.html", "current SiteCopy or generic CMS admin patterns", "how LocalizedCmsContentStore loads public models").
+2. Call the RAG:
+   - **Preferred and always-available**: MCP server **`townofwiley-rag`** (launched via WSL) tool `search_codebase`. Use this first for any codebase, infra, skills, or agent-instruction questions.
+   - Fallback: `npm run rag:query -- "your precise question"` (run from repo root).
+3. Review the returned chunks (they include `path:startLine-endLine` citations).
+4. **Only then** use the Read tool on the specific cited file ranges.
+5. Proceed with understanding + edit only after incorporating the RAG results.
+
+This ensures maximum up-to-date semantic context from the full indexed corpus (`src/`, docs, e2e, scripts, infrastructure, all instruction files, skills, RAG implementation itself, etc.) before any manipulation.
+
+- Re-index with `npm run rag:index:incremental` (or full `npm run rag:index`) when `npm run rag:status` or `rag_status` MCP tool reports the index is stale or missing.
+- Use exact `grep` only for symbol/string lookups after RAG has given you the broader picture.
+- The RAG section in [`docs/codebase-rag.md`](../docs/codebase-rag.md) and [`.cursor/rules/codebase-rag.mdc`](../.cursor/rules/codebase-rag.mdc) are the detailed runbooks.
+
+Violating this (editing without prior RAG retrieval for the affected area) produces lower-quality, out-of-context changes.
+
+## Codebase RAG (local semantic search) — quick reference
+
+- Setup (first time or after venv issues): `npm run rag:setup && npm run rag:index`
+- Query: MCP `townofwiley-rag` → `search_codebase` or `npm run rag:query -- "<question>"`
+- Status: `npm run rag:status` or MCP `rag_status`
+- The index covers high-signal paths including all agent instructions. Generation always stays with the IDE model (RAG only retrieves).
 
 ## Cursor / Copilot Agent Auto-Approval Policy
 

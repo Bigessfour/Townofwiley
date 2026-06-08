@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "email.cognito-idp.amazonaws.com"
+      },
+      "Action": ["ses:SendEmail", "ses:SendRawEmail"],
+      "Resource": "arn:aws:ses:us-east-2:570912405222:identity/townofwiley.gov",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "570912405222"
+        },
+        "ArnLike": {
+          "aws:SourceArn": "arn:aws:cognito-idp:us-east-2:570912405222:userpool/us-east-2_pkewJMUJF"
+        }
+      }
+    }
+  ]
+}

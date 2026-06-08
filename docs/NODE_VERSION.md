@@ -41,7 +41,59 @@ Then run `node scripts/ensure-node-version.mjs` and `npm run test:vitest`.
 | [`package.json`](../package.json) `volta`                               | Volta                                             |
 | [`scripts/ensure-node-version.mjs`](../scripts/ensure-node-version.mjs) | Enforces `engines` major range before npm scripts |
 
-## Windows (nvm-windows) — common pain
+## Windows (WSL Ubuntu — preferred)
+
+Integrated terminals in Cursor/VS Code for this repo default to **Ubuntu (WSL)** instead of PowerShell (see [`.vscode/settings.json`](../.vscode/settings.json)).
+
+### Commands that work (pick one)
+
+**Easiest — run from PowerShell** (works even if WSL terminal is stuck):
+
+```powershell
+cd "C:\Users\biges\Desktop\Personal Github\Town Website"
+npm run setup:node:wsl
+```
+
+Or:
+
+```powershell
+.\scripts\setup-repo-node-wsl.ps1
+```
+
+**Only inside an Ubuntu/WSL terminal** (prompt looks like `user@machine:` — not `PS C:\>`):
+
+```bash
+cd "/mnt/c/Users/biges/Desktop/Personal Github/Town Website"
+bash scripts/setup-repo-node.sh
+```
+
+**Do not** paste `/mnt/c/...` into PowerShell — that path is WSL-only and PowerShell will say the path does not exist.
+
+**No WSL / want Windows Node only:**
+
+```powershell
+cd "C:\Users\biges\Desktop\Personal Github\Town Website"
+npm run setup:node
+```
+
+That installs **nvm** (if missing) and Node **24.16.0** from `.nvmrc`. Copy or symlink AWS credentials into WSL if needed (`~/.aws/` with `[profile townofwiley]`).
+
+**Install or update WSL** (PowerShell as Administrator, if WSL is missing):
+
+```powershell
+winget install --id Microsoft.WSL -e --accept-source-agreements --accept-package-agreements
+wsl --install -d Ubuntu
+```
+
+**Upgrade WSL app** (optional):
+
+```powershell
+winget upgrade --id Microsoft.WSL -e
+```
+
+Reload Cursor after changing the default terminal profile (**Developer: Reload Window**).
+
+## Windows (nvm-windows / PowerShell fallback) — common pain
 
 **Symptom:** `nvm use 24.16.0` prints success but `node -v` still shows **v22** or **v25**.
 
@@ -122,7 +174,7 @@ Agent shells **may not** inherit VS Code `terminal.integrated.env`. Prefix comma
 PATH="/opt/homebrew/opt/node@24/bin:$PATH" npm run test:e2e:smoke
 ```
 
-On Windows, prepend `$env:NVM_SYMLINK` or run `scripts/setup-repo-node.ps1` first.
+On Windows, use WSL and `bash scripts/setup-repo-node.sh`, or prepend `$env:NVM_SYMLINK` / run `scripts/setup-repo-node.ps1` in PowerShell.
 
 Do **not** use `SKIP_NODE_VERSION_CHECK=1` except emergencies — it hides the real problem (wrong Node on PATH).
 

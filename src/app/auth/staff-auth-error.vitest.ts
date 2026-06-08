@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isAmplifyAuthFailure, readStaffAuthErrorMessage } from './staff-auth-error';
+import {
+  isAmplifyAuthFailure,
+  isUserAlreadyAuthenticatedError,
+  readStaffAuthErrorMessage,
+} from './staff-auth-error';
 
 describe('staff-auth-error', () => {
   it('reads AuthError messages', () => {
@@ -24,5 +28,14 @@ describe('staff-auth-error', () => {
     const error = new Error('Incorrect username or password.');
     error.name = 'NotAuthorizedException';
     expect(isAmplifyAuthFailure(error)).toBe(true);
+  });
+
+  it('detects UserAlreadyAuthenticatedException', () => {
+    const error = Object.assign(new Error('There is already a signed in user.'), {
+      name: 'UserAlreadyAuthenticatedException',
+    });
+
+    expect(isUserAlreadyAuthenticatedError(error)).toBe(true);
+    expect(readStaffAuthErrorMessage(error, 'fallback')).toContain('previous sign-in session');
   });
 });

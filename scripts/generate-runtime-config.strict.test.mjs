@@ -79,10 +79,13 @@ describe('shouldAllowManifestFallbacks', () => {
 });
 
 describe('buildRuntimeConfigValues manifest fallbacks', () => {
-  it('wires severe weather signup to deployed Lambda URL for local dev', () => {
+  it('enables severe weather signup when env provides the Function URL', () => {
     const values = buildRuntimeConfigValues(
-      { weather: { alertSignup: { enabled: false, apiEndpoint: '' } } },
       {},
+      {
+        SEVERE_WEATHER_SIGNUP_API_ENDPOINT: 'https://example.lambda-url.us-east-2.on.aws/',
+        SEVERE_WEATHER_SIGNUP_ENABLED: 'true',
+      },
       { allowManifestFallbacks: true },
     );
     assert.match(values.severeWeatherSignupApiEndpoint, /lambda-url\.us-east-2\.on\.aws/);
