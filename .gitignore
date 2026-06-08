@@ -141,3 +141,16 @@ scripts/verify-contact-review-security.mjs
 scripts/verify-runtime-config-cms.mjs
 rag/
 mcp/
+mcps/
+
+# Amplify Gen2 local synth (ampx pipeline-deploy / sandbox)
+.amplify/
+
+# Local AWS / Cognito scratch exports (never commit)
+additional-auth.json
+
+# PowerShell redirection artifact (e.g. `> $null` misparsed as filename)
+$null
+
+# Cursor / Grok agent harness (terminal session logs)
+terminals/
