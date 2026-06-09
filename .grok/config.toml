@@ -10,9 +10,9 @@ startup_timeout_sec = 30
 tool_timeout_sec = 120
 
 [mcp_servers.primeng]
-command = "npx"
-args = ["-y", "-p", "@modelcontextprotocol/sdk@1.24.3", "-p", "@primeng/mcp@21.1.8", "primeng-mcp"]
-enabled = true                                                 # npx fallback; optional local pin: npm run mcp:primeng:install
+command = "powershell"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "scripts/primeng-mcp.ps1"]
+enabled = true                                                 # pinned mcp/primeng — run npm run mcp:primeng:install once
 startup_timeout_sec = 30
 tool_timeout_sec = 120
 

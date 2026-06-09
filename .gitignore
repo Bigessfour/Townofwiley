@@ -9,6 +9,8 @@
 # Node
 /node_modules
 /mcp/primeng/node_modules
+!mcp/primeng/package.json
+!mcp/primeng/README.md
 npm-debug.log
 yarn-error.log
 
@@ -115,7 +117,7 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 # Local AI / tooling scratch, scans, and exports (never commit)
-"Scan ["*"].pdf"
+Scan*.pdf
 *.zip
 .tmp-grok-test/
 figma/
@@ -139,7 +141,9 @@ scripts/retire-contact-review-proxy.py
 scripts/store-xai-api-key.sh
 
 rag/
-mcp/
+mcp/*
+!mcp/primeng/
+mcp/primeng/node_modules/
 mcps/
 
 # Amplify Gen2 local synth (ampx pipeline-deploy / sandbox)
@@ -151,5 +155,23 @@ additional-auth.json
 # PowerShell redirection artifact (e.g. `> $null` misparsed as filename)
 $null
 
+# HTTP / AWS CLI debug scratch at repo root (never commit)
+/.tmp-*.json
+/body.json
+/headers.txt
+/response.json
+
 # Cursor / Grok agent harness (terminal session logs)
 terminals/
+
+# AI fetchable manifest (generated — npm run generate:ai-manifest)
+/manifest.json
+/ai-fetchable-manifest.json
+/AI-BRIEF.md
+
+# AppSync schema exports (IT scratch — scripts/export-appsync-schema.py)
+scripts/gen1-appsync-schema*.graphql
+
+# One-off AWS / AppSync probe scripts (local IT scratch)
+scripts/_aws_inventory_once.py
+scripts/_list-ds.py

@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Configuration for AI-Fetchable Manifest Generator (Town of Wiley)",
+
+  "_comment_exclude": "Regex patterns — paths matching any pattern are omitted from the manifest",
+  "exclude_patterns": [
+    "^node_modules/",
+    "^dist/",
+    "^\\.angular/",
+    "^coverage/",
+    "^playwright-report/",
+    "^test-results/",
+    "^rag/\\.index/",
+    "^\\.git/",
+    "^\\.trunk/",
+    "^\\.cursor/",
+    "^\\.grok/",
+    "^mcp/",
+    "ai-fetchable-manifest\\.json$",
+    "manifest\\.json$",
+    "AI-BRIEF\\.md$",
+    "gen1-appsync-schema.*\\.graphql$",
+    "\\.secret$"
+  ],
+
+  "_comment_focus": "When focus_mode is true, only include_only_extensions are indexed",
+  "focus_mode": false,
+  "include_only_extensions": [
+    ".ts",
+    ".html",
+    ".scss",
+    ".mjs",
+    ".js",
+    ".json",
+    ".md",
+    ".py",
+    ".sh",
+    ".ps1",
+    ".graphql"
+  ],
+
+  "max_files": 12000,
+  "max_file_size_bytes": 10485760,
+  "manifest_mode": "full-context",
+  "generate_context_summary": true,
+
+  "emit_full_tree": false,
+  "tree_max_depth": 5,
+  "max_tree_entries_per_dir": 50,
+
+  "focus_directories": ["src", "docs", "e2e", "infrastructure", "scripts", "rag"],
+
+  "always_include_dirs": [
+    "src/app",
+    "docs",
+    "e2e",
+    "infrastructure",
+    ".github/instructions",
+    ".github/skills",
+    "AGENTS.md"
+  ],
+
+  "priority_patterns": {
+    "site-cms-content": 98,
+    "cms-admin": 96,
+    "cms-model-inventory": 95,
+    "cms-generic": 94,
+    "staff-auth": 93,
+    "runtime-config": 92,
+    "app.routes": 91,
+    "app.config": 90,
+    "service": 88,
+    "component": 86,
+    "guard": 85,
+    "vitest": 72,
+    "spec": 70,
+    "e2e": 75
+  },
+
+  "content_inclusion": {
+    "embed_full_if_smaller_than_kb": 120,
+    "preview_lines_for_large_files": 600,
+    "max_embedded_files": 250,
+    "critical_globs": [
+      "**/site-cms-content.ts",
+      "**/cms-admin/**",
+      "**/cms-*-admin.service.ts",
+      "**/cms-generic-model-admin.service.ts",
+      "**/cms-model-inventory.ts",
+      "**/staff-auth.service.ts",
+      "**/app.routes.ts",
+      "**/app.config.ts",
+      "**/runtime-config*.mjs",
+      "**/AGENTS.md",
+      "**/.instructions.md",
+      "**/infrastructure/cms-inventory.json"
+    ],
+    "never_embed": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/*.spec.ts",
+      "**/*.vitest.ts",
+      "**/package-lock.json",
+      "**/cms-snapshot.json",
+      "**/public/cms-snapshot.json"
+    ],
+    "_comment_force_embed": "Files matching these globs always get FULL content embedding (highest embed priority; never_embed still wins)",
+    "force_full_embed_globs": [
+      "**/cms-admin/**/*.ts",
+      "**/*clerk*.ts",
+      "**/*record-editor*.ts"
+    ]
+  },
+
+  "_comment_priority_keywords": "Content-based priority boost: if a .ts/.html/.mjs/.py file under 256 KB contains a keyword, add the max matching boost (priority capped at 100)",
+  "priority_content_keywords": {
+    "LeadershipRosterEntry": 10,
+    "displayOrder": 10,
+    "reorderRecords": 10,
+    "OrderList": 10,
+    "clerk-record-editor": 10,
+    "update-leadership": 10
+  },
+
+  "_comment_focus_profiles": "Profiles for the --focus CLI flag: merges extra force_full_embed_globs and adds brief_note + Recent Branch Changes to AI-BRIEF.md",
+  "focus_profiles": {
+    "cms-ordered-editor": {
+      "force_full_embed_globs": [
+        "**/cms-admin/**",
+        "**/cms-generic-model-admin.service.ts",
+        "**/cms-*-admin.service.ts"
+      ],
+      "brief_note": "Focus: ordered-list CMS editor work"
+    }
+  },
+
+  "architecture_hints": {
+    "project_name": "Town of Wiley",
+    "project_purpose": "Official bilingual municipal website (townofwiley.gov): Angular 21 SPA, PrimeNG, AWS S3 + CloudFront, AppSync/DynamoDB CMS.",
+    "project_type": "Angular 21 standalone SPA",
+    "ui_framework": "PrimeNG + SCSS design tokens",
+    "architecture_pattern": "Signals-first standalone components, OnPush, native control flow",
+    "important_context": "CMS content is edited via `/admin` clerk tasks; public site reads AppSync with API key. Staff CRUD uses Cognito user pools. See `AGENTS.md` and `docs/codebase-rag.md` for agent workflow.",
+    "navigation_steps": [
+      "`src/app/` — feature components, CMS admin, auth, and page routes",
+      "`src/app/cms-admin/` — clerk task hub, record editors, model inventory",
+      "`docs/` — runbooks, CMS guides, infrastructure notes",
+      "`e2e/specs/` — Playwright smoke and regression tests",
+      "`infrastructure/` — Lambda, AppSync bindings, AWS manifests",
+      "`scripts/` — deploy, verify, runtime-config, and tooling"
+    ],
+    "di_container": "Angular `inject()` and `providedIn` services",
+    "async_init_pattern": "RxJS observables and Angular signals"
+  },
+
+  "project_analysis": {
+    "parse_csharp_inheritance": false,
+    "parse_sln_dependencies": false,
+    "detect_tech_from_csproj": false,
+    "analyze_xaml_controls": false,
+    "build_dependency_graph": false,
+    "analyze_angular": true
+  }
+}

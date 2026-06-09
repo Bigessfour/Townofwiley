@@ -24,15 +24,35 @@ function loadCmsSnapshotForE2e(): Record<string, unknown> {
   return cachedCmsSnapshot;
 }
 
+function mergeE2eArchiveDocumentSeeds(snapshotRecords: unknown[]): unknown[] {
+  const records = [...snapshotRecords];
+  const existingIds = new Set(
+    records
+      .filter((record): record is { id: string } => {
+        return typeof record === 'object' && record !== null && 'id' in record;
+      })
+      .map((record) => record.id),
+  );
+
+  for (const seed of E2E_PUBLIC_DOCUMENT_RECORDS) {
+    if (!existingIds.has(seed.id)) {
+      records.push(seed);
+    }
+  }
+
+  return records;
+}
+
 function buildE2eCmsSnapshotBody(snapshot: Record<string, unknown>): string {
+  const snapshotDocuments = Array.isArray(snapshot.publicDocumentRecords)
+    ? snapshot.publicDocumentRecords
+    : [];
+
   return JSON.stringify({
     ...snapshot,
     eventRecords: [],
     businessRecords: [],
-    publicDocumentRecords:
-      Array.isArray(snapshot.publicDocumentRecords) && snapshot.publicDocumentRecords.length > 0
-        ? snapshot.publicDocumentRecords
-        : E2E_PUBLIC_DOCUMENT_RECORDS,
+    publicDocumentRecords: mergeE2eArchiveDocumentSeeds(snapshotDocuments),
   });
 }
 

@@ -119,6 +119,8 @@ export class CmsAdmin {
   };
 
   protected readonly modelCounts = this.cmsStore.modelCounts;
+  protected readonly isStaffSignedIn = this.staffAuth.isStaff;
+  protected readonly staffEmail = this.staffAuth.email;
   protected readonly hasAppSyncRuntimeConfig =
     Boolean(this.appSyncRuntimeConfig.apiEndpoint) && Boolean(this.appSyncRuntimeConfig.apiKey);
 
@@ -185,6 +187,13 @@ export class CmsAdmin {
 
   constructor() {
     void this.loadContactUpdates();
+  }
+
+  protected async signOutStaff(): Promise<void> {
+    await this.staffAuth.signOutStaff();
+    if (typeof window !== 'undefined') {
+      window.location.assign('/admin/login');
+    }
   }
 
   protected onShowTaskSteps(taskId: ClerkCmsTaskId): void {

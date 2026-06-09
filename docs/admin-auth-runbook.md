@@ -79,8 +79,21 @@ python scripts/configure-cognito-staff-email.py
 | Forgot password shows success but no email | User status **`FORCE_CHANGE_PASSWORD`**                                | User signs in with IT temp password, or IT runs `reset-cognito-staff-password.py --temporary` |
 | **Not authorized for staff admin access** after successful Hosted UI login | OAuth tokens returned before `cognito:groups` claim populated, or access token missing admin scope | Re-run `npm run configure:cognito-hosted-ui` (adds `aws.cognito.signin.user.admin` scope); deploy latest frontend; verify user in **Staff** group: `aws cognito-idp admin-list-groups-for-user --user-pool-id us-east-2_DmY7BCBIp --username <sub>` |
 | CMS mutation fails after sign-in           | User not in **Staff** group or AppSync user-pool auth misaligned       | Run `setup-cognito-staff-group.py`; verify AppSync additional auth uses Gen 1 pool            |
+| **Could not list SiteCopy** (other tasks work) | `SiteCopy` allows **apiKey read** but lacks **Staff** group **userPool** CRUD on the live AppSync API | Add Staff group auth on `SiteCopy` in Amplify Gen 2 data schema; deploy backend. See [`sitecopy-staff-appsync-auth.md`](./sitecopy-staff-appsync-auth.md) |
+| **Field 'listSiteCopies' doesn't exist** | Browser `runtime-config.js` points at wrong/legacy API | Align `APPSYNC_CMS_*` secrets to Gen 2 API; redeploy static site; `npm run verify:runtime-config-cms` |
+
+### SiteCopy staff list troubleshooting
+
+1. Reproduce on `/admin` → **Edit navigation labels…** → **Edit content** with DevTools → **Network** → GraphQL `listSiteCopies`.
+2. Compare `listAnnouncements` in the same session:
+   - Announcement works, SiteCopy **Not Authorized** → schema auth fix (Staff group on `SiteCopy`).
+   - Both fail → session/group issue (rows above).
+   - `listSiteCopies` missing → endpoint/schema deploy (Gen 2 cutover).
+3. Repo contract (no AWS): `npm run verify:staff-cms-editor-models`.
+4. Staff JWT probe in AppSync Queries console: see [`sitecopy-staff-appsync-auth.md`](./sitecopy-staff-appsync-auth.md).
 
 ```bash
 aws cognito-idp admin-get-user --user-pool-id us-east-2_DmY7BCBIp --username staff@example.com --region us-east-2
 python scripts/reset-cognito-staff-password.py --email staff@example.com --temporary --print-password
+npm run verify:staff-cms-editor-models
 ```

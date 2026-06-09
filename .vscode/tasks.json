@@ -302,6 +302,76 @@
         "reveal": "always",
         "panel": "shared"
       }
+    },
+    {
+      "label": "ai-manifest: prepare",
+      "detail": "Verify git, Python 3.10+, and scripts/.ai-manifest-config.json before manifest generation.",
+      "type": "shell",
+      "command": "node scripts/prepare-ai-manifest.mjs",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ai-manifest: generate (compact)",
+      "detail": "Metadata-only manifest (fast). Writes manifest.json, ai-fetchable-manifest.json, AI-BRIEF.md at repo root.",
+      "type": "npm",
+      "script": "generate:ai-manifest:compact",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONIOENCODING": "utf-8"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ai-manifest: generate (full)",
+      "detail": "Full-context manifest with embedded source for critical files (slower, larger output).",
+      "type": "npm",
+      "script": "generate:ai-manifest",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONIOENCODING": "utf-8"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ai-manifest: prepare and generate (compact)",
+      "detail": "Preflight then compact manifest — default for local refresh before push.",
+      "dependsOn": ["ai-manifest: prepare", "ai-manifest: generate (compact)"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ai-manifest: prepare and generate (full)",
+      "detail": "Preflight then full-context manifest with embedded critical file content.",
+      "dependsOn": ["ai-manifest: prepare", "ai-manifest: generate (full)"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
     }
   ]
 }

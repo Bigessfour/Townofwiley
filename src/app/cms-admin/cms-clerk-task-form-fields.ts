@@ -23,7 +23,12 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   'post-notice': [
     { name: 'title', label: 'Title', required: true },
     { name: 'detail', label: 'Detail / Message', type: 'textarea', required: true },
-    { name: 'date', label: 'Date (YYYY-MM-DD)', type: 'date' },
+    {
+      name: 'date',
+      label: 'Date',
+      type: 'date',
+      help: 'The date residents should see on the notice',
+    },
     {
       name: 'announcementKind',
       label: 'Kind',
@@ -171,8 +176,8 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
       name: 'key',
       label: 'Key (stable ID)',
       required: true,
-      placeholder: 'e.g. topTasksKicker, nav.services',
-      help: 'Consistent key the site understands — ask IT for supported keys',
+      placeholder: 'topTasksKicker or topTasksHeading',
+      help: 'Keys the website understands today: topTasksKicker and topTasksHeading ("How do I..." section). Other keys need IT to connect them first',
     },
     { name: 'valueEn', label: 'English text', required: true },
     { name: 'valueEs', label: 'Spanish text' },

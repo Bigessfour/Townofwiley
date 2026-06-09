@@ -119,6 +119,60 @@ describe('CmsGenericModelAdminService', () => {
     await expect(service.listRecords('Announcement')).rejects.toThrow(/Sign in at \/admin\/login/);
   });
 
+  it('listRecords SiteCopy uses userPool auth and listSiteCopies query', async () => {
+    graphqlMock.mockResolvedValue({
+      data: {
+        listSiteCopies: {
+          items: [{ id: 'copy-1', key: 'topTasksKicker', valueEn: 'How do I…', active: true }],
+        },
+      },
+    });
+
+    const items = await service.listRecords('SiteCopy');
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.['key']).toBe('topTasksKicker');
+    expect(graphqlMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        authMode: 'userPool',
+      }),
+    );
+    const call = graphqlMock.mock.calls[0]?.[0];
+    expect(call?.query).toContain('listSiteCopies');
+    expect(call?.query).toContain('valueEn');
+    expect(call?.query).toContain('valueEs');
+  });
+
+  it('listRecords SiteCopy maps GraphQL errors array to staff sign-in message', async () => {
+    graphqlMock.mockRejectedValue({ errors: [{ message: 'Not Authorized' }] });
+
+    await expect(service.listRecords('SiteCopy')).rejects.toThrow(/Sign in at \/admin\/login/);
+  });
+
+  it('reorderRecords updates displayOrder via userPool mutations', async () => {
+    graphqlMock
+      .mockResolvedValueOnce({
+        data: { updateBusiness: { id: 'biz-1' } },
+      })
+      .mockResolvedValueOnce({
+        data: { updateBusiness: { id: 'biz-2' } },
+      });
+
+    const ids = await service.reorderRecords('Business', [
+      { id: 'biz-1', displayOrder: 0 },
+      { id: 'biz-2', displayOrder: 1 },
+    ]);
+
+    expect(ids).toEqual(['biz-1', 'biz-2']);
+    expect(graphqlMock).toHaveBeenCalledTimes(2);
+    expect(graphqlMock.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        authMode: 'userPool',
+        variables: { input: { id: 'biz-1', displayOrder: 0 } },
+      }),
+    );
+  });
+
   it('rejects unsupported models', async () => {
     await expect(service.createRecord('NotARealModel', { id: 'x' })).rejects.toThrow(
       /Unsupported CMS model/,

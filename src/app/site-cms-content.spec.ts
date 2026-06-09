@@ -303,6 +303,9 @@ describe('LocalizedCmsContentStore', () => {
     expect(extendedRequest.request.body.query as string).toContain(
       'listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50)',
     );
+    expect(extendedRequest.request.body.query as string).toContain(
+      'listSiteCopies(filter: { active: { eq: true } }, limit: 200)',
+    );
 
     extendedRequest.flush({
       data: {

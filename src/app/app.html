@@ -1296,6 +1296,29 @@
             }
           </ul>
         </nav>
+
+        <section
+          class="site-footer__attestation"
+          aria-labelledby="site-footer-attestation-heading"
+        >
+          <p-avatar
+            image="mayor-steve-mckitrick.png"
+            shape="circle"
+            size="xlarge"
+            [attr.aria-label]="appCopy().footerAttestationPhotoAlt"
+          />
+          <div class="site-footer__attestation-copy">
+            <p class="site-footer__attestation-kicker" id="site-footer-attestation-heading">
+              {{ appCopy().footerAttestationHeading }}
+            </p>
+            <p class="site-footer__attestation-name">
+              <strong>{{ appCopy().footerAttestationName }}</strong>
+            </p>
+            <p class="site-footer__attestation-body">
+              {{ appCopy().footerAttestationBody }}
+            </p>
+          </div>
+        </section>
       </div>
     </footer>
   </main>

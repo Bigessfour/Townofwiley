@@ -1,0 +1,11 @@
+{
+  "name": "townofwiley-primeng-mcp",
+  "private": true,
+  "description": "Pinned PrimeNG MCP for Cursor/Grok (see README.md)",
+  "dependencies": {
+    "@primeng/mcp": "21.1.8"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.25.2"
+  }
+}
