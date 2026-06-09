@@ -1,6 +1,19 @@
-# Townofwiley
+# Town of Wiley — Official Municipal Website
 
-TownOfWiley Website
+**Live site:** [townofwiley.gov](https://townofwiley.gov)
+
+The official, bilingual (English/Spanish) website for the Town of Wiley, Colorado — built and operated as a modern, low-cost, serverless municipal platform.
+
+| Area | Stack |
+| --- | --- |
+| Frontend | Angular 21 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens |
+| Hosting | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing) |
+| Content (CMS) | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth |
+| Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing) |
+| Quality | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility |
+| CI/CD | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration |
+
+Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
 
 ## Git Workflow
 

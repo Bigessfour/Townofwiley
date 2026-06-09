@@ -28,6 +28,21 @@
   margin-bottom: 1rem;
 }
 
+.cms-header__actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cms-staff-session {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--wiley-ink-700, #334155);
+}
+
+.cms-staff-sign-out {
+  margin-left: 0.25rem;
+}
+
 .cms-jump-nav {
   display: flex;
   flex-wrap: wrap;

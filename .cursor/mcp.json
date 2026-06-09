@@ -5,14 +5,13 @@
       "args": ["-y", "@angular/cli@21.2.5", "mcp", "--experimental-tool", "modernize"]
     },
     "primeng": {
-      "command": "npx",
+      "command": "powershell",
       "args": [
-        "-y",
-        "-p",
-        "@modelcontextprotocol/sdk@1.24.3",
-        "-p",
-        "@primeng/mcp@21.1.8",
-        "primeng-mcp"
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/primeng-mcp.ps1"
       ],
       "env": {
         "NODE_OPTIONS": "--no-deprecation"

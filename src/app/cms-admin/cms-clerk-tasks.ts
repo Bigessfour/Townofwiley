@@ -378,7 +378,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — the Contact page shows the default name list until IT adds rows.',
+      'No roster rows yet — the Contact page shows the default name list until you add rows with the form below.',
   },
   {
     id: 'business-directory',
@@ -528,7 +528,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/',
     steps: [
       'Click Edit content to open the form (sign in at /admin/login first).',
-      'Create or edit a row with a stable key (examples: "topTasksKicker", "topTasksHeading", "nav.services", "homepage.featureHub.heading").',
+      'Create or edit a row with a stable key. Keys the website uses today: "topTasksKicker" and "topTasksHeading" (the "How do I..." section heading). Other keys only take effect after IT connects them.',
       'Fill valueEn (required) and valueEs for Spanish visitors.',
       'Set Active on. Use description to note where the text appears.',
       'Save and hard-refresh the homepage (or relevant page) to see the change.',
@@ -537,7 +537,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'Key (stable ID)',
         technicalName: 'key',
-        help: 'Use consistent keys the site understands, e.g. "topTasksKicker", "topTasksHeading", "primaryNavServicesLabel". Ask IT for the current list of supported keys.',
+        help: 'Keys the website understands today: "topTasksKicker" and "topTasksHeading". A row with any other key is saved but changes nothing until IT connects that key.',
       },
       {
         plainLabel: 'English text',

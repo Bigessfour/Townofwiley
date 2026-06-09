@@ -15,12 +15,28 @@ import {
   assertCmsAdminModel,
   type CmsAdminModel,
   type CmsAdminOperation,
+  extractGraphqlFailureMessage,
   requireAuthenticatedAdmin,
   toClerkFriendlyGraphqlError,
 } from './cms-admin/cms-staff-appsync-auth';
 import { LoggingService } from './logging.service';
 
 const client = generateClient();
+
+function safeSerializeAdminError(error: unknown): string {
+  try {
+    if (error instanceof Error) {
+      return JSON.stringify({
+        name: error.name,
+        message: error.message,
+        cause: error.cause instanceof Error ? error.cause.message : error.cause,
+      });
+    }
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
 
 @Injectable({
   providedIn: 'root',
@@ -157,6 +173,18 @@ export class CmsGenericModelAdminService {
     return this.deleteRecord(model, id);
   }
 
+  /** Persist new displayOrder values immediately (one update mutation per changed row). */
+  async reorderRecords(
+    model: string,
+    updates: readonly { id: string; displayOrder: number }[],
+  ): Promise<string[]> {
+    const savedIds: string[] = [];
+    for (const { id, displayOrder } of updates) {
+      savedIds.push(await this.updateRecord(model, { id, displayOrder }));
+    }
+    return savedIds;
+  }
+
   async deleteRecord(model: string, id: string): Promise<string> {
     assertCmsAdminModel(model);
     const trimmedId = id.trim();
@@ -268,10 +296,12 @@ export class CmsGenericModelAdminService {
   }
 
   private logAdminFailure(operation: CmsAdminOperation, model: string, error: unknown): void {
+    const extracted = extractGraphqlFailureMessage(error);
     this.logging.log('warn', `CMS admin ${operation} failed`, {
       eventType: `cms_admin_${operation}_failed`,
       model,
-      error: error instanceof Error ? error.message : String(error),
+      error: extracted || (error instanceof Error ? error.message : String(error)),
+      errorDetail: safeSerializeAdminError(error),
     });
   }
 }

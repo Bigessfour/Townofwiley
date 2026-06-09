@@ -218,6 +218,12 @@ describe('App', () => {
     expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
       'Accessibility statement',
     );
+    expect(compiled.querySelector('.site-footer__attestation-name')?.textContent).toContain(
+      'Built by Mayor Steve McKitrick',
+    );
+    expect(compiled.querySelector('.site-footer__attestation-body')?.textContent).toContain(
+      'Grok from xAI',
+    );
   }, 45000);
 
   it('should expose navigable resident-services submenu targets in the mega menu model', async () => {

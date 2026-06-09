@@ -9,14 +9,32 @@
         at (719) 829-4974.
       </p>
     </div>
-    <nav class="cms-jump-nav" aria-label="Page sections">
-      <a href="#start">Start here</a>
-      <a href="#documents">Documents</a>
-      <a href="#updates">Resident messages</a>
-      <a href="#advanced">Advanced (IT)</a>
-      <a href="/">Public site</a>
-      <a href="/admin/login">Staff sign in</a>
-    </nav>
+    <div class="cms-header__actions">
+      @if (isStaffSignedIn()) {
+        <p class="cms-staff-session" data-testid="cms-staff-session" role="status">
+          Signed in as {{ staffEmail() ?? 'Town staff' }}.
+          <button
+            pButton
+            type="button"
+            class="p-button-text p-button-sm cms-staff-sign-out"
+            data-testid="cms-staff-sign-out"
+            (click)="signOutStaff()"
+          >
+            Sign out
+          </button>
+        </p>
+      }
+      <nav class="cms-jump-nav" aria-label="Page sections">
+        <a href="#start">Start here</a>
+        <a href="#documents">Documents</a>
+        <a href="#updates">Resident messages</a>
+        <a href="#advanced">Advanced (IT)</a>
+        <a href="/">Public site</a>
+        @if (!isStaffSignedIn()) {
+          <a href="/admin/login">Staff sign in</a>
+        }
+      </nav>
+    </div>
   </header>
 
   <section id="start" class="cms-section">

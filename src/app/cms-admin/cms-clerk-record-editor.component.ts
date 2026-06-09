@@ -9,11 +9,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { OrderListModule } from 'primeng/orderlist';
 import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
@@ -39,6 +41,7 @@ import {
   type ClerkFormFieldDefinition,
 } from './cms-clerk-task-form-fields';
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
+import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
@@ -49,6 +52,7 @@ import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
     InputNumberModule,
     InputTextModule,
     MessageModule,
+    OrderListModule,
     TableModule,
     TextareaModule,
   ],
@@ -63,6 +67,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   private readonly genericModel = inject(CmsGenericModelAdminService);
   private readonly siteSettings = inject(CmsSiteSettingsAdminService);
   private readonly cmsStore = inject(LocalizedCmsContentStore);
+  private readonly messages = inject(MessageService);
 
   protected readonly isSignedIn = this.staffAuth.isStaff;
   protected readonly recordsLoading = signal(false);
@@ -74,6 +79,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly submitResult = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
   protected readonly loadError = signal<string | null>(null);
+  protected readonly orderedList = signal<Record<string, unknown>[]>([]);
+  protected readonly reordering = signal(false);
 
   protected readonly task = computed(() => {
     const id = this.taskId();
@@ -90,16 +97,73 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return active ? CMS_SINGLETON_MODELS.has(active.model) : false;
   });
 
+  protected readonly orderedConfig = computed((): CmsOrderedEditorConfig | undefined => {
+    const active = this.task();
+    return active ? cmsOrderedEditorConfig(active.model) : undefined;
+  });
+
+  protected readonly isOrderedEditor = computed(() => Boolean(this.orderedConfig()));
+
+  protected readonly orderedRecords = computed(() => {
+    const config = this.orderedConfig();
+    if (!config) {
+      return [];
+    }
+    let items = this.records().filter((record) => record['active'] !== false);
+    if (config.groupField) {
+      const groupValue = this.formValues()[config.groupField];
+      const group = typeof groupValue === 'string' ? groupValue.trim() : '';
+      if (group) {
+        items = items.filter((record) => String(record[config.groupField!] ?? '') === group);
+      }
+    }
+    return [...items].sort(
+      (left, right) =>
+        Number(left[config.sortField] ?? 0) - Number(right[config.sortField] ?? 0),
+    );
+  });
+
+  protected readonly orderedPreviewLines = computed(() => {
+    const config = this.orderedConfig();
+    if (!config) {
+      return [];
+    }
+    return this.orderedRecords()
+      .map((record) => this.orderedItemLabel(record))
+      .filter(Boolean);
+  });
+
+  protected readonly orderedGroupFilterActive = computed(() => {
+    const config = this.orderedConfig();
+    if (!config?.groupField) {
+      return true;
+    }
+    const groupValue = this.formValues()[config.groupField];
+    return typeof groupValue === 'string' && groupValue.trim().length > 0;
+  });
+
+  protected readonly showOrderedPanel = computed(
+    () => this.isOrderedEditor() && !this.recordsLoading() && !this.loadError(),
+  );
+
   protected readonly formTitle = computed(() => {
     const active = this.task();
     if (!active) {
       return '';
     }
-    return this.editingId() ? `Edit ${active.title}` : `Add ${active.title}`;
+    if (this.isSingleton()) {
+      return 'Edit the saved settings';
+    }
+    return this.editingId() ? 'Edit this saved entry' : 'Add a new entry';
   });
 
   protected readonly showRecordPicker = computed(() => {
-    return Boolean(this.task()) && !this.isSingleton() && this.records().length > 0;
+    return (
+      Boolean(this.task()) &&
+      !this.isSingleton() &&
+      !this.isOrderedEditor() &&
+      this.records().length > 0
+    );
   });
 
   protected readonly canDeleteRecord = computed(() => {
@@ -118,7 +182,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return null;
     }
     if (this.isProtectedDeleteTarget(active.model, id)) {
-      return 'This contact row is required by the website layout and cannot be deleted. Edit it instead, or set active to off if you need to hide it.';
+      return 'This contact row is required by the website layout and cannot be deleted. Update its label, value, or detail instead.';
     }
     return null;
   });
@@ -137,6 +201,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       } else {
         this.records.set([]);
       }
+    });
+
+    effect(() => {
+      this.orderedList.set(this.orderedRecords());
     });
   }
 
@@ -195,6 +263,75 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return cmsRecordSummaryLabel(active.model, record);
   }
 
+  protected orderedItemLabel(record: Record<string, unknown>): string {
+    const config = this.orderedConfig();
+    if (!config) {
+      return this.recordLabel(record);
+    }
+    const preview = String(record[config.previewField] ?? '').trim();
+    const prefix = config.prefixField
+      ? String(record[config.prefixField] ?? '').trim()
+      : '';
+    if (prefix && preview) {
+      return `${prefix}: ${preview}`;
+    }
+    return preview || prefix || this.recordLabel(record);
+  }
+
+  protected async onOrderedListReorder(event: { value?: Record<string, unknown>[] }): Promise<void> {
+    const active = this.task();
+    const config = this.orderedConfig();
+    const reordered = event.value ?? [];
+    if (!active || !config || reordered.length === 0) {
+      return;
+    }
+
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.submitError.set('Sign in at /admin/login before saving changes.');
+      return;
+    }
+
+    const previous = new Map(
+      this.orderedRecords().map((record) => [
+        String(record['id'] ?? ''),
+        Number(record[config.sortField] ?? 0),
+      ]),
+    );
+    const updates = reordered
+      .map((record, index) => ({
+        id: String(record['id'] ?? ''),
+        displayOrder: index,
+      }))
+      .filter(
+        (update) =>
+          update.id &&
+          previous.has(update.id) &&
+          previous.get(update.id) !== update.displayOrder,
+      );
+
+    if (updates.length === 0) {
+      this.orderedList.set(reordered);
+      return;
+    }
+
+    this.reordering.set(true);
+    this.submitError.set(null);
+    try {
+      await this.genericModel.reorderRecords(active.model, updates);
+      this.orderedList.set(reordered);
+      await this.cmsStore.forceLiveRefresh();
+      await this.loadRecords(active.id);
+      this.showSavedToast('List order');
+    } catch (err: unknown) {
+      this.orderedList.set(this.orderedRecords());
+      const msg = err instanceof Error ? err.message : '';
+      this.submitError.set(msg || 'Could not save the new order. Try again.');
+    } finally {
+      this.reordering.set(false);
+    }
+  }
+
   protected async submitForm(): Promise<void> {
     const active = this.task();
     if (!active) {
@@ -230,6 +367,11 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.submitResult.set(
         `${active.model} saved (ID ${savedId}). Open See on website and hard-refresh ${active.previewPath}.`,
       );
+      const savedLabel = this.editingId()
+        ? this.recordLabel({ id: savedId, ...this.formValues() })
+        : this.recordLabel({ id: savedId, ...input });
+      this.showSavedToast(savedLabel);
+      await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
       if (!this.isSingleton()) {
         this.startNewRecord();
@@ -266,8 +408,12 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     }
 
     const label = this.recordLabel({ id, ...this.formValues() });
+    const hideCheckbox = this.fields().find((field) => field.type === 'checkbox');
+    const hideHint = hideCheckbox
+      ? ` To hide it without deleting, turn off the "${hideCheckbox.label}" box and save instead.`
+      : '';
     const confirmed = window.confirm(
-      `Permanently delete this ${active.model} record?\n\n${label}\n\nThis cannot be undone. Consider setting active to off instead.`,
+      `Permanently delete this ${active.model} record?\n\n${label}\n\nThis cannot be undone.${hideHint}`,
     );
     if (!confirmed) {
       return;
@@ -282,6 +428,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.submitResult.set(
         `${active.model} deleted (ID ${deletedId}). Hard-refresh ${active.previewPath} to verify.`,
       );
+      this.showSavedToast(this.recordLabel({ id, ...this.formValues() }));
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
       this.startNewRecord();
@@ -327,5 +474,13 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     } finally {
       this.recordsLoading.set(false);
     }
+  }
+
+  private showSavedToast(itemLabel: string): void {
+    this.messages.add({
+      severity: 'success',
+      summary: `✅ ${itemLabel} saved successfully and visible on website`,
+      life: 5_000,
+    });
   }
 }

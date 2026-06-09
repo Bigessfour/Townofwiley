@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-08T17:26:02.469Z",
-  "buildSha": "8b71d25d4e6f783a25a4b3b05bd1b0ae3d0f3567",
+  "savedAt": "2026-06-09T18:42:08.121Z",
+  "buildSha": "b1bdb2ad819a197ea53924a905e5401f25b15f58",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -19,6 +19,24 @@
   "alertBannerRecords": [],
   "noticeRecords": [],
   "eventRecords": [
+    {
+      "id": "2c8690af-eebd-4b2b-bb1b-1521cb0d6f91",
+      "title": "City Council Meeting - July",
+      "description": null,
+      "location": null,
+      "start": "2026-07-14T00:00:00.000Z",
+      "end": "2026-07-14T02:00:00.000Z",
+      "active": true
+    },
+    {
+      "id": "1ba73b5e-f8b5-4bdb-93f9-981f1cf7478e",
+      "title": "City Council Meeting - June",
+      "description": null,
+      "location": null,
+      "start": "2026-06-09T00:00:00.000Z",
+      "end": "2026-06-09T02:00:00.000Z",
+      "active": true
+    },
     {
       "id": "1dad9091-f944-4e9e-9c81-62cab2bba2bd",
       "title": "Wiley Hay Days",
@@ -152,7 +170,41 @@
       "displayOrder": 2
     }
   ],
-  "publicDocumentRecords": [],
+  "publicDocumentRecords": [
+    {
+      "id": "07770a7b-ce61-4429-ab06-ae4188e173de",
+      "title": "City Council Meeting — Agenda (June 8, 2026)",
+      "titleEs": null,
+      "summary": "Agenda packet for City Council Meeting on June 8, 2026.",
+      "summaryEs": null,
+      "sectionId": "meeting-documents",
+      "status": "Published",
+      "statusEs": null,
+      "format": "PDF",
+      "href": "storage:documents/meeting-documents/1780960044236-06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
+      "downloadFileName": "06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
+      "keywords": [
+        "meeting-documents",
+        "uploaded",
+        "cms",
+        "06082026",
+        "minutes",
+        "of",
+        "the",
+        "town",
+        "wiley",
+        "for",
+        "may",
+        "11,",
+        "2026",
+        "agenda",
+        "event:1ba73b5e-f8b5-4bdb-93f9-981f1cf7478e",
+        "2026-06-09"
+      ],
+      "active": true,
+      "displayOrder": 1780963200
+    }
+  ],
   "externalNewsLinkRecords": [
     {
       "id": "f118a37c-c47b-4e41-bf60-c480cc36b26c",
@@ -163,10 +215,26 @@
       "displayOrder": 1
     },
     {
-      "id": "f5dcd9a3-4a3a-4a89-bcff-89cfd1cec443",
-      "title": "GOCO Grant",
-      "url": "https://theprowersjournal.com/2022/03/goco-awards-51200-grant-to-town-of-wiley-for-outdoor-recreation-master-plan/",
+      "id": "13502595-73a2-4555-afd6-dc082b9cfb46",
+      "title": "Sally Jacobs Obituary",
+      "url": "https://theprowersjournal.com/2026/06/sally-a-jacobs-march-28-1930-june-4-2026/",
       "source": "Prowers Journal",
+      "active": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "2a7b24f9-0519-4fcc-a0a4-29c3c910f609",
+      "title": "Sally Jacobs Obituary",
+      "url": "https://theprowersjournal.com/2026/06/sally-a-jacobs-march-28-1930-june-4-2026/",
+      "source": "Prowers Journal",
+      "active": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "50933697-b248-41c9-b074-50dfbcf9f763",
+      "title": "Obituary - Sally Jacobs",
+      "url": "https://theprowersjournal.com/2026/06/sally-a-jacobs-march-28-1930-june-4-2026/",
+      "source": "Lamar Ledget",
       "active": true,
       "displayOrder": 1
     }

@@ -1,5 +1,16 @@
 /** Gen 1 AppSync model metadata (aligned with live CMS inventory). */
 
+export interface CmsOrderedEditorConfig {
+  /** Field rendered in the preview list (e.g. lineEn, title, name). */
+  previewField: string;
+  /** Numeric field used for sort + reorder persistence. */
+  sortField: string;
+  /** When set, preview/reorder is scoped to this field's current form value. */
+  groupField?: string;
+  /** Optional prefix shown before preview text in drag list (e.g. SiteCopy key). */
+  prefixField?: string;
+}
+
 export interface CmsModelDefinition {
   model: string;
   publicApiKeyRead: boolean;
@@ -7,6 +18,7 @@ export interface CmsModelDefinition {
   keyFields: string;
   emptyWarningEn?: string;
   emptyWarningEs?: string;
+  ordered?: CmsOrderedEditorConfig;
 }
 
 export interface CmsInventoryModel {
@@ -14,6 +26,8 @@ export interface CmsInventoryModel {
   tableName: string;
   itemCount: number | null;
   publicApiKeyRead: boolean;
+  clerkEditorModel?: boolean;
+  staffUserPoolCrud?: boolean;
 }
 
 export interface CmsInventory {
@@ -79,12 +93,21 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
     keyFields: 'groupId, lineEn, lineEs, displayOrder, active',
     emptyWarningEn: 'No roster rows — /contact uses bundled leadership bullets.',
     emptyWarningEs: 'Sin filas — /contact usa viñetas de respaldo.',
+    ordered: {
+      previewField: 'lineEn',
+      sortField: 'displayOrder',
+      groupField: 'groupId',
+    },
   },
   {
     model: 'Business',
     publicApiKeyRead: true,
     routes: '/businesses',
     keyFields: 'name, phone, address, website, imageUrl, displayOrder, active',
+    ordered: {
+      previewField: 'name',
+      sortField: 'displayOrder',
+    },
   },
   {
     model: 'PublicDocument',
@@ -93,12 +116,36 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
     keyFields: 'title, titleEs, summary, sectionId, href, active, displayOrder',
     emptyWarningEn: 'No PublicDocument rows — document hub relies on archive manifest + guides.',
     emptyWarningEs: 'Sin PublicDocument — el hub usa manifiesto de archivo y guias.',
+    ordered: {
+      previewField: 'title',
+      sortField: 'displayOrder',
+      groupField: 'sectionId',
+    },
   },
   {
     model: 'ExternalNewsLink',
     publicApiKeyRead: true,
     routes: '/news',
     keyFields: 'title, url, source, displayOrder, active',
+    ordered: {
+      previewField: 'title',
+      sortField: 'displayOrder',
+    },
+  },
+  {
+    model: 'SiteCopy',
+    publicApiKeyRead: true,
+    routes: '/ (nav labels, headings, Quick Tasks copy)',
+    keyFields: 'key, valueEn, valueEs, description, displayOrder, active',
+    emptyWarningEn:
+      'No SiteCopy rows — navigation labels and section headings use bundled defaults.',
+    emptyWarningEs:
+      'Sin filas SiteCopy — etiquetas de navegacion y titulos usan valores predeterminados.',
+    ordered: {
+      previewField: 'valueEn',
+      sortField: 'displayOrder',
+      prefixField: 'key',
+    },
   },
   {
     model: 'EmailAlias',
@@ -107,6 +154,10 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
     keyFields: 'aliasAddress, destinationAddress, active',
   },
 ];
+
+export function cmsOrderedEditorConfig(model: string): CmsOrderedEditorConfig | undefined {
+  return CMS_MODEL_DEFINITIONS.find((definition) => definition.model === model)?.ordered;
+}
 
 export function liveCountForModel(
   model: string,
@@ -120,6 +171,7 @@ export function liveCountForModel(
     Business: number;
     PublicDocument: number;
     ExternalNewsLink: number;
+    SiteCopy: number;
   },
 ): number | undefined {
   if (model in counts) {

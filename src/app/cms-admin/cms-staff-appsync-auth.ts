@@ -9,8 +9,11 @@ export type CmsAdminModel = keyof typeof CMS_MODEL_LIST_FIELDS;
 
 export type CmsAdminOperation = 'list' | 'create' | 'update' | 'delete';
 
-const STAFF_SIGN_IN_MESSAGE =
+export const STAFF_SIGN_IN_MESSAGE =
   'Sign in at /admin/login with a Town staff account before changing website content.';
+
+const STAFF_SCHEMA_MESSAGE =
+  'Staff access to this content type is not configured on the server. Contact IT to enable Staff group permissions for this model in AppSync.';
 
 export class CmsAdminAuthError extends Error {
   constructor(message: string) {
@@ -58,26 +61,116 @@ export function resolveStaffGraphqlAuthMode(session: AuthSession): CmsStaffAuthM
   return null;
 }
 
+function readGraphqlErrors(value: unknown): string[] {
+  if (typeof value !== 'object' || value === null || !('errors' in value)) {
+    return [];
+  }
+
+  const errors = (value as { errors?: unknown }).errors;
+  if (!Array.isArray(errors)) {
+    return [];
+  }
+
+  return errors
+    .map((entry) => {
+      if (typeof entry === 'object' && entry !== null && 'message' in entry) {
+        return String((entry as { message?: unknown }).message ?? '').trim();
+      }
+      return '';
+    })
+    .filter(Boolean);
+}
+
+/** Pull a human-readable message from Amplify GraphQL / Auth failures. */
+export function extractGraphqlFailureMessage(error: unknown): string {
+  const fromErrors = readGraphqlErrors(error);
+  if (fromErrors.length > 0) {
+    return fromErrors.join(' ');
+  }
+
+  if (error instanceof Error) {
+    const parts = [error.message?.trim(), readErrorCauseMessage(error.cause)].filter(Boolean);
+    if (parts.length > 0) {
+      return parts.join(' — ');
+    }
+    const name = error.name?.trim();
+    if (name && name !== 'Error') {
+      return name;
+    }
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = String((error as { message?: unknown }).message ?? '').trim();
+    if (message) {
+      return message;
+    }
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error.trim();
+  }
+
+  try {
+    const serialized = JSON.stringify(error);
+    if (serialized === '{}' || serialized === 'null' || serialized === '[]') {
+      return '';
+    }
+    return serialized;
+  } catch {
+    return '';
+  }
+}
+
+function readErrorCauseMessage(cause: unknown): string {
+  if (!cause) {
+    return '';
+  }
+  if (cause instanceof Error) {
+    return cause.message?.trim() ?? '';
+  }
+  if (typeof cause === 'string') {
+    return cause.trim();
+  }
+  return '';
+}
+
+function isStaffAuthFailure(normalized: string): boolean {
+  return (
+    normalized.includes('not authorized') ||
+    normalized.includes('unauthorized') ||
+    normalized.includes('unauthenticated') ||
+    normalized.includes('novalidauthtokens') ||
+    normalized.includes('no valid auth tokens') ||
+    normalized.includes('federated jwt') ||
+    normalized.includes('no current user') ||
+    normalized.includes('user needs to be authenticated') ||
+    normalized.includes('sign in')
+  );
+}
+
+function isSchemaMissingField(normalized: string): boolean {
+  return (
+    normalized.includes("field 'listsitecopies'") ||
+    normalized.includes('listsitecopies') && normalized.includes("doesn't exist") ||
+    normalized.includes('listsitecopies') && normalized.includes('undefined') ||
+    normalized.includes('unknown field') && normalized.includes('listsitecopies')
+  );
+}
+
 export function toClerkFriendlyGraphqlError(
   error: unknown,
   operation: CmsAdminOperation,
   model: string,
 ): string {
-  const raw =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' && error !== null && 'message' in error
-        ? String((error as { message?: unknown }).message)
-        : '';
-
+  const raw = extractGraphqlFailureMessage(error);
   const normalized = raw.toLowerCase();
 
-  if (
-    normalized.includes('not authorized') ||
-    normalized.includes('unauthorized') ||
-    normalized.includes('unauthenticated')
-  ) {
+  if (isStaffAuthFailure(normalized)) {
     return STAFF_SIGN_IN_MESSAGE;
+  }
+
+  if (isSchemaMissingField(normalized)) {
+    return STAFF_SCHEMA_MESSAGE;
   }
 
   if (normalized.includes('network') || normalized.includes('failed to fetch')) {

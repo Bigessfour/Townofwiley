@@ -10,7 +10,9 @@ This guide is written for the Town Clerk or any staff member who manages the Wil
 
 ## Part 1 — Get Access (Do This Once)
 
-### Step 1 — Ask for an invitation
+> **What you actually need day-to-day:** a Town staff account for **https://townofwiley.gov/admin/login** (Step 5). Steps 1–2 below cover the legacy Amplify Studio invitation, which most clerks no longer need — skip to Step 3 unless IT tells you otherwise.
+
+### Step 1 — Ask for an invitation (legacy — only if IT asks)
 
 You need an invitation before you can log in. Contact the person who manages the website (your IT contact or the person who set this up) and ask them to invite you to Amplify Studio for the `townofwiley` app.
 
@@ -38,7 +40,7 @@ Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 | Link                                                                 | What it is                                                                                                                                                                                                                                   |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AppSync Console (Gen 2 current for CMS models; Gen 1 j7b2... legacy) | [Gen 2 AppSync Queries](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries) (search schema for Event/AlertBanner/Announcement etc.; use /admin for guidance and "See on website") | Edit CMS records (SiteSettings, Announcement, Event, AlertBanner, Business, etc.). Amplify Hosting app deleted; use Gen 2 AppSync (x7poe...) for data mutations. Gen 1 (j7b2...) legacy. |
+| AppSync Console (Gen 1 production CMS API) | [Gen 1 AppSync Queries](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) (search schema for Event/AlertBanner/Announcement etc.; use /admin for guidance and "See on website") | Edit CMS records (SiteSettings, Announcement, Event, AlertBanner, Business, etc.) when IT needs direct GraphQL. Clerks should prefer in-app forms on `/admin`. |
 
 Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
 
@@ -67,19 +69,16 @@ If you do not receive the email or do not have an account yet, call Town Hall at
 
 ### Where you make changes
 
-All website content is managed in one place: **Amplify Console Data manager**.
+All routine website content is edited directly on **https://townofwiley.gov/admin**: pick a task card, click **Edit content**, and the form opens on the same page. Sign in at `/admin/login` with your Town staff account first.
 
-Current editor: Use the Content editor URL from <https://townofwiley.gov/admin> (points to Gen 2 AppSync Queries x7poehudqvamneqni5s6e2cjxy). Search AWS Console for "townofwiley" or the AppSync API ID x7poehudqvamneqni5s6e2cjxy. Gen 1 ID j7b2x3sh... is legacy. Prefer /admin buttons (in-app forms for Event/Announcement/AlertBanner/SiteSettings) and hard-refresh after edits.
+The admin page also shows whether the public website is reading saved content (the status banner and **Force Refresh Live CMS Content** button at the top). **Email forwarding** is edited only on `/admin` — residents never see those settings.
 
-Start here if you are not sure where to go: https://townofwiley.gov/admin
-
-The admin page is a guide and status page. It shows whether the public website is reading saved content. Most tasks open **in-app forms** on `/admin` when you click **Edit content**; a few still open **Amplify Console Data manager** (AppSync Queries). **Email forwarding** is edited only on `/admin` — residents never see those settings.
+IT may occasionally use the AppSync Queries console for the production API `j7b2x3sh7rcezekekkxxiak7hi` (link under **Advanced (IT)** on `/admin`). Clerks should not need it for day-to-day work.
 
 **Do not** try to edit the website from:
 
-- The `/admin` page itself — use its Data Manager button to open the real editor
 - Code files — leave those alone entirely
-- Any other tool
+- Any tool other than `/admin` (or the AWS console when IT specifically directs you there)
 
 ### How changes work
 
@@ -147,7 +146,7 @@ If you delete one of these records and create a new row with a different `id`, t
 
 Use this for closures, reminders, utility updates, and general public notices.
 
-1. Open the Content editor URL from <https://townofwiley.gov/admin> (Gen 2 AppSync console for current models x7poehudqvamneqni5s6e2cjxy; Gen 1 j7b2... legacy).
+1. Open **https://townofwiley.gov/admin** and use **Post news or notice** → **Edit content** (or open **Announcement** in AppSync Queries `j7b2x3sh…` if IT directed you there).
 2. Click **Announcement** in the left sidebar.
 3. Click **Create announcement** (top-right button).
 4. Fill in **title** — keep it short and clear, like a headline.
@@ -394,13 +393,29 @@ Use this when the Council packet is a **PDF** (or similar file) that residents s
 7. Click **Save**.
 8. Refresh the /news page and confirm it appears under "From Other Sources."
 
+### Edit navigation labels, headings, and Quick Tasks text (`SiteCopy`)
+
+This task updates menu labels, section headings, and “How do I…” copy **without a code deploy**.
+
+1. Open **https://townofwiley.gov/admin** and sign in.
+2. Find **Edit navigation labels, headings, and Quick Tasks text** and click **Edit content**.
+3. Add or edit rows with a stable **Key**. Keys the website understands today: `topTasksKicker` and `topTasksHeading` (the small label and heading above the "How do I..." section on the homepage). Rows with other keys are saved but change nothing until IT connects that key.
+4. Fill **English text** (`valueEn`) and **Spanish text** (`valueEs`) when shown.
+5. Leave **Active** on, save, then **Force Refresh Live CMS Content** and hard-refresh the homepage.
+
+Models with **display order** (leadership roster, businesses, documents, news links, site copy) show a live ordered preview — drag rows to reorder; order saves immediately.
+
+**If the editor says “Could not list SiteCopy” or asks you to sign in again:**
+
+- Check the top of `/admin` — it should say **Signed in as** your email. If not, use **Staff sign in** or **Sign out** and sign in again.
+- Try another task (e.g. **Post news or notice**). If that works but SiteCopy does not, call IT — production AppSync may need the **SiteCopy** model deployed (see [`sitecopy-staff-appsync-auth.md`](./sitecopy-staff-appsync-auth.md)).
+- IT can read the real error in the browser **Network** tab on the `listSiteCopies` GraphQL request.
+
 ### Managing Email Aliases / Proxy Settings
 
 This controls **email proxy / forwarding**: where mail sent to a public Town address (like `clerk@townofwiley.gov`) actually lands. **Residents never see this** on the website — it is behind-the-scenes mail routing only.
 
 **Important:** `EmailAlias` is a **staff-authenticated** model. It is **not** loaded on the public site (see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md)). You must be signed in at `/admin/login` to view or change forwarding rules.
-
-**Gen 1 vs Gen 2:** Town CMS data lives on **Gen 2 AppSync** (`x7poehudqvamneqni5s6e2cjxy`). The older **Gen 1** API (`j7b2x3sh…`) is **legacy maintenance only** — do not create new records there. Use the steps below on the current `/admin` hub.
 
 #### Add or change a forwarding rule (recommended — on `/admin`)
 
@@ -430,7 +445,7 @@ This controls **email proxy / forwarding**: where mail sent to a public Town add
 
 #### IT fallback (AppSync Console)
 
-If IT asks you to use the AWS console instead: open **EmailAlias** in **Gen 2 AppSync Queries** (link under **Advanced (IT)** on `/admin`) and use the same field names: `aliasAddress`, `destinationAddress`, `active`. See [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md) for infrastructure details.
+If IT asks you to use the AWS console instead: open **EmailAlias** in **Gen 1 AppSync Queries** (`j7b2x3sh…`; link under **Advanced (IT)** on `/admin`) and use the same field names: `aliasAddress`, `destinationAddress`, `active`. See [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md) for infrastructure details.
 
 ---
 
@@ -485,7 +500,7 @@ Ask IT if:
 - Data Manager or the in-app form says **not authorized** or **access denied**
 - Email forwarding saves in `/admin` but test mail still goes to the wrong inbox (the mail router may need a sync — see [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md))
 
-**For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` in the repo to confirm the public website query never includes staff-only models like **EmailAlias**. Clerks do not need to run this command.
+**For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` and `npm run verify:staff-cms-editor-models` in the repo to confirm public queries and clerk editor models (including **SiteCopy**) stay aligned with inventory and Staff auth metadata. Clerks do not need to run these commands.
 
 ---
 
@@ -552,8 +567,8 @@ Example:
 Print or screenshot this section and keep it at your desk.
 
 ```
-LOG IN:   https://townofwiley.gov/admin/login  (Town staff — contact updates)
-EDIT CMS: Use https://townofwiley.gov/admin → Content editor URL (AppSync)
+LOG IN:   https://townofwiley.gov/admin/login  (Town staff account)
+EDIT CMS: https://townofwiley.gov/admin → pick a task → Edit content
 PUBLIC:   https://townofwiley.gov
 
 WHAT TO OPEN IN DATA MANAGER:

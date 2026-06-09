@@ -25,67 +25,89 @@
       "model": "SiteSettings",
       "tableName": "SiteSettings-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "AlertBanner",
       "tableName": "AlertBanner-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "Announcement",
       "tableName": "Announcement-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "Event",
       "tableName": "Event-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "OfficialContact",
       "tableName": "OfficialContact-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "LeadershipRosterEntry",
       "tableName": "LeadershipRosterEntry-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "EmailAlias",
       "tableName": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": false
+      "publicApiKeyRead": false,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "Business",
       "tableName": "Business-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "PublicDocument",
       "tableName": "PublicDocument-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "ExternalNewsLink",
       "tableName": "ExternalNewsLink-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     },
     {
       "model": "SiteCopy",
       "tableName": "SiteCopy-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
-      "publicApiKeyRead": true
+      "publicApiKeyRead": true,
+      "clerkEditorModel": true,
+      "staffUserPoolCrud": true
     }
   ],
   "capabilities": {

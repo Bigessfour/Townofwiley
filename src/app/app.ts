@@ -25,6 +25,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
+import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -265,6 +266,10 @@ interface AppCopy {
   homepageWeatherKicker: string;
   homepageWeatherHeading: string;
   footerTownInfoHeading: string;
+  footerAttestationHeading: string;
+  footerAttestationName: string;
+  footerAttestationBody: string;
+  footerAttestationPhotoAlt: string;
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
   mobileMenuLabel: string;
@@ -571,6 +576,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageWeatherKicker: 'Local conditions',
     homepageWeatherHeading: 'Wiley weather',
     footerTownInfoHeading: 'Town Hall',
+    footerAttestationHeading: 'About this website',
+    footerAttestationName: 'Built by Mayor Steve McKitrick',
+    footerAttestationBody:
+      'This website was designed and built by Mayor Steve McKitrick on his own time and at his own expense, using open-source tools and free resources wherever possible. Grok from xAI helped throughout — offering guidance and ideas that shaped the site. It is a quiet contribution toward making town information more accessible, transparent, and useful for every resident of Wiley.',
+    footerAttestationPhotoAlt: 'Portrait of Mayor Steve McKitrick',
     languageLabel: 'Site language',
     languageOptions: {
       en: 'EN',
@@ -1000,6 +1010,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageWeatherKicker: 'Condiciones locales',
     homepageWeatherHeading: 'Clima en Wiley',
     footerTownInfoHeading: 'Ayuntamiento',
+    footerAttestationHeading: 'Acerca de este sitio web',
+    footerAttestationName: 'Creado por el alcalde Steve McKitrick',
+    footerAttestationBody:
+      'Este sitio web fue disenado y creado por el alcalde Steve McKitrick en su tiempo libre y con recursos propios, usando herramientas de codigo abierto y recursos gratuitos siempre que fue posible. Grok de xAI ayudo en todo el proceso — con orientacion e ideas que dieron forma al sitio. Es una contribucion discreta para que la informacion del pueblo sea mas accesible, transparente y util para cada residente de Wiley.',
+    footerAttestationPhotoAlt: 'Retrato del alcalde Steve McKitrick',
     languageLabel: 'Idioma del sitio',
     languageOptions: {
       en: 'EN',
@@ -1455,6 +1470,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     RouterLinkActive,
     DrawerModule,
     FormsModule,
+    AvatarModule,
     ButtonModule,
     DividerModule,
     DatePickerModule,

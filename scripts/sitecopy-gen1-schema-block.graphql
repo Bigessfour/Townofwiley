@@ -1,0 +1,91 @@
+type SiteCopy
+@aws_iam
+@aws_cognito_user_pools
+@aws_api_key
+{
+id: ID!
+key: String!
+valueEn: String!
+valueEs: String
+description: String
+displayOrder: Int
+active: Boolean!
+createdAt: AWSDateTime!
+updatedAt: AWSDateTime!
+}
+
+input CreateSiteCopyInput {
+id: ID
+key: String!
+valueEn: String!
+valueEs: String
+description: String
+displayOrder: Int
+active: Boolean!
+}
+
+input UpdateSiteCopyInput {
+id: ID!
+key: String
+valueEn: String
+valueEs: String
+description: String
+displayOrder: Int
+active: Boolean
+}
+
+input DeleteSiteCopyInput {
+id: ID!
+}
+
+input ModelSiteCopyConditionInput {
+key: ModelStringInput
+valueEn: ModelStringInput
+valueEs: ModelStringInput
+description: ModelStringInput
+displayOrder: ModelIntInput
+active: ModelBooleanInput
+and: [ModelSiteCopyConditionInput]
+or: [ModelSiteCopyConditionInput]
+not: ModelSiteCopyConditionInput
+createdAt: ModelStringInput
+updatedAt: ModelStringInput
+}
+
+input ModelSiteCopyFilterInput {
+id: ModelIDInput
+key: ModelStringInput
+valueEn: ModelStringInput
+valueEs: ModelStringInput
+description: ModelStringInput
+displayOrder: ModelIntInput
+active: ModelBooleanInput
+createdAt: ModelStringInput
+updatedAt: ModelStringInput
+and: [ModelSiteCopyFilterInput]
+or: [ModelSiteCopyFilterInput]
+not: ModelSiteCopyFilterInput
+}
+
+type ModelSiteCopyConnection
+@aws_api_key
+@aws_iam
+@aws_cognito_user_pools
+{
+items: [SiteCopy]!
+nextToken: String
+}
+
+input ModelSubscriptionSiteCopyFilterInput {
+id: ModelSubscriptionIDInput
+key: ModelSubscriptionStringInput
+valueEn: ModelSubscriptionStringInput
+valueEs: ModelSubscriptionStringInput
+description: ModelSubscriptionStringInput
+displayOrder: ModelSubscriptionIntInput
+active: ModelSubscriptionBooleanInput
+createdAt: ModelSubscriptionStringInput
+updatedAt: ModelSubscriptionStringInput
+and: [ModelSubscriptionSiteCopyFilterInput]
+or: [ModelSubscriptionSiteCopyFilterInput]
+}

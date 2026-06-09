@@ -56,8 +56,8 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
     await expect(
       homePage.page
-        .getByTestId('cms-task-form')
-        .getByRole('heading', { name: /Post news or notice/i }),
+        .getByTestId('cms-task-guide')
+        .getByRole('heading', { name: /Edit:\s*Post news or notice/i }),
     ).toBeVisible();
     await expect(
       homePage.page.locator('#cms-field-post-notice-title'),
@@ -69,6 +69,26 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-force-refresh')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-content-source')).toBeVisible();
+  });
+
+  test('edit-site-copy task opens SiteCopy editor without load error', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-edit-site-copy').click();
+    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', {
+        name: /Edit: Edit navigation labels, headings, and Quick Tasks text/i,
+      }),
+    ).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
+    await expect(homePage.page.getByText(/Could not list SiteCopy/i)).toHaveCount(0, {
+      timeout: 15_000,
+    });
+    await expect(homePage.page.locator('#cms-field-edit-site-copy-key')).toBeVisible();
+    await expect(homePage.page.getByText('Loading saved records…')).toHaveCount(0, {
+      timeout: 15_000,
+    });
   });
 
   test('admin hub shows email forwarding task with dedicated editor', async ({ homePage }) => {

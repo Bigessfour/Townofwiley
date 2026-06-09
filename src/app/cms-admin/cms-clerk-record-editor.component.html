@@ -18,6 +18,51 @@
       <p-message severity="warn" [text]="loadError()!" styleClass="cms-record-editor__message" />
     }
 
+    @if (showOrderedPanel()) {
+      <div class="cms-record-editor__ordered" data-testid="cms-ordered-panel">
+        <p class="cms-record-editor__ordered-label">Current order on the website</p>
+        @if (!orderedGroupFilterActive()) {
+          <p class="cms-record-editor__ordered-empty">
+            Fill in the group or section field above to preview the live list for that group.
+          </p>
+        } @else if (orderedPreviewLines().length > 0) {
+          <ul class="cms-record-editor__ordered-preview">
+            @for (line of orderedPreviewLines(); track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="cms-record-editor__ordered-empty">No active rows in this group yet.</p>
+        }
+
+        @if (orderedGroupFilterActive() && orderedList().length > 0) {
+          <p-orderList
+            [value]="orderedList()"
+            [disabled]="reordering() || submitting() || deleting()"
+            dataKey="id"
+            (onReorder)="onOrderedListReorder($event)"
+            styleClass="cms-record-editor__order-list"
+          >
+            <ng-template pTemplate="item" let-record>
+              <div class="cms-record-editor__ordered-item">
+                <span>{{ orderedItemLabel(record) }}</span>
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-text"
+                  [attr.data-testid]="'cms-edit-ordered-record-' + record['id']"
+                  (click)="editRecord(record)"
+                >
+                  Edit
+                </button>
+              </div>
+            </ng-template>
+          </p-orderList>
+          <p class="cms-record-editor__ordered-hint">Drag to reorder — each change saves immediately.</p>
+        }
+      </div>
+    }
+
     @if (showRecordPicker()) {
       <div class="cms-record-editor__picker">
         <p class="cms-record-editor__picker-label">Saved on the website</p>
