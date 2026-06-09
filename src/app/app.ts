@@ -103,7 +103,10 @@ interface MeetingItem {
   agendaNote?: string;
   cta?: string;
   href?: string;
-  /** Default meeting documents / agenda PDFs section. */
+  eventId?: string;
+  hasLinkedAgenda?: boolean;
+  agendaStorageHref?: string;
+  /** Default meeting documents / agenda PDFs section (fallback seed rows). */
   agendaPdfHref?: string;
   agendaButtonLabel?: string;
 }
@@ -113,6 +116,7 @@ interface CalendarAction {
   href: string;
   downloadFileName?: string;
   external?: boolean;
+  isAgendaAction?: boolean;
 }
 
 interface CalendarItem {
@@ -130,6 +134,8 @@ interface CalendarItem {
   location: string;
   recurrence: string;
   agendaNote?: string;
+  hasLinkedAgenda?: boolean;
+  agendaStorageHref?: string;
   actions: CalendarAction[];
 }
 
@@ -330,6 +336,9 @@ interface AppCopy {
   meetingsHeading: string;
   meetingsEmptyState: string;
   meetingsAgendaPdfButtonLabel: string;
+  meetingsAgendaLinkedButtonLabel: string;
+  meetingsAgendaUnavailableToastSummary: string;
+  meetingsAgendaUnavailableToastDetail: string;
   /** Primary-button label when linking to hub from notices-oriented meeting row (fallback data). */
   meetingsDocumentsHubButtonLabel: string;
   meetingsTableAriaLabel: string;
@@ -371,6 +380,7 @@ interface AppCopy {
   calendarGoogleActionLabel: string;
   calendarDownloadActionLabel: string;
   calendarAgendaActionLabel: string;
+  calendarAgendaLinkedActionLabel: string;
   calendarActionsAriaLabel: string;
   calendarLiveEventCategory: string;
   calendarScheduledEventLabel: string;
@@ -651,6 +661,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     meetingsEmptyState:
       'No upcoming meetings are scheduled in the calendar yet. Town Council meets the second Monday of each month at 6:00 PM at Wiley Town Hall.',
     meetingsAgendaPdfButtonLabel: 'View agenda PDFs',
+    meetingsAgendaLinkedButtonLabel: 'View agenda',
+    meetingsAgendaUnavailableToastSummary: 'Agenda not yet available',
+    meetingsAgendaUnavailableToastDetail:
+      'The agenda for this meeting has not been posted yet. Please check back later or call Town Hall at (719) 829-4974.',
     meetingsDocumentsHubButtonLabel: 'Browse town documents',
     meetingsTableAriaLabel: 'Upcoming meetings and schedules',
     meetingsColMeeting: 'Meeting',
@@ -694,6 +708,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarGoogleActionLabel: 'Add to Google Calendar',
     calendarDownloadActionLabel: 'Download ICS',
     calendarAgendaActionLabel: 'View agenda PDFs',
+    calendarAgendaLinkedActionLabel: 'View agenda',
     calendarActionsAriaLabel: 'Calendar links',
     calendarLiveEventCategory: 'Community calendar',
     calendarScheduledEventLabel: 'Scheduled event',
@@ -1085,6 +1100,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     meetingsEmptyState:
       'Aun no hay reuniones programadas en el calendario. El Concejo se reune el segundo lunes de cada mes a las 6:00 PM en el Ayuntamiento de Wiley.',
     meetingsAgendaPdfButtonLabel: 'Ver PDFs de la agenda',
+    meetingsAgendaLinkedButtonLabel: 'Ver agenda',
+    meetingsAgendaUnavailableToastSummary: 'La agenda aun no esta disponible',
+    meetingsAgendaUnavailableToastDetail:
+      'La agenda de esta reunion aun no se ha publicado. Vuelva mas tarde o llame al Ayuntamiento al (719) 829-4974.',
     meetingsDocumentsHubButtonLabel: 'Ver documentos del pueblo',
     meetingsTableAriaLabel: 'Próximas reuniones y horarios',
     meetingsColMeeting: 'Reunión',
@@ -1129,6 +1148,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     calendarGoogleActionLabel: 'Agregar a Google Calendar',
     calendarDownloadActionLabel: 'Descargar ICS',
     calendarAgendaActionLabel: 'Ver PDFs de la agenda',
+    calendarAgendaLinkedActionLabel: 'Ver agenda',
     calendarActionsAriaLabel: 'Enlaces del calendario',
     calendarLiveEventCategory: 'Calendario comunitario',
     calendarScheduledEventLabel: 'Evento programado',
@@ -2209,12 +2229,12 @@ export class App {
   );
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();
-    const agendaHubHrefByEventId = this.cmsStore.agendaHubHrefByEventId();
+    const linkedAgendaByEventId = this.cmsStore.linkedAgendaDocumentByEventId();
     const extraNotices = this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW;
 
     if (liveEvents.length) {
       return liveEvents.map((event) =>
-        this.createMeetingItemFromEvent(event, agendaHubHrefByEventId),
+        this.createMeetingItemFromEvent(event, linkedAgendaByEventId),
       );
     }
 
@@ -2241,11 +2261,11 @@ export class App {
   });
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
-    const agendaHubHrefByEventId = this.cmsStore.agendaHubHrefByEventId();
+    const linkedAgendaByEventId = this.cmsStore.linkedAgendaDocumentByEventId();
 
     return liveEvents.length
       ? liveEvents.map((event, index) =>
-          this.createCalendarItemFromEvent(event, index === 0, agendaHubHrefByEventId),
+          this.createCalendarItemFromEvent(event, index === 0, linkedAgendaByEventId),
         )
       : this.appCopy().calendarSeeds.map((seed, index) =>
           this.createCalendarItem(seed, index === 0),
@@ -2953,7 +2973,8 @@ export class App {
         },
         {
           label: copy.calendarAgendaActionLabel,
-          href: DOCUMENT_HUB_LINKS.meetings,
+          href: '',
+          isAgendaAction: true,
         },
         ...(seed.extraActions ?? []),
       ],
@@ -2962,28 +2983,42 @@ export class App {
 
   private createMeetingItemFromEvent(
     event: CmsCalendarEvent,
-    agendaHubHrefByEventId: Record<string, string> = {},
+    linkedAgendaByEventId: Record<
+      string,
+      import('./public-document-event-link').LinkedAgendaDocument
+    > = {},
   ): MeetingItem {
+    const copy = this.appCopy();
     const start = new Date(event.start);
     const end = this.resolveCalendarEventEnd(event);
+    const linked = linkedAgendaByEventId[event.id];
 
     return {
       title: event.title,
       schedule: this.formatCalendarEventDate(start, end),
-      format: event.description || this.appCopy().calendarEventFallbackDetail,
-      location: event.location || this.appCopy().calendarEventFallbackLocation,
-      agendaPdfHref: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
+      format: event.description || copy.calendarEventFallbackDetail,
+      location: event.location || copy.calendarEventFallbackLocation,
+      eventId: event.id,
+      hasLinkedAgenda: Boolean(linked),
+      agendaStorageHref: linked?.storageHref,
+      agendaButtonLabel: linked
+        ? copy.meetingsAgendaLinkedButtonLabel
+        : copy.meetingsAgendaPdfButtonLabel,
     };
   }
 
   private createCalendarItemFromEvent(
     event: CmsCalendarEvent,
     isFeatured: boolean,
-    agendaHubHrefByEventId: Record<string, string> = {},
+    linkedAgendaByEventId: Record<
+      string,
+      import('./public-document-event-link').LinkedAgendaDocument
+    > = {},
   ): CalendarItem {
     const copy = this.appCopy();
     const start = new Date(event.start);
     const end = this.resolveCalendarEventEnd(event);
+    const linked = linkedAgendaByEventId[event.id];
 
     return {
       id: event.id,
@@ -2999,6 +3034,8 @@ export class App {
       detail: event.description || copy.calendarEventFallbackDetail,
       location: event.location || copy.calendarEventFallbackLocation,
       recurrence: copy.calendarScheduledEventLabel,
+      hasLinkedAgenda: Boolean(linked),
+      agendaStorageHref: linked?.storageHref,
       actions: [
         {
           label: copy.calendarGoogleActionLabel,
@@ -3011,8 +3048,9 @@ export class App {
           downloadFileName: `${event.id}.ics`,
         },
         {
-          label: copy.calendarAgendaActionLabel,
-          href: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
+          label: linked ? copy.calendarAgendaLinkedActionLabel : copy.calendarAgendaActionLabel,
+          href: '',
+          isAgendaAction: true,
         },
       ],
     };

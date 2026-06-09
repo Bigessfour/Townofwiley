@@ -31,5 +31,6 @@ Or export JSON for manual import: `node scripts/seed-public-documents-from-archi
 
 ## More detail
 
+- [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md) — link agenda PDFs to `/meetings` rows via `/admin`
 - [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md) — PublicDocument fields, agenda packets, bilingual copy
 - [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md) — post-edit verification on `/documents`

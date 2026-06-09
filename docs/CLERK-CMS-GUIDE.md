@@ -159,20 +159,25 @@ Use this for closures, reminders, utility updates, and general public notices.
 11. Click **Save**.
 12. Open https://townofwiley.gov/news in a new browser tab, refresh it, and confirm the notice appears.
 
-### Post a town newsletter (long-form update on /news)
+### Post a town newsletter (PDF or long-form update on /news)
 
-Use this when the Clerk publishes a column or multi-paragraph update that should appear in the **Town newsletter** section instead of the short bulletin cards.
+Use this when the Clerk publishes a scanned newsletter, PDF issue, or long column that should appear in the **Newsletter from Town Hall** section on `/news` (not the short bulletin cards).
 
-1. Open **Announcement** in Data Manager and create or edit a record.
-2. Fill **title** and **detail** as usual (detail can be long; use a blank line between paragraphs for separate blocks on the website when no PDF is attached yet).
-3. Set **announcementKind** to the word **`newsletter`** in all lowercase (no spaces). If this field is missing in your form, ask your IT contact to confirm the CMS schema is deployed.
-4. (Recommended) Set **attachmentKey** to the **exact S3 storage key** for the newsletter PDF so residents can open it inline on `/news`. Ask IT to upload the PDF to Town storage using the same folder pattern as other newsletters (for example `documents/newsletter/2026-05-town-newsletter.pdf`). Copy the full path IT gives you — it is **not** a `https://` link and it is **not** the same as a file name alone. See [Announcement fields explained](#announcement-fields-explained-announcementkind-attachmentkey-priority-and-imageurl). If you leave **attachmentKey** blank, residents still see the written **detail**, but they will not get the embedded PDF viewer until a key is added.
-5. Set **date** to the issue date (`YYYY-MM-DD`). The live site treats the newest active newsletter by date as the one to feature.
-6. Set **priority** if IT asks you to coordinate ordering; see the same reference section.
-7. Set **active** to **true** and save.
-8. Refresh `https://townofwiley.gov/news` and confirm the entry appears under **Newsletter from Town Hall** and that the PDF opens if you set **attachmentKey**.
+**Preferred — in-app editor on `/admin`:**
 
-Short utility notices should leave **announcementKind** blank so they stay in **Current Wiley Updates**.
+1. Open **https://townofwiley.gov/admin** → **Post news or notice** → **Edit content** (sign in first).
+2. Fill **Title** and **Detail / Message** (detail can be a short summary; residents read the PDF for the full issue).
+3. Set **Kind** to **Newsletter (PDF on /news)**.
+4. Under **Newsletter PDF**, click **Choose PDF to upload** and select the finished file, **or** paste the storage file code IT gave you (for example `documents/newsletter/2026-06-09-town-newsletter.pdf`). The form fills **Kind** automatically when a file code is present.
+5. Confirm **Date** (defaults to today on new entries) and turn **Show on website** on.
+6. Click **Save to website**, then hard-refresh `https://townofwiley.gov/news`.
+7. Confirm one newsletter card appears with an embedded PDF preview and an **Open newsletter PDF in a new tab** link.
+
+**IT fallback — AppSync Queries or Amplify Studio:** same field names (`announcementKind` = `newsletter`, `attachmentKey` = full S3 key under `documents/newsletter/`). See [CMS_NEWSLETTER.md](./CMS_NEWSLETTER.md).
+
+Deactivate older newsletter rows (**Show on website** off) when publishing a new issue so only the latest date is featured.
+
+Short utility notices should use **Kind** = **Short notice (bulletin)** so they stay in **Current Wiley Updates**.
 
 ### Announcement fields explained: announcementKind, attachmentKey, priority, and imageUrl
 
@@ -180,8 +185,8 @@ Use this table when you are unsure what to type in optional **Announcement** fie
 
 | Field                | What it is                                                                                         | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | -------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **announcementKind** | Tells the website which layout to use on `/news`.                                                  | Leave **empty** (or blank) for normal short bulletins in **Current Wiley Updates**. Type exactly **`newsletter`** (lowercase) for the long **Newsletter from Town Hall** block. Do not invent other words unless engineering has documented them — other values behave like a normal notice.                                                                                                                                                                                                                                      |
-| **attachmentKey**    | The **storage object key** (internal file path) for a **newsletter PDF** in Town document storage. | **Only when `announcementKind` is `newsletter`.** Ask IT to upload the finished PDF and send you the full key. It always starts with `documents/newsletter/` and ends with the file name, for example `documents/newsletter/2026-05-town-newsletter.pdf`. Paste that entire path into **attachmentKey** with no spaces. Do **not** paste a Google Drive edit link, a `mailto:` link, or only the file name by itself. If you are not publishing a PDF yet, leave this field blank — the site will still show the **detail** text. |
+| **announcementKind** (Kind) | Tells the website which layout to use on `/news`. | **Short notice (bulletin)** for **Current Wiley Updates**. **Newsletter (PDF on /news)** for the **Newsletter from Town Hall** block with embedded PDF. |
+| **attachmentKey** (Newsletter PDF) | Storage file code for the newsletter PDF. | Upload in the **Post news or notice** form or paste the full key (starts with `documents/newsletter/`). Not a `https://` link. Auto-sets **Kind** to newsletter when filled. |
 | **priority**         | A whole number used to **sort** announcements before the site shows them.                          | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention.                                        |
 | **imageUrl**         | A full public web address pointing to an **image** file.                                           | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it.                                    |
 
@@ -344,43 +349,35 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 
 ### Upload a City Council agenda packet for public viewing
 
-Use this when the Council packet is a **PDF** (or similar file) that residents should open from the **Meeting documents & agendas** area on the documents page (`https://townofwiley.gov/documents`, section **Meeting documents & agendas**). The same listing also feeds resident search and document-hub shortcuts that point people toward meeting materials.
+Use this when the Council packet is a **PDF** that residents should open from **`/meetings`**
+(meeting-specific **View agenda** button) and from **Meeting documents & agendas** on
+`/documents`. See [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md) for the full runbook.
 
-**Before you start**
+**Clerk path (preferred): `/admin`**
 
-1. Finalize the packet as one file (usually **PDF**). Use a clear filename such as `2026-05-12-city-council-agenda-packet.pdf` so residents recognize the meeting date when they download it.
-2. The file must live where the website can reach it. You have two supported options:
-   - **Option A — Town document storage (recommended):** Ask your IT or website contact to upload the file into Amplify **Storage** under the meeting-documents path. Uploaded files use this pattern: `documents/meeting-documents/<unique-name>.pdf` (the system may add numbers to the name so every upload stays unique). After upload, they should give you the **full storage key** (everything from `documents/` through the filename).
-   - **Option B — Public link:** If the packet is already hosted as a stable **https://** link that anyone can open without logging in, you can use that full address instead.
+1. **Add meeting or event** — create the `Event` first (title, start, active on).
+2. **Document publishing** — use **Upload a meeting agenda or packet**: choose the
+   meeting, upload the PDF, click **Upload and publish**. The system sets
+   `sectionId: meeting-documents` and links the file to that event automatically.
+3. Hard-refresh `https://townofwiley.gov/meetings` and click **View agenda** on the
+   meeting row. The PDF should open in a new tab.
+4. Confirm the file appears on `https://townofwiley.gov/documents#meeting-documents`.
 
-**Create the `PublicDocument` record in Data Manager**
+**Studio / IT fallback (manual `PublicDocument`)**
 
-1. Open **PublicDocument** in Data Manager and click **Create publicDocument** (or open an existing row to replace an old packet).
-2. **title** — Use a resident-facing headline, for example `City Council agenda packet — May 12, 2026`.
-3. **summary** — One sentence, for example `Agenda, resolutions packet, and supporting materials for the regular council meeting.`
-4. **sectionId** — Type exactly: `meeting-documents` (this is the only value that puts the file under **Meeting documents & agendas** on `/documents`).
-5. **href** — Paste one of the following (do not invent a path; use what IT gave you):
-   - The **storage key** from Option A, for example `documents/meeting-documents/1737123456789-2026-05-12-city-council-agenda-packet.pdf`, **or**
-   - The prefix form `storage:` plus that key (some records use this; both work on the live site), **or**
-   - The full **https://** URL from Option B.
-6. **format** — Usually `PDF`.
-7. **status** — Use `Current` or `Published` so residents know it is the active packet (match whatever your office already uses for other meeting files).
-8. **downloadFileName** — Optional but helpful: the filename residents should see when they save the file, for example `2026-05-12-city-council-agenda-packet.pdf`.
-9. **keywords** — Optional. If your Data Manager form supports it, add a few plain words (for example `city council`, `agenda`, `may 2026`) so site search can find the packet. If you are not sure how to enter keywords, skip this field or ask your IT contact.
-10. Set **active** to **true**.
-11. Set **displayOrder** if you need this packet to appear above older meeting rows in the same section (lower numbers appear first, same rule as other documents).
-12. Click **Save**.
-
-**Check it on the website**
-
-1. Open `https://townofwiley.gov/documents` and scroll to **Meeting documents & agendas** (or use the anchor `https://townofwiley.gov/documents#meeting-documents`).
-2. Click your new title and confirm the PDF opens.
-3. Open `https://townofwiley.gov/meetings` and confirm any calendar text still matches the meeting date; if the agenda button should point residents to the hub, your IT contact can align that with the document hub (see [town-document-publishing-guide.md](./town-document-publishing-guide.md) only if staff still maintain separate static archive files — most day-to-day packets should use this **PublicDocument** flow in Studio).
+1. Upload the PDF to Town document storage:
+   `documents/meeting-documents/<unique-name>.pdf`.
+2. Create **PublicDocument** with `sectionId: meeting-documents`, correct `href`, and
+   keyword `event:<Event.id>` (exact UUID) so `/meetings` can open the right file.
+3. Set **active** to **true**. Deactivate older rows for the same meeting when replacing
+   an agenda.
+4. Regenerate `cms-snapshot.json` and verify `/meetings` and `/documents`.
 
 **If something goes wrong**
 
-- If the row saves but the link does nothing or errors, the **href** is usually wrong (typo in the key, file never uploaded, or a private link). Send the exact **href** string and the filename to your IT contact; they can verify the file in Storage or re-upload.
-- Do **not** paste a long Google Docs **edit** link that requires a login. Residents need a **public** PDF or **https** download.
+- Wrong file opens: deactivate the old `PublicDocument` and upload again via `/admin`.
+- Button shows “not yet available”: no linked PDF for that event — complete step 2 above.
+- Link errors: verify `href` matches an uploaded storage key; contact IT at (719) 829-4974.
 
 ### Add an external news link (for /news "From Other Sources")
 

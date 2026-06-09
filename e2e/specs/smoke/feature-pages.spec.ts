@@ -93,7 +93,7 @@ test.describe('feature page coverage', () => {
     expect(hydrationSignals).toEqual([]);
   });
 
-  test('meetings table agenda affordance routes to document hub meeting section', async ({
+  test('meetings table agenda button shows unavailable toast when no linked PDF', async ({
     homePage,
   }) => {
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
@@ -103,16 +103,15 @@ test.describe('feature page coverage', () => {
     });
 
     const meetingsTable = homePage.page.locator('.meetings-table');
-    const agendaControl = meetingsTable
-      .locator('p-button')
-      .filter({ hasText: /View agenda PDFs/i })
-      .first();
+    const agendaControl = meetingsTable.getByRole('button', { name: /View agenda/i }).first();
 
     await expect(agendaControl).toBeVisible({ timeout: 20000 });
     await agendaControl.click();
 
-    await expect(homePage.page).toHaveURL(/\/documents/);
-    await expect(homePage.page).toHaveURL(/meeting-documents/);
+    await expect(homePage.page).toHaveURL(/\/meetings/);
+    await expect(homePage.page.getByText(/Agenda not yet available/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('calendar list exposes Google Calendar and ICS actions with stable targets', async ({

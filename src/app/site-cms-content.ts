@@ -4,7 +4,10 @@ import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
 import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
-import { buildAgendaHubHrefByEventId } from './public-document-event-link';
+import {
+  buildAgendaHubHrefByEventId,
+  buildLinkedAgendaDocumentByEventId,
+} from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
 export interface CmsNotice {
@@ -777,6 +780,9 @@ export class LocalizedCmsContentStore {
   readonly businesses = computed(() => this.normalizeBusinesses(this.businessRecordsState()));
   readonly publicDocuments = computed(() =>
     this.normalizePublicDocuments(this.publicDocumentRecordsState()),
+  );
+  readonly linkedAgendaDocumentByEventId = computed(() =>
+    buildLinkedAgendaDocumentByEventId(this.publicDocuments()),
   );
   readonly agendaHubHrefByEventId = computed(() =>
     buildAgendaHubHrefByEventId(this.publicDocuments()),

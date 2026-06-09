@@ -5,6 +5,7 @@ import {
   createIcsDataUrlForSeed,
 } from '../calendar-public-links';
 import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
+import type { LinkedAgendaDocument } from '../public-document-event-link';
 import type { CmsCalendarEvent } from '../site-cms-content';
 
 export interface MeetingItem {
@@ -15,6 +16,11 @@ export interface MeetingItem {
   agendaNote?: string;
   cta?: string;
   href?: string;
+  /** Live CMS event id when row comes from an Event record. */
+  eventId?: string;
+  hasLinkedAgenda?: boolean;
+  agendaStorageHref?: string;
+  /** @deprecated Use openMeetingAgenda handler; kept for fallback seed rows. */
   agendaPdfHref?: string;
   /** When set, overrides default agenda PDF button label (e.g. notices shortcut row). */
   agendaButtonLabel?: string;
@@ -25,6 +31,8 @@ export interface CalendarAction {
   href: string;
   downloadFileName?: string;
   external?: boolean;
+  /** Agenda button handled by openMeetingAgenda instead of navigation. */
+  isAgendaAction?: boolean;
 }
 
 export interface CalendarSeed {
@@ -54,12 +62,15 @@ export interface CalendarItem {
   actions: CalendarAction[];
   startDate: Date;
   endDate: Date;
+  hasLinkedAgenda?: boolean;
+  agendaStorageHref?: string;
 }
 
 export interface MeetingsCopy {
   calendarCopy: string;
   calendarEventFallbackLocation: string;
   agendaPdfButtonLabel: string;
+  meetingsAgendaLinkedButtonLabel: string;
   documentsHubButtonLabel: string;
 }
 
@@ -71,6 +82,7 @@ export interface CalendarViewCopy {
   calendarGoogleActionLabel: string;
   calendarDownloadActionLabel: string;
   calendarAgendaActionLabel: string;
+  calendarAgendaLinkedActionLabel: string;
 }
 
 const DEFAULT_AGENDA_HREF = DOCUMENT_HUB_LINKS.meetings;
@@ -80,11 +92,11 @@ export function buildMeetingItems(
   fallbackMeetings: MeetingItem[],
   copy: MeetingsCopy,
   locale: string,
-  agendaHubHrefByEventId: Record<string, string> = {},
+  linkedAgendaByEventId: Record<string, LinkedAgendaDocument> = {},
 ): MeetingItem[] {
   if (liveEvents.length > 0) {
     return liveEvents.map((event) =>
-      createMeetingItemFromEvent(event, copy, locale, agendaHubHrefByEventId),
+      createMeetingItemFromEvent(event, copy, locale, linkedAgendaByEventId),
     );
   }
 
@@ -97,6 +109,7 @@ export function buildMeetingItems(
       ...row,
       agendaPdfHref,
       agendaButtonLabel,
+      hasLinkedAgenda: false,
     };
   });
 }
@@ -106,11 +119,11 @@ export function buildCalendarItems(
   fallbackSeeds: CalendarSeed[],
   copy: CalendarViewCopy,
   locale: string,
-  agendaHubHrefByEventId: Record<string, string> = {},
+  linkedAgendaByEventId: Record<string, LinkedAgendaDocument> = {},
 ): CalendarItem[] {
   return liveEvents.length > 0
     ? liveEvents.map((event) =>
-        createCalendarItemFromEvent(event, copy, locale, agendaHubHrefByEventId),
+        createCalendarItemFromEvent(event, copy, locale, linkedAgendaByEventId),
       )
     : fallbackSeeds.map((seed, index) => createCalendarItemFromSeed(seed, index, copy));
 }
@@ -140,6 +153,7 @@ function createCalendarItemFromSeed(
     location: seed.location,
     recurrence: seed.recurrence,
     agendaNote: seed.agendaNote,
+    hasLinkedAgenda: false,
     actions: [
       {
         label: copy.calendarGoogleActionLabel,
@@ -154,6 +168,7 @@ function createCalendarItemFromSeed(
       {
         label: copy.calendarAgendaActionLabel,
         href: DOCUMENT_HUB_LINKS.meetings,
+        isAgendaAction: true,
       },
       ...(seed.extraActions ?? []),
     ],
@@ -166,17 +181,21 @@ export function createMeetingItemFromEvent(
   event: CmsCalendarEvent,
   copy: MeetingsCopy,
   locale: string,
-  agendaHubHrefByEventId: Record<string, string> = {},
+  linkedAgendaByEventId: Record<string, LinkedAgendaDocument> = {},
 ): MeetingItem {
   const start = new Date(event.start);
   const end = resolveCalendarEventEnd(event);
+  const linked = linkedAgendaByEventId[event.id];
 
   return {
     title: event.title,
     schedule: formatCalendarEventDate(start, end, locale),
     format: event.description || copy.calendarCopy,
     location: event.location || copy.calendarEventFallbackLocation,
-    agendaPdfHref: agendaHubHrefByEventId[event.id] ?? DEFAULT_AGENDA_HREF,
+    eventId: event.id,
+    hasLinkedAgenda: Boolean(linked),
+    agendaStorageHref: linked?.storageHref,
+    agendaButtonLabel: linked ? copy.meetingsAgendaLinkedButtonLabel : copy.agendaPdfButtonLabel,
   };
 }
 
@@ -184,10 +203,11 @@ export function createCalendarItemFromEvent(
   event: CmsCalendarEvent,
   copy: CalendarViewCopy,
   locale: string,
-  agendaHubHrefByEventId: Record<string, string> = {},
+  linkedAgendaByEventId: Record<string, LinkedAgendaDocument> = {},
 ): CalendarItem {
   const start = new Date(event.start);
   const end = resolveCalendarEventEnd(event);
+  const linked = linkedAgendaByEventId[event.id];
 
   return {
     id: event.id,
@@ -197,6 +217,8 @@ export function createCalendarItemFromEvent(
     detail: event.description || copy.calendarEventFallbackDetail,
     location: event.location || copy.calendarEventFallbackLocation,
     recurrence: copy.calendarScheduledEventLabel,
+    hasLinkedAgenda: Boolean(linked),
+    agendaStorageHref: linked?.storageHref,
     actions: [
       {
         label: copy.calendarGoogleActionLabel,
@@ -219,8 +241,9 @@ export function createCalendarItemFromEvent(
         downloadFileName: `${event.id}.ics`,
       },
       {
-        label: copy.calendarAgendaActionLabel,
-        href: agendaHubHrefByEventId[event.id] ?? DOCUMENT_HUB_LINKS.meetings,
+        label: linked ? copy.calendarAgendaLinkedActionLabel : copy.calendarAgendaActionLabel,
+        href: '',
+        isAgendaAction: true,
       },
     ],
     startDate: start,

@@ -81,6 +81,28 @@
   margin: 0;
 }
 
+.cms-record-field--file {
+  gap: 0.65rem;
+}
+
+.cms-record-field__file-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cms-record-field__file-picker input[type='file'] {
+  max-width: 100%;
+}
+
+.cms-record-field__file-code {
+  margin: 0;
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
 .cms-record-field__help {
   font-size: 0.875rem;
   font-weight: 400;

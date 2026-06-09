@@ -57,21 +57,14 @@
             </td>
             <td>
               <div class="meetings-actions-cell">
-                @if (meeting.agendaPdfHref; as agendaHref) {
-                  @if (isMeetingDocumentsLink(agendaHref)) {
-                    <p-button
-                      styleClass="meetings-agenda-btn"
-                      [outlined]="true"
-                      icon="pi pi-file-pdf"
-                      [label]="meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
-                      [routerLink]="['/documents']"
-                      fragment="meeting-documents"
-                    />
-                  } @else {
-                    <a class="text-link" [attr.href]="agendaHref">{{
-                      meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel
-                    }}</a>
-                  }
+                @if (meeting.eventId || meeting.agendaPdfHref) {
+                  <p-button
+                    styleClass="meetings-agenda-btn"
+                    [outlined]="true"
+                    icon="pi pi-file-pdf"
+                    [label]="meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
+                    (onClick)="openMeetingAgenda(meeting)"
+                  />
                 }
                 @if (meeting.cta && meeting.href) {
                   <a class="text-link meetings-secondary-cta" [attr.href]="meeting.href">{{
@@ -125,7 +118,15 @@
                 [attr.aria-label]="copy().calendarActionsAriaLabel"
               >
                 @for (action of item.actions; track calendarActionTrackKey(action, $index)) {
-                  @if (action.href.startsWith('tel:')) {
+                  @if (action.isAgendaAction) {
+                    <p-button
+                      styleClass="meetings-agenda-btn calendar-agenda-btn"
+                      [outlined]="true"
+                      icon="pi pi-file-pdf"
+                      [label]="action.label"
+                      (onClick)="openCalendarAgenda(item)"
+                    />
+                  } @else if (action.href.startsWith('tel:')) {
                     <a
                       pButton
                       pRipple
@@ -168,15 +169,6 @@
                     >
                       {{ action.label }}
                     </a>
-                  } @else if (isMeetingDocumentsLink(action.href)) {
-                    <p-button
-                      styleClass="meetings-agenda-btn calendar-agenda-btn"
-                      [outlined]="true"
-                      icon="pi pi-file-pdf"
-                      [label]="copy().meetingsAgendaPdfButtonLabel"
-                      [routerLink]="['/documents']"
-                      fragment="meeting-documents"
-                    />
                   } @else {
                     <a
                       pButton
