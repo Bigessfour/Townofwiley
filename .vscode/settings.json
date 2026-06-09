@@ -12,11 +12,11 @@
   "terminal.integrated.shellIntegration.enabled": false,
   "terminal.integrated.tabs.enabled": true,
   "terminal.integrated.tabs.hideCondition": "never",
-  "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
   "terminal.integrated.profiles.windows": {
     "Ubuntu (WSL)": {
       "path": "C:\\Windows\\System32\\wsl.exe",
-      "args": ["-d", "Ubuntu"],
+      "args": ["-d", "Ubuntu", "-e", "bash", "-l"],
       "icon": "terminal-linux"
     },
     "PowerShell": {
@@ -24,10 +24,8 @@
       "icon": "terminal-powershell"
     }
   },
-  "terminal.integrated.automationProfile.windows": {
-    "path": "C:\\Windows\\System32\\wsl.exe",
-    "args": ["-d", "Ubuntu"]
-  },
+  "terminal.integrated.automationProfile.windows": "PowerShell",
+  "terminal.integrated.inheritEnv": true,
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,

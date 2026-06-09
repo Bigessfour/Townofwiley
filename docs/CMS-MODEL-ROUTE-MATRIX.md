@@ -16,7 +16,7 @@ Single source of truth for which **Amplify Studio / AppSync** models feed which 
 | **PublicDocument**        | `listPublicDocuments` (active)           | Yes                             | `document-hub`, store                                                                                   | `/documents`, `/records` (links into document hub)                          |
 | **ExternalNewsLink**      | `listExternalNewsLinks` (active)         | Yes                             | `news`, store                                                                                           | `/news`                                                                     |
 | **SiteCopy**              | `listSiteCopies` (active)                | Yes                             | `app.ts` (via `getSiteCopy`), various headings / nav / topTasks                                         | Homepage, nav, Quick Tasks, section chrome (gradual migration from APP_COPY)|
-| **EmailAlias**            | **No** (must not appear in public query) | **No** public read              | Not loaded in browser CMS query; managed in Studio for mail routing only                                | N/A on site (email infra)                                                   |
+| **EmailAlias**            | **No** (must not appear in public query) | **No** public read              | Staff-only: **`/admin` → Manage email forwarding** (`cms-email-alias-admin`); Gen 2 AppSync `userPool` CRUD; not in `LocalizedCmsContentStore` public load | N/A on site (email infra / SES forwarding)                                  |
 
 ## Stable `OfficialContact` record IDs
 
@@ -55,6 +55,13 @@ Use these names in Studio so they match the app and [`PUBLIC_CMS_QUERY`](../src/
 - [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md) — day-to-day staff steps.
 - [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md) — AWS / Studio operations checklist.
 
+## Staff-only vs public models
+
+- **Public models** (rows with “In `PUBLIC_CMS_QUERY`? = Yes”) are readable with the website API key and appear on townofwiley.gov after save + refresh.
+- **EmailAlias** is **authenticated staff only** — clerks edit it on **`/admin`** (task **Manage email forwarding**). It must never be added to `PUBLIC_CMS_QUERY`. See [CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md#managing-email-aliases--proxy-settings).
+
+**Gen 1 maintenance:** Legacy AppSync API `j7b2x3sh7rcezekekkxxiak7hi` is retired for day-to-day edits. Current CMS and the `/admin` hub use **Gen 2** (`x7poehudqvamneqni5s6e2cjxy`).
+
 ## CI drift check
 
-`npm run verify:public-cms-query` (see [`scripts/verify-public-cms-query.mjs`](../scripts/verify-public-cms-query.mjs)) ensures `PUBLIC_CMS_QUERY` only lists models that allow anonymous read, and that `EmailAlias` is not queried from the browser.
+`npm run verify:public-cms-query` (see [`scripts/verify-public-cms-query.mjs`](../scripts/verify-public-cms-query.mjs)) ensures `PUBLIC_CMS_QUERY` only lists models that allow anonymous read, and that `EmailAlias` is not queried from the browser. IT runs this in CI; clerks use **Force Refresh Live CMS Content** on `/admin` when the site looks stale (see [Troubleshooting Content Not Updating](./CLERK-CMS-GUIDE.md#troubleshooting-content-not-updating) in the clerk guide).

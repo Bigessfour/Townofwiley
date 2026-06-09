@@ -10,9 +10,9 @@ startup_timeout_sec = 30
 tool_timeout_sec = 120
 
 [mcp_servers.primeng]
-command = "node"
-args = ["mcp/primeng/node_modules/@primeng/mcp/dist/index.js"]
-enabled = true                                                 # pinned mcp/primeng (sdk 1.25.2) — see mcp/primeng/README.md
+command = "npx"
+args = ["-y", "-p", "@modelcontextprotocol/sdk@1.24.3", "-p", "@primeng/mcp@21.1.8", "primeng-mcp"]
+enabled = true                                                 # npx fallback; optional local pin: npm run mcp:primeng:install
 startup_timeout_sec = 30
 tool_timeout_sec = 120
 
@@ -55,10 +55,9 @@ startup_timeout_sec = 15
 tool_timeout_sec = 120
 
 [mcp_servers.townofwiley-rag]
-# WSL launch required for proper Linux environment (Node + any future Python venv/rg behavior).
-# This ensures the RAG MCP is instantly available and reliable from Windows hosts using WSL terminals.
-command = "wsl"
-args = ["bash", "-c", "cd \"$(wslpath -u '$PWD')\" && node scripts/rag-mcp.mjs"]
+# Native Node on Windows (PowerShell default terminal); ripgrep used when on PATH.
+command = "powershell"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "node scripts/rag-mcp.mjs"]
 enabled = true
 startup_timeout_sec = 90
 tool_timeout_sec = 120

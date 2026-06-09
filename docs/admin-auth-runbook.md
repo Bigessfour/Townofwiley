@@ -77,6 +77,7 @@ python scripts/configure-cognito-staff-email.py
 | Symptom                                    | Likely cause                                                           | Fix                                                                                           |
 | ------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Forgot password shows success but no email | User status **`FORCE_CHANGE_PASSWORD`**                                | User signs in with IT temp password, or IT runs `reset-cognito-staff-password.py --temporary` |
+| **Not authorized for staff admin access** after successful Hosted UI login | OAuth tokens returned before `cognito:groups` claim populated, or access token missing admin scope | Re-run `npm run configure:cognito-hosted-ui` (adds `aws.cognito.signin.user.admin` scope); deploy latest frontend; verify user in **Staff** group: `aws cognito-idp admin-list-groups-for-user --user-pool-id us-east-2_DmY7BCBIp --username <sub>` |
 | CMS mutation fails after sign-in           | User not in **Staff** group or AppSync user-pool auth misaligned       | Run `setup-cognito-staff-group.py`; verify AppSync additional auth uses Gen 1 pool            |
 
 ```bash

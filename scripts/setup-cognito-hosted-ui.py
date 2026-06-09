@@ -25,6 +25,14 @@ LOGOUT_URLS = [
     "http://localhost:4200/admin",
 ]
 
+# openid/email/profile → ID token; aws.cognito.signin.user.admin → cognito:groups on access token.
+STAFF_OAUTH_SCOPES = [
+    "openid",
+    "email",
+    "profile",
+    "aws.cognito.signin.user.admin",
+]
+
 
 def aws_json(command: list[str]) -> dict | None:
     process = subprocess.run(
@@ -168,9 +176,7 @@ def create_staff_app_client(user_pool_id: str, region: str) -> str:
             "--allowed-o-auth-flows",
             "code",
             "--allowed-o-auth-scopes",
-            "openid",
-            "email",
-            "profile",
+            *STAFF_OAUTH_SCOPES,
             "--allowed-o-auth-flows-user-pool-client",
             "--region",
             region,
@@ -235,9 +241,7 @@ def configure_app_client_oauth(
         "--allowed-o-auth-flows",
         "code",
         "--allowed-o-auth-scopes",
-        "openid",
-        "email",
-        "profile",
+        *STAFF_OAUTH_SCOPES,
         "--allowed-o-auth-flows-user-pool-client",
         "--supported-identity-providers",
         *merge_unique(client.get("SupportedIdentityProviders"), ["COGNITO"]),

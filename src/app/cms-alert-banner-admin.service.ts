@@ -30,6 +30,9 @@ export interface AlertBannerInput {
   linkHref?: string;
 }
 
+/**
+ * @deprecated Use {@link CmsGenericModelAdminService} from the clerk record editor instead.
+ */
 @Injectable({
   providedIn: 'root',
 })

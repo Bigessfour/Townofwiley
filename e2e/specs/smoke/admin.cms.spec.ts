@@ -67,6 +67,32 @@ test.describe('cms admin', () => {
       homePage.page.locator('.cms-task-card').getByText('AppSync', { exact: false }),
     ).not.toBeVisible();
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-force-refresh')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-content-source')).toBeVisible();
+  });
+
+  test('admin hub shows email forwarding task with dedicated editor', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    const emailTask = homePage.page.getByTestId('cms-task-manage-email-aliases');
+    await expect(emailTask).toBeVisible();
+    await expect(emailTask.getByRole('heading', { name: /Manage email forwarding/i })).toBeVisible();
+    await expect(emailTask.getByRole('link', { name: /See on website/i })).toHaveCount(0);
+
+    await homePage.page.getByTestId('cms-task-edit-manage-email-aliases').click();
+    await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: /Edit: Manage email forwarding/i }),
+    ).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-email-alias-editor-slot')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-email-alias-admin')).toBeVisible();
+    await expect(homePage.page.getByText('Loading forwarding rules…')).toHaveCount(0, {
+      timeout: 15_000,
+    });
+    await expect(homePage.page.getByTestId('cms-email-alias-table')).toBeVisible();
+    await expect(homePage.page.getByText('No forwarding rules saved yet.')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-email-alias-add')).toBeVisible();
+    await expect(homePage.page.locator('#cms-field-post-notice-title')).toHaveCount(0);
   });
 
   test('content inventory is under Advanced (IT)', async ({ homePage }) => {

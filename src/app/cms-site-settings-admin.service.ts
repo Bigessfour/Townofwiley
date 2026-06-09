@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { inject, Injectable } from '@angular/core';
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
+import { StaffAuthService } from './auth/staff-auth.service';
 import { CMS_MODEL_LIST_FIELDS } from './cms-admin/cms-model-admin-fields';
+import { requireAuthenticatedAdmin } from './cms-admin/cms-staff-appsync-auth';
 
 type SiteSettingsRecord = Record<string, unknown> & {
   id: string;
@@ -78,11 +79,14 @@ export interface SiteSettingsInput {
   providedIn: 'root',
 })
 export class CmsSiteSettingsAdminService {
+  private readonly staffAuth = inject(StaffAuthService);
+
   async listSiteSettings(limit = 1): Promise<Record<string, unknown>[]> {
+    await requireAuthenticatedAdmin(this.staffAuth);
     const response = (await client.graphql({
       query: LIST_SITE_SETTINGS_QUERY,
       variables: { limit },
-      authMode: await this.resolveStaffAuthMode(),
+      authMode: 'userPool',
     })) as GraphQLResult<ListSiteSettingsResult>;
 
     if (response.errors?.length) {
@@ -101,10 +105,11 @@ export class CmsSiteSettingsAdminService {
   }
 
   async createSiteSettings(input: SiteSettingsInput): Promise<string> {
+    await requireAuthenticatedAdmin(this.staffAuth);
     const response = (await client.graphql({
       query: CREATE_SITE_SETTINGS_MUTATION,
       variables: { input },
-      authMode: await this.resolveStaffAuthMode(),
+      authMode: 'userPool',
     })) as GraphQLResult<CreateSiteSettingsResult>;
 
     if (response.errors?.length) {
@@ -125,10 +130,11 @@ export class CmsSiteSettingsAdminService {
   }
 
   async updateSiteSettings(input: SiteSettingsInput & { id: string }): Promise<string> {
+    await requireAuthenticatedAdmin(this.staffAuth);
     const response = (await client.graphql({
       query: UPDATE_SITE_SETTINGS_MUTATION,
       variables: { input },
-      authMode: await this.resolveStaffAuthMode(),
+      authMode: 'userPool',
     })) as GraphQLResult<UpdateSiteSettingsResult>;
 
     if (response.errors?.length) {
@@ -153,17 +159,5 @@ export class CmsSiteSettingsAdminService {
       return this.updateSiteSettings({ ...input, id: input.id });
     }
     return this.createSiteSettings(input);
-  }
-
-  private async resolveStaffAuthMode(): Promise<'userPool' | 'iam'> {
-    try {
-      const session = await fetchAuthSession();
-      if (session.tokens?.accessToken) {
-        return 'userPool';
-      }
-    } catch {
-      // Fall back
-    }
-    return 'iam';
   }
 }

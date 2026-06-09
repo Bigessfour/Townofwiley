@@ -147,6 +147,7 @@
       <section class="cms-connection" aria-labelledby="cms-connection-heading">
         <h3 id="cms-connection-heading">{{ it.connectionTitle }}</h3>
         <p>{{ it.connectionBody }}</p>
+        <p class="cms-muted">{{ it.refreshFromDatabaseHelp }}</p>
         <div class="cms-connection-actions">
           <button
             pButton
@@ -155,6 +156,24 @@
             (click)="testConnection()"
           >
             {{ connectionTestLoading() ? it.testingConnection : it.testConnection }}
+          </button>
+          <button
+            pButton
+            type="button"
+            class="p-button-secondary"
+            [disabled]="forceRefreshLoading()"
+            (click)="clearWebsiteCache()"
+          >
+            {{ it.clearWebsiteCache }}
+          </button>
+          <button
+            pButton
+            type="button"
+            class="p-button-secondary"
+            [disabled]="forceRefreshLoading() || !hasAppSyncRuntimeConfig"
+            (click)="refreshFromDatabase()"
+          >
+            {{ forceRefreshLoading() ? it.refreshingFromDatabase : it.refreshFromDatabase }}
           </button>
           <strong
             class="cms-connection-status"
@@ -170,6 +189,9 @@
             }
           </strong>
         </div>
+        @if (cacheClearMessage(); as message) {
+          <p class="cms-connection-status is-ok">{{ message }}</p>
+        }
         @if (connectionTestResult(); as result) {
           @if (result.error) {
             <p class="cms-trouble">{{ it.troubleLabel }}: {{ result.error }}</p>

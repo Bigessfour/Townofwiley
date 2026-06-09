@@ -5,8 +5,15 @@
       "args": ["-y", "@angular/cli@21.2.5", "mcp", "--experimental-tool", "modernize"]
     },
     "primeng": {
-      "command": "node",
-      "args": ["mcp/primeng/node_modules/@primeng/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "-p",
+        "@modelcontextprotocol/sdk@1.24.3",
+        "-p",
+        "@primeng/mcp@21.1.8",
+        "primeng-mcp"
+      ],
       "env": {
         "NODE_OPTIONS": "--no-deprecation"
       }
@@ -30,8 +37,14 @@
       "args": ["-y", "chrome-devtools-mcp@latest"]
     },
     "townofwiley-rag": {
-      "command": "wsl",
-      "args": ["bash", "-c", "cd \"$(wslpath -u '$PWD')\" && node scripts/rag-mcp.mjs"]
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "node scripts/rag-mcp.mjs"
+      ]
     }
   }
 }

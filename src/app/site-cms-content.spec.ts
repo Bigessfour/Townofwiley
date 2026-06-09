@@ -1,7 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { LocalizedCmsContentStore } from './site-cms-content';
+import {
+  CMS_SNAPSHOT_STORAGE_KEY,
+  clearCmsCache,
+  LocalizedCmsContentStore,
+} from './site-cms-content';
 
 interface TestRuntimeConfig {
   cms?: {
@@ -33,7 +37,7 @@ describe('LocalizedCmsContentStore', () => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     window.localStorage.removeItem('tow-site-language');
-    window.localStorage.removeItem('tow-cms-snapshot-v1');
+    window.localStorage.removeItem(CMS_SNAPSHOT_STORAGE_KEY);
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
@@ -646,6 +650,187 @@ describe('LocalizedCmsContentStore', () => {
     expect(store.isUsingCachedSnapshot()).toBe(true);
     expect(store.hero().title).toBe('Cached Town of Wiley');
     expect(store.notices()[0]?.title).toBe('Cached water notice');
+
+    httpTesting.verify();
+  });
+
+  it('clearCmsCache removes the persisted CMS snapshot key', () => {
+    window.localStorage.setItem(CMS_SNAPSHOT_STORAGE_KEY, '{"version":1}');
+    clearCmsCache();
+    expect(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('forceLiveRefresh fetches live AppSync and re-persists localStorage on success', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
+
+    httpTesting.expectOne('https://cms.example.com/graphql').flush({
+      data: {
+        listSiteSettings: {
+          items: [{ townName: 'Town of Wiley', heroTitle: 'Initial Live Title' }],
+        },
+        listAlertBanners: { items: [] },
+        listAnnouncements: { items: [] },
+        listEvents: { items: [] },
+        listOfficialContacts: { items: [] },
+      },
+    });
+    await Promise.resolve();
+    httpTesting.expectOne('https://cms.example.com/graphql').flush({
+      data: {
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+        listLeadershipRosterEntries: { items: [] },
+        listSiteCopies: { items: [] },
+      },
+    });
+    await Promise.resolve();
+
+    window.localStorage.setItem(
+      CMS_SNAPSHOT_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        siteSettings: { heroTitle: 'Stale localStorage title' },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      }),
+    );
+
+    const refreshPromise = store.forceLiveRefresh();
+    const forceCore = httpTesting.expectOne('https://cms.example.com/graphql');
+    forceCore.flush({
+      data: {
+        listSiteSettings: {
+          items: [{ townName: 'Town of Wiley', heroTitle: 'Force-refreshed Live Title' }],
+        },
+        listAlertBanners: { items: [] },
+        listAnnouncements: { items: [] },
+        listEvents: { items: [] },
+        listOfficialContacts: { items: [] },
+      },
+    });
+    await Promise.resolve();
+    httpTesting.expectOne('https://cms.example.com/graphql').flush({
+      data: {
+        listBusinesses: { items: [] },
+        listPublicDocuments: { items: [] },
+        listExternalNewsLinks: { items: [] },
+        listLeadershipRosterEntries: { items: [] },
+        listSiteCopies: { items: [] },
+      },
+    });
+    await refreshPromise;
+
+    expect(store.contentSource()).toBe('live');
+    expect(store.hero().title).toBe('Force-refreshed Live Title');
+    const persisted = JSON.parse(
+      window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY) ?? '{}',
+    ) as { siteSettings?: { heroTitle?: string } };
+    expect(persisted.siteSettings?.heroTitle).toBe('Force-refreshed Live Title');
+
+    httpTesting.verify();
+  });
+
+  it('forceLiveRefresh does not restore localStorage when live AppSync core load fails', async () => {
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    window.localStorage.setItem(
+      CMS_SNAPSHOT_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        siteSettings: {
+          townName: 'Town of Wiley',
+          heroTitle: 'Cached Town of Wiley',
+        },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      }),
+    );
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = TestBed.inject(LocalizedCmsContentStore);
+    httpTesting
+      .expectOne((request) => request.url.includes('/cms-snapshot.json'))
+      .flush(null, { status: 404, statusText: 'Not Found' });
+    await waitForCmsInitialization();
+
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      httpTesting
+        .expectOne('https://cms.example.com/graphql')
+        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+
+      if (attempt < 2) {
+        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
+      }
+    }
+    await Promise.resolve();
+
+    expect(store.isUsingCachedSnapshot()).toBe(true);
+    expect(store.hero().title).toBe('Cached Town of Wiley');
+
+    const refreshPromise = store.forceLiveRefresh();
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      httpTesting
+        .expectOne('https://cms.example.com/graphql')
+        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+
+      if (attempt < 2) {
+        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
+      }
+    }
+    await refreshPromise;
+
+    expect(store.isUsingCachedSnapshot()).toBe(false);
+    expect(store.hasLoadFailed()).toBe(true);
+    expect(store.hero().title).toBe('Town of Wiley');
+    expect(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY)).toBeNull();
 
     httpTesting.verify();
   });

@@ -180,7 +180,7 @@ export class CmsMeetingDocumentUploadComponent implements OnInit {
       }
 
       this.documentRefresh.triggerRefresh();
-      await this.cmsStore.refreshContent();
+      await this.cmsStore.forceLiveRefresh();
 
       const title = `${event.title}`;
       this.success.set(this.copy().successTemplate.replace('{title}', title));

@@ -30,6 +30,12 @@ export const IT_ADMIN_COPY = {
   apiKeyPresent: 'Present',
   apiKeyMissing: 'Missing',
   troubleLabel: 'Error',
+  clearWebsiteCache: 'Clear saved website copy',
+  clearWebsiteCacheSuccess: 'Saved website copy cleared from this browser.',
+  refreshFromDatabase: 'Refresh from database',
+  refreshingFromDatabase: 'Refreshing…',
+  refreshFromDatabaseHelp:
+    'Fetches the latest content from AppSync and bypasses the 7-day browser cache. Use after saving in the editor when the public site still shows old text.',
   openAwsConsole: 'Open AWS Console (IT)',
   setupDetailsTitle: 'Setup values (IT)',
   copyValueLabel: 'Copy',

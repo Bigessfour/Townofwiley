@@ -29,6 +29,9 @@ export interface EventInput {
   active: boolean;
 }
 
+/**
+ * @deprecated Use {@link CmsGenericModelAdminService} from the clerk record editor instead.
+ */
 @Injectable({
   providedIn: 'root',
 })

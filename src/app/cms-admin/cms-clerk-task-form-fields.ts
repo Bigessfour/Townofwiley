@@ -185,6 +185,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     { name: 'displayOrder', label: 'Sort order (number)', type: 'number' },
     { name: 'active', label: 'Show on website', type: 'checkbox' },
   ],
+  'manage-email-aliases': [],
 };
 
 export function clerkTaskFormFields(taskId: ClerkCmsTaskId): ClerkFormFieldDefinition[] {

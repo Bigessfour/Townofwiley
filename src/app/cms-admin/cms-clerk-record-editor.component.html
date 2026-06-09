@@ -14,6 +14,9 @@
     @if (recordsLoading()) {
       <p class="cms-record-editor__status" role="status">Loading saved records…</p>
     }
+    @if (loadError()) {
+      <p-message severity="warn" [text]="loadError()!" styleClass="cms-record-editor__message" />
+    }
 
     @if (showRecordPicker()) {
       <div class="cms-record-editor__picker">
@@ -133,15 +136,31 @@
         }
       }
 
+      @if (deleteBlockedReason(); as blocked) {
+        <p-message severity="warn" [text]="blocked" styleClass="cms-record-editor__message" />
+      }
+
       <div class="cms-record-editor__actions">
         <button
           pButton
           type="submit"
-          [disabled]="submitting()"
+          [disabled]="submitting() || deleting()"
           data-testid="cms-save-record"
         >
           {{ editingId() ? 'Save changes' : 'Save to website' }}
         </button>
+        @if (canDeleteRecord()) {
+          <button
+            pButton
+            type="button"
+            class="p-button-danger p-button-outlined"
+            [disabled]="submitting() || deleting()"
+            data-testid="cms-delete-record"
+            (click)="deleteCurrentRecord()"
+          >
+            {{ deleting() ? 'Deleting…' : 'Delete record' }}
+          </button>
+        }
       </div>
     </form>
 

@@ -1,14 +1,24 @@
-import { Injectable } from '@angular/core';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { inject, Injectable } from '@angular/core';
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
+import { StaffAuthService } from './auth/staff-auth.service';
 import {
   CMS_MODEL_LIST_FIELDS,
   cmsCreateInputType,
   cmsCreateMutationField,
+  cmsDeleteInputType,
+  cmsDeleteMutationField,
   cmsListQueryField,
   cmsUpdateInputType,
   cmsUpdateMutationField,
 } from './cms-admin/cms-model-admin-fields';
+import {
+  assertCmsAdminModel,
+  type CmsAdminModel,
+  type CmsAdminOperation,
+  requireAuthenticatedAdmin,
+  toClerkFriendlyGraphqlError,
+} from './cms-admin/cms-staff-appsync-auth';
+import { LoggingService } from './logging.service';
 
 const client = generateClient();
 
@@ -16,9 +26,23 @@ const client = generateClient();
   providedIn: 'root',
 })
 export class CmsGenericModelAdminService {
+  private readonly staffAuth = inject(StaffAuthService);
+  private readonly logging = inject(LoggingService);
+
+  async isAuthenticatedAdmin(): Promise<boolean> {
+    await this.staffAuth.refreshSession();
+    return this.staffAuth.isStaff();
+  }
+
   async listRecords(model: string, limit = 50): Promise<Record<string, unknown>[]> {
+    assertCmsAdminModel(model);
     const fields = CMS_MODEL_LIST_FIELDS[model];
     if (!fields?.length) {
+      return [];
+    }
+
+    await requireAuthenticatedAdmin(this.staffAuth);
+    if (this.staffAuth.playwrightStaffBypassActive()) {
       return [];
     }
 
@@ -35,29 +59,26 @@ export class CmsGenericModelAdminService {
     `;
 
     try {
-      const response = (await client.graphql({
-        query,
-        variables: { limit },
-        authMode: await this.resolveStaffAuthMode(),
-      })) as GraphQLResult<Record<string, { items?: Record<string, unknown>[] }>>;
-
-      if (response.errors?.length) {
-        throw new Error(
-          response.errors.map((e: { message?: string | null }) => e.message || '').join(' '),
-        );
-      }
+      const response = await this.executeStaffGraphql<
+        Record<string, { items?: Record<string, unknown>[] }>
+      >('list', model, query, { limit });
 
       return (response.data?.[listField]?.items ?? []).filter(
         (item): item is Record<string, unknown> => item != null && typeof item === 'object',
       );
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : (e as { message?: string })?.message;
-      console.warn(`List records for ${model} failed:`, msg);
-      return [];
+    } catch (error: unknown) {
+      this.logAdminFailure('list', model, error);
+      throw new Error(toClerkFriendlyGraphqlError(error, 'list', model), { cause: error });
     }
   }
 
   async createModel(model: string, input: Record<string, unknown>): Promise<string> {
+    return this.createRecord(model, input);
+  }
+
+  async createRecord(model: string, input: Record<string, unknown>): Promise<string> {
+    assertCmsAdminModel(model);
+    const sanitized = this.sanitizeMutationInput(model, input, 'create');
     const createField = cmsCreateMutationField(model);
     const inputType = cmsCreateInputType(model);
     const query = /* GraphQL */ `
@@ -68,30 +89,35 @@ export class CmsGenericModelAdminService {
       }
     `;
 
-    const response = (await client.graphql({
-      query,
-      variables: { input },
-      authMode: await this.resolveStaffAuthMode(),
-    })) as GraphQLResult<Record<string, { id?: string }>>;
-
-    if (response.errors?.length) {
-      throw new Error(
-        response.errors
-          .map((error: { message?: string | null }) => error.message?.trim())
-          .filter((m: string | undefined): m is string => Boolean(m))
-          .join(' '),
+    try {
+      const response = await this.executeStaffGraphql<Record<string, { id?: string }>>(
+        'create',
+        model,
+        query,
+        { input: sanitized },
       );
-    }
 
-    const id = response.data?.[createField]?.id;
-    if (!id) {
-      throw new Error(`${model} record was not created.`);
+      const id = response.data?.[createField]?.id;
+      if (!id) {
+        throw new Error(`${model} record was not created.`);
+      }
+
+      this.logAdminSuccess('create', model, id);
+      return id;
+    } catch (error: unknown) {
+      this.logAdminFailure('create', model, error);
+      throw new Error(toClerkFriendlyGraphqlError(error, 'create', model), { cause: error });
     }
-    return id;
   }
 
   async updateModel(model: string, input: Record<string, unknown>): Promise<string> {
-    const id = input['id'];
+    return this.updateRecord(model, input);
+  }
+
+  async updateRecord(model: string, input: Record<string, unknown>): Promise<string> {
+    assertCmsAdminModel(model);
+    const sanitized = this.sanitizeMutationInput(model, input, 'update');
+    const id = sanitized['id'];
     if (typeof id !== 'string' || !id.trim()) {
       throw new Error('Record id is required to update.');
     }
@@ -106,37 +132,146 @@ export class CmsGenericModelAdminService {
       }
     `;
 
+    try {
+      const response = await this.executeStaffGraphql<Record<string, { id?: string }>>(
+        'update',
+        model,
+        query,
+        { input: sanitized },
+      );
+
+      const updatedId = response.data?.[updateField]?.id;
+      if (!updatedId) {
+        throw new Error(`${model} record was not updated.`);
+      }
+
+      this.logAdminSuccess('update', model, updatedId);
+      return updatedId;
+    } catch (error: unknown) {
+      this.logAdminFailure('update', model, error);
+      throw new Error(toClerkFriendlyGraphqlError(error, 'update', model), { cause: error });
+    }
+  }
+
+  async deleteModel(model: string, id: string): Promise<string> {
+    return this.deleteRecord(model, id);
+  }
+
+  async deleteRecord(model: string, id: string): Promise<string> {
+    assertCmsAdminModel(model);
+    const trimmedId = id.trim();
+    if (!trimmedId) {
+      throw new Error('Record id is required to delete.');
+    }
+
+    const deleteField = cmsDeleteMutationField(model);
+    const inputType = cmsDeleteInputType(model);
+    const query = /* GraphQL */ `
+      mutation Delete${model}Record($input: ${inputType}!) {
+        ${deleteField}(input: $input) {
+          id
+        }
+      }
+    `;
+
+    try {
+      const response = await this.executeStaffGraphql<Record<string, { id?: string }>>(
+        'delete',
+        model,
+        query,
+        { input: { id: trimmedId } },
+      );
+
+      const deletedId = response.data?.[deleteField]?.id;
+      if (!deletedId) {
+        throw new Error(`${model} record was not deleted.`);
+      }
+
+      this.logAdminSuccess('delete', model, deletedId);
+      return deletedId;
+    } catch (error: unknown) {
+      this.logAdminFailure('delete', model, error);
+      throw new Error(toClerkFriendlyGraphqlError(error, 'delete', model), { cause: error });
+    }
+  }
+
+  private async executeStaffGraphql<TData>(
+    operation: CmsAdminOperation,
+    model: CmsAdminModel,
+    query: string,
+    variables: Record<string, unknown>,
+  ): Promise<GraphQLResult<TData>> {
+    await requireAuthenticatedAdmin(this.staffAuth);
+
     const response = (await client.graphql({
       query,
-      variables: { input },
-      authMode: await this.resolveStaffAuthMode(),
-    })) as GraphQLResult<Record<string, { id?: string }>>;
+      variables,
+      authMode: 'userPool',
+    } as Parameters<typeof client.graphql>[0])) as GraphQLResult<TData>;
 
     if (response.errors?.length) {
       throw new Error(
         response.errors
           .map((error: { message?: string | null }) => error.message?.trim())
-          .filter((m: string | undefined): m is string => Boolean(m))
+          .filter((message: string | undefined): message is string => Boolean(message))
           .join(' '),
       );
     }
 
-    const updatedId = response.data?.[updateField]?.id;
-    if (!updatedId) {
-      throw new Error(`${model} record was not updated.`);
-    }
-    return updatedId;
+    return response;
   }
 
-  private async resolveStaffAuthMode(): Promise<'userPool' | 'iam'> {
-    try {
-      const session = await fetchAuthSession();
-      if (session.tokens?.accessToken) {
-        return 'userPool';
+  private sanitizeMutationInput(
+    model: CmsAdminModel,
+    input: Record<string, unknown>,
+    mode: 'create' | 'update',
+  ): Record<string, unknown> {
+    const allowed = new Set(CMS_MODEL_LIST_FIELDS[model]);
+    const sanitized: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(input)) {
+      if (key === 'id') {
+        if (mode === 'update' && typeof value === 'string' && value.trim()) {
+          sanitized['id'] = value.trim();
+        }
+        continue;
       }
-    } catch {
-      // Fall back
+
+      if (!allowed.has(key)) {
+        continue;
+      }
+
+      if (value === null || value === undefined) {
+        continue;
+      }
+
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed) {
+          sanitized[key] = trimmed;
+        }
+        continue;
+      }
+
+      sanitized[key] = value;
     }
-    return 'iam';
+
+    return sanitized;
+  }
+
+  private logAdminSuccess(operation: CmsAdminOperation, model: string, recordId: string): void {
+    this.logging.log('info', `CMS admin ${operation} succeeded`, {
+      eventType: `cms_admin_${operation}_success`,
+      model,
+      recordId,
+    });
+  }
+
+  private logAdminFailure(operation: CmsAdminOperation, model: string, error: unknown): void {
+    this.logging.log('warn', `CMS admin ${operation} failed`, {
+      eventType: `cms_admin_${operation}_failed`,
+      model,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }

@@ -4,6 +4,7 @@ import {
   CLERK_VERIFY_STEPS,
   clerkTaskById,
   clerkTaskPreviewUrl,
+  clerkTaskUsesDedicatedEditor,
 } from './cms-clerk-tasks';
 
 describe('cms-clerk-tasks', () => {
@@ -28,5 +29,13 @@ describe('cms-clerk-tasks', () => {
   it('provides verify steps for clerks', () => {
     expect(CLERK_VERIFY_STEPS.length).toBeGreaterThanOrEqual(3);
     expect(CLERK_VERIFY_STEPS.join(' ')).toMatch(/hard-refresh/i);
+  });
+
+  it('defines manage-email-aliases as a dedicated editor task', () => {
+    const task = clerkTaskById('manage-email-aliases');
+    expect(task?.model).toBe('EmailAlias');
+    expect(task?.icon).toBe('pi-envelope');
+    expect(task?.showPublicPreview).toBe(false);
+    expect(clerkTaskUsesDedicatedEditor('manage-email-aliases')).toBe(true);
   });
 });

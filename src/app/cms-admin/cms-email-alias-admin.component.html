@@ -1,0 +1,200 @@
+<section class="cms-email-alias-admin" data-testid="cms-email-alias-admin">
+  <header class="cms-email-alias-admin__header">
+    <div>
+      <h3 class="cms-email-alias-admin__title">Email forwarding rules</h3>
+      <p class="cms-email-alias-admin__lead">
+        Control where mail sent to Town addresses is delivered. Residents never see these rules.
+      </p>
+    </div>
+    @if (isSignedIn()) {
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        data-testid="cms-email-alias-add"
+        [disabled]="aliasesLoading()"
+        (click)="openCreateDialog()"
+      >
+        Add forwarding rule
+      </button>
+    }
+  </header>
+
+  @if (!isSignedIn()) {
+    <p-message
+      severity="warn"
+      text="Sign in at /admin/login with a Town staff account before managing email forwarding."
+      styleClass="cms-email-alias-admin__message"
+    />
+  }
+
+  @if (aliasesLoading()) {
+    <p class="cms-email-alias-admin__status" role="status">Loading forwarding rules…</p>
+  }
+
+  @if (loadError(); as error) {
+    <p-message severity="error" [text]="error" styleClass="cms-email-alias-admin__message" />
+  }
+
+  @if (isSignedIn() && !aliasesLoading() && !loadError()) {
+    <div class="cms-email-alias-admin__table-wrap" data-testid="cms-email-alias-table">
+    <p-table
+      [value]="aliases()"
+      styleClass="cms-email-alias-table"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">Town address</th>
+          <th scope="col">Staff inbox</th>
+          <th scope="col">Active</th>
+          <th scope="col">Display name</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td>{{ row.aliasAddress }}</td>
+          <td>{{ row.destinationAddress }}</td>
+          <td>
+            <p-tag
+              [value]="row.active ? 'Yes' : 'No'"
+              [severity]="row.active ? 'success' : 'secondary'"
+            />
+          </td>
+          <td>{{ row.displayName || '—' }}</td>
+          <td class="cms-email-alias-admin__actions-cell">
+            <button
+              pButton
+              type="button"
+              class="p-button-sm p-button-outlined"
+              [attr.data-testid]="'cms-email-alias-edit-' + row.id"
+              (click)="openEditDialog(row)"
+            >
+              Edit
+            </button>
+            <button
+              pButton
+              type="button"
+              class="p-button-sm p-button-outlined p-button-danger"
+              [loading]="deletingId() === row.id"
+              [disabled]="deletingId() === row.id"
+              [attr.data-testid]="'cms-email-alias-delete-' + row.id"
+              (click)="deleteAlias(row)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">No forwarding rules saved yet.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    </div>
+  }
+
+  <p-dialog
+    [header]="dialogHeader()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [visible]="dialogOpen()"
+    (visibleChange)="onDialogVisibleChange($event)"
+    [style]="{ width: 'min(32rem, 95vw)' }"
+    data-testid="cms-email-alias-dialog"
+  >
+    <form class="cms-email-alias-admin__form" [formGroup]="aliasForm" (ngSubmit)="saveAlias()">
+      <label class="cms-email-alias-admin__field" for="cms-email-alias-address">
+        <span>Town email address *</span>
+        <input
+          pInputText
+          id="cms-email-alias-address"
+          type="email"
+          formControlName="aliasAddress"
+          autocomplete="email"
+          placeholder="clerk@townofwiley.gov"
+        />
+        @if (fieldInvalid('aliasAddress')) {
+          <small class="cms-email-alias-admin__error">Enter a valid Town email address.</small>
+        }
+      </label>
+
+      <label class="cms-email-alias-admin__field" for="cms-email-alias-destination">
+        <span>Staff inbox *</span>
+        <input
+          pInputText
+          id="cms-email-alias-destination"
+          type="email"
+          formControlName="destinationAddress"
+          autocomplete="email"
+          placeholder="staff@example.com"
+        />
+        @if (fieldInvalid('destinationAddress')) {
+          <small class="cms-email-alias-admin__error">Enter a valid destination email.</small>
+        }
+      </label>
+
+      <div class="cms-email-alias-admin__field cms-email-alias-admin__field--checkbox">
+        <p-checkbox formControlName="active" [binary]="true" inputId="cms-email-alias-active" />
+        <label for="cms-email-alias-active">Active (forward mail)</label>
+      </div>
+
+      <label class="cms-email-alias-admin__field" for="cms-email-alias-display-name">
+        <span>Display name</span>
+        <input
+          pInputText
+          id="cms-email-alias-display-name"
+          type="text"
+          formControlName="displayName"
+          placeholder="City Clerk mailbox"
+        />
+      </label>
+
+      <label class="cms-email-alias-admin__field" for="cms-email-alias-role-label">
+        <span>Role label</span>
+        <input
+          pInputText
+          id="cms-email-alias-role-label"
+          type="text"
+          formControlName="roleLabel"
+          placeholder="Clerk"
+        />
+      </label>
+
+      <label class="cms-email-alias-admin__field" for="cms-email-alias-notes">
+        <span>Notes</span>
+        <textarea
+          pTextarea
+          id="cms-email-alias-notes"
+          formControlName="notes"
+          rows="3"
+          placeholder="Optional internal notes for IT or clerks"
+        ></textarea>
+      </label>
+
+      <div class="cms-email-alias-admin__dialog-actions">
+        <button
+          pButton
+          type="button"
+          class="p-button-text"
+          [disabled]="saving()"
+          (click)="onDialogVisibleChange(false)"
+        >
+          Cancel
+        </button>
+        <button
+          pButton
+          type="submit"
+          [loading]="saving()"
+          [disabled]="saving()"
+          data-testid="cms-email-alias-save"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+</section>

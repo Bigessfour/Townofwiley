@@ -7,6 +7,14 @@ import {
   type ClerkCmsTaskId,
 } from './cms-clerk-tasks';
 
+function taskIconClass(task: ClerkCmsTask): string | null {
+  return task.icon ?? null;
+}
+
+function taskShowsPublicPreview(task: ClerkCmsTask): boolean {
+  return task.showPublicPreview !== false;
+}
+
 @Component({
   selector: 'app-cms-clerk-task-hub',
   standalone: true,
@@ -25,6 +33,14 @@ export class CmsClerkTaskHubComponent {
 
   protected previewUrl(task: ClerkCmsTask): string {
     return clerkTaskPreviewUrl(task.previewPath);
+  }
+
+  protected taskIcon(task: ClerkCmsTask): string | null {
+    return taskIconClass(task);
+  }
+
+  protected showsPublicPreview(task: ClerkCmsTask): boolean {
+    return taskShowsPublicPreview(task);
   }
 
   protected countLabel(task: ClerkCmsTask): string | null {

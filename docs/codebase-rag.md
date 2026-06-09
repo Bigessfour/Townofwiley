@@ -8,7 +8,7 @@ Semantic search over this repository for **IDE agents** (Cursor, VS Code Copilot
 | ------------ | -------------------------------------------------------------------------- |
 | Search       | ripgrep (primary when available) + Node lexical + path/structural scoring  |
 | Storage      | In-memory per-process (instant startup); optional manifest for incremental |
-| Agent access | MCP `townofwiley-rag` (via WSL launch) or `npm run rag:query`              |
+| Agent access | MCP `townofwiley-rag` (native Node) or `npm run rag:query`                 |
 
 **Design goals (per user requirements)**: Local only (never deployed), WSL terminal environment, "instantly available" with no failing tool calls or long first-time setup, reusable via MCP tool + best-practice skill.
 
@@ -25,7 +25,7 @@ npm run rag:status          # should report "ok (JS local)" + file count
 npm run rag:query -- "How does staff admin login work?"
 ```
 
-The MCP server (`townofwiley-rag`) starts in <1s once the config uses the WSL launch (see `.grok/config.toml`).
+The MCP server (`townofwiley-rag`) starts in <1s via native Node (see `.cursor/mcp.json`).
 
 Reload Cursor / VS Code / Grok after MCP config changes so **`townofwiley-rag`** appears in the tool list.
 

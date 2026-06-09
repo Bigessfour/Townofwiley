@@ -1,3 +1,27 @@
 <section class="cms-site-status" aria-live="polite" data-testid="cms-site-status">
   <p-message [severity]="severity()" [text]="message()" styleClass="cms-site-status__banner" />
+
+  <div class="cms-site-status__actions">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      [loading]="refreshing()"
+      [disabled]="refreshing()"
+      data-testid="cms-force-refresh"
+      (click)="forceRefreshLiveContent()"
+    >
+      Force Refresh Live CMS Content
+    </button>
+    <p-tag
+      [value]="contentSourceLabel()"
+      [severity]="contentSourceSeverity()"
+      data-testid="cms-content-source"
+    />
+    @if (lastRefreshedAt(); as at) {
+      <span class="cms-site-status__meta" data-testid="cms-last-refreshed">
+        Last refreshed: {{ at | date: 'medium' }}
+      </span>
+    }
+  </div>
 </section>

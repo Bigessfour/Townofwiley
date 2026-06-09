@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { inject, Injectable } from '@angular/core';
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
+import { StaffAuthService } from './auth/staff-auth.service';
+import { requireAuthenticatedAdmin } from './cms-admin/cms-staff-appsync-auth';
 import { type DocumentArchiveSectionId } from './document-hub/document-archive';
 import { type UploadedDocument } from './document-upload.service';
 import {
@@ -43,6 +44,8 @@ export interface MeetingDocumentUploadContext {
   providedIn: 'root',
 })
 export class CmsPublicDocumentAdminService {
+  private readonly staffAuth = inject(StaffAuthService);
+
   async createDocumentFromUpload(
     document: UploadedDocument,
     sectionId: DocumentArchiveSectionId,
@@ -66,6 +69,7 @@ export class CmsPublicDocumentAdminService {
       ? this.toMeetingKeywords(document.name, sectionId, meetingContext)
       : this.toKeywords(document.name, sectionId);
 
+    await requireAuthenticatedAdmin(this.staffAuth);
     const response = (await client.graphql({
       query: CREATE_PUBLIC_DOCUMENT_MUTATION,
       variables: {
@@ -84,7 +88,7 @@ export class CmsPublicDocumentAdminService {
           active: true,
         },
       },
-      authMode: await this.resolveStaffAuthMode(),
+      authMode: 'userPool',
     })) as GraphQLResult<CreatePublicDocumentResult>;
 
     if (response.errors?.length) {
@@ -168,18 +172,5 @@ export class CmsPublicDocumentAdminService {
     }
 
     return Math.floor(parsed / 1000);
-  }
-
-  private async resolveStaffAuthMode(): Promise<'userPool' | 'iam'> {
-    try {
-      const session = await fetchAuthSession();
-      if (session.tokens?.accessToken) {
-        return 'userPool';
-      }
-    } catch {
-      // Fall back to guest identity pool credentials when no staff session exists.
-    }
-
-    return 'iam';
   }
 }

@@ -45,7 +45,7 @@ No long setup required for the current high-availability implementation:
 npm run rag:status   # should succeed immediately and show file count
 ```
 
-(WSL terminal environment is required — see MCP configs using `wsl bash ...`.)
+(MCP launches via native Node — PowerShell on Windows — see `.cursor/mcp.json`.)
 
 The RAG is designed to be **instantly available** on every agent session with no failing tool calls. Generation stays with the IDE model; RAG only retrieves.
 

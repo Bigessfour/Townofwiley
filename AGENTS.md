@@ -9,6 +9,73 @@ Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeN
 - Match existing patterns under `src/app/` before adding abstractions. Minimal diffs.
 - UI copy is **English + Spanish** where user-facing (see `site-cms-content.ts`, `SiteLanguageService`).
 
+## CMS Architecture & Gotchas
+
+Headless CMS: **AWS AppSync (GraphQL)** + **Amplify Gen2 Data manager** for content models. Public site is **read-only**; staff writes use **Cognito** (or IAM fallback). Gen1 Amplify Studio/CLI is **legacy** — CLI in maintenance mode, **EOL May 1, 2027**; keep schema/query changes compatible with existing Gen1-shaped models until stack decommission completes ([`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md)).
+
+### Public vs authenticated read/write
+
+| Surface | Read | Write | Auth |
+|--------|------|-------|------|
+| **Public site** | `LocalizedCmsContentStore` in [`src/app/site-cms-content.ts`](src/app/site-cms-content.ts) | Never from browser | AppSync **API key** (`x-api-key`) via `HttpClient` POST; config from `window.__TOW_RUNTIME_CONFIG__` / [`public/runtime-config.js`](public/runtime-config.js) |
+| **`/admin` clerk hub** | In-app list/create/update via Amplify `generateClient().graphql()` | Same | **Cognito `userPool`** when signed in; falls back to **`iam`** ([`cms-generic-model-admin.service.ts`](src/app/cms-generic-model-admin.service.ts)) |
+| **Amplify Console Data manager** | AWS Console | CRUD on models | **AWS IAM** (separate from Town staff `/admin/login` password) |
+
+**Public-query models (10):** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`. **`EmailAlias` is staff-only** — must not appear in `PUBLIC_CMS_*` queries ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md), [`public/cms-inventory.json`](public/cms-inventory.json)).
+
+**Not CMS:** Pay links, weather, chatbot, etc. come from env / `runtime-config.js` and need **S3 + CloudFront redeploy**, not a Data manager save.
+
+### Client-side caching (critical)
+
+Public content uses aggressive **offline-first** caching in `LocalizedCmsContentStore`:
+
+1. **Bundled defaults** — hardcoded fallbacks in `site-cms-content.ts`
+2. **Build snapshot** — `GET /cms-snapshot.json` (from [`scripts/generate-cms-snapshot.mjs`](scripts/generate-cms-snapshot.mjs) at build)
+3. **localStorage** — key `tow-cms-snapshot-v1`, **7-day TTL** (`CMS_SNAPSHOT_TTL_MS`)
+4. **Live AppSync** — `PUBLIC_CMS_CORE_QUERY` then `PUBLIC_CMS_EXTENDED_QUERY`; on success → `persistSnapshot()`
+
+`contentSourceState`: `'bundled' | 'loading' | 'live' | 'cached'`. Site can look correct while showing **stale or fallback** data.
+
+**When to clear or bypass cache**
+
+- After CMS edits not visible on public pages: **hard refresh** (`Ctrl+Shift+R`); clerks use `/admin` → **Test CMS Connection** and CMS status line (must show live AppSync, not bundled-only).
+- Force fresh client cache: DevTools → Application → Local Storage → delete `tow-cms-snapshot-v1`, or `localStorage.removeItem('tow-cms-snapshot-v1')` in console.
+- Stale entries auto-expire after **7 days**; expired keys are removed on read.
+- **New deploy** refreshes `/cms-snapshot.json` (build-time); does not clear existing localStorage until TTL or manual clear.
+- **API key rotation / runtime-config fix:** redeploy so `runtime-config.js` updates; clear localStorage if residents still see old content.
+- **Gotcha:** persisted snapshots omit **`SiteCopy`** — `SiteCopy` only hydrates from the live extended query.
+
+Verify guards: `npm run verify:public-cms-query`, `npm run verify:runtime-config-cms`.
+
+### Editing workflow
+
+| Task | Where |
+|------|--------|
+| **Routine content** (notices, events, contacts, documents, homepage fields) | Amplify Console **Data manager** on branch **`main`** (Gen2 app `d331voxr1fhoir`) — links from [`/admin`](https://townofwiley.gov/admin) |
+| **Guided clerk tasks** | [`src/app/cms-admin/`](src/app/cms-admin/) — task hub → task guide → in-app record editor |
+| **Uploads** (hero image, newsletter PDF, meeting docs) | `cms-clerk-upload-panel`, `cms-meeting-document-upload` → `CmsPublicDocumentAdminService` / `DocumentUploadService` |
+| **Connection / inventory** | `cms-site-status`, `cms-content-snapshot`, **Test CMS Connection** |
+
+No publish step for CMS rows: save in Data manager or in-app editor → public site picks up on next successful live fetch (after cache considerations above). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
+
+Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`; `LeadershipRosterEntry.groupId` `mayor-council`, `town-administration` ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md)).
+
+### Clerk admin code (current state)
+
+- **Shell:** [`cms-admin.ts`](src/app/cms-admin/cms-admin.ts) at route `/admin`
+- **Task hub:** [`cms-clerk-task-hub.component.ts`](src/app/cms-admin/cms-clerk-task-hub.component.ts) — 10 tasks from [`cms-clerk-tasks.ts`](src/app/cms-admin/cms-clerk-tasks.ts) (`post-notice`, `add-meeting`, `homepage`, `add-document`, `update-contacts`, `update-leadership`, `business-directory`, `external-news`, `emergency-banner`, `edit-site-copy`)
+- **Record editor:** [`cms-clerk-record-editor.component.ts`](src/app/cms-admin/cms-clerk-record-editor.component.ts) — dynamic forms from [`cms-clerk-task-form-fields.ts`](src/app/cms-admin/cms-clerk-task-form-fields.ts)
+- **Generic CRUD:** [`CmsGenericModelAdminService`](src/app/cms-generic-model-admin.service.ts) — `listRecords`, `createModel`, `updateModel` for all 10 public models via [`cms-model-admin-fields.ts`](src/app/cms-admin/cms-model-admin-fields.ts); list failures return `[]` (warn), mutations throw
+- **Exceptions:** `CmsSiteSettingsAdminService` for `SiteSettings`; `CmsPublicDocumentAdminService` for document upload flows; legacy per-model admin services (`cms-announcement-admin`, etc.) are create-only and largely superseded
+- **Auth gate:** `StaffAuthService.isStaff()` required before saves; sign in at `/admin/login`
+
+### Amplify Gen1 compatibility
+
+- **Do not** add Gen2-only breaking schema changes without a migration plan.
+- **Do not** add `EmailAlias` (or any staff-only model) to public queries.
+- Gen1 CloudFormation stack still exists until decommission — see [`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md).
+- Full clerk + IT runbooks: [`docs/CLERK-CMS-GUIDE.md`](docs/CLERK-CMS-GUIDE.md), [`docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`](docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md), [`docs/CMS-VERIFY-STUDIO.md`](docs/CMS-VERIFY-STUDIO.md).
+
 ## Node and tooling
 
 - **Node 24.x only** (pinned in `.nvmrc`; see `docs/NODE_VERSION.md`). On macOS agents: `PATH="/opt/homebrew/opt/node@24/bin:$PATH"`.
@@ -95,6 +162,7 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## Deeper references
 
+- CMS model→route matrix, clerk guide, Studio ops: [`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md), [`docs/CLERK-CMS-GUIDE.md`](docs/CLERK-CMS-GUIDE.md), [`docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`](docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md), [`docs/CMS-VERIFY-STUDIO.md`](docs/CMS-VERIFY-STUDIO.md).
 - [`.instructions.md`](.instructions.md) — workspace AI instructions.
 - [`.cursor/rules/core-workflow.mdc`](.cursor/rules/core-workflow.mdc) — mandatory workflow.
 - [`.github/skills/TownOfWiley-Dev/SKILL.md`](.github/skills/TownOfWiley-Dev/SKILL.md) — finishing/polish skill.

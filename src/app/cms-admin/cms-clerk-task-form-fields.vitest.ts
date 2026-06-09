@@ -7,11 +7,15 @@ import {
   formValuesToMutationInput,
   recordToFormValues,
 } from './cms-clerk-task-form-fields';
-import { CLERK_CMS_TASKS } from './cms-clerk-tasks';
+import { CLERK_CMS_TASKS, clerkTaskHasInAppEditor } from './cms-clerk-tasks';
 
 describe('cms-clerk-task-form-fields', () => {
-  it('provides PrimeNG form fields for every clerk CMS task', () => {
+  it('provides PrimeNG form fields for every generic in-app editor task', () => {
     for (const task of CLERK_CMS_TASKS) {
+      if (!clerkTaskHasInAppEditor(task.id)) {
+        expect(clerkTaskFormFields(task.id).length).toBe(0);
+        continue;
+      }
       expect(clerkTaskHasForm(task.id), `${task.id} should have a form`).toBe(true);
       expect(clerkTaskFormFields(task.id).length).toBeGreaterThan(0);
     }

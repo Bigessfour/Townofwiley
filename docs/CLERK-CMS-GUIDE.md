@@ -73,7 +73,7 @@ Current editor: Use the Content editor URL from <https://townofwiley.gov/admin> 
 
 Start here if you are not sure where to go: https://townofwiley.gov/admin
 
-The admin page is a guide and status page. It shows whether the public website is reading saved content, but **edits happen in Amplify Console Data manager** (opened from each task’s **Edit content** button).
+The admin page is a guide and status page. It shows whether the public website is reading saved content. Most tasks open **in-app forms** on `/admin` when you click **Edit content**; a few still open **Amplify Console Data manager** (AppSync Queries). **Email forwarding** is edited only on `/admin` — residents never see those settings.
 
 **Do not** try to edit the website from:
 
@@ -120,7 +120,7 @@ Every piece of content on the website lives in one of these models in Data Manag
 | Business directory listings                                 | `Business`              |
 | Public document archive for forms, guides, and downloads    | `PublicDocument`        |
 | External news links shown on the /news page                 | `ExternalNewsLink`      |
-| Town email forwarding rules for behind-the-scenes delivery  | `EmailAlias`            |
+| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — use **Manage email forwarding** on `/admin` (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings)) |
 
 ### Important: two contact cards use fixed record IDs
 
@@ -394,19 +394,98 @@ Use this when the Council packet is a **PDF** (or similar file) that residents s
 7. Click **Save**.
 8. Refresh the /news page and confirm it appears under "From Other Sources."
 
-### Change where a Town email address delivers mail
+### Managing Email Aliases / Proxy Settings
 
-This controls where mail sent to a public Town address (like `clerk@townofwiley.gov`) actually lands. Residents never see this — it is purely behind the scenes.
+This controls **email proxy / forwarding**: where mail sent to a public Town address (like `clerk@townofwiley.gov`) actually lands. **Residents never see this** on the website — it is behind-the-scenes mail routing only.
 
-Example: mail sent to `clerk@townofwiley.gov` gets quietly forwarded to Deb's personal work inbox.
+**Important:** `EmailAlias` is a **staff-authenticated** model. It is **not** loaded on the public site (see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md)). You must be signed in at `/admin/login` to view or change forwarding rules.
 
-1. Open **EmailAlias** in Data Manager.
-2. Find the forwarding entry you want to update, or click **Create emailAlias** to add a new one.
-3. In **aliasAddress**, type the public Town email address residents send mail to — for example `clerk@townofwiley.gov`.
-4. In **destinationAddress**, type the private staff inbox where that mail should be delivered — for example the staff member's actual email address.
-5. Set **active** to **true**.
-6. Click **Save**.
-7. Send a real test email to the Town address and confirm it arrives in the correct inbox.
+**Gen 1 vs Gen 2:** Town CMS data lives on **Gen 2 AppSync** (`x7poehudqvamneqni5s6e2cjxy`). The older **Gen 1** API (`j7b2x3sh…`) is **legacy maintenance only** — do not create new records there. Use the steps below on the current `/admin` hub.
+
+#### Add or change a forwarding rule (recommended — on `/admin`)
+
+1. Open **https://townofwiley.gov/admin** and sign in with your **Town staff** account (Cognito Hosted UI).
+2. On the task hub, find **Manage email forwarding** and click **Edit content**.
+3. The **Email forwarding rules** panel opens on the same page (there is no **See on website** link for this task — that is normal).
+4. To add a rule, click **Add forwarding rule**.
+5. Fill in:
+   - **Town email address** (`aliasAddress`) — the public address residents email, e.g. `clerk@townofwiley.gov`.
+   - **Staff inbox** (`destinationAddress`) — the private inbox where mail should be delivered.
+   - **Active** — leave on to forward mail; turn off to stop forwarding without deleting the rule.
+   - **Display name**, **Role label**, **Notes** — optional labels for clerks and IT.
+6. Click **Save**. You should see a success message. The admin page also **refreshes its CMS snapshot** automatically after save.
+7. Send a **test email** to the Town address and confirm it arrives in the correct inbox (allow a few minutes for mail systems to pick up changes).
+
+#### Edit or remove an existing rule
+
+1. In the forwarding table, click **Edit** on the row you need, change fields, and **Save**.
+2. To stop forwarding temporarily, edit the rule and turn **Active** off, then save.
+3. To delete a rule, click **Delete**, read the warning, and confirm. Deleting stops forwarding until a new rule is added.
+
+#### If the in-app editor will not save
+
+- Confirm you are signed in (the page should say **Signed in — you can save changes below**).
+- If you see **Sign in at /admin/login**, open that link and sign in again, then return to **Manage email forwarding**.
+- If errors continue, call Town Hall at **(719) 829-4974** so IT can check your staff login or the AppSync **EmailAlias** table.
+
+#### IT fallback (AppSync Console)
+
+If IT asks you to use the AWS console instead: open **EmailAlias** in **Gen 2 AppSync Queries** (link under **Advanced (IT)** on `/admin`) and use the same field names: `aliasAddress`, `destinationAddress`, `active`. See [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md) for infrastructure details.
+
+---
+
+## Troubleshooting Content Not Updating
+
+Use this when you saved content but the **public website** or **admin status** still looks old.
+
+### Step 1 — Hard-refresh the public page
+
+On the page residents see (`/news`, `/meetings`, homepage, etc.):
+
+- **Windows:** **Ctrl+Shift+R**
+- **Mac:** **Cmd+Shift+R**
+- **Phone:** close the browser tab completely and open the site again
+
+### Step 2 — Force Refresh on `/admin` (Start here)
+
+At the top of **https://townofwiley.gov/admin** (section **Start here**):
+
+1. Click **Force Refresh Live CMS Content**.
+2. Wait for the button to finish (it reloads the latest saved content from the database).
+3. Check the tag next to the button — it should show that content is coming from the live database, not an old saved copy in your browser.
+4. Try **See on website** and hard-refresh again.
+
+This button is especially helpful right after you save notices, events, contacts, or **email forwarding rules** in the in-app editor.
+
+### Step 3 — Clear saved website copy in this browser (if Step 2 is not enough)
+
+The admin page can keep a **local saved copy** of CMS content in your browser so the site still works offline. Rarely, that copy is stale.
+
+1. On `/admin`, scroll to **Advanced (IT)** and open that section.
+2. Click **Clear saved website copy** (clears the CMS snapshot stored in this browser’s **localStorage** for the Town site).
+3. Click **Force Refresh Live CMS Content** again at the top.
+4. Hard-refresh the public page.
+
+This only affects **your** browser on **this computer** — it does not change what residents see worldwide. Other staff may need to do the same on their own machines.
+
+### When to use `/admin` vs Amplify Studio (Data manager)
+
+| What you are doing | Where to work |
+| ------------------ | ------------- |
+| Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms) or **Content editor URL** (AppSync) when the task sends you there |
+| **Email forwarding / proxy** (`EmailAlias`) | **`/admin` only** → **Manage email forwarding** (staff sign-in required) |
+| Deep IT troubleshooting, raw GraphQL, inventory counts | **Advanced (IT)** on `/admin` → Content editor URL (Gen 2 AppSync Queries) |
+| Legacy Gen 1 API (`j7b2…`) | **Do not use for new edits** — maintenance only; ask IT |
+
+### When to call IT
+
+Ask IT if:
+
+- **Force Refresh** fails or the status tag stays on “backup” / error wording
+- Data Manager or the in-app form says **not authorized** or **access denied**
+- Email forwarding saves in `/admin` but test mail still goes to the wrong inbox (the mail router may need a sync — see [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md))
+
+**For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` in the repo to confirm the public website query never includes staff-only models like **EmailAlias**. Clerks do not need to run this command.
 
 ---
 
@@ -461,8 +540,8 @@ Example:
 | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | Cannot log in to Amplify Studio                                     | Ask for a new invitation email from your IT contact                  |
 | Data Manager shows "Access denied"                                  | Your account permissions need updating — ask for help                |
-| Saved a record but nothing changed after 30 seconds                 | Hold Shift and press F5 to force-refresh, then check again           |
-| You updated email forwarding but mail still goes to the wrong place | The routing function may need to re-sync — ask for help              |
+| Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin` |
+| You updated email forwarding but mail still goes to the wrong place | Confirm the rule is **Active** in **Manage email forwarding** on `/admin`; send a new test email; if still wrong, the mail router may need IT to re-sync |
 | Not sure which model to open                                        | Check the table in Part 3 of this guide                              |
 | Hero photo does not appear after saving the URL                     | Make sure the URL starts with `https://` and opens without any login |
 
@@ -486,8 +565,8 @@ WHAT TO OPEN IN DATA MANAGER:
   Business directory listings   ->  Business
   Public documents              ->  PublicDocument
   External news links           ->  ExternalNewsLink
-  Email forwarding (where Town addresses deliver)  ->  EmailAlias
+  Email forwarding (proxy; staff-only)           ->  /admin -> Manage email forwarding
 
 EVERY TIME:
-  Open Data Manager -> Edit the correct model -> Save -> Refresh the public site
+  /admin -> Edit content (or Data Manager when directed) -> Save -> Force Refresh if needed -> Hard-refresh public site
 ```
