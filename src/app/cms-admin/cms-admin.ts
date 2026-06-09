@@ -108,6 +108,8 @@ export class CmsAdmin {
   protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
   protected readonly connectionTestResult = signal<CmsConnectionTestResult | null>(null);
   protected readonly connectionTestLoading = signal(false);
+  protected readonly cacheClearMessage = signal<string | null>(null);
+  protected readonly forceRefreshLoading = signal(false);
   protected readonly copiedSetupKey = signal<string | null>(null);
   protected readonly setupCardPt = {
     body: { class: 'setup-card-body' },
@@ -205,6 +207,22 @@ export class CmsAdmin {
       this.connectionTestResult.set(await this.cmsStore.testCmsConnection());
     } finally {
       this.connectionTestLoading.set(false);
+    }
+  }
+
+  protected clearWebsiteCache(): void {
+    this.cmsStore.clearPersistedCache();
+    this.cacheClearMessage.set(this.it.clearWebsiteCacheSuccess);
+    window.setTimeout(() => this.cacheClearMessage.set(null), 4_000);
+  }
+
+  protected async refreshFromDatabase(): Promise<void> {
+    this.forceRefreshLoading.set(true);
+    this.cacheClearMessage.set(null);
+    try {
+      await this.cmsStore.forceLiveRefresh();
+    } finally {
+      this.forceRefreshLoading.set(false);
     }
   }
 

@@ -19,6 +19,11 @@ import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
 import {
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+} from '../site-cms-content';
+import {
   CmsSiteSettingsAdminService,
   type SiteSettingsInput,
 } from '../cms-site-settings-admin.service';
@@ -57,6 +62,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   private readonly staffAuth = inject(StaffAuthService);
   private readonly genericModel = inject(CmsGenericModelAdminService);
   private readonly siteSettings = inject(CmsSiteSettingsAdminService);
+  private readonly cmsStore = inject(LocalizedCmsContentStore);
 
   protected readonly isSignedIn = this.staffAuth.isStaff;
   protected readonly recordsLoading = signal(false);
@@ -64,8 +70,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly editingId = signal<string | null>(null);
   protected readonly formValues = signal<Record<string, string | boolean>>({});
   protected readonly submitting = signal(false);
+  protected readonly deleting = signal(false);
   protected readonly submitResult = signal<string | null>(null);
   protected readonly submitError = signal<string | null>(null);
+  protected readonly loadError = signal<string | null>(null);
 
   protected readonly task = computed(() => {
     const id = this.taskId();
@@ -94,12 +102,34 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return Boolean(this.task()) && !this.isSingleton() && this.records().length > 0;
   });
 
+  protected readonly canDeleteRecord = computed(() => {
+    const active = this.task();
+    const id = this.editingId();
+    if (!active || !id || this.isSingleton()) {
+      return false;
+    }
+    return !this.isProtectedDeleteTarget(active.model, id);
+  });
+
+  protected readonly deleteBlockedReason = computed(() => {
+    const active = this.task();
+    const id = this.editingId();
+    if (!active || !id) {
+      return null;
+    }
+    if (this.isProtectedDeleteTarget(active.model, id)) {
+      return 'This contact row is required by the website layout and cannot be deleted. Edit it instead, or set active to off if you need to hide it.';
+    }
+    return null;
+  });
+
   constructor() {
     effect(() => {
       const id = this.taskId();
       this.editingId.set(null);
       this.submitResult.set(null);
       this.submitError.set(null);
+      this.loadError.set(null);
       const fieldDefs = id ? clerkTaskFormFields(id) : [];
       this.formValues.set(defaultDynamicFormValues(fieldDefs));
       if (id) {
@@ -217,6 +247,59 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     }
   }
 
+  protected async deleteCurrentRecord(): Promise<void> {
+    const active = this.task();
+    const id = this.editingId();
+    if (!active || !id || active.model === 'SiteSettings') {
+      return;
+    }
+
+    if (this.isProtectedDeleteTarget(active.model, id)) {
+      this.submitError.set(this.deleteBlockedReason() ?? 'This record cannot be deleted.');
+      return;
+    }
+
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.submitError.set('Sign in at /admin/login before deleting content.');
+      return;
+    }
+
+    const label = this.recordLabel({ id, ...this.formValues() });
+    const confirmed = window.confirm(
+      `Permanently delete this ${active.model} record?\n\n${label}\n\nThis cannot be undone. Consider setting active to off instead.`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.submitResult.set(null);
+    this.submitError.set(null);
+
+    try {
+      const deletedId = await this.genericModel.deleteRecord(active.model, id);
+      this.submitResult.set(
+        `${active.model} deleted (ID ${deletedId}). Hard-refresh ${active.previewPath} to verify.`,
+      );
+      await this.cmsStore.forceLiveRefresh();
+      await this.loadRecords(active.id);
+      this.startNewRecord();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      this.submitError.set(msg || `Could not delete ${active.model}. Try signing in again.`);
+    } finally {
+      this.deleting.set(false);
+    }
+  }
+
+  private isProtectedDeleteTarget(model: string, id: string): boolean {
+    if (model !== 'OfficialContact') {
+      return false;
+    }
+    return id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION || id === OFFICIAL_CONTACT_ID_CITY_CLERK;
+  }
+
   private async loadRecords(taskId: ClerkCmsTaskId): Promise<void> {
     const active = clerkTaskById(taskId);
     if (!active) {
@@ -224,6 +307,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     }
 
     this.recordsLoading.set(true);
+    this.loadError.set(null);
     try {
       const items =
         active.model === 'SiteSettings'
@@ -234,8 +318,12 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       if (CMS_SINGLETON_MODELS.has(active.model) && items[0]) {
         this.editRecord(items[0]);
       }
-    } catch {
+    } catch (err: unknown) {
       this.records.set([]);
+      const msg = err instanceof Error ? err.message : '';
+      this.loadError.set(
+        msg || `Could not load saved ${active.model} rows. Sign in at /admin/login and try again.`,
+      );
     } finally {
       this.recordsLoading.set(false);
     }

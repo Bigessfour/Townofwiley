@@ -658,8 +658,49 @@ export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
 export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
 export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';
 
-const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
-const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * localStorage key for the client-side CMS snapshot (`tow-cms-snapshot-v1`).
+ *
+ * **7-day TTL trade-off:** After a successful live AppSync load, the browser persists
+ * content here for {@link CMS_SNAPSHOT_TTL_MS} to reduce repeat API calls and keep the
+ * site usable when AppSync is briefly unavailable. Residents may see content up to seven
+ * days old if live fetch never succeeds.
+ *
+ * **Build snapshot:** `/cms-snapshot.json` is regenerated at deploy
+ * (`scripts/generate-cms-snapshot.mjs`) and hydrated before localStorage; it is not
+ * stored in localStorage and updates only on the next deploy.
+ *
+ * **When staff should force refresh:** After Data manager or in-app editor saves when
+ * public pages still show old text; after API key rotation or a runtime-config redeploy.
+ * Use {@link clearCmsCache} or `/admin` → Clear saved website copy, then Refresh from database.
+ */
+export const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
+
+/** All localStorage keys cleared by {@link clearCmsCache}. */
+export const CMS_SNAPSHOT_STORAGE_KEYS = [CMS_SNAPSHOT_STORAGE_KEY] as const;
+
+/** Persisted snapshot TTL: seven days in milliseconds. */
+export const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Removes client-side CMS snapshot keys from localStorage.
+ *
+ * Does not clear in-memory signals or the build-time `/cms-snapshot.json` artifact.
+ * For a full staff reload from AppSync, call {@link LocalizedCmsContentStore.forceLiveRefresh}.
+ */
+export function clearCmsCache(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    for (const key of CMS_SNAPSHOT_STORAGE_KEYS) {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // localStorage may be blocked in private mode or SSR.
+  }
+}
 
 interface CmsPersistedSnapshot {
   version: 1;
@@ -838,6 +879,10 @@ export class LocalizedCmsContentStore {
     }
   }
 
+  /**
+   * Re-fetch CMS content for public pages (document hub navigation, etc.).
+   * On AppSync failure, falls back to localStorage or build snapshot for resilience.
+   */
   async refreshContent(): Promise<void> {
     if (!this.hasCmsCredentials()) {
       // Re-hydrate from build snapshot / persisted cache instead of wiping PublicDocument rows
@@ -850,6 +895,36 @@ export class LocalizedCmsContentStore {
     }
 
     await this.loadContent();
+  }
+
+  /**
+   * Clears persisted localStorage snapshot and resets the offline-hydrate flag.
+   * Does not fetch from AppSync — pair with {@link forceLiveRefresh} on `/admin`.
+   */
+  clearPersistedCache(): void {
+    clearCmsCache();
+    this.offlineSnapshotApplied = false;
+  }
+
+  /**
+   * Admin/staff: bypass localStorage snapshot and fetch live AppSync.
+   *
+   * Clears persisted cache, resets `offlineSnapshotApplied`, and skips offline fallback
+   * on this load attempt so errors surface instead of silently reusing stale cache.
+   */
+  async forceLiveRefresh(): Promise<void> {
+    clearCmsCache();
+    this.offlineSnapshotApplied = false;
+
+    if (!this.hasCmsCredentials()) {
+      const rehydrated = await this.hydrateFromOfflineSnapshots();
+      if (!rehydrated) {
+        this.applyFallbackContent();
+      }
+      return;
+    }
+
+    await this.loadContent({ bypassOfflineFallback: true });
   }
 
   async testCmsConnection(): Promise<CmsConnectionTestResult> {
@@ -906,7 +981,7 @@ export class LocalizedCmsContentStore {
     }
   }
 
-  private async loadContent(): Promise<void> {
+  private async loadContent(options?: { bypassOfflineFallback?: boolean }): Promise<void> {
     this.loadState.set('loading');
     this.loadErrorState.set(null);
     this.contentSourceState.set('loading');
@@ -919,7 +994,11 @@ export class LocalizedCmsContentStore {
       this.persistSnapshot();
       void this.loadExtendedContent();
     } catch (error) {
-      if (this.restorePersistedSnapshot() || this.offlineSnapshotApplied) {
+      // Staff force refresh skips stale localStorage / build-snapshot fallback so errors are visible.
+      if (
+        !options?.bypassOfflineFallback &&
+        (this.restorePersistedSnapshot() || this.offlineSnapshotApplied)
+      ) {
         this.loadState.set('studio');
         this.contentSourceState.set('cached');
         this.loadErrorState.set(this.readCachedFallbackMessage());

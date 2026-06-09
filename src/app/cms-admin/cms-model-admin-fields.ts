@@ -107,6 +107,19 @@ const UPDATE_MUTATION_FIELD: Record<string, string> = {
   SiteCopy: 'updateSiteCopy',
 };
 
+const DELETE_MUTATION_FIELD: Record<string, string> = {
+  Announcement: 'deleteAnnouncement',
+  Event: 'deleteEvent',
+  SiteSettings: 'deleteSiteSettings',
+  AlertBanner: 'deleteAlertBanner',
+  PublicDocument: 'deletePublicDocument',
+  OfficialContact: 'deleteOfficialContact',
+  LeadershipRosterEntry: 'deleteLeadershipRosterEntry',
+  Business: 'deleteBusiness',
+  ExternalNewsLink: 'deleteExternalNewsLink',
+  SiteCopy: 'deleteSiteCopy',
+};
+
 export function cmsListQueryField(model: string): string {
   const field = LIST_QUERY_FIELD[model];
   if (!field) {
@@ -137,6 +150,18 @@ export function cmsCreateInputType(model: string): string {
 
 export function cmsUpdateInputType(model: string): string {
   return `Update${model}Input`;
+}
+
+export function cmsDeleteMutationField(model: string): string {
+  const field = DELETE_MUTATION_FIELD[model];
+  if (!field) {
+    throw new Error(`Unsupported CMS model for delete: ${model}`);
+  }
+  return field;
+}
+
+export function cmsDeleteInputType(model: string): string {
+  return `Delete${model}Input`;
 }
 
 /** Short label for saved-record pick lists in the clerk editor. */

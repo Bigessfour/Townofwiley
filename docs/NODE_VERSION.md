@@ -43,7 +43,7 @@ Then run `node scripts/ensure-node-version.mjs` and `npm run test:vitest`.
 
 ## Windows (WSL Ubuntu — preferred)
 
-Integrated terminals in Cursor/VS Code for this repo default to **Ubuntu (WSL)** instead of PowerShell (see [`.vscode/settings.json`](../.vscode/settings.json)).
+Integrated terminals in Cursor/VS Code for this repo default to **Ubuntu (WSL)** instead of PowerShell (see [`.vscode/settings.json`](../.vscode/settings.json) and [`docs/cursor-wsl-terminal.md`](cursor-wsl-terminal.md)).
 
 ### Commands that work (pick one)
 
@@ -51,13 +51,13 @@ Integrated terminals in Cursor/VS Code for this repo default to **Ubuntu (WSL)**
 
 ```powershell
 cd "C:\Users\biges\Desktop\Personal Github\Town Website"
-npm run setup:node:wsl
+npm run setup:wsl-terminal
 ```
 
-Or:
+Or (Node only, no bashrc hook):
 
 ```powershell
-.\scripts\setup-repo-node-wsl.ps1
+npm run setup:node:wsl
 ```
 
 **Only inside an Ubuntu/WSL terminal** (prompt looks like `user@machine:` — not `PS C:\>`):
@@ -91,9 +91,18 @@ wsl --install -d Ubuntu
 winget upgrade --id Microsoft.WSL -e
 ```
 
-Reload Cursor after changing the default terminal profile (**Developer: Reload Window**).
+**After setup**, reload Cursor (**Developer: Reload Window**) and open a **new** terminal — prompt should be `user@host:` (Ubuntu), not `PS C:\>`.
 
-## Windows (nvm-windows / PowerShell fallback) — common pain
+**Verify WSL is healthy** (from PowerShell if WSL terminal is stuck):
+
+```powershell
+npm run doctor:wsl
+npm run setup:wsl-terminal
+```
+
+If `doctor:wsl` reports a hang, run `npm run recover:wsl` (Admin PowerShell if needed), quit Docker Desktop and Cursor, reboot if needed, then retry. See [`docs/cursor-wsl-terminal.md`](cursor-wsl-terminal.md).
+
+**Do not** paste `/mnt/c/...` into PowerShell — that path is WSL-only and PowerShell will say the path does not exist.
 
 **Symptom:** `nvm use 24.16.0` prints success but `node -v` still shows **v22** or **v25**.
 
