@@ -51,7 +51,7 @@ You can still use the raw form if you prefer (the root `ansible.cfg` makes plain
 - **Leave the rest to existing repo tools** (as requested):
   - Static site asset sync logic stays in `scripts/deploy-static-site.sh` (two-phase Cache-Control + invalidation is well-tuned and not easily improved by Ansible without duplication).
   - Per-service Lambda deployment details stay in the existing `scripts/deploy-*.py` (they handle zipping, dependencies, specific env mapping, etc.).
-  - Amplify Gen2 backend management (`ampx`, `amplify push`) stays with Amplify CLI.
+  - Gen 1 CMS backend (AppSync/Cognito) is managed via repo scripts and AWS Console — not Ansible.
   - The descriptive SSOT remains `infrastructure/aws-infrastructure.manifest.json` and related files.
   - `npm run verify:aws-infra` and individual `npm run deploy:*` scripts remain usable directly.
 

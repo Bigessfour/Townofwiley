@@ -56,8 +56,8 @@ DEFAULT_CMS_QUERY = (
 DEFAULT_CMS_CORE_QUERY = """query GetPublicCmsCoreContent {
   listSiteSettings(limit: 1) { items { id townName } }
   listAlertBanners(limit: 1) { items { id enabled } }
-  listAnnouncements(filter: { active: { eq: true } }, limit: 1) { items { id title } }
-  listEvents(filter: { active: { eq: true } }, limit: 1) { items { id title } }
+  listAnnouncements(filter: { and: [{ active: { eq: true } }] }, limit: 1) { items { id title } }
+  listEvents(filter: { and: [{ active: { eq: true } }] }, limit: 1) { items { id title } }
   listOfficialContacts(limit: 1) { items { id label } }
 }"""
 CMS_CORE_SLOW_THRESHOLD_MS = 5000

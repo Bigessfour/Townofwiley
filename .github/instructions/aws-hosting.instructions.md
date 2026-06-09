@@ -18,7 +18,7 @@ applyTo:
 
 - Use the repository runbooks in `docs/` first (especially `AWS_INFRASTRUCTURE_SOT.md`, `aws-cost-optimization-runbook.md`, and historical `AMPLIFY_HOSTING_SOT.md` for build/CSP context).
 - For frontend deploys: **automatic** on merge to `main` (Site CI artifact → [`scripts/deploy-static-site.sh`](../../scripts/deploy-static-site.sh) → CloudFront invalidation); **manual** via `npm run deploy:site` or GitHub **Deploy production (manual)**. Tiered Cache-Control passes match manifest `hosting.deployCommand`.
-- Amplify references in docs/scripts are primarily for the **backend** (AppSync/Gen2 resources under current CFN stacks like `amplify-townofwiley-main-d1245-*`, Cognito if still present, document storage) or historical hosting context. The old hosting app `d331voxr1fhoir` is deleted.
+- Amplify references in docs/scripts are for the **Gen 1 backend** (AppSync `j7b2x3sh7rcezekekkxxiak7hi`, Cognito `us-east-2_DmY7BCBIp`, document storage) or historical hosting context. Amplify Gen 2 and hosting app `d331voxr1fhoir` are decommissioned — see `docs/gen2-decommissioned.md`.
 - Prefer the AWS Toolkit and AWS AI Toolkit extensions for cloud navigation when they are available in VS Code.
 - Keep CloudFormation, IAM, S3, and CloudFront changes narrow and reversible.
 - Treat backend (AppSync, Lambda Function URLs for chatbot/guestbook/contact, DynamoDB) changes as high-impact.

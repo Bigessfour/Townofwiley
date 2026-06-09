@@ -42,7 +42,7 @@ What is still not live:
 
 Current backend table for the live `main` environment:
 
-- Legacy Gen1: `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main`; current Gen2: `EmailAlias-x7poehudqvamneqni5s6e2cjxy-NONE` (see gen2-production-bindings.json)
+- Production Gen 1: `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main` — see [gen1-production-bindings.json](../infrastructure/gen1-production-bindings.json)
 
 Current deployed router infrastructure:
 
@@ -76,7 +76,7 @@ Current deployed values:
   "mail": {
     "aliasForwarding": {
       "ingressRegion": "us-east-1",
-      "aliasTableName": "EmailAlias-x7poehudqvamneqni5s6e2cjxy-NONE", # Gen2 (was j7b2...-main for Gen1)
+      "aliasTableName": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
       "aliasTableRegion": "us-east-2",
       "forwarderFrom": "steve.mckitrick@townofwiley.gov",
       "sendRegion": "us-east-2",
@@ -104,7 +104,7 @@ npm run deploy:email-alias-router
 If you want to override values from the command line, run:
 
 ```bash
-npm run deploy:email-alias-router -- --alias-table EmailAlias-x7poehudqvamneqni5s6e2cjxy-NONE --forwarder-from steve.mckitrick@townofwiley.gov --ingress-region us-east-1 --send-region us-east-2 # Gen2 table (update for Gen1 legacy if needed)
+npm run deploy:email-alias-router -- --alias-table EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main --forwarder-from steve.mckitrick@townofwiley.gov --ingress-region us-east-1 --send-region us-east-2
 ```
 
 What the script does:

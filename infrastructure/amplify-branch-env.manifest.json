@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Environment variable NAMES for scripts/generate-runtime-config.mjs → runtime-config.js on S3+CloudFront production. Values from GitHub secrets / user-secrets only. CMS: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi. Staff auth: Gen 1 Cognito us-east-2_DmY7BCBIp. Bindings SSOT: infrastructure/gen1-production-bindings.json.",
+  "description": "Environment variable NAMES for scripts/generate-runtime-config.mjs → runtime-config.js on S3+CloudFront production. Values from GitHub secrets / user-secrets only. CMS/auth/storage: Gen 1 only (see gen1-production-bindings.json). Gen 2 retired — docs/gen2-decommissioned.md.",
   "note": "Production hosting: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J. Amplify Hosting branch env vars are historical only (app deleted June 2026).",
   "legacyAmplifyAppId": "d331voxr1fhoir",
   "branch": "main (hosting historical)",

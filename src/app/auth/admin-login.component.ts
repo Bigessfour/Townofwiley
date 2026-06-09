@@ -43,8 +43,7 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.hubStop = Hub.listen('auth', (message) => {
       const { event } = message.payload;
-      const data =
-        'data' in message.payload ? (message.payload.data as unknown) : undefined;
+      const data = 'data' in message.payload ? (message.payload.data as unknown) : undefined;
       void this.handleAuthHubEvent(event, data);
     });
     void this.runLoginFlow();
@@ -94,7 +93,16 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (returningFromHostedUi || this.auth.isAuthenticated()) {
+      if (returningFromHostedUi) {
+        this.statusMessage.set(this.copy.completingSignInLabel);
+        this.cdr.markForCheck();
+        // OAuth listener + Hub also call completeHostedSignIn; service dedupes in-flight work.
+        await this.auth.completeHostedSignIn();
+        await this.navigateAfterSignIn();
+        return;
+      }
+
+      if (this.auth.isAuthenticated()) {
         this.statusMessage.set(this.copy.completingSignInLabel);
         this.cdr.markForCheck();
         await this.auth.completeHostedSignIn();

@@ -63,7 +63,7 @@ ansible-playbook ansible/playbooks/site.yml --tags verify
 Keep using existing tooling for:
 
 - Individual Lambdas (`scripts/deploy-*.py`, `npm run deploy:*`)
-- Amplify Gen2 / `ampx` backend flows
+- Static site deploy (S3 + CloudFront) and Gen 1 CMS bindings — see docs/gen2-decommissioned.md
 - GitHub Actions `deploy-production` on merge to `main`
 - `customHttp.yml`, manifest JSON files, and `npm run verify:live-csp-*`
 

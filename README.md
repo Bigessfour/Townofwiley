@@ -464,7 +464,7 @@ What this means now:
 - Outbound Town mail through SES in `us-east-2` is available.
 - The live alias router is now configured to forward mail using `steve.mckitrick@townofwiley.gov` as the sender.
 - The remaining mail work is now primarily bucket hardening, rollout of the rest of the alias records, and live end-to-end mail validation.
-- The `EmailAlias` backend model is now deployed on the live AppSync API (Gen 2 x7poehudqvamneqni5s6e2cjxy-NONE tables). Legacy Gen 1 table name was `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main`. See gen2-production-bindings.json and migration plan.
+- The `EmailAlias` model uses DynamoDB table `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main` on the Gen 1 AppSync API. See [gen1-production-bindings.json](./infrastructure/gen1-production-bindings.json) and [gen2-decommissioned.md](./docs/gen2-decommissioned.md).
 - The alias router now supports split-region operation so inbound processing can run in an SES-receiving region such as `us-east-1` while forwarded outbound mail continues through the verified `us-east-2` SES sender.
 - The first-pass alias router infrastructure is now deployed with Lambda `TownOfWileyEmailAliasRouter`, IAM role `TownOfWileyEmailAliasRouterRole`, S3 bucket `townofwiley-email-alias-570912405222-us-east-1`, and active SES receipt rule set `TownOfWileyAliasForwarding` in `us-east-1`.
 - Route 53 now publishes `townofwiley.gov MX 10 inbound-smtp.us-east-1.amazonaws.com` and the change is fully in sync.

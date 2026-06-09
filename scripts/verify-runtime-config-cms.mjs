@@ -10,10 +10,14 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  buildAppSyncQueriesConsoleUrl,
-  loadProductionBindingsFromRepo,
-  readLocalSecrets,
-  repoRoot,
+    assertProductionCmsEndpoint,
+    findDeprecatedGen2Marker,
+    loadProductionBindings,
+} from './lib/gen1-cms-ssot.mjs';
+import {
+    buildAppSyncQueriesConsoleUrl,
+    readLocalSecrets,
+    repoRoot,
 } from './lib/runtime-config-env.mjs';
 
 const args = new Set(process.argv.slice(2));
@@ -54,7 +58,7 @@ function expectEqual(label, actual, expected) {
   console.log(`OK: ${label}`);
 }
 
-const bindings = loadProductionBindingsFromRepo();
+const bindings = loadProductionBindings();
 if (!bindings?.appSync?.graphqlEndpoint) {
   fail(`missing appSync.graphqlEndpoint in ${bindingsPath}`);
 }
@@ -71,6 +75,24 @@ expectEqual('auth.cognito.userPoolClientId', auth.userPoolClientId, bindings.cog
 expectEqual('auth.cognito.identityPoolId', auth.identityPoolId, bindings.cognito.identityPoolId);
 expectEqual('auth.cognito.hostedUiDomain', auth.hostedUiDomain, bindings.cognito.hostedUiDomain);
 expectEqual('storage.s3.bucket', config.storage?.s3?.bucket, bindings.storage.bucket);
+
+assertProductionCmsEndpoint({
+  endpoint: cms.apiEndpoint,
+  label: 'cms.appSync.apiEndpoint',
+  expectedEndpoint: bindings.appSync.graphqlEndpoint,
+});
+
+for (const [label, value] of [
+  ['auth.cognito.userPoolId', auth.userPoolId],
+  ['auth.cognito.userPoolClientId', auth.userPoolClientId],
+  ['auth.cognito.identityPoolId', auth.identityPoolId],
+  ['cms.appSync.apiKey', cms.apiKey],
+]) {
+  const deprecated = findDeprecatedGen2Marker(String(value ?? ''));
+  if (deprecated) {
+    fail(`${label} references deprecated Gen 2 identifier "${deprecated}"`);
+  }
+}
 
 const apiId = bindings.appSync.apiId;
 const expectedConsoleUrl = buildAppSyncQueriesConsoleUrl(bindings.storage?.region ?? 'us-east-2', apiId);

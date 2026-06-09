@@ -13,7 +13,7 @@
 # Actively apply the copilot user policies from the JSON SSOT files.
 # These are the operational policies for the `copilot` IAM user (logs, lambda verify, etc.).
 # Safe to re-apply (idempotent in effect); run with --tags iam or as part of full deploy.
-# The managed policy (gen2-stack-refactor) is attached via attach-user-policy in docs;
+# IAM managed policies are documented in infrastructure/iam/README.md
 # we surface a task here for it too (attach is safe to re-run).
 # Requires the caller to have iam:PutUserPolicy / iam:AttachUserPolicy on the copilot user
 # in account 570912405222 (typically account admins or sufficiently privileged ops role).

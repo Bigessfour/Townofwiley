@@ -140,11 +140,11 @@ describe('LocalizedCmsContentStore', () => {
     expect(coreRequest.request.body.query as string).toContain('GetPublicCmsCoreContent');
     expect(coreRequest.request.body.query as string).toContain('listSiteSettings(limit: 1)');
     expect(coreRequest.request.body.query as string).toContain(
-      'listAnnouncements(filter: { active: { eq: true } }, limit: 50)',
+      'listAnnouncements(filter: { and: [{ active: { eq: true } }] }, limit: 50)',
     );
     expect(coreRequest.request.body.query as string).toContain('announcementKind');
     expect(coreRequest.request.body.query as string).toContain(
-      'listEvents(filter: { active: { eq: true } }, limit: 50)',
+      'listEvents(filter: { and: [{ active: { eq: true } }] }, limit: 50)',
     );
     expect(coreRequest.request.body.query as string).not.toContain('listBusinesses');
 
@@ -298,7 +298,7 @@ describe('LocalizedCmsContentStore', () => {
       'listPublicDocuments(filter: { active: { eq: true } }, limit: 100)',
     );
     expect(extendedRequest.request.body.query as string).toContain(
-      'listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50)',
+      'listExternalNewsLinks(filter: { and: [{ active: { eq: true } }] }, limit: 50)',
     );
     expect(extendedRequest.request.body.query as string).toContain(
       'listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50)',

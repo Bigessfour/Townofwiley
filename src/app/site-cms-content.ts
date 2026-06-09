@@ -1,9 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { buildAgendaHubHrefByEventId } from './public-document-event-link';
 import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
+import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
+import { buildAgendaHubHrefByEventId } from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
 export interface CmsNotice {
@@ -543,7 +544,7 @@ const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
       updatedAt
     }
   }
-  listAnnouncements(filter: { active: { eq: true } }, limit: 50) {
+  listAnnouncements(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title
@@ -556,7 +557,7 @@ const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
       active
     }
   }
-  listEvents(filter: { active: { eq: true } }, limit: 50) {
+  listEvents(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title
@@ -612,7 +613,7 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
       displayOrder
     }
   }
-  listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50) {
+  listExternalNewsLinks(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title
@@ -1092,8 +1093,8 @@ export class LocalizedCmsContentStore {
       ),
     );
     this.siteCopyRecordsState.set(
-      (response.data?.listSiteCopies?.items ?? []).filter(
-        (item): item is SiteCopyRecord => Boolean(item),
+      (response.data?.listSiteCopies?.items ?? []).filter((item): item is SiteCopyRecord =>
+        Boolean(item),
       ),
     );
   }
@@ -1460,12 +1461,7 @@ export class LocalizedCmsContentStore {
           return true;
         }
 
-        if (!record.date) {
-          return true;
-        }
-
-        const parsed = Date.parse(record.date);
-        return Number.isNaN(parsed) || parsed >= Date.now();
+        return isNoticeDateStillVisible(record.date);
       })
       .sort((left, right) => left.priority - right.priority)
       .map((record) => {

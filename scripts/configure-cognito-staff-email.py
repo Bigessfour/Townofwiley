@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Configure Gen 2 Cognito staff pool to send auth emails via Amazon SES (townofwiley.gov)."""
+"""Configure Gen 1 Cognito staff pool to send auth emails via Amazon SES (townofwiley.gov)."""
 
 from __future__ import annotations
 
