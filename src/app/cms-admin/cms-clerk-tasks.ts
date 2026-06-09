@@ -10,7 +10,8 @@ export type ClerkCmsTaskId =
   | 'business-directory'
   | 'external-news'
   | 'emergency-banner'
-  | 'edit-site-copy';   // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
+  | 'edit-site-copy' // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
+  | 'manage-email-aliases';
 
 export interface ClerkCmsFieldGlossaryEntry {
   /** Label clerks see in Data Manager (technical name in parentheses for IT). */
@@ -30,6 +31,12 @@ export interface ClerkCmsTask {
   fieldGlossary: ClerkCmsFieldGlossaryEntry[];
   emptyStateMessage?: string;
   supportsUpload?: 'hero' | 'newsletter-pdf';
+  /** PrimeIcons class shown on the task hub card (e.g. pi-envelope). */
+  icon?: string;
+  /** generic = cms-clerk-record-editor; dedicated = task-specific editor component. */
+  editorMode?: 'generic' | 'dedicated';
+  /** When false, hide "See on website" (mail-only / non-public tasks). */
+  showPublicPreview?: boolean;
 }
 
 const PUBLIC_SITE_ORIGIN = 'https://townofwiley.gov';
@@ -556,14 +563,73 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     emptyStateMessage:
       'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
   },
+  {
+    id: 'manage-email-aliases',
+    title: 'Manage email forwarding',
+    shortDescription:
+      'Control where mail sent to Town addresses (like clerk@townofwiley.gov) is delivered. Residents do not see this.',
+    model: 'EmailAlias',
+    previewPath: '/contact',
+    icon: 'pi-envelope',
+    editorMode: 'dedicated',
+    showPublicPreview: false,
+    steps: [
+      'Click Edit content to open the email forwarding editor (sign in at /admin/login first).',
+      'Find the rule for the Town address you need, or add a new forwarding rule.',
+      'Set the public Town address (aliasAddress) and the staff inbox where mail should land (destinationAddress).',
+      'Turn Active on and save.',
+      'Send a test email to the Town address and confirm it arrives in the correct inbox.',
+    ],
+    fieldGlossary: [
+      {
+        plainLabel: 'Town email address',
+        technicalName: 'aliasAddress',
+        help: 'The public address residents send mail to, e.g. clerk@townofwiley.gov.',
+      },
+      {
+        plainLabel: 'Staff inbox',
+        technicalName: 'destinationAddress',
+        help: 'The private email where forwarded mail is delivered.',
+      },
+      {
+        plainLabel: 'Active',
+        technicalName: 'active',
+        help: 'Turn on to forward mail; turn off to stop forwarding for this address.',
+      },
+      {
+        plainLabel: 'Display name',
+        technicalName: 'displayName',
+        help: 'Optional label for clerks, e.g. "City Clerk mailbox".',
+      },
+      {
+        plainLabel: 'Role label',
+        technicalName: 'roleLabel',
+        help: 'Optional role note for IT, e.g. "Clerk".',
+      },
+      {
+        plainLabel: 'Notes',
+        technicalName: 'notes',
+        help: 'Optional internal notes about this forwarding rule.',
+      },
+    ],
+    emptyStateMessage: 'No forwarding rules saved yet. Ask IT to add the first rule.',
+  },
 ];
 
-export const CLERK_IN_APP_EDITOR_TASK_IDS = CLERK_CMS_TASKS.map(
-  (task) => task.id,
-) as ClerkCmsTaskId[];
+export const CLERK_IN_APP_EDITOR_TASK_IDS = CLERK_CMS_TASKS.filter(
+  (task) => (task.editorMode ?? 'generic') === 'generic',
+).map((task) => task.id) as ClerkCmsTaskId[];
+
+export function clerkTaskEditorMode(id: ClerkCmsTaskId): 'generic' | 'dedicated' {
+  return clerkTaskById(id)?.editorMode ?? 'generic';
+}
 
 export function clerkTaskHasInAppEditor(id: ClerkCmsTaskId): boolean {
-  return CLERK_IN_APP_EDITOR_TASK_IDS.includes(id);
+  return clerkTaskEditorMode(id) === 'generic';
+}
+
+export function clerkTaskUsesDedicatedEditor(id: ClerkCmsTaskId): boolean {
+  return clerkTaskEditorMode(id) === 'dedicated';
 }
 
 export function clerkTaskById(id: ClerkCmsTaskId): ClerkCmsTask | undefined {

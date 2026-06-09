@@ -50,6 +50,11 @@ export class StaffAuthService {
   readonly email = computed(() => this.userEmail());
   readonly accessToken = computed(() => this.accessTokenValue());
 
+  /** Playwright e2e sets runtime e2e.staffAuth without a real Cognito JWT. */
+  playwrightStaffBypassActive(): boolean {
+    return this.isE2eStaffBypass();
+  }
+
   async refreshSession(options?: { forceRefresh?: boolean }): Promise<void> {
     if (this.isE2eStaffBypass()) {
       this.accessTokenValue.set('e2e-staff-token');

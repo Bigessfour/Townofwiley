@@ -41,6 +41,11 @@ export class CmsGenericModelAdminService {
       return [];
     }
 
+    await requireAuthenticatedAdmin(this.staffAuth);
+    if (this.staffAuth.playwrightStaffBypassActive()) {
+      return [];
+    }
+
     const listField = cmsListQueryField(model);
     const selection = fields.join('\n');
     const query = /* GraphQL */ `
@@ -63,7 +68,7 @@ export class CmsGenericModelAdminService {
       );
     } catch (error: unknown) {
       this.logAdminFailure('list', model, error);
-      throw new Error(toClerkFriendlyGraphqlError(error, 'list', model));
+      throw new Error(toClerkFriendlyGraphqlError(error, 'list', model), { cause: error });
     }
   }
 
@@ -101,7 +106,7 @@ export class CmsGenericModelAdminService {
       return id;
     } catch (error: unknown) {
       this.logAdminFailure('create', model, error);
-      throw new Error(toClerkFriendlyGraphqlError(error, 'create', model));
+      throw new Error(toClerkFriendlyGraphqlError(error, 'create', model), { cause: error });
     }
   }
 
@@ -144,7 +149,7 @@ export class CmsGenericModelAdminService {
       return updatedId;
     } catch (error: unknown) {
       this.logAdminFailure('update', model, error);
-      throw new Error(toClerkFriendlyGraphqlError(error, 'update', model));
+      throw new Error(toClerkFriendlyGraphqlError(error, 'update', model), { cause: error });
     }
   }
 
@@ -186,7 +191,7 @@ export class CmsGenericModelAdminService {
       return deletedId;
     } catch (error: unknown) {
       this.logAdminFailure('delete', model, error);
-      throw new Error(toClerkFriendlyGraphqlError(error, 'delete', model));
+      throw new Error(toClerkFriendlyGraphqlError(error, 'delete', model), { cause: error });
     }
   }
 

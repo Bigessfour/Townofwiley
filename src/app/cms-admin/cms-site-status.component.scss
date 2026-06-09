@@ -2,3 +2,16 @@
   display: block;
   width: 100%;
 }
+
+.cms-site-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.cms-site-status__meta {
+  color: var(--text-muted, #64748b);
+  font-size: 0.9rem;
+}

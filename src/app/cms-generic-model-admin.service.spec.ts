@@ -19,6 +19,7 @@ describe('CmsGenericModelAdminService', () => {
   let staffAuth: {
     refreshSession: ReturnType<typeof vi.fn>;
     isStaff: ReturnType<typeof vi.fn>;
+    playwrightStaffBypassActive: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -26,6 +27,7 @@ describe('CmsGenericModelAdminService', () => {
     staffAuth = {
       refreshSession: vi.fn().mockResolvedValue(undefined),
       isStaff: vi.fn().mockReturnValue(true),
+      playwrightStaffBypassActive: vi.fn().mockReturnValue(false),
     };
 
     TestBed.configureTestingModule({
@@ -118,7 +120,7 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('rejects unsupported models', async () => {
-    await expect(service.createRecord('EmailAlias', { id: 'x' })).rejects.toThrow(
+    await expect(service.createRecord('NotARealModel', { id: 'x' })).rejects.toThrow(
       /Unsupported CMS model/,
     );
   });
