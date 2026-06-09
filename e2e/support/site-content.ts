@@ -77,7 +77,8 @@ export const siteContent = {
     'Search and document discovery',
   ],
   homepageCounts: {
-    noticeCards: 3,
+    /** Matches active `noticeRecords` in `public/cms-snapshot.json` (newsletter-only snapshot as of 2026-06). */
+    noticeCards: 1,
     meetingCards: 2,
     serviceCards: 6,
     headerShortcuts: 3,
