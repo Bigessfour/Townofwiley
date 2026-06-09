@@ -462,6 +462,16 @@ def ensure_lambda_function(
         run_aws(
             [
                 "lambda",
+                "wait",
+                "function-updated",
+                "--function-name",
+                function_name,
+            ],
+            expect_json=False,
+        )
+        run_aws(
+            [
+                "lambda",
                 "update-function-configuration",
                 "--function-name",
                 function_name,
@@ -478,6 +488,16 @@ def ensure_lambda_function(
                 "--environment",
                 json.dumps({"Variables": environment}),
             ],
+        )
+        run_aws(
+            [
+                "lambda",
+                "wait",
+                "function-updated",
+                "--function-name",
+                function_name,
+            ],
+            expect_json=False,
         )
         return details["Configuration"]["FunctionArn"]
     except RuntimeError:
@@ -652,6 +672,16 @@ def update_function_public_base_url(
             "--environment",
             json.dumps({"Variables": environment}),
         ]
+    )
+    run_aws(
+        [
+            "lambda",
+            "wait",
+            "function-updated",
+            "--function-name",
+            function_name,
+        ],
+        expect_json=False,
     )
 
 

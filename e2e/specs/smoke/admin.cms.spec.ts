@@ -59,9 +59,7 @@ test.describe('cms admin', () => {
         .getByTestId('cms-task-guide')
         .getByRole('heading', { name: /Edit:\s*Post news or notice/i }),
     ).toBeVisible();
-    await expect(
-      homePage.page.locator('#cms-field-post-notice-title'),
-    ).toBeVisible();
+    await expect(homePage.page.locator('#cms-field-post-notice-title')).toBeVisible();
     // Task cards should not push raw "AppSync" as jargon.
     await expect(
       homePage.page.locator('.cms-task-card').getByText('AppSync', { exact: false }),
@@ -96,7 +94,9 @@ test.describe('cms admin', () => {
 
     const emailTask = homePage.page.getByTestId('cms-task-manage-email-aliases');
     await expect(emailTask).toBeVisible();
-    await expect(emailTask.getByRole('heading', { name: /Manage email forwarding/i })).toBeVisible();
+    await expect(
+      emailTask.getByRole('heading', { name: /Manage email forwarding/i }),
+    ).toBeVisible();
     await expect(emailTask.getByRole('link', { name: /See on website/i })).toHaveCount(0);
 
     await homePage.page.getByTestId('cms-task-edit-manage-email-aliases').click();
@@ -232,6 +232,32 @@ test.describe('cms admin', () => {
     await expect(
       homePage.page.locator('#cms-field-add-meeting-start[type="datetime-local"]'),
     ).toBeEditable();
+  });
+
+  test('post-notice form supports newsletter PDF upload and auto-kind', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-post-notice').click();
+    await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
+    await expect(
+      homePage.page.getByTestId('cms-field-select-post-notice-announcementKind'),
+    ).toBeVisible();
+    await expect(
+      homePage.page.getByTestId('cms-field-file-input-post-notice-attachmentKey'),
+    ).toBeVisible();
+    await expect(homePage.page.locator('#cms-field-post-notice-date')).toHaveValue(
+      /\d{4}-\d{2}-\d{2}/,
+    );
+
+    const fileCode = 'documents/newsletter/2026-06-09-town-newsletter.pdf';
+    await homePage.page
+      .getByTestId('cms-field-file-or-url-post-notice-attachmentKey')
+      .fill(fileCode);
+
+    await expect(
+      homePage.page.getByTestId('cms-field-select-post-notice-announcementKind'),
+    ).toContainText(/Newsletter/i);
+    await expect(homePage.page.getByText(`File code: ${fileCode}`)).toBeVisible();
   });
 
   test('document publishing lists newsletter path and task guide mentions Spanish fields', async ({

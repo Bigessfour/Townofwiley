@@ -3,6 +3,11 @@ import type { CmsPublicDocument } from './site-cms-content';
 /** Keyword prefix tying a PublicDocument row to an Event id in AppSync. */
 export const PUBLIC_DOCUMENT_EVENT_KEYWORD_PREFIX = 'event:';
 
+export interface LinkedAgendaDocument {
+  documentId: string;
+  storageHref: string;
+}
+
 export function eventDocumentKeyword(eventId: string): string {
   return `${PUBLIC_DOCUMENT_EVENT_KEYWORD_PREFIX}${eventId.trim()}`;
 }
@@ -36,26 +41,47 @@ export function cmsDocumentHubHref(documentId: string): string {
   return `/documents#${cmsDocumentHubFragment(documentId)}`;
 }
 
-/** Maps Event id → document hub anchor for the newest linked meeting document. */
-export function buildAgendaHubHrefByEventId(
+/**
+ * Maps Event id → linked meeting document (newest wins).
+ * Documents must be pre-sorted by displayOrder ascending (as from normalizePublicDocuments).
+ */
+export function buildLinkedAgendaDocumentByEventId(
   documents: readonly CmsPublicDocument[],
-): Record<string, string> {
-  const hrefByEventId: Record<string, string> = {};
+): Record<string, LinkedAgendaDocument> {
+  const byEventId: Record<string, LinkedAgendaDocument> = {};
 
-  for (const document of documents) {
+  for (let index = documents.length - 1; index >= 0; index -= 1) {
+    const document = documents[index];
     if (document.sectionId !== 'meeting-documents') {
       continue;
     }
 
     const eventId = readLinkedEventId(document.keywords);
-    if (!eventId || hrefByEventId[eventId]) {
+    if (!eventId || byEventId[eventId]) {
       continue;
     }
 
-    hrefByEventId[eventId] = cmsDocumentHubHref(document.id);
+    byEventId[eventId] = {
+      documentId: document.id,
+      storageHref: document.href,
+    };
   }
 
-  return hrefByEventId;
+  return byEventId;
+}
+
+/** Maps Event id → document hub anchor for the newest linked meeting document. */
+export function buildAgendaHubHrefByEventId(
+  documents: readonly CmsPublicDocument[],
+): Record<string, string> {
+  const linked = buildLinkedAgendaDocumentByEventId(documents);
+
+  return Object.fromEntries(
+    Object.entries(linked).map(([eventId, document]) => [
+      eventId,
+      cmsDocumentHubHref(document.documentId),
+    ]),
+  );
 }
 
 export function formatMeetingDocumentTitle(

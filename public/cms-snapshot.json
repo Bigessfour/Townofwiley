@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-09T18:42:08.121Z",
-  "buildSha": "b1bdb2ad819a197ea53924a905e5401f25b15f58",
+  "savedAt": "2026-06-09T23:02:28.162Z",
+  "buildSha": "8c9882f2cede64047c162c6be92f137a753445e5",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -17,7 +17,19 @@
     "welcomeCaption": null
   },
   "alertBannerRecords": [],
-  "noticeRecords": [],
+  "noticeRecords": [
+    {
+      "id": "a40f4e65-d60a-4ef2-9eab-7871f4eeb586",
+      "title": "June 9, 2026 Town Newsletter",
+      "date": "2026-06-09",
+      "detail": "Town of Wiley newsletter for June 9, 2026. Read the full PDF for meeting updates, notices, and community news from Town Hall.",
+      "announcementKind": "newsletter",
+      "attachmentKey": "documents/newsletter/2026-06-09-town-newsletter.pdf",
+      "priority": 1,
+      "imageUrl": null,
+      "active": true
+    }
+  ],
   "eventRecords": [
     {
       "id": "2c8690af-eebd-4b2b-bb1b-1521cb0d6f91",
@@ -56,6 +68,24 @@
       "href": null,
       "linkLabel": null,
       "displayOrder": 1
+    },
+    {
+      "id": "city-clerk",
+      "label": "City Clerk",
+      "value": "Deb Dillon",
+      "detail": "Clerk services, meeting packets, records coordination, and agenda planning support.",
+      "href": "mailto:deb.dillon@townofwiley.gov",
+      "linkLabel": "deb.dillon@townofwiley.gov",
+      "displayOrder": 2
+    },
+    {
+      "id": "town-information",
+      "label": "Town Information",
+      "value": "(719) 829-4974",
+      "detail": "Wiley Town Hall, 304 Main Street. Call ahead if you would like time on the City Council agenda or need clerk assistance.",
+      "href": "tel:+17198294974",
+      "linkLabel": null,
+      "displayOrder": 0
     }
   ],
   "businessRecords": [

@@ -16,6 +16,8 @@ import { filter } from 'rxjs';
 import { DocumentRefreshService } from '../document-refresh.service';
 import { DocumentUploadService } from '../document-upload.service';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
+import { openAgendaPdfInNewTab } from '../meeting-agenda-actions';
+import { cmsDocumentHubFragment, cmsDocumentHubHref } from '../public-document-event-link';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import type { DocumentArchiveSectionId, PublishedDocument } from './document-archive';
@@ -463,6 +465,8 @@ export class DocumentHub {
         minute: '2-digit',
       }).format(new Date(nextEvent.start));
       const at = language === 'es' ? 'a las' : 'at';
+      const linked = this.cms.linkedAgendaDocumentByEventId()[nextEvent.id];
+      const resolvedHref = linked ? this.resolvedCmsDocumentHrefs()[linked.documentId] : undefined;
       return {
         title: nextEvent.title,
         date: `${datePart} ${at} ${timePart}`,
@@ -472,6 +476,9 @@ export class DocumentHub {
             ? 'Consulte la agenda completa con la secretaria antes de la reunion.'
             : 'See the full agenda. Contact the clerk to be placed on the agenda.'),
         href: '/meetings',
+        hasLinkedAgenda: Boolean(linked),
+        linkedStorageHref: linked?.storageHref,
+        agendaHref: resolvedHref ?? (linked ? cmsDocumentHubHref(linked.documentId) : undefined),
       };
     }
 
@@ -482,6 +489,9 @@ export class DocumentHub {
           summary:
             'El concejo se reune el segundo lunes de cada mes a las 6:00 PM en el ayuntamiento de Wiley. La secretaria publica la agenda con anticipacion.',
           href: '/meetings',
+          hasLinkedAgenda: false,
+          linkedStorageHref: undefined,
+          agendaHref: undefined,
         }
       : {
           title: 'Next City Council Meeting — Second Monday',
@@ -489,8 +499,33 @@ export class DocumentHub {
           summary:
             'The council meets every second Monday at 6:00 PM at Wiley Town Hall. The clerk posts the agenda ahead of the meeting.',
           href: '/meetings',
+          hasLinkedAgenda: false,
+          linkedStorageHref: undefined,
+          agendaHref: undefined,
         };
   });
+
+  protected openUpcomingAgendaPacket(): void {
+    const upcoming = this.upcomingMeeting();
+    if (!upcoming.hasLinkedAgenda) {
+      return;
+    }
+
+    const directHref = upcoming.agendaHref;
+    if (directHref?.startsWith('http')) {
+      openAgendaPdfInNewTab(directHref);
+      return;
+    }
+
+    const storageHref = upcoming.linkedStorageHref;
+    if (!storageHref) {
+      return;
+    }
+
+    void this.documentUploadService.resolveDocumentHref(storageHref).then((resolved) => {
+      openAgendaPdfInNewTab(resolved);
+    });
+  }
 
   protected loadMoreArchive(): void {
     this.archiveDisplayLimit.update((n) => n + DocumentHub.ARCHIVE_PAGE_SIZE);
@@ -518,6 +553,7 @@ export class DocumentHub {
       .subscribe((event) => {
         if (event.urlAfterRedirects.startsWith('/documents')) {
           void this.refreshDocumentsHub();
+          this.scrollToDocumentFragmentIfPresent();
         }
       });
 
@@ -553,6 +589,30 @@ export class DocumentHub {
     this.lastDocumentsRefreshMs = Date.now();
     await this.cms.refreshContent();
     await this.resolveCmsDocumentHrefs();
+    this.scrollToDocumentFragmentIfPresent();
+  }
+
+  private scrollToDocumentFragmentIfPresent(): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
+
+    const fragment = window.location.hash.replace(/^#/, '');
+    if (!fragment.startsWith('cms-doc-')) {
+      return;
+    }
+
+    const documents = this.filteredDocuments();
+    const targetIndex = documents.findIndex(
+      (entry) => cmsDocumentHubFragment(entry.id) === fragment,
+    );
+    if (targetIndex >= 0 && targetIndex >= this.archiveDisplayLimit()) {
+      this.archiveDisplayLimit.set(targetIndex + 1);
+    }
+
+    requestAnimationFrame(() => {
+      document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   private async resolveCmsDocumentHrefs() {

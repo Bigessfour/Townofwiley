@@ -16,18 +16,25 @@ The data flow:
 
 ## Publishing a new monthly newsletter
 
+**Clerk path (preferred):** `/admin` → **Post news or notice** → **Edit content** →
+**Kind** = Newsletter (PDF on /news) → upload PDF in **Newsletter PDF** → save →
+verify `/news`.
+
+**IT path (fallback):**
+
 1. **Upload the PDF** to S3 at `documents/newsletter/<file>.pdf`. Use a date-
    prefixed filename so issues sort naturally, e.g.
    `documents/newsletter/2026-05-06-town-newsletter.pdf`.
+   - `/admin` → **Upload newsletter PDF** (copies file code for the Announcement form).
    - Amplify Studio: open Storage → File browser → navigate to or create the
      `documents/newsletter/` folder → upload the PDF.
    - Or via AWS CLI:
      ```bash
      aws s3 cp ./Scan\ \[05_06_2026\].pdf \
-       s3://townofwiley-documents-storage/documents/newsletter/2026-05-06-town-newsletter.pdf \
+       s3://townofwiley-documents-storage-main/documents/newsletter/2026-05-06-town-newsletter.pdf \
        --region us-east-2
      ```
-2. **Open Amplify Studio Data Manager** for the `Announcement` model.
+2. **Open the Announcement editor** on `/admin` (or Amplify Studio Data Manager as fallback).
 3. **Create or update the active newsletter record**:
    - `title`: human-readable issue name (e.g. `May 2026 Town Newsletter`).
    - `date`: the issue date in `YYYY-MM-DD` (used to pick the latest issue).

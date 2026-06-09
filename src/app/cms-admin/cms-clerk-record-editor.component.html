@@ -162,6 +162,62 @@
               <span class="cms-record-field__help">{{ field.help }}</span>
             }
           </label>
+        } @else if (field.type === 'select') {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span>{{ field.label }}@if (field.required) { * }</span>
+            <p-select
+              [inputId]="fieldInputId(field.name)"
+              [options]="selectOptions(field)"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.data-testid]="'cms-field-select-' + taskId() + '-' + field.name"
+            />
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        } @else if (field.type === 'fileOrUrl') {
+          <div class="cms-record-field cms-record-field--file">
+            <label [for]="fieldInputId(field.name)">
+              <span>{{ field.label }}@if (field.required) { * }</span>
+            </label>
+            <input
+              pInputText
+              [id]="fieldInputId(field.name)"
+              type="text"
+              [attr.placeholder]="field.placeholder ?? 'documents/newsletter/your-file.pdf'"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.data-testid]="'cms-field-file-or-url-' + taskId() + '-' + field.name"
+            />
+            <label class="cms-record-field__file-picker">
+              <span class="visually-hidden">Upload file for {{ field.label }}</span>
+              <input
+                type="file"
+                [accept]="field.accept ?? '*/*'"
+                [disabled]="fileUploadingField() === field.name"
+                [attr.data-testid]="'cms-field-file-input-' + taskId() + '-' + field.name"
+                (change)="onFileOrUrlSelected(field, $event)"
+              />
+              @if (fileUploadingField() === field.name) {
+                Uploading…
+              } @else {
+                Choose PDF to upload
+              }
+            </label>
+            @if (fieldValue(field); as fileCode) {
+              <p class="cms-record-field__file-code">
+                File code: <code>{{ fileCode }}</code>
+              </p>
+            }
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </div>
         } @else {
           <label class="cms-record-field" [for]="fieldInputId(field.name)">
             <span>{{ field.label }}@if (field.required) { * }</span>
@@ -179,6 +235,10 @@
             }
           </label>
         }
+      }
+
+      @if (fileUploadError()) {
+        <p-message severity="error" [text]="fileUploadError()!" styleClass="cms-record-editor__message" />
       }
 
       @if (deleteBlockedReason(); as blocked) {

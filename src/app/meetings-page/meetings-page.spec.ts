@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { APP_COPY } from '../app';
+import { DocumentUploadService } from '../document-upload.service';
 import { type CmsCalendarEvent, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { MeetingsPage } from './meetings-page';
@@ -9,23 +11,34 @@ import { MeetingsPage } from './meetings-page';
 interface MeetingsPageStore {
   events: ReturnType<typeof signal<CmsCalendarEvent[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
-  agendaHubHrefByEventId?: ReturnType<typeof signal<Record<string, string>>>;
+  linkedAgendaDocumentByEventId?: ReturnType<
+    typeof signal<Record<string, { documentId: string; storageHref: string }>>
+  >;
 }
 
 function configure(
   store: Pick<MeetingsPageStore, 'events' | 'isLoading'> &
-    Partial<Pick<MeetingsPageStore, 'agendaHubHrefByEventId'>>,
+    Partial<Pick<MeetingsPageStore, 'linkedAgendaDocumentByEventId'>>,
   language: 'en' | 'es' = 'en',
 ) {
   const storeWithDefaults = {
-    agendaHubHrefByEventId: signal<Record<string, string>>({}),
+    linkedAgendaDocumentByEventId: signal<
+      Record<string, { documentId: string; storageHref: string }>
+    >({}),
     ...store,
   };
   TestBed.configureTestingModule({
     imports: [MeetingsPage],
     providers: [
       SiteLanguageService,
+      MessageService,
       provideRouter([]),
+      {
+        provide: DocumentUploadService,
+        useValue: {
+          resolveDocumentHref: async (href: string) => href,
+        } as unknown as DocumentUploadService,
+      },
       {
         provide: LocalizedCmsContentStore,
         useValue: storeWithDefaults as unknown as LocalizedCmsContentStore,

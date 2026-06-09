@@ -24,6 +24,31 @@ function loadCmsSnapshotForE2e(): Record<string, unknown> {
   return cachedCmsSnapshot;
 }
 
+type E2eNoticeRecord = {
+  id: string;
+  announcementKind?: string | null;
+  attachmentKey?: string | null;
+  active?: boolean;
+};
+
+/** Newsletter PDFs resolve to presigned S3 URLs that 403 in CI; keep copy, drop attachment for smoke. */
+function sanitizeNoticeRecordsForE2e(records: unknown[]): E2eNoticeRecord[] {
+  return records.map((record) => {
+    if (typeof record !== 'object' || record === null || !('id' in record)) {
+      return record as E2eNoticeRecord;
+    }
+
+    const notice = record as E2eNoticeRecord;
+    const kind = (notice.announcementKind ?? '').toLowerCase();
+    if (kind !== 'newsletter' || !notice.attachmentKey) {
+      return notice;
+    }
+
+    const { attachmentKey: _removed, ...withoutAttachment } = notice;
+    return withoutAttachment;
+  });
+}
+
 function mergeE2eArchiveDocumentSeeds(snapshotRecords: unknown[]): unknown[] {
   const records = [...snapshotRecords];
   const existingIds = new Set(
@@ -47,11 +72,13 @@ function buildE2eCmsSnapshotBody(snapshot: Record<string, unknown>): string {
   const snapshotDocuments = Array.isArray(snapshot.publicDocumentRecords)
     ? snapshot.publicDocumentRecords
     : [];
+  const snapshotNotices = Array.isArray(snapshot.noticeRecords) ? snapshot.noticeRecords : [];
 
   return JSON.stringify({
     ...snapshot,
     eventRecords: [],
     businessRecords: [],
+    noticeRecords: sanitizeNoticeRecordsForE2e(snapshotNotices),
     publicDocumentRecords: mergeE2eArchiveDocumentSeeds(snapshotDocuments),
   });
 }

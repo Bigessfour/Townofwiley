@@ -38,7 +38,7 @@ const MEETING_UPLOAD_COPY = {
     eventLabel: 'Which meeting is this for?',
     eventPlaceholder: 'Select a meeting',
     noEvents:
-      'No upcoming meetings found. Add the meeting under Setup first, then return here to upload its agenda.',
+      'No upcoming meetings found. Use Add meeting or event on /admin first, then return here to upload its agenda.',
     fileLabel: 'Agenda or meeting PDF',
     uploading: 'Uploading…',
     chooseFile: 'Choose file from computer',
@@ -55,7 +55,7 @@ const MEETING_UPLOAD_COPY = {
     eventLabel: '¿Para que reunion es?',
     eventPlaceholder: 'Seleccione una reunion',
     noEvents:
-      'No hay reuniones proximas. Agregue la reunion primero y vuelva aqui para subir la agenda.',
+      'No hay reuniones proximas. Use Agregar reunion o evento en /admin primero y vuelva aqui para subir la agenda.',
     fileLabel: 'Agenda o PDF de reunion',
     uploading: 'Subiendo…',
     chooseFile: 'Elegir archivo de la computadora',

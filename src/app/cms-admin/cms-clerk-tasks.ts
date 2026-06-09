@@ -65,20 +65,20 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/news',
     steps: [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
-      'Fill Title and Details; include Spanish versions when needed.',
-      'Set Date and Active. Use newsletter kind for long PDF posts.',
+      'Fill Title and Details (short summary for newsletters).',
+      'For a scanned newsletter PDF: choose Kind = Newsletter, upload the PDF in the form (or paste the file code), set Date, and turn Show on website on.',
       'Save and hard-refresh the public News page.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Announcement kind',
+        plainLabel: 'Kind',
         technicalName: 'announcementKind',
-        help: 'Leave blank for short notices. Type newsletter (lowercase) for the newsletter section on /news.',
+        help: 'Short notice for bulletins on /news and /notices. Newsletter (PDF) for the embedded town newsletter on /news.',
       },
       {
-        plainLabel: 'File code from IT',
+        plainLabel: 'Newsletter PDF',
         technicalName: 'attachmentKey',
-        help: 'Only for newsletters. Paste the full path IT gives you, e.g. documents/newsletter/2026-05-newsletter.pdf — not a Google link.',
+        help: 'Upload a PDF in the form or paste the storage file code, e.g. documents/newsletter/2026-06-09-town-newsletter.pdf.',
       },
       {
         plainLabel: 'Priority',
@@ -97,7 +97,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
       'Enter Title, Start date and time, and turn Active on.',
       'Add Location and Description if residents need them.',
-      'Save, then check See on website and hard-refresh /meetings.',
+      'Save, then scroll to Document publishing and upload the agenda PDF for that meeting.',
+      'Hard-refresh /meetings and click View agenda on the meeting row to confirm the PDF opens.',
     ],
     fieldGlossary: [
       {
@@ -523,7 +524,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'edit-site-copy',
     title: 'Edit navigation labels, headings, and Quick Tasks text',
-    shortDescription: 'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
+    shortDescription:
+      'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
     model: 'SiteCopy',
     previewPath: '/',
     steps: [

@@ -52,9 +52,19 @@
     <h2 id="upcoming-heading">{{ upcomingMeeting().title }}</h2>
     <p>{{ upcomingMeeting().date }}</p>
     <p>{{ upcomingMeeting().summary }}</p>
-    <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href">{{
-      copy().viewAgendaPacketLabel
-    }}</a>
+    @if (upcomingMeeting().hasLinkedAgenda) {
+      <button
+        type="button"
+        class="document-hub-button primary"
+        (click)="openUpcomingAgendaPacket()"
+      >
+        {{ copy().viewAgendaPacketLabel }}
+      </button>
+    } @else {
+      <a class="document-hub-button primary" [attr.href]="upcomingMeeting().href">{{
+        copy().viewAgendaPacketLabel
+      }}</a>
+    }
   </section>
 
   <nav class="document-hub-nav" [attr.aria-label]="copy().sectionNavLabel">
