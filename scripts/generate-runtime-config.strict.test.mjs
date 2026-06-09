@@ -37,8 +37,8 @@ describe('collectRequiredEnvErrors', () => {
       APPSYNC_CMS_ENDPOINT: '   ',
       APPSYNC_CMS_API_KEY: '',
     });
-    assert.equal(missing.length, 3);
-    assert.ok(missing.some((entry) => entry.name === 'APPSYNC_CMS_ENDPOINT'));
+    assert.equal(missing.length, 2);
+    assert.ok(missing.some((entry) => entry.name === 'APPSYNC_CMS_API_KEY'));
     assert.ok(missing.some((entry) => entry.name === 'NWS_PROXY_ENDPOINT'));
   });
 });
@@ -96,6 +96,12 @@ describe('buildRuntimeConfigValues manifest fallbacks', () => {
     const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: false });
     assert.equal(values.severeWeatherSignupApiEndpoint, '');
     assert.equal(values.severeWeatherSignupEnabled, false);
+  });
+
+  it('defaults CMS endpoint to Gen 1 bindings when env and secrets are empty', () => {
+    const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: true });
+    assert.match(values.cmsApiEndpoint, /327diwc6cvdqjocdudvrdv7wwu\.appsync-api\.us-east-2\.amazonaws\.com/);
+    assert.equal(values.cognitoUserPoolId, 'us-east-2_DmY7BCBIp');
   });
 });
 

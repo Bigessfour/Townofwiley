@@ -2,13 +2,20 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
+import {
+    loadProductionBindings,
+    readProductionAppSyncApiId,
+    readProductionCmsGraphqlEndpoint,
+    readProductionCmsRegion,
+    readProductionCognitoBindings,
+    readProductionStorageBindings,
+} from './gen1-cms-ssot.mjs';
 import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
 export const manifestPath = join(repoRoot, 'infrastructure', 'amplify-branch-env.manifest.json');
 export const localSecretsPath = join(repoRoot, 'secrets', 'local', 'user-secrets.json');
-export const amplifyOutputsPath = join(repoRoot, 'amplify_outputs.json');
 export const productionBindingsPath = join(
   repoRoot,
   'infrastructure',
@@ -17,48 +24,15 @@ export const productionBindingsPath = join(
 
 /** @returns {Record<string, unknown> | null} */
 export function loadProductionBindingsFromRepo() {
-  if (!existsSync(productionBindingsPath)) {
-    return null;
-  }
-  try {
-    return JSON.parse(readFileSync(productionBindingsPath, 'utf8'));
-  } catch (error) {
-    console.warn(`Unable to parse ${productionBindingsPath}: ${error.message}`);
-    return null;
-  }
+  return loadProductionBindings();
 }
 
-/** Live CMS GraphQL endpoint from infrastructure SSOT (Gen 1 production). */
-export function readProductionCmsGraphqlEndpoint() {
-  const bindings = loadProductionBindingsFromRepo();
-  return bindings?.appSync?.graphqlEndpoint?.trim() || '';
-}
-
-/** Live AppSync API id (Gen 1 production CMS API). */
-export function readProductionAppSyncApiId() {
-  const bindings = loadProductionBindingsFromRepo();
-  return bindings?.appSync?.apiId?.trim() || 'j7b2x3sh7rcezekekkxxiak7hi';
-}
+export { readProductionAppSyncApiId, readProductionCmsGraphqlEndpoint };
 
 export function buildAppSyncQueriesConsoleUrl(region, apiId = readProductionAppSyncApiId()) {
   const trimmedRegion = region?.trim() || DEFAULT_AWS_REGION;
   const trimmedApiId = apiId?.trim() || readProductionAppSyncApiId();
   return `https://${trimmedRegion}.console.aws.amazon.com/appsync/home?region=${trimmedRegion}#/${trimmedApiId}/v1/queries`;
-}
-
-/**
- * @returns {Record<string, unknown> | null}
- */
-export function loadAmplifyOutputsFromRepo() {
-  if (!existsSync(amplifyOutputsPath)) {
-    return null;
-  }
-  try {
-    return JSON.parse(readFileSync(amplifyOutputsPath, 'utf8'));
-  } catch (error) {
-    console.warn(`Unable to parse ${amplifyOutputsPath}: ${error.message}`);
-    return null;
-  }
 }
 
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
@@ -86,48 +60,19 @@ export function loadAmplifyBranchEnvManifest(path = manifestPath) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-/**
- * @param {import('node:process').env} env
- * @param {Array<{ name: string; runtimePath?: string }>} requiredList
- * @returns {Array<{ name: string; runtimePath: string }>}
- */
-/**
- * Env vars satisfied by amplify_outputs.json (Gen 2 Hosting backend phase).
- * @param {Record<string, unknown> | null} outputs
- */
-export function envFromAmplifyOutputs(outputs) {
-  if (!outputs || typeof outputs !== 'object') {
-    return {};
-  }
-  const data =
-    'data' in outputs && outputs.data && typeof outputs.data === 'object'
-      ? /** @type {{ url?: string; api_key?: string; aws_region?: string }} */ (outputs.data)
-      : null;
-  const out = {};
-  if (data?.url?.trim()) {
-    out.APPSYNC_CMS_ENDPOINT = data.url.trim();
-  }
-  if (data?.api_key?.trim()) {
-    out.APPSYNC_CMS_API_KEY = data.api_key.trim();
-  }
-  if (data?.aws_region?.trim()) {
-    out.APPSYNC_CMS_REGION = data.aws_region.trim();
-  }
-  return out;
-}
-
 /** Env vars that may be satisfied from infrastructure/gen1-production-bindings.json in strict builds. */
 const BINDINGS_ENV_FALLBACKS = {
+  APPSYNC_CMS_ENDPOINT: () => readProductionCmsGraphqlEndpoint(),
+  APPSYNC_CMS_REGION: () => readProductionCmsRegion(),
   CONTACT_UPDATE_REVIEW_API_URL: () =>
     loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ?? '',
 };
 
 export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
-  const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
   const secretsEnv = envFromLocalSecrets(
     typeof localSecrets === 'object' && localSecrets !== null ? localSecrets : {},
   );
-  const effectiveEnv = { ...outputsEnv, ...secretsEnv, ...env };
+  const effectiveEnv = { ...secretsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
     let value = effectiveEnv[entry.name];
@@ -179,7 +124,7 @@ export function shouldAllowManifestFallbacks(env, { strict = false } = {}) {
 
 /**
  * Resolve runtime config field values from process.env with optional local secrets fallback.
- * When strict production build runs, callers validate env before using local fallbacks for required keys.
+ * CMS/auth/storage use Gen 1 bindings only — never amplify_outputs.json (Gen 2 retired).
  *
  * @param {Record<string, unknown>} localSecrets
  * @param {import('node:process').env} env
@@ -187,21 +132,8 @@ export function shouldAllowManifestFallbacks(env, { strict = false } = {}) {
  */
 export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const { allowManifestFallbacks = true } = options;
-  const amplifyOutputs = loadAmplifyOutputsFromRepo();
-  const outputsData =
-    amplifyOutputs && typeof amplifyOutputs === 'object' && 'data' in amplifyOutputs
-      ? /** @type {{ url?: string; aws_region?: string; api_key?: string }} */ (amplifyOutputs.data)
-      : null;
-  const outputsAuth =
-    amplifyOutputs && typeof amplifyOutputs === 'object' && 'auth' in amplifyOutputs
-      ? /** @type {{ user_pool_id?: string; user_pool_client_id?: string; identity_pool_id?: string; aws_region?: string }} */ (
-          amplifyOutputs.auth
-        )
-      : null;
-  const outputsStorage =
-    amplifyOutputs && typeof amplifyOutputs === 'object' && 'storage' in amplifyOutputs
-      ? /** @type {{ bucket_name?: string; aws_region?: string }} */ (amplifyOutputs.storage)
-      : null;
+  const cognitoBindings = readProductionCognitoBindings();
+  const storageBindings = readProductionStorageBindings();
 
   // Chatbot (Easy-Peasy) decommissioned June 2026 — keep runtime shape for compatibility.
   const chatUrl = '';
@@ -229,19 +161,14 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   const cmsApiEndpoint =
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
     localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
-    outputsData?.url?.trim() ||
     (allowManifestFallbacks ? readProductionCmsGraphqlEndpoint() : '') ||
     '';
   const cmsApiKey =
-    env.APPSYNC_CMS_API_KEY?.trim() ||
-    localSecrets.cms?.appSync?.apiKey?.trim() ||
-    outputsData?.api_key?.trim() ||
-    '';
+    env.APPSYNC_CMS_API_KEY?.trim() || localSecrets.cms?.appSync?.apiKey?.trim() || '';
   const cmsRegion =
     env.APPSYNC_CMS_REGION?.trim() ||
     localSecrets.cms?.appSync?.region?.trim() ||
-    outputsData?.aws_region?.trim() ||
-    outputsAuth?.aws_region?.trim() ||
+    readProductionCmsRegion() ||
     localSecrets.aws?.region?.trim() ||
     DEFAULT_AWS_REGION;
   const clerkSetupAwsAccountId =
@@ -368,37 +295,32 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     cognitoUserPoolId:
       env.COGNITO_USER_POOL_ID?.trim() ||
       localSecrets.auth?.cognito?.userPoolId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognito?.userPoolId?.trim() ||
-      outputsAuth?.user_pool_id?.trim() ||
+      cognitoBindings.userPoolId?.trim() ||
       '',
     cognitoUserPoolClientId:
       env.COGNITO_USER_POOL_CLIENT_ID?.trim() ||
       localSecrets.auth?.cognito?.userPoolClientId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognito?.userPoolClientId?.trim() ||
-      outputsAuth?.user_pool_client_id?.trim() ||
+      cognitoBindings.userPoolClientId?.trim() ||
       '',
     cognitoIdentityPoolId:
       env.COGNITO_IDENTITY_POOL_ID?.trim() ||
       localSecrets.auth?.cognito?.identityPoolId?.trim() ||
-      loadProductionBindingsFromRepo()?.cognito?.identityPoolId?.trim() ||
-      outputsAuth?.identity_pool_id?.trim() ||
+      cognitoBindings.identityPoolId?.trim() ||
       '',
     cognitoHostedUiDomain:
       env.COGNITO_HOSTED_UI_DOMAIN?.trim() ||
       localSecrets.auth?.cognito?.hostedUiDomain?.trim() ||
-      loadProductionBindingsFromRepo()?.cognito?.hostedUiDomain?.trim() ||
+      cognitoBindings.hostedUiDomain?.trim() ||
       '',
     storageBucketName:
       env.STORAGE_S3_BUCKET?.trim() ||
       localSecrets.storage?.s3?.bucket?.trim() ||
-      loadProductionBindingsFromRepo()?.storage?.bucket?.trim() ||
-      outputsStorage?.bucket_name?.trim() ||
+      storageBindings.bucket?.trim() ||
       '',
     storageRegion:
       env.STORAGE_S3_REGION?.trim() ||
       localSecrets.storage?.s3?.region?.trim() ||
-      loadProductionBindingsFromRepo()?.storage?.region?.trim() ||
-      outputsStorage?.aws_region?.trim() ||
+      storageBindings.region?.trim() ||
       '',
   };
 }
@@ -495,6 +417,6 @@ export function formatStrictEnvErrors(missing) {
     ...lines,
     '',
     'Set them in GitHub Actions repository secrets, local user-secrets (npm run secrets:sync-runtime), or process.env.',
-    'See infrastructure/amplify-branch-env.manifest.json and docs/amplify-deployment-runbook.md',
+    'CMS/auth/storage use Gen 1 only — see infrastructure/gen1-production-bindings.json and docs/gen2-decommissioned.md',
   ].join('\n');
 }

@@ -106,6 +106,7 @@ dist/
 node_modules/
 aws-exports.js
 awsconfiguration.json
+# Retired Amplify Gen 2 build artifact — do not use (see docs/gen2-decommissioned.md)
 amplify_outputs.json
 amplifyconfiguration.json
 amplifyconfiguration.dart
@@ -146,7 +147,6 @@ mcp/*
 mcp/primeng/node_modules/
 mcps/
 
-# Amplify Gen2 local synth (ampx pipeline-deploy / sandbox)
 .amplify/
 
 # Local AWS / Cognito scratch exports (never commit)
@@ -171,6 +171,7 @@ terminals/
 
 # AppSync schema exports (IT scratch — scripts/export-appsync-schema.py)
 scripts/gen1-appsync-schema*.graphql
+/schema-export.graphql
 
 # One-off AWS / AppSync probe scripts (local IT scratch)
 scripts/_aws_inventory_once.py

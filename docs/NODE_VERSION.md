@@ -4,7 +4,7 @@
 
 | Layer                               | Value                                     | Purpose                                                                          |
 | ----------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------- |
-| **Major**                           | **24.x LTS only** (`Krypton`)             | Matches Angular 21, (historical Amplify Gen 2 backend), and Playwright toolchain |
+| **Major**                           | **24.x LTS only** (`Krypton`)             | Matches Angular 21 and Playwright toolchain |
 | **`package.json` `engines.node`**   | `>=24.15.0 <25.0.0`                       | Any **24.15+** patch is acceptable for local `npm`                               |
 | **Repo pin** (`.nvmrc`, CI, builds) | **Exact patch** (currently **`24.16.0`**) | Same binary on laptop, GitHub Actions, and (historical) Amplify builds           |
 

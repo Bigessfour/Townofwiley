@@ -1,4 +1,8 @@
-import { datetimeLocalToIso, isoToDateInput, isoToDatetimeLocal } from './cms-clerk-datetime-fields';
+import {
+  datetimeLocalToIso,
+  isoToDateInput,
+  isoToDatetimeLocal,
+} from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 
 export type ClerkFormFieldType =
@@ -7,7 +11,8 @@ export type ClerkFormFieldType =
   | 'checkbox'
   | 'number'
   | 'date'
-  | 'datetime';
+  | 'datetime'
+  | 'fileOrUrl';
 
 export interface ClerkFormFieldDefinition {
   name: string;
@@ -102,7 +107,8 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     {
       name: 'href',
       label: 'Link or file address',
-      help: 'Full https:// URL or storage key from an upload',
+      type: 'fileOrUrl',
+      help: 'Paste a full https:// URL, or choose a file from your computer to upload.',
     },
     {
       name: 'downloadFileName',

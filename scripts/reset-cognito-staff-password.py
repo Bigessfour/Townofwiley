@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Reset a Gen 2 Cognito staff user password (Town admin /admin/login).
+Reset a Gen 1 Cognito staff user password (Town admin /admin/login).
 
 Use when a user is stuck in FORCE_CHANGE_PASSWORD or forgot their temporary password.
 Per AWS: ForgotPassword does not deliver codes while status is FORCE_CHANGE_PASSWORD.

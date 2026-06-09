@@ -56,6 +56,11 @@ describe('cms-clerk-task-form-fields', () => {
     expect(values.label).toBe('Town Hall');
   });
 
+  it('uses fileOrUrl for add-document href field', () => {
+    const hrefField = clerkTaskFormFields('add-document').find((field) => field.name === 'href');
+    expect(hrefField?.type).toBe('fileOrUrl');
+  });
+
   it('builds mutation input with custom OfficialContact id on create', () => {
     const fields = clerkTaskFormFields('update-contacts');
     const input = formValuesToMutationInput(fields, {

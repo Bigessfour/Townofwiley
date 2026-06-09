@@ -88,16 +88,13 @@ More detail lives in **`docs/AMPLIFY_HOSTING_SOT.md` § 1.a (Build logs — capt
 
 ---
 
-## Gen 2 migration (in progress)
+## Gen 2 decommissioned
 
-See **[amplify-gen2-migration-plan.md](./amplify-gen2-migration-plan.md)**. Summary:
+Amplify Gen 2, Amplify Hosting, and `amplify_outputs.json` were **retired June 2026**. Production CMS uses **Gen 1 AppSync only** — see [gen2-decommissioned.md](./gen2-decommissioned.md) and [infrastructure/gen1-production-bindings.json](../infrastructure/gen1-production-bindings.json).
 
-- Hosting branch **`gen2-main`** uses `amplify.yml` backend phase: `npx ampx pipeline-deploy`.
-- Clerks use **Amplify Console Data manager**, not Gen 1 Studio.
-- Production cutover: `scripts/gen2-production-cutover.sh` (checklist only).
-- Requires Amplify CLI **14.4+** for `npm run amplify:gen2:*`.
+Deploy frontend with `npm run deploy:static-site` (S3 + CloudFront). Runtime config: `npm run generate:runtime-config:strict` + `npm run verify:runtime-config-cms`.
 
-## Quick Reference: Amplify App Details
+## Quick Reference: production backend
 
 | Field             | Value                                |
 | ----------------- | ------------------------------------ |

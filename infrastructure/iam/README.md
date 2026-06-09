@@ -137,27 +137,21 @@ bash scripts/setup-github-actions-deploy-role.sh
 
 Runbook: [docs/github-actions-production-deploy.md](../../docs/github-actions-production-deploy.md).
 
-## Gen 2 migration — CloudFormation stack refactor
+## Gen 2 migration — retired
 
-Required for `amplify gen2-migration refactor` (see [docs/amplify-gen2-migration-plan.md](../../docs/amplify-gen2-migration-plan.md)).
+Amplify Gen 2 stack refactor IAM policy and migration docs were **removed June 2026**. Do not attach `TownOfWileyGen2StackRefactor` for new work. See [docs/gen2-decommissioned.md](../../docs/gen2-decommissioned.md).
 
-**Policy file:** [gen2-stack-refactor-policy.json](./gen2-stack-refactor-policy.json)
-**Managed policy name:** `TownOfWileyGen2StackRefactor` (`arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor`)
-
-Do **not** use `put-user-policy` for `copilot` — inline policy quota is full. Attach the managed policy:
+If the managed policy is still attached to a user, IT may detach it:
 
 ```bash
-aws iam attach-user-policy \
+aws iam detach-user-policy \
   --user-name copilot \
   --policy-arn arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor
 ```
 
-Account administrators using the root user or a role with `AdministratorAccess` already have these actions.
-
-### Remove (if needed)
+Optional cleanup of legacy inline policies:
 
 ```bash
 aws iam delete-user-policy --user-name copilot --policy-name TownOfWileyCloudWatchLogsRead
 aws iam delete-user-policy --user-name copilot --policy-name TownOfWileyLambdaReadVerify
-aws iam detach-user-policy --user-name copilot --policy-arn arn:aws:iam::570912405222:policy/TownOfWileyGen2StackRefactor
 ```

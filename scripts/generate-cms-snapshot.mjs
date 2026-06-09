@@ -36,7 +36,7 @@ const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
       updatedAt
     }
   }
-  listAnnouncements(filter: { active: { eq: true } }, limit: 50) {
+  listAnnouncements(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title
@@ -49,7 +49,7 @@ const PUBLIC_CMS_CORE_QUERY = `query GetPublicCmsCoreContent {
       active
     }
   }
-  listEvents(filter: { active: { eq: true } }, limit: 50) {
+  listEvents(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title
@@ -120,7 +120,7 @@ function buildExtendedCmsQuery(publicDocumentFields) {
 ${publicDocumentFields}
     }
   }
-  listExternalNewsLinks(filter: { active: { eq: true } }, limit: 50) {
+  listExternalNewsLinks(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       title

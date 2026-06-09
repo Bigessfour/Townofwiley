@@ -8,7 +8,7 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                                                                                                                                        |
 | Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                                                                                                                              |
-| Content editor (AWS)      | Use https://townofwiley.gov/admin → "Content editor URL" (Gen 2 AppSync console: https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries ; search "townofwiley"). Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi and Amplify ID d331voxr1fhoir are legacy. |
+| Content editor (AWS)      | https://townofwiley.gov/admin → Content editor URL, or [AppSync Queries j7b2…](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) |
 
 ## Every update (same steps)
 

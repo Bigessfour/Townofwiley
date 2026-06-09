@@ -43,6 +43,7 @@ export class StaffAuthService {
   private readonly staffMember = signal(false);
   private readonly userEmail = signal<string | null>(null);
   private readonly accessTokenValue = signal<string | null>(null);
+  private hostedSignInCompletion: Promise<void> | null = null;
 
   readonly isSessionReady = computed(() => this.sessionReady());
   readonly isAuthenticated = computed(() => this.authenticated());
@@ -140,8 +141,21 @@ export class StaffAuthService {
 
   /** After OAuth callback, load session and verify Staff group membership. */
   async completeHostedSignIn(): Promise<void> {
-    await this.waitForAuthenticatedSession(15, 300);
-    await this.waitForStaffSession();
+    if (this.hostedSignInCompletion) {
+      return this.hostedSignInCompletion;
+    }
+
+    this.hostedSignInCompletion = this.completeHostedSignInInternal();
+    try {
+      await this.hostedSignInCompletion;
+    } finally {
+      this.hostedSignInCompletion = null;
+    }
+  }
+
+  private async completeHostedSignInInternal(): Promise<void> {
+    await this.waitForAuthenticatedSession(20, 300);
+    await this.waitForStaffSession(30, 300);
   }
 
   /** Loads identity-pool credentials for Staff S3 uploads after Cognito sign-in. */
@@ -320,10 +334,45 @@ export class StaffAuthService {
   }
 
   private resolveStaffGroups(
-    tokens: { idToken?: { payload?: Record<string, unknown> }; accessToken?: { payload?: Record<string, unknown> } } | undefined,
+    tokens:
+      | {
+          idToken?: { payload?: Record<string, unknown>; toString?: () => string };
+          accessToken?: { payload?: Record<string, unknown>; toString?: () => string };
+        }
+      | undefined,
   ): string[] {
-    const idGroups = this.readGroupsFromToken(tokens?.idToken?.payload);
-    const accessGroups = this.readGroupsFromToken(tokens?.accessToken?.payload);
+    const idGroups = this.readGroupsFromTokenObject(tokens?.idToken);
+    const accessGroups = this.readGroupsFromTokenObject(tokens?.accessToken);
     return [...new Set([...idGroups, ...accessGroups])];
+  }
+
+  private readGroupsFromTokenObject(
+    token: { payload?: Record<string, unknown>; toString?: () => string } | undefined,
+  ): string[] {
+    const fromPayload = this.readGroupsFromToken(token?.payload);
+    if (fromPayload.length) {
+      return fromPayload;
+    }
+    const jwt = token?.toString?.();
+    if (!jwt || !jwt.includes('.')) {
+      return [];
+    }
+    return this.readGroupsFromToken(this.decodeJwtPayload(jwt));
+  }
+
+  private decodeJwtPayload(jwt: string): Record<string, unknown> | undefined {
+    const parts = jwt.split('.');
+    if (parts.length < 2) {
+      return undefined;
+    }
+    try {
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+      const json = atob(padded);
+      return JSON.parse(json) as Record<string, unknown>;
+    } catch {
+      return undefined;
+    }
   }
 }
