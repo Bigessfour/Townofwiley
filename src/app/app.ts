@@ -21,7 +21,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
@@ -1467,7 +1467,6 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
   imports: [
     NgOptimizedImage,
     RouterLink,
-    RouterLinkActive,
     DrawerModule,
     FormsModule,
     AvatarModule,

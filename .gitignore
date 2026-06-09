@@ -42,6 +42,10 @@ rag/.venv/
 rag/**/__pycache__/
 
 # Miscellaneous
+/.generated/
+
+# Large local audit captures (see docs/audit/wiley_mcp_audit.md)
+/docs/audit/trace.json
 /.scorer-source/
 /.web-codegen-scorer/
 /web-codegen-scorer-out*/

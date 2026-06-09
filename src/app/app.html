@@ -146,6 +146,7 @@
           >
             <span
               class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+              aria-hidden="true"
               >{{ heroContent().status }}</span
             >
             <strong
@@ -193,10 +194,11 @@
             <a
               class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
               routerLink="/"
-              aria-label="Return to homepage"
+              [attr.aria-label]="appCopy().townLogoAriaLabel"
             >
               <span
                 class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+                aria-hidden="true"
                 >{{ heroContent().status }}</span
               >
               <strong
@@ -499,7 +501,7 @@
             class="hero-landing-actions mt-2 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:justify-center"
           >
             <a
-              class="button-cta button-cta--solid inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse shadow-wiley-lift no-underline transition hover:bg-wiley-teal-700 sm:flex-none"
+              class="button-cta button-cta--solid inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full bg-wiley-teal-700 px-6 font-sans text-sm font-bold text-wiley-inverse shadow-wiley-lift no-underline transition hover:bg-wiley-teal-800 sm:flex-none"
               routerLink="/services"
               pRipple
             >
@@ -894,7 +896,7 @@
             />
             <button
               type="submit"
-              class="m-1.5 inline-flex min-h-11 shrink-0 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse transition hover:bg-wiley-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-gold-400"
+              class="m-1.5 inline-flex min-h-11 shrink-0 items-center justify-center rounded-wiley-full bg-wiley-teal-700 px-6 font-sans text-sm font-bold text-wiley-inverse transition hover:bg-wiley-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-gold-400"
             >
               {{ appCopy().searchActionLabel }}
             </button>
@@ -1305,7 +1307,7 @@
             image="mayor-steve-mckitrick.png"
             shape="circle"
             size="xlarge"
-            [attr.aria-label]="appCopy().footerAttestationPhotoAlt"
+            [pt]="{ image: { alt: appCopy().footerAttestationPhotoAlt } }"
           />
           <div class="site-footer__attestation-copy">
             <p class="site-footer__attestation-kicker" id="site-footer-attestation-heading">
