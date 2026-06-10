@@ -195,6 +195,47 @@ async function postGraphql(endpoint, apiKey, query) {
   return payload.data ?? {};
 }
 
+const ANNOUNCEMENT_SNAPSHOT_FIELDS = `
+      id
+      title
+      date
+      detail
+      announcementKind
+      attachmentKey
+      priority
+      imageUrl
+      active`;
+
+/**
+ * listAnnouncements can lag DynamoDB GSIs after direct table updates; getAnnouncement
+ * reads the primary key and returns authoritative attachmentKey/active values.
+ */
+async function refreshAnnouncementsFromPrimaryKey(endpoint, apiKey, listItems) {
+  const refreshed = await Promise.all(
+    (listItems ?? []).map(async (item) => {
+      if (!item?.id) {
+        return item;
+      }
+
+      try {
+        const data = await postGraphql(
+          endpoint,
+          apiKey,
+          `query {
+            getAnnouncement(id: "${item.id}") {${ANNOUNCEMENT_SNAPSHOT_FIELDS}
+            }
+          }`,
+        );
+        return data.getAnnouncement ?? item;
+      } catch {
+        return item;
+      }
+    }),
+  );
+
+  return refreshed.filter((item) => item?.active);
+}
+
 function isPublicDocumentBilingualSchemaError(message) {
   return /FieldUndefined|titleEs|summaryEs|statusEs/.test(message);
 }
@@ -249,7 +290,17 @@ async function main() {
     fetchExtendedCmsData(endpoint, apiKey),
   ]);
 
-  const snapshot = buildSnapshot(coreData, extendedData, resolveGitSha());
+  const refreshedAnnouncements = await refreshAnnouncementsFromPrimaryKey(
+    endpoint,
+    apiKey,
+    coreData.listAnnouncements?.items ?? [],
+  );
+  const coreDataWithFreshAnnouncements = {
+    ...coreData,
+    listAnnouncements: { items: refreshedAnnouncements },
+  };
+
+  const snapshot = buildSnapshot(coreDataWithFreshAnnouncements, extendedData, resolveGitSha());
   writeFileSync(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
   console.log(`CMS snapshot written to ${snapshotPath}`);
 }

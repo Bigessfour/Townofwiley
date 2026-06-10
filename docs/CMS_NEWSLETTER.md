@@ -68,6 +68,55 @@ so the deployed Amplify customHeaders match the repo SOT. See
 [AMPLIFY_HOSTING_SOT.md](AMPLIFY_HOSTING_SOT.md) section 3 for the full drift
 procedure and the daily GitHub Actions probe.
 
+## Guest IAM (newsletter PDF AccessDenied / ListBucket)
+
+You do **not** need a new IAM role. Public PDFs use the existing Cognito **guest**
+(unauthenticated) role from Gen 1:
+
+| Item          | Value                                            |
+| ------------- | ------------------------------------------------ |
+| Role          | `amplify-townofwiley-main-d1245-unauthRole`      |
+| Identity pool | `us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56` |
+| Inline policy | `documentsGuestReadAccess`                       |
+
+Policy SSOT: [`infrastructure/iam/documents-guest-read-access-policy.json`](../infrastructure/iam/documents-guest-read-access-policy.json)
+
+Required permissions for `/news` and linked meeting PDFs:
+
+- `s3:GetObject` on `arn:aws:s3:::townofwiley-documents-storage-main/*`
+- `s3:ListBucket` on the bucket (Amplify Storage `getUrl` may list with a prefix)
+
+**Apply or refresh the policy (IT):**
+
+```bash
+export AWS_PROFILE=townofwiley AWS_REGION=us-east-2
+npm run aws:iam:documents-storage
+```
+
+Or apply guest policy only:
+
+```bash
+aws iam put-role-policy \
+  --role-name amplify-townofwiley-main-d1245-unauthRole \
+  --policy-name documentsGuestReadAccess \
+  --policy-document file://infrastructure/iam/documents-guest-read-access-policy.json
+```
+
+Staff `/admin` uploads use **`amplify-townofwiley-main-d1245-authRole`** — same script updates
+`documentsAuthAccess` from [`documents-auth-access-policy.json`](../infrastructure/iam/documents-auth-access-policy.json).
+
+**Symptom:** iframe shows XML `AccessDenied` mentioning `s3:ListBucket` and
+`amplify-townofwiley-main-d1245-unauthRole`.
+
+**Checks:**
+
+1. PDF object exists at the exact `attachmentKey` (e.g. `documents/newsletter/2026-06-09-town-newsletter.pdf`).
+2. Guest policy above is attached (not only the staff `authRole`).
+3. Hard-refresh `/news` after policy or deploy changes (guest credentials cache ~15 min).
+
+The app resolves CMS keys with Amplify `getUrl({ path })` so keys are **not**
+prefixed with `public/` (see `DocumentUploadService.resolveDocumentHref`).
+
 ## Schema reference
 
 [`amplify/backend/api/townofwiley/schema.graphql`](../amplify/backend/api/townofwiley/schema.graphql)

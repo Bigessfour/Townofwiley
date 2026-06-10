@@ -71,8 +71,6 @@
                 [src]="src"
                 [title]="copy().newsletterIframeTitle + ': ' + newsletter.title"
                 loading="lazy"
-                referrerpolicy="no-referrer"
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               ></iframe>
             } @else {
               <div class="newsletter-body">
@@ -87,8 +85,8 @@
               </div>
             }
           </ng-template>
-          @if (resolvedNewsletterHref(); as href) {
-            <ng-template pTemplate="footer">
+          <ng-template pTemplate="footer">
+            @if (resolvedNewsletterHref(); as href) {
               <a
                 [href]="href"
                 target="_blank"
@@ -99,8 +97,8 @@
                 {{ copy().openPdfLabel }}
                 <span class="visually-hidden">({{ copy().externalLinkSuffixLabel }})</span>
               </a>
-            </ng-template>
-          }
+            }
+          </ng-template>
         </p-card>
       </section>
     }

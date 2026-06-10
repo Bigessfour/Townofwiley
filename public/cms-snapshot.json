@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-09T23:02:28.162Z",
-  "buildSha": "8c9882f2cede64047c162c6be92f137a753445e5",
+  "savedAt": "2026-06-10T00:47:02.531Z",
+  "buildSha": "0b60bceb8e57b73b7aa5abf91679306fb799657f",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -19,12 +19,12 @@
   "alertBannerRecords": [],
   "noticeRecords": [
     {
-      "id": "a40f4e65-d60a-4ef2-9eab-7871f4eeb586",
-      "title": "June 9, 2026 Town Newsletter",
+      "id": "2791a33e-78a2-4815-993f-1c88c5271e96",
+      "title": "June Newsletter",
       "date": "2026-06-09",
-      "detail": "Town of Wiley newsletter for June 9, 2026. Read the full PDF for meeting updates, notices, and community news from Town Hall.",
+      "detail": "June town newsletter",
       "announcementKind": "newsletter",
-      "attachmentKey": "documents/newsletter/2026-06-09-town-newsletter.pdf",
+      "attachmentKey": "documents/newsletter/2026-06-09-town-of-wiley-newsletter.pdf",
       "priority": 1,
       "imageUrl": null,
       "active": true

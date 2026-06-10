@@ -498,6 +498,7 @@ interface CmsGraphqlResponse {
     listSiteSettings?: CmsGraphqlList<SiteSettingsRecord>;
     listAlertBanners?: CmsGraphqlList<AlertBannerRecord>;
     listAnnouncements?: CmsGraphqlList<AnnouncementRecord>;
+    getAnnouncement?: AnnouncementRecord | null;
     listEvents?: CmsGraphqlList<EventRecord>;
     listOfficialContacts?: CmsGraphqlList<OfficialContactRecord>;
     listBusinesses?: CmsGraphqlList<BusinessRecord>;
@@ -996,6 +997,7 @@ export class LocalizedCmsContentStore {
     try {
       const coreResponse = await this.postCmsGraphql(PUBLIC_CMS_CORE_QUERY);
       this.applyCoreResponse(coreResponse);
+      await this.reconcileAnnouncementRecordsFromPrimaryKey();
       this.loadState.set('studio');
       this.contentSourceState.set('live');
       this.persistSnapshot();
@@ -1069,6 +1071,38 @@ export class LocalizedCmsContentStore {
     this.contactRecordsState.set(
       (response.data?.listOfficialContacts?.items ?? []).filter(
         (item): item is OfficialContactRecord => Boolean(item),
+      ),
+    );
+  }
+
+  /**
+   * listAnnouncements can return stale GSI rows after direct DynamoDB fixes; re-fetch each
+   * announcement by primary key so attachmentKey and active match the table.
+   */
+  private async reconcileAnnouncementRecordsFromPrimaryKey(): Promise<void> {
+    const listed = this.noticeRecordsState();
+    if (!listed.length) {
+      return;
+    }
+
+    const refreshed = await Promise.all(
+      listed.map(async (item) => {
+        try {
+          const response = await this.postCmsGraphql(
+            `query { getAnnouncement(id: "${item.id}") {
+              id title date detail announcementKind attachmentKey priority imageUrl active
+            } }`,
+          );
+          return response.data?.getAnnouncement ?? item;
+        } catch {
+          return item;
+        }
+      }),
+    );
+
+    this.noticeRecordsState.set(
+      refreshed.filter((item: AnnouncementRecord | null | undefined): item is AnnouncementRecord =>
+        Boolean(item?.active),
       ),
     );
   }
