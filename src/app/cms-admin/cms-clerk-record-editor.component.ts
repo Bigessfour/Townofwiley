@@ -417,6 +417,12 @@ export class CmsClerkRecordEditorComponent implements OnInit {
         ? this.recordLabel({ id: savedId, ...this.formValues() })
         : this.recordLabel({ id: savedId, ...input });
       this.showSavedToast(savedLabel);
+      // Inform clerk of potential caching delay for public visitors (documented 6-hour live refresh TTL + 7-day snapshot per site-cms-content.ts and AGENTS.md).
+      this.messages.add({
+        severity: 'info',
+        summary: 'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
+        life: 10000,
+      });
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
       if (!this.isSingleton()) {
