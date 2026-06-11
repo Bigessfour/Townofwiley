@@ -34,6 +34,7 @@ export const emptyCmsExtendedGraphqlData = {
   listPublicDocuments: { items: [] },
   listExternalNewsLinks: { items: [] },
   listLeadershipRosterEntries: { items: [] },
+  listSiteCopies: { items: [] },
 };
 
 export const emptyCmsCoreGraphqlData = {
