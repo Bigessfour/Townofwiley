@@ -256,10 +256,6 @@ describe('App', () => {
         fragment: 'issue-report',
       },
       {
-        label: 'Permits & Licenses',
-        routerLink: '/permits',
-      },
-      {
         label: 'Resident services',
         routerLink: '/services',
       },
@@ -268,10 +264,6 @@ describe('App', () => {
       {
         label: 'Meetings & documents',
         routerLink: '/meetings',
-      },
-      {
-        label: 'Permits & Licenses',
-        routerLink: '/permits',
       },
     ]);
   });

@@ -62,13 +62,6 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('I Want To: Permits & Licenses → /permits', async ({ homePage }) => {
-    await homePage.goto();
-    const panel = await openMegaMenuPanel(homePage.page, roots[0]);
-    await panel.getByRole('link', { name: L.permitsAndLicenses, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/permits$/);
-  });
-
   test('I Want To: Search All Services → home#search-panel', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
@@ -179,13 +172,6 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#issue-report')).toBeVisible();
   });
 
-  test('Services: Permits & Licenses → /permits', async ({ homePage }) => {
-    await homePage.goto();
-    const panel = await openMegaMenuPanel(homePage.page, roots[2]);
-    await panel.getByRole('link', { name: 'Permits & Licenses', exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/permits$/);
-  });
-
   test('Services: Resident services → /services', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
@@ -200,17 +186,6 @@ test.describe('mega menu internal panel links', () => {
     await panel.getByRole('link', { name: L.recordsAndDocuments, exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
-  });
-
-  test('Services: Permits & Licenses (services hub) → /services', async ({ homePage }) => {
-    await homePage.goto();
-    const panel = await openMegaMenuPanel(homePage.page, roots[2]);
-    // "Resident services" and plain "Permits & Licenses" both use `href="/services"` (no fragment).
-    const plainServices = panel.locator('a.mega-menu-sub-link[href="/services"]');
-    await expect(plainServices).toHaveCount(2);
-    await plainServices.nth(1).click();
-    await expect(homePage.page).toHaveURL(/\/services$/);
-    await expect(homePage.page.locator('#resident-services')).toBeVisible();
   });
 
   test('News & alerts: Town notices → /notices', async ({ homePage }) => {
