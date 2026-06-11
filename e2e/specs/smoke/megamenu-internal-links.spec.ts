@@ -124,7 +124,7 @@ test.describe('mega menu internal panel links', () => {
   test('Government: Meetings & documents → /meetings', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
-    await panel.getByRole('link', { name: L.recordsAndDocuments, exact: true }).click();
+    await panel.getByRole('link', { name: L.meetingsAndDocuments, exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });
@@ -152,8 +152,9 @@ test.describe('mega menu internal panel links', () => {
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
     await panel.getByRole('link', { name: L.leadership, exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/contact#leadership$/);
-    await expect(homePage.page.locator('.leadership-grid')).toBeVisible();
-    await expect(homePage.page.locator('.leadership-grid')).toContainText('Mayor and Council');
+    await expect(
+      homePage.page.getByRole('heading', { name: /Elected Officials \(Mayor & Council\)/i }),
+    ).toBeVisible();
   });
 
   test('Services: Online Payments → services#payment-help', async ({ homePage }) => {
@@ -183,7 +184,7 @@ test.describe('mega menu internal panel links', () => {
   test('Services: Meetings & documents → /meetings', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
-    await panel.getByRole('link', { name: L.recordsAndDocuments, exact: true }).click();
+    await panel.getByRole('link', { name: L.meetingsAndDocuments, exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });

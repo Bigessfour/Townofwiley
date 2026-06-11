@@ -137,7 +137,7 @@ Evidence / notes:
 Evidence / notes:
 
 - `ng build --configuration production,stats --stats-json` completed successfully with a 1.96 MB raw initial browser bundle and 423.67 kB estimated transfer.
-- The build output still splits major public features into lazy chunks such as `resident-services`, `cms-admin`, `business-directory`, `accessibility-page`, `news`, `meetings-page`, `contact-page`, `notices-page`, `privacy-page`, `terms-page`, `document-hub`, `records-center`, and `localized-weather-panel`. Legacy `/clerk-setup` traffic now redirects into the `cms-admin` hub instead of maintaining a duplicate staff page chunk.
+- The build output still splits major public features into lazy chunks such as `resident-services`, `cms-admin`, `business-directory`, `accessibility-page`, `news`, `meetings-page`, `contact-page`, `notices-page`, `privacy-page`, `terms-page`, `permits`, and `localized-weather-panel`. Legacy `/records` and `/documents` redirect in the router; `document-hub` and `records-center` chunks were removed June 2026.
 - `src/app/app.spec.ts` now asserts that non-core public routes stay lazy-loaded.
 
 ### 3.2 Runtime performance

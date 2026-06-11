@@ -24,7 +24,7 @@ test.describe('documents redirect inventory controls', () => {
     await expect(documentsPage.page.locator('#main-content')).toBeVisible();
   });
 
-  test('[documents.category-filter-search] archive search is visible after redirect', async ({
+  test('[documents.meetings-archive-visible] archive search is visible after redirect', async ({
     documentsPage,
   }) => {
     await documentsPage.goto();

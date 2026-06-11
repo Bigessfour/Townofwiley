@@ -5,14 +5,8 @@
       "args": ["-y", "@angular/cli@21.2.5", "mcp", "--experimental-tool", "modernize"]
     },
     "primeng": {
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "scripts/primeng-mcp.ps1"
-      ],
+      "command": "node",
+      "args": ["scripts/primeng-mcp.mjs"],
       "env": {
         "NODE_OPTIONS": "--no-deprecation"
       }
@@ -36,14 +30,8 @@
       "args": ["-y", "chrome-devtools-mcp@latest"]
     },
     "townofwiley-rag": {
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-Command",
-        "node scripts/rag-mcp.mjs"
-      ]
+      "command": "node",
+      "args": ["scripts/rag-mcp.mjs"]
     }
   }
 }
