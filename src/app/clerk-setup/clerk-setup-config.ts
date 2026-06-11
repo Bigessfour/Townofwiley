@@ -95,8 +95,7 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     awsRegion,
     awsConsoleUrl,
     studioUrl:
-      trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildCmsEditorConsoleUrl(awsRegion, awsConsoleUrl),
+      trimOrEmpty(clerkSetupConfig.studioUrl) || buildCmsEditorConsoleUrl(awsRegion, awsConsoleUrl),
     cfDistributionId: trimOrEmpty(clerkSetupConfig.cfDistributionId) || DEFAULT_CF_DISTRIBUTION_ID,
     s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket) || DEFAULT_STATIC_SITE_BUCKET,
   };

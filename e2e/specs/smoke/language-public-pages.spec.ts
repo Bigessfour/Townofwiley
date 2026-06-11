@@ -26,14 +26,14 @@ test.describe('public language coverage', () => {
     await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#payment-help')).toBeVisible({ timeout: 20_000 });
 
-    await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.getByText('Encontrar paquetes de reuniones')).toBeVisible();
+    await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
 
-    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
     await expect(
       homePage.page.getByRole('heading', {
-        level: 1,
-        name: 'Documentos publicos de reuniones, finanzas y codigo',
+        level: 2,
+        name: 'Buscar agendas y minutas aprobadas',
       }),
     ).toBeVisible();
 

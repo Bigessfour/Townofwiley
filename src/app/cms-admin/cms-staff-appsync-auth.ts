@@ -151,9 +151,9 @@ function isStaffAuthFailure(normalized: string): boolean {
 function isSchemaMissingField(normalized: string): boolean {
   return (
     normalized.includes("field 'listsitecopies'") ||
-    normalized.includes('listsitecopies') && normalized.includes("doesn't exist") ||
-    normalized.includes('listsitecopies') && normalized.includes('undefined') ||
-    normalized.includes('unknown field') && normalized.includes('listsitecopies')
+    (normalized.includes('listsitecopies') && normalized.includes("doesn't exist")) ||
+    (normalized.includes('listsitecopies') && normalized.includes('undefined')) ||
+    (normalized.includes('unknown field') && normalized.includes('listsitecopies'))
   );
 }
 

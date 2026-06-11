@@ -62,14 +62,11 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('I Want To: Permits & Licenses (records form) → services#records-request', async ({
-    homePage,
-  }) => {
+  test('I Want To: Permits & Licenses → /permits', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
-    await panel.locator('a.mega-menu-sub-link[href*="records-request"]').click();
-    await expect(homePage.page).toHaveURL(/\/services#records-request$/);
-    await expect(homePage.page.locator('#records-request')).toBeVisible();
+    await panel.getByRole('link', { name: L.permitsAndLicenses, exact: true }).click();
+    await expect(homePage.page).toHaveURL(/\/permits$/);
   });
 
   test('I Want To: Search All Services → home#search-panel', async ({ homePage }) => {
@@ -131,20 +128,20 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('Government: Records and documents → /records', async ({ homePage }) => {
+  test('Government: Meetings & documents → /meetings', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
     await panel.getByRole('link', { name: L.recordsAndDocuments, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/records$/);
-    await expect(homePage.page.getByTestId('records-guide-packets')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/meetings$/);
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });
 
-  test('Government: Transparency → /records', async ({ homePage }) => {
+  test('Government: Transparency → /contact', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
     await panel.getByRole('link', { name: L.transparency, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/records$/);
-    await expect(homePage.page.getByTestId('records-guide-packets')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/contact$/);
+    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
   });
 
   test('Government: Accessibility statement → /accessibility', async ({ homePage }) => {
@@ -182,14 +179,11 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#issue-report')).toBeVisible();
   });
 
-  test('Services: Permits & Licenses (records form) → services#records-request', async ({
-    homePage,
-  }) => {
+  test('Services: Permits & Licenses → /permits', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
-    await panel.locator('a.mega-menu-sub-link[href*="records-request"]').click();
-    await expect(homePage.page).toHaveURL(/\/services#records-request$/);
-    await expect(homePage.page.locator('#records-request')).toBeVisible();
+    await panel.getByRole('link', { name: 'Permits & Licenses', exact: true }).click();
+    await expect(homePage.page).toHaveURL(/\/permits$/);
   });
 
   test('Services: Resident services → /services', async ({ homePage }) => {
@@ -200,12 +194,12 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.locator('#resident-services')).toBeVisible();
   });
 
-  test('Services: Records and documents → /records', async ({ homePage }) => {
+  test('Services: Meetings & documents → /meetings', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
     await panel.getByRole('link', { name: L.recordsAndDocuments, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/records$/);
-    await expect(homePage.page.getByTestId('records-guide-packets')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/meetings$/);
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });
 
   test('Services: Permits & Licenses (services hub) → /services', async ({ homePage }) => {

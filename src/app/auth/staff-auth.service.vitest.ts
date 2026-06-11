@@ -260,9 +260,7 @@ describe('StaffAuthService', () => {
     const service = new StaffAuthService();
     await service.completeHostedSignIn();
 
-    expect(fetchAuthSession.mock.calls.some((call) => call[0]?.forceRefresh === true)).toBe(
-      true,
-    );
+    expect(fetchAuthSession.mock.calls.some((call) => call[0]?.forceRefresh === true)).toBe(true);
     expect(service.isStaff()).toBe(true);
   });
 

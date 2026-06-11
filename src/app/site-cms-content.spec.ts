@@ -751,9 +751,9 @@ describe('LocalizedCmsContentStore', () => {
 
     expect(store.contentSource()).toBe('live');
     expect(store.hero().title).toBe('Force-refreshed Live Title');
-    const persisted = JSON.parse(
-      window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY) ?? '{}',
-    ) as { siteSettings?: { heroTitle?: string } };
+    const persisted = JSON.parse(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY) ?? '{}') as {
+      siteSettings?: { heroTitle?: string };
+    };
     expect(persisted.siteSettings?.heroTitle).toBe('Force-refreshed Live Title');
 
     httpTesting.verify();

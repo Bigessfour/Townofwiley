@@ -48,16 +48,6 @@ function createHarness(): ResidentServicesHarness {
       validators: [Validators.required],
     }),
   });
-  component.recordsForm = new FormGroup({
-    requestType: new FormControl('records', { nonNullable: true }),
-    details: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    deadline: new FormControl('', { nonNullable: true }),
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    preferredContact: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
   component.contactUpdateForm = new FormGroup({
     fullName: new FormControl('', { nonNullable: true }),
     serviceAddress: new FormControl('', { nonNullable: true }),
@@ -119,7 +109,6 @@ function createHarness(): ResidentServicesHarness {
   component.validationMessage = (ResidentServices.prototype as any).validationMessage;
   component.portalFieldMessage = (ResidentServices.prototype as any).portalFieldMessage;
   component.buildIssueMailtoHref = (ResidentServices.prototype as any).buildIssueMailtoHref;
-  component.buildRecordsMailtoHref = (ResidentServices.prototype as any).buildRecordsMailtoHref;
   component.buildContactUpdateMailtoHref = (
     ResidentServices.prototype as any
   ).buildContactUpdateMailtoHref;
@@ -130,7 +119,6 @@ function createHarness(): ResidentServicesHarness {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   component.issueFormValue = () => component.issueForm.getRawValue();
-  component.recordsFormValue = () => component.recordsForm.getRawValue();
   component.contactUpdateFormValue = () => component.contactUpdateForm.getRawValue();
   component.clerkContact = () => ({
     href: 'mailto:clerk@wiley.gov',
@@ -162,9 +150,7 @@ function createHarness(): ResidentServicesHarness {
   component.contactUpdateExpanded = createSignalMock(false);
   component.hasSubmittedContactUpdate = createSignalMock(false);
   component.issueSubmitting = createSignalMock(false);
-  component.recordsSubmitting = createSignalMock(false);
   component.issueMailtoHref = () => null;
-  component.recordsMailtoHref = () => null;
   component.contactUpdateMailtoHref = () => null;
 
   return component;
@@ -203,7 +189,7 @@ describe('ResidentServices validation helpers', () => {
 });
 
 describe('ResidentServices mailto flows', () => {
-  it('builds issue and records mailto hrefs with the correct recipients and labels', () => {
+  it('builds issue mailto href with the correct recipient and labels', () => {
     const component = createHarness();
 
     component.issueForm.patchValue({
@@ -213,25 +199,13 @@ describe('ResidentServices mailto flows', () => {
       name: 'Jordan Resident',
       preferredContact: 'jordan@example.com',
     });
-    component.recordsForm.patchValue({
-      requestType: 'license',
-      details: 'Please send the license fee schedule.',
-      deadline: 'Friday afternoon',
-      name: 'Jordan Resident',
-      preferredContact: 'jordan@example.com',
-    });
 
     const issueHref = component.buildIssueMailtoHref();
-    const recordsHref = component.buildRecordsMailtoHref();
 
     expect(issueHref).toContain('mailto:scott.whitman@townofwiley.gov');
     expect(issueHref).toContain('subject=Town+issue+report+%7C+Streetlight+or+signage');
     expect(issueHref).toContain('Issue+type%3A+Streetlight+or+signage');
     expect(issueHref).toContain('Location%3A+210+Main+Street');
-    expect(recordsHref).toContain('mailto:clerk@wiley.gov');
-    expect(recordsHref).toContain('subject=Records+or+permit+request+%7C+License+or+fee+question');
-    expect(recordsHref).toContain('Request+type%3A+License+or+fee+question');
-    expect(recordsHref).toContain('Requested+deadline+or+meeting+date%3A+Friday+afternoon');
   });
 
   it('builds contact-update mailto href only when at least one field is filled', () => {

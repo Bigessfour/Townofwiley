@@ -134,24 +134,18 @@ test.describe('feature page coverage', () => {
     await expect(icsAction).toHaveAttribute('href', /^data:text\/calendar/);
   });
 
-  test('documents page keeps the document hub and archive link visible', async ({ homePage }) => {
+  test('meetings page keeps the document archive visible after /documents redirect', async ({
+    homePage,
+  }) => {
     await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
 
+    await expect(homePage.page).toHaveURL(/\/meetings$/);
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
     await expect(
-      homePage.page.getByRole('heading', { level: 1, name: siteContent.cmsHeadings.documentsHub }),
+      homePage.page.getByRole('heading', {
+        level: 2,
+        name: 'Search agendas and approved minutes',
+      }),
     ).toBeVisible();
-
-    const meetingAccessGuide = homePage.page.locator('article', {
-      hasText: 'City Council Meeting Access Guide',
-    });
-
-    await expect(meetingAccessGuide.getByRole('link', { name: 'Open document' })).toHaveAttribute(
-      'href',
-      '/documents/archive/city-council-meeting-access-guide.html',
-    );
-    await expect(meetingAccessGuide.getByRole('link', { name: 'Download file' })).toHaveAttribute(
-      'href',
-      '/documents/archive/city-council-meeting-access-guide.html',
-    );
   });
 });

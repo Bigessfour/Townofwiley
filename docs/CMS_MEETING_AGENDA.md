@@ -24,8 +24,10 @@ The data flow:
 3. Choose the meeting from the dropdown, select the PDF, click **Upload and publish**.
 4. Hard-refresh `https://townofwiley.gov/meetings` and click **View agenda** on that
    row. The PDF should open in a new tab.
-5. Confirm the file also appears under **Meeting documents & agendas** on
-   `https://townofwiley.gov/documents`.
+5. Confirm the file also appears in **Search agendas and approved minutes** on
+   `https://townofwiley.gov/meetings`.
+
+**Note:** `/documents` redirects to `/meetings`. Legacy bookmark URLs still work.
 
 **IT path (fallback):**
 
@@ -52,14 +54,13 @@ uses the **newest** linked row for that `event:` id. To avoid confusion:
 
 ## Public behavior summary
 
-| CMS state | `/meetings` button | On click |
-|-----------|-------------------|----------|
-| Linked PDF | **View agenda** | Opens that meeting's PDF in a new tab |
+| CMS state     | `/meetings` button   | On click                                       |
+| ------------- | -------------------- | ---------------------------------------------- |
+| Linked PDF    | **View agenda**      | Opens that meeting's PDF in a new tab          |
 | No linked PDF | **View agenda PDFs** | Toast: agenda not yet available; no navigation |
 
-The documents hub (`/documents`) still lists all `meeting-documents` files. The
-**View Agenda Packet** featured block opens the next upcoming meeting's linked PDF
-when one exists; otherwise it links to `/meetings`.
+The meeting archive on `/meetings` lists all active `meeting-documents` files. Linked
+agendas also appear on each meeting row via **View agenda**.
 
 ## Schema reference
 

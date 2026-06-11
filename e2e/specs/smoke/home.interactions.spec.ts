@@ -28,27 +28,18 @@ test.describe('homepage high-value interactions', () => {
     await expect(homePage.residentServicePaymentSubmit).toBeVisible();
   });
 
-  test('switches resident services to records requests and prepares the email request', async ({
+  test('switches resident services to weather alerts and links to the weather page', async ({
     homePage,
   }) => {
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
 
-    await homePage.selectResidentServicePanel('records');
+    await homePage.selectResidentServicePanel('weather');
 
-    await expect(homePage.residentServiceRecordsPanel).toBeVisible();
-    await expect(homePage.residentServiceRecordsToggle).toHaveAttribute('aria-pressed', 'true');
-
-    await homePage.fillResidentRecordsRequest({
-      name: 'Jordan Resident',
-      contact: 'jordan@example.com',
-      deadline: 'Friday afternoon',
-      details: 'Please send the most recent meeting packet and approved minutes for review.',
-    });
-
-    await expect(homePage.residentServiceRecordsAction).toContainText('Send request');
+    await expect(homePage.residentServiceWeatherPanel).toBeVisible();
+    await expect(homePage.residentServiceWeatherToggle).toHaveAttribute('aria-pressed', 'true');
     await expect(
-      homePage.page.getByRole('link', { name: /Email contact · deb\.dillon@townofwiley\.gov/i }),
-    ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');
+      homePage.residentServiceWeatherPanel.getByRole('link', { name: /Open weather page/i }),
+    ).toHaveAttribute('href', '/weather');
   });
 
   test('switches resident services to issue reporting and prepares the email request', async ({

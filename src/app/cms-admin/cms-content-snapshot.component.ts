@@ -7,11 +7,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { firstValueFrom } from 'rxjs';
 import { LocalizedCmsContentStore } from '../site-cms-content';
-import {
-  CMS_MODEL_DEFINITIONS,
-  type CmsInventory,
-  liveCountForModel,
-} from './cms-model-inventory';
+import { CMS_MODEL_DEFINITIONS, type CmsInventory, liveCountForModel } from './cms-model-inventory';
 
 export interface CmsModelInventoryRow {
   model: string;

@@ -1,10 +1,9 @@
 import {
-  createGoogleCalendarLinkForEvent,
-  createGoogleCalendarLinkForSeed,
-  createIcsDataUrlForEvent,
-  createIcsDataUrlForSeed,
+    createGoogleCalendarLinkForEvent,
+    createGoogleCalendarLinkForSeed,
+    createIcsDataUrlForEvent,
+    createIcsDataUrlForSeed,
 } from '../calendar-public-links';
-import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
 import type { LinkedAgendaDocument } from '../public-document-event-link';
 import type { CmsCalendarEvent } from '../site-cms-content';
 
@@ -85,7 +84,7 @@ export interface CalendarViewCopy {
   calendarAgendaLinkedActionLabel: string;
 }
 
-const DEFAULT_AGENDA_HREF = DOCUMENT_HUB_LINKS.meetings;
+const DEFAULT_AGENDA_HREF = '/meetings';
 
 export function buildMeetingItems(
   liveEvents: CmsCalendarEvent[],
@@ -167,7 +166,7 @@ function createCalendarItemFromSeed(
       },
       {
         label: copy.calendarAgendaActionLabel,
-        href: DOCUMENT_HUB_LINKS.meetings,
+        href: '/meetings',
         isAgendaAction: true,
       },
       ...(seed.extraActions ?? []),

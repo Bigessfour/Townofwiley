@@ -1,0 +1,81 @@
+<section
+  class="meeting-documents-archive searchable-archive"
+  aria-labelledby="meeting-documents-archive-heading"
+  data-testid="meeting-documents-archive"
+>
+  <div class="archive-header">
+    <p class="meeting-archive-kicker">{{ copy().kicker }}</p>
+    <h2 id="meeting-documents-archive-heading">{{ copy().heading }}</h2>
+    <input
+      pInputText
+      class="archive-search"
+      [placeholder]="copy().searchPlaceholder"
+      [attr.aria-label]="copy().searchAriaLabel"
+      [value]="searchTerm()"
+      (input)="searchTerm.set($any($event.target).value)"
+    />
+  </div>
+
+  @if (hrefResolutionError()) {
+    <p class="public-empty-state meeting-archive-resolution-error" role="alert">
+      {{ copy().resolutionErrorMessage }}
+    </p>
+  }
+
+  @if (visibleDocuments().length === 0) {
+    <p class="public-empty-state" role="status">{{ copy().emptyState }}</p>
+  } @else {
+    <div class="document-file-grid">
+      @for (document of visibleDocuments(); track document.id) {
+        <article
+          class="document-file-card"
+          [attr.id]="documentFragmentId(document.id)"
+          [attr.data-testid]="'meeting-doc-' + document.id"
+        >
+          <div class="document-file-top">
+            <h3 class="document-file-title">{{ document.title }}</h3>
+            <span class="document-status">{{ document.status }}</span>
+          </div>
+
+          <p>{{ document.summary }}</p>
+
+          <div class="document-file-meta">
+            @if (document.updatedAt) {
+              <span>{{ copy().updatedLabel }}: {{ document.updatedAt }}</span>
+            }
+            <span>{{ copy().formatLabel }}: {{ document.format }}</span>
+          </div>
+
+          <div class="document-file-actions">
+            <a class="document-file-link" [attr.href]="document.href">
+              {{ copy().openDocumentLabel }}
+            </a>
+            @if (document.downloadFileName) {
+              <a
+                class="document-file-link secondary"
+                [attr.href]="document.href"
+                [attr.download]="document.downloadFileName"
+              >
+                {{ copy().downloadDocumentLabel }}
+              </a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (hasMoreDocuments()) {
+      <div class="archive-load-more">
+        <p-button
+          type="button"
+          styleClass="meeting-archive-load-more"
+          [outlined]="true"
+          (onClick)="loadMore()"
+          [attr.aria-label]="copy().loadMoreLabel"
+        >
+          {{ copy().loadMoreLabel }}
+        </p-button>
+      </div>
+    }
+  }
+</section>

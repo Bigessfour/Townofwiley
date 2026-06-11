@@ -6,7 +6,6 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'notices', renderMode: RenderMode.Prerender },
   { path: 'meetings', renderMode: RenderMode.Prerender },
   { path: 'services', renderMode: RenderMode.Prerender },
-  { path: 'records', renderMode: RenderMode.Prerender },
   { path: 'businesses', renderMode: RenderMode.Prerender },
   { path: 'pay-bill', renderMode: RenderMode.Prerender },
   { path: 'permits', renderMode: RenderMode.Prerender },
@@ -16,6 +15,5 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'accessibility', renderMode: RenderMode.Prerender },
   { path: 'privacy', renderMode: RenderMode.Prerender },
   { path: 'terms', renderMode: RenderMode.Prerender },
-  { path: 'documents', renderMode: RenderMode.Prerender },
   { path: '**', renderMode: RenderMode.Client },
 ];

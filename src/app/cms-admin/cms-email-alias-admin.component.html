@@ -38,61 +38,57 @@
 
   @if (isSignedIn() && !aliasesLoading() && !loadError()) {
     <div class="cms-email-alias-admin__table-wrap" data-testid="cms-email-alias-table">
-    <p-table
-      [value]="aliases()"
-      styleClass="cms-email-alias-table"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr>
-          <th scope="col">Town address</th>
-          <th scope="col">Staff inbox</th>
-          <th scope="col">Active</th>
-          <th scope="col">Display name</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-row>
-        <tr>
-          <td>{{ row.aliasAddress }}</td>
-          <td>{{ row.destinationAddress }}</td>
-          <td>
-            <p-tag
-              [value]="row.active ? 'Yes' : 'No'"
-              [severity]="row.active ? 'success' : 'secondary'"
-            />
-          </td>
-          <td>{{ row.displayName || '—' }}</td>
-          <td class="cms-email-alias-admin__actions-cell">
-            <button
-              pButton
-              type="button"
-              class="p-button-sm p-button-outlined"
-              [attr.data-testid]="'cms-email-alias-edit-' + row.id"
-              (click)="openEditDialog(row)"
-            >
-              Edit
-            </button>
-            <button
-              pButton
-              type="button"
-              class="p-button-sm p-button-outlined p-button-danger"
-              [loading]="deletingId() === row.id"
-              [disabled]="deletingId() === row.id"
-              [attr.data-testid]="'cms-email-alias-delete-' + row.id"
-              (click)="deleteAlias(row)"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="5">No forwarding rules saved yet.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+      <p-table [value]="aliases()" styleClass="cms-email-alias-table" dataKey="id">
+        <ng-template #header>
+          <tr>
+            <th scope="col">Town address</th>
+            <th scope="col">Staff inbox</th>
+            <th scope="col">Active</th>
+            <th scope="col">Display name</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <td>{{ row.aliasAddress }}</td>
+            <td>{{ row.destinationAddress }}</td>
+            <td>
+              <p-tag
+                [value]="row.active ? 'Yes' : 'No'"
+                [severity]="row.active ? 'success' : 'secondary'"
+              />
+            </td>
+            <td>{{ row.displayName || '—' }}</td>
+            <td class="cms-email-alias-admin__actions-cell">
+              <button
+                pButton
+                type="button"
+                class="p-button-sm p-button-outlined"
+                [attr.data-testid]="'cms-email-alias-edit-' + row.id"
+                (click)="openEditDialog(row)"
+              >
+                Edit
+              </button>
+              <button
+                pButton
+                type="button"
+                class="p-button-sm p-button-outlined p-button-danger"
+                [loading]="deletingId() === row.id"
+                [disabled]="deletingId() === row.id"
+                [attr.data-testid]="'cms-email-alias-delete-' + row.id"
+                (click)="deleteAlias(row)"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5">No forwarding rules saved yet.</td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   }
 

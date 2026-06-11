@@ -411,7 +411,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       }
 
       this.submitResult.set(
-        `${active.model} saved (ID ${savedId}). Open See on website and hard-refresh ${active.previewPath}.`,
+        `${active.model} saved (ID ${savedId}). Use the button below to verify on the live site (public cache refreshed).`,
       );
       const savedLabel = this.editingId()
         ? this.recordLabel({ id: savedId, ...this.formValues() })
@@ -528,5 +528,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       summary: `✅ ${itemLabel} saved successfully and visible on website`,
       life: 5_000,
     });
+  }
+
+  protected async verifyOnLiveSite(): Promise<void> {
+    const active = this.task();
+    if (!active?.previewPath) {
+      return;
+    }
+    // Use documented forceLiveRefresh to bypass public cache (as done on save and in hub "Refresh from database").
+    await this.cmsStore.forceLiveRefresh();
+    const url = `https://townofwiley.gov${active.previewPath}`;
+    window.open(url, '_blank');
   }
 }

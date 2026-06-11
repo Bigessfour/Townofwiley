@@ -47,11 +47,21 @@ function townCalendarParts(ms: number): TownCalendarParts {
   };
 }
 
-function isOnTownCalendarDay(parts: TownCalendarParts, year: number, month: number, day: number): boolean {
+function isOnTownCalendarDay(
+  parts: TownCalendarParts,
+  year: number,
+  month: number,
+  day: number,
+): boolean {
   return parts.year === year && parts.month === month && parts.day === day;
 }
 
-function isBeforeTownCalendarDay(parts: TownCalendarParts, year: number, month: number, day: number): boolean {
+function isBeforeTownCalendarDay(
+  parts: TownCalendarParts,
+  year: number,
+  month: number,
+  day: number,
+): boolean {
   if (parts.year !== year) {
     return parts.year < year;
   }

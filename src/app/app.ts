@@ -8,15 +8,15 @@
  */
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  PLATFORM_ID,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    PLATFORM_ID,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -45,35 +45,33 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import {
-  createGoogleCalendarLinkForEvent,
-  createGoogleCalendarLinkForSeed,
-  createIcsDataUrlForEvent,
-  createIcsDataUrlForSeed,
+    createGoogleCalendarLinkForEvent,
+    createGoogleCalendarLinkForSeed,
+    createIcsDataUrlForEvent,
+    createIcsDataUrlForSeed,
 } from './calendar-public-links';
-import { DOCUMENT_HUB_LINKS } from './document-hub/document-links';
-import { localizeCmsPublicDocument } from './document-hub/localize-public-document';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import {
-  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+    LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+    LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
 } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
+import { localizeCmsPublicDocument } from './meeting-documents/localize-public-document';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
-import { RECORDS_CENTER_COPY } from './records-center/records-center';
 import {
-  CmsAlertBanner,
-  CmsCalendarEvent,
-  CmsContact,
-  LocalizedCmsContentStore,
-  OFFICIAL_CONTACT_ID_CITY_CLERK,
-  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+    CmsAlertBanner,
+    CmsCalendarEvent,
+    CmsContact,
+    LocalizedCmsContentStore,
+    OFFICIAL_CONTACT_ID_CITY_CLERK,
+    OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 import {
-  LocalizedWeatherPanel,
-  type HomepageWeatherAlert,
+    LocalizedWeatherPanel,
+    type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -580,7 +578,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homeLabel: 'Home',
     primaryNavServicesLabel: 'Services',
     primaryNavMeetingsLabel: 'Meetings',
-    primaryNavDocumentsLabel: 'Documents',
+    primaryNavDocumentsLabel: 'Meetings & documents',
     primaryNavPayLabel: 'Pay',
     primaryNavContactLabel: 'Contact',
     homepageWeatherKicker: 'Local conditions',
@@ -628,7 +626,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     // The component applies getDynamicLabel() for the live values shown to residents.
     featureHubKicker: 'Town features',
     featureHubHeading: 'Open the town section you need',
-    featureHubBody: 'Weather, notices, meetings, services, records, and Town Hall contacts.',
+    featureHubBody: 'Weather, notices, meetings, services, and Town Hall contacts.',
     stayInformedKicker: 'Stay Informed',
     stayInformedHeading: 'Alerts and direct town contact',
     stayInformedBody:
@@ -636,16 +634,15 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     viewAllNoticesLabel: 'View all notices',
     weatherSupportDescription: 'Open forecast details and sign up for weather-sensitive updates.',
     siteMetaDescription:
-      'Official Town of Wiley website for resident services, weather alerts, meetings, records, notices, and Town Hall contacts.',
+      'Official Town of Wiley website for resident services, weather alerts, meetings, notices, and Town Hall contacts.',
     searchKicker: 'Wiley Search',
     searchHeading: 'Search Wiley services',
-    searchLabel:
-      'Find permits, taxes, meetings, utilities, records, and issue reporting in one place.',
+    searchLabel: 'Find permits, taxes, meetings, utilities, and issue reporting in one place.',
     searchPlaceholder: 'Search Wiley services... permits, taxes, meetings',
     searchActionLabel: 'Search',
     searchNote: 'Results update as you type; use the shortcuts below for common tasks.',
     searchEmptyState:
-      'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
+      'No direct match yet. Try permits, taxes, meetings, utilities, weather, or road issues.',
     mobileOnlinePaymentsLabel: 'Online Payments',
     mobileIssueLabel: 'Report Street/Utility Issue',
     mobileRecordsLabel: 'Permits & Licenses',
@@ -718,7 +715,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     servicesKicker: 'Digital Services',
     servicesHeading: 'Online services for residents',
     transparencyKicker: 'Transparency',
-    transparencyHeading: 'Public records, budgets, and notices',
+    transparencyHeading: 'Town notices and meeting materials',
     accessibilityKicker: 'Accessibility',
     accessibilityHeading: 'Accessible services and inclusive design',
     complianceNote:
@@ -739,15 +736,14 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Message frequency, opt-out instructions, and program terms for Wiley weather alert texts.',
     paymentsFeatureSummary:
       'Hosted Paystar Quick Pay when available, plus a billing assistance form and Town Hall support.',
-    documentsHubKicker: 'Documents hub',
-    documentsFeatureSummary:
-      'Meeting agendas and packets, budgets and finance reports, municipal code references, searchable archives, and records materials published by the Town of Wiley.',
+    documentsHubKicker: 'Meeting documents',
+    documentsFeatureSummary: 'Meeting agendas and approved minutes published by the Town of Wiley.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
       meetings: 'Meetings and calendar',
       services: 'Resident services',
-      records: 'Records and documents',
+      records: 'Meetings & documents',
       contact: 'Contact Town Hall',
       accessibility: 'Accessibility statement',
       privacy: 'Weather alert privacy notice',
@@ -762,7 +758,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Accessibility statement', href: '/accessibility' },
       { label: 'Weather alert privacy', href: '/privacy' },
       { label: 'Weather alert SMS terms', href: '/terms' },
-      { label: 'Public records and FOIA', href: '/records' },
+      { label: 'Contact the Town Clerk', href: '/contact' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
@@ -779,8 +775,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Notices', href: '/notices', icon: 'pi pi-bell' },
       { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Services', href: '/services', icon: 'pi pi-briefcase' },
-      { label: 'Records', href: '/records', icon: 'pi pi-file' },
-      { label: 'Documents', href: '/documents', icon: 'pi pi-book' },
+      { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Accessibility', href: '/accessibility', icon: 'pi pi-eye' },
       { label: 'Businesses', href: '/businesses', icon: 'pi pi-building' },
       { label: 'News', href: '/news', icon: 'pi pi-newspaper' },
@@ -816,10 +811,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'All meeting information is available here.',
       },
       {
-        title: 'Request records, permits, or clerk help',
-        description: 'Request public records, permits, or assistance from the clerk.',
-        href: '/services#records-request',
-        note: 'Use the form to submit your request.',
+        title: 'Contact the Town Clerk',
+        description: 'Email clerk@townofwiley.gov for records, permits, or clerk assistance.',
+        href: '/contact',
+        note: 'Permit questions are also on the Permits page.',
       },
     ],
     meetings: [
@@ -896,12 +891,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'Open issue report form',
       },
       {
-        title: 'Request permits, licenses, or records',
-        availability: 'Business-ready',
+        title: 'Permits and clerk assistance',
+        availability: 'Contact Town Clerk',
         description:
-          'To request a public record, get permit guidance, or ask a license question, use the records and permit form. The Town Clerk will reply with instructions, fees, and any required documents.',
-        href: '/services#records-request',
-        cta: 'Open permit and records request form',
+          'The town does not process permits online. Email clerk@townofwiley.gov or visit the Permits page for guidance.',
+        href: '/permits',
+        cta: 'Open permits and clerk info',
       },
       {
         title: 'Sign up for weather and emergency alerts',
@@ -920,32 +915,27 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'View accessibility and language options',
       },
       {
-        title: 'Find documents, agendas, and forms',
+        title: 'Find meeting agendas and minutes',
         availability: 'Plain-language search',
         description:
-          'To find a meeting agenda, budget document, town ordinance, or public form, type what you are looking for into the search bar on the homepage. Results link directly to the document.',
-        href: '/#search-panel',
-        cta: 'Search town documents',
+          'Search the homepage for meeting agendas and approved minutes, or open the Meetings page.',
+        href: '/meetings',
+        cta: 'Open meetings and documents',
       },
     ],
     transparencyItems: [
       {
-        title: 'FOIA and public records',
+        title: 'Public records and clerk assistance',
         detail:
-          'Request forms, fee schedules, and response timelines for public records are available through Town Hall and the records hub.',
+          'Email clerk@townofwiley.gov for public records, permits, or document requests. The Town Clerk will reply with next steps.',
       },
       {
-        title: 'Agendas, minutes, and budgets',
+        title: 'Agendas and approved minutes',
         detail:
-          'Meeting packets, approved minutes, budget summaries, and annual reports are posted for download in accessible formats.',
+          'Meeting agendas and approved minutes are posted on the Meetings page when available.',
       },
       {
-        title: 'Ordinances and code information',
-        detail:
-          'Municipal code, zoning references, and related guidance are linked from the documents hub.',
-      },
-      {
-        title: 'Project and service status updates',
+        title: 'Town notices and deadlines',
         detail:
           'Notices and service updates cover road work, utility projects, closures, and major town operations.',
       },
@@ -953,21 +943,19 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     transparencyActionsLabel: 'Transparency quick actions',
     transparencyActions: [
       {
-        title: 'Public records requests',
-        detail:
-          'FOIA and records requests, including alternate formats, are coordinated through the clerk.',
-        href: DOCUMENT_HUB_LINKS.requests,
+        title: 'Email the Town Clerk',
+        detail: 'Public records, permits, and document requests: clerk@townofwiley.gov',
+        href: 'mailto:clerk@townofwiley.gov',
       },
       {
-        title: 'Meeting packets and agendas',
-        detail:
-          'Packets, minutes, and calendar materials are available in the meeting documents section.',
-        href: DOCUMENT_HUB_LINKS.meetings,
+        title: 'Meeting agendas and minutes',
+        detail: 'Browse posted meeting documents on the Meetings page.',
+        href: '/meetings',
       },
       {
-        title: 'Budgets and municipal code',
-        detail: 'Financial reports and code references are published in the documents hub.',
-        href: DOCUMENT_HUB_LINKS.finance,
+        title: 'Permits and licenses',
+        detail: 'Permit guidance and clerk contact information.',
+        href: '/permits',
       },
     ],
     accessibilityItems: [
@@ -995,7 +983,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipGroups: [
       {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-        title: 'Mayor and Council',
+        title: 'Elected Officials (Mayor & Council)',
         detail: 'Elected officials and meeting contact paths are listed below.',
         members: [
           'Mayor: Steve McKitrick',
@@ -1019,7 +1007,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homeLabel: 'Inicio',
     primaryNavServicesLabel: 'Servicios',
     primaryNavMeetingsLabel: 'Reuniones',
-    primaryNavDocumentsLabel: 'Documentos',
+    primaryNavDocumentsLabel: 'Reuniones y documentos',
     primaryNavPayLabel: 'Pagar',
     primaryNavContactLabel: 'Contacto',
     homepageWeatherKicker: 'Condiciones locales',
@@ -1179,15 +1167,15 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Frecuencia de mensajes, instrucciones para cancelar y terminos del programa de alertas por texto de Wiley.',
     paymentsFeatureSummary:
       'Pago rapido Paystar alojado cuando este activo, mas formulario de ayuda con facturacion y apoyo del Ayuntamiento.',
-    documentsHubKicker: 'Centro de documentos',
+    documentsHubKicker: 'Documentos de reuniones',
     documentsFeatureSummary:
-      'Agendas y paquetes de reuniones, presupuestos e informes financieros, referencias del codigo municipal, archivos consultables y materiales de registros publicados por el pueblo de Wiley.',
+      'Agendas de reuniones y minutas aprobadas publicadas por el Pueblo de Wiley.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
       meetings: 'Reuniones y calendario',
       services: 'Servicios para residentes',
-      records: 'Registros y documentos',
+      records: 'Reuniones y documentos',
       contact: 'Contactar al ayuntamiento',
       accessibility: 'Declaracion de accesibilidad',
       privacy: 'Aviso de privacidad para alertas del clima',
@@ -1202,7 +1190,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
       { label: 'Privacidad de alertas del clima', href: '/privacy' },
       { label: 'Terminos SMS de alertas del clima', href: '/terms' },
-      { label: 'Registros publicos y FOIA', href: '/records' },
+      { label: 'Contactar a la secretaria', href: '/contact' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
@@ -1219,7 +1207,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Avisos', href: '/notices', icon: 'pi pi-bell' },
       { label: 'Reuniones', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Servicios', href: '/services', icon: 'pi pi-briefcase' },
-      { label: 'Registros', href: '/records', icon: 'pi pi-file' },
+      { label: 'Reuniones', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Negocios', href: '/businesses', icon: 'pi pi-building' },
       { label: 'Noticias', href: '/news', icon: 'pi pi-newspaper' },
       { label: 'Contacto', href: '/contact', icon: 'pi pi-envelope' },
@@ -1254,10 +1242,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         note: 'Toda la información de reuniones está disponible aquí.',
       },
       {
-        title: 'Solicitar registros, permisos o ayuda del secretario',
-        description: 'Solicitar registros públicos, permisos o asistencia del secretario.',
-        href: '/services#records-request',
-        note: 'Use el formulario para enviar su solicitud.',
+        title: 'Contactar a la secretaria del pueblo',
+        description:
+          'Escriba a clerk@townofwiley.gov para registros, permisos o ayuda de la secretaria.',
+        href: '/contact',
+        note: 'Las preguntas sobre permisos tambien estan en la pagina de Permisos.',
       },
     ],
     meetings: [
@@ -1336,12 +1325,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'Abrir formulario de reporte',
       },
       {
-        title: 'Solicite permisos, licencias o registros',
-        availability: 'Listo para negocios',
+        title: 'Permisos y ayuda de la secretaria',
+        availability: 'Contacte a la secretaria',
         description:
-          'Para solicitar un registro publico, orientacion sobre permisos o una pregunta de licencia, use el formulario. La secretaria del pueblo le respondera con instrucciones, cuotas y documentos requeridos.',
-        href: '/services#records-request',
-        cta: 'Abrir formulario de permisos y registros',
+          'El pueblo no procesa permisos en linea. Escriba a clerk@townofwiley.gov o visite la pagina de Permisos.',
+        href: '/permits',
+        cta: 'Abrir permisos e informacion de secretaria',
       },
       {
         title: 'Registrese para alertas de clima y emergencias',
@@ -1360,55 +1349,47 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'Ver opciones de accesibilidad e idioma',
       },
       {
-        title: 'Encuentre documentos, agendas y formularios',
+        title: 'Encontrar agendas y minutas de reuniones',
         availability: 'Busqueda en lenguaje sencillo',
         description:
-          'Para encontrar una agenda de reunion, documento de presupuesto, ordenanza o formulario publico, escriba lo que busca en la barra de busqueda de la pagina principal.',
-        href: '/#search-panel',
-        cta: 'Buscar documentos del pueblo',
+          'Busque en la pagina principal o abra la pagina de Reuniones para agendas y minutas aprobadas.',
+        href: '/meetings',
+        cta: 'Abrir reuniones y documentos',
       },
     ],
     transparencyItems: [
       {
-        title: 'FOIA y registros publicos',
+        title: 'Registros publicos y ayuda de la secretaria',
         detail:
-          'Formularios de solicitud, cuadros de cuotas y plazos de respuesta estan disponibles en el Ayuntamiento y el centro de registros.',
+          'Escriba a clerk@townofwiley.gov para registros publicos, permisos o solicitudes de documentos.',
       },
       {
-        title: 'Agendas, minutas y presupuestos',
+        title: 'Agendas y minutas aprobadas',
         detail:
-          'Los paquetes de reunion, minutas aprobadas, resumenes de presupuesto e informes anuales se publican para descarga en formatos accesibles.',
+          'Las agendas y minutas aprobadas se publican en la pagina de Reuniones cuando estan disponibles.',
       },
       {
-        title: 'Ordenanzas e informacion del codigo',
+        title: 'Avisos y fechas limite del pueblo',
         detail:
-          'El codigo municipal, referencias de zonificacion y orientacion relacionada enlazan desde el centro de documentos.',
-      },
-      {
-        title: 'Actualizaciones de proyectos y estado del servicio',
-        detail:
-          'Los avisos y actualizaciones de servicios cubren obras viales, proyectos de servicios, cierres y operaciones principales del pueblo.',
+          'Los avisos cubren obras viales, proyectos de servicios, cierres y operaciones principales del pueblo.',
       },
     ],
     transparencyActionsLabel: 'Acciones rapidas de transparencia',
     transparencyActions: [
       {
-        title: 'Solicitudes de registros publicos',
-        detail:
-          'Las solicitudes FOIA y de registros, incluidos formatos alternativos, las coordina la secretaria.',
-        href: DOCUMENT_HUB_LINKS.requests,
+        title: 'Escribir a la secretaria',
+        detail: 'Registros, permisos y documentos: clerk@townofwiley.gov',
+        href: 'mailto:clerk@townofwiley.gov',
       },
       {
-        title: 'Paquetes y agendas de reunion',
-        detail:
-          'Paquetes, minutas y materiales del calendario estan en la seccion de documentos de reunion.',
-        href: DOCUMENT_HUB_LINKS.meetings,
+        title: 'Agendas y minutas de reuniones',
+        detail: 'Consulte documentos publicados en la pagina de Reuniones.',
+        href: '/meetings',
       },
       {
-        title: 'Presupuestos y codigo municipal',
-        detail:
-          'Informes financieros y referencias del codigo se publican en el centro de documentos.',
-        href: DOCUMENT_HUB_LINKS.finance,
+        title: 'Permisos y licencias',
+        detail: 'Orientacion sobre permisos e informacion de contacto de la secretaria.',
+        href: '/permits',
       },
     ],
     accessibilityItems: [
@@ -1435,7 +1416,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipGroups: [
       {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-        title: 'Alcalde y concejo',
+        title: 'Funcionarios electos (Alcalde y Concejo)',
         detail: 'Funcionarios electos y rutas de contacto para reuniones.',
         members: [
           'Alcalde: Steve McKitrick',
@@ -1652,12 +1633,12 @@ export class App {
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
   protected readonly isAdminLoginMode = computed(() => this.currentPath() === '/admin/login');
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
-  protected readonly isDocumentHubMode = computed(() => this.currentPath() === '/documents');
+  protected readonly isDocumentHubMode = computed(() => false);
   protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');
   protected readonly isNoticesMode = computed(() => this.currentPath() === '/notices');
   protected readonly isMeetingsMode = computed(() => this.currentPath() === '/meetings');
   protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
-  protected readonly isRecordsMode = computed(() => this.currentPath() === '/records');
+  protected readonly isRecordsMode = computed(() => false);
   protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
   protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
@@ -1681,7 +1662,6 @@ export class App {
       this.isNoticesMode() ||
       this.isMeetingsMode() ||
       this.isServicesMode() ||
-      this.isRecordsMode() ||
       this.isContactMode() ||
       this.isAccessibilityMode() ||
       this.isPrivacyMode() ||
@@ -1778,11 +1758,6 @@ export class App {
                 fragment: 'calendar',
               },
               {
-                label: copy.mobileRecordsLabel,
-                routerLink: ['/services'],
-                fragment: 'records-request',
-              },
-              {
                 label: copy.mobileSearchAllServicesLabel,
                 routerLink: ['/'],
                 fragment: 'search-panel',
@@ -1813,10 +1788,10 @@ export class App {
           megaMenuColumn([
             { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
             { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
-            { label: copy.featureTitles.records, routerLink: '/records', icon: 'pi pi-folder' },
+            { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
           ]),
           megaMenuColumn([
-            { label: copy.transparencyKicker, routerLink: '/records' },
+            { label: copy.transparencyKicker, routerLink: '/contact' },
             { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
             { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
           ]),
@@ -1834,16 +1809,10 @@ export class App {
               fragment: 'payment-help',
             },
             { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
-            {
-              label: copy.mobileRecordsLabel,
-              routerLink: ['/services'],
-              fragment: 'records-request',
-            },
             { label: copy.featureTitles.services, routerLink: '/services' },
           ]),
           megaMenuColumn([
-            { label: copy.featureTitles.records, routerLink: '/records' },
-            { label: 'Permits & Licenses', routerLink: '/services' },
+            { label: copy.featureTitles.records, routerLink: '/meetings' },
           ]),
         ],
       },
@@ -1975,7 +1944,7 @@ export class App {
       { label: copy.homeLabel, routerLink: '/' },
       { label: copy.primaryNavServicesLabel, routerLink: '/services' },
       { label: copy.primaryNavMeetingsLabel, routerLink: '/meetings' },
-      { label: copy.primaryNavDocumentsLabel, routerLink: '/records' },
+      { label: copy.primaryNavDocumentsLabel, routerLink: '/meetings' },
       { label: copy.primaryNavPayLabel, routerLink: '/pay-bill' },
       { label: copy.primaryNavContactLabel, routerLink: '/contact' },
     ];
@@ -2095,11 +2064,11 @@ export class App {
       },
       {
         id: 'records',
-        kicker: copy.transparencyKicker,
+        kicker: copy.meetingsKicker,
         title: copy.featureTitles.records,
-        summary: copy.transparencyHeading,
-        href: '/records',
-        showOnHomepage: true,
+        summary: copy.documentsFeatureSummary,
+        href: '/meetings',
+        showOnHomepage: false,
       },
       {
         id: 'contact',
@@ -2169,14 +2138,6 @@ export class App {
         href: '/permits',
         showOnHomepage: false,
       },
-      {
-        id: 'documents',
-        kicker: copy.documentsHubKicker,
-        title: copy.featureTitles.documents,
-        summary: copy.documentsFeatureSummary,
-        href: '/documents',
-        showOnHomepage: false,
-      },
     ];
   });
   protected readonly homepageFeaturePages = computed(() =>
@@ -2240,7 +2201,7 @@ export class App {
 
     return this.appCopy().meetings.map((m) => {
       const copy = this.appCopy();
-      const agendaPdfHref = m.agendaPdfHref ?? DOCUMENT_HUB_LINKS.meetings;
+      const agendaPdfHref = m.agendaPdfHref ?? '/meetings';
       const agendaButtonLabel =
         m.href === '/notices' ? copy.meetingsDocumentsHubButtonLabel : undefined;
 
@@ -2336,7 +2297,6 @@ export class App {
   protected readonly transparencyActions = computed(() => this.appCopy().transparencyActions);
   protected readonly accessibilityItems = computed(() => this.appCopy().accessibilityItems);
   protected readonly leadershipGroups = computed(() => this.appCopy().leadershipGroups);
-  private readonly recordsCenterCopy = computed(() => RECORDS_CENTER_COPY[this.siteLanguage()]);
   private readonly weatherSearchKeywords = computed<string[]>(() =>
     this.siteLanguage() === 'en'
       ? ['weather', 'forecast', 'alerts', 'warning', 'watch', 'advisory', 'wind', 'snow']
@@ -2407,33 +2367,20 @@ export class App {
       ),
     }));
   });
-  private readonly recordsSearchItems = computed<SearchItem[]>(() => {
-    const recordsCopy = this.recordsCenterCopy();
+  private readonly meetingDocumentsSearchItems = computed<SearchItem[]>(() => {
+    const copy = this.appCopy();
     const language = this.siteLanguage();
-    const archive = this.cmsStore
-      .publicDocuments()
-      .map((doc) => localizeCmsPublicDocument(doc, language));
 
-    return [
-      ...recordsCopy.guides.map((guide) => ({
-        title: guide.title,
-        summary: guide.detail,
-        category: recordsCopy.kicker,
-        href: guide.href,
-        keywords: this.buildSearchKeywords(guide.kicker, guide.cta),
-      })),
-      ...archive.map((document) => ({
+    return this.cmsStore
+      .publicDocuments()
+      .map((doc) => localizeCmsPublicDocument(doc, language))
+      .map((document) => ({
         title: document.title,
         summary: document.summary,
-        category: recordsCopy.kicker,
-        href: document.href,
-        keywords: this.buildSearchKeywords(
-          document.updatedAt,
-          document.format,
-          ...document.keywords,
-        ),
-      })),
-    ];
+        category: copy.meetingsKicker,
+        href: `/meetings#cms-doc-${document.id}`,
+        keywords: this.buildSearchKeywords(document.format, ...document.keywords),
+      }));
   });
   private readonly serviceSearchItems = computed<SearchItem[]>(() => {
     const copy = this.appCopy();
@@ -2505,7 +2452,7 @@ export class App {
       ...this.topTaskSearchItems(),
       ...this.meetingSearchItems(),
       ...this.calendarSearchItems(),
-      ...this.recordsSearchItems(),
+      ...this.meetingDocumentsSearchItems(),
       ...this.serviceSearchItems(),
       ...this.transparencySearchItems(),
       ...this.noticeSearchItems(),
@@ -2695,7 +2642,7 @@ export class App {
       score += 48;
     }
 
-    if (href.startsWith('/documents') && !hasDocumentIntent) {
+    if (href.startsWith('/meetings#') && !hasDocumentIntent) {
       score -= 12;
     }
 
@@ -2846,8 +2793,7 @@ export class App {
       href.startsWith('http://') ||
       href.startsWith('https://') ||
       href.startsWith('mailto:') ||
-      href.startsWith('tel:') ||
-      href.startsWith('/documents/archive/')
+      href.startsWith('tel:')
     ) {
       window.location.assign(href);
       return;

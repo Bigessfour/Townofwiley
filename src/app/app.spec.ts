@@ -1,8 +1,8 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
-  HttpTestingController,
-  provideHttpClientTesting,
-  TestRequest,
+    HttpTestingController,
+    provideHttpClientTesting,
+    TestRequest,
 } from '@angular/common/http/testing';
 import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -11,19 +11,18 @@ import { MessageService, type MegaMenuItem } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
+import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import {
-  emptyCmsCoreGraphqlData,
-  emptyCmsExtendedGraphqlData,
-  flushBuildCmsSnapshotNotFound,
-  flushCmsSnapshotAndWait,
+    emptyCmsCoreGraphqlData,
+    emptyCmsExtendedGraphqlData,
+    flushBuildCmsSnapshotNotFound,
+    flushCmsSnapshotAndWait,
 } from './cms-test-support';
-import { DOCUMENT_HUB_TITLE_EN } from './document-hub/document-hub';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import {
-  LocalizedWeatherPanel,
-  type HomepageWeatherAlert,
+    LocalizedWeatherPanel,
+    type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
-import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
 interface TestRuntimeConfig {
@@ -198,14 +197,12 @@ describe('App', () => {
     expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
       'Local weather',
     );
-    expect(compiled.querySelector('.feature-card[href="/records"]')?.textContent).toContain(
-      'Records and documents',
-    );
+    expect(compiled.textContent).toContain('Meetings and calendar');
     expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
       'Contact Town Hall',
     );
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
-      'resident services, weather alerts, meetings, records, notices, and Town Hall contacts',
+      'resident services, weather alerts, meetings, notices, and Town Hall contacts',
     );
     expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toContain(
       'Town of Wiley | Official Website',
@@ -260,8 +257,7 @@ describe('App', () => {
       },
       {
         label: 'Permits & Licenses',
-        routerLink: ['/services'],
-        fragment: 'records-request',
+        routerLink: '/permits',
       },
       {
         label: 'Resident services',
@@ -270,19 +266,26 @@ describe('App', () => {
     ]);
     expect(secondColumnGroup?.items).toMatchObject([
       {
-        label: 'Records and documents',
-        routerLink: '/records',
+        label: 'Meetings & documents',
+        routerLink: '/meetings',
       },
       {
         label: 'Permits & Licenses',
-        routerLink: '/services',
+        routerLink: '/permits',
       },
     ]);
   });
 
-  it('should keep non-core public routes lazy-loaded', () => {
-    const lazyLeafRoutes = routes.filter((route) => route.path !== '' && route.redirectTo == null);
+  it('should keep non-core public routes lazy-loaded or redirected', () => {
+    const lazyLeafRoutes = routes.filter(
+      (route) => route.path !== '' && route.redirectTo == null && route.path !== '**',
+    );
     expect(lazyLeafRoutes.every((route) => Boolean(route.loadComponent))).toBe(true);
+
+    const recordsRoute = routes.find((route) => route.path === 'records');
+    const documentsRoute = routes.find((route) => route.path === 'documents');
+    expect(recordsRoute?.redirectTo).toBe('/contact');
+    expect(documentsRoute?.redirectTo).toBe('/meetings');
   });
 
   it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {
@@ -906,7 +909,7 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Document publishing');
     expect(compiled.textContent).toContain('Meeting Documents');
     expect(compiled.textContent).toContain('meeting-documents');
-    expect(compiled.textContent).toContain('Add a form or PDF');
+    expect(compiled.textContent).not.toContain('Add a form or PDF');
   });
 
   it('should expose document publishing via jump nav on the admin hub', async () => {
@@ -920,26 +923,16 @@ describe('App', () => {
     );
   });
 
-  it('should render the public document hub on the documents path', async () => {
+  it('should redirect /documents to the meetings archive', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/documents');
     fixture.detectChanges();
     await fixture.whenStable();
 
+    expect(TestBed.inject(Router).url).toBe('/meetings');
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="document-hub-title"]')?.textContent).toContain(
-      DOCUMENT_HUB_TITLE_EN,
-    );
-    expect(compiled.querySelector('#meeting-documents')?.textContent).toContain(
-      'City Council packets and approved minutes',
-    );
-    expect(compiled.querySelector('#records-requests h2')?.textContent).toContain(
-      'Public records and FOIA requests',
-    );
-    expect(compiled.querySelector('.document-hub-button.primary')?.getAttribute('href')).toBe(
-      '/services#records-request',
-    );
+    expect(compiled.querySelector('[data-testid="meeting-documents-archive"]')).not.toBeNull();
   });
 
   it('should fall back to the public NWS feed when the configured proxy fails', async () => {
