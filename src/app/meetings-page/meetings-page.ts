@@ -1,13 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  PLATFORM_ID,
-  computed,
-  effect,
-  inject,
-  signal,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    PLATFORM_ID,
+    computed,
+    effect,
+    inject,
+    signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -19,21 +19,21 @@ import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { APP_COPY } from '../app';
-import { DOCUMENT_HUB_LINKS } from '../document-hub/document-links';
 import { DocumentUploadService } from '../document-upload.service';
 import {
-  openAgendaPdfInNewTab,
-  resolveAgendaUrlsByEventId,
-  showAgendaUnavailableToast,
+    openAgendaPdfInNewTab,
+    resolveAgendaUrlsByEventId,
+    showAgendaUnavailableToast,
 } from '../meeting-agenda-actions';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
+import { MeetingDocumentsArchiveComponent } from './meeting-documents-archive.component';
 import {
-  buildCalendarItems,
-  buildMeetingItems,
-  type CalendarAction,
-  type CalendarItem,
-  type MeetingItem,
+    buildCalendarItems,
+    buildMeetingItems,
+    type CalendarAction,
+    type CalendarItem,
+    type MeetingItem,
 } from './meetings-page.helpers';
 
 @Component({
@@ -42,6 +42,7 @@ import {
     ButtonModule,
     CardModule,
     FullCalendarModule,
+    MeetingDocumentsArchiveComponent,
     SkeletonModule,
     Ripple,
     RouterLink,
@@ -59,7 +60,6 @@ export class MeetingsPage {
   private readonly messages = inject(MessageService);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  protected readonly meetingDocumentsHref = DOCUMENT_HUB_LINKS.meetings;
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly resolvedAgendaUrls = signal<Record<string, string>>({});
 

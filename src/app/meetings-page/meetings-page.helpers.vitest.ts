@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { CmsCalendarEvent } from '../site-cms-content';
 import {
-  buildCalendarItems,
-  buildMeetingItems,
-  formatCalendarEventDate,
-  parseCalendarSeedDate,
-  resolveCalendarEventEnd,
-  type CalendarSeed,
-  type CalendarViewCopy,
-  type MeetingsCopy,
+    buildCalendarItems,
+    buildMeetingItems,
+    formatCalendarEventDate,
+    parseCalendarSeedDate,
+    resolveCalendarEventEnd,
+    type CalendarSeed,
+    type CalendarViewCopy,
+    type MeetingsCopy,
 } from './meetings-page.helpers';
 
 const MEETINGS_COPY: MeetingsCopy = {
@@ -132,7 +132,7 @@ describe('meetings page helpers', () => {
         schedule: 'Fallback schedule',
         format: 'Fallback format',
         location: 'Fallback location',
-        agendaPdfHref: '/documents#meeting-documents',
+        agendaPdfHref: '/meetings',
         agendaButtonLabel: 'View agenda PDFs',
         hasLinkedAgenda: false,
       },

@@ -5,8 +5,8 @@ import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import {
-  buildAgendaHubHrefByEventId,
-  buildLinkedAgendaDocumentByEventId,
+    buildAgendaHubHrefByEventId,
+    buildLinkedAgendaDocumentByEventId,
 } from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
@@ -1835,7 +1835,7 @@ export class LocalizedCmsContentStore {
 
   private normalizePublicDocuments(records: PublicDocumentRecord[]): CmsPublicDocument[] {
     return records
-      .filter((r) => Boolean(r.active))
+      .filter((r) => Boolean(r.active) && r.sectionId === 'meeting-documents')
       .map((r) => ({
         ...r,
         displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,

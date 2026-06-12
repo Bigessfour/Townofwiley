@@ -22,7 +22,8 @@ DEFAULT_PUBLIC_PAGE_MARKERS = {
     "notices": ("Town notices", "News & Announcements"),
     "meetings": ("Meetings and calendar", "Public calendar"),
     "services": ("Resident services", "Pay utility bill"),
-    "records": ("Records and documents", "Public Document Hub"),
+    # Legacy paths redirect client-side; markers describe post-navigation content when prerendered.
+    "records": ("Phone, email, and next steps", "Records, permits, and document requests"),
     "businesses": ("Wiley Community Business Directory", "Search local businesses"),
     "news": (
         "Town News and Announcements",
@@ -30,10 +31,8 @@ DEFAULT_PUBLIC_PAGE_MARKERS = {
     ),
     "contact": ("Contact Town Hall", "Residents should always know where to go next"),
     "accessibility": ("Accessibility statement", "Report an accessibility barrier"),
-    "documents": (
-        "Public Document Hub",
-        "Stable public destinations for meetings, finance records, and code references",
-    ),
+    "documents": ("Council meetings & schedules", "Meetings and calendar"),
+    "permits": ("Permits & Inquiries", "Town Clerk"),
     "admin": ("Open Amplify Console Data manager", "CMS Connection Status"),
 }
 DEFAULT_PUBLIC_PAGE_PATHS = {
@@ -48,6 +47,7 @@ DEFAULT_PUBLIC_PAGE_PATHS = {
     "contact": "/contact",
     "accessibility": "/accessibility",
     "documents": "/documents",
+    "permits": "/permits",
     "admin": DEFAULT_ADMIN_PATH,
 }
 DEFAULT_CMS_QUERY = (

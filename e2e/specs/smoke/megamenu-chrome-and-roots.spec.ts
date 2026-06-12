@@ -199,10 +199,10 @@ test.describe('mega menu sub-link icons (desktop)', () => {
     await expect(row.locator('i.pi-calendar')).toBeVisible();
   });
 
-  test('Records and documents row shows folder icon', async ({ homePage }) => {
+  test('Meetings & documents row shows folder icon', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
-    const row = panel.getByRole('link', { name: L.recordsAndDocuments, exact: true });
+    const row = panel.getByRole('link', { name: L.meetingsAndDocuments, exact: true });
     await expect(row.locator('i.pi-folder')).toBeVisible();
   });
 

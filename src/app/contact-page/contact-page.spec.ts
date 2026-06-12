@@ -109,7 +109,7 @@ describe('ContactPage', () => {
     expect(el.querySelector('.contact-card-label')?.textContent).toContain('Town Hall');
   });
 
-  it('replaces Mayor and Council roster bullets from CMS when rows exist', () => {
+  it('replaces Elected Officials roster bullets from CMS when rows exist (consolidated leadership)', () => {
     const rosterMap = new Map<string, readonly string[]>([
       ['mayor-council', ['Mayor: From CMS', 'Councilman: From CMS']],
     ]);
@@ -119,9 +119,9 @@ describe('ContactPage', () => {
       leadershipRosterLinesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
-    const mayorList = el.querySelector('.leadership-card .leadership-list');
+    const electedList = el.querySelector('.leadership-roster .leadership-list');
     expect(
-      [...(mayorList?.querySelectorAll('li') ?? [])].map((li) => li.textContent?.trim()),
+      [...(electedList?.querySelectorAll('li') ?? [])].map((li) => li.textContent?.trim()),
     ).toEqual(['Mayor: From CMS', 'Councilman: From CMS']);
   });
 });

@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CLERK_CMS_TASKS,
-  CLERK_VERIFY_STEPS,
-  clerkTaskById,
-  clerkTaskPreviewUrl,
-  clerkTaskUsesDedicatedEditor,
+    CLERK_CMS_TASKS,
+    CLERK_VERIFY_STEPS,
+    clerkTaskById,
+    clerkTaskPreviewUrl,
+    clerkTaskUsesDedicatedEditor,
 } from './cms-clerk-tasks';
 
 describe('cms-clerk-tasks', () => {
   it('defines clerk tasks with unique ids', () => {
-    expect(CLERK_CMS_TASKS.length).toBeGreaterThanOrEqual(10);
+    expect(CLERK_CMS_TASKS.length).toBeGreaterThanOrEqual(9);
     const ids = CLERK_CMS_TASKS.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -19,10 +19,8 @@ describe('cms-clerk-tasks', () => {
     expect(clerkTaskPreviewUrl('contact')).toBe('https://townofwiley.gov/contact');
   });
 
-  it('includes Spanish content guidance on document and leadership tasks', () => {
-    const doc = clerkTaskById('add-document');
+  it('includes Spanish content guidance on leadership tasks', () => {
     const roster = clerkTaskById('update-leadership');
-    expect(doc?.steps.some((s) => /Spanish/i.test(s))).toBe(true);
     expect(roster?.fieldGlossary.some((f) => f.technicalName === 'lineEs')).toBe(true);
   });
 

@@ -96,15 +96,11 @@ async function expectServicesPage(homePage: HomePage): Promise<void> {
 }
 
 async function expectRecordsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.getByTestId('records-guide-packets')).toBeVisible();
-  await expect(
-    homePage.page.getByTestId('records-guide-packets').getByRole('link', {
-      name: 'Open meeting documents destination',
-    }),
-  ).toBeVisible();
+  await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
 }
 
 async function expectAccessibilityPage(homePage: HomePage): Promise<void> {
+  await expect(homePage.page.locator('#barrier-report')).toBeVisible({ timeout: 20_000 });
   await expect(homePage.page.locator('#barrier-report')).toContainText(
     'Open accessibility report email',
   );
@@ -135,7 +131,7 @@ async function expectServiceIssueReport(homePage: HomePage): Promise<void> {
 }
 
 async function expectServiceRecordsRequest(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.locator('#records-request')).toBeVisible();
+  await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
 }
 
 async function expectFeaturePageFromHomepage(
@@ -145,10 +141,10 @@ async function expectFeaturePageFromHomepage(
   await homePage.goto();
   await triggerHomepageViewportDefers(homePage);
 
-  const featureGrid = homePage.page.getByRole('region', { name: siteContent.featureHubHeading });
-  const featureCard = featureGrid.locator(`.feature-card[href="${gateway.href}"]`);
+  const featureGrid = homePage.page.locator('.feature-grid');
+  const featureCard = featureGrid.locator(`a.feature-card[href="${gateway.href}"]`);
 
-  await expect(featureCard, gateway.name).toBeVisible();
+  await expect(featureCard, gateway.name).toBeVisible({ timeout: 25_000 });
   await featureCard.scrollIntoViewIfNeeded();
   await featureCard.click();
 
@@ -216,9 +212,9 @@ const homepageGatewayTests: NavigationGateway[] = [
     assertDestination: expectMeetingsPage,
   },
   {
-    name: 'Top task records request card',
-    click: (page) => page.page.locator('.task-card[href="/services#records-request"]').click(),
-    expectedUrl: /\/services#records-request$/,
+    name: 'Top task contact clerk card',
+    click: (page) => page.page.locator('.task-card[href="/contact"]').click(),
+    expectedUrl: /\/contact$/,
     assertDestination: expectServiceRecordsRequest,
   },
   {
@@ -246,12 +242,6 @@ const homepageGatewayTests: NavigationGateway[] = [
     assertDestination: expectServicesPage,
   },
   {
-    name: 'Feature card records',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/records"]').click(),
-    expectedUrl: /\/records$/,
-    assertDestination: expectRecordsPage,
-  },
-  {
     name: 'Feature card contact',
     click: (page) => page.page.locator('.feature-grid .feature-card[href="/contact"]').click(),
     expectedUrl: /\/contact$/,
@@ -271,8 +261,9 @@ const homepageGatewayTests: NavigationGateway[] = [
   },
   {
     name: 'Footer records link',
-    click: (page) => page.page.locator('.footer-links a[href="/records"]').click(),
-    expectedUrl: /\/records$/,
+    click: (page) =>
+      page.page.locator('.footer-links').getByRole('link', { name: 'Contact the Town Clerk' }).click(),
+    expectedUrl: /\/contact$/,
     assertDestination: expectRecordsPage,
   },
   {
@@ -283,7 +274,8 @@ const homepageGatewayTests: NavigationGateway[] = [
   },
   {
     name: 'Footer contact link',
-    click: (page) => page.page.locator('.footer-links a[href="/contact"]').click(),
+    click: (page) =>
+      page.page.locator('.footer-links').getByRole('link', { name: 'Contact Town Hall' }).click(),
     expectedUrl: /\/contact$/,
     assertDestination: expectContactPage,
   },
@@ -327,8 +319,7 @@ const featurePageGateways: FeaturePageGateway[] = [
     expectedUrl: /\/contact$/,
     assertDestination: async (homePage) => {
       await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
-      await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
-      await expect(homePage.page.locator('.leadership-card')).toHaveCount(2);
+      await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
     },
   },
 ];
@@ -391,14 +382,14 @@ test.describe('homepage smoke', () => {
       await expect(homePage.searchInput).toBeVisible();
     }
     await triggerHomepageViewportDefers(homePage);
-    await expect(homePage.featureCards).toHaveCount(6);
+    await expect(homePage.featureCards).toHaveCount(5);
     await expect(homePage.topTaskCards).toHaveCount(4);
     await expect(
       homePage.page.locator('.feature-grid .feature-card[href="/weather"]'),
     ).toContainText('Local weather');
     await expect(
-      homePage.page.locator('.feature-grid .feature-card[href="/records"]'),
-    ).toContainText('Records and documents');
+      homePage.page.locator('.feature-grid .feature-card[href="/meetings"]'),
+    ).toContainText('Meetings and calendar');
     await expect(homePage.page.locator('.support-strip')).toBeVisible();
     await expect(homePage.page.locator('#accessibility')).toHaveCount(0);
   });
@@ -468,12 +459,7 @@ test.describe('homepage smoke', () => {
 
     const taskGrid = homePage.page.locator('.landing-task-grid');
     /** Matches `APP_COPY.en.topTasks` href order in `app.ts` (titles also in `siteContent.topTaskHeadings`). */
-    const topTaskHrefs = [
-      '/pay-bill',
-      '/services#issue-report',
-      '/meetings',
-      '/services#records-request',
-    ] as const;
+    const topTaskHrefs = ['/pay-bill', '/services#issue-report', '/meetings', '/contact'] as const;
 
     await expect(taskGrid.locator('a.task-card')).toHaveCount(topTaskHrefs.length, {
       timeout: 25_000,
@@ -495,33 +481,14 @@ test.describe('homepage smoke', () => {
     await expect(homePage.weatherSignupShell).toBeVisible();
   });
 
-  test('opens the public document hub from the records feature page', async ({ homePage }) => {
+  test('opens the meetings archive from the meetings feature page', async ({ homePage }) => {
     await homePage.goto();
 
     await triggerHomepageViewportDefers(homePage);
-    await homePage.page.locator('.feature-grid .feature-card[href="/records"]').click();
-    await homePage.page
-      .getByTestId('records-guide-packets')
-      .getByRole('link', { name: 'Open meeting documents destination' })
-      .click();
+    await homePage.page.locator('.feature-grid .feature-card[href="/meetings"]').click();
 
-    await expect(homePage.page).toHaveURL(/\/documents#meeting-documents$/);
-    await expect(homePage.page.getByTestId('document-hub-title')).toContainText(
-      siteContent.cmsHeadings.documentsHub,
-    );
-
-    const meetingGuideLink = homePage.page
-      .locator('a[href="/documents/archive/city-council-meeting-access-guide.html"]')
-      .first();
-    await expect(meetingGuideLink).toBeVisible({ timeout: 20_000 });
-    await meetingGuideLink.click();
-
-    await expect(homePage.page).toHaveURL(
-      /\/documents\/archive\/city-council-meeting-access-guide\.html$/,
-    );
-    await expect(homePage.page.getByRole('heading', { level: 1 })).toContainText(
-      'City Council Meeting Access Guide',
-    );
+    await expect(homePage.page).toHaveURL(/\/meetings$/);
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });
 
   test('opens the accessibility detail page from the footer', async ({ homePage }) => {
@@ -530,30 +497,24 @@ test.describe('homepage smoke', () => {
     await homePage.page.getByRole('link', { name: 'Accessibility statement' }).click();
 
     await expect(homePage.page).toHaveURL(/\/accessibility$/);
+    await expect(homePage.page.locator('#barrier-report')).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.locator('#barrier-report')).toContainText(
       'Open accessibility report email',
     );
   });
 
-  test('routes search results into public document destinations', async ({ homePage }) => {
+  test('routes search results into clerk contact for document requests', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.searchFor('budget summaries annual reports');
-    await expect(async () => {
-      expect(await homePage.page.locator('a.search-result').count()).toBeGreaterThan(0);
-    }).toPass({ timeout: 15_000 });
-    const financialHit = homePage.page
+    await homePage.searchFor('Contact the Town Clerk');
+    const clerkHit = homePage.page
       .locator('a.search-result')
-      .filter({ hasText: /Budget and Annual Reports Guide|Budget summaries|annual reports/i })
+      .filter({ hasText: /Contact the Town Clerk/i })
       .first();
-    await expect(financialHit).toBeVisible({ timeout: 5_000 });
-    await financialHit.click();
+    await expect(clerkHit).toBeVisible({ timeout: 5_000 });
+    await clerkHit.click();
 
-    await expect(homePage.page).toHaveURL(
-      /\/documents\/archive\/budget-and-annual-reports-guide\.html$/,
-    );
-    await expect(
-      homePage.page.getByRole('heading', { level: 1, name: 'Budget and Annual Reports Guide' }),
-    ).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/contact$/);
+    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
   });
 });

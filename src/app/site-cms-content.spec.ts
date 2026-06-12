@@ -681,6 +681,12 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting.verify();
   });
 
+  it('clearCmsCache removes the persisted CMS snapshot key', () => {
+    window.localStorage.setItem(CMS_SNAPSHOT_STORAGE_KEY, '{"version":1}');
+    clearCmsCache();
+    expect(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY)).toBeNull();
+  });
+
   it('skips live AppSync when a fresh browser snapshot is within the live refresh TTL', async () => {
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
@@ -769,12 +775,6 @@ describe('LocalizedCmsContentStore', () => {
     await store.refreshContent();
 
     httpTesting.verify();
-  });
-
-  it('clearCmsCache removes the persisted CMS snapshot key', () => {
-    window.localStorage.setItem(CMS_SNAPSHOT_STORAGE_KEY, '{"version":1}');
-    clearCmsCache();
-    expect(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY)).toBeNull();
   });
 
   it('forceLiveRefresh does not restore localStorage when live AppSync core load fails', async () => {

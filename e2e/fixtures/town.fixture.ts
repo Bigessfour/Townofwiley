@@ -92,7 +92,7 @@ export const test = base.extend<TownFixtures>({
           window.localStorage.setItem('tow-site-language', 'en');
         }
         window.localStorage.removeItem('towCowPopupSeen');
-        // Stale snapshots can omit PublicDocument rows and break document-hub smoke tests.
+        // Stale snapshots can omit PublicDocument rows and break meetings archive smoke tests.
         window.localStorage.removeItem('tow-cms-snapshot-v1');
       });
 

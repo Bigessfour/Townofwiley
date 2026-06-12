@@ -1,16 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
@@ -18,6 +17,7 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { firstValueFrom } from 'rxjs';
 import { getChatbotRuntimeConfig } from '../chatbot-config';
 import { AppRouteLink, getAppRouteLink } from '../internal-route-link';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -333,7 +333,7 @@ export class LocalizedAiChat {
         links: [
           { label: this.copy().calendarLink, href: '/meetings' },
           { label: this.copy().contactLink, href: '/contact' },
-          { label: this.copy().recordsLink, href: '/records' },
+          { label: this.copy().recordsLink, href: '/contact' },
         ],
         omitFromHistory: true,
       };

@@ -38,7 +38,7 @@ export function cmsDocumentHubFragment(documentId: string): string {
 }
 
 export function cmsDocumentHubHref(documentId: string): string {
-  return `/documents#${cmsDocumentHubFragment(documentId)}`;
+  return `/meetings#${cmsDocumentHubFragment(documentId)}`;
 }
 
 /**

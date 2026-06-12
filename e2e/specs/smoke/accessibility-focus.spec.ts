@@ -135,11 +135,11 @@ test.describe('accessibility and focus behavior', () => {
     await expect(homePage.residentServiceIssueToggle).toHaveAttribute('aria-pressed', 'true');
     await expect(homePage.residentServiceIssuePanel).toBeVisible();
 
-    await homePage.residentServiceRecordsToggle.focus();
-    await expect(homePage.residentServiceRecordsToggle).toBeFocused();
+    await homePage.residentServiceWeatherToggle.focus();
+    await expect(homePage.residentServiceWeatherToggle).toBeFocused();
     await homePage.page.keyboard.press('Space');
-    await expect(homePage.residentServiceRecordsToggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(homePage.residentServiceRecordsPanel).toBeVisible();
+    await expect(homePage.residentServiceWeatherToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(homePage.residentServiceWeatherPanel).toBeVisible();
 
     await homePage.enableWeatherProxy();
     await homePage.enableAlertSignup('/mock-alert-signup');

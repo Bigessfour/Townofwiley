@@ -1,12 +1,12 @@
 import { ViewportScroller } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -23,23 +23,21 @@ import type { PreferredBillPayContact } from '../pay-bill/pay-bill-request';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
 import { resolveQuickPayHref } from '../payments/paystar-quick-pay';
 import {
-  CmsContact,
-  LocalizedCmsContentStore,
-  OFFICIAL_CONTACT_ID_CITY_CLERK,
-  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+    CmsContact,
+    LocalizedCmsContentStore,
+    OFFICIAL_CONTACT_ID_CITY_CLERK,
+    OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { ResidentIssuePanel } from './panels/issue-panel';
 import { ResidentPaymentPanel } from './panels/payment-panel';
-import { ResidentRecordsPanel } from './panels/records-panel';
 import { ResidentWeatherPanel } from './panels/weather-panel';
 
 /** Allows digits, spaces, and common phone punctuation; min length enforced separately. */
 const PHONE_INPUT_PATTERN = /^[\d\s\-+().]{10,40}$/;
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
-type RequestType = 'records' | 'license' | 'clerk';
-type ServicePanelId = 'payment' | 'issue' | 'records' | 'weather';
+type ServicePanelId = 'payment' | 'issue' | 'weather';
 
 interface SelectOption<TValue extends string> {
   value: TValue;
@@ -130,9 +128,7 @@ interface ResidentServicesCopy {
   permitsClerkInfoLinkLabel: string;
   businessDirectoryLinkLabel: string;
   issueSubject: string;
-  recordsSubject: string;
   issueCategories: SelectOption<IssueCategory>[];
-  requestTypes: SelectOption<RequestType>[];
   contactUpdateToggleLabel: string;
   contactUpdateBody: string;
   contactUpdateFullNameLabel: string;
@@ -155,7 +151,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionKicker: 'Resident Services',
     sectionTitle: 'Town services in one place',
     sectionBody:
-      'Pay your utility bill, report an issue, request records or clerk help, and open weather alerts — without hunting for the right office.',
+      'Pay your utility bill, report an issue, and open weather alerts — without hunting for the right office.',
     taskPickerLabel: 'Choose a service',
     taskPickerHelp: 'Select a card below, then complete the matching section.',
     validationMessage:
@@ -238,18 +234,12 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     permitsClerkInfoLinkLabel: 'Permits: Town Clerk',
     businessDirectoryLinkLabel: 'Business directory',
     issueSubject: 'Town issue report',
-    recordsSubject: 'Records or permit request',
     issueCategories: [
       { value: 'water', label: 'Water or sewer' },
       { value: 'street', label: 'Street or pothole' },
       { value: 'streetlight', label: 'Streetlight or signage' },
       { value: 'property', label: 'Property or nuisance concern' },
       { value: 'other', label: 'Other town issue' },
-    ],
-    requestTypes: [
-      { value: 'records', label: 'Public records / FOIA' },
-      { value: 'license', label: 'License or fee question' },
-      { value: 'clerk', label: 'Clerk assistance' },
     ],
     contactUpdateToggleLabel: 'Update contact info with Clerk (optional)',
     contactUpdateBody:
@@ -272,7 +262,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionKicker: 'Servicios para residentes',
     sectionTitle: 'Servicios del pueblo en un solo lugar',
     sectionBody:
-      'Pague su recibo, reporte un problema, solicite registros o ayuda de secretaria, y abra alertas del clima sin buscar la oficina.',
+      'Pague su recibo, reporte un problema y abra alertas del clima sin buscar la oficina.',
     taskPickerLabel: 'Elija un servicio',
     taskPickerHelp: 'Seleccione una tarjeta y complete la seccion correspondiente.',
     validationMessage:
@@ -355,18 +345,12 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     permitsClerkInfoLinkLabel: 'Permisos: secretaria municipal',
     businessDirectoryLinkLabel: 'Directorio de negocios',
     issueSubject: 'Reporte de problema del pueblo',
-    recordsSubject: 'Solicitud de registros o permiso',
     issueCategories: [
       { value: 'water', label: 'Agua o alcantarillado' },
       { value: 'street', label: 'Calle o bache' },
       { value: 'streetlight', label: 'Alumbrado o senalizacion' },
       { value: 'property', label: 'Propiedad o molestias' },
       { value: 'other', label: 'Otro problema del pueblo' },
-    ],
-    requestTypes: [
-      { value: 'records', label: 'Registros publicos / FOIA' },
-      { value: 'license', label: 'Licencia o pregunta de cuota' },
-      { value: 'clerk', label: 'Ayuda de secretaria' },
     ],
     contactUpdateToggleLabel: 'Actualizar informacion de contacto con la secretaria (opcional)',
     contactUpdateBody:
@@ -407,14 +391,6 @@ type IssueFormGroup = FormGroup<{
   preferredContact: FormControl<string>;
 }>;
 
-type RecordsFormGroup = FormGroup<{
-  requestType: FormControl<RequestType>;
-  details: FormControl<string>;
-  deadline: FormControl<string>;
-  name: FormControl<string>;
-  preferredContact: FormControl<string>;
-}>;
-
 type ContactUpdateFormGroup = FormGroup<{
   fullName: FormControl<string>;
   serviceAddress: FormControl<string>;
@@ -432,7 +408,6 @@ type ContactUpdateFormGroup = FormGroup<{
     Ripple,
     ResidentIssuePanel,
     ResidentPaymentPanel,
-    ResidentRecordsPanel,
     ResidentWeatherPanel,
   ],
   templateUrl: './resident-services.html',
@@ -461,7 +436,6 @@ export class ResidentServices {
   protected readonly activeServicePanel = signal<ServicePanelId>('payment');
   protected readonly portalSubmitting = signal(false);
   protected readonly issueSubmitting = signal(false);
-  protected readonly recordsSubmitting = signal(false);
   protected readonly contactUpdateExpanded = signal(false);
   protected readonly contactUpdateStatus = signal<string | null>(null);
   protected readonly hasSubmittedContactUpdate = signal(false);
@@ -489,14 +463,6 @@ export class ResidentServices {
         title: c.issueTitle,
         summary: c.issueBody,
         icon: c.issueIcon,
-      },
-      {
-        id: 'records',
-        anchor: 'records-request',
-        meta: c.recordsMeta,
-        title: c.recordsTitle,
-        summary: c.recordsBody,
-        icon: c.recordsIcon,
       },
       {
         id: 'weather',
@@ -545,17 +511,6 @@ export class ResidentServices {
     }),
   });
 
-  protected readonly recordsForm: RecordsFormGroup = new FormGroup({
-    requestType: new FormControl<RequestType>('records', { nonNullable: true }),
-    details: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    deadline: new FormControl('', { nonNullable: true }),
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    preferredContact: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
-
   protected readonly contactUpdateForm: ContactUpdateFormGroup = new FormGroup({
     fullName: new FormControl('', { nonNullable: true }),
     serviceAddress: new FormControl('', { nonNullable: true }),
@@ -568,10 +523,6 @@ export class ResidentServices {
   private readonly issueFormValue = toSignal(
     this.issueForm.valueChanges.pipe(startWith(this.issueForm.getRawValue())),
     { initialValue: this.issueForm.getRawValue() },
-  );
-  private readonly recordsFormValue = toSignal(
-    this.recordsForm.valueChanges.pipe(startWith(this.recordsForm.getRawValue())),
-    { initialValue: this.recordsForm.getRawValue() },
   );
   private readonly contactUpdateFormValue = toSignal(
     this.contactUpdateForm.valueChanges.pipe(startWith(this.contactUpdateForm.getRawValue())),
@@ -634,7 +585,6 @@ export class ResidentServices {
   );
 
   protected readonly issueMailtoHref = computed(() => this.buildIssueMailtoHref());
-  protected readonly recordsMailtoHref = computed(() => this.buildRecordsMailtoHref());
   protected readonly contactUpdateMailtoHref = computed(() => this.buildContactUpdateMailtoHref());
 
   /** Stable references for child panels that need callable inputs. */
@@ -651,8 +601,6 @@ export class ResidentServices {
       const fragment = this.routeFragment();
       if (fragment === 'issue-report') {
         this.activeServicePanel.set('issue');
-      } else if (fragment === 'records-request') {
-        this.activeServicePanel.set('records');
       } else if (fragment === 'payment-help') {
         this.activeServicePanel.set('payment');
       } else if (fragment === 'weather-alerts') {
@@ -811,35 +759,6 @@ export class ResidentServices {
     }, 400);
   }
 
-  protected async submitRecordsRequest(): Promise<void> {
-    const href = this.recordsMailtoHref();
-    if (!href) {
-      this.recordsForm.markAllAsTouched();
-      this.messages.add({
-        key: 'resident-services',
-        severity: 'warn',
-        summary: this.copy().portalValidationToastSummary,
-        detail: this.copy().portalValidationToastDetail,
-        life: 6000,
-      });
-      return;
-    }
-
-    this.recordsSubmitting.set(true);
-    this.messages.add({
-      key: 'resident-services',
-      severity: 'info',
-      summary: this.copy().prepareMailToastSummary,
-      detail: this.copy().prepareMailToastDetail,
-      life: 4000,
-    });
-
-    window.setTimeout(() => {
-      window.location.assign(href);
-      this.recordsSubmitting.set(false);
-    }, 400);
-  }
-
   protected validationMessage(control: AbstractControl, fieldLabel: string): string | null {
     if (!control.invalid || !control.touched) {
       return null;
@@ -891,27 +810,6 @@ export class ResidentServices {
       `${this.copy().issueDetailsLabel}: ${values.details}`,
       `${this.copy().issueNameLabel}: ${values.name}`,
       `${this.copy().issueContactLabel}: ${values.preferredContact}`,
-    ]);
-  }
-
-  private buildRecordsMailtoHref(): string | null {
-    if (this.recordsForm.invalid) {
-      return null;
-    }
-
-    const values = this.recordsFormValue();
-    const requestTypeLabel =
-      this.copy().requestTypes.find((requestType) => requestType.value === values.requestType)
-        ?.label ?? values.requestType;
-    const recipient =
-      this.getEmailAddress(this.clerkContact()) || this.getEmailAddress(this.townInfoContact());
-
-    return this.buildMailtoHref(recipient, `${this.copy().recordsSubject} | ${requestTypeLabel}`, [
-      `${this.copy().recordsTypeLabel}: ${requestTypeLabel}`,
-      `${this.copy().recordsNameLabel}: ${values.name}`,
-      `${this.copy().recordsContactLabel}: ${values.preferredContact}`,
-      `${this.copy().recordsDeadlineLabel}: ${values.deadline || '-'}`,
-      `${this.copy().recordsDetailsLabel}: ${values.details}`,
     ]);
   }
 

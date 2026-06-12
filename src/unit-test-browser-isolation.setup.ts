@@ -7,8 +7,19 @@
  * the next English-only spec. Local `ng test` without `--browsers` uses jsdom/Node,
  * which often looks “always green” because storage is not shared the same way.
  */
-import { afterEach } from 'vitest';
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
+
+const { amplifyGraphqlMock } = vi.hoisted(() => ({
+  amplifyGraphqlMock: vi.fn(),
+}));
+
+vi.mock('aws-amplify/api', () => ({
+  generateClient: () => ({
+    graphql: amplifyGraphqlMock,
+  }),
+}));
+
+globalThis.__amplifyGraphqlMock = amplifyGraphqlMock;
 
 afterEach(() => {
   delete (

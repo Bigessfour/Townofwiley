@@ -25,10 +25,8 @@ export const interactionInventoryIds = [
   'home.weather-signup-teaser',
   'home.site-alert-cta',
 
-  // Documents
-  'documents.category-filter-search',
-  'documents.open-document-download',
-  'documents.archive-in-app-anchor',
+  // Documents redirect (/documents → /meetings archive)
+  'documents.meetings-archive-visible',
 
   // Weather
   'weather.signup-form-submit',
@@ -49,8 +47,8 @@ export const interactionInventoryIds = [
   'services.payment-panel-toggle',
   'services.issue-report-panel',
 
-  // Records
-  'records.guide-packets-visible',
+  // Records redirect (/records → /contact)
+  'records.redirect-contact-assistance',
 
   // Businesses
   'businesses.directory-search',

@@ -18,11 +18,7 @@
 
     @if (taskId(); as id) {
       @if (usesDedicatedEditor(id)) {
-        <div
-          id="cms-task-form"
-          class="cms-task-guide__form-panel"
-          data-testid="cms-task-form"
-        >
+        <div id="cms-task-form" class="cms-task-guide__form-panel" data-testid="cms-task-form">
           @if (id === 'manage-email-aliases') {
             <div data-testid="cms-email-alias-editor-slot">
               <app-cms-email-alias-admin />

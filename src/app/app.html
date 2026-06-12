@@ -603,52 +603,9 @@
 
               <router-outlet />
             </section>
-          } @else if (isRecordsMode()) {
+          } @else if (isContactMode()) {
             <section class="feature-detail-stack">
-              <p-card
-                class="panel wiley-panel rounded-wiley-xl border border-wiley-cream-100 shadow-wiley-card"
-                id="records"
-              >
-                <ng-template pTemplate="header">
-                  <p-tag
-                    class="section-kicker-tag"
-                    [value]="appCopy().transparencyKicker"
-                    severity="secondary"
-                    [rounded]="true"
-                  />
-                  <h2>{{ appCopy().transparencyHeading }}</h2>
-                </ng-template>
-                <div class="stack-list">
-                  @for (item of transparencyItems(); track item.title) {
-                    <article class="home-info-row">
-                      <strong>{{ item.title }}</strong>
-                      <span>{{ item.detail }}</span>
-                    </article>
-                  }
-                </div>
-                <div class="transparency-actions" [attr.aria-label]="transparencyActionsLabel()">
-                  @for (action of transparencyActions(); track action.title) {
-                    @if (resolveAppLink(action.href); as transparencyLink) {
-                      @if (transparencyLink.isInternal) {
-                        <a
-                          class="transparency-action"
-                          [routerLink]="transparencyLink.path"
-                          [fragment]="transparencyLink.fragment"
-                        >
-                          <strong>{{ action.title }}</strong>
-                          <span>{{ action.detail }}</span>
-                        </a>
-                      } @else {
-                        <a class="transparency-action" [attr.href]="transparencyLink.href">
-                          <strong>{{ action.title }}</strong>
-                          <span>{{ action.detail }}</span>
-                        </a>
-                      }
-                    }
-                  }
-                </div>
-                <router-outlet />
-              </p-card>
+              <router-outlet />
             </section>
           } @else if (isAccessibilityMode()) {
             <section class="feature-detail-stack">
@@ -1297,10 +1254,7 @@
           </ul>
         </nav>
 
-        <section
-          class="site-footer__attestation"
-          aria-labelledby="site-footer-attestation-heading"
-        >
+        <section class="site-footer__attestation" aria-labelledby="site-footer-attestation-heading">
           <p-avatar
             image="mayor-steve-mckitrick.png"
             shape="circle"
@@ -1322,5 +1276,4 @@
       </div>
     </footer>
   </main>
-
 }

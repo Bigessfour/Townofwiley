@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applyPostNoticeAttachmentDefaults,
-  CLERK_TASK_FORM_FIELDS,
-  clerkTaskFormFields,
-  clerkTaskHasForm,
-  defaultDynamicFormValues,
-  formValuesToMutationInput,
-  recordToFormValues,
-  todayDateInputValue,
+    applyPostNoticeAttachmentDefaults,
+    CLERK_TASK_FORM_FIELDS,
+    clerkTaskFormFields,
+    clerkTaskHasForm,
+    defaultDynamicFormValues,
+    formValuesToMutationInput,
+    recordToFormValues,
+    todayDateInputValue,
 } from './cms-clerk-task-form-fields';
 import { CLERK_CMS_TASKS, clerkTaskHasInAppEditor } from './cms-clerk-tasks';
 
@@ -58,9 +58,11 @@ describe('cms-clerk-task-form-fields', () => {
     expect(values.label).toBe('Town Hall');
   });
 
-  it('uses fileOrUrl for add-document href field', () => {
-    const hrefField = clerkTaskFormFields('add-document').find((field) => field.name === 'href');
-    expect(hrefField?.type).toBe('fileOrUrl');
+  it('uses fileOrUrl for post-notice attachment field', () => {
+    const pdfField = clerkTaskFormFields('post-notice').find(
+      (field) => field.name === 'attachmentKey',
+    );
+    expect(pdfField?.type).toBe('fileOrUrl');
   });
 
   it('uses select kind and fileOrUrl PDF upload for post-notice', () => {

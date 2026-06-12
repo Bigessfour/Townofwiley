@@ -4,10 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
-import {
-  CmsEmailAliasAdminComponent,
-  type EmailAliasRow,
-} from './cms-email-alias-admin.component';
+import { CmsEmailAliasAdminComponent, type EmailAliasRow } from './cms-email-alias-admin.component';
 
 type Harness = CmsEmailAliasAdminComponent & {
   openCreateDialog: () => void;

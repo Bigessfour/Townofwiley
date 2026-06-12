@@ -4,10 +4,10 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 
 ## Bookmarks
 
-| Page                      | URL                                                                                                                                                                                                                                                                                                        |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                                                                                                                                        |
-| Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                                                                                                                              |
+| Page                      | URL                                                                                                                                                                                           |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                           |
+| Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                 |
 | Content editor (AWS)      | https://townofwiley.gov/admin → Content editor URL, or [AppSync Queries j7b2…](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) |
 
 ## Every update (same steps)
@@ -24,7 +24,7 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 | Post news or notice          | Post news or notice                   | Announcement          |
 | Add meeting                  | Add meeting or event                  | Event                 |
 | Change homepage photo/text   | Change homepage photo or welcome text | SiteSettings          |
-| Add a PDF/form               | Add a form or PDF                     | PublicDocument        |
+| Publish meeting agenda/minutes | Upload a meeting agenda or packet     | PublicDocument        |
 | Update Town Hall phone/email | Update Town Hall or clerk contact     | OfficialContact       |
 | Update mayor/council list    | Update mayor and council list         | LeadershipRosterEntry |
 | Update businesses            | Update business directory             | Business              |
@@ -67,7 +67,7 @@ Full procedure: [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md)
 ## Other uploads (optional)
 
 - **Homepage photo:** use “Upload homepage photo” on `/admin`, copy the web address into **Photo web address** in SiteSettings.
-- **Standalone archive PDF:** use **Add a form or PDF** (PublicDocument) for the document library — not the same as the /news newsletter block.
+- **Other document requests:** email **clerk@townofwiley.gov** (Contact page) — meeting PDFs use the upload steps above.
 
 ## Help
 
