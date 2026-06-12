@@ -25,7 +25,7 @@ describe('isPathRegisteredAppRoute', () => {
 });
 
 describe('getAppRouteLink', () => {
-  it('treats /pay-bill, /payments, and /permits as internal app routes', () => {
+  it('treats /pay-bill and /payments as internal app routes', () => {
     expect(getAppRouteLink('/pay-bill')).toEqual({
       href: '/pay-bill',
       isInternal: true,
@@ -37,12 +37,6 @@ describe('getAppRouteLink', () => {
       isInternal: true,
       path: '/payments',
       fragment: undefined,
-    });
-    expect(getAppRouteLink('/permits#top')).toEqual({
-      href: '/permits#top',
-      isInternal: true,
-      path: '/permits',
-      fragment: 'top',
     });
   });
 

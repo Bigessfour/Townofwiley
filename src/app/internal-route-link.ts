@@ -18,7 +18,6 @@ const APP_ROUTE_PATHS = new Set([
   '/records',
   '/payments',
   '/pay-bill',
-  '/permits',
   '/businesses',
   '/news',
   '/contact',

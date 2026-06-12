@@ -314,8 +314,8 @@ const KNOWN_CMS_TEXT_TRANSLATIONS: Record<string, string> = {
   'Digital self-service rollout planned in phases':
     'El lanzamiento del autoservicio digital esta planeado por fases',
   'Spring 2026': 'Primavera de 2026',
-  'Payments, service requests, permits, meeting archives, and records access are being organized around resident tasks instead of department structure.':
-    'Los pagos, solicitudes de servicio, permisos, archivos de reuniones y acceso a registros se estan organizando alrededor de tareas de residentes y no por estructura departamental.',
+  'Payments, service requests, meeting archives, and records access are being organized around resident tasks instead of department structure.':
+    'Los pagos, solicitudes de servicio, archivos de reuniones y acceso a registros se estan organizando alrededor de tareas de residentes y no por estructura departamental.',
   'Public notice placement reserved for high-visibility alerts':
     'El espacio para avisos publicos se reserva para alertas de alta visibilidad',
   Operational: 'Operacion',
@@ -658,7 +658,7 @@ const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
   }
 }`;
 
-/** Stable Dynamo `id` on `OfficialContact` rows required by shell, permits, and services. */
+/** Stable Dynamo `id` on `OfficialContact` rows required by shell and services. */
 export const OFFICIAL_CONTACT_ID_TOWN_INFORMATION = 'town-information';
 export const OFFICIAL_CONTACT_ID_CITY_CLERK = 'city-clerk';
 export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';

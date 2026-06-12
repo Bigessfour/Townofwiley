@@ -6,7 +6,6 @@ import { MeetingsPage } from '../pages/meetings.page';
 import { NewsPage } from '../pages/news.page';
 import { NoticesPage } from '../pages/notices.page';
 import { PayBillPage } from '../pages/pay-bill.page';
-import { PermitsPage } from '../pages/permits.page';
 import { PrivacyPage } from '../pages/privacy.page';
 import { RecordsPage } from '../pages/records.page';
 import { ServicesPage } from '../pages/services.page';
@@ -26,7 +25,6 @@ export interface TownPageFixtures {
   servicesPage: ServicesPage;
   recordsPage: RecordsPage;
   businessesPage: BusinessesPage;
-  permitsPage: PermitsPage;
   newsPage: NewsPage;
   accessibilityPage: AccessibilityPage;
   privacyPage: PrivacyPage;
@@ -63,9 +61,6 @@ export const test = townTest.extend<TownPageFixtures>({
   },
   businessesPage: async ({ page }, use) => {
     await use(new BusinessesPage(page));
-  },
-  permitsPage: async ({ page }, use) => {
-    await use(new PermitsPage(page));
   },
   newsPage: async ({ page }, use) => {
     await use(new NewsPage(page));

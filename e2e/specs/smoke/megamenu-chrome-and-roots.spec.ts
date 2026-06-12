@@ -98,7 +98,7 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     ).toBeVisible();
   });
 
-  test('panel for Services & Permits includes Online Payments', async ({ homePage }) => {
+  test('panel for Services includes Online Payments', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
     await expect(panel.getByRole('link', { name: L.onlinePayments, exact: true })).toBeVisible();

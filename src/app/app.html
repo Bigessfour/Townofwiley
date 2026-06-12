@@ -631,10 +631,6 @@
             <section class="feature-detail-stack">
               <router-outlet />
             </section>
-          } @else if (isPermitsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
           } @else if (isNewsMode()) {
             <section class="feature-detail-stack">
               <router-outlet />
@@ -643,15 +639,16 @@
         </section>
       }
     } @else {
+      <div class="homepage-priority-stack grid w-full gap-4 md:gap-5">
       <section
-        class="landing-shortcuts panel mx-auto grid w-full gap-6 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-6 shadow-wiley-card md:p-8"
+        class="landing-shortcuts panel mx-auto grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-5 shadow-wiley-card md:p-6"
         id="top-tasks"
         aria-labelledby="top-tasks-heading"
       >
         <header
-          class="section-header landing-section-header grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
+          class="section-header landing-section-header grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
         >
-          <div class="grid gap-2">
+          <div class="grid gap-1.5">
             <p-tag
               class="section-kicker-tag w-fit"
               [value]="topTasksKicker()"
@@ -673,7 +670,7 @@
         <p-divider styleClass="section-divider" />
 
         <section
-          class="task-grid landing-task-grid mt-0 grid gap-6 sm:gap-8 sm:grid-cols-2"
+          class="task-grid landing-task-grid mt-0 grid gap-4 sm:gap-5 sm:grid-cols-2"
           aria-label="Resident shortcuts"
         >
           @for (task of topTasks(); track task.href; let taskIndex = $index) {
@@ -806,14 +803,14 @@
       </section>
 
       <section
-        class="search-panel panel grid w-full gap-6 rounded-wiley-xl border border-wiley-cream-100 bg-gradient-to-br from-wiley-sage-100/70 via-wiley-sage-50 to-wiley-cream-0 p-6 shadow-wiley-lift md:p-8"
+        class="search-panel panel grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-gradient-to-br from-wiley-sage-100/70 via-wiley-sage-50 to-wiley-cream-0 p-5 shadow-wiley-lift md:p-6"
         id="search-panel"
         aria-labelledby="search-panel-heading"
       >
         <header
-          class="section-header search-panel-header grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
+          class="section-header search-panel-header grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
         >
-          <div class="grid gap-2">
+          <div class="grid gap-1.5">
             <p-tag
               class="section-kicker-tag w-fit"
               [value]="appCopy().searchKicker"
@@ -879,7 +876,7 @@
             }
           </div>
         } @else if (searchResults().length) {
-          <div class="search-results grid gap-3" aria-live="polite">
+          <div class="search-results grid gap-2.5" aria-live="polite">
             @for (result of searchResults(); track result.href) {
               @if (resolveAppLink(result.href); as resultLink) {
                 @if (resultLink.isInternal) {
@@ -909,6 +906,7 @@
           <p class="empty-state" aria-live="polite">{{ appCopy().searchEmptyState }}</p>
         }
       </section>
+      </div>
 
       <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">
         <p-card

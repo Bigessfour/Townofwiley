@@ -61,10 +61,6 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'permits',
-    loadComponent: () => import('./permits/permits.component').then((m) => m.PermitsComponent),
-  },
-  {
     path: 'news',
     loadComponent: () => import('./news/news').then((m) => m.News),
   },
