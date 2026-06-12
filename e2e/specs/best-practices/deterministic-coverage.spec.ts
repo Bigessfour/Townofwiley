@@ -395,17 +395,20 @@ test.describe('feature panel visual coverage', () => {
     });
   });
 
-  test('records panel snapshot', async ({ homePage }) => {
+  test('contact records assistance snapshot', async ({ homePage }) => {
     test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
-    await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('#records')).toHaveScreenshot('records-panel.png', {
-      animations: 'disabled',
-      caret: 'hide',
-      maxDiffPixelRatio: 0.01,
-    });
+    await expect(homePage.page.getByTestId('contact-records-assistance')).toHaveScreenshot(
+      'contact-records-assistance.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.01,
+      },
+    );
   });
 
   test('accessibility panel snapshot', async ({ homePage }) => {
@@ -451,17 +454,20 @@ test.describe('feature panel visual coverage', () => {
     });
   });
 
-  test('document hub snapshot', async ({ homePage }) => {
+  test('meetings document archive snapshot', async ({ homePage }) => {
     test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
-    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot('document-hub.png', {
-      animations: 'disabled',
-      caret: 'hide',
-      maxDiffPixelRatio: 0.05,
-    });
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toHaveScreenshot(
+      'meeting-documents-archive.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.05,
+      },
+    );
   });
 });
 
@@ -690,31 +696,27 @@ test.describe('subcomponent aria contracts', () => {
         - paragraph: Choose a card below, then complete the matching section.
         - button "Pay bill, Utilities" [pressed]:
         - button "Report an issue, Public works":
-        - button "Records & permits, Clerk":
         - button "Weather alerts, Safety":
     `);
   });
 
-  test('records center guides aria structure', async ({ homePage }) => {
-    await homePage.page.goto('/records', { waitUntil: 'domcontentloaded' });
+  test('contact records assistance aria structure', async ({ homePage }) => {
+    await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.locator('.records-center')).toMatchAriaSnapshot(`
-      - region /Open stable public document destinations/:
+    await expect(homePage.page.getByTestId('contact-records-assistance')).toMatchAriaSnapshot(`
+      - region /Records, permits, and document requests/:
+        - heading /Records, permits, and document requests/ [level=2]
         - paragraph
-        - heading /document destinations/ [level=3]
-        - region "Records and document guides":
-          - region /Public records and FOIA guide/
-          - region /Find meeting packets/
-          - region /Find budget summaries/
-          - region /Locate ordinances/
+        - link /Email the Town Clerk/
     `);
   });
 
-  test('document hub nav aria structure', async ({ homePage }) => {
-    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+  test('meetings document archive aria structure', async ({ homePage }) => {
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.locator('.document-hub-nav')).toMatchAriaSnapshot(`
-      - navigation
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toMatchAriaSnapshot(`
+      - region /Meeting documents/:
+        - textbox /Search agendas, minutes, or keywords/
     `);
   });
 
@@ -725,7 +727,7 @@ test.describe('subcomponent aria contracts', () => {
       - link "Accessibility statement"
       - link "Weather alert privacy"
       - link "Weather alert SMS terms"
-      - link "Public records and FOIA"
+      - link "Contact the Town Clerk"
       - link "Meeting notices"
       - link "Contact Town Hall"
       - paragraph: /2026 Town of Wiley/
@@ -814,18 +816,18 @@ test.describe('mobile responsive visual coverage', () => {
     });
   });
 
-  test('document hub renders correctly on mobile', async ({ homePage }) => {
+  test('meetings archive renders correctly on mobile', async ({ homePage }) => {
     test.skip(
       !useVisualSnapshots,
       'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
     );
 
     await homePage.page.setViewportSize({ width: 375, height: 812 });
-    await homePage.page.goto('/documents', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('app-document-hub')).toHaveScreenshot(
-      'document-hub-mobile.png',
+    await expect(homePage.page.getByTestId('meeting-documents-archive')).toHaveScreenshot(
+      'meeting-documents-archive-mobile.png',
       {
         animations: 'disabled',
         caret: 'hide',

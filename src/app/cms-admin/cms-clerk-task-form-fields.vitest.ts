@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CLERK_TASK_FORM_FIELDS,
-  clerkTaskFormFields,
-  clerkTaskHasForm,
-  defaultDynamicFormValues,
-  formValuesToMutationInput,
-  recordToFormValues,
+    applyPostNoticeAttachmentDefaults,
+    CLERK_TASK_FORM_FIELDS,
+    clerkTaskFormFields,
+    clerkTaskHasForm,
+    defaultDynamicFormValues,
+    formValuesToMutationInput,
+    recordToFormValues,
+    todayDateInputValue,
 } from './cms-clerk-task-form-fields';
 import { CLERK_CMS_TASKS, clerkTaskHasInAppEditor } from './cms-clerk-tasks';
 
@@ -56,9 +58,36 @@ describe('cms-clerk-task-form-fields', () => {
     expect(values.label).toBe('Town Hall');
   });
 
-  it('uses fileOrUrl for add-document href field', () => {
-    const hrefField = clerkTaskFormFields('add-document').find((field) => field.name === 'href');
-    expect(hrefField?.type).toBe('fileOrUrl');
+  it('uses fileOrUrl for post-notice attachment field', () => {
+    const pdfField = clerkTaskFormFields('post-notice').find(
+      (field) => field.name === 'attachmentKey',
+    );
+    expect(pdfField?.type).toBe('fileOrUrl');
+  });
+
+  it('uses select kind and fileOrUrl PDF upload for post-notice', () => {
+    const kindField = clerkTaskFormFields('post-notice').find(
+      (field) => field.name === 'announcementKind',
+    );
+    const pdfField = clerkTaskFormFields('post-notice').find(
+      (field) => field.name === 'attachmentKey',
+    );
+    expect(kindField?.type).toBe('select');
+    expect(kindField?.options?.some((option) => option.value === 'newsletter')).toBe(true);
+    expect(pdfField?.type).toBe('fileOrUrl');
+    expect(pdfField?.uploadSectionId).toBe('newsletter');
+  });
+
+  it('prefills post-notice date on create and auto-sets newsletter kind when PDF is attached', () => {
+    const values = defaultDynamicFormValues(clerkTaskFormFields('post-notice'), {
+      taskId: 'post-notice',
+    });
+    expect(values.date).toBe(todayDateInputValue());
+    const withPdf = applyPostNoticeAttachmentDefaults({
+      ...values,
+      attachmentKey: 'documents/newsletter/2026-06-09-town-newsletter.pdf',
+    });
+    expect(withPdf.announcementKind).toBe('newsletter');
   });
 
   it('builds mutation input with custom OfficialContact id on create', () => {

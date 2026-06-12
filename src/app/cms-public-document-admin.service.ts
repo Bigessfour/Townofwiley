@@ -2,12 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
 import { StaffAuthService } from './auth/staff-auth.service';
 import { requireAuthenticatedAdmin } from './cms-admin/cms-staff-appsync-auth';
-import { type DocumentArchiveSectionId } from './document-hub/document-archive';
 import { type UploadedDocument } from './document-upload.service';
+import { type MeetingDocumentSectionId } from './meeting-documents/document-archive';
 import {
-  eventDocumentKeyword,
-  formatMeetingDocumentSummary,
-  formatMeetingDocumentTitle,
+    eventDocumentKeyword,
+    formatMeetingDocumentSummary,
+    formatMeetingDocumentTitle,
 } from './public-document-event-link';
 
 interface CreatePublicDocumentResult {
@@ -24,11 +24,8 @@ const CREATE_PUBLIC_DOCUMENT_MUTATION = /* GraphQL */ `
   }
 `;
 
-const SECTION_SUMMARY: Record<DocumentArchiveSectionId, string> = {
-  'records-requests': 'Uploaded records and request document.',
+const SECTION_SUMMARY: Record<MeetingDocumentSectionId, string> = {
   'meeting-documents': 'Uploaded meeting document for the public archive.',
-  'financial-documents': 'Uploaded financial document for the public archive.',
-  'code-references': 'Uploaded code or zoning reference for the public archive.',
 };
 
 const client = generateClient();
@@ -48,7 +45,7 @@ export class CmsPublicDocumentAdminService {
 
   async createDocumentFromUpload(
     document: UploadedDocument,
-    sectionId: DocumentArchiveSectionId,
+    sectionId: MeetingDocumentSectionId,
     meetingContext?: MeetingDocumentUploadContext,
   ): Promise<string> {
     const title = meetingContext
@@ -141,7 +138,7 @@ export class CmsPublicDocumentAdminService {
     return mimeMap[mimeType] ?? 'FILE';
   }
 
-  private toKeywords(fileName: string, sectionId: DocumentArchiveSectionId): string[] {
+  private toKeywords(fileName: string, sectionId: MeetingDocumentSectionId): string[] {
     const titleTerms = this.toDisplayTitle(fileName).toLowerCase().split(' ').filter(Boolean);
 
     return Array.from(new Set([sectionId, 'uploaded', 'cms', ...titleTerms]));
@@ -149,7 +146,7 @@ export class CmsPublicDocumentAdminService {
 
   private toMeetingKeywords(
     fileName: string,
-    sectionId: DocumentArchiveSectionId,
+    sectionId: MeetingDocumentSectionId,
     meetingContext: MeetingDocumentUploadContext,
   ): string[] {
     const base = this.toKeywords(fileName, sectionId);

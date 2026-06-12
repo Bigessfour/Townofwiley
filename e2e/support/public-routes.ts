@@ -41,16 +41,16 @@ export const publicRouteContracts: PublicRouteContract[] = [
   },
   {
     path: '/records',
-    label: 'records page',
-    heading: /document destinations/i,
-    primaryAction: (page) => page.getByRole('link', { name: 'Open meeting documents destination' }),
+    label: 'records redirect',
+    heading: /Phone, email, and next steps/i,
+    primaryAction: (page) => page.getByTestId('contact-records-assistance'),
   },
   {
     path: '/documents',
-    label: 'documents page',
-    heading: 'Public meeting, finance, and code documents',
-    standardShell: false,
-    primaryAction: (page) => page.getByRole('link', { name: 'Open document' }).first(),
+    label: 'documents redirect',
+    heading: /Council meetings & schedules/i,
+    standardShell: true,
+    primaryAction: (page) => page.getByTestId('meeting-documents-archive'),
   },
   {
     path: '/businesses',
@@ -85,7 +85,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/accessibility',
     label: 'accessibility page',
-    heading: /Every resident should be able to use this website/i,
+    heading: /Accessible services and inclusive design/i,
     primaryAction: (page) => page.locator('#barrier-report .accessibility-action'),
   },
   {

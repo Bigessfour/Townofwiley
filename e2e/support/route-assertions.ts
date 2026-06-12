@@ -1,5 +1,5 @@
-import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import type { HomePage } from '../pages/home.page';
 import { siteContent } from './site-content';
@@ -22,12 +22,10 @@ export async function expectServicesPage(homePage: HomePage): Promise<void> {
 }
 
 export async function expectRecordsPage(page: Page): Promise<void> {
-  await expect(page.getByTestId('records-guide-packets')).toBeVisible();
-  await expect(
-    page.getByTestId('records-guide-packets').getByRole('link', {
-      name: 'Open meeting documents destination',
-    }),
-  ).toBeVisible();
+  await expect(page.getByTestId('contact-records-assistance')).toBeVisible();
+  await expect(page.getByTestId('contact-records-assistance')).toContainText(
+    'clerk@townofwiley.gov',
+  );
 }
 
 export async function expectAccessibilityBarrierReport(page: Page): Promise<void> {
@@ -59,11 +57,11 @@ export async function expectServiceIssueReport(page: Page): Promise<void> {
 }
 
 export async function expectServiceRecordsRequest(page: Page): Promise<void> {
-  await expect(page.locator('#records-request')).toBeVisible();
+  await expect(page.getByTestId('contact-records-assistance')).toBeVisible();
 }
 
 export async function expectDocumentsHub(page: Page): Promise<void> {
-  await expect(page.getByTestId('document-hub-title')).toBeVisible();
+  await expect(page.getByTestId('meeting-documents-archive')).toBeVisible();
 }
 
 export async function expectPermitsPage(page: Page): Promise<void> {

@@ -1,15 +1,15 @@
 import type { CmsPublicDocument } from '../site-cms-content';
 import type { SiteLanguage } from '../site-language';
-import type { PublishedDocument } from './document-archive';
+import type { PublishedMeetingDocument } from './document-archive';
 
 export function localizeCmsPublicDocument(
   doc: CmsPublicDocument,
   language: SiteLanguage,
-): PublishedDocument {
+): PublishedMeetingDocument {
   const useSpanish = language === 'es';
   return {
     id: doc.id,
-    sectionId: doc.sectionId as PublishedDocument['sectionId'],
+    sectionId: 'meeting-documents',
     title: (useSpanish ? doc.titleEs?.trim() : '') || doc.title,
     summary: (useSpanish ? doc.summaryEs?.trim() : '') || doc.summary,
     status: (useSpanish ? doc.statusEs?.trim() : '') || doc.status,

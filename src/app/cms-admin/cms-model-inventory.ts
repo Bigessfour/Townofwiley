@@ -112,7 +112,7 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
   {
     model: 'PublicDocument',
     publicApiKeyRead: true,
-    routes: '/documents, /records',
+    routes: '/meetings',
     keyFields: 'title, titleEs, summary, sectionId, href, active, displayOrder',
     emptyWarningEn: 'No PublicDocument rows — document hub relies on archive manifest + guides.',
     emptyWarningEs: 'Sin PublicDocument — el hub usa manifiesto de archivo y guias.',

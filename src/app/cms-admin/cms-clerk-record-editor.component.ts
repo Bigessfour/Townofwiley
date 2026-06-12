@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   effect,
@@ -16,24 +17,23 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { OrderListModule } from 'primeng/orderlist';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
+import {
+  CmsSiteSettingsAdminService,
+  type SiteSettingsInput,
+} from '../cms-site-settings-admin.service';
+import { DocumentUploadService } from '../document-upload.service';
 import {
   LocalizedCmsContentStore,
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from '../site-cms-content';
 import {
-  CmsSiteSettingsAdminService,
-  type SiteSettingsInput,
-} from '../cms-site-settings-admin.service';
-import {
-  CMS_SINGLETON_MODELS,
-  cmsRecordSummaryLabel,
-} from './cms-model-admin-fields';
-import {
+  applyPostNoticeAttachmentDefaults,
   clerkTaskFormFields,
   defaultDynamicFormValues,
   formValuesToMutationInput,
@@ -41,6 +41,7 @@ import {
   type ClerkFormFieldDefinition,
 } from './cms-clerk-task-form-fields';
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
+import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
 
 @Component({
@@ -53,6 +54,7 @@ import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model
     InputTextModule,
     MessageModule,
     OrderListModule,
+    SelectModule,
     TableModule,
     TextareaModule,
   ],
@@ -68,6 +70,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   private readonly siteSettings = inject(CmsSiteSettingsAdminService);
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly messages = inject(MessageService);
+  private readonly documentUploads = inject(DocumentUploadService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly isSignedIn = this.staffAuth.isStaff;
   protected readonly recordsLoading = signal(false);
@@ -81,6 +85,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly loadError = signal<string | null>(null);
   protected readonly orderedList = signal<Record<string, unknown>[]>([]);
   protected readonly reordering = signal(false);
+  protected readonly fileUploadingField = signal<string | null>(null);
+  protected readonly fileUploadError = signal<string | null>(null);
 
   protected readonly task = computed(() => {
     const id = this.taskId();
@@ -118,8 +124,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       }
     }
     return [...items].sort(
-      (left, right) =>
-        Number(left[config.sortField] ?? 0) - Number(right[config.sortField] ?? 0),
+      (left, right) => Number(left[config.sortField] ?? 0) - Number(right[config.sortField] ?? 0),
     );
   });
 
@@ -195,7 +200,9 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.submitError.set(null);
       this.loadError.set(null);
       const fieldDefs = id ? clerkTaskFormFields(id) : [];
-      this.formValues.set(defaultDynamicFormValues(fieldDefs));
+      this.formValues.set(defaultDynamicFormValues(fieldDefs, { taskId: id ?? undefined }));
+      this.fileUploadingField.set(null);
+      this.fileUploadError.set(null);
       if (id) {
         void this.loadRecords(id);
       } else {
@@ -230,18 +237,63 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   }
 
   protected updateField(fieldName: string, value: string | boolean): void {
-    this.formValues.update((current) => ({ ...current, [fieldName]: value }));
+    this.formValues.update((current) => {
+      const next = { ...current, [fieldName]: value };
+      return this.taskId() === 'post-notice' ? applyPostNoticeAttachmentDefaults(next) : next;
+    });
   }
 
   protected numberToFieldValue(value: number | null): string {
     return value == null ? '' : String(value);
   }
 
+  protected selectOptions(field: ClerkFormFieldDefinition): { label: string; value: string }[] {
+    return (field.options ?? []).map((option) => ({
+      label: option.label,
+      value: option.value,
+    }));
+  }
+
+  protected async onFileOrUrlSelected(
+    field: ClerkFormFieldDefinition,
+    event: Event,
+  ): Promise<void> {
+    const inputEl = event.target as HTMLInputElement;
+    const file = inputEl.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.fileUploadError.set(null);
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.fileUploadError.set('Sign in at /admin/login before uploading files.');
+      inputEl.value = '';
+      return;
+    }
+
+    const sectionId = field.uploadSectionId ?? 'cms-uploads';
+    this.fileUploadingField.set(field.name);
+    try {
+      const uploaded = await this.documentUploads.uploadDocument(file, sectionId);
+      this.updateField(field.name, uploaded.id);
+    } catch {
+      this.fileUploadError.set('Upload failed. Try again or paste the file code manually.');
+    } finally {
+      this.fileUploadingField.set(null);
+      inputEl.value = '';
+      this.cdr.markForCheck();
+    }
+  }
+
   protected startNewRecord(): void {
     this.editingId.set(null);
     this.submitResult.set(null);
     this.submitError.set(null);
-    this.formValues.set(defaultDynamicFormValues(this.fields()));
+    this.formValues.set(
+      defaultDynamicFormValues(this.fields(), { taskId: this.taskId() ?? undefined }),
+    );
+    this.fileUploadError.set(null);
   }
 
   protected editRecord(record: Record<string, unknown>): void {
@@ -269,16 +321,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return this.recordLabel(record);
     }
     const preview = String(record[config.previewField] ?? '').trim();
-    const prefix = config.prefixField
-      ? String(record[config.prefixField] ?? '').trim()
-      : '';
+    const prefix = config.prefixField ? String(record[config.prefixField] ?? '').trim() : '';
     if (prefix && preview) {
       return `${prefix}: ${preview}`;
     }
     return preview || prefix || this.recordLabel(record);
   }
 
-  protected async onOrderedListReorder(event: { value?: Record<string, unknown>[] }): Promise<void> {
+  protected async onOrderedListReorder(event: {
+    value?: Record<string, unknown>[];
+  }): Promise<void> {
     const active = this.task();
     const config = this.orderedConfig();
     const reordered = event.value ?? [];
@@ -305,9 +357,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       }))
       .filter(
         (update) =>
-          update.id &&
-          previous.has(update.id) &&
-          previous.get(update.id) !== update.displayOrder,
+          update.id && previous.has(update.id) && previous.get(update.id) !== update.displayOrder,
       );
 
     if (updates.length === 0) {
@@ -349,11 +399,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
 
     try {
-      const input = formValuesToMutationInput(
-        this.fields(),
-        this.formValues(),
-        this.editingId(),
-      );
+      const input = formValuesToMutationInput(this.fields(), this.formValues(), this.editingId());
       let savedId: string;
 
       if (active.model === 'SiteSettings') {
@@ -365,12 +411,18 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       }
 
       this.submitResult.set(
-        `${active.model} saved (ID ${savedId}). Open See on website and hard-refresh ${active.previewPath}.`,
+        `${active.model} saved (ID ${savedId}). Use the button below to verify on the live site (public cache refreshed).`,
       );
       const savedLabel = this.editingId()
         ? this.recordLabel({ id: savedId, ...this.formValues() })
         : this.recordLabel({ id: savedId, ...input });
       this.showSavedToast(savedLabel);
+      // Inform clerk of potential caching delay for public visitors (documented 6-hour live refresh TTL + 7-day snapshot per site-cms-content.ts and AGENTS.md).
+      this.messages.add({
+        severity: 'info',
+        summary: 'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
+        life: 10000,
+      });
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
       if (!this.isSingleton()) {
@@ -482,5 +534,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       summary: `✅ ${itemLabel} saved successfully and visible on website`,
       life: 5_000,
     });
+  }
+
+  protected async verifyOnLiveSite(): Promise<void> {
+    const active = this.task();
+    if (!active?.previewPath) {
+      return;
+    }
+    // Use documented forceLiveRefresh to bypass public cache (as done on save and in hub "Refresh from database").
+    await this.cmsStore.forceLiveRefresh();
+    const url = `https://townofwiley.gov${active.previewPath}`;
+    window.open(url, '_blank');
   }
 }

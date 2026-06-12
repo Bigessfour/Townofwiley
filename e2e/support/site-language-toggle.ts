@@ -18,10 +18,7 @@ export function siteLanguageButton(scope: Page | Locator, language: 'en' | 'es')
 }
 
 /** Clicks the visible language toggle (megamenu on desktop, compact header on mobile). */
-export async function clickVisibleSiteLanguage(
-  page: Page,
-  language: 'en' | 'es',
-): Promise<void> {
+export async function clickVisibleSiteLanguage(page: Page, language: 'en' | 'es'): Promise<void> {
   const button = page
     .getByRole('button', {
       name: language === 'es' ? SITE_LANGUAGE_BUTTON.es : SITE_LANGUAGE_BUTTON.en,

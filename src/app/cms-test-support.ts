@@ -25,6 +25,8 @@ export async function flushCmsSnapshotAndWait(httpTesting: HttpTestingController
 export const defaultCmsStoreMockFields = {
   extendedLoadFailed: computed(() => false),
   isExtendedLoading: computed(() => false),
+  linkedAgendaDocumentByEventId: computed(() => ({})),
+  agendaHubHrefByEventId: computed(() => ({})),
 } satisfies Partial<LocalizedCmsContentStore>;
 
 export const emptyCmsExtendedGraphqlData = {
@@ -32,6 +34,7 @@ export const emptyCmsExtendedGraphqlData = {
   listPublicDocuments: { items: [] },
   listExternalNewsLinks: { items: [] },
   listLeadershipRosterEntries: { items: [] },
+  listSiteCopies: { items: [] },
 };
 
 export const emptyCmsCoreGraphqlData = {

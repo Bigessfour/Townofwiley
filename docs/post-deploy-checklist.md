@@ -20,8 +20,8 @@ Optional visual pass:
 
 ```bash
 npm run start
-# Spot-check: /, /meetings, /weather, /pay-bill, /services, /records, /documents,
-# /accessibility, /privacy, /contact, /news, /businesses, EN + ES toggle
+# Spot-check: /, /meetings, /weather, /pay-bill, /services, /contact (via /records redirect),
+# /meetings (via /documents redirect), /permits, /accessibility, /privacy, /news, /businesses, EN + ES toggle
 ```
 
 ## Production deploy (S3 + CloudFront)

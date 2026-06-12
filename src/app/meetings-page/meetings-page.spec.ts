@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { APP_COPY } from '../app';
+import { DocumentUploadService } from '../document-upload.service';
 import { type CmsCalendarEvent, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { MeetingsPage } from './meetings-page';
@@ -9,23 +11,35 @@ import { MeetingsPage } from './meetings-page';
 interface MeetingsPageStore {
   events: ReturnType<typeof signal<CmsCalendarEvent[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
-  agendaHubHrefByEventId?: ReturnType<typeof signal<Record<string, string>>>;
+  publicDocuments: ReturnType<typeof signal<[]>>;
+  linkedAgendaDocumentByEventId?: ReturnType<
+    typeof signal<Record<string, { documentId: string; storageHref: string }>>
+  >;
 }
 
 function configure(
-  store: Pick<MeetingsPageStore, 'events' | 'isLoading'> &
-    Partial<Pick<MeetingsPageStore, 'agendaHubHrefByEventId'>>,
+  store: Pick<MeetingsPageStore, 'events' | 'isLoading' | 'publicDocuments'> &
+    Partial<Pick<MeetingsPageStore, 'linkedAgendaDocumentByEventId'>>,
   language: 'en' | 'es' = 'en',
 ) {
   const storeWithDefaults = {
-    agendaHubHrefByEventId: signal<Record<string, string>>({}),
+    linkedAgendaDocumentByEventId: signal<
+      Record<string, { documentId: string; storageHref: string }>
+    >({}),
     ...store,
   };
   TestBed.configureTestingModule({
     imports: [MeetingsPage],
     providers: [
       SiteLanguageService,
+      MessageService,
       provideRouter([]),
+      {
+        provide: DocumentUploadService,
+        useValue: {
+          resolveDocumentHref: async (href: string) => href,
+        } as unknown as DocumentUploadService,
+      },
       {
         provide: LocalizedCmsContentStore,
         useValue: storeWithDefaults as unknown as LocalizedCmsContentStore,
@@ -43,6 +57,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(false),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain(APP_COPY.en.meetingsHeading);
@@ -51,7 +66,11 @@ describe('MeetingsPage', () => {
 
   it('renders Spanish heading and column copy', () => {
     const fixture = configure(
-      { events: signal<CmsCalendarEvent[]>([]), isLoading: signal(false) },
+      {
+        events: signal<CmsCalendarEvent[]>([]),
+        isLoading: signal(false),
+        publicDocuments: signal([]),
+      },
       'es',
     );
     const el = fixture.nativeElement as HTMLElement;
@@ -66,6 +85,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(true),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.meetings-table-skeleton')).toBeTruthy();
@@ -76,6 +96,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(false),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.meetings-table')).toBeTruthy();

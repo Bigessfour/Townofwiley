@@ -1,20 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import type { CmsCalendarEvent } from '../site-cms-content';
 import {
-  buildCalendarItems,
-  buildMeetingItems,
-  formatCalendarEventDate,
-  parseCalendarSeedDate,
-  resolveCalendarEventEnd,
-  type CalendarSeed,
-  type CalendarViewCopy,
-  type MeetingsCopy,
+    buildCalendarItems,
+    buildMeetingItems,
+    formatCalendarEventDate,
+    parseCalendarSeedDate,
+    resolveCalendarEventEnd,
+    type CalendarSeed,
+    type CalendarViewCopy,
+    type MeetingsCopy,
 } from './meetings-page.helpers';
 
 const MEETINGS_COPY: MeetingsCopy = {
   calendarCopy: 'View the latest town meetings, agendas, and community events for Wiley.',
   calendarEventFallbackLocation: 'Wiley Town Hall, 304 Main Street',
   agendaPdfButtonLabel: 'View agenda PDFs',
+  meetingsAgendaLinkedButtonLabel: 'View agenda',
   documentsHubButtonLabel: 'Browse town documents',
 };
 
@@ -26,6 +27,7 @@ const CALENDAR_COPY: CalendarViewCopy = {
   calendarGoogleActionLabel: 'Add to Google Calendar',
   calendarDownloadActionLabel: 'Download ICS',
   calendarAgendaActionLabel: 'View agenda PDFs',
+  calendarAgendaLinkedActionLabel: 'View agenda',
 };
 
 const FALLBACK_SEEDS: CalendarSeed[] = [
@@ -74,7 +76,9 @@ describe('meetings page helpers', () => {
       title: 'City Council Regular Meeting',
       format: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
-      agendaPdfHref: '/documents#meeting-documents',
+      eventId: 'event-1',
+      hasLinkedAgenda: false,
+      agendaButtonLabel: 'View agenda PDFs',
     });
     expect(meetingItems[0].schedule).toContain('Jun');
 
@@ -86,26 +90,36 @@ describe('meetings page helpers', () => {
       detail: 'Monthly council meeting with published agenda packages.',
       location: 'Wiley Town Hall, 304 Main Street',
       recurrence: 'Recurring monthly',
+      hasLinkedAgenda: false,
     });
     expect(calendarItems[0].actions).toHaveLength(3);
     expect(calendarItems[0].actions[2]).toMatchObject({
       label: 'View agenda PDFs',
-      href: '/documents#meeting-documents',
+      isAgendaAction: true,
     });
     expect(calendarItems[0].startDate).toBeInstanceOf(Date);
     expect(calendarItems[0].endDate).toBeInstanceOf(Date);
   });
 
   it('uses a linked agenda document when one is published for the event', () => {
-    const meetingItems = buildMeetingItems(LIVE_EVENTS, [], MEETINGS_COPY, 'en-US', {
-      'event-1': '/documents#cms-doc-doc-1',
-    });
-    const calendarItems = buildCalendarItems(LIVE_EVENTS, [], CALENDAR_COPY, 'en-US', {
-      'event-1': '/documents#cms-doc-doc-1',
-    });
+    const linked = {
+      'event-1': {
+        documentId: 'doc-1',
+        storageHref: 'storage:documents/meeting-documents/a.pdf',
+      },
+    };
+    const meetingItems = buildMeetingItems(LIVE_EVENTS, [], MEETINGS_COPY, 'en-US', linked);
+    const calendarItems = buildCalendarItems(LIVE_EVENTS, [], CALENDAR_COPY, 'en-US', linked);
 
-    expect(meetingItems[0].agendaPdfHref).toBe('/documents#cms-doc-doc-1');
-    expect(calendarItems[0].actions[2].href).toBe('/documents#cms-doc-doc-1');
+    expect(meetingItems[0]).toMatchObject({
+      hasLinkedAgenda: true,
+      agendaStorageHref: 'storage:documents/meeting-documents/a.pdf',
+      agendaButtonLabel: 'View agenda',
+    });
+    expect(calendarItems[0].actions[2]).toMatchObject({
+      label: 'View agenda',
+      isAgendaAction: true,
+    });
   });
 
   it('falls back to seed data when live events are unavailable', () => {
@@ -118,8 +132,9 @@ describe('meetings page helpers', () => {
         schedule: 'Fallback schedule',
         format: 'Fallback format',
         location: 'Fallback location',
-        agendaPdfHref: '/documents#meeting-documents',
+        agendaPdfHref: '/meetings',
         agendaButtonLabel: 'View agenda PDFs',
+        hasLinkedAgenda: false,
       },
     ]);
     expect(calendarItems).toHaveLength(1);
@@ -132,6 +147,7 @@ describe('meetings page helpers', () => {
       location: 'Wiley Town Hall, 304 Main Street',
       recurrence: 'Recurring monthly',
       agendaNote: 'Agenda note',
+      hasLinkedAgenda: false,
     });
     expect(calendarItems[0].actions).toHaveLength(4);
     expect(calendarItems[0].actions[3]).toEqual({

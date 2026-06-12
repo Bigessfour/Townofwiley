@@ -48,7 +48,7 @@ export class HomePage {
   readonly residentServiceToggles: Locator;
   readonly residentServicePaymentToggle: Locator;
   readonly residentServiceIssueToggle: Locator;
-  readonly residentServiceRecordsToggle: Locator;
+  readonly residentServiceWeatherToggle: Locator;
   readonly residentServicePaymentPanel: Locator;
   readonly residentServicePaymentName: Locator;
   readonly residentServicePaymentStreetAddress: Locator;
@@ -66,14 +66,7 @@ export class HomePage {
   readonly residentServiceIssueDetails: Locator;
   readonly residentServiceIssueActionButton: Locator;
   readonly residentServiceIssueStatus: Locator;
-  readonly residentServiceRecordsPanel: Locator;
-  readonly residentServiceRecordsType: Locator;
-  readonly residentServiceRecordsName: Locator;
-  readonly residentServiceRecordsContact: Locator;
-  readonly residentServiceRecordsDeadline: Locator;
-  readonly residentServiceRecordsDetails: Locator;
-  readonly residentServiceRecordsAction: Locator;
-  readonly residentServiceRecordsStatus: Locator;
+  readonly residentServiceWeatherPanel: Locator;
   readonly accessibilitySupportSection: Locator;
   readonly accessibilityReportCard: Locator;
   readonly accessibilityReportName: Locator;
@@ -163,8 +156,8 @@ export class HomePage {
     this.residentServiceIssueToggle = residentServicesRoot.getByRole('button', {
       name: /Report an issue, Public works/i,
     });
-    this.residentServiceRecordsToggle = residentServicesRoot.getByRole('button', {
-      name: /Records & permits, Clerk/i,
+    this.residentServiceWeatherToggle = residentServicesRoot.getByRole('button', {
+      name: /Weather alerts, Safety/i,
     });
     this.residentServicePaymentPanel = page.locator('#payment-help');
     const portalForm = page.locator('#billing-intake');
@@ -191,18 +184,7 @@ export class HomePage {
       name: /Send report/i,
     });
     this.residentServiceIssueStatus = page.locator('#issue-report .resident-status');
-    this.residentServiceRecordsPanel = page.locator('#records-request');
-    this.residentServiceRecordsType = page.getByRole('combobox', {
-      name: 'Public records / FOIA',
-    });
-    this.residentServiceRecordsName = page.getByLabel('Resident or business name');
-    this.residentServiceRecordsContact = page.getByLabel('Best phone or email for reply');
-    this.residentServiceRecordsDeadline = page.getByLabel('Deadline or meeting date');
-    this.residentServiceRecordsDetails = page.locator('#records-details');
-    this.residentServiceRecordsAction = page.locator('#records-request').getByRole('button', {
-      name: /Send request/i,
-    });
-    this.residentServiceRecordsStatus = page.locator('#records-request .resident-status');
+    this.residentServiceWeatherPanel = page.locator('#weather-alerts');
     this.accessibilitySupportSection = page.locator('.accessibility-support-grid');
     this.accessibilityReportCard = page.locator('#barrier-report');
     this.accessibilityReportName = page.getByLabel('Your name');
@@ -489,11 +471,11 @@ export class HomePage {
     await this.weatherRefreshButton.click();
   }
 
-  async selectResidentServicePanel(panel: 'payment' | 'issue' | 'records'): Promise<void> {
+  async selectResidentServicePanel(panel: 'payment' | 'issue' | 'weather'): Promise<void> {
     const panelToggle = {
       payment: this.residentServicePaymentToggle,
       issue: this.residentServiceIssueToggle,
-      records: this.residentServiceRecordsToggle,
+      weather: this.residentServiceWeatherToggle,
     }[panel];
 
     await panelToggle.click();
@@ -546,33 +528,6 @@ export class HomePage {
         .getByLabel(/Additional questions or details/i)
         .fill(details.notes);
     }
-  }
-
-  async fillResidentRecordsRequest(details: {
-    requestType?: 'records' | 'license' | 'clerk';
-    name: string;
-    contact: string;
-    deadline?: string;
-    details: string;
-  }): Promise<void> {
-    if (details.requestType) {
-      await this.residentServiceRecordsType.click();
-      await this.page
-        .getByRole('option', {
-          name: this.getRecordsRequestTypeLabel(details.requestType),
-          exact: true,
-        })
-        .click();
-    }
-
-    await this.residentServiceRecordsName.fill(details.name);
-    await this.residentServiceRecordsContact.fill(details.contact);
-
-    if (details.deadline) {
-      await this.residentServiceRecordsDeadline.fill(details.deadline);
-    }
-
-    await this.residentServiceRecordsDetails.fill(details.details);
   }
 
   async fillAccessibilityBarrierReport(details: {
@@ -687,16 +642,6 @@ export class HomePage {
       this.weatherSignupLanguage,
       language === 'es' ? 'Spanish' : 'English',
     );
-  }
-
-  private getRecordsRequestTypeLabel(requestType: 'records' | 'license' | 'clerk'): string {
-    const requestTypeLabels = {
-      records: 'Public records / FOIA',
-      license: 'License or fee question',
-      clerk: 'Clerk assistance',
-    };
-
-    return requestTypeLabels[requestType];
   }
 
   private async selectPrimeSelectOption(combobox: Locator, optionLabel: string): Promise<void> {

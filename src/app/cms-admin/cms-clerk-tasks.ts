@@ -4,7 +4,6 @@ export type ClerkCmsTaskId =
   | 'post-notice'
   | 'add-meeting'
   | 'homepage'
-  | 'add-document'
   | 'update-contacts'
   | 'update-leadership'
   | 'business-directory'
@@ -65,20 +64,20 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     previewPath: '/news',
     steps: [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
-      'Fill Title and Details; include Spanish versions when needed.',
-      'Set Date and Active. Use newsletter kind for long PDF posts.',
+      'Fill Title and Details (short summary for newsletters).',
+      'For a scanned newsletter PDF: choose Kind = Newsletter, upload the PDF in the form (or paste the file code), set Date, and turn Show on website on.',
       'Save and hard-refresh the public News page.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Announcement kind',
+        plainLabel: 'Kind',
         technicalName: 'announcementKind',
-        help: 'Leave blank for short notices. Type newsletter (lowercase) for the newsletter section on /news.',
+        help: 'Short notice for bulletins on /news and /notices. Newsletter (PDF) for the embedded town newsletter on /news.',
       },
       {
-        plainLabel: 'File code from IT',
+        plainLabel: 'Newsletter PDF',
         technicalName: 'attachmentKey',
-        help: 'Only for newsletters. Paste the full path IT gives you, e.g. documents/newsletter/2026-05-newsletter.pdf — not a Google link.',
+        help: 'Upload a PDF in the form or paste the storage file code, e.g. documents/newsletter/2026-06-09-town-newsletter.pdf.',
       },
       {
         plainLabel: 'Priority',
@@ -97,7 +96,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
       'Enter Title, Start date and time, and turn Active on.',
       'Add Location and Description if residents need them.',
-      'Save, then check See on website and hard-refresh /meetings.',
+      'Save, then scroll to Document publishing and upload the agenda PDF for that meeting.',
+      'Hard-refresh /meetings and click View agenda on the meeting row to confirm the PDF opens.',
     ],
     fieldGlossary: [
       {
@@ -204,86 +204,6 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     ],
     emptyStateMessage:
       'Homepage text may be using default setup until SiteSettings is saved via Edit content.',
-  },
-  {
-    id: 'add-document',
-    title: 'Add a form or PDF',
-    shortDescription: 'Publish a downloadable file on the Documents page.',
-    model: 'PublicDocument',
-    previewPath: '/documents',
-    supportsUpload: 'newsletter-pdf',
-    steps: [
-      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'Read the Document publishing section on this page for the correct section name.',
-      'Use the meeting document upload below or ask IT for complex PDF entries.',
-      'Match the section name exactly, add title and summary, and set Active on.',
-      'For Spanish residents, fill Title (Spanish) and Summary (Spanish) when those fields appear.',
-      'Save, then check /documents and hard-refresh.',
-    ],
-    fieldGlossary: [
-      {
-        plainLabel: 'Section name',
-        technicalName: 'sectionId',
-        help: 'Must match the list in Document publishing on this page (e.g. meeting-documents).',
-      },
-      {
-        plainLabel: 'Title',
-        technicalName: 'title',
-        help: 'The name shown for the document link.',
-      },
-      {
-        plainLabel: 'Title (Spanish)',
-        technicalName: 'titleEs',
-        help: 'Spanish version of the title for bilingual visitors.',
-      },
-      {
-        plainLabel: 'Summary',
-        technicalName: 'summary',
-        help: 'Short description of what the document is.',
-      },
-      {
-        plainLabel: 'Summary (Spanish)',
-        technicalName: 'summaryEs',
-        help: 'Spanish version of the summary.',
-      },
-      {
-        plainLabel: 'Link / storage reference',
-        technicalName: 'href',
-        help: 'For manual entries: full https:// URL to the file. For uploads: the system sets this to a storage key (e.g. storage:documents/...).',
-      },
-      {
-        plainLabel: 'Download file name',
-        technicalName: 'downloadFileName',
-        help: 'Suggested name when someone downloads the file.',
-      },
-      {
-        plainLabel: 'Status',
-        technicalName: 'status',
-        help: 'Usually "Published".',
-      },
-      {
-        plainLabel: 'Format',
-        technicalName: 'format',
-        help: 'File type like PDF, DOCX.',
-      },
-      {
-        plainLabel: 'Keywords',
-        technicalName: 'keywords',
-        help: 'Search tags (array of words).',
-      },
-      {
-        plainLabel: 'Display order',
-        technicalName: 'displayOrder',
-        help: 'Optional number for sorting (lower first).',
-      },
-      {
-        plainLabel: 'Active',
-        technicalName: 'active',
-        help: 'Show or hide the document on the site.',
-      },
-    ],
-    emptyStateMessage:
-      'No documents yet — the site may still show setup guides until you add a PublicDocument via upload or ask IT.',
   },
   {
     id: 'update-contacts',
@@ -523,7 +443,8 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'edit-site-copy',
     title: 'Edit navigation labels, headings, and Quick Tasks text',
-    shortDescription: 'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
+    shortDescription:
+      'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
     model: 'SiteCopy',
     previewPath: '/',
     steps: [

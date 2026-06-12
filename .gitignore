@@ -36,6 +36,13 @@ yarn-error.log
 .cursor/*.log
 .todo
 
+# Local AWS tagging / Gen1 verification scratch (not repo SoT)
+docs/aws-resource-tagging.md
+docs/gen1-aws-verification-report.md
+infrastructure/aws-resource-tags.manifest.json
+scripts/apply-aws-resource-tags.py
+scripts/verify-gen1-aws-bindings.sh
+
 # Local codebase RAG (Chroma vector store + manifest; venv under rag/)
 .rag/
 rag/.venv/
@@ -126,7 +133,9 @@ Scan*.pdf
 *.zip
 .tmp-grok-test/
 figma/
-.cursor/skills/
+.cursor/skills/*
+!.cursor/skills/copy/
+!.cursor/skills/copy/**
 .github/skills/townofwiley/
 docs/townofwiley-skill.md
 docs/figma-widgets-and-screens.md

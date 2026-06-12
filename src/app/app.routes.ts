@@ -19,7 +19,8 @@ export const routes: Routes = [
   },
   {
     path: 'documents',
-    loadComponent: () => import('./document-hub/document-hub').then((m) => m.DocumentHub),
+    redirectTo: '/meetings',
+    pathMatch: 'full',
   },
   {
     path: 'notices',
@@ -41,7 +42,8 @@ export const routes: Routes = [
   },
   {
     path: 'records',
-    loadComponent: () => import('./records-center/records-center').then((m) => m.RecordsCenter),
+    redirectTo: '/contact',
+    pathMatch: 'full',
   },
   {
     path: 'businesses',

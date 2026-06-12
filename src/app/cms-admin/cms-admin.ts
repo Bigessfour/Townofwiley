@@ -129,13 +129,13 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // IT troubleshooting: AppSync Queries console. Clerks use in-app forms on /admin.
+  // Alternative bulk tool (Studio). Guided in-app tasks (below) use direct AppSync GraphQL (Cognito auth).
   protected readonly dataManagerUrl = this.clerkSetupConfig.studioUrl;
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Content editor URL',
+      label: 'Alternative: Studio Data Manager (bulk edits)',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
     },

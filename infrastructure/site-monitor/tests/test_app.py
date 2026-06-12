@@ -96,7 +96,7 @@ class SiteMonitorTests(unittest.TestCase):
                 "<html><body>Resident services Pay utility bill</body></html>",
             ),
             ("GET", "https://townofwiley.gov/records"): FakeResponse(
-                "<html><body>Records and documents Public Document Hub</body></html>",
+                "<html><body>Phone, email, and next steps Records, permits, and document requests</body></html>",
             ),
             ("GET", "https://townofwiley.gov/businesses"): FakeResponse(
                 "<html><body>Wiley Community Business Directory Search local businesses</body></html>",
@@ -111,7 +111,10 @@ class SiteMonitorTests(unittest.TestCase):
                 "<html><body>Accessibility statement Report an accessibility barrier</body></html>",
             ),
             ("GET", "https://townofwiley.gov/documents"): FakeResponse(
-                "<html><body>Public Document Hub Stable public destinations for meetings, finance records, and code references</body></html>",
+                "<html><body>Council meetings & schedules Meetings and calendar</body></html>",
+            ),
+            ("GET", "https://townofwiley.gov/permits"): FakeResponse(
+                "<html><body>Permits & Inquiries Town Clerk</body></html>",
             ),
             ("GET", "https://townofwiley.gov/admin"): FakeResponse(
                 "<html><body>Open Amplify Console Data manager CMS Connection Status</body></html>",
@@ -170,7 +173,7 @@ class SiteMonitorTests(unittest.TestCase):
         ]
         self.assertEqual(cms_results[-1]["name"], "cms-api-core")
         self.assertEqual(cms_results[-2]["name"], "cms-api")
-        self.assertGreaterEqual(len(response["results"]), 14)
+        self.assertGreaterEqual(len(response["results"]), 15)
         self.assertEqual(mailer.messages, [])
         self.assertEqual(
             state_store.state["TownOfWileySiteMonitor"]["status"], "healthy"

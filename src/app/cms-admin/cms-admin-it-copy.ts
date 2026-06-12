@@ -35,7 +35,7 @@ export const IT_ADMIN_COPY = {
   refreshFromDatabase: 'Refresh from database',
   refreshingFromDatabase: 'Refreshing…',
   refreshFromDatabaseHelp:
-    'Fetches the latest content from AppSync and bypasses the 7-day browser cache. Use after saving in the editor when the public site still shows old text.',
+    'Fetches the latest content from AppSync and bypasses the 6-hour public cache and 7-day offline snapshot. Use after saving in the editor when the public site still shows old text.',
   openAwsConsole: 'Open AWS Console (IT)',
   setupDetailsTitle: 'Setup values (IT)',
   copyValueLabel: 'Copy',

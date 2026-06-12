@@ -1,11 +1,11 @@
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
 } from '@angular/core';
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
@@ -38,16 +38,15 @@ const MEETING_UPLOAD_COPY = {
     eventLabel: 'Which meeting is this for?',
     eventPlaceholder: 'Select a meeting',
     noEvents:
-      'No upcoming meetings found. Add the meeting under Setup first, then return here to upload its agenda.',
+      'No upcoming meetings found. Use Add meeting or event on /admin first, then return here to upload its agenda.',
     fileLabel: 'Agenda or meeting PDF',
     uploading: 'Uploading…',
     chooseFile: 'Choose file from computer',
     uploadButton: 'Upload and publish',
     signInHint: 'Sign in to',
     signInLink: 'Town admin',
-    successTemplate:
-      'Published {title}. Residents can open it from the Meetings page and Documents hub.',
-    viewDocuments: 'View on Documents page',
+    successTemplate: 'Published {title}. Residents can open it from the Meetings page.',
+    viewDocuments: 'View on Meetings page',
   },
   es: {
     title: 'Subir agenda o paquete de reunion',
@@ -55,7 +54,7 @@ const MEETING_UPLOAD_COPY = {
     eventLabel: '¿Para que reunion es?',
     eventPlaceholder: 'Seleccione una reunion',
     noEvents:
-      'No hay reuniones proximas. Agregue la reunion primero y vuelva aqui para subir la agenda.',
+      'No hay reuniones proximas. Use Agregar reunion o evento en /admin primero y vuelva aqui para subir la agenda.',
     fileLabel: 'Agenda o PDF de reunion',
     uploading: 'Subiendo…',
     chooseFile: 'Elegir archivo de la computadora',
@@ -63,8 +62,8 @@ const MEETING_UPLOAD_COPY = {
     signInHint: 'Inicie sesion en',
     signInLink: 'Administracion municipal',
     successTemplate:
-      'Se publico {title}. Los residentes pueden abrirlo desde Reuniones y Documentos.',
-    viewDocuments: 'Ver en pagina de Documentos',
+      'Se publico {title}. Los residentes pueden abrirlo desde la pagina de Reuniones.',
+    viewDocuments: 'Ver en pagina de Reuniones',
   },
 } satisfies Record<'en' | 'es', MeetingUploadCopy>;
 
@@ -184,7 +183,7 @@ export class CmsMeetingDocumentUploadComponent implements OnInit {
 
       const title = `${event.title}`;
       this.success.set(this.copy().successTemplate.replace('{title}', title));
-      this.publishedDocumentsHref.set('/documents#meeting-documents');
+      this.publishedDocumentsHref.set('/meetings');
       this.selectedFile.set(null);
     } catch {
       this.error.set(

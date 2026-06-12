@@ -87,10 +87,8 @@ test.describe('live hosting readiness', () => {
     const sitemap = await request.get('/sitemap.xml');
     await expect(sitemap).toBeOK();
 
-    const archiveGuide = await request.get(
-      '/documents/archive/city-council-meeting-access-guide.html',
-    );
-    await expect(archiveGuide).toBeOK();
+    const documentsRedirect = await request.get('/documents', { maxRedirects: 0 });
+    expect(documentsRedirect.status(), '/documents should redirect to /meetings').toBe(302);
   });
 
   test('runtime-config.js exposes cms.appSync shape for browser CMS reads', async ({ request }) => {

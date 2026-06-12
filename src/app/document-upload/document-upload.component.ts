@@ -1,21 +1,21 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CmsPublicDocumentAdminService } from '../cms-public-document-admin.service';
 import { DocumentRefreshService } from '../document-refresh.service';
-import { DocumentArchiveSectionId } from '../document-hub/document-archive';
 import { DocumentUploadService, UploadedDocument } from '../document-upload.service';
+import { MeetingDocumentSectionId } from '../meeting-documents/document-archive';
 
 @Component({
   selector: 'app-document-upload',
@@ -320,7 +320,7 @@ export class DocumentUploadComponent implements OnInit {
     'Confirm you are using the Town AWS editor account and that document upload permissions are available.';
 
   // Inputs
-  sectionId = input.required<DocumentArchiveSectionId>();
+  sectionId = input.required<MeetingDocumentSectionId>();
   sectionName = input.required<string>();
 
   // Outputs

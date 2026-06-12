@@ -21,6 +21,18 @@
       <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
     </div>
 
+    <section
+      class="contact-records-assistance"
+      aria-labelledby="contact-records-assistance-heading"
+      data-testid="contact-records-assistance"
+    >
+      <h2 id="contact-records-assistance-heading">{{ recordsAssistanceCopy().heading }}</h2>
+      <p>{{ recordsAssistanceCopy().body }}</p>
+      <a class="contact-link" [attr.href]="clerkEmailHref()">
+        {{ recordsAssistanceCopy().emailLabel }} · {{ clerkEmailLabel() }}
+      </a>
+    </section>
+
     @if (cmsLoading()) {
       <section class="contact-grid" aria-label="Town contacts" aria-live="polite" aria-busy="true">
         @for (_ of [0, 1, 2, 3]; track $index) {
@@ -61,18 +73,21 @@
       </section>
     }
 
-    <ul class="leadership-grid" [attr.aria-label]="copy().leadershipAriaLabel">
-      @for (group of leadershipGroups(); track group.title) {
-        <li class="leadership-card">
-          <h2>{{ group.title }}</h2>
+    <div class="leadership-roster" [attr.aria-label]="copy().leadershipAriaLabel">
+      @for (group of leadershipGroups(); track group.groupId; let idx = $index) {
+        <div class="leadership-subsection">
+          <h3>{{ group.title }}</h3>
           <p>{{ group.detail }}</p>
           <ul class="leadership-list">
             @for (member of group.members; track member) {
               <li>{{ member }}</li>
             }
           </ul>
-        </li>
+        </div>
+        @if (idx < leadershipGroups().length - 1) {
+          <p-divider styleClass="section-divider" />
+        }
       }
-    </ul>
+    </div>
   </p-card>
 </section>

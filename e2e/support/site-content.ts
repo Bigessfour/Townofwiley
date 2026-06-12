@@ -27,7 +27,7 @@ export const siteContent = {
   megaMenuChromeEn: {
     contactCta: 'Contact Town Hall',
     searchInputAccessibleName:
-      'Find permits, taxes, meetings, utilities, records, and issue reporting in one place.',
+      'Find permits, taxes, meetings, utilities, and issue reporting in one place.',
   },
   /**
    * Mobile drawer anchors (`mobile-menu-nav` in `app.html`), EN locale.
@@ -51,7 +51,6 @@ export const siteContent = {
     onlinePayments: 'Online Payments',
     reportIssue: 'Report Street/Utility Issue',
     meetingsAndCalendar: 'Meetings and Calendar',
-    permitsAndLicenses: 'Permits & Licenses',
     searchAllServices: 'Search All Services',
     localWeather: 'Local weather',
     nwsAlert: 'National Weather Service Alert',
@@ -59,7 +58,8 @@ export const siteContent = {
     openFullCalendar: 'Open the full town calendar',
     meetingsAndCalendarTitle: 'Meetings and calendar',
     calendar: 'Calendar',
-    recordsAndDocuments: 'Records and documents',
+    /** Matches `APP_COPY.en.featureTitles.records` / mega menu `menuItems()` in `app.ts`. */
+    meetingsAndDocuments: 'Meetings & documents',
     transparency: 'Transparency',
     accessibilityStatement: 'Accessibility statement',
     leadership: 'Leadership',
@@ -77,7 +77,8 @@ export const siteContent = {
     'Search and document discovery',
   ],
   homepageCounts: {
-    noticeCards: 3,
+    /** Matches active `noticeRecords` in `public/cms-snapshot.json` (newsletter-only snapshot as of 2026-06). */
+    noticeCards: 1,
     meetingCards: 2,
     serviceCards: 6,
     headerShortcuts: 3,
@@ -95,7 +96,7 @@ export const siteContent = {
     news: 'Town News',
   },
   emptySearchMessage:
-    'No direct match yet. Try permits, taxes, meetings, utilities, records, weather, or road issues.',
+    'No direct match yet. Try permits, taxes, meetings, utilities, weather, or road issues.',
 
   // Expanded test data for full functional validation (navigation, buttons, colors, fonts, theme)
   buttonLabels: {

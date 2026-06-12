@@ -58,7 +58,9 @@
               </div>
             </ng-template>
           </p-orderList>
-          <p class="cms-record-editor__ordered-hint">Drag to reorder — each change saves immediately.</p>
+          <p class="cms-record-editor__ordered-hint">
+            Drag to reorder — each change saves immediately.
+          </p>
         }
       </div>
     }
@@ -119,7 +121,12 @@
           </div>
         } @else if (field.type === 'textarea') {
           <label class="cms-record-field" [for]="fieldInputId(field.name)">
-            <span>{{ field.label }}@if (field.required) { * }</span>
+            <span
+              >{{ field.label }}
+              @if (field.required) {
+                *
+              }
+            </span>
             <textarea
               pTextarea
               [id]="fieldInputId(field.name)"
@@ -135,7 +142,12 @@
           </label>
         } @else if (field.type === 'number') {
           <label class="cms-record-field" [for]="fieldInputId(field.name)">
-            <span>{{ field.label }}@if (field.required) { * }</span>
+            <span
+              >{{ field.label }}
+              @if (field.required) {
+                *
+              }
+            </span>
             <p-inputNumber
               [inputId]="fieldInputId(field.name)"
               [ngModel]="fieldValue(field)"
@@ -149,7 +161,12 @@
           </label>
         } @else if (field.type === 'date' || field.type === 'datetime') {
           <label class="cms-record-field cms-record-field--date" [for]="fieldInputId(field.name)">
-            <span>{{ field.label }}@if (field.required) { * }</span>
+            <span
+              >{{ field.label }}
+              @if (field.required) {
+                *
+              }
+            </span>
             <input
               class="cms-record-date-input"
               [id]="fieldInputId(field.name)"
@@ -162,9 +179,80 @@
               <span class="cms-record-field__help">{{ field.help }}</span>
             }
           </label>
+        } @else if (field.type === 'select') {
+          <label class="cms-record-field" [for]="fieldInputId(field.name)">
+            <span
+              >{{ field.label }}
+              @if (field.required) {
+                *
+              }
+            </span>
+            <p-select
+              [inputId]="fieldInputId(field.name)"
+              [options]="selectOptions(field)"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.data-testid]="'cms-field-select-' + taskId() + '-' + field.name"
+            />
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </label>
+        } @else if (field.type === 'fileOrUrl') {
+          <div class="cms-record-field cms-record-field--file">
+            <label [for]="fieldInputId(field.name)">
+              <span
+                >{{ field.label }}
+                @if (field.required) {
+                  *
+                }
+              </span>
+            </label>
+            <input
+              pInputText
+              [id]="fieldInputId(field.name)"
+              type="text"
+              [attr.placeholder]="field.placeholder ?? 'documents/newsletter/your-file.pdf'"
+              [ngModel]="fieldValue(field)"
+              (ngModelChange)="updateField(field.name, $event)"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.data-testid]="'cms-field-file-or-url-' + taskId() + '-' + field.name"
+            />
+            <label class="cms-record-field__file-picker">
+              <span class="visually-hidden">Upload file for {{ field.label }}</span>
+              <input
+                type="file"
+                [accept]="field.accept ?? '*/*'"
+                [disabled]="fileUploadingField() === field.name"
+                [attr.data-testid]="'cms-field-file-input-' + taskId() + '-' + field.name"
+                (change)="onFileOrUrlSelected(field, $event)"
+              />
+              @if (fileUploadingField() === field.name) {
+                Uploading…
+              } @else {
+                Choose PDF to upload
+              }
+            </label>
+            @if (fieldValue(field); as fileCode) {
+              <p class="cms-record-field__file-code">
+                File code: <code>{{ fileCode }}</code>
+              </p>
+            }
+            @if (field.help) {
+              <span class="cms-record-field__help">{{ field.help }}</span>
+            }
+          </div>
         } @else {
           <label class="cms-record-field" [for]="fieldInputId(field.name)">
-            <span>{{ field.label }}@if (field.required) { * }</span>
+            <span
+              >{{ field.label }}
+              @if (field.required) {
+                *
+              }
+            </span>
             <input
               pInputText
               [id]="fieldInputId(field.name)"
@@ -179,6 +267,14 @@
             }
           </label>
         }
+      }
+
+      @if (fileUploadError()) {
+        <p-message
+          severity="error"
+          [text]="fileUploadError()!"
+          styleClass="cms-record-editor__message"
+        />
       }
 
       @if (deleteBlockedReason(); as blocked) {
@@ -210,7 +306,20 @@
     </form>
 
     @if (submitResult()) {
-      <p-message severity="success" [text]="submitResult()!" styleClass="cms-record-editor__message" />
+      <p-message
+        severity="success"
+        [text]="submitResult()!"
+        styleClass="cms-record-editor__message"
+      />
+      <button
+        pButton
+        type="button"
+        class="p-button-secondary"
+        (click)="verifyOnLiveSite()"
+        data-testid="cms-verify-live-site"
+      >
+        See on live website (public view refreshed)
+      </button>
     }
     @if (submitError()) {
       <p-message severity="error" [text]="submitError()!" styleClass="cms-record-editor__message" />

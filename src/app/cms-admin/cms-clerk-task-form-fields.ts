@@ -1,7 +1,7 @@
 import {
-  datetimeLocalToIso,
-  isoToDateInput,
-  isoToDatetimeLocal,
+    datetimeLocalToIso,
+    isoToDateInput,
+    isoToDatetimeLocal,
 } from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 
@@ -12,7 +12,13 @@ export type ClerkFormFieldType =
   | 'number'
   | 'date'
   | 'datetime'
-  | 'fileOrUrl';
+  | 'fileOrUrl'
+  | 'select';
+
+export interface ClerkFormFieldOption {
+  value: string;
+  label: string;
+}
 
 export interface ClerkFormFieldDefinition {
   name: string;
@@ -21,6 +27,9 @@ export interface ClerkFormFieldDefinition {
   required?: boolean;
   type?: ClerkFormFieldType;
   placeholder?: string;
+  options?: ClerkFormFieldOption[];
+  accept?: string;
+  uploadSectionId?: string;
 }
 
 /** PrimeNG form fields for every clerk CMS task (create + edit via AppSync). */
@@ -37,13 +46,20 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     {
       name: 'announcementKind',
       label: 'Kind',
-      placeholder: 'newsletter',
-      help: 'Leave blank for short notices. Type newsletter for PDF posts.',
+      type: 'select',
+      options: [
+        { value: '', label: 'Short notice (bulletin)' },
+        { value: 'newsletter', label: 'Newsletter (PDF on /news)' },
+      ],
+      help: 'Choose Newsletter when publishing a scanned or digital town newsletter PDF.',
     },
     {
       name: 'attachmentKey',
-      label: 'File code from IT',
-      help: 'For newsletters only — paste the storage key from upload',
+      label: 'Newsletter PDF',
+      type: 'fileOrUrl',
+      accept: 'application/pdf',
+      uploadSectionId: 'newsletter',
+      help: 'Upload a PDF or paste the storage file code (documents/newsletter/…).',
     },
     { name: 'priority', label: 'Priority (number)', type: 'number', help: '1 is highest' },
     { name: 'imageUrl', label: 'Image URL (https://)' },
@@ -92,43 +108,6 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     { name: 'linkLabel', label: 'Link Label (optional)' },
     { name: 'linkHref', label: 'Link URL (full https://, optional)' },
     { name: 'enabled', label: 'Show banner on homepage', type: 'checkbox' },
-  ],
-  'add-document': [
-    {
-      name: 'sectionId',
-      label: 'Section name',
-      required: true,
-      placeholder: 'e.g. meeting-documents',
-    },
-    { name: 'title', label: 'Title', required: true },
-    { name: 'titleEs', label: 'Title (Spanish)' },
-    { name: 'summary', label: 'Summary', type: 'textarea' },
-    { name: 'summaryEs', label: 'Summary (Spanish)', type: 'textarea' },
-    {
-      name: 'href',
-      label: 'Link or file address',
-      type: 'fileOrUrl',
-      help: 'Paste a full https:// URL, or choose a file from your computer to upload.',
-    },
-    {
-      name: 'downloadFileName',
-      label: 'Download file name',
-      help: 'Suggested name when someone downloads the file',
-    },
-    {
-      name: 'status',
-      label: 'Status',
-      placeholder: 'Published',
-      help: 'Usually "Published"',
-    },
-    { name: 'format', label: 'Format', placeholder: 'PDF' },
-    {
-      name: 'keywords',
-      label: 'Keywords',
-      help: 'Search tags, comma-separated',
-    },
-    { name: 'displayOrder', label: 'Sort order (number)', type: 'number' },
-    { name: 'active', label: 'Show on website', type: 'checkbox' },
   ],
   'update-contacts': [
     {
@@ -212,8 +191,17 @@ export function clerkTaskHasDynamicForm(taskId: ClerkCmsTaskId): boolean {
   return clerkTaskHasForm(taskId);
 }
 
+export function todayDateInputValue(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function defaultDynamicFormValues(
   fields: ClerkFormFieldDefinition[],
+  options?: { taskId?: ClerkCmsTaskId },
 ): Record<string, string | boolean> {
   const values: Record<string, string | boolean> = {};
   for (const field of fields) {
@@ -225,8 +213,27 @@ export function defaultDynamicFormValues(
       values[field.name] = 'Town of Wiley';
       continue;
     }
+    if (options?.taskId === 'post-notice' && field.name === 'date') {
+      values[field.name] = todayDateInputValue();
+      continue;
+    }
     values[field.name] = '';
   }
+  return values;
+}
+
+export function applyPostNoticeAttachmentDefaults(
+  values: Record<string, string | boolean>,
+): Record<string, string | boolean> {
+  const attachmentKey =
+    typeof values['attachmentKey'] === 'string' ? values['attachmentKey'].trim() : '';
+  const announcementKind =
+    typeof values['announcementKind'] === 'string' ? values['announcementKind'].trim() : '';
+
+  if (attachmentKey && !announcementKind) {
+    return { ...values, announcementKind: 'newsletter' };
+  }
+
   return values;
 }
 
