@@ -69,29 +69,12 @@ for (const route of inventoryRoutesWithSiteChrome) {
       await expect(siteChrome.searchResults.or(siteChrome.emptySearchState).first()).toBeVisible();
     });
 
-    test('[shared.chatbot-toggle] opens Ask Wiley assistant dialog', async ({
-      siteChrome,
-      homePage,
-    }) => {
-      await homePage.enableProgrammaticChat();
-      if (route.path === '/') {
-        await homePage.goto();
-      } else {
-        await siteChrome.page.goto(route.path, { waitUntil: 'commit', timeout: 30_000 });
-      }
-
-      await inventoryStep('Open chatbot', async () => {
-        await siteChrome.openChatbot();
-      });
-    });
-
     test('[shared.logo-navigate-home] town logo returns to homepage', async ({
       siteChrome,
       homePage,
     }) => {
       test.skip(route.path === '/', 'Logo home navigation is validated from inner pages only.');
 
-      await homePage.enableProgrammaticChat();
       await siteChrome.page.goto(route.path, { waitUntil: 'commit', timeout: 30_000 });
 
       await inventoryStep('Click town logo', async () => {

@@ -5,7 +5,7 @@ import {
   siteLanguageButton,
 } from '../support/site-language-toggle';
 
-/** Shared header, search, language, mobile menu, chatbot, and footer chrome. */
+/** Shared header, search, language, mobile menu, and footer chrome. */
 export class SiteChromePage {
   readonly page: Page;
   readonly skipLink: Locator;
@@ -19,8 +19,6 @@ export class SiteChromePage {
   readonly footerLinks: Locator;
   readonly townLogo: Locator;
   readonly languageGroup: Locator;
-  readonly floatingChatButton: Locator;
-  readonly assistantDialog: Locator;
   readonly mobileMenuDrawer: Locator;
   readonly taskCards: Locator;
 
@@ -39,8 +37,6 @@ export class SiteChromePage {
     this.footerLinks = page.locator('.footer-links a');
     this.townLogo = page.locator('.site-header a.town-logo').filter({ visible: true }).first();
     this.languageGroup = page.getByRole('group', { name: SITE_LANGUAGE_GROUP });
-    this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
-    this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
     this.mobileMenuDrawer = page.locator('#mobile-menu-drawer');
     this.taskCards = page.locator('.task-card');
   }
@@ -79,20 +75,6 @@ export class SiteChromePage {
     await this.setMegaSiteSearchDraft(query);
     await expect(this.searchInput).toHaveValue(query);
     await this.page.waitForSelector('.search-result, .empty-state', { timeout: 15_000 });
-  }
-
-  async openChatbot(): Promise<void> {
-    await this.floatingChatButton.evaluate((button) => {
-      (button as HTMLButtonElement).click();
-    });
-    await expect(this.assistantDialog).toBeVisible();
-  }
-
-  async closeChatbot(): Promise<void> {
-    const close = this.assistantDialog.getByRole('button', { name: /Close/i });
-    if (await close.isVisible().catch(() => false)) {
-      await close.click();
-    }
   }
 
   async openMobileMenu(): Promise<void> {

@@ -80,16 +80,6 @@ export class HomePage {
   readonly businessDirectorySearchInput: Locator;
   readonly businessDirectoryCards: Locator;
   readonly businessDirectoryEmptyState: Locator;
-  readonly floatingChatButton: Locator;
-  readonly assistantDialog: Locator;
-  readonly assistantShell: Locator;
-  readonly assistantStatus: Locator;
-  readonly assistantThreadStatus: Locator;
-  readonly assistantInput: Locator;
-  readonly assistantSendButton: Locator;
-  readonly assistantPromptButtons: Locator;
-  readonly assistantMessages: Locator;
-  readonly assistantLinks: Locator;
   readonly weatherUpdatedLabel: Locator;
   readonly emptySearchState: Locator;
 
@@ -203,16 +193,6 @@ export class HomePage {
     );
     this.businessDirectoryCards = page.locator('.public-directory-card');
     this.businessDirectoryEmptyState = page.locator('.public-empty-state');
-    this.floatingChatButton = page.getByRole('button', { name: /Open Ask Wiley/i });
-    this.assistantDialog = page.getByRole('dialog', { name: /Ask Wiley.*Town Assistant/ });
-    this.assistantShell = page.locator('.assistant-shell');
-    this.assistantStatus = page.locator('.assistant-status');
-    this.assistantThreadStatus = page.locator('.assistant-thread-status');
-    this.assistantInput = page.locator('#assistant-question');
-    this.assistantSendButton = page.locator('.assistant-send');
-    this.assistantPromptButtons = page.locator('.assistant-chip');
-    this.assistantMessages = page.locator('.assistant-message');
-    this.assistantLinks = page.locator('.assistant-links a');
     this.weatherUpdatedLabel = page.locator('.weather-updated');
     this.emptySearchState = page.locator('.empty-state');
   }
@@ -231,37 +211,6 @@ export class HomePage {
         await new Promise(requestAnimationFrame);
       }
     });
-  }
-
-  async enableProgrammaticChat(apiEndpoint = '/mock-chatbot'): Promise<void> {
-    await this.page.addInitScript((endpoint) => {
-      const runtimeWindow = window as Window & {
-        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-          chatbot?: {
-            provider?: string;
-            mode?: string;
-            chatUrl?: string;
-            buttonPosition?: string;
-            apiEndpoint?: string;
-          };
-          weather?: {
-            apiEndpoint?: string;
-            allowBrowserFallback?: boolean;
-          };
-        };
-      };
-
-      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        chatbot: {
-          provider: 'easyPeasy',
-          mode: 'api',
-          chatUrl: '',
-          buttonPosition: 'bottom-right',
-          apiEndpoint: endpoint,
-        },
-      };
-    }, apiEndpoint);
   }
 
   async enableWeatherProxy(
@@ -452,19 +401,6 @@ export class HomePage {
     }, apiEndpoint);
   }
 
-  async sendAssistantQuestion(question: string): Promise<void> {
-    await expect(this.assistantInput).toBeEnabled();
-    await this.assistantInput.fill(question);
-    await expect(this.assistantInput).toHaveValue(question);
-    await this.assistantInput.press('Enter');
-    await expect(this.assistantInput).toHaveValue('');
-  }
-
-  async chooseAssistantPrompt(prompt: string): Promise<void> {
-    await this.assistantPromptButtons.filter({ hasText: prompt }).click();
-    await expect(this.assistantInput).toHaveValue('');
-  }
-
   async tapWeatherRefresh(): Promise<void> {
     await expect(this.weatherRefreshButton).toBeVisible();
     await expect(this.weatherRefreshButton).toBeEnabled();
@@ -561,13 +497,6 @@ export class HomePage {
       return;
     }
     await this.page.locator('.site-header a.town-logo').first().click();
-  }
-
-  async openAssistantDialog(): Promise<void> {
-    await this.floatingChatButton.evaluate((button) => {
-      (button as HTMLButtonElement).click();
-    });
-    await expect(this.assistantDialog).toBeVisible();
   }
 
   async searchFor(query: string): Promise<void> {
