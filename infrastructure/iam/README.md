@@ -9,6 +9,53 @@
 
 Town of Wiley workloads and IAM user **`copilot`** live only in **`570912405222`**.
 
+## Cognito guest role — public document PDF read (newsletter, meeting agendas)
+
+Anonymous visitors resolve CMS storage keys (newsletter PDFs, linked agenda PDFs)
+through the Gen 1 Cognito **unauthenticated** role. Do **not** create a new role;
+attach or refresh the inline policy on the existing role.
+
+| Item        | Value                                                                                |
+| ----------- | ------------------------------------------------------------------------------------ |
+| Role        | `amplify-townofwiley-main-d1245-unauthRole`                                          |
+| Policy name | `documentsGuestReadAccess`                                                           |
+| Policy file | [documents-guest-read-access-policy.json](./documents-guest-read-access-policy.json) |
+
+```bash
+export AWS_PROFILE=townofwiley AWS_REGION=us-east-2
+aws iam put-role-policy \
+  --role-name amplify-townofwiley-main-d1245-unauthRole \
+  --policy-name documentsGuestReadAccess \
+  --policy-document file://infrastructure/iam/documents-guest-read-access-policy.json
+```
+
+See [`docs/CMS_NEWSLETTER.md`](../docs/CMS_NEWSLETTER.md) for clerk-facing troubleshooting.
+
+## Cognito auth role — Staff S3 uploads (`/admin` PDFs and images)
+
+Signed-in **Staff** users upload via the identity pool **authenticated** role. Refresh
+the inline policy when clerk uploads fail with S3 `AccessDenied` / `ListBucket`.
+
+| Item        | Value                                                                    |
+| ----------- | ------------------------------------------------------------------------ |
+| Role        | `amplify-townofwiley-main-d1245-authRole`                                |
+| Policy name | `documentsAuthAccess`                                                    |
+| Policy file | [documents-auth-access-policy.json](./documents-auth-access-policy.json) |
+
+```bash
+export AWS_PROFILE=townofwiley AWS_REGION=us-east-2
+aws iam put-role-policy \
+  --role-name amplify-townofwiley-main-d1245-authRole \
+  --policy-name documentsAuthAccess \
+  --policy-document file://infrastructure/iam/documents-auth-access-policy.json
+```
+
+Apply **both** guest and staff document policies after edits:
+
+```bash
+npm run aws:iam:documents-storage
+```
+
 ## `copilot` user — read Town Lambda CloudWatch logs
 
 The `copilot` IAM user needs log read actions to run `aws logs tail` / `FilterLogEvents` without `AccessDeniedException`.

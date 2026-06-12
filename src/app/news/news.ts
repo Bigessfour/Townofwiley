@@ -15,6 +15,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DocumentUploadService } from '../document-upload.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
+
+export { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
 
 interface ExternalLink {
   title: string;
@@ -217,7 +220,9 @@ export class News {
     try {
       const url = await this.documentUploadService.resolveDocumentHref(key);
       this.resolvedNewsletterHref.set(url);
-      this.trustedNewsletterUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+      this.trustedNewsletterUrl.set(
+        this.sanitizer.bypassSecurityTrustResourceUrl(appendNewsletterPdfInlineViewerParams(url)),
+      );
       this.newsletterHrefError.set(false);
     } catch (error) {
       console.error('Failed to resolve newsletter PDF link:', error);
