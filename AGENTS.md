@@ -33,8 +33,8 @@ Public content uses aggressive **offline-first** caching in `LocalizedCmsContent
 
 1. **Bundled defaults** — hardcoded fallbacks in `site-cms-content.ts`
 2. **Build snapshot** — `GET /cms-snapshot.json` (from [`scripts/generate-cms-snapshot.mjs`](scripts/generate-cms-snapshot.mjs) at build)
-3. **localStorage** — key `tow-cms-snapshot-v1`, **7-day TTL** (`CMS_SNAPSHOT_TTL_MS`)
-4. **Live AppSync** — `PUBLIC_CMS_CORE_QUERY` then `PUBLIC_CMS_EXTENDED_QUERY`; on success → `persistSnapshot()`
+3. **localStorage** — key `tow-cms-snapshot-v1`, **7-day offline TTL** (`CMS_SNAPSHOT_TTL_MS`); **6-hour live refresh TTL** (`CMS_LIVE_REFRESH_TTL_MS`) skips AppSync when snapshot is fresh
+4. **Live AppSync** — `PUBLIC_CMS_CORE_QUERY` then `PUBLIC_CMS_EXTENDED_QUERY`; on success → `persistSnapshot()`. Staff `/admin` → **Refresh from database** bypasses cache. Announcement primary-key reconcile runs on staff refresh and at deploy snapshot only (not every public page load).
 
 `contentSourceState`: `'bundled' | 'loading' | 'live' | 'cached'`. Site can look correct while showing **stale or fallback** data.
 
