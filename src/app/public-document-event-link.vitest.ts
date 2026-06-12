@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  buildAgendaHubHrefByEventId,
-  buildLinkedAgendaDocumentByEventId,
-  eventDocumentKeyword,
-  formatMeetingDocumentTitle,
-  readLinkedEventId,
+    buildAgendaHubHrefByEventId,
+    buildLinkedAgendaDocumentByEventId,
+    eventDocumentKeyword,
+    formatMeetingDocumentTitle,
+    readLinkedEventId,
 } from './public-document-event-link';
 import type { CmsPublicDocument } from './site-cms-content';
 
@@ -30,7 +30,7 @@ describe('public-document-event-link', () => {
     ];
 
     expect(buildAgendaHubHrefByEventId(documents)).toEqual({
-      'evt-1': '/documents#cms-doc-doc-1',
+      'evt-1': '/meetings#cms-doc-doc-1',
     });
     expect(buildLinkedAgendaDocumentByEventId(documents)).toEqual({
       'evt-1': {

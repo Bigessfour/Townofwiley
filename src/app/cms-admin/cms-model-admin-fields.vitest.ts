@@ -22,8 +22,8 @@ describe('cms-model-admin-fields', () => {
       'Clerk (city-clerk)',
     );
     expect(cmsRecordSummaryLabel('SiteCopy', { key: 'nav.services' })).toBe('nav.services');
-    expect(
-      cmsRecordSummaryLabel('EmailAlias', { aliasAddress: 'clerk@townofwiley.gov' }),
-    ).toBe('clerk@townofwiley.gov');
+    expect(cmsRecordSummaryLabel('EmailAlias', { aliasAddress: 'clerk@townofwiley.gov' })).toBe(
+      'clerk@townofwiley.gov',
+    );
   });
 });

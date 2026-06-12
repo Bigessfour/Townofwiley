@@ -13,7 +13,7 @@
 
   <section class="resident-service-picker grid gap-4" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
-    <div class="resident-service-picker-cards grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-4">
+    <div class="resident-service-picker-cards grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-3">
       @for (panel of servicePanels(); track panel.id) {
         <button
           type="button"
@@ -80,18 +80,6 @@
         [superintendentEmailLabel]="superintendentEmailLabel()"
         [validationMessage]="boundValidationMessage"
         (submitIssue)="submitIssueReport()"
-      />
-    } @else if (activeServicePanel() === 'records') {
-      <app-resident-records-panel
-        [copy]="copy()"
-        [recordsForm]="recordsForm"
-        [recordsSubmitting]="recordsSubmitting()"
-        [townHallPhoneHref]="townHallPhoneHref()"
-        [townHallPhoneLabel]="townHallPhoneLabel()"
-        [clerkEmailHref]="clerkEmailHref()"
-        [clerkEmailLabel]="clerkEmailLabel()"
-        [validationMessage]="boundValidationMessage"
-        (submitRecords)="submitRecordsRequest()"
       />
     } @else if (activeServicePanel() === 'weather') {
       <app-resident-weather-panel [copy]="copy()" />

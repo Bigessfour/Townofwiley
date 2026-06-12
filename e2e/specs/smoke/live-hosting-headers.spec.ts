@@ -25,8 +25,8 @@ const headerChecks = [
     },
   },
   {
-    path: '/documents/archive/city-council-meeting-access-guide.html',
-    label: 'document archive page',
+    path: '/meetings',
+    label: 'meetings page',
     headers: {
       'cache-control': /no-cache, no-store, must-revalidate/,
       'x-frame-options': /^DENY$/,

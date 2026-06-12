@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -219,8 +226,7 @@ export class CmsEmailAliasAdminComponent implements OnInit {
       this.aliases.set(records.map((record) => this.mapRecord(record)));
     } catch (err: unknown) {
       this.aliases.set([]);
-      const message =
-        err instanceof Error ? err.message : 'Could not load email forwarding rules.';
+      const message = err instanceof Error ? err.message : 'Could not load email forwarding rules.';
       this.loadError.set(message);
     } finally {
       this.aliasesLoading.set(false);
@@ -233,8 +239,7 @@ export class CmsEmailAliasAdminComponent implements OnInit {
       aliasAddress: String(record['aliasAddress'] ?? ''),
       destinationAddress: String(record['destinationAddress'] ?? ''),
       active: record['active'] === true,
-      displayName:
-        typeof record['displayName'] === 'string' ? record['displayName'] : undefined,
+      displayName: typeof record['displayName'] === 'string' ? record['displayName'] : undefined,
       roleLabel: typeof record['roleLabel'] === 'string' ? record['roleLabel'] : undefined,
       notes: typeof record['notes'] === 'string' ? record['notes'] : undefined,
     };

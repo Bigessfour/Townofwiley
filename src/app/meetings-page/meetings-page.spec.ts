@@ -11,13 +11,14 @@ import { MeetingsPage } from './meetings-page';
 interface MeetingsPageStore {
   events: ReturnType<typeof signal<CmsCalendarEvent[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
+  publicDocuments: ReturnType<typeof signal<[]>>;
   linkedAgendaDocumentByEventId?: ReturnType<
     typeof signal<Record<string, { documentId: string; storageHref: string }>>
   >;
 }
 
 function configure(
-  store: Pick<MeetingsPageStore, 'events' | 'isLoading'> &
+  store: Pick<MeetingsPageStore, 'events' | 'isLoading' | 'publicDocuments'> &
     Partial<Pick<MeetingsPageStore, 'linkedAgendaDocumentByEventId'>>,
   language: 'en' | 'es' = 'en',
 ) {
@@ -56,6 +57,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(false),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain(APP_COPY.en.meetingsHeading);
@@ -64,7 +66,11 @@ describe('MeetingsPage', () => {
 
   it('renders Spanish heading and column copy', () => {
     const fixture = configure(
-      { events: signal<CmsCalendarEvent[]>([]), isLoading: signal(false) },
+      {
+        events: signal<CmsCalendarEvent[]>([]),
+        isLoading: signal(false),
+        publicDocuments: signal([]),
+      },
       'es',
     );
     const el = fixture.nativeElement as HTMLElement;
@@ -79,6 +85,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(true),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.meetings-table-skeleton')).toBeTruthy();
@@ -89,6 +96,7 @@ describe('MeetingsPage', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),
       isLoading: signal(false),
+      publicDocuments: signal([]),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.meetings-table')).toBeTruthy();

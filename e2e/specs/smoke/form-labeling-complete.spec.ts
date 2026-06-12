@@ -5,10 +5,10 @@ const formRoutes = [
   { path: '/weather', label: 'weather signup' },
   { path: '/services#payment-help', label: 'payment help' },
   { path: '/services#issue-report', label: 'issue report' },
-  { path: '/services#records-request', label: 'records request' },
+  { path: '/contact', label: 'contact clerk assistance' },
   { path: '/accessibility', label: 'accessibility report' },
   { path: '/businesses', label: 'business directory' },
-  { path: '/documents', label: 'document archive search' },
+  { path: '/meetings', label: 'meeting archive search' },
 ];
 
 test.describe('public form labeling', () => {

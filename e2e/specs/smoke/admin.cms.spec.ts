@@ -270,13 +270,10 @@ test.describe('cms admin', () => {
     });
     await expect(homePage.page.getByText('meeting-documents', { exact: false })).toBeVisible();
 
-    await homePage.page
-      .getByTestId('cms-task-add-document')
-      .getByTestId('cms-task-edit-add-document')
-      .click();
+    await homePage.page.getByTestId('cms-task-add-meeting').getByTestId('cms-task-edit-add-meeting').click();
     await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
     await expect(
-      homePage.page.getByTestId('cms-task-form').getByLabel(/Title \(Spanish\)/i),
+      homePage.page.getByTestId('cms-task-form').getByLabel(/Meeting or Event Title/i),
     ).toBeVisible();
   });
 });

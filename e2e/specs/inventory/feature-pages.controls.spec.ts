@@ -32,14 +32,15 @@ test.describe('services page inventory controls', () => {
   });
 });
 
-test.describe('records page inventory controls', () => {
-  test('[records.guide-packets-visible] records guide packets are visible', async ({
+test.describe('records redirect inventory controls', () => {
+  test('[records.redirect-contact-assistance] /records redirects to clerk assistance', async ({
     recordsPage,
   }) => {
     await recordsPage.goto();
 
-    await inventoryStep('Verify records guide packets', async () => {
-      await expect(recordsPage.guidePackets).toBeVisible();
+    await inventoryStep('Verify /records redirect shows clerk assistance', async () => {
+      await expect(recordsPage.page).toHaveURL(/\/contact$/);
+      await expect(recordsPage.recordsAssistance).toBeVisible();
     });
   });
 });

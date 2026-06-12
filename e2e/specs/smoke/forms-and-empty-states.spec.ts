@@ -29,15 +29,6 @@ test.describe('forms and empty states', () => {
     await expect(homePage.residentServiceIssuePanel).toContainText(
       'Location: This field is required.',
     );
-
-    await homePage.selectResidentServicePanel('records');
-    await homePage.residentServiceRecordsAction.click();
-    await expect(
-      homePage.page.getByText('Please review the highlighted fields.').first(),
-    ).toBeVisible();
-    await expect(homePage.residentServiceRecordsPanel).toContainText(
-      'Resident or business name: This field is required.',
-    );
   });
 
   test('keeps accessibility report validation visible until required details are complete', async ({
@@ -45,6 +36,7 @@ test.describe('forms and empty states', () => {
   }) => {
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
 
+    await expect(homePage.page.locator('#barrier-report')).toBeVisible({ timeout: 20_000 });
     await homePage.accessibilityReportAction.click();
 
     await expect(homePage.accessibilityReportStatus).toContainText(
@@ -60,7 +52,7 @@ test.describe('forms and empty states', () => {
   }) => {
     await homePage.goto();
 
-    await homePage.searchFor('snowmobile permit banana');
+    await homePage.searchFor('zzzzxyzzy no wiley match');
     await expect(homePage.searchResults).toHaveCount(0);
     await expect(homePage.emptySearchState).toContainText('No direct match yet');
 

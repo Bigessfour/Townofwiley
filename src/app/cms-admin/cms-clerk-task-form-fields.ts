@@ -1,7 +1,7 @@
 import {
-  datetimeLocalToIso,
-  isoToDateInput,
-  isoToDatetimeLocal,
+    datetimeLocalToIso,
+    isoToDateInput,
+    isoToDatetimeLocal,
 } from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 
@@ -108,43 +108,6 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     { name: 'linkLabel', label: 'Link Label (optional)' },
     { name: 'linkHref', label: 'Link URL (full https://, optional)' },
     { name: 'enabled', label: 'Show banner on homepage', type: 'checkbox' },
-  ],
-  'add-document': [
-    {
-      name: 'sectionId',
-      label: 'Section name',
-      required: true,
-      placeholder: 'e.g. meeting-documents',
-    },
-    { name: 'title', label: 'Title', required: true },
-    { name: 'titleEs', label: 'Title (Spanish)' },
-    { name: 'summary', label: 'Summary', type: 'textarea' },
-    { name: 'summaryEs', label: 'Summary (Spanish)', type: 'textarea' },
-    {
-      name: 'href',
-      label: 'Link or file address',
-      type: 'fileOrUrl',
-      help: 'Paste a full https:// URL, or choose a file from your computer to upload.',
-    },
-    {
-      name: 'downloadFileName',
-      label: 'Download file name',
-      help: 'Suggested name when someone downloads the file',
-    },
-    {
-      name: 'status',
-      label: 'Status',
-      placeholder: 'Published',
-      help: 'Usually "Published"',
-    },
-    { name: 'format', label: 'Format', placeholder: 'PDF' },
-    {
-      name: 'keywords',
-      label: 'Keywords',
-      help: 'Search tags, comma-separated',
-    },
-    { name: 'displayOrder', label: 'Sort order (number)', type: 'number' },
-    { name: 'active', label: 'Show on website', type: 'checkbox' },
   ],
   'update-contacts': [
     {

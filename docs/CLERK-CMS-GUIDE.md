@@ -38,8 +38,8 @@ Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 ### Step 4 — Bookmark Amplify Console Data manager
 
-| Link                                                                 | What it is                                                                                                                                                                                                                                   |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Link                                       | What it is                                                                                                                                                                                                                                   |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | AppSync Console (Gen 1 production CMS API) | [Gen 1 AppSync Queries](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) (search schema for Event/AlertBanner/Announcement etc.; use /admin for guidance and "See on website") | Edit CMS records (SiteSettings, Announcement, Event, AlertBanner, Business, etc.) when IT needs direct GraphQL. Clerks should prefer in-app forms on `/admin`. |
 
 Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
@@ -108,17 +108,17 @@ Some features—utility bill pay links, weather signup, chatbot—are controlled
 
 Every piece of content on the website lives in one of these models in Data Manager.
 
-| What you are updating                                       | Open this model         |
-| ----------------------------------------------------------- | ----------------------- |
-| Homepage title, welcome text, and hero photo                | `SiteSettings`          |
-| Emergency banner shown at the top of the homepage           | `AlertBanner`           |
-| Public notices, closures, and general announcements         | `Announcement`          |
-| Meetings, hearings, and calendar events                     | `Event`                 |
-| Staff contact cards for names, phones, and emails           | `OfficialContact`       |
-| Mayor/Council and Town Administration bullets on `/contact` | `LeadershipRosterEntry` |
-| Business directory listings                                 | `Business`              |
-| Public document archive for forms, guides, and downloads    | `PublicDocument`        |
-| External news links shown on the /news page                 | `ExternalNewsLink`      |
+| What you are updating                                            | Open this model                                                                                                                                     |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Homepage title, welcome text, and hero photo                     | `SiteSettings`                                                                                                                                      |
+| Emergency banner shown at the top of the homepage                | `AlertBanner`                                                                                                                                       |
+| Public notices, closures, and general announcements              | `Announcement`                                                                                                                                      |
+| Meetings, hearings, and calendar events                          | `Event`                                                                                                                                             |
+| Staff contact cards for names, phones, and emails                | `OfficialContact`                                                                                                                                   |
+| Mayor/Council and Town Administration bullets on `/contact`      | `LeadershipRosterEntry`                                                                                                                             |
+| Business directory listings                                      | `Business`                                                                                                                                          |
+| Public document archive for forms, guides, and downloads         | `PublicDocument`                                                                                                                                    |
+| External news links shown on the /news page                      | `ExternalNewsLink`                                                                                                                                  |
 | Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — use **Manage email forwarding** on `/admin` (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings)) |
 
 ### Important: two contact cards use fixed record IDs
@@ -183,12 +183,12 @@ Short utility notices should use **Kind** = **Short notice (bulletin)** so they 
 
 Use this table when you are unsure what to type in optional **Announcement** fields in Data Manager.
 
-| Field                | What it is                                                                                         | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| -------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **announcementKind** (Kind) | Tells the website which layout to use on `/news`. | **Short notice (bulletin)** for **Current Wiley Updates**. **Newsletter (PDF on /news)** for the **Newsletter from Town Hall** block with embedded PDF. |
-| **attachmentKey** (Newsletter PDF) | Storage file code for the newsletter PDF. | Upload in the **Post news or notice** form or paste the full key (starts with `documents/newsletter/`). Not a `https://` link. Auto-sets **Kind** to newsletter when filled. |
-| **priority**         | A whole number used to **sort** announcements before the site shows them.                          | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention.                                        |
-| **imageUrl**         | A full public web address pointing to an **image** file.                                           | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it.                                    |
+| Field                              | What it is                                                                | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **announcementKind** (Kind)        | Tells the website which layout to use on `/news`.                         | **Short notice (bulletin)** for **Current Wiley Updates**. **Newsletter (PDF on /news)** for the **Newsletter from Town Hall** block with embedded PDF.                                                                                                                                                                                                                                                                                                                                        |
+| **attachmentKey** (Newsletter PDF) | Storage file code for the newsletter PDF.                                 | Upload in the **Post news or notice** form or paste the full key (starts with `documents/newsletter/`). Not a `https://` link. Auto-sets **Kind** to newsletter when filled.                                                                                                                                                                                                                                                                                                                   |
+| **priority**                       | A whole number used to **sort** announcements before the site shows them. | For **short notices** (blank `announcementKind`), **smaller numbers appear first** (for example `1` is ahead of `5`). Use `1`–`3` for urgent items and larger numbers (such as `10`, `20`) for routine reminders so you can insert new items later. For **newsletters** (`newsletter`), the primary ordering on `/news` is the **date** field; priority is still stored but date is what decides which issue is treated as the newest — ask IT if you need a specific priority convention.     |
+| **imageUrl**                       | A full public web address pointing to an **image** file.                  | Must start with **`https://`** and should point directly to an image (for example `.jpg`, `.png`, or `.webp`) that opens **without logging in**. **Current website note:** the live homepage timeline, `/news` bulletin cards, and `/notices` cards show **title**, **date**, and **detail** only — they do **not** yet display this image on screen, even if you fill the field. You can safely leave **imageUrl** blank unless IT has told you a specific page or future update will use it. |
 
 ### Add or refresh regional news links (Wiley / Prowers coverage)
 
@@ -325,43 +325,22 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 8. Click **Save**.
 9. Refresh the /businesses page and confirm the listing appears.
 
-### Add a public document (for the /documents page)
+### Publish meeting agendas and minutes (PublicDocument)
 
-**Post-migration (CMS-only):** The `/documents` hub reads **only** active `PublicDocument` rows from AppSync. There is no repo manifest to edit. Optional **titleEs**, **summaryEs**, and **statusEs** supply Spanish labels when residents switch the site to Español (English fields are used when Spanish is blank). After you save in Studio, open `/documents` once (hard refresh if needed); the page refreshes the catalog on each visit and when a resident returns to the tab—no website redeploy is required for new rows.
-
-1. Open **PublicDocument** in Data Manager.
-2. Click **Create publicDocument**.
-3. Fill in **title** — the document name residents will see.
-4. Fill in **summary** — one sentence describing what it is.
-   4a. (Optional) Fill in **titleEs**, **summaryEs**, and **statusEs** for the Spanish site.
-5. Fill in **sectionId** — this decides which section of the documents page it appears under. Use one of these exact values:
-   - `records-requests` — records requests and public forms
-   - `meeting-documents` — meeting packets, agendas, and minutes
-   - `financial-documents` — budgets, audits, and finance documents
-   - `code-references` — ordinances, codes, and reference guides
-6. Fill in **href** — how residents open the file. Use a full **https://** address that works without logging in, **or** the **storage key** (or `storage:` + key) your IT contact gives you after uploading to Town document storage (see **Upload a City Council agenda packet** below).
-7. Fill in **format** — the file type or delivery type, for example `PDF`, `DOCX`, or `Web link`.
-8. Fill in **status** — the publishing state, for example `Current`, `Draft`, or `Archived`.
-9. Set **active** to **true** so residents can see it on the live site.
-10. Set **displayOrder** if needed — lower numbers appear higher in the list.
-11. Click **Save**.
-12. Open `/documents` and confirm the document appears in the correct section (hard refresh once if you do not see it immediately; other residents see it on their next visit or when returning to the tab).
-
-### Upload a City Council agenda packet for public viewing
-
-Use this when the Council packet is a **PDF** that residents should open from **`/meetings`**
-(meeting-specific **View agenda** button) and from **Meeting documents & agendas** on
-`/documents`. See [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md) for the full runbook.
+**Post-migration (CMS-only):** Meeting PDFs appear on **`/meetings`** — linked from each meeting row (**View agenda**) and in the searchable **Meeting documents** archive. Optional **titleEs**, **summaryEs**, and **statusEs** supply Spanish labels. After you save, open `/meetings` once (hard refresh if needed); no website redeploy is required for new rows.
 
 **Clerk path (preferred): `/admin`**
 
 1. **Add meeting or event** — create the `Event` first (title, start, active on).
-2. **Document publishing** — use **Upload a meeting agenda or packet**: choose the
-   meeting, upload the PDF, click **Upload and publish**. The system sets
-   `sectionId: meeting-documents` and links the file to that event automatically.
-3. Hard-refresh `https://townofwiley.gov/meetings` and click **View agenda** on the
-   meeting row. The PDF should open in a new tab.
-4. Confirm the file appears on `https://townofwiley.gov/documents#meeting-documents`.
+2. **Document publishing** — use **Upload a meeting agenda or packet**: choose the meeting, upload the PDF, click **Upload and publish**. The system sets `sectionId: meeting-documents` and links the file to that event automatically.
+3. Hard-refresh `https://townofwiley.gov/meetings` and click **View agenda** on the meeting row.
+4. Confirm the file appears in the **Search agendas and approved minutes** archive on the same page.
+
+For approved minutes without an event link, upload via the same meeting upload flow or create a manual `PublicDocument` with `sectionId: meeting-documents` only.
+
+**Other document requests:** Residents email **clerk@townofwiley.gov** from `/contact` or `/permits`. Do not publish budget, ordinance, or FOIA guides as `PublicDocument` rows — those sections are no longer shown on the public site.
+
+See [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md) for the full runbook.
 
 **Studio / IT fallback (manual `PublicDocument`)**
 
@@ -371,7 +350,7 @@ Use this when the Council packet is a **PDF** that residents should open from **
    keyword `event:<Event.id>` (exact UUID) so `/meetings` can open the right file.
 3. Set **active** to **true**. Deactivate older rows for the same meeting when replacing
    an agenda.
-4. Regenerate `cms-snapshot.json` and verify `/meetings` and `/documents`.
+4. Regenerate `cms-snapshot.json` and verify `/meetings` (archive and **View agenda** buttons).
 
 **If something goes wrong**
 
@@ -482,12 +461,12 @@ This only affects **your** browser on **this computer** — it does not change w
 
 ### When to use `/admin` vs Amplify Studio (Data manager)
 
-| What you are doing | Where to work |
-| ------------------ | ------------- |
+| What you are doing                                                   | Where to work                                                                                                    |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms) or **Content editor URL** (AppSync) when the task sends you there |
-| **Email forwarding / proxy** (`EmailAlias`) | **`/admin` only** → **Manage email forwarding** (staff sign-in required) |
-| Deep IT troubleshooting, raw GraphQL, inventory counts | **Advanced (IT)** on `/admin` → Content editor URL (Gen 2 AppSync Queries) |
-| Legacy Gen 1 API (`j7b2…`) | **Do not use for new edits** — maintenance only; ask IT |
+| **Email forwarding / proxy** (`EmailAlias`)                          | **`/admin` only** → **Manage email forwarding** (staff sign-in required)                                         |
+| Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → Content editor URL (Gen 2 AppSync Queries)                                       |
+| Legacy Gen 1 API (`j7b2…`)                                           | **Do not use for new edits** — maintenance only; ask IT                                                          |
 
 ### When to call IT
 
@@ -548,14 +527,14 @@ Example:
 
 ## Part 7 — If Something Does Not Work
 
-| Problem                                                             | What to do                                                           |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Cannot log in to Amplify Studio                                     | Ask for a new invitation email from your IT contact                  |
-| Data Manager shows "Access denied"                                  | Your account permissions need updating — ask for help                |
-| Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin` |
+| Problem                                                             | What to do                                                                                                                                               |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cannot log in to Amplify Studio                                     | Ask for a new invitation email from your IT contact                                                                                                      |
+| Data Manager shows "Access denied"                                  | Your account permissions need updating — ask for help                                                                                                    |
+| Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin`    |
 | You updated email forwarding but mail still goes to the wrong place | Confirm the rule is **Active** in **Manage email forwarding** on `/admin`; send a new test email; if still wrong, the mail router may need IT to re-sync |
-| Not sure which model to open                                        | Check the table in Part 3 of this guide                              |
-| Hero photo does not appear after saving the URL                     | Make sure the URL starts with `https://` and opens without any login |
+| Not sure which model to open                                        | Check the table in Part 3 of this guide                                                                                                                  |
+| Hero photo does not appear after saving the URL                     | Make sure the URL starts with `https://` and opens without any login                                                                                     |
 
 ---
 
