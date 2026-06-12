@@ -9,8 +9,10 @@ import {
 } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { News } from './news';
+import { NEWSLETTER_PDF_INLINE_VIEWER_FRAGMENT } from './newsletter-pdf-viewer';
 
-const RESOLVED_NEWSLETTER_URL = 'https://example.com/resolved-newsletter.pdf';
+const RESOLVED_NEWSLETTER_URL = 'https://example.com/resolved-newsletter.pdf?X-Amz-Signature=abc';
+const PRESIGNED_IFRAME_SRC = `${RESOLVED_NEWSLETTER_URL}#${NEWSLETTER_PDF_INLINE_VIEWER_FRAGMENT}`;
 
 function createDocumentUploadStub(overrides: Partial<DocumentUploadService> = {}) {
   return {
@@ -197,61 +199,89 @@ describe('News', () => {
     expect(el.textContent).not.toContain('April newsletter');
   });
 
-  it('resolves attachmentKey via DocumentUploadService and exposes presigned URL signals', async () => {
-    const notices = signal<CmsNotice[]>([
-      {
-        id: 'nl-pdf',
-        title: 'May newsletter',
-        date: 'May 6, 2026',
-        rawDate: '2026-05-06',
-        detail: 'Summary copy.',
-        type: 'newsletter',
-        attachmentKey: 'documents/newsletter/2026-05-06-town-newsletter.pdf',
-      },
-    ]);
-
-    const resolveDocumentHref = vi.fn(async (href: string) =>
-      href.startsWith('http') ? href : RESOLVED_NEWSLETTER_URL,
-    );
-
-    TestBed.configureTestingModule({
-      imports: [News],
-      providers: [
-        SiteLanguageService,
-        provideRouter([]),
+  describe('Newsletter PDF inline viewer', () => {
+    async function renderNewsletterPdfFixture(
+      resolveDocumentHref: DocumentUploadService['resolveDocumentHref'],
+    ) {
+      const notices = signal<CmsNotice[]>([
         {
-          provide: DocumentUploadService,
-          useValue: createDocumentUploadStub({ resolveDocumentHref }),
+          id: 'nl-pdf',
+          title: 'May newsletter',
+          date: 'May 6, 2026',
+          rawDate: '2026-05-06',
+          detail: 'Summary copy.',
+          type: 'newsletter',
+          attachmentKey: 'documents/newsletter/2026-05-06-town-newsletter.pdf',
         },
-        {
-          provide: LocalizedCmsContentStore,
-          useValue: {
-            notices,
-            externalNewsLinks: signal([]),
-            isLoading: signal(false),
-          } as unknown as LocalizedCmsContentStore,
-        },
-      ],
+      ]);
+
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [News],
+        providers: [
+          SiteLanguageService,
+          provideRouter([]),
+          {
+            provide: DocumentUploadService,
+            useValue: createDocumentUploadStub({ resolveDocumentHref }),
+          },
+          {
+            provide: LocalizedCmsContentStore,
+            useValue: {
+              notices,
+              externalNewsLinks: signal([]),
+              isLoading: signal(false),
+            } as unknown as LocalizedCmsContentStore,
+          },
+        ],
+      }).compileComponents();
+
+      TestBed.inject(SiteLanguageService).setLanguage('en');
+      const fixture = TestBed.createComponent(News);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await flushAsync();
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('resolves attachmentKey and renders iframe src with thumbnail-hiding viewer params', async () => {
+      const resolveDocumentHref = vi.fn(async (href: string) =>
+        href.startsWith('http') ? href : RESOLVED_NEWSLETTER_URL,
+      );
+      const fixture = await renderNewsletterPdfFixture(resolveDocumentHref);
+
+      expect(resolveDocumentHref).toHaveBeenCalledWith(
+        'documents/newsletter/2026-05-06-town-newsletter.pdf',
+      );
+
+      const component = fixture.componentInstance as unknown as {
+        resolvedNewsletterHref: () => string | null;
+        trustedNewsletterUrl: () => unknown;
+        newsletterHrefError: () => boolean;
+      };
+      expect(component.resolvedNewsletterHref()).toBe(RESOLVED_NEWSLETTER_URL);
+      expect(component.trustedNewsletterUrl()).not.toBeNull();
+      expect(component.newsletterHrefError()).toBe(false);
+
+      const iframe = fixture.nativeElement.querySelector(
+        'iframe[data-testid="newsletter-pdf-frame"]',
+      ) as HTMLIFrameElement | null;
+      expect(iframe).not.toBeNull();
+      expect(iframe?.src).toBe(PRESIGNED_IFRAME_SRC);
+      expect(iframe?.getAttribute('sandbox')).toBeNull();
+      expect(iframe?.getAttribute('loading')).toBe('lazy');
+      expect(iframe?.title).toContain('Town newsletter PDF');
+
+      const downloadLink = fixture.nativeElement.querySelector(
+        '[data-testid="newsletter-download-link"]',
+      ) as HTMLAnchorElement | null;
+      expect(downloadLink).not.toBeNull();
+      expect(downloadLink?.getAttribute('href')).toBe(RESOLVED_NEWSLETTER_URL);
+      expect(downloadLink?.getAttribute('href')).not.toContain('navpanes=0');
+      expect(downloadLink?.getAttribute('target')).toBe('_blank');
+      expect(downloadLink?.getAttribute('rel')).toContain('noopener');
     });
-
-    TestBed.inject(SiteLanguageService).setLanguage('en');
-    const fixture = TestBed.createComponent(News);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await flushAsync();
-    fixture.detectChanges();
-
-    expect(resolveDocumentHref).toHaveBeenCalledWith(
-      'documents/newsletter/2026-05-06-town-newsletter.pdf',
-    );
-    const component = fixture.componentInstance as unknown as {
-      resolvedNewsletterHref: () => string | null;
-      trustedNewsletterUrl: () => unknown;
-      newsletterHrefError: () => boolean;
-    };
-    expect(component.resolvedNewsletterHref()).toBe(RESOLVED_NEWSLETTER_URL);
-    expect(component.trustedNewsletterUrl()).not.toBeNull();
-    expect(component.newsletterHrefError()).toBe(false);
   });
 
   it('clears resolved newsletter signals and surfaces an error on resolution failure', async () => {
@@ -303,6 +333,13 @@ describe('News', () => {
     };
     expect(component.resolvedNewsletterHref()).toBeNull();
     expect(component.newsletterHrefError()).toBe(true);
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('iframe[data-testid="newsletter-pdf-frame"]')).toBeNull();
+    expect(el.querySelector('[data-testid="newsletter-download-link"]')).toBeNull();
+    expect(el.textContent).toContain(
+      'A PDF version of this newsletter is not yet attached. Read the summary above or check back soon.',
+    );
     consoleErrorSpy.mockRestore();
   });
 

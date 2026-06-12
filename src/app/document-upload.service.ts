@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { uploadData, getUrl, list, remove } from '@aws-amplify/storage';
+import { getUrl, list, remove, uploadData } from '@aws-amplify/storage';
 import { StaffAuthService } from './auth/staff-auth.service';
 
 export interface UploadedDocument {
@@ -24,8 +24,44 @@ export class DocumentUploadService {
       return href;
     }
 
-    const urlResult = await getUrl({ key: storageKey });
-    return urlResult.url.toString();
+    // Use `path` (not deprecated `key`) so Amplify does not prepend `public/` to CMS keys
+    // such as `documents/newsletter/...` (see Amplify resolvePrefix + STORAGE_INPUT_KEY).
+    const candidatePaths = this.storagePathCandidates(storageKey);
+    let lastError: unknown;
+    for (const path of candidatePaths) {
+      try {
+        const urlResult = await getUrl({ path });
+        return urlResult.url.toString();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError;
+  }
+
+  /** Primary CMS path plus legacy Amplify `key` uploads under `public/`. */
+  private storagePathCandidates(storageKey: string): string[] {
+    const normalized = storageKey.trim();
+    const candidates = [normalized];
+    if (!normalized.startsWith('public/')) {
+      candidates.push(`public/${normalized}`);
+    }
+    return candidates;
+  }
+
+  private sanitizeUploadFileName(originalName: string): string {
+    const trimmed = originalName.trim() || 'document';
+    const extensionIndex = trimmed.lastIndexOf('.');
+    const baseName = extensionIndex >= 0 ? trimmed.slice(0, extensionIndex) : trimmed;
+    const extension = extensionIndex >= 0 ? trimmed.slice(extensionIndex).toLowerCase() : '';
+    const safeBase = baseName
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9._-]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase();
+    return `${safeBase || 'document'}${extension}`;
   }
 
   getStorageKeyFromHref(href: string | null | undefined): string | null {
@@ -51,13 +87,13 @@ export class DocumentUploadService {
   }
 
   async uploadDocument(file: File, sectionId: string): Promise<UploadedDocument> {
-    const fileName = `${Date.now()}-${file.name}`;
-    const key = `documents/${sectionId}/${fileName}`;
+    const fileName = `${Date.now()}-${this.sanitizeUploadFileName(file.name)}`;
+    const storagePath = `documents/${sectionId}/${fileName}`;
 
     try {
       await this.staffAuth.ensureIdentityCredentials();
       await uploadData({
-        key,
+        path: storagePath,
         data: file,
         options: {
           contentType: file.type,
@@ -69,10 +105,10 @@ export class DocumentUploadService {
         },
       }).result;
 
-      const urlResult = await getUrl({ key });
+      const urlResult = await getUrl({ path: storagePath });
 
       return {
-        id: key,
+        id: storagePath,
         name: file.name,
         size: file.size,
         type: file.type,
@@ -90,27 +126,28 @@ export class DocumentUploadService {
     try {
       const prefix = sectionId ? `documents/${sectionId}/` : 'documents/';
       const result = await list({
-        prefix,
+        path: prefix,
       });
 
       const documents: UploadedDocument[] = [];
 
       for (const item of result.items) {
-        if (item.key && item.size && item.size > 0) {
+        const itemPath = item.path;
+        if (itemPath && item.size && item.size > 0) {
           try {
-            const urlResult = await getUrl({ key: item.key });
+            const urlResult = await getUrl({ path: itemPath });
 
             documents.push({
-              id: item.key,
-              name: item.key.split('/').pop() || 'Unknown',
+              id: itemPath,
+              name: itemPath.split('/').pop() || 'Unknown',
               size: item.size,
-              type: this.getFileType(item.key),
+              type: this.getFileType(itemPath),
               url: urlResult.url.toString(),
               uploadedAt: item.lastModified || new Date(),
               sectionId: sectionId || 'general',
             });
           } catch (error) {
-            console.error(`Error getting URL for ${item.key}:`, error);
+            console.error(`Error getting URL for ${itemPath}:`, error);
           }
         }
       }
@@ -122,10 +159,10 @@ export class DocumentUploadService {
     }
   }
 
-  async deleteDocument(key: string): Promise<void> {
+  async deleteDocument(storagePath: string): Promise<void> {
     try {
       await this.staffAuth.ensureIdentityCredentials();
-      await remove({ key });
+      await remove({ path: storagePath });
     } catch (error) {
       console.error('Error deleting document:', error);
       throw error;
