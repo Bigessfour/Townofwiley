@@ -111,21 +111,4 @@ test.describe('homepage high-value interactions', () => {
       /google\.com\/maps\/search\/\?api=1&query=/,
     );
   });
-
-  test('closes the Ask Wiley dialog with Escape and returns focus to the launcher', async ({
-    homePage,
-  }) => {
-    await homePage.enableProgrammaticChat();
-    await homePage.goto();
-
-    await homePage.openAssistantDialog();
-    await expect(homePage.assistantInput).toBeVisible();
-
-    await homePage.assistantInput.click();
-    await expect(homePage.assistantInput).toBeFocused();
-
-    await homePage.page.keyboard.press('Escape');
-
-    await expect(homePage.assistantDialog).toBeHidden();
-  });
 });

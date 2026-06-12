@@ -93,17 +93,11 @@ test.describe('feature page coverage', () => {
     expect(hydrationSignals).toEqual([]);
   });
 
-  test('meetings table agenda button shows unavailable toast when no linked PDF', async ({
-    homePage,
-  }) => {
+  test('calendar agenda button shows unavailable toast when no linked PDF', async ({ homePage }) => {
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.locator('.meetings-table tbody tr').first()).toBeVisible({
-      timeout: 20000,
-    });
-
-    const meetingsTable = homePage.page.locator('.meetings-table');
-    const agendaControl = meetingsTable.getByRole('button', { name: /View agenda/i }).first();
+    const calendarRegion = homePage.page.locator('#calendar');
+    const agendaControl = calendarRegion.getByRole('button', { name: /View agenda PDFs/i }).first();
 
     await expect(agendaControl).toBeVisible({ timeout: 20000 });
     await agendaControl.click();

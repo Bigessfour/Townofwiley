@@ -38,9 +38,12 @@ test.describe('Meeting documents archive', () => {
     await page.goto('/records', { waitUntil: 'load' });
 
     await expect(page).toHaveURL(/\/contact$/);
-    await expect(page.getByTestId('contact-records-assistance')).toBeVisible();
-    await expect(page.getByTestId('contact-records-assistance')).toContainText(
-      'clerk@townofwiley.gov',
+    const recordsAssistance = page.getByTestId('contact-records-assistance');
+    await expect(recordsAssistance).toBeVisible();
+    await expect(recordsAssistance).toContainText('Email the Town Clerk');
+    await expect(recordsAssistance.getByRole('link', { name: /Email the Town Clerk/i })).toHaveAttribute(
+      'href',
+      /mailto:.*@townofwiley\.gov/i,
     );
   });
 
