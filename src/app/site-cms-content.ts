@@ -666,10 +666,14 @@ export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';
 /**
  * localStorage key for the client-side CMS snapshot (`tow-cms-snapshot-v1`).
  *
- * **7-day TTL trade-off:** After a successful live AppSync load, the browser persists
- * content here for {@link CMS_SNAPSHOT_TTL_MS} to reduce repeat API calls and keep the
- * site usable when AppSync is briefly unavailable. Residents may see content up to seven
- * days old if live fetch never succeeds.
+ * **Cache-first (live refresh):** When a build or browser snapshot is newer than
+ * {@link CMS_LIVE_REFRESH_TTL_MS}, the public site skips AppSync on load and on
+ * `/documents` refresh — see `docs/aws-cost-optimization-runbook.md`.
+ *
+ * **7-day offline TTL:** After a successful live AppSync load, the browser persists
+ * content here for {@link CMS_SNAPSHOT_TTL_MS} to keep the site usable when AppSync is
+ * briefly unavailable. Residents may see content up to seven days old if live fetch
+ * never succeeds.
  *
  * **Build snapshot:** `/cms-snapshot.json` is regenerated at deploy
  * (`scripts/generate-cms-snapshot.mjs`) and hydrated before localStorage; it is not
@@ -683,6 +687,9 @@ export const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
 
 /** All localStorage keys cleared by {@link clearCmsCache}. */
 export const CMS_SNAPSHOT_STORAGE_KEYS = [CMS_SNAPSHOT_STORAGE_KEY] as const;
+
+/** Skip live AppSync when snapshot `savedAt` is within this window (public traffic). */
+export const CMS_LIVE_REFRESH_TTL_MS = 6 * 60 * 60 * 1000;
 
 /** Persisted snapshot TTL: seven days in milliseconds. */
 export const CMS_SNAPSHOT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -720,6 +727,7 @@ interface CmsPersistedSnapshot {
   publicDocumentRecords: PublicDocumentRecord[];
   externalNewsLinkRecords: ExternalNewsLinkRecord[];
   leadershipRosterRecords?: LeadershipRosterEntryRecord[];
+  siteCopyRecords?: SiteCopyRecord[];
 }
 
 export type CmsContentSource = 'bundled' | 'loading' | 'live' | 'cached';
@@ -763,6 +771,8 @@ export class LocalizedCmsContentStore {
   private readonly extendedLoadState = signal<CmsExtendedLoadState>('idle');
   /** True after `/cms-snapshot.json` or localStorage hydrate; used when live AppSync fails. */
   private offlineSnapshotApplied = false;
+  /** `savedAt` from the active build or localStorage snapshot (cache-first gate). */
+  private activeSnapshotSavedAt: string | null = null;
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -860,6 +870,20 @@ export class LocalizedCmsContentStore {
   });
 
   constructor() {
+    if (!(globalThis as { __TOW_CMS_SKIP_AUTO_INIT__?: boolean }).__TOW_CMS_SKIP_AUTO_INIT__) {
+      void this.initializeContentLoad();
+    }
+  }
+
+  /**
+   * @internal Resets cache state and re-runs the public CMS load sequence (unit tests only).
+   */
+  resetForUnitTests(): void {
+    this.activeSnapshotSavedAt = null;
+    this.offlineSnapshotApplied = false;
+    this.applyFallbackContent();
+    this.extendedLoadState.set('idle');
+    this.loadErrorState.set(null);
     void this.initializeContentLoad();
   }
 
@@ -870,6 +894,11 @@ export class LocalizedCmsContentStore {
     }
 
     if (this.hasCmsCredentials()) {
+      if (this.shouldSkipLiveAppSyncFetch()) {
+        this.markContentServedFromSnapshotCache();
+        return;
+      }
+
       if (!hydratedOffline) {
         this.loadState.set('loading');
       }
@@ -880,6 +909,11 @@ export class LocalizedCmsContentStore {
     await new Promise<void>((resolve) => queueMicrotask(resolve));
 
     if (this.hasCmsCredentials()) {
+      if (this.shouldSkipLiveAppSyncFetch()) {
+        this.markContentServedFromSnapshotCache();
+        return;
+      }
+
       if (!hydratedOffline) {
         this.loadState.set('loading');
       }
@@ -889,6 +923,7 @@ export class LocalizedCmsContentStore {
 
   /**
    * Re-fetch CMS content for public pages (document hub navigation, etc.).
+   * Skips AppSync when the active snapshot is within {@link CMS_LIVE_REFRESH_TTL_MS}.
    * On AppSync failure, falls back to localStorage or build snapshot for resilience.
    */
   async refreshContent(): Promise<void> {
@@ -902,6 +937,10 @@ export class LocalizedCmsContentStore {
       return;
     }
 
+    if (this.shouldSkipLiveAppSyncFetch()) {
+      return;
+    }
+
     await this.loadContent();
   }
 
@@ -912,6 +951,7 @@ export class LocalizedCmsContentStore {
   clearPersistedCache(): void {
     clearCmsCache();
     this.offlineSnapshotApplied = false;
+    this.activeSnapshotSavedAt = null;
   }
 
   /**
@@ -923,6 +963,7 @@ export class LocalizedCmsContentStore {
   async forceLiveRefresh(): Promise<void> {
     clearCmsCache();
     this.offlineSnapshotApplied = false;
+    this.activeSnapshotSavedAt = null;
 
     if (!this.hasCmsCredentials()) {
       const rehydrated = await this.hydrateFromOfflineSnapshots();
@@ -932,7 +973,7 @@ export class LocalizedCmsContentStore {
       return;
     }
 
-    await this.loadContent({ bypassOfflineFallback: true });
+    await this.loadContent({ bypassOfflineFallback: true, reconcileAnnouncements: true });
   }
 
   async testCmsConnection(): Promise<CmsConnectionTestResult> {
@@ -989,7 +1030,10 @@ export class LocalizedCmsContentStore {
     }
   }
 
-  private async loadContent(options?: { bypassOfflineFallback?: boolean }): Promise<void> {
+  private async loadContent(options?: {
+    bypassOfflineFallback?: boolean;
+    reconcileAnnouncements?: boolean;
+  }): Promise<void> {
     this.loadState.set('loading');
     this.loadErrorState.set(null);
     this.contentSourceState.set('loading');
@@ -997,7 +1041,9 @@ export class LocalizedCmsContentStore {
     try {
       const coreResponse = await this.postCmsGraphql(PUBLIC_CMS_CORE_QUERY);
       this.applyCoreResponse(coreResponse);
-      await this.reconcileAnnouncementRecordsFromPrimaryKey();
+      if (options?.reconcileAnnouncements) {
+        await this.reconcileAnnouncementRecordsFromPrimaryKey();
+      }
       this.loadState.set('studio');
       this.contentSourceState.set('live');
       this.persistSnapshot();
@@ -1078,6 +1124,7 @@ export class LocalizedCmsContentStore {
   /**
    * listAnnouncements can return stale GSI rows after direct DynamoDB fixes; re-fetch each
    * announcement by primary key so attachmentKey and active match the table.
+   * Runs on staff forceLiveRefresh and deploy snapshot generation only — not public cache hits.
    */
   private async reconcileAnnouncementRecordsFromPrimaryKey(): Promise<void> {
     const listed = this.noticeRecordsState();
@@ -1270,7 +1317,7 @@ export class LocalizedCmsContentStore {
       }
 
       const snapshot = JSON.parse(rawSnapshot) as CmsPersistedSnapshot;
-      if (snapshot.version !== 1 || !this.isSnapshotFresh(snapshot.savedAt)) {
+      if (snapshot.version !== 1 || !this.isSnapshotWithinOfflineTtl(snapshot.savedAt)) {
         window.localStorage.removeItem(CMS_SNAPSHOT_STORAGE_KEY);
         return false;
       }
@@ -1290,6 +1337,7 @@ export class LocalizedCmsContentStore {
     try {
       const snapshot = this.createSnapshot();
       window.localStorage.setItem(CMS_SNAPSHOT_STORAGE_KEY, JSON.stringify(snapshot));
+      this.activeSnapshotSavedAt = snapshot.savedAt;
     } catch (error) {
       this.logging.log('warn', 'Unable to persist CMS snapshot', {
         eventType: 'cms_snapshot_persist_failed',
@@ -1312,6 +1360,7 @@ export class LocalizedCmsContentStore {
       publicDocumentRecords: this.publicDocumentRecordsState(),
       externalNewsLinkRecords: this.externalNewsLinkRecordsState(),
       leadershipRosterRecords: this.leadershipRosterRecordsState(),
+      siteCopyRecords: this.siteCopyRecordsState(),
     };
   }
 
@@ -1325,15 +1374,66 @@ export class LocalizedCmsContentStore {
     this.publicDocumentRecordsState.set(snapshot.publicDocumentRecords ?? []);
     this.externalNewsLinkRecordsState.set(snapshot.externalNewsLinkRecords ?? []);
     this.leadershipRosterRecordsState.set(snapshot.leadershipRosterRecords ?? []);
+    this.siteCopyRecordsState.set(snapshot.siteCopyRecords ?? []);
+    this.activeSnapshotSavedAt = snapshot.savedAt;
+    if (this.snapshotIncludesExtendedContent(snapshot)) {
+      this.extendedLoadState.set('studio');
+    }
   }
 
-  private isSnapshotFresh(savedAt: string): boolean {
+  private snapshotIncludesExtendedContent(snapshot: CmsPersistedSnapshot): boolean {
+    return (
+      (snapshot.businessRecords?.length ?? 0) > 0 ||
+      (snapshot.publicDocumentRecords?.length ?? 0) > 0 ||
+      (snapshot.externalNewsLinkRecords?.length ?? 0) > 0 ||
+      (snapshot.leadershipRosterRecords?.length ?? 0) > 0 ||
+      (snapshot.siteCopyRecords?.length ?? 0) > 0
+    );
+  }
+
+  private shouldSkipLiveAppSyncFetch(): boolean {
+    if (!this.hasCmsCredentials() || !this.activeSnapshotSavedAt) {
+      return false;
+    }
+
+    if (!this.isSnapshotWithinOfflineTtl(this.activeSnapshotSavedAt)) {
+      return false;
+    }
+
+    return this.isSnapshotWithinLiveRefreshTtl(this.activeSnapshotSavedAt);
+  }
+
+  private markContentServedFromSnapshotCache(): void {
+    this.loadState.set('studio');
+    this.contentSourceState.set('cached');
+    if (
+      this.extendedLoadState() === 'idle' &&
+      (this.businessRecordsState().length > 0 ||
+        this.publicDocumentRecordsState().length > 0 ||
+        this.externalNewsLinkRecordsState().length > 0 ||
+        this.leadershipRosterRecordsState().length > 0 ||
+        this.siteCopyRecordsState().length > 0)
+    ) {
+      this.extendedLoadState.set('studio');
+    }
+  }
+
+  private isSnapshotWithinOfflineTtl(savedAt: string): boolean {
     const savedAtMs = Date.parse(savedAt);
     if (Number.isNaN(savedAtMs)) {
       return false;
     }
 
     return Date.now() - savedAtMs <= CMS_SNAPSHOT_TTL_MS;
+  }
+
+  private isSnapshotWithinLiveRefreshTtl(savedAt: string): boolean {
+    const savedAtMs = Date.parse(savedAt);
+    if (Number.isNaN(savedAtMs)) {
+      return false;
+    }
+
+    return Date.now() - savedAtMs <= CMS_LIVE_REFRESH_TTL_MS;
   }
 
   private getRuntimeBuildSha(): string | undefined {

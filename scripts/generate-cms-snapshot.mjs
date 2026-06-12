@@ -268,6 +268,7 @@ function buildSnapshot(coreData, extendedData, buildSha) {
     publicDocumentRecords: extendedData.listPublicDocuments?.items ?? [],
     externalNewsLinkRecords: extendedData.listExternalNewsLinks?.items ?? [],
     leadershipRosterRecords: extendedData.listLeadershipRosterEntries?.items ?? [],
+    siteCopyRecords: extendedData.listSiteCopies?.items ?? [],
   };
 }
 
