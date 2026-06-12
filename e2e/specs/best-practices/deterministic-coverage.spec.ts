@@ -643,22 +643,6 @@ test.describe('standalone public route pixel baselines', () => {
     );
   });
 
-  test('permits page shell snapshot', async ({ homePage }) => {
-    test.skip(
-      !useVisualSnapshots,
-      'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
-    );
-
-    await homePage.page.goto('/permits', { waitUntil: 'domcontentloaded' });
-    await waitForFonts(homePage.page);
-
-    await expect(homePage.page.locator('app-permits')).toHaveScreenshot('permits-page-shell.png', {
-      animations: 'disabled',
-      caret: 'hide',
-      maxDiffPixelRatio: 0.05,
-    });
-  });
-
   test('business directory page desktop snapshot', async ({ homePage }) => {
     test.skip(
       !useVisualSnapshots,
@@ -704,8 +688,8 @@ test.describe('subcomponent aria contracts', () => {
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
     await expect(homePage.page.getByTestId('contact-records-assistance')).toMatchAriaSnapshot(`
-      - region /Records, permits, and document requests/:
-        - heading /Records, permits, and document requests/ [level=2]
+      - region /Records and document requests/:
+        - heading /Records and document requests/ [level=2]
         - paragraph
         - link /Email the Town Clerk/
     `);

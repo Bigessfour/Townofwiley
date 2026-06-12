@@ -79,10 +79,10 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
   {
     model: 'OfficialContact',
     publicApiKeyRead: true,
-    routes: '/contact, footer, /services, /permits',
+    routes: '/contact, footer, /services',
     keyFields: 'id (town-information, city-clerk), label, value, detail, href, displayOrder',
     emptyWarningEn:
-      'Verify ids `town-information` and `city-clerk` exist or footer/permits use fallbacks.',
+      'Verify ids `town-information` and `city-clerk` exist or footer/services use fallbacks.',
     emptyWarningEs:
       'Verifique los id `town-information` y `city-clerk` o el sitio usara texto de respaldo.',
   },

@@ -245,7 +245,6 @@ type FeaturePageId =
   | 'businesses'
   | 'news'
   | 'payments'
-  | 'permits'
   | 'documents';
 
 type FeatureTitles = Record<FeaturePageId, string>;
@@ -637,15 +636,15 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Official Town of Wiley website for resident services, weather alerts, meetings, notices, and Town Hall contacts.',
     searchKicker: 'Wiley Search',
     searchHeading: 'Search Wiley services',
-    searchLabel: 'Find permits, taxes, meetings, utilities, and issue reporting in one place.',
-    searchPlaceholder: 'Search Wiley services... permits, taxes, meetings',
+    searchLabel: 'Find taxes, meetings, utilities, and issue reporting in one place.',
+    searchPlaceholder: 'Search Wiley services… taxes, meetings, utilities',
     searchActionLabel: 'Search',
     searchNote: 'Results update as you type; use the shortcuts below for common tasks.',
     searchEmptyState:
-      'No direct match yet. Try permits, taxes, meetings, utilities, weather, or road issues.',
+      'No direct match yet. Try taxes, meetings, utilities, weather, or road issues.',
     mobileOnlinePaymentsLabel: 'Online Payments',
     mobileIssueLabel: 'Report Street/Utility Issue',
-    mobileRecordsLabel: 'Permits & Licenses',
+    mobileRecordsLabel: 'Records & clerk assistance',
     mobileWeatherAlertsLabel: 'Weather & Emergency Alerts',
     mobileLanguageAccessLabel: 'Language Access',
     mobileSearchAllServicesLabel: 'Search All Services',
@@ -751,7 +750,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       businesses: 'Business directory',
       news: 'Town news',
       payments: 'Utility bill payment',
-      permits: 'Permits and clerk',
       documents: 'Public documents hub',
     },
     footerLinks: [
@@ -783,7 +781,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     menuQuickTasksLabel: 'I Want To...',
     menuGovernmentLabel: 'Government & Meetings',
-    menuServicesPermitsLabel: 'Services & Permits',
+    menuServicesPermitsLabel: 'Services',
     menuNewsNoticesLabel: 'News, Notices & Alerts',
     menuWeatherLabel: 'Weather',
     menuBusinessCommunityLabel: 'Businesses & Community',
@@ -812,9 +810,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       },
       {
         title: 'Contact the Town Clerk',
-        description: 'Email clerk@townofwiley.gov for records, permits, or clerk assistance.',
+        description: 'Email clerk@townofwiley.gov for records or clerk assistance.',
         href: '/contact',
-        note: 'Permit questions are also on the Permits page.',
+        note: 'Call Town Hall at (719) 829-4974 if you need help right away.',
       },
     ],
     meetings: [
@@ -891,12 +889,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'Open issue report form',
       },
       {
-        title: 'Permits and clerk assistance',
+        title: 'Contact the Town Clerk',
         availability: 'Contact Town Clerk',
-        description:
-          'The town does not process permits online. Email clerk@townofwiley.gov or visit the Permits page for guidance.',
-        href: '/permits',
-        cta: 'Open permits and clerk info',
+        description: 'Email clerk@townofwiley.gov for records and document requests.',
+        href: '/contact',
+        cta: 'Contact the Town Clerk',
       },
       {
         title: 'Sign up for weather and emergency alerts',
@@ -927,7 +924,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Public records and clerk assistance',
         detail:
-          'Email clerk@townofwiley.gov for public records, permits, or document requests. The Town Clerk will reply with next steps.',
+          'Email clerk@townofwiley.gov for public records or document requests. The Town Clerk will reply with next steps.',
       },
       {
         title: 'Agendas and approved minutes',
@@ -944,18 +941,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     transparencyActions: [
       {
         title: 'Email the Town Clerk',
-        detail: 'Public records, permits, and document requests: clerk@townofwiley.gov',
+        detail: 'Public records and document requests: clerk@townofwiley.gov',
         href: 'mailto:clerk@townofwiley.gov',
       },
       {
         title: 'Meeting agendas and minutes',
         detail: 'Browse posted meeting documents on the Meetings page.',
         href: '/meetings',
-      },
-      {
-        title: 'Permits and licenses',
-        detail: 'Permit guidance and clerk contact information.',
-        href: '/permits',
       },
     ],
     accessibilityItems: [
@@ -1066,16 +1058,16 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     searchKicker: 'Busqueda de Wiley',
     searchHeading: 'Busque servicios de Wiley',
     searchLabel:
-      'Encuentre permisos, impuestos, reuniones, servicios, registros y reportes en un solo lugar.',
-    searchPlaceholder: 'Busque servicios de Wiley... permisos, impuestos, reuniones',
+      'Encuentre impuestos, reuniones, servicios publicos y reportes en un solo lugar.',
+    searchPlaceholder: 'Busque servicios de Wiley… impuestos, reuniones, servicios',
     searchActionLabel: 'Buscar',
     searchNote:
       'Los resultados se actualizan al escribir; use los accesos directos abajo para tareas comunes.',
     searchEmptyState:
-      'Todavia no hay coincidencia directa. Pruebe permisos, impuestos, reuniones, servicios, registros, clima o calles.',
+      'Todavia no hay coincidencia directa. Pruebe impuestos, reuniones, servicios, clima o calles.',
     mobileOnlinePaymentsLabel: 'Pagos en linea',
     mobileIssueLabel: 'Reportar problema de calle o servicio',
-    mobileRecordsLabel: 'Permisos y licencias',
+    mobileRecordsLabel: 'Registros y ayuda de la secretaria',
     mobileWeatherAlertsLabel: 'Alertas de clima y emergencia',
     mobileLanguageAccessLabel: 'Acceso en espanol',
     mobileSearchAllServicesLabel: 'Buscar todos los servicios',
@@ -1183,7 +1175,6 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       businesses: 'Directorio de negocios',
       news: 'Noticias del pueblo',
       payments: 'Pago de factura de servicios',
-      permits: 'Permisos y secretaria',
       documents: 'Documentos publicos',
     },
     footerLinks: [
@@ -1214,7 +1205,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     ],
     menuQuickTasksLabel: 'Quiero...',
     menuGovernmentLabel: 'Gobierno y Reuniones',
-    menuServicesPermitsLabel: 'Servicios y Permisos',
+    menuServicesPermitsLabel: 'Servicios',
     menuNewsNoticesLabel: 'Noticias, Avisos y Alertas',
     menuWeatherLabel: 'Clima',
     menuBusinessCommunityLabel: 'Negocios y Comunidad',
@@ -1244,9 +1235,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Contactar a la secretaria del pueblo',
         description:
-          'Escriba a clerk@townofwiley.gov para registros, permisos o ayuda de la secretaria.',
+          'Escriba a clerk@townofwiley.gov para registros o ayuda de la secretaria.',
         href: '/contact',
-        note: 'Las preguntas sobre permisos tambien estan en la pagina de Permisos.',
+        note: 'Llame al Ayuntamiento al (719) 829-4974 si necesita ayuda de inmediato.',
       },
     ],
     meetings: [
@@ -1325,12 +1316,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         cta: 'Abrir formulario de reporte',
       },
       {
-        title: 'Permisos y ayuda de la secretaria',
+        title: 'Contactar a la secretaria del pueblo',
         availability: 'Contacte a la secretaria',
         description:
-          'El pueblo no procesa permisos en linea. Escriba a clerk@townofwiley.gov o visite la pagina de Permisos.',
-        href: '/permits',
-        cta: 'Abrir permisos e informacion de secretaria',
+          'Escriba a clerk@townofwiley.gov para registros y solicitudes de documentos.',
+        href: '/contact',
+        cta: 'Contactar a la secretaria del pueblo',
       },
       {
         title: 'Registrese para alertas de clima y emergencias',
@@ -1361,7 +1352,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Registros publicos y ayuda de la secretaria',
         detail:
-          'Escriba a clerk@townofwiley.gov para registros publicos, permisos o solicitudes de documentos.',
+          'Escriba a clerk@townofwiley.gov para registros publicos o solicitudes de documentos.',
       },
       {
         title: 'Agendas y minutas aprobadas',
@@ -1378,18 +1369,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     transparencyActions: [
       {
         title: 'Escribir a la secretaria',
-        detail: 'Registros, permisos y documentos: clerk@townofwiley.gov',
+        detail: 'Registros y documentos: clerk@townofwiley.gov',
         href: 'mailto:clerk@townofwiley.gov',
       },
       {
         title: 'Agendas y minutas de reuniones',
         detail: 'Consulte documentos publicados en la pagina de Reuniones.',
         href: '/meetings',
-      },
-      {
-        title: 'Permisos y licencias',
-        detail: 'Orientacion sobre permisos e informacion de contacto de la secretaria.',
-        href: '/permits',
       },
     ],
     accessibilityItems: [
@@ -1565,6 +1551,9 @@ export class App {
     panel: {
       class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
     },
+    submenu: { class: 'mega-menu-submenu' },
+    submenuLabel: { class: 'mega-menu-column-label' },
+    itemContent: { class: 'mega-menu-item-content' },
     item: {
       'aria-level': null,
       'aria-setsize': null,
@@ -1648,7 +1637,6 @@ export class App {
   protected readonly isPaymentsMode = computed(
     () => this.currentPath() === '/pay-bill' || this.currentPath() === '/payments',
   );
-  protected readonly isPermitsMode = computed(() => this.currentPath() === '/permits');
   protected readonly isTopLevelLazyRouteMode = computed(
     () =>
       this.isAdminMode() ||
@@ -1668,8 +1656,7 @@ export class App {
       this.isTermsMode() ||
       this.isBusinessesMode() ||
       this.isNewsMode() ||
-      this.isPaymentsMode() ||
-      this.isPermitsMode(),
+      this.isPaymentsMode(),
   );
   /** Unknown in-app URL: show wildcard route in main outlet (not admin/document clerk shell). */
   protected readonly isNotFoundMode = computed(() => {
@@ -2127,15 +2114,6 @@ export class App {
         title: copy.featureTitles.payments,
         summary: copy.paymentsFeatureSummary,
         href: '/pay-bill',
-        showOnHomepage: false,
-      },
-      {
-        id: 'permits',
-        kicker: 'Permits',
-        title: 'Permits & Inquiries',
-        summary:
-          'The town does not process permits online. Contact the Town Clerk for permit questions.',
-        href: '/permits',
         showOnHomepage: false,
       },
     ];

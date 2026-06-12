@@ -60,16 +60,6 @@ test.describe('businesses page inventory controls', () => {
   });
 });
 
-test.describe('permits page inventory controls', () => {
-  test('[permits.heading-visible] permits heading is visible', async ({ permitsPage }) => {
-    await permitsPage.goto();
-
-    await inventoryStep('Verify permits heading', async () => {
-      await expect(permitsPage.heading).toBeVisible();
-    });
-  });
-});
-
 test.describe('news page inventory controls', () => {
   test('[news.read-article-link] read article links are available', async ({ newsPage }) => {
     await newsPage.goto();

@@ -125,7 +125,7 @@ interface ResidentServicesCopy {
   recordsContactLabel: string;
   recordsSubmitLabel: string;
   utilityBillFormLinkLabel: string;
-  permitsClerkInfoLinkLabel: string;
+  clerkInfoLinkLabel: string;
   businessDirectoryLinkLabel: string;
   issueSubject: string;
   issueCategories: SelectOption<IssueCategory>[];
@@ -221,9 +221,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     issueContactLabel: 'Best phone or email for follow-up',
     issueSubmitLabel: 'Send report',
     recordsMeta: 'Clerk',
-    recordsTitle: 'Records & permits',
+    recordsTitle: 'Records & clerk assistance',
     recordsBody:
-      'Request public records, meeting materials, permit guidance, or general clerk assistance.',
+      'Request public records, meeting materials, or general clerk assistance.',
     recordsTypeLabel: 'Request type',
     recordsDetailsLabel: 'Details',
     recordsDeadlineLabel: 'Deadline or meeting date',
@@ -231,7 +231,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsContactLabel: 'Best phone or email for reply',
     recordsSubmitLabel: 'Send request',
     utilityBillFormLinkLabel: 'Dedicated pay bill page',
-    permitsClerkInfoLinkLabel: 'Permits: Town Clerk',
+    clerkInfoLinkLabel: 'Town Clerk contact',
     businessDirectoryLinkLabel: 'Business directory',
     issueSubject: 'Town issue report',
     issueCategories: [
@@ -332,9 +332,9 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     issueContactLabel: 'Mejor telefono o correo para seguimiento',
     issueSubmitLabel: 'Enviar reporte',
     recordsMeta: 'Secretaria',
-    recordsTitle: 'Registros y permisos',
+    recordsTitle: 'Registros y ayuda de la secretaria',
     recordsBody:
-      'Solicite registros publicos, materiales de reunion, orientacion sobre permisos o ayuda general.',
+      'Solicite registros publicos, materiales de reunion o ayuda general de la secretaria.',
     recordsTypeLabel: 'Tipo de solicitud',
     recordsDetailsLabel: 'Detalles',
     recordsDeadlineLabel: 'Plazo o fecha de reunion',
@@ -342,7 +342,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     recordsContactLabel: 'Mejor telefono o correo para responder',
     recordsSubmitLabel: 'Enviar solicitud',
     utilityBillFormLinkLabel: 'Pagina dedicada de pago',
-    permitsClerkInfoLinkLabel: 'Permisos: secretaria municipal',
+    clerkInfoLinkLabel: 'Contacto de la secretaria',
     businessDirectoryLinkLabel: 'Directorio de negocios',
     issueSubject: 'Reporte de problema del pueblo',
     issueCategories: [

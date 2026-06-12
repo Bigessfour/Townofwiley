@@ -10,14 +10,14 @@ export const siteContent = {
     'Pay utility bill',
     'Report a street or utility issue',
     'Find a meeting or agenda',
-    'Request records, permits, or clerk help',
+    'Request records or clerk help',
   ],
   communityFactLabels: ['Town profile', 'Location', 'Regional access'],
   /** English mega menu root labels (matches `APP_COPY.en` in `app.ts`). */
   megaMenuRootLabelsEn: [
     'I Want To...',
     'Government & Meetings',
-    'Services & Permits',
+    'Services',
     'News, Notices & Alerts',
     'Weather',
     'Businesses & Community',
@@ -27,7 +27,7 @@ export const siteContent = {
   megaMenuChromeEn: {
     contactCta: 'Contact Town Hall',
     searchInputAccessibleName:
-      'Find permits, taxes, meetings, utilities, and issue reporting in one place.',
+      'Find taxes, meetings, utilities, and issue reporting in one place.',
   },
   /**
    * Mobile drawer anchors (`mobile-menu-nav` in `app.html`), EN locale.
@@ -37,7 +37,7 @@ export const siteContent = {
     { label: 'Home', urlRegex: /\/$/ },
     { label: 'I Want To...', urlRegex: /\/#top-tasks$/ },
     { label: 'Government & Meetings', urlRegex: /\/meetings$/ },
-    { label: 'Services & Permits', urlRegex: /\/services$/ },
+    { label: 'Services', urlRegex: /\/services$/ },
     { label: 'News, Notices & Alerts', urlRegex: /\/notices$/ },
     { label: 'Weather', urlRegex: /\/weather$/ },
     { label: 'Businesses & Community', urlRegex: /\/businesses$/ },
@@ -71,7 +71,7 @@ export const siteContent = {
   serviceLabels: [
     'Online payments',
     'Street, utility, and property issue reporting',
-    'Permits and licenses',
+    'Records and clerk assistance',
     'Weather, utility, and emergency alerts',
     'Language access for critical services',
     'Search and document discovery',
@@ -96,7 +96,7 @@ export const siteContent = {
     news: 'Town News',
   },
   emptySearchMessage:
-    'No direct match yet. Try permits, taxes, meetings, utilities, weather, or road issues.',
+    'No direct match yet. Try taxes, meetings, utilities, weather, or road issues.',
 
   // Expanded test data for full functional validation (navigation, buttons, colors, fonts, theme)
   buttonLabels: {

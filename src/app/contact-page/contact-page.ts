@@ -15,14 +15,14 @@ interface ContactRecordsAssistanceCopy {
 
 const CONTACT_RECORDS_ASSISTANCE_COPY: Record<'en' | 'es', ContactRecordsAssistanceCopy> = {
   en: {
-    heading: 'Records, permits, and document requests',
-    body: 'The Town Clerk can help with public records, permits, licenses, and other document requests.',
+    heading: 'Records and document requests',
+    body: 'The Town Clerk can help with public records and other document requests.',
     emailLabel: 'Email the Town Clerk',
     fallbackEmail: 'clerk@townofwiley.gov',
   },
   es: {
-    heading: 'Registros, permisos y solicitudes de documentos',
-    body: 'La secretaria del pueblo puede ayudar con registros publicos, permisos, licencias y otras solicitudes.',
+    heading: 'Registros y solicitudes de documentos',
+    body: 'La secretaria del pueblo puede ayudar con registros publicos y otras solicitudes.',
     emailLabel: 'Escribir a la secretaria del pueblo',
     fallbackEmail: 'clerk@townofwiley.gov',
   },

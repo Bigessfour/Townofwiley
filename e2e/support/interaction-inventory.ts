@@ -53,9 +53,6 @@ export const interactionInventoryIds = [
   // Businesses
   'businesses.directory-search',
 
-  // Permits
-  'permits.heading-visible',
-
   // News
   'news.read-article-link',
 

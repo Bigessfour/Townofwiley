@@ -1151,12 +1151,22 @@ h6 {
   min-height: 2rem;
 }
 
+.homepage-priority-stack {
+  gap: var(--space-md);
+}
+
 .stay-informed-card,
 .landing-shortcuts.panel,
 .feature-hub.panel {
   /* Unified landing panels for Phase 2: tighter rhythm, consistent density */
   display: grid;
   gap: var(--section-gap-compact);
+}
+
+.landing-shortcuts.panel,
+.search-panel {
+  gap: var(--space-md);
+  padding: var(--panel-padding-compact);
 }
 
 .support-link-card {
@@ -1408,7 +1418,7 @@ h6 {
 .feature-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 0;
-  gap: var(--grid-gap);
+  gap: var(--grid-gap-compact);
   /* Unified grid for Quick Tasks + Town Features (Phase 2) */
 }
 
@@ -1453,7 +1463,7 @@ h6 {
 
 :host ::ng-deep .task-card-surface .p-card-content {
   height: 100%;
-  padding: var(--space-lg); /* generous ~p-8 / 2rem card padding for better breathing room */
+  padding: var(--space-md);
 }
 
 .task-card-inner {
@@ -1507,7 +1517,7 @@ h6 {
 
 .task-card-copy {
   display: grid;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   min-width: 0;
   padding-right: calc(var(--space-lg) + 0.35rem);
   /* Explicit colors so titles/descriptions never inherit an unintended shell color */

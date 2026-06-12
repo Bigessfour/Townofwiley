@@ -67,10 +67,6 @@ export async function expectDocumentsHub(page: Page): Promise<void> {
   await expect(page.getByTestId('meeting-documents-archive')).toBeVisible();
 }
 
-export async function expectPermitsPage(page: Page): Promise<void> {
-  await expect(page.getByRole('heading', { level: 1, name: /Permits & Inquiries/i })).toBeVisible();
-}
-
 export async function expectNewsPage(page: Page): Promise<void> {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Town News and Announcements' }),

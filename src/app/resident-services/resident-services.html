@@ -2,7 +2,7 @@
 
 <section
   id="resident-services"
-  class="resident-services panel wiley-panel grid gap-5 rounded-wiley-xl border border-wiley-cream-100 p-6 shadow-wiley-card md:p-8"
+  class="resident-services panel wiley-panel grid gap-4 rounded-wiley-xl border border-wiley-cream-100 p-5 shadow-wiley-card md:p-6"
   aria-labelledby="resident-services-heading"
 >
   <div class="wiley-page-header resident-services-header grid gap-3">
@@ -13,7 +13,7 @@
 
   <section class="resident-service-picker grid gap-4" [attr.aria-label]="copy().taskPickerLabel">
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
-    <div class="resident-service-picker-cards grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+    <div class="resident-service-picker-cards grid gap-4 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3">
       @for (panel of servicePanels(); track panel.id) {
         <button
           type="button"
@@ -31,7 +31,7 @@
                 <span class="resident-picker-meta">{{ panel.meta }}</span>
               </div>
             </ng-template>
-            <div class="resident-picker-body grid gap-3">
+            <div class="resident-picker-body grid gap-2">
               <strong class="resident-picker-title mb-0.5">{{ panel.title }}</strong>
               <p class="resident-picker-summary leading-relaxed">{{ panel.summary }}</p>
             </div>

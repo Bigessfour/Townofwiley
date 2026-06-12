@@ -234,7 +234,7 @@ describe('App', () => {
       menuItems: () => MegaMenuItem[];
     };
 
-    const servicesMenu = component.menuItems().find((item) => item.label === 'Services & Permits');
+    const servicesMenu = component.menuItems().find((item) => item.label === 'Services');
 
     expect(component.menuItems().every((item) => item['root'] === true)).toBe(true);
     expect(servicesMenu).toBeDefined();
