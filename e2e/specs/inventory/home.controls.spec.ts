@@ -109,6 +109,26 @@ test.describe('homepage inventory controls', () => {
     await expect(homePage.page).toHaveURL(/\/notices/);
   });
 
+  test('[home.notice-card-link] homepage notice card navigates to newsletter on /news', async ({
+    homePage,
+  }) => {
+    await homePage.goto();
+    await revealHomepageDeferredBlocks(homePage);
+    await homePage.page.locator('#homepage-notices-heading').scrollIntoViewIfNeeded();
+
+    const noticeCard = homePage.page.locator('.landing-notice-timeline a.notice-card--link').first();
+    await expect(noticeCard).toBeVisible({ timeout: 25_000 });
+
+    await inventoryStep('Click homepage notice card', async () => {
+      await noticeCard.click();
+    });
+
+    await expect(homePage.page).toHaveURL(/\/news/);
+    await expect(
+      homePage.page.getByRole('heading', { name: /Newsletter from Town Hall/i }),
+    ).toBeVisible();
+  });
+
   test('[home.meeting-card-navigate] open calendar link opens meetings page', async ({
     homePage,
   }) => {

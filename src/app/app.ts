@@ -50,6 +50,11 @@ import {
     createIcsDataUrlForEvent,
     createIcsDataUrlForSeed,
 } from './calendar-public-links';
+import {
+    cmsNoticeFragmentId,
+    getCmsNoticeLinkAriaLabel,
+    getCmsNoticeRouteLink,
+} from './cms-notice-link';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import {
     LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
@@ -62,6 +67,7 @@ import {
     CmsAlertBanner,
     CmsCalendarEvent,
     CmsContact,
+    CmsNotice,
     LocalizedCmsContentStore,
     OFFICIAL_CONTACT_ID_CITY_CLERK,
     OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
@@ -2163,6 +2169,11 @@ export class App {
   protected readonly homepageNotices = computed(() =>
     this.notices().slice(0, App.HOMEPAGE_NOTICES_PREVIEW),
   );
+  protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;
+  protected readonly cmsNoticeFragmentId = cmsNoticeFragmentId;
+  protected cmsNoticeLinkAriaLabel(notice: CmsNotice): string {
+    return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
+  }
   protected readonly showBrowseNoticesLink = computed(
     () => this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW,
   );

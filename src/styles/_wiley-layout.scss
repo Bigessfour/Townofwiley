@@ -160,15 +160,23 @@
 }
 
 /* Interactive cards only — avoid transform on large panels (layout shift). */
-:where(.feature-card, .task-card, .support-link-card, .resident-picker-wrap):is(
-  :hover,
-  :focus-visible
-) {
+:where(
+    .feature-card,
+    .task-card,
+    .support-link-card,
+    .resident-picker-wrap,
+    .notice-card--link,
+    .news-card-link,
+    .featured-news-card-link
+  ):is(:hover, :focus-visible) {
   border-color: color-mix(in srgb, var(--wiley-teal-600) 35%, var(--wiley-cream-100));
   box-shadow: var(--shadow-medium);
 }
 
-:where(.feature-card, .task-card, .support-link-card):is(:hover, :focus-visible) {
+:where(.feature-card, .task-card, .support-link-card, .notice-card--link, .news-card-link):is(
+    :hover,
+    :focus-visible
+  ) {
   transform: translateY(-2px);
 }
 

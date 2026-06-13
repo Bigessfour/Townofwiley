@@ -1023,10 +1023,16 @@
               </ng-template>
 
               <ng-template #content let-notice>
-                <article class="notice-card notice-card--timeline">
+                @let noticeLink = cmsNoticeRouteLink(notice);
+                <a
+                  class="notice-card notice-card--timeline notice-card--link"
+                  [routerLink]="noticeLink.path"
+                  [fragment]="noticeLink.fragment"
+                  [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
+                >
                   <p class="notice-card-title">{{ notice.title }}</p>
                   <p class="notice-card-detail">{{ notice.detail }}</p>
-                </article>
+                </a>
               </ng-template>
             </p-timeline>
           }
