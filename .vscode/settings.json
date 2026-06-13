@@ -255,5 +255,22 @@
       "background": "var(--vscode-todoTree-background--bug)"
     }
   },
-  "todo-tree.fileSupport": ["**/*.ts", "**/*.html", "**/*.scss", "**/*.md"]
+  "todo-tree.fileSupport": ["**/*.ts", "**/*.html", "**/*.scss", "**/*.md"],
+  "vscode-edge-devtools.defaultUrl": "https://townofwiley.gov/",
+  "vscode-edge-devtools.webRoot": "${workspaceFolder}",
+  "vscode-edge-devtools.sourceMaps": true,
+  "vscode-edge-devtools.headless": true,
+  "vscode-edge-devtools.webhint": true,
+  "vscode-edge-devtools.browserFlavor": "Stable",
+  "vscode-edge-devtools.port": 9223,
+  "vscode-edge-devtools.timeout": 30000,
+  "vscode-edge-devtools.pathMapping": {
+    "/": "${workspaceFolder}"
+  },
+  "vscode-edge-devtools.sourceMapPathOverrides": {
+    "webpack:///./*": "${webRoot}/*",
+    "webpack:///*": "${webRoot}/*",
+    "/./*": "${webRoot}/*",
+    "vite:///*": "*"
+  }
 }

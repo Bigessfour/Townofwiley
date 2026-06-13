@@ -20,6 +20,8 @@ describe('ContactUpdateReviewService', () => {
   let staffAuth: {
     refreshSession: ReturnType<typeof vi.fn>;
     accessToken: ReturnType<typeof vi.fn>;
+    isStaff: ReturnType<typeof vi.fn>;
+    isAuthenticated: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -29,6 +31,8 @@ describe('ContactUpdateReviewService', () => {
     staffAuth = {
       refreshSession: vi.fn().mockResolvedValue(undefined),
       accessToken: vi.fn().mockReturnValue(null),
+      isStaff: vi.fn().mockReturnValue(false),
+      isAuthenticated: vi.fn().mockReturnValue(false),
     };
 
     TestBed.configureTestingModule({
@@ -81,6 +85,8 @@ describe('ContactUpdateReviewService', () => {
       },
     };
     staffAuth.accessToken.mockReturnValue('staff-jwt');
+    staffAuth.isStaff.mockReturnValue(true);
+    staffAuth.isAuthenticated.mockReturnValue(true);
 
     const promise = service.getAllUpdates();
     await Promise.resolve();
@@ -100,6 +106,8 @@ describe('ContactUpdateReviewService', () => {
       },
     };
     staffAuth.accessToken.mockReturnValue('staff-jwt');
+    staffAuth.isStaff.mockReturnValue(true);
+    staffAuth.isAuthenticated.mockReturnValue(true);
 
     const promise = service.getAllUpdates();
     await Promise.resolve();
@@ -126,7 +134,7 @@ describe('ContactUpdateReviewService', () => {
     }
   });
 
-  it('returns sign-in message when review API is configured but user has no token', async () => {
+  it('returns sign-in message when review API is configured but user is not staff', async () => {
     (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
       contactUpdate: {
         reviewApiEndpoint: 'https://api.example/contact-updates',
@@ -139,5 +147,25 @@ describe('ContactUpdateReviewService', () => {
       expect(result.error).toContain('/admin/login');
     }
     httpTesting.expectNone('https://api.example/contact-updates');
+  });
+
+  it('blocks cross-origin JWT review calls from localhost without HTTP', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: 'https://lmppzxwh3h.execute-api.us-east-2.amazonaws.com/contact-updates',
+      },
+    };
+    staffAuth.isStaff.mockReturnValue(true);
+    staffAuth.isAuthenticated.mockReturnValue(true);
+    staffAuth.accessToken.mockReturnValue('staff-jwt');
+
+    const result = await service.getAllUpdates();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('localhost');
+    }
+    httpTesting.expectNone(
+      'https://lmppzxwh3h.execute-api.us-east-2.amazonaws.com/contact-updates',
+    );
   });
 });

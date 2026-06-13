@@ -186,7 +186,25 @@ export class CmsAdmin {
   };
 
   constructor() {
-    void this.loadContactUpdates();
+    void this.loadContactUpdatesWhenStaffReady();
+  }
+
+  private async loadContactUpdatesWhenStaffReady(): Promise<void> {
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.contactUpdatesLoading.set(false);
+      if (!this.staffAuth.isAuthenticated()) {
+        this.contactUpdatesLoadError.set(
+          'Sign in at /admin/login to view resident contact updates.',
+        );
+      } else {
+        this.contactUpdatesLoadError.set(
+          'Staff sign-in required. Your account must be in the Staff group to view contact updates.',
+        );
+      }
+      return;
+    }
+    await this.loadContactUpdates();
   }
 
   protected async signOutStaff(): Promise<void> {

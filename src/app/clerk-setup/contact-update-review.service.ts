@@ -51,12 +51,17 @@ export class ContactUpdateReviewService {
     try {
       if (requiresStaffJwt) {
         await this.staffAuth.refreshSession();
-        if (!this.staffAuth.accessToken()) {
+        if (!this.staffAuth.isStaff()) {
           return {
             ok: false,
-            error:
-              'Sign in at /admin/login to view resident contact updates, then open this tab again.',
+            error: this.staffAuth.isAuthenticated()
+              ? 'Staff sign-in required. Your account must be in the Staff group to view contact updates.'
+              : 'Sign in at /admin/login to view resident contact updates, then open this tab again.',
           };
+        }
+        const crossOriginBlock = this.describeCrossOriginReviewBlock(reviewEndpoint);
+        if (crossOriginBlock) {
+          return { ok: false, error: crossOriginBlock };
         }
       }
 
@@ -81,7 +86,9 @@ export class ContactUpdateReviewService {
       return { ok: true, data: response };
     } catch (err) {
       const message = this.describeHttpError(err, requiresStaffJwt);
-      console.error('Failed to load contact updates', err);
+      if (!(err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403))) {
+        console.error('Failed to load contact updates', err);
+      }
       return { ok: false, error: message };
     }
   }
@@ -151,6 +158,34 @@ export class ContactUpdateReviewService {
       return config.reviewProxyEndpoint;
     }
     return '/api/contact-updates-review';
+  }
+
+  private describeCrossOriginReviewBlock(reviewEndpoint: string): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const pageOrigin = window.location.origin;
+    if (!/localhost|127\.0\.0\.1/.test(pageOrigin)) {
+      return null;
+    }
+
+    try {
+      const apiUrl = new URL(reviewEndpoint);
+      const isProductionStaffReviewApi =
+        apiUrl.hostname.endsWith('.execute-api.us-east-2.amazonaws.com') &&
+        apiUrl.pathname.includes('contact-updates');
+      if (!isProductionStaffReviewApi || apiUrl.origin === pageOrigin) {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+
+    return (
+      'Resident contact updates cannot be loaded from localhost because the staff review API ' +
+      'only allows https://townofwiley.gov. Sign in on production /admin, or ask IT for a local proxy URL.'
+    );
   }
 
   private describeHttpError(err: unknown, requiresStaffJwt: boolean): string {
