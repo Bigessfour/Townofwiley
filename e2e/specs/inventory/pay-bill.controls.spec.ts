@@ -56,7 +56,7 @@ test.describe('pay bill page inventory controls', () => {
     await inventoryStep('Verify Spanish pay instructions infographic', async () => {
       await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
         'src',
-        /pay-bill-instructions-es\.jpg/,
+        /pay-bill-instructions-es-v2\.jpg/,
       );
     });
   });

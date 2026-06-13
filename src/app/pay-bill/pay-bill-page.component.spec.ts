@@ -72,7 +72,7 @@ describe('PayBillPageComponent', () => {
     const infographic = fixture.nativeElement.querySelector(
       '[data-testid="pay-instructions-infographic"]',
     ) as HTMLImageElement | null;
-    expect(infographic?.getAttribute('src')).toContain('pay-bill-instructions-es.jpg');
+    expect(infographic?.getAttribute('src')).toContain('pay-bill-instructions-es-v2.jpg');
     expect(infographic?.getAttribute('alt')).toContain('Cómo Pagar Su Factura');
   });
 

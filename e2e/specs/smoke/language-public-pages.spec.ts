@@ -29,7 +29,7 @@ test.describe('public language coverage', () => {
     await homePage.page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
       'src',
-      /pay-bill-instructions-es\.jpg/,
+      /pay-bill-instructions-es-v2\.jpg/,
     );
 
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });

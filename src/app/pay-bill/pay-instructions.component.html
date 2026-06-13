@@ -1,14 +1,25 @@
 <p-card styleClass="pay-instructions-card panel wiley-panel" data-testid="pay-instructions-card">
   <figure class="pay-instructions-figure" data-testid="pay-instructions-figure">
-    <img
-      class="pay-instructions-infographic"
-      [src]="copy().imageSrc"
-      [alt]="copy().imageAlt"
-      width="1168"
-      height="784"
-      loading="lazy"
-      decoding="async"
-      data-testid="pay-instructions-infographic"
-    />
+    @if (lang() === 'es') {
+      <img
+        class="pay-instructions-infographic"
+        src="/pay-bill-instructions-es-v2.jpg"
+        [alt]="copy().imageAlt"
+        width="1168"
+        height="784"
+        decoding="async"
+        data-testid="pay-instructions-infographic"
+      />
+    } @else {
+      <img
+        class="pay-instructions-infographic"
+        src="/pay-bill-instructions-en.jpg"
+        [alt]="copy().imageAlt"
+        width="1168"
+        height="784"
+        decoding="async"
+        data-testid="pay-instructions-infographic"
+      />
+    }
   </figure>
 </p-card>

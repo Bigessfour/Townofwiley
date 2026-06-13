@@ -61,7 +61,7 @@ test.describe('Pay bill page', () => {
     ).toBeVisible({ timeout: 20_000 });
     await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
       'src',
-      /pay-bill-instructions-es\.jpg/,
+      /pay-bill-instructions-es-v2\.jpg/,
     );
   });
 });

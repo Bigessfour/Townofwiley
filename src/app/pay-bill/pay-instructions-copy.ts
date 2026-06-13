@@ -10,7 +10,7 @@ const PAY_INSTRUCTIONS_EN: PayInstructionsCopy = {
 };
 
 const PAY_INSTRUCTIONS_ES: PayInstructionsCopy = {
-  imageSrc: '/pay-bill-instructions-es.jpg',
+  imageSrc: '/pay-bill-instructions-es-v2.jpg',
   imageAlt:
     'Cómo Pagar Su Factura de Servicios Públicos con Paystar: encuentre su número de cuenta en la factura por correo; haga clic en Pague Su Factura en townofwiley.gov; se abre una ventana segura de Paystar; ingrese su número de cuenta; ingrese las primeras tres letras de su nombre o empresa; pague con tarjeta o ACH; guarde su recibo. Está saliendo de townofwiley.gov. Paystar es un servicio seguro de terceros. Pueden aplicarse tarifas de conveniencia.',
 };
