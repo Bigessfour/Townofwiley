@@ -228,7 +228,7 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 | `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
 | `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |
 | `CLERK_SETUP_AWS_CONSOLE_URL`        | Optional direct AWS console URL for the `/admin` CMS hub    |
-| `CLERK_SETUP_STUDIO_URL`             | Optional direct Amplify Studio URL for the `/admin` CMS hub |
+| `CLERK_SETUP_STUDIO_URL`             | Optional override for the AppSync Queries console URL shown under **Advanced (IT)** on `/admin` |
 
 **Production builds are strict:** `npm run prebuild` / Amplify / GitHub Actions require every key in [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) (`requiredForProduction`). Missing vars fail the build with a clear error. Local `npm start` still allows empty values for optional dev work.
 
@@ -258,22 +258,23 @@ Amplify setup:
 
 If no chatbot URL is configured, the site renders normally and no Easy-Peasy script is injected.
 
-## Amplify Studio CMS
+## CMS and staff publishing
 
-Homepage publishing now relies on Amplify Studio and AppSync. The old browser-local CMS workflow has been disabled.
+Homepage and resident-facing content is stored in **AWS AppSync (GraphQL)**. The old browser-local CMS workflow has been disabled. Amplify Studio / Data Manager was **decommissioned June 2026**.
 
 Plain-language source of truth for staff:
 
-- Daily editing path: Amplify Studio Data Manager
-- Staff handoff and status page: `/admin`
+- **Daily editing path:** https://townofwiley.gov/admin → task hub → **Edit content** (in-app forms)
+- **Staff sign-in:** `/admin/login` (Cognito)
+- **IT bulk GraphQL:** AppSync Queries console — link under **Advanced (IT)** → **Open content editor** on `/admin`
 - Legacy `/clerk-setup` links redirect to `/admin` and preserve supported tab fragments
 - Non-technical instructions: `CLERK-CMS-GUIDE.md`
 - Model and route matrix (engineering): `docs/CMS-MODEL-ROUTE-MATRIX.md`
-- AWS / Studio operations checklist: `docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`
-- Verify CMS in Studio + live site: `docs/CMS-VERIFY-STUDIO.md`
+- AWS / AppSync operations checklist: `docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`
+- Verify CMS + live site: `docs/CMS-VERIFY-STUDIO.md`
 - Build-time check that the public GraphQL query matches schema auth: `npm run verify:public-cms-query` (also runs in `prebuild`)
 
-The `/admin` page now includes the Amplify Studio Data Manager link, setup details, document publishing guidance, contact updates, and a live CMS connection test, so staff can jump straight into CMS editing without navigating the AWS dashboard first.
+The `/admin` page includes task-guided editing, document publishing uploads, CMS connection test, and IT inventory (AppSync Queries link).
 
 ## Developer Notifications
 
@@ -317,7 +318,7 @@ Current implementation notes:
 - The selected language is persisted in browser storage under `tow-site-language`.
 - The public shell, weather panel chrome, AI assistant chrome, and `/admin` operations route all switch languages at runtime.
 - Homepage CMS content is localized in the frontend with bundled Spanish fallbacks and known-text mappings layered over the current single-language AppSync models.
-- If Amplify Studio content changes to brand-new English text that is not yet covered by the translation map, that field will fall back to English until the mapping is updated or bilingual CMS fields are introduced.
+- If CMS content changes to brand-new English text that is not yet covered by the translation map or bilingual CMS fields, that field will fall back to English until updated.
 
 Plain-language staff guide:
 
@@ -325,10 +326,10 @@ Plain-language staff guide:
 
 Current scope:
 
-- Publishing surface: Amplify Studio Data Manager
-- Public read path: AppSync GraphQL API with a runtime-injected read key
-- Homepage and operations models in use: `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `EmailAlias`
-- `/admin` route: unified operations hub with setup details, CMS connection proof, contact updates, and Amplify Studio links
+- **Staff publishing:** `/admin` in-app forms → AppSync GraphQL (Cognito)
+- **Public read path:** AppSync GraphQL API with a runtime-injected read key
+- **Models in use:** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`, plus staff-only `EmailAlias`
+- **`/admin` route:** unified operations hub with task cards, CMS connection proof, contact updates, and IT AppSync Queries link
 
 Runtime configuration sources for the public CMS read path:
 
@@ -339,7 +340,7 @@ Runtime configuration sources for the public CMS read path:
 
 Operational notes:
 
-- Homepage content should be changed in Amplify Studio, not in the browser.
+- Routine homepage and CMS content should be changed on **`/admin`**, not in source code.
 - The site falls back to bundled homepage content if AppSync runtime config is missing or the CMS request fails.
 - The repo secrets workflow now carries the AppSync endpoint and public read key in the encrypted lockbox for future maintainers.
 
@@ -355,7 +356,7 @@ Current implementation status:
   - meeting documents
   - financial documents
   - code references
-- The `/documents` page lists active **PublicDocument** rows from Amplify Studio (optional Spanish fields `titleEs`, `summaryEs`, `statusEs`).
+- Meeting agendas and minutes on **`/meetings`** come from active **`PublicDocument`** rows with `sectionId: meeting-documents` (optional Spanish fields `titleEs`, `summaryEs`, `statusEs`). Upload via `/admin` document publishing.
 - Staff workflow: `docs/CLERK-CMS-GUIDE.md` and `docs/town-document-publishing-guide.md`. Legacy HTML guides remain under `public/documents/archive/` as href targets.
 - Ops one-time seed for former static guides: `npm run seed:public-documents` (after schema deploy).
 
@@ -435,13 +436,13 @@ Selected AWS method:
 - Receive inbound town mail through Amazon SES.
 - Store the raw inbound message in S3.
 - Trigger a Lambda forwarder from the S3 object-created event.
-- Look up the destination inbox from a private Amplify Studio `EmailAlias` record.
+- Look up the destination inbox from a private **`EmailAlias`** record (staff-only CMS model).
 - Forward the message to the staff member's current inbox by SES using a verified Town sender.
 
 Why this is the best fit here:
 
 - It supports alias-style forwarding such as `steve.mckitrick@townofwiley.gov -> bigessfour@gmail.com` without moving staff into a new mailbox system first.
-- The routing data can be managed in Amplify Studio by adding or updating `EmailAlias` records.
+- The routing data is managed on **`/admin`** → **Manage email forwarding** (or AppSync Queries for IT).
 - Public contact cards can stay in `OfficialContact`, while forwarding destinations remain private and are never exposed through the public API key.
 - The Lambda forwarder keeps the logic in AWS, so the Town can later swap destination inboxes without editing Route 53 records or personal Gmail rules.
 
@@ -499,7 +500,7 @@ Traceability:
 Recommended deployment shape:
 
 1. Apply S3 public-access-block settings on `townofwiley-email-alias-570912405222-us-east-1` with a principal that has `s3:PutBucketPublicAccessBlock`.
-2. Add the remaining `EmailAlias` records in Amplify Studio for each Town mailbox alias.
+2. Add the remaining `EmailAlias` records on **`/admin`** → **Manage email forwarding** for each Town mailbox alias.
 3. Send live test mail to each alias before staff relies on it.
 
 Repo-backed deployment path:

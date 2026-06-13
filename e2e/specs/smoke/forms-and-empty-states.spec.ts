@@ -2,24 +2,10 @@ import { expect, test } from '../../fixtures/town.fixture';
 import { mockWeatherProxyRoute } from '../../support/weather-mocks';
 
 test.describe('forms and empty states', () => {
-  test('shows resident-service validation before preparing outbound email actions', async ({
+  test('shows issue-report validation before preparing outbound email actions', async ({
     homePage,
   }) => {
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-
-    await homePage.residentServicePaymentSubmit.click();
-    await expect(homePage.page.getByText('Check required fields')).toBeVisible();
-    await expect(homePage.residentServicePaymentPanel).toContainText('This field is required');
-
-    await homePage.fillResidentPaymentRequest({
-      fullName: 'Jordan Resident',
-      serviceAddress: '210 Main Street',
-      phone: '(719) 829-4974',
-      email: 'not-an-email',
-      notes: 'Please confirm my utility balance.',
-    });
-    await homePage.residentServicePaymentSubmit.click();
-    await expect(homePage.residentServicePaymentPanel).toContainText('Invalid email');
 
     await homePage.selectResidentServicePanel('issue');
     await homePage.residentServiceIssueActionButton.click();

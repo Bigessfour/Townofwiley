@@ -29,8 +29,6 @@ export const runtimeSecretEnvMappings = [
   { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },
   { env: 'EASYPEASY_API_KEY', path: ['chatbot', 'easyPeasy', 'apiKey'], secret: true },
-  { env: 'CONTACT_UPDATE_REVIEW_API_URL', path: ['contactUpdate', 'reviewApiEndpoint'] },
-  { env: 'CONTACT_UPDATE_API_ENDPOINT', path: ['contactUpdate', 'apiEndpoint'] },
   { env: 'GUESTBOOK_API_ENDPOINT', path: ['guestbook', 'apiEndpoint'] },
   { env: 'PAYSTAR_MODE', path: ['payments', 'paystar', 'mode'] },
   { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },

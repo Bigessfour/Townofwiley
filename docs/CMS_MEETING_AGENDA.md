@@ -33,7 +33,7 @@ The data flow:
 
 1. Upload the PDF to S3, e.g.
    `documents/meeting-documents/2026-07-14-city-council-agenda.pdf`.
-2. Create or update a `PublicDocument` in AppSync / Data Manager:
+2. Create or update a `PublicDocument` in **`/admin`** document publishing or AppSync Queries (IT fallback):
    - `sectionId`: `meeting-documents`
    - `href`: storage key or `storage:` + key
    - `keywords`: must include `event:<Event.id>` (exact UUID from the Event row)

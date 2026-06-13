@@ -97,11 +97,6 @@ const templateSecrets = {
       apiKey: '',
     },
   },
-  contactUpdate: {
-    apiEndpoint: '',
-    reviewApiEndpoint: '',
-    reviewProxyEndpoint: '',
-  },
   guestbook: {
     apiEndpoint: '',
   },
@@ -142,7 +137,6 @@ const envMappings = [
     env: 'SEVERE_WEATHER_SIGNUP_CLOUDWATCH_NAMESPACE',
     path: ['weather', 'alertSignup', 'cloudwatchNamespace'],
   },
-  { env: 'CONTACT_UPDATE_REVIEW_PROXY_URL', path: ['contactUpdate', 'reviewProxyEndpoint'] },
   ...runtimeSecretEnvMappings,
 ];
 

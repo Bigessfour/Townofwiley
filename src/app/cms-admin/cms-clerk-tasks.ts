@@ -208,14 +208,15 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'update-contacts',
     title: 'Update Town Hall or clerk contact',
-    shortDescription: 'Change phone, email, or labels on contact cards across the site.',
+    shortDescription:
+      'Change phone, email, or intro text in the Town Administration section on /contact.',
     model: 'OfficialContact',
     previewPath: '/contact',
     steps: [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'Find the row for Town Hall (id town-information) or City Clerk (id city-clerk). Do not change those id values unless IT helps.',
-      'Update label, value, detail, and link fields in the form below.',
-      'Save and check /contact.',
+      'Find the row for Town Information (id town-information), City Clerk (id city-clerk), or Town Superintendent (id town-superintendent). Do not change those id values unless IT helps.',
+      'Update label, value, detail, and mailto link fields in the form below.',
+      'Save, click See on website, and hard-refresh /contact — check the Town Administration card.',
     ],
     fieldGlossary: [
       {
@@ -260,15 +261,16 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   {
     id: 'update-leadership',
     title: 'Update mayor and council list',
-    shortDescription: 'Change name bullets under Mayor and Council on the Contact page.',
+    shortDescription:
+      'Change elected officials on /contact#leadership and administration roster lines in the Town Administration card.',
     model: 'LeadershipRosterEntry',
-    previewPath: '/contact',
+    previewPath: '/contact#leadership',
     steps: [
       'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'For each person, create one row with groupId mayor-council or town-administration.',
+      'For elected officials, create rows with groupId mayor-council. For clerk and superintendent roster lines, use groupId town-administration.',
       'Fill English line and Spanish line — residents who use Spanish on the site need the Spanish line.',
       'Set display order and Active on in the form below.',
-      'Save and check /contact.',
+      'Save, click See on website, and hard-refresh /contact — elected names appear under Elected Officials; administration lines appear in the Town Administration card.',
     ],
     fieldGlossary: [
       {
@@ -298,7 +300,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — the Contact page shows the default name list until you add rows with the form below.',
+      'No roster rows yet — /contact shows the default name list in Town Administration and Elected Officials until you add rows with the form below.',
   },
   {
     id: 'business-directory',

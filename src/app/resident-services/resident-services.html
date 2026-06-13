@@ -45,29 +45,10 @@
     @if (activeServicePanel() === 'payment') {
       <app-resident-payment-panel
         [copy]="copy()"
-        [portalAccessForm]="portalAccessForm"
-        [contactUpdateForm]="contactUpdateForm"
-        [portalSubmitting]="portalSubmitting()"
-        [contactUpdateExpanded]="contactUpdateExpanded()"
-        [contactUpdateStatus]="contactUpdateStatus()"
-        [hasSubmittedContactUpdate]="hasSubmittedContactUpdate()"
-        [contactUpdateMailtoHref]="contactUpdateMailtoHref()"
-        [quickPayHref]="quickPayHref()"
-        [quickPayIsPlaceholder]="quickPayIsPlaceholder()"
-        [quickPayDisabled]="quickPayDisabled()"
-        [preferredContactOptions]="preferredContactOptions()"
         [townHallPhoneHref]="townHallPhoneHref()"
         [townHallPhoneLabel]="townHallPhoneLabel()"
         [clerkEmailHref]="clerkEmailHref()"
         [clerkEmailLabel]="clerkEmailLabel()"
-        [lang]="lang()"
-        [portalFieldMessage]="boundPortalFieldMessage"
-        [validationMessage]="boundValidationMessage"
-        (submitPortal)="onPortalAccessSubmit()"
-        (toggleContactUpdate)="toggleContactUpdate()"
-        (openContactUpdateMailto)="openContactUpdateMailto($event)"
-        (dismissContactUpdate)="dismissContactUpdate()"
-        (scrollToBillingIntake)="scrollToBillingIntake()"
       />
     } @else if (activeServicePanel() === 'issue') {
       <app-resident-issue-panel
@@ -85,11 +66,5 @@
       <app-resident-weather-panel [copy]="copy()" />
     }
 
-    @if (contactUpdateStatus() && !contactUpdateExpanded()) {
-      <p class="resident-status is-success" aria-live="polite">
-        <i class="pi pi-check-circle" aria-hidden="true"></i>
-        <span>{{ contactUpdateStatus() }}</span>
-      </p>
-    }
   </section>
 </section>

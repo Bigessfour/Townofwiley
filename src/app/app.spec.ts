@@ -247,8 +247,7 @@ describe('App', () => {
     expect(firstColumnGroup?.items).toMatchObject([
       {
         label: 'Online Payments',
-        routerLink: ['/services'],
-        fragment: 'payment-help',
+        routerLink: '/pay-bill',
       },
       {
         label: 'Report Street/Utility Issue',
@@ -500,16 +499,7 @@ describe('App', () => {
     expect(compiled.querySelector('#calendar')).not.toBeNull();
   });
 
-  it('should render a Paystar payment action when payment runtime config is present', async () => {
-    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-      payments: {
-        paystar: {
-          mode: 'hosted',
-          portalUrl: 'https://secure.paystar.io/townofwiley',
-        },
-      },
-    };
-
+  it('should render a link to /pay-bill from the services payment panel', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/services');
@@ -517,13 +507,12 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const paystarAction = compiled.querySelector(
-      '#payment-help .resident-pay-card-actions a[href="https://secure.paystar.io/townofwiley"]',
+    const payBillLink = compiled.querySelector(
+      '#payment-help [data-testid="resident-pay-bill-link"]',
     ) as HTMLAnchorElement | null;
 
-    expect(paystarAction).not.toBeNull();
-    expect(paystarAction?.textContent ?? '').toContain('Pay now with Paystar');
-    expect(paystarAction?.getAttribute('href')).toBe('https://secure.paystar.io/townofwiley');
+    expect(payBillLink).not.toBeNull();
+    expect(payBillLink?.getAttribute('href') ?? '').toContain('/pay-bill');
   });
 
   it('should use the configured weather proxy when available', async () => {
@@ -1381,8 +1370,6 @@ describe('App', () => {
       }
     }
 
-    for (const request of httpTesting.match('/api/contact-updates-review')) {
-      request.flush([]);
-    }
+    httpTesting.verify({ ignoreCancelled: true });
   }
 });

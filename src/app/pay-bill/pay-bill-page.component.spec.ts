@@ -1,11 +1,7 @@
-import { ViewportScroller } from '@angular/common';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
-import { vi } from 'vitest';
 import { SiteLanguageService } from '../site-language';
-import { BillPayService } from './bill-pay.service';
 import { PayBillPageComponent } from './pay-bill-page.component';
 
 describe('PayBillPageComponent', () => {
@@ -15,7 +11,6 @@ describe('PayBillPageComponent', () => {
 
   function setRuntimePaystarMode(mode: 'none' | 'hosted' | 'api', portalUrl = ''): void {
     const w = window as Window & {
-      __TOW_RUNTIME_CONFIG__?: RuntimeShape;
       __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeShape;
     };
     w.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
@@ -35,60 +30,44 @@ describe('PayBillPageComponent', () => {
   });
 
   function setup() {
-    const billPay = {
-      submitRequest: vi.fn().mockResolvedValue({ outcome: 'api-success' as const }),
-    };
-
     TestBed.configureTestingModule({
       imports: [PayBillPageComponent],
-      providers: [
-        provideAnimations(),
-        provideZonelessChangeDetection(),
-        SiteLanguageService,
-        MessageService,
-        { provide: ViewportScroller, useValue: { scrollToAnchor: vi.fn(), setOffset: vi.fn() } },
-        { provide: BillPayService, useValue: billPay },
-      ],
+      providers: [provideAnimations(), provideZonelessChangeDetection(), SiteLanguageService],
     });
 
     const fixture = TestBed.createComponent(PayBillPageComponent);
     TestBed.flushEffects();
-    return { fixture, component: fixture.componentInstance, billPay };
+    return { fixture, component: fixture.componentInstance };
   }
 
-  it('does not call submit when the form is invalid', async () => {
-    const { component, billPay } = setup();
-    await component.onSubmit();
-    expect(billPay.submitRequest).not.toHaveBeenCalled();
+  it('renders the English instruction infographic by default', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+
+    const infographic = fixture.nativeElement.querySelector(
+      '[data-testid="pay-instructions-infographic"]',
+    ) as HTMLImageElement | null;
+    expect(infographic).not.toBeNull();
+    expect(infographic?.getAttribute('src')).toContain('pay-bill-instructions-en.jpg');
+    expect(infographic?.getAttribute('alt')).toContain('How to Pay Your Utility Bill');
   });
 
-  it('submits sanitized payload when the form is valid', async () => {
-    const { component, billPay } = setup();
-    component.form.patchValue({
-      fullName: 'Pat Citizen',
-      serviceAddress: '10 Oak St',
-      accountNumber: '',
-      email: 'pat@example.com',
-      phone: '303-555-0100',
-      preferredContactMethod: 'phone',
-      notes: 'Need portal access',
-      consentToContact: true,
-    });
+  it('switches to the Spanish instruction infographic when site language is ES', () => {
+    const { fixture } = setup();
+    const siteLanguage = TestBed.inject(SiteLanguageService);
+    siteLanguage.setLanguage('es');
+    fixture.detectChanges();
+    TestBed.flushEffects();
+    fixture.detectChanges();
 
-    await component.onSubmit();
-
-    expect(billPay.submitRequest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        fullName: 'Pat Citizen',
-        serviceAddress: '10 Oak St',
-        preferredContactMethod: 'phone',
-        consentToContact: true,
-        locale: 'en',
-      }),
-    );
+    const infographic = fixture.nativeElement.querySelector(
+      '[data-testid="pay-instructions-infographic"]',
+    ) as HTMLImageElement | null;
+    expect(infographic?.getAttribute('src')).toContain('pay-bill-instructions-es.jpg');
+    expect(infographic?.getAttribute('alt')).toContain('Cómo Pagar Su Factura');
   });
 
-  it('disables the portal CTA and shows a bilingual fallback when Paystar mode is "none"', () => {
+  it('disables the portal CTA when Paystar mode is "none"', () => {
     setRuntimePaystarMode('none');
     const { fixture, component } = setup();
     fixture.detectChanges();
@@ -96,15 +75,7 @@ describe('PayBillPageComponent', () => {
     expect(component['quickPayDisabled']()).toBe(true);
 
     const root = fixture.nativeElement as HTMLElement;
-    const disabledCta = root.querySelector<HTMLButtonElement>(
-      '[data-testid="pay-bill-portal-cta-disabled"]',
-    );
-    const fallbackMessage = root.querySelector('[data-testid="pay-bill-portal-unavailable"]');
-
-    expect(disabledCta).not.toBeNull();
-    expect(disabledCta?.disabled).toBe(true);
-    expect(fallbackMessage).not.toBeNull();
-    expect(fallbackMessage?.textContent ?? '').toMatch(/portal|portal/i);
+    expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).not.toBeNull();
     expect(root.querySelector('[data-testid="pay-bill-portal-cta"]')).toBeNull();
   });
 
@@ -115,26 +86,20 @@ describe('PayBillPageComponent', () => {
 
     expect(component['quickPayDisabled']()).toBe(false);
 
-    const root = fixture.nativeElement as HTMLElement;
-    const activeCta = root.querySelector<HTMLAnchorElement>('[data-testid="pay-bill-portal-cta"]');
+    const activeCta = fixture.nativeElement.querySelector(
+      '[data-testid="pay-bill-portal-cta"]',
+    ) as HTMLAnchorElement | null;
     expect(activeCta).not.toBeNull();
     expect(activeCta?.getAttribute('href')).toContain('paystar.io');
-    expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).toBeNull();
   });
 
-  it('disables the portal CTA without a placeholder href when hosted mode has no portalUrl', () => {
+  it('disables the portal CTA when hosted mode has no portalUrl', () => {
     setRuntimePaystarMode('hosted');
     const { fixture, component } = setup();
     fixture.detectChanges();
 
     expect(component['quickPayDisabled']()).toBe(true);
     expect(component['quickPayIsPlaceholder']()).toBe(true);
-    expect(component['quickPayHref']()).toBe('');
-
-    const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('[data-testid="pay-bill-portal-cta"]')).toBeNull();
-    expect(root.querySelector('[data-testid="pay-bill-portal-cta-disabled"]')).not.toBeNull();
-    expect(root.querySelector('[data-testid="pay-bill-portal-placeholder"]')).not.toBeNull();
-    expect(root.textContent ?? '').not.toContain('townofwiley-utility');
+    expect(fixture.nativeElement.querySelector('[data-testid="pay-bill-portal-placeholder"]')).not.toBeNull();
   });
 });

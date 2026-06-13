@@ -160,16 +160,14 @@ test.describe('cms admin', () => {
     ).toBeVisible();
   });
 
-  test('preserves the legacy /clerk-setup#updates deep link to contact updates', async ({
+  test('preserves the legacy /clerk-setup#updates deep link to the admin start section', async ({
     homePage,
   }) => {
     await enableE2eStaffAuth(homePage.page);
     await homePage.page.goto('/clerk-setup#updates', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#updates$/, { timeout: 20_000 });
-    await expect(
-      homePage.page.getByRole('heading', { name: /Resident contact and billing messages/i }),
-    ).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/admin#start$/, { timeout: 20_000 });
+    await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible();
   });
 
   test('opens directly to the documents section when /admin#documents is loaded', async ({
@@ -183,42 +181,12 @@ test.describe('cms admin', () => {
     });
   });
 
-  test('opens directly to contact updates when /admin#updates is loaded', async ({ homePage }) => {
-    await gotoAdminHub(homePage.page, '/admin#updates');
+  test('redirects legacy /admin#updates to the admin start section', async ({ homePage }) => {
+    await enableE2eStaffAuth(homePage.page);
+    await homePage.page.goto('/admin#updates', { waitUntil: 'load' });
 
-    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
-    await expect(
-      homePage.page.getByRole('heading', { name: /Resident contact and billing messages/i }),
-    ).toBeVisible({ timeout: 20_000 });
-  });
-
-  test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
-    await homePage.page.addInitScript(() => {
-      const runtimeWindow = window as Window & {
-        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-          contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
-        };
-      };
-      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        contactUpdate: {
-          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
-          reviewApiEndpoint: '',
-          reviewProxyEndpoint: '/api/contact-updates-review',
-        },
-      };
-    });
-    await homePage.page.route(/contact-updates-review/, async (route) => {
-      await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
-    });
-
-    await gotoAdminHub(homePage.page, '/admin#updates');
-
-    await expect(homePage.page).toHaveURL(/\/admin#updates$/);
-    await expect(
-      homePage.page.locator('p-message.p-message-error, p-message[severity="error"]'),
-    ).toContainText(/access denied|could not load|require staff sign-in/i, { timeout: 20_000 });
-    await expect(homePage.page.getByText('No resident messages yet.')).not.toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/admin#start$/, { timeout: 20_000 });
+    await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible({ timeout: 20_000 });
   });
 
   test('meeting task exposes a working native date/time picker input', async ({ homePage }) => {

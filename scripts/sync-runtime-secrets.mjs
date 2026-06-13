@@ -133,10 +133,6 @@ function runtimeConfigToEnv(cfg) {
     env.EASYPEASY_CHAT_URL = chatUrl;
   }
 
-  const reviewApi = cfg.contactUpdate?.reviewApiEndpoint?.trim?.() ?? '';
-  if (reviewApi) {
-    env.CONTACT_UPDATE_REVIEW_API_URL = reviewApi.replace(/\/$/, '');
-  }
 
   const guestbook = cfg.guestbook?.apiEndpoint?.trim?.() ?? '';
   if (guestbook) {

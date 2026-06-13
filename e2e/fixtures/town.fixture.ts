@@ -24,12 +24,12 @@ function loadCmsSnapshotForE2e(): Record<string, unknown> {
   return cachedCmsSnapshot;
 }
 
-type E2eNoticeRecord = {
+interface E2eNoticeRecord {
   id: string;
   announcementKind?: string | null;
   attachmentKey?: string | null;
   active?: boolean;
-};
+}
 
 /** Newsletter PDFs resolve to presigned S3 URLs that 403 in CI; keep copy, drop attachment for smoke. */
 function sanitizeNoticeRecordsForE2e(records: unknown[]): E2eNoticeRecord[] {

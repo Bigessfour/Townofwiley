@@ -1,16 +1,18 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
-import {
-  ContactUpdateRecord,
-  ContactUpdateReviewService,
-} from '../clerk-setup/contact-update-review.service';
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
 import {
   DOCUMENT_PUBLISHING_CHECKS,
@@ -56,8 +58,6 @@ interface CmsAdminSetupDetail {
     ngSkipHydration: '',
   },
   imports: [
-    DatePipe,
-    TableModule,
     ButtonModule,
     CardModule,
     TagModule,
@@ -71,13 +71,23 @@ interface CmsAdminSetupDetail {
   ],
 })
 export class CmsAdmin {
+  private readonly router = inject(Router);
+
+  constructor() {
+    afterNextRender(() => {
+      const fragment = this.router.parseUrl(this.router.url).fragment;
+      if (fragment === 'updates') {
+        void this.router.navigate(['/admin'], { fragment: 'start', replaceUrl: true });
+      }
+    });
+  }
+
   protected readonly it = IT_ADMIN_COPY;
   protected readonly documentPublishingSteps = DOCUMENT_PUBLISHING_STEPS;
   protected readonly documentSections = DOCUMENT_SECTIONS;
   protected readonly documentPublishingChecks = DOCUMENT_PUBLISHING_CHECKS;
 
   private readonly cmsStore = inject(LocalizedCmsContentStore);
-  private readonly contactUpdateReview = inject(ContactUpdateReviewService);
   private readonly staffAuth = inject(StaffAuthService);
   protected readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
 
@@ -103,9 +113,6 @@ export class CmsAdmin {
   })();
 
   protected readonly selectedTaskId = signal<ClerkCmsTaskId | null>(null);
-  protected readonly contactUpdatesLoading = signal(true);
-  protected readonly contactUpdatesLoadError = signal<string | null>(null);
-  protected readonly contactUpdates = signal<ContactUpdateRecord[]>([]);
   protected readonly connectionTestResult = signal<CmsConnectionTestResult | null>(null);
   protected readonly connectionTestLoading = signal(false);
   protected readonly cacheClearMessage = signal<string | null>(null);
@@ -129,13 +136,12 @@ export class CmsAdmin {
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
   protected readonly cfDistributionId = this.clerkSetupConfig.cfDistributionId;
   protected readonly s3Bucket = this.clerkSetupConfig.s3Bucket;
-  // Alternative bulk tool (Studio). Guided in-app tasks (below) use direct AppSync GraphQL (Cognito auth).
   protected readonly dataManagerUrl = this.clerkSetupConfig.studioUrl;
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Alternative: Studio Data Manager (bulk edits)',
+      label: 'AppSync Queries console (IT bulk GraphQL)',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
     },
@@ -164,48 +170,6 @@ export class CmsAdmin {
       copyValue: this.s3Bucket,
     },
   ]);
-
-  protected readonly contactUpdateReportLabels = {
-    title: 'Resident contact report',
-    generatedLabel: 'Generated',
-    recordCountLabel: 'Records',
-    fields: {
-      date: 'Date',
-      fullName: 'Full name',
-      serviceAddress: 'Service address',
-      poBox: 'PO Box',
-      accountNumber: 'Account number',
-      phone: 'Phone',
-      email: 'Email',
-      preferredContact: 'Preferred contact',
-      consent: 'Consent',
-      notes: 'Notes',
-      source: 'Source',
-      language: 'Language',
-    },
-  };
-
-  constructor() {
-    void this.loadContactUpdatesWhenStaffReady();
-  }
-
-  private async loadContactUpdatesWhenStaffReady(): Promise<void> {
-    await this.staffAuth.refreshSession();
-    if (!this.staffAuth.isStaff()) {
-      this.contactUpdatesLoading.set(false);
-      if (!this.staffAuth.isAuthenticated()) {
-        this.contactUpdatesLoadError.set(
-          'Sign in at /admin/login to view resident contact updates.',
-        );
-      } else {
-        this.contactUpdatesLoadError.set(
-          'Staff sign-in required. Your account must be in the Staff group to view contact updates.',
-        );
-      }
-      return;
-    }
-    await this.loadContactUpdates();
-  }
 
   protected async signOutStaff(): Promise<void> {
     await this.staffAuth.signOutStaff();
@@ -263,40 +227,6 @@ export class CmsAdmin {
       window.setTimeout(() => this.copiedSetupKey.set(null), 1800);
     } catch {
       this.copiedSetupKey.set(null);
-    }
-  }
-
-  protected retryContactUpdates(): void {
-    void this.loadContactUpdates();
-  }
-
-  protected downloadCSV(): void {
-    this.contactUpdateReview.downloadAsCSV(this.contactUpdates());
-  }
-
-  protected printCustomerReport(): void {
-    this.contactUpdateReview.printReport(this.contactUpdates(), this.contactUpdateReportLabels);
-  }
-
-  private async loadContactUpdates(): Promise<void> {
-    this.contactUpdatesLoading.set(true);
-    this.contactUpdatesLoadError.set(null);
-    try {
-      await this.staffAuth.refreshSession();
-      const result = await this.contactUpdateReview.getAllUpdates();
-      if (result.ok) {
-        this.contactUpdates.set(result.data);
-      } else {
-        this.contactUpdates.set([]);
-        this.contactUpdatesLoadError.set(result.error);
-      }
-    } catch {
-      this.contactUpdates.set([]);
-      this.contactUpdatesLoadError.set(
-        'Could not load messages. Sign in at /admin/login or call Town Hall.',
-      );
-    } finally {
-      this.contactUpdatesLoading.set(false);
     }
   }
 }

@@ -7,6 +7,6 @@ export class RecordsPage extends PublicRoutePage {
 
   constructor(page: Page) {
     super(page, '/records');
-    this.recordsAssistance = page.getByTestId('contact-records-assistance');
+    this.recordsAssistance = page.getByTestId('contact-administration');
   }
 }

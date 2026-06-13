@@ -37,10 +37,10 @@ test.describe('homepage responsive coverage', () => {
     await expect(homePage.weatherSignupSubmitButton).toBeVisible();
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.locator('#payment-help .resident-action')).toBeVisible();
+    await expect(homePage.page.locator('#payment-help [data-testid="resident-pay-bill-link"]')).toBeVisible();
 
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+    await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
 
     await homePage.page.goto('/accessibility', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#barrier-report .accessibility-action')).toBeVisible();

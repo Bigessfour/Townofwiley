@@ -89,10 +89,12 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
   {
     model: 'LeadershipRosterEntry',
     publicApiKeyRead: true,
-    routes: '/contact (mayor-council, town-administration bullets)',
+    routes: '/contact (Town Administration card + #leadership elected officials)',
     keyFields: 'groupId, lineEn, lineEs, displayOrder, active',
-    emptyWarningEn: 'No roster rows — /contact uses bundled leadership bullets.',
-    emptyWarningEs: 'Sin filas — /contact usa viñetas de respaldo.',
+    emptyWarningEn:
+      'No roster rows — /contact uses bundled leadership lines in Administration and Elected Officials.',
+    emptyWarningEs:
+      'Sin filas — /contact usa lineas de respaldo en Administracion y Funcionarios electos.',
     ordered: {
       previewField: 'lineEn',
       sortField: 'displayOrder',

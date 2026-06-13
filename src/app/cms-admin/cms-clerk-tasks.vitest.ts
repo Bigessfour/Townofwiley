@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-    CLERK_CMS_TASKS,
-    CLERK_VERIFY_STEPS,
-    clerkTaskById,
-    clerkTaskPreviewUrl,
-    clerkTaskUsesDedicatedEditor,
+  CLERK_CMS_TASKS,
+  CLERK_VERIFY_STEPS,
+  clerkTaskById,
+  clerkTaskPreviewUrl,
+  clerkTaskUsesDedicatedEditor,
 } from './cms-clerk-tasks';
 
 describe('cms-clerk-tasks', () => {
@@ -17,6 +17,9 @@ describe('cms-clerk-tasks', () => {
   it('builds preview URLs on townofwiley.gov', () => {
     expect(clerkTaskPreviewUrl('/news')).toBe('https://townofwiley.gov/news');
     expect(clerkTaskPreviewUrl('contact')).toBe('https://townofwiley.gov/contact');
+    expect(clerkTaskPreviewUrl('/contact#leadership')).toBe(
+      'https://townofwiley.gov/contact#leadership',
+    );
   });
 
   it('includes Spanish content guidance on leadership tasks', () => {

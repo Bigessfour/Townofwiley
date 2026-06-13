@@ -35,7 +35,7 @@ export const interactionInventoryIds = [
 
   // Pay bill
   'pay-bill.paystar-portal-cta',
-  'pay-bill.billing-intake-validation',
+  'pay-bill.pay-instructions',
 
   // Contact
   'contact.mailto-link',

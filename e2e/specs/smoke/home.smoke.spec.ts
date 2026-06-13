@@ -96,7 +96,7 @@ async function expectServicesPage(homePage: HomePage): Promise<void> {
 }
 
 async function expectRecordsPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+  await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
 }
 
 async function expectAccessibilityPage(homePage: HomePage): Promise<void> {
@@ -131,7 +131,7 @@ async function expectServiceIssueReport(homePage: HomePage): Promise<void> {
 }
 
 async function expectServiceRecordsRequest(homePage: HomePage): Promise<void> {
-  await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+  await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
 }
 
 async function expectFeaturePageFromHomepage(
@@ -262,7 +262,10 @@ const homepageGatewayTests: NavigationGateway[] = [
   {
     name: 'Footer records link',
     click: (page) =>
-      page.page.locator('.footer-links').getByRole('link', { name: 'Contact the Town Clerk' }).click(),
+      page.page
+        .locator('.footer-links')
+        .getByRole('link', { name: 'Contact the Town Clerk' })
+        .click(),
     expectedUrl: /\/contact$/,
     assertDestination: expectRecordsPage,
   },
@@ -319,7 +322,7 @@ const featurePageGateways: FeaturePageGateway[] = [
     expectedUrl: /\/contact$/,
     assertDestination: async (homePage) => {
       await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
-      await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+      await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
     },
   },
 ];
@@ -515,6 +518,6 @@ test.describe('homepage smoke', () => {
     await clerkHit.click();
 
     await expect(homePage.page).toHaveURL(/\/contact$/);
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+    await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
   });
 });

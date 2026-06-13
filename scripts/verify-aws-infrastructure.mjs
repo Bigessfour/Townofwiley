@@ -132,10 +132,8 @@ function checkLogGroupRetention(logGroupName, region) {
 console.log('== Town of Wiley AWS infrastructure verification ==\n');
 console.log(`SSOT: ${manifestPath}\n`);
 
-/** Lambdas with public Function URLs (SSOT / AP-05). Review Lambda uses JWT API Gateway, not a Function URL. */
-const CONTACT_FUNCTION_URL_AUTH = {
-  TownOfWileyContactUpdate: 'NONE',
-};
+/** Lambdas with public Function URLs (SSOT). Contact intake stack decommissioned June 2026. */
+const CONTACT_FUNCTION_URL_AUTH = {};
 
 if (offline) {
   const generatorPath = join(
@@ -184,60 +182,38 @@ if (offline) {
     }
   }
 
-  for (const [name, expectedAuth] of Object.entries(CONTACT_FUNCTION_URL_AUTH)) {
-    const entry = manifest.lambdaFunctions.find((fn) => fn.functionName === name);
-    if (!entry) {
-      fail(`${name}: missing from aws-infrastructure.manifest.json`);
-      continue;
-    }
-    if (!entry.functionUrl?.required) {
-      fail(`${name}: functionUrl.required must be true in manifest`);
-    }
-    const actual = entry.functionUrl?.authType;
-    if (actual !== expectedAuth) {
-      fail(
-        `${name}: functionUrl.authType ${actual ?? '(missing)'} (expected ${expectedAuth} per SSOT)`,
-      );
-    } else {
-      pass(`${name}: Function URL authType ${actual}`);
-    }
-  }
-
-  const reviewEntry = manifest.lambdaFunctions.find(
-    (fn) => fn.functionName === 'TownOfWileyContactUpdatesReview',
-  );
-  if (!reviewEntry) {
-    fail('TownOfWileyContactUpdatesReview: missing from aws-infrastructure.manifest.json');
-  } else if (reviewEntry.functionUrl?.required) {
-    fail(
-      'TownOfWileyContactUpdatesReview: must not expose a public Function URL (JWT API Gateway only)',
-    );
-  } else {
-    pass('TownOfWileyContactUpdatesReview: no public Function URL (API Gateway)');
-  }
-
-  const decommissionedProxy = (manifest.decommissionedJune2026?.lambdaFunctions ?? []).includes(
+  const decommissionedContact = [
+    'TownOfWileyContactUpdate',
+    'TownOfWileyContactUpdatesReview',
     'TownOfWileyContactUpdatesReviewProxy',
-  );
-  if (!decommissionedProxy) {
-    fail('decommissionedJune2026.lambdaFunctions must list TownOfWileyContactUpdatesReviewProxy');
-  } else {
-    pass('TownOfWileyContactUpdatesReviewProxy: decommissioned (not in live manifest)');
+  ];
+  for (const name of decommissionedContact) {
+    const inLive = manifest.lambdaFunctions.some((fn) => fn.functionName === name);
+    if (inLive) {
+      fail(`${name}: must not appear in live lambdaFunctions (decommissioned June 2026)`);
+    }
+  }
+  const decommissionedList = manifest.decommissionedJune2026?.lambdaFunctions ?? [];
+  for (const name of decommissionedContact) {
+    if (!decommissionedList.includes(name)) {
+      fail(`decommissionedJune2026.lambdaFunctions must list ${name}`);
+    } else {
+      pass(`${name}: decommissioned (not in live manifest)`);
+    }
   }
 
-  const reviewDeployScript = join(repoRoot, 'scripts', 'deploy-contact-updates-review.py');
-  const reviewDeploySource = readFileSync(reviewDeployScript, 'utf8');
-  if (!/AWS_IAM/.test(reviewDeploySource)) {
-    fail('deploy-contact-updates-review.py must enforce AWS_IAM Function URL auth (AP-05)');
+  const decommissionRunbook = join(repoRoot, 'docs', 'contact-intake-decommission.md');
+  if (!existsSync(decommissionRunbook)) {
+    fail('docs/contact-intake-decommission.md is missing (AWS teardown runbook)');
   } else {
-    pass('deploy-contact-updates-review.py enforces AWS_IAM');
+    pass('contact-intake decommission runbook present');
   }
 
   printSummary();
   console.log(
     failures.length
       ? `FAILED: ${failures.length} issue(s)`
-      : 'OK: manifest and contact security posture valid (offline)',
+      : 'OK: manifest valid (offline)',
   );
   process.exit(failures.length ? 1 : 0);
 }

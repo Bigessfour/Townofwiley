@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-10T00:47:02.531Z",
-  "buildSha": "0b60bceb8e57b73b7aa5abf91679306fb799657f",
+  "savedAt": "2026-06-13T13:42:25.411Z",
+  "buildSha": "1de7e0887c0e992929bea9a489ffa72df572f886",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -41,6 +41,15 @@
       "active": true
     },
     {
+      "id": "da0185c3-20aa-424a-8af0-90d258a3664a",
+      "title": "City Council Meeting - August",
+      "description": null,
+      "location": null,
+      "start": "2026-08-11T00:00:00.000Z",
+      "end": "2026-08-11T02:00:00.000Z",
+      "active": true
+    },
+    {
       "id": "1ba73b5e-f8b5-4bdb-93f9-981f1cf7478e",
       "title": "City Council Meeting - June",
       "description": null,
@@ -56,6 +65,15 @@
       "location": "Downtown Wiley",
       "start": "2026-06-14T00:00:00.000Z",
       "end": "2026-06-13T06:00:00.000Z",
+      "active": true
+    },
+    {
+      "id": "b95cc88d-c189-494f-bfe7-851f5ed2cf37",
+      "title": "City Council Meeting - September",
+      "description": null,
+      "location": null,
+      "start": "2026-09-15T00:00:00.000Z",
+      "end": "2026-09-15T02:00:00.000Z",
       "active": true
     }
   ],
@@ -187,17 +205,6 @@
       "imageUrl": null,
       "active": true,
       "displayOrder": 3
-    },
-    {
-      "id": "74e67a2b-5344-4867-9c0a-981217caa00f",
-      "name": "County Line Health Clinic",
-      "phone": "(719) 829-4030",
-      "address": "36503 US Highway 287, Wiley, CO  81092",
-      "website": "https://www.facebook.com/p/County-Line-Health-Clinic-100075660146110/",
-      "description": null,
-      "imageUrl": null,
-      "active": true,
-      "displayOrder": 2
     }
   ],
   "publicDocumentRecords": [
@@ -269,5 +276,6 @@
       "displayOrder": 1
     }
   ],
-  "leadershipRosterRecords": []
+  "leadershipRosterRecords": [],
+  "siteCopyRecords": []
 }

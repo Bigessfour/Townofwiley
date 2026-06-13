@@ -29,30 +29,13 @@ function installMemoryLocalStorage(): void {
   });
 }
 
-type ResidentServicesTestHarness = ResidentServices & {
-  portalAccessForm: ResidentServices['portalAccessForm'];
-  copy: ResidentServices['copy'];
-  validationMessage: ResidentServices['validationMessage'];
-};
-
-function portalFieldMessage(
-  component: ResidentServicesTestHarness,
-  controlName: Parameters<ResidentServices['portalFieldMessage']>[0],
-): ReturnType<ResidentServices['portalFieldMessage']> {
-  return (
-    component as unknown as {
-      portalFieldMessage: ResidentServices['portalFieldMessage'];
-    }
-  ).portalFieldMessage(controlName);
-}
-
 describe('ResidentServices', () => {
   beforeEach(() => {
     installMemoryLocalStorage();
     window.localStorage.removeItem('tow-site-language');
   });
 
-  it('shows field-level validation messages for invalid portal intake inputs', () => {
+  it('renders a link to /pay-bill on the payment panel', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
       providers: [
@@ -66,18 +49,14 @@ describe('ResidentServices', () => {
 
     const fixture = TestBed.createComponent(ResidentServices);
     TestBed.flushEffects();
-    const component = fixture.componentInstance as ResidentServicesTestHarness;
-
-    component.portalAccessForm.controls.fullName.markAsTouched();
-    component.portalAccessForm.controls.email.markAsTouched();
-    component.portalAccessForm.controls.phone.markAsTouched();
-    component.portalAccessForm.controls.serviceAddress.markAsTouched();
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement as HTMLElement;
+    const payBillLink = fixture.nativeElement.querySelector(
+      '[data-testid="resident-pay-bill-link"]',
+    ) as HTMLAnchorElement | null;
 
-    expect(compiled.querySelectorAll('p-message').length).toBeGreaterThanOrEqual(4);
-    expect(compiled.textContent).toContain('This field is required');
+    expect(payBillLink).not.toBeNull();
+    expect(payBillLink?.getAttribute('href')).toContain('/pay-bill');
   });
 
   it('renders the resident service picker as native <button> elements with aria-pressed state', () => {
@@ -144,27 +123,5 @@ describe('ResidentServices', () => {
     );
     expect(refreshed[targetIndex].getAttribute('aria-pressed')).toBe('true');
     expect(refreshed[initiallyPressedIndex].getAttribute('aria-pressed')).toBe('false');
-  });
-
-  it('returns an invalid email message for bad email input on portal form', () => {
-    TestBed.configureTestingModule({
-      imports: [ResidentServices],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        MessageService,
-        provideAnimations(),
-        provideZonelessChangeDetection(),
-      ],
-    });
-
-    const fixture = TestBed.createComponent(ResidentServices);
-    TestBed.flushEffects();
-    const component = fixture.componentInstance as ResidentServicesTestHarness;
-
-    component.portalAccessForm.controls.email.setValue('not-an-email');
-    component.portalAccessForm.controls.email.markAsTouched();
-
-    expect(portalFieldMessage(component, 'email')).toBe('Invalid email');
   });
 });

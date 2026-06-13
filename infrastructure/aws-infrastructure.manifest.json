@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, contact update/review (JWT API Gateway for admin PII), SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). Resident billing/contact intake stack decommissioned June 2026 — see docs/contact-intake-decommission.md. CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -65,14 +65,7 @@
       "requireBlockPublicAccess": true
     }
   ],
-  "dynamodbTables": [
-    {
-      "name": "TownOfWileyContactUpdates",
-      "region": "us-east-2",
-      "required": true,
-      "deployScript": "scripts/deploy-contact-update-backend.py"
-    }
-  ],
+  "dynamodbTables": [],
   "lambdaFunctions": [
     {
       "functionName": "TownOfWileyNWSWeatherProxy",
@@ -95,25 +88,6 @@
       "deployScript": "scripts/deploy-severe-weather-backend.py",
       "required": true,
       "notes": "Resident severe weather alert signup (email + SMS)"
-    },
-    {
-      "functionName": "TownOfWileyContactUpdate",
-      "region": "us-east-2",
-      "runtime": "nodejs",
-      "codePath": "infrastructure/contact-update-lambda",
-      "functionUrl": { "authType": "NONE", "required": true },
-      "deployScript": "scripts/deploy-contact-update-backend.py",
-      "required": true,
-      "notes": "Public resident POST; pair with client sanitization (AP-06) and API Gateway throttling"
-    },
-    {
-      "functionName": "TownOfWileyContactUpdatesReview",
-      "region": "us-east-2",
-      "runtime": "nodejs",
-      "codePath": "infrastructure/contact-updates-review",
-      "deployScript": "scripts/deploy-contact-updates-review.py",
-      "required": true,
-      "notes": "Admin PII scan; invoked via JWT API Gateway HTTP API (lmppzxwh3h) — no public Function URL"
     },
     {
       "functionName": "TownOfWileyEmailAliasRouter",
@@ -139,9 +113,13 @@
       "townofwiley-easy-peasy-chat-proxy",
       "TownOfWileyGuestbook",
       "TownOfWileyDeveloperMonitor",
+      "TownOfWileyContactUpdate",
+      "TownOfWileyContactUpdatesReview",
       "TownOfWileyContactUpdatesReviewProxy",
       "TownOfWileyPaystarProxy"
     ],
+    "dynamodbTables": ["TownOfWileyContactUpdates"],
+    "apiGateway": ["lmppzxwh3h contact-updates HTTP API"],
     "other": [
       "WAF Web ACLs (TownOfWileyContactReviewApiRateLimit and Amplify Firewall)",
       "Secrets Manager secret Grok (Wiley Widget)",
@@ -180,30 +158,18 @@
     },
     {
       "step": 5,
-      "name": "Contact update write + DynamoDB",
-      "action": "python scripts/deploy-contact-update-backend.py",
-      "paths": ["infrastructure/contact-update-lambda/"]
-    },
-    {
-      "step": 6,
-      "name": "Contact update review (JWT HTTP API)",
-      "action": "python scripts/deploy-contact-updates-review.py",
-      "paths": ["infrastructure/contact-updates-review/"]
-    },
-    {
-      "step": 7,
       "name": "Runtime config + static deploy",
       "action": "Set GitHub secrets per infrastructure/gen1-production-bindings.json; deploy runtime-config.js + S3/CloudFront",
       "paths": ["scripts/generate-runtime-config.mjs", "infrastructure/hosting/"]
     },
     {
-      "step": 8,
+      "step": 6,
       "name": "CloudWatch logging + alarms",
       "action": "python scripts/configure-townofwiley-cloudwatch-logging.py",
       "paths": ["scripts/configure-townofwiley-cloudwatch-logging.py"]
     },
     {
-      "step": 9,
+      "step": 7,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": ["infrastructure/aws-infrastructure.manifest.json"]

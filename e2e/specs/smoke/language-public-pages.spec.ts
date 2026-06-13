@@ -26,8 +26,14 @@ test.describe('public language coverage', () => {
     await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.locator('#payment-help')).toBeVisible({ timeout: 20_000 });
 
+    await homePage.page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
+      'src',
+      /pay-bill-instructions-es\.jpg/,
+    );
+
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+    await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
 
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
     await expect(

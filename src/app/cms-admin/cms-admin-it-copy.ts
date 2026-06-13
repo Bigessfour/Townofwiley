@@ -1,14 +1,5 @@
-/** English copy for IT/advanced sections and contact-updates table on /admin. */
+/** English copy for IT/advanced sections on /admin. */
 export const IT_ADMIN_COPY = {
-  contactUpdatesTitle: 'Resident contact and billing messages',
-  contactUpdatesSubtitle:
-    'Messages from the pay-bill and services forms. Sign in at /admin/login if this list is empty.',
-  downloadCsvLabel: 'Download CSV',
-  printReportLabel: 'Print report',
-  contactUpdatesLoading: 'Loading messages…',
-  contactUpdatesLoadError: 'Could not load messages. Sign in at /admin/login or call Town Hall.',
-  contactUpdatesRetryLabel: 'Try again',
-  noContactUpdates: 'No resident messages yet.',
   connectionKicker: 'Technical check (IT)',
   connectionTitle: 'Test connection to the content database',
   connectionBody: 'For IT troubleshooting only. Clerks do not need to run this.',

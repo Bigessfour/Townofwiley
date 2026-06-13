@@ -1,31 +1,16 @@
 import { expect, test } from '../../fixtures/town.fixture';
 
 test.describe('homepage high-value interactions', () => {
-  test('switches resident services to payment support and exposes the Paystar portal', async ({
+  test('switches resident services to payment support and links to /pay-bill', async ({
     homePage,
   }) => {
-    await homePage.enablePaystarPortal();
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
 
     await homePage.selectResidentServicePanel('payment');
 
     await expect(homePage.residentServicePaymentPanel).toBeVisible();
     await expect(homePage.residentServicePaymentToggle).toHaveAttribute('aria-pressed', 'true');
-
-    await homePage.fillResidentPaymentRequest({
-      fullName: 'Jordan Resident',
-      serviceAddress: '210 Main Street',
-      phone: '(719) 829-4974',
-      email: 'jordan@example.com',
-      notes: 'I need to review my current utility balance before paying.',
-    });
-
-    await expect(homePage.residentServicePaymentPortalAction).toHaveAttribute(
-      'href',
-      'https://secure.paystar.io/townofwiley',
-    );
-
-    await expect(homePage.residentServicePaymentSubmit).toBeVisible();
+    await expect(homePage.residentServicePaymentPayBillLink).toHaveAttribute('href', /\/pay-bill$/);
   });
 
   test('switches resident services to weather alerts and links to the weather page', async ({
