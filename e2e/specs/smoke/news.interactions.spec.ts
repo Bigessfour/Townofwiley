@@ -5,6 +5,31 @@ import { expect, test } from '../../fixtures/town.fixture';
 const E2E_NEWSLETTER_PDF_PATH = '/fixtures/e2e-newsletter.pdf';
 const E2E_NEWSLETTER_VIEWER_FRAGMENT = 'navpanes=0&pagemode=none&view=FitH';
 
+const E2E_FEATURED_NOTICE_ID = 'e2e-featured-notice';
+
+function buildNewsInteractionsCmsSnapshotBody(): string {
+  const snapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
+  const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as Record<string, unknown>;
+  const snapshotNotices = Array.isArray(snapshot.noticeRecords) ? snapshot.noticeRecords : [];
+
+  return JSON.stringify({
+    ...snapshot,
+    externalNewsLinkRecords: [],
+    noticeRecords: [
+      {
+        id: E2E_FEATURED_NOTICE_ID,
+        title: 'Hydrant flushing',
+        date: '2026-12-31',
+        detail: 'Town-wide hydrant flushing scheduled this week.',
+        priority: 1,
+        imageUrl: null,
+        active: true,
+      },
+      ...snapshotNotices,
+    ],
+  });
+}
+
 function buildNewsletterPdfCmsSnapshotBody(): string {
   const snapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
   const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as Record<string, unknown>;
@@ -33,6 +58,15 @@ function buildNewsletterPdfCmsSnapshotBody(): string {
  */
 test.describe('news page interactions', () => {
   test('renders featured and external news links', async ({ homePage }) => {
+    await homePage.page.unroute('**/cms-snapshot.json');
+    await homePage.page.route('**/cms-snapshot.json', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: buildNewsInteractionsCmsSnapshotBody(),
+      });
+    });
+
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
 
     await expect(
@@ -41,10 +75,15 @@ test.describe('news page interactions', () => {
 
     const featuredNewsCard = homePage.page.locator('.featured-news-card');
     await expect(featuredNewsCard).toContainText('Featured town notice');
-    await expect(featuredNewsCard.getByRole('link', { name: 'Read article' })).toHaveAttribute(
+    await expect(featuredNewsCard).toContainText('Hydrant flushing');
+
+    const featuredCardLink = homePage.page.locator('a.featured-news-card-link');
+    await expect(featuredCardLink).toBeVisible();
+    await expect(featuredCardLink).toHaveAttribute(
       'href',
-      '/notices',
+      `/notices#notice-${E2E_FEATURED_NOTICE_ID}`,
     );
+    await expect(featuredCardLink).toContainText('Read article');
 
     const externalNewsCard = homePage.page.locator('.news-card--external').first();
     await expect(externalNewsCard).toContainText('Lamar Ledger');
