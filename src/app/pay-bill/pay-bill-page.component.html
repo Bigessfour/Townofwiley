@@ -14,22 +14,35 @@
     <section class="pay-bill-main" [attr.aria-label]="copy().payRegionLabel">
       <app-pay-instructions [lang]="lang()" />
 
-      <div class="pay-bill-cta">
+      <section
+        class="pay-bill-cta-band panel wiley-panel"
+        data-testid="pay-bill-cta-band"
+        aria-labelledby="pay-bill-cta-heading"
+      >
+        <p class="pay-bill-cta-cue" aria-hidden="true">
+          <i class="pi pi-chevron-down"></i>
+        </p>
+        <h2 id="pay-bill-cta-heading" class="pay-bill-cta-heading">{{ copy().ctaHeading }}</h2>
+        <p class="pay-bill-cta-lead">{{ copy().ctaLead }}</p>
+
         @if (quickPayDisabled()) {
           @if (quickPayIsPlaceholder()) {
             <p-message
               severity="info"
               [text]="copy().quickPayPlaceholderNote"
+              styleClass="pay-bill-cta-message"
               data-testid="pay-bill-portal-placeholder"
             />
           } @else {
             <p-message
               severity="warn"
               [text]="copy().quickPayUnavailableNote"
+              styleClass="pay-bill-cta-message"
               data-testid="pay-bill-portal-unavailable"
             />
           }
         }
+
         <div class="pay-bill-cta-actions">
           @if (quickPayDisabled()) {
             <button
@@ -45,7 +58,7 @@
           } @else {
             <a
               pButton
-              class="p-button-sm"
+              class="pay-bill-cta-primary"
               [href]="quickPayHref()"
               rel="noopener noreferrer"
               target="_blank"
@@ -56,7 +69,7 @@
             ></a>
           }
         </div>
-      </div>
+      </section>
     </section>
 
     <section class="pay-bill-help" aria-labelledby="pay-bill-help-heading">

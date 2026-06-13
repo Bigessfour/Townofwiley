@@ -40,6 +40,15 @@ describe('PayBillPageComponent', () => {
     return { fixture, component: fixture.componentInstance };
   }
 
+  it('renders the CTA band with Ready to pay heading', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+
+    const ctaBand = fixture.nativeElement.querySelector('[data-testid="pay-bill-cta-band"]');
+    expect(ctaBand).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Ready to pay?');
+  });
+
   it('renders the English instruction infographic by default', () => {
     const { fixture } = setup();
     fixture.detectChanges();
@@ -90,6 +99,7 @@ describe('PayBillPageComponent', () => {
       '[data-testid="pay-bill-portal-cta"]',
     ) as HTMLAnchorElement | null;
     expect(activeCta).not.toBeNull();
+    expect(activeCta?.classList.contains('p-button-sm')).toBe(false);
     expect(activeCta?.getAttribute('href')).toContain('paystar.io');
   });
 

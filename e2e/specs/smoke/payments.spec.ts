@@ -48,6 +48,8 @@ test.describe('Pay bill page', () => {
       'src',
       /pay-bill-instructions-en\.jpg/,
     );
+    await expect(homePage.page.getByTestId('pay-bill-cta-band')).toBeVisible();
+    await expect(homePage.page.getByRole('heading', { name: 'Ready to pay?' })).toBeVisible();
   });
 
   test('shows Spanish instruction infographic after switching site language', async ({ homePage }) => {
