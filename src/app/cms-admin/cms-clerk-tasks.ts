@@ -260,47 +260,42 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   },
   {
     id: 'update-leadership',
-    title: 'Update mayor and council list',
+    title: 'Update elected officials & town administration lists',
     shortDescription:
-      'Change elected officials on /contact#leadership and administration roster lines in the Town Administration card.',
+      'Manage mayor/council names at /contact#leadership and town administration roster lines in the Town Administration card.',
     model: 'LeadershipRosterEntry',
-    previewPath: '/contact#leadership',
+    previewPath: '/contact',
     steps: [
-      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'For elected officials, create rows with groupId mayor-council. For clerk and superintendent roster lines, use groupId town-administration.',
-      'Fill English line and Spanish line — residents who use Spanish on the site need the Spanish line.',
-      'Set display order and Active on in the form below.',
-      'Save, click See on website, and hard-refresh /contact — elected names appear under Elected Officials; administration lines appear in the Town Administration card.',
+      'Click Edit content to open the form (sign in at /admin/login first).',
+      'Choose Elected Officials (Mayor & Council) or Town Administration from the list dropdown.',
+      'Review the current names shown below the dropdown — drag to reorder, or click Edit on a row to change or hide it.',
+      'To add someone new, pick where they should appear, enter the English name line (role and name, e.g. Councilman: Ken Mooney), and optional Spanish.',
+      'Save, click See on website, and hard-refresh /contact to verify both sections.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Group',
+        plainLabel: 'List to update',
         technicalName: 'groupId',
-        help: 'Use mayor-council or town-administration exactly.',
+        help: 'mayor-council (Elected Officials) or town-administration (Town Administration card).',
       },
       {
         plainLabel: 'English line',
         technicalName: 'lineEn',
-        help: 'One bullet line in English, e.g. "Mayor: Jane Doe".',
+        help: 'One bullet line in English, e.g. "Councilman: Ken Mooney" or "City Clerk: Deb Dillon".',
       },
       {
         plainLabel: 'Spanish line',
         technicalName: 'lineEs',
-        help: 'Spanish translation of the bullet for bilingual display.',
-      },
-      {
-        plainLabel: 'Display order',
-        technicalName: 'displayOrder',
-        help: 'Optional number to sort within the group.',
+        help: 'Optional — English is copied automatically when Spanish is left blank.',
       },
       {
         plainLabel: 'Active',
         technicalName: 'active',
-        help: 'Show or hide this entry.',
+        help: 'Show or hide this entry on the public site.',
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — /contact shows the default name list in Town Administration and Elected Officials until you add rows with the form below.',
+      'No roster rows yet — run the CMS seed script or add names below. Both Elected Officials and Town Administration lists are managed here.',
   },
   {
     id: 'business-directory',

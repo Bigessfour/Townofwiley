@@ -94,6 +94,12 @@ describe('ContactPage', () => {
   });
 
   it('renders administration roster with separate mailto links when contacts exist', () => {
+    const rosterMap = new Map<string, readonly string[]>([
+      [
+        'town-administration',
+        ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
+      ],
+    ]);
     const fixture = configure({
       contacts: signal<CmsContact[]>([
         {
@@ -121,6 +127,7 @@ describe('ContactPage', () => {
         },
       ]),
       isLoading: signal(false),
+      leadershipRosterLinesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.public-empty-state')).toBeNull();
@@ -155,5 +162,30 @@ describe('ContactPage', () => {
       (node) => node.textContent?.trim(),
     );
     expect(electedNames).toEqual(['From CMS', 'From CMS']);
+  });
+
+  it('shows roster empty state when CMS has no lines for a group', () => {
+    const fixture = configure({
+      contacts: signal<CmsContact[]>([]),
+      isLoading: signal(false),
+      leadershipRosterLinesByGroup: signal(new Map<string, readonly string[]>()),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('.contact-roster-empty').length).toBeGreaterThan(0);
+  });
+
+  it('replaces town administration roster from CMS', () => {
+    const rosterMap = new Map<string, readonly string[]>([
+      ['town-administration', ['City Clerk: From CMS']],
+    ]);
+    const fixture = configure({
+      contacts: signal<CmsContact[]>([]),
+      isLoading: signal(false),
+      leadershipRosterLinesByGroup: signal(rosterMap),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.contact-administration-card .contact-roster-name')?.textContent).toBe(
+      'From CMS',
+    );
   });
 });

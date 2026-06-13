@@ -24,7 +24,11 @@
           <i class="pi pi-refresh" aria-hidden="true"></i>
           <span>{{ isRefreshing() ? copy().refreshing : copy().refresh }}</span>
         </button>
-        <a class="weather-action is-link" href="#weather-alert-signup">
+        <a
+          class="weather-action is-link"
+          href="#weather-alert-signup"
+          (click)="scrollToAlertSignup($event)"
+        >
           {{ copy().signupNavLabel }}
         </a>
         <a

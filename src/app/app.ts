@@ -215,13 +215,12 @@ interface PolicyPageCopy {
 
 export interface LeadershipGroup {
   /**
-   * Stable key for `LeadershipRosterEntry.groupId` in Amplify Studio; drives which CMS lines
-   * replace this group's `members` on /contact when rows exist.
+   * Stable key for `LeadershipRosterEntry.groupId` in Amplify Studio; roster lines on /contact
+   * come from AppSync rows for this group.
    */
   groupId: string;
   title: string;
   detail: string;
-  members: string[];
 }
 
 interface SearchItem {
@@ -401,6 +400,7 @@ interface AppCopy {
   contactKicker: string;
   contactHeading: string;
   contactEmptyState: string;
+  contactRosterEmptyState: string;
   contactTownHallTitle: string;
   contactTownHallHours: string;
   backHomeLabel: string;
@@ -733,6 +733,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactHeading: 'Phone, email, and next steps',
     contactEmptyState:
       'Town Hall directory is loading. If contacts do not appear, call (719) 829-4974 or email the Town Clerk for help.',
+    contactRosterEmptyState: 'No officials listed yet.',
     contactTownHallTitle: 'Wiley Town Hall',
     contactTownHallHours: 'Monday – Friday · 8:00 AM – 4:00 PM',
     backHomeLabel: 'Return to homepage',
@@ -987,20 +988,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Elected Officials (Mayor & Council)',
         detail: 'Elected officials and meeting contact paths are listed below.',
-        members: [
-          'Mayor: Steve McKitrick',
-          'Councilman: Julie Esgar',
-          'Councilman: Dale Specht',
-          'Councilman: Dale Stewart',
-          'Councilman: Alan Campbell',
-          'Councilman: Sandy Coen',
-        ],
       },
       {
         groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Town Administration',
         detail: 'Clerk and superintendent contacts for day-to-day town services.',
-        members: ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
       },
     ],
   },
@@ -1158,6 +1150,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactHeading: 'Telefono, correo y siguientes pasos',
     contactEmptyState:
       'El directorio del Ayuntamiento esta cargando. Si los contactos no aparecen, llame al (719) 829-4974 o escriba a la Secretaria del Pueblo.',
+    contactRosterEmptyState: 'Aun no hay funcionarios en esta lista.',
     contactTownHallTitle: 'Ayuntamiento de Wiley',
     contactTownHallHours: 'Lunes a viernes · 8:00 a. m. – 4:00 p. m.',
     backHomeLabel: 'Volver a la página principal',
@@ -1413,20 +1406,11 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
         title: 'Funcionarios electos (Alcalde y Concejo)',
         detail: 'Funcionarios electos y rutas de contacto para reuniones.',
-        members: [
-          'Alcalde: Steve McKitrick',
-          'Concejal: Julie Esgar',
-          'Concejal: Dale Specht',
-          'Concejal: Dale Stewart',
-          'Concejal: Alan Campbell',
-          'Concejal: Sandy Coen',
-        ],
       },
       {
         groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
         title: 'Administracion del pueblo',
         detail: 'Contactos de la secretaria y del superintendente para servicios cotidianos.',
-        members: ['Secretaria municipal: Deb Dillon', 'Superintendente del pueblo: Scott Whitman'],
       },
     ],
   },
@@ -1593,6 +1577,11 @@ export class App {
     const fragment = this.currentFragment();
 
     if (!fragment) {
+      return;
+    }
+
+    if (fragment === WEATHER_ALERT_SIGNUP_FRAGMENT) {
+      this.scheduleFragmentScrollWithRetry(`#${fragment}`);
       return;
     }
 

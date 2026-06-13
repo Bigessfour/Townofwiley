@@ -1,3 +1,5 @@
+import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
+import { LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL } from '../leadership-roster-group-ids';
 import {
     datetimeLocalToIso,
     isoToDateInput,
@@ -130,13 +132,23 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   'update-leadership': [
     {
       name: 'groupId',
-      label: 'Group',
+      label: 'List to update',
       required: true,
-      placeholder: 'mayor-council or town-administration',
+      type: 'select',
+      options: [...LEADERSHIP_GROUP_FORM_OPTIONS],
+      help: 'Elected Officials appear at /contact#leadership. Town Administration lines appear in the Town Administration card.',
     },
-    { name: 'lineEn', label: 'Name line (English)', required: true },
-    { name: 'lineEs', label: 'Name line (Spanish)' },
-    { name: 'displayOrder', label: 'Sort order (number)', type: 'number' },
+    {
+      name: 'lineEn',
+      label: 'Name line (English)',
+      required: true,
+      help: 'Include role and name, e.g. Councilman: Ken Mooney or City Clerk: Deb Dillon.',
+    },
+    {
+      name: 'lineEs',
+      label: 'Name line (Spanish)',
+      help: 'Optional — if left blank, English is copied automatically when saving.',
+    },
     { name: 'active', label: 'Show on website', type: 'checkbox' },
   ],
   'business-directory': [
@@ -215,6 +227,10 @@ export function defaultDynamicFormValues(
     }
     if (options?.taskId === 'post-notice' && field.name === 'date') {
       values[field.name] = todayDateInputValue();
+      continue;
+    }
+    if (options?.taskId === 'update-leadership' && field.name === 'groupId') {
+      values[field.name] = LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL;
       continue;
     }
     values[field.name] = '';

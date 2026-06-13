@@ -13,6 +13,7 @@ REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-2")
 PROFILE = os.environ.get("AWS_PROFILE", "townofwiley")
 OFFICIAL_CONTACT_TABLE = "OfficialContact-j7b2x3sh7rcezekekkxxiak7hi-main"
 SITECOPY_TABLE = "SiteCopy-j7b2x3sh7rcezekekkxxiak7hi-main"
+LEADERSHIP_ROSTER_TABLE = "LeadershipRosterEntry-j7b2x3sh7rcezekekkxxiak7hi-main"
 ENDPOINT = os.environ.get(
     "APPSYNC_CMS_ENDPOINT",
     "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
@@ -106,6 +107,83 @@ def seed_sitecopy(ts: str) -> None:
         put_dynamo(SITECOPY_TABLE, item)
 
 
+def seed_leadership_roster(ts: str) -> None:
+    """Keep in sync with src/app/leadership-roster-seed.ts."""
+    rows = [
+        {
+            "id": "roster-mayor-council-0",
+            "groupId": "mayor-council",
+            "lineEn": "Mayor: Steve McKitrick",
+            "lineEs": "Alcalde: Steve McKitrick",
+            "displayOrder": 0,
+        },
+        {
+            "id": "roster-mayor-council-1",
+            "groupId": "mayor-council",
+            "lineEn": "Councilman: Julie Esgar",
+            "lineEs": "Concejal: Julie Esgar",
+            "displayOrder": 1,
+        },
+        {
+            "id": "roster-mayor-council-2",
+            "groupId": "mayor-council",
+            "lineEn": "Councilman: Dale Specht",
+            "lineEs": "Concejal: Dale Specht",
+            "displayOrder": 2,
+        },
+        {
+            "id": "roster-mayor-council-3",
+            "groupId": "mayor-council",
+            "lineEn": "Councilman: Dale Stewart",
+            "lineEs": "Concejal: Dale Stewart",
+            "displayOrder": 3,
+        },
+        {
+            "id": "roster-mayor-council-4",
+            "groupId": "mayor-council",
+            "lineEn": "Councilman: Alan Campbell",
+            "lineEs": "Concejal: Alan Campbell",
+            "displayOrder": 4,
+        },
+        {
+            "id": "roster-mayor-council-5",
+            "groupId": "mayor-council",
+            "lineEn": "Councilman: Sandy Coen",
+            "lineEs": "Concejal: Sandy Coen",
+            "displayOrder": 5,
+        },
+        {
+            "id": "roster-town-administration-0",
+            "groupId": "town-administration",
+            "lineEn": "City Clerk: Deb Dillon",
+            "lineEs": "Secretaria municipal: Deb Dillon",
+            "displayOrder": 0,
+        },
+        {
+            "id": "roster-town-administration-1",
+            "groupId": "town-administration",
+            "lineEn": "Town Superintendent: Scott Whitman",
+            "lineEs": "Superintendente del pueblo: Scott Whitman",
+            "displayOrder": 1,
+        },
+    ]
+
+    for row in rows:
+        item = {
+            "id": {"S": row["id"]},
+            "groupId": {"S": row["groupId"]},
+            "lineEn": {"S": row["lineEn"]},
+            "lineEs": {"S": row["lineEs"]},
+            "displayOrder": {"N": str(row["displayOrder"])},
+            "active": {"BOOL": True},
+            "__typename": {"S": "LeadershipRosterEntry"},
+            "createdAt": {"S": ts},
+            "updatedAt": {"S": ts},
+        }
+        print(f"Upsert LeadershipRosterEntry id={row['id']} groupId={row['groupId']}")
+        put_dynamo(LEADERSHIP_ROSTER_TABLE, item)
+
+
 def verify_graphql() -> None:
     import urllib.request
 
@@ -115,6 +193,9 @@ def verify_graphql() -> None:
         ),
         "listSiteCopies": (
             "query { listSiteCopies(limit: 10) { items { id key valueEn valueEs active } } }"
+        ),
+        "listLeadershipRosterEntries": (
+            "query { listLeadershipRosterEntries(limit: 20) { items { id groupId lineEn lineEs displayOrder active } } }"
         ),
     }
     for label, q in queries.items():
@@ -136,6 +217,7 @@ def main() -> int:
     ts = now_iso()
     seed_official_contacts(ts)
     seed_sitecopy(ts)
+    seed_leadership_roster(ts)
     if not DRY_RUN:
         if not API_KEY:
             print("Skipping GraphQL verify: set APPSYNC_CMS_API_KEY or APPSYNC_API_KEY")

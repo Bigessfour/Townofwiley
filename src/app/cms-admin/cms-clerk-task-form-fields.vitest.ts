@@ -104,4 +104,18 @@ describe('cms-clerk-task-form-fields', () => {
     expect(input.id).toBe('city-clerk');
     expect(input.label).toBe('City Clerk');
   });
+
+  it('uses group dropdown and defaults for update-leadership', () => {
+    const fields = clerkTaskFormFields('update-leadership');
+    const groupField = fields.find((field) => field.name === 'groupId');
+    expect(groupField?.type).toBe('select');
+    expect(groupField?.options?.map((option) => option.value)).toEqual([
+      'mayor-council',
+      'town-administration',
+    ]);
+    expect(fields.some((field) => field.name === 'displayOrder')).toBe(false);
+
+    const defaults = defaultDynamicFormValues(fields, { taskId: 'update-leadership' });
+    expect(defaults.groupId).toBe('mayor-council');
+  });
 });

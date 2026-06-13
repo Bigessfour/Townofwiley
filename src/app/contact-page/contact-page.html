@@ -70,6 +70,10 @@
               </div>
             }
           </dl>
+        } @else {
+          <p class="public-empty-state contact-roster-empty" role="status">
+            {{ copy().contactRosterEmptyState }}
+          </p>
         }
       }
     </p-card>
@@ -84,11 +88,17 @@
             </div>
           </ng-template>
           <dl class="contact-roster-list contact-elected-list">
-            @for (official of electedOfficialLines(); track official.raw) {
-              <div class="contact-roster-item">
-                <dt class="contact-roster-role">{{ official.role }}</dt>
-                <dd class="contact-roster-name">{{ official.name }}</dd>
-              </div>
+            @if (electedOfficialLines().length > 0) {
+              @for (official of electedOfficialLines(); track official.raw) {
+                <div class="contact-roster-item">
+                  <dt class="contact-roster-role">{{ official.role }}</dt>
+                  <dd class="contact-roster-name">{{ official.name }}</dd>
+                </div>
+              }
+            } @else {
+              <p class="public-empty-state contact-roster-empty" role="status">
+                {{ copy().contactRosterEmptyState }}
+              </p>
             }
           </dl>
         </p-panel>

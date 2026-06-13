@@ -92,9 +92,9 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
     routes: '/contact (Town Administration card + #leadership elected officials)',
     keyFields: 'groupId, lineEn, lineEs, displayOrder, active',
     emptyWarningEn:
-      'No roster rows — /contact uses bundled leadership lines in Administration and Elected Officials.',
+      'No roster rows — seed LeadershipRosterEntry via /admin or scripts/seed-cms-production-data.py.',
     emptyWarningEs:
-      'Sin filas — /contact usa lineas de respaldo en Administracion y Funcionarios electos.',
+      'Sin filas — use /admin o scripts/seed-cms-production-data.py para poblar LeadershipRosterEntry.',
     ordered: {
       previewField: 'lineEn',
       sortField: 'displayOrder',

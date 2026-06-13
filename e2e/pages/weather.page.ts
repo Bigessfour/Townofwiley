@@ -8,6 +8,7 @@ export class WeatherPage extends PublicRoutePage {
   readonly signupDestination: Locator;
   readonly signupSubmit: Locator;
   readonly refreshButton: Locator;
+  readonly signupNavLink: Locator;
 
   constructor(page: Page) {
     super(page, '/weather');
@@ -16,5 +17,8 @@ export class WeatherPage extends PublicRoutePage {
     this.signupDestination = page.locator('#weather-alert-signup-destination');
     this.signupSubmit = page.locator('.weather-signup-submit');
     this.refreshButton = page.locator('.weather-action-row button.weather-action');
+    this.signupNavLink = page.getByRole('link', {
+      name: /Sign up for alerts|Suscribirse a alertas/i,
+    });
   }
 }
