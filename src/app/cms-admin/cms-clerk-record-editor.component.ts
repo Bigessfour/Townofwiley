@@ -420,7 +420,9 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   }
 
   private async applyLeadershipInsertOrder(savedId: string, insertIndex: number): Promise<void> {
-    const existing = this.orderedRecords().filter((record) => String(record['id'] ?? '') !== savedId);
+    const existing = this.orderedRecords().filter(
+      (record) => String(record['id'] ?? '') !== savedId,
+    );
     const newRecord = this.records().find((record) => String(record['id'] ?? '') === savedId);
     if (!newRecord || newRecord['active'] === false) {
       return;
@@ -476,17 +478,18 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
 
     try {
-      const rawInput = formValuesToMutationInput(this.fields(), this.formValues(), this.editingId());
+      const rawInput = formValuesToMutationInput(
+        this.fields(),
+        this.formValues(),
+        this.editingId(),
+      );
       const input =
         active.id === 'update-leadership'
           ? prepareLeadershipRosterMutationInput(rawInput, this.editingId())
           : rawInput;
       const insertIndex =
         active.id === 'update-leadership' && !this.editingId()
-          ? resolveLeadershipInsertIndex(
-              this.leadershipInsertPosition(),
-              this.orderedRecords(),
-            )
+          ? resolveLeadershipInsertIndex(this.leadershipInsertPosition(), this.orderedRecords())
           : null;
       let savedId: string;
 
@@ -508,7 +511,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       // Inform clerk of potential caching delay for public visitors (documented 6-hour live refresh TTL + 7-day snapshot per site-cms-content.ts and AGENTS.md).
       this.messages.add({
         severity: 'info',
-        summary: 'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
+        summary:
+          'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
         life: 10000,
       });
       await this.cmsStore.forceLiveRefresh();

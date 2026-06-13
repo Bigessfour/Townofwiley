@@ -130,7 +130,7 @@ describe('ContactPage', () => {
       leadershipRosterLinesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.public-empty-state')).toBeNull();
+    expect(el.querySelector('.contact-administration-card .contact-roster-empty')).toBeNull();
     expect(el.querySelector('.contact-town-information-detail')?.textContent).toContain(
       'Call ahead for clerk assistance.',
     );
