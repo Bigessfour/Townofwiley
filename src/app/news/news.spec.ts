@@ -94,8 +94,10 @@ describe('News', () => {
     expect(externalCta?.querySelector('.visually-hidden')?.textContent).toContain(
       'opens in new tab',
     );
-    const featuredLink = compiled.querySelector('.featured-news-link') as HTMLAnchorElement | null;
-    expect(featuredLink?.getAttribute('href')).toBe('/notices');
+    const featuredLink = compiled.querySelector(
+      'a.featured-news-card-link',
+    ) as HTMLAnchorElement | null;
+    expect(featuredLink?.getAttribute('href')).toBe('/notices#notice-first-notice');
   });
 
   it('falls back to paragraph rendering when the latest newsletter has no attachmentKey', () => {

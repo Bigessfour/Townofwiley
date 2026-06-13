@@ -21,6 +21,7 @@ export const interactionInventoryIds = [
   'home.feature-card-weather',
   'home.feature-card-notices',
   'home.notice-card-navigate',
+  'home.notice-card-link',
   'home.meeting-card-navigate',
   'home.weather-signup-teaser',
   'home.site-alert-cta',

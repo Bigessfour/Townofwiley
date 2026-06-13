@@ -1145,6 +1145,17 @@ h6 {
   border-radius: var(--radius-lg);
 }
 
+.notice-card--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.notice-card--link:focus-visible {
+  outline: 2px solid var(--wiley-teal-600);
+  outline-offset: 2px;
+}
+
 .notice-timeline-date {
   display: inline-flex;
   align-items: center;
@@ -1708,6 +1719,7 @@ h6 {
   border-radius: var(--radius-xl);
   background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
   box-shadow: var(--shadow-subtle);
+  scroll-margin-top: var(--sticky-stack-offset);
 }
 
 .notice-card__image {

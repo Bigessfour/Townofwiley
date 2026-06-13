@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { type CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { NoticesPage } from './notices-page';
@@ -14,6 +15,7 @@ function configure(store: NoticesPageStore, language: 'en' | 'es' = 'en') {
     imports: [NoticesPage],
     providers: [
       SiteLanguageService,
+      provideRouter([]),
       {
         provide: LocalizedCmsContentStore,
         useValue: store as unknown as LocalizedCmsContentStore,
@@ -90,5 +92,25 @@ describe('NoticesPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.public-empty-state')).toBeNull();
     expect(el.querySelector('.notice-card-title')?.textContent).toContain('Council update');
+    const link = el.querySelector('a.notice-card');
+    expect(link?.getAttribute('href')).toBe('/notices#notice-n1');
+  });
+
+  it('links newsletter cards to /news', () => {
+    const fixture = configure({
+      notices: signal<CmsNotice[]>([
+        {
+          id: 'june-newsletter',
+          title: 'June Newsletter',
+          date: 'June 8, 2026',
+          detail: 'June town newsletter',
+          type: 'newsletter',
+        },
+      ]),
+      isLoading: signal(false),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const link = el.querySelector('a.notice-card');
+    expect(link?.getAttribute('href')).toBe('/news#town-newsletter-heading');
   });
 });

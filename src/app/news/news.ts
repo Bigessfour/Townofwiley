@@ -13,7 +13,11 @@ import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DocumentUploadService } from '../document-upload.service';
-import { LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  getCmsNoticeLinkAriaLabel,
+  getCmsNoticeRouteLink,
+} from '../cms-notice-link';
+import { CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
 
@@ -180,6 +184,10 @@ export class News {
     content: { class: 'news-card-content' },
     footer: { class: 'news-card-footer' },
   };
+  protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;
+  protected cmsNoticeLinkAriaLabel(notice: CmsNotice): string {
+    return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
+  }
 
   protected readonly resolvedNewsletterHref = signal<string | null>(null);
   protected readonly trustedNewsletterUrl = signal<SafeResourceUrl | null>(null);
