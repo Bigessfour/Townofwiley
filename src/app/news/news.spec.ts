@@ -97,7 +97,7 @@ describe('News', () => {
     const featuredLink = compiled.querySelector(
       'a.featured-news-card-link',
     ) as HTMLAnchorElement | null;
-    expect(featuredLink?.getAttribute('href')).toBe('/notices');
+    expect(featuredLink?.getAttribute('href')).toBe('/notices#notice-first-notice');
   });
 
   it('falls back to paragraph rendering when the latest newsletter has no attachmentKey', () => {
