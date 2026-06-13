@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { type CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { NoticesPage } from './notices-page';
@@ -14,6 +15,7 @@ function configure(store: NoticesPageStore, language: 'en' | 'es' = 'en') {
     imports: [NoticesPage],
     providers: [
       SiteLanguageService,
+      provideRouter([]),
       {
         provide: LocalizedCmsContentStore,
         useValue: store as unknown as LocalizedCmsContentStore,
