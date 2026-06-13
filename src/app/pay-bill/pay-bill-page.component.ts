@@ -35,6 +35,10 @@ export class PayBillPageComponent {
         ? 'Siga los pasos a continuación y pague de forma segura a través del portal Paystar.'
         : 'Follow the steps below to pay securely through the Paystar portal.',
       payRegionLabel: es ? 'Instrucciones y pago en línea' : 'Instructions and online payment',
+      ctaHeading: es ? '¿Listo para pagar?' : 'Ready to pay?',
+      ctaLead: es
+        ? 'Abra el portal seguro de Paystar para pagar su factura de servicios.'
+        : 'Open the secure Paystar portal to pay your utility bill.',
       quickPayCta: es ? 'Pague su factura' : 'Pay Your Bill',
       quickPayPlaceholderNote: es
         ? 'El enlace de pago en línea se está finalizando; llame al Ayuntamiento si necesita ayuda.'

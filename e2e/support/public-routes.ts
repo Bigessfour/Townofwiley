@@ -62,7 +62,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/pay-bill',
     label: 'pay bill page',
     heading: /Pay Your Utility Bill Online/i,
-    primaryAction: (page) => page.getByTestId('pay-instructions-infographic'),
+    primaryAction: (page) => page.getByTestId('pay-bill-portal-cta').or(page.getByTestId('pay-bill-portal-cta-disabled')),
   },
   {
     path: '/news',
