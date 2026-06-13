@@ -26,15 +26,14 @@ verify `/news`.
    prefixed filename so issues sort naturally, e.g.
    `documents/newsletter/2026-05-06-town-newsletter.pdf`.
    - `/admin` → **Upload newsletter PDF** (copies file code for the Announcement form).
-   - Amplify Studio: open Storage → File browser → navigate to or create the
-     `documents/newsletter/` folder → upload the PDF.
+   - AWS S3 console or CLI under `documents/newsletter/`.
    - Or via AWS CLI:
      ```bash
      aws s3 cp ./Scan\ \[05_06_2026\].pdf \
        s3://townofwiley-documents-storage-main/documents/newsletter/2026-05-06-town-newsletter.pdf \
        --region us-east-2
      ```
-2. **Open the Announcement editor** on `/admin` (or Amplify Studio Data Manager as fallback).
+2. **Open the Announcement editor** on `/admin` (AppSync Queries console as IT fallback).
 3. **Create or update the active newsletter record**:
    - `title`: human-readable issue name (e.g. `May 2026 Town Newsletter`).
    - `date`: the issue date in `YYYY-MM-DD` (used to pick the latest issue).

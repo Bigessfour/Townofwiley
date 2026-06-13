@@ -22,13 +22,9 @@ export async function expectServicesPage(homePage: HomePage): Promise<void> {
 }
 
 export async function expectRecordsPage(page: Page): Promise<void> {
-  const recordsAssistance = page.getByTestId('contact-records-assistance');
-  await expect(recordsAssistance).toBeVisible();
-  await expect(recordsAssistance).toContainText('Email the Town Clerk');
-  await expect(recordsAssistance.getByRole('link', { name: /Email the Town Clerk/i })).toHaveAttribute(
-    'href',
-    /mailto:.*@townofwiley\.gov/i,
-  );
+  await expect(page.getByTestId('contact-administration')).toBeVisible();
+  await expect(page.getByTestId('contact-town-hall')).toBeVisible();
+  await expect(page.locator('#contact a.contact-link[href^="mailto:"]').first()).toBeVisible();
 }
 
 export async function expectAccessibilityBarrierReport(page: Page): Promise<void> {
@@ -42,6 +38,8 @@ export async function expectBusinessesPage(page: Page): Promise<void> {
 }
 
 export async function expectContactPage(page: Page): Promise<void> {
+  await expect(page.getByTestId('contact-town-hall')).toBeVisible();
+  await expect(page.getByTestId('contact-administration')).toBeVisible();
   await expect(page.locator('#contact')).toContainText('Deb Dillon');
 }
 
@@ -60,7 +58,7 @@ export async function expectServiceIssueReport(page: Page): Promise<void> {
 }
 
 export async function expectServiceRecordsRequest(page: Page): Promise<void> {
-  await expect(page.getByTestId('contact-records-assistance')).toBeVisible();
+  await expect(page.getByTestId('contact-administration')).toBeVisible();
 }
 
 export async function expectDocumentsHub(page: Page): Promise<void> {

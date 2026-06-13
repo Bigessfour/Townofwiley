@@ -76,7 +76,6 @@ jobs:
       site_monitor_changed: ${{ steps.classify.outputs.site_monitor_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
       email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
-      contact_infra_changed: ${{ steps.classify.outputs.contact_infra_changed }}
       infra_manifest_changed: ${{ steps.classify.outputs.infra_manifest_changed }}
       custom_http_changed: ${{ steps.classify.outputs.custom_http_changed }}
       ansible_changed: ${{ steps.classify.outputs.ansible_changed }}
@@ -108,7 +107,6 @@ jobs:
           SITE_MONITOR_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
           EMAIL_ALIAS_CHANGED=false
-          CONTACT_INFRA_CHANGED=false
           INFRA_MANIFEST_CHANGED=false
           CUSTOM_HTTP_CHANGED=false
           ANSIBLE_CHANGED=false
@@ -147,11 +145,7 @@ jobs:
                 EMAIL_ALIAS_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              infrastructure/contact-update-lambda/*|infrastructure/contact-updates-review/*|infrastructure/contact-updates-review-proxy/*|scripts/deploy-contact-update-backend.py|scripts/deploy-contact-updates-review.py|scripts/deploy-contact-updates-review-proxy.py)
-                CONTACT_INFRA_CHANGED=true
-                DOCS_ONLY=false
-                ;;
-              infrastructure/aws-infrastructure.manifest.json|infrastructure/amplify-branch-env.manifest.json|scripts/verify-aws-infrastructure.mjs|docs/AWS_INFRASTRUCTURE_SOT.md)
+              infrastructure/aws-infrastructure.manifest.json|infrastructure/amplify-branch-env.manifest.json|scripts/verify-aws-infrastructure.mjs|docs/AWS_INFRASTRUCTURE_SOT.md|docs/contact-intake-decommission.md)
                 INFRA_MANIFEST_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -174,7 +168,6 @@ jobs:
             echo "site_monitor_changed=$SITE_MONITOR_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
             echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
-            echo "contact_infra_changed=$CONTACT_INFRA_CHANGED"
             echo "infra_manifest_changed=$INFRA_MANIFEST_CHANGED"
             echo "custom_http_changed=$CUSTOM_HTTP_CHANGED"
             echo "ansible_changed=$ANSIBLE_CHANGED"
@@ -196,7 +189,6 @@ jobs:
           - Site monitor code changed: ${{ steps.classify.outputs.site_monitor_changed }}
           - Severe weather signup backend changed: ${{ steps.classify.outputs.weather_alerts_changed }}
           - Email alias router changed: ${{ steps.classify.outputs.email_alias_changed }}
-          - Contact infrastructure changed: ${{ steps.classify.outputs.contact_infra_changed }}
           - Infrastructure manifest / SSOT changed: ${{ steps.classify.outputs.infra_manifest_changed }}
           - customHttp.yml changed: ${{ steps.classify.outputs.custom_http_changed }}
           - Ansible / IaC orchestration changed: ${{ steps.classify.outputs.ansible_changed }}
@@ -449,34 +441,6 @@ jobs:
           console.log('Solar times OK:', result);
           EOF
 
-  contact-infra-tests:
-    runs-on: ubuntu-latest
-    needs: detect-changes
-    if: needs.detect-changes.outputs.contact_infra_changed == 'true'
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24.16.0
-          cache: npm
-
-      - name: Install root dependencies
-        run: npm ci --no-audit
-
-      - name: Install contact review Lambda dependencies
-        run: npm ci --prefix infrastructure/contact-updates-review --no-audit
-
-      - name: Run contact infrastructure tests
-        run: npm run test:infra:contact
-
-      - name: Validate contact security posture (offline)
-        run: node scripts/verify-aws-infrastructure.mjs --offline
-
-      - name: Run contact review service unit test
-        run: npx vitest run src/app/clerk-setup/contact-update-review.service.vitest.ts
-
   backend-python-tests:
     runs-on: ubuntu-latest
     needs: detect-changes
@@ -546,7 +510,6 @@ jobs:
       - frontend-smoke
       - site-monitor-tests
       - site-runtime-proxy-tests
-      - contact-infra-tests
       - backend-python-tests
       - security-audit
       - maintainer-only-summary

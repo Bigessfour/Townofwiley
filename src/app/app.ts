@@ -8,15 +8,15 @@
  */
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    PLATFORM_ID,
-    computed,
-    effect,
-    inject,
-    signal,
-    viewChild,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -45,39 +45,39 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { filter, map, startWith } from 'rxjs';
 import {
-    createGoogleCalendarLinkForEvent,
-    createGoogleCalendarLinkForSeed,
-    createIcsDataUrlForEvent,
-    createIcsDataUrlForSeed,
+  createGoogleCalendarLinkForEvent,
+  createGoogleCalendarLinkForSeed,
+  createIcsDataUrlForEvent,
+  createIcsDataUrlForSeed,
 } from './calendar-public-links';
 import {
-    cmsNoticeFragmentId,
-    getCmsNoticeLinkAriaLabel,
-    getCmsNoticeRouteLink,
+  cmsNoticeFragmentId,
+  getCmsNoticeLinkAriaLabel,
+  getCmsNoticeRouteLink,
 } from './cms-notice-link';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import {
-    LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-    LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
 } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import { localizeCmsPublicDocument } from './meeting-documents/localize-public-document';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import {
-    CmsAlertBanner,
-    CmsCalendarEvent,
-    CmsContact,
-    CmsNotice,
-    LocalizedCmsContentStore,
-    OFFICIAL_CONTACT_ID_CITY_CLERK,
-    OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+  CmsAlertBanner,
+  CmsCalendarEvent,
+  CmsContact,
+  CmsNotice,
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 import {
-    LocalizedWeatherPanel,
-    type HomepageWeatherAlert,
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
 
 interface NavLink {
@@ -401,6 +401,8 @@ interface AppCopy {
   contactKicker: string;
   contactHeading: string;
   contactEmptyState: string;
+  contactTownHallTitle: string;
+  contactTownHallHours: string;
   backHomeLabel: string;
   /** Document title segment when no route matches (404). */
   notFoundBrowserTitle: string;
@@ -731,6 +733,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactHeading: 'Phone, email, and next steps',
     contactEmptyState:
       'Town Hall directory is loading. If contacts do not appear, call (719) 829-4974 or email the Town Clerk for help.',
+    contactTownHallTitle: 'Wiley Town Hall',
+    contactTownHallHours: 'Monday – Friday · 8:00 AM – 4:00 PM',
     backHomeLabel: 'Return to homepage',
     notFoundBrowserTitle: 'Page not found',
     notFoundMetaDescription:
@@ -1063,8 +1067,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Sitio web oficial del Pueblo de Wiley para servicios a residentes, alertas del clima, reuniones, registros, avisos y contactos del ayuntamiento.',
     searchKicker: 'Busqueda de Wiley',
     searchHeading: 'Busque servicios de Wiley',
-    searchLabel:
-      'Encuentre impuestos, reuniones, servicios publicos y reportes en un solo lugar.',
+    searchLabel: 'Encuentre impuestos, reuniones, servicios publicos y reportes en un solo lugar.',
     searchPlaceholder: 'Busque servicios de Wiley… impuestos, reuniones, servicios',
     searchActionLabel: 'Buscar',
     searchNote:
@@ -1155,6 +1158,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     contactHeading: 'Telefono, correo y siguientes pasos',
     contactEmptyState:
       'El directorio del Ayuntamiento esta cargando. Si los contactos no aparecen, llame al (719) 829-4974 o escriba a la Secretaria del Pueblo.',
+    contactTownHallTitle: 'Ayuntamiento de Wiley',
+    contactTownHallHours: 'Lunes a viernes · 8:00 a. m. – 4:00 p. m.',
     backHomeLabel: 'Volver a la página principal',
     notFoundBrowserTitle: 'Página no encontrada',
     notFoundMetaDescription:
@@ -1240,8 +1245,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       },
       {
         title: 'Contactar a la secretaria del pueblo',
-        description:
-          'Escriba a clerk@townofwiley.gov para registros o ayuda de la secretaria.',
+        description: 'Escriba a clerk@townofwiley.gov para registros o ayuda de la secretaria.',
         href: '/contact',
         note: 'Llame al Ayuntamiento al (719) 829-4974 si necesita ayuda de inmediato.',
       },
@@ -1324,8 +1328,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       {
         title: 'Contactar a la secretaria del pueblo',
         availability: 'Contacte a la secretaria',
-        description:
-          'Escriba a clerk@townofwiley.gov para registros y solicitudes de documentos.',
+        description: 'Escriba a clerk@townofwiley.gov para registros y solicitudes de documentos.',
         href: '/contact',
         cta: 'Contactar a la secretaria del pueblo',
       },
@@ -1737,8 +1740,7 @@ export class App {
             [
               {
                 label: copy.mobileOnlinePaymentsLabel,
-                routerLink: ['/services'],
-                fragment: 'payment-help',
+                routerLink: '/pay-bill',
               },
               {
                 label: copy.mobileIssueLabel,
@@ -1798,15 +1800,12 @@ export class App {
           megaMenuColumn([
             {
               label: copy.mobileOnlinePaymentsLabel,
-              routerLink: ['/services'],
-              fragment: 'payment-help',
+              routerLink: '/pay-bill',
             },
             { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
             { label: copy.featureTitles.services, routerLink: '/services' },
           ]),
-          megaMenuColumn([
-            { label: copy.featureTitles.records, routerLink: '/meetings' },
-          ]),
+          megaMenuColumn([{ label: copy.featureTitles.records, routerLink: '/meetings' }]),
         ],
       },
       {

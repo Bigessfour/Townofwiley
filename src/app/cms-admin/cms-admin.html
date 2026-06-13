@@ -27,7 +27,6 @@
       <nav class="cms-jump-nav" aria-label="Page sections">
         <a href="#start">Start here</a>
         <a href="#documents">Documents</a>
-        <a href="#updates">Resident messages</a>
         <a href="#advanced">Advanced (IT)</a>
         <a href="/">Public site</a>
         @if (!isStaffSignedIn()) {
@@ -86,64 +85,6 @@
         <li>{{ item }}</li>
       }
     </ul>
-  </section>
-
-  <section id="updates" class="cms-section" aria-labelledby="cms-updates-heading">
-    <h2 id="cms-updates-heading">{{ it.contactUpdatesTitle }}</h2>
-    <p>{{ it.contactUpdatesSubtitle }}</p>
-
-    @if (contactUpdatesLoadError()) {
-      <p-message severity="error" [text]="contactUpdatesLoadError()!" />
-      <div class="cms-actions">
-        <button
-          type="button"
-          class="cms-button secondary"
-          [disabled]="contactUpdatesLoading()"
-          (click)="retryContactUpdates()"
-        >
-          {{ it.contactUpdatesRetryLabel }}
-        </button>
-      </div>
-    }
-    @if (contactUpdatesLoading()) {
-      <p>{{ it.contactUpdatesLoading }}</p>
-    } @else if (!contactUpdatesLoadError() && contactUpdates().length === 0) {
-      <p>{{ it.noContactUpdates }}</p>
-    } @else {
-      <div class="cms-actions">
-        <button type="button" class="cms-button secondary" (click)="downloadCSV()">
-          {{ it.downloadCsvLabel }}
-        </button>
-        <button type="button" class="cms-button secondary" (click)="printCustomerReport()">
-          {{ it.printReportLabel }}
-        </button>
-      </div>
-      <p-table
-        [value]="contactUpdates()"
-        [paginator]="contactUpdates().length > 10"
-        [rows]="10"
-        styleClass="cms-contact-table"
-      >
-        <ng-template #header>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Name</th>
-            <th scope="col">Address</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Email</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-update>
-          <tr>
-            <td>{{ update.timestamp | date: 'medium' }}</td>
-            <td>{{ update.fullName }}</td>
-            <td>{{ update.serviceAddress }}</td>
-            <td>{{ update.phone || '—' }}</td>
-            <td>{{ update.email || '—' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
   </section>
 
   <details id="advanced" class="cms-section cms-advanced">

@@ -8,7 +8,7 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Staff sign-in             | https://townofwiley.gov/admin/login                                                                                                                                                           |
 | Update website (task hub) | https://townofwiley.gov/admin                                                                                                                                                                 |
-| Content editor (AWS)      | https://townofwiley.gov/admin → Content editor URL, or [AppSync Queries j7b2…](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) |
+| Content editor (IT)       | https://townofwiley.gov/admin → **Advanced (IT)** → **Open content editor**, or [AppSync Queries j7b2…](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) |
 
 ## Every update (same steps)
 
@@ -19,17 +19,17 @@ One-page reference for Town Hall staff. **Admin pages are English only.** The pu
 
 ## Common tasks
 
-| I want to…                   | Task on /admin                        | Editor model          |
-| ---------------------------- | ------------------------------------- | --------------------- |
-| Post news or notice          | Post news or notice                   | Announcement          |
-| Add meeting                  | Add meeting or event                  | Event                 |
-| Change homepage photo/text   | Change homepage photo or welcome text | SiteSettings          |
-| Publish meeting agenda/minutes | Upload a meeting agenda or packet     | PublicDocument        |
-| Update Town Hall phone/email | Update Town Hall or clerk contact     | OfficialContact       |
-| Update mayor/council list    | Update mayor and council list         | LeadershipRosterEntry |
-| Update businesses            | Update business directory             | Business              |
-| Outside news link            | Add outside news link                 | ExternalNewsLink      |
-| Emergency strip on homepage  | Turn on emergency banner              | AlertBanner           |
+| I want to…                     | Task on /admin                        | Editor model          | Preview on public site                                      |
+| ------------------------------ | ------------------------------------- | --------------------- | ----------------------------------------------------------- |
+| Post news or notice            | Post news or notice                   | Announcement          | `/news`                                                     |
+| Add meeting                    | Add meeting or event                  | Event                 | `/meetings`                                                 |
+| Change homepage photo/text     | Change homepage photo or welcome text | SiteSettings          | `/`                                                         |
+| Publish meeting agenda/minutes | Upload a meeting agenda or packet     | PublicDocument        | `/meetings`                                                 |
+| Update Town Hall phone/email   | Update Town Hall or clerk contact     | OfficialContact       | `/contact` (Town Administration card)                       |
+| Update mayor/council list      | Update mayor and council list         | LeadershipRosterEntry | `/contact#leadership` (+ Administration roster lines)       |
+| Update businesses              | Update business directory             | Business              | `/businesses`                                               |
+| Outside news link              | Add outside news link                 | ExternalNewsLink      | `/news`                                                     |
+| Emergency strip on homepage    | Turn on emergency banner              | AlertBanner           | `/`                                                         |
 
 ## Spanish on the public site
 

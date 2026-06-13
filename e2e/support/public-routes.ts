@@ -43,7 +43,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/records',
     label: 'records redirect',
     heading: /Phone, email, and next steps/i,
-    primaryAction: (page) => page.getByTestId('contact-records-assistance'),
+    primaryAction: (page) => page.getByTestId('contact-town-hall'),
   },
   {
     path: '/documents',
@@ -62,7 +62,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/pay-bill',
     label: 'pay bill page',
     heading: /Pay Your Utility Bill Online/i,
-    primaryAction: (page) => page.getByRole('button', { name: /Submit request/i }),
+    primaryAction: (page) => page.getByTestId('pay-instructions-infographic'),
   },
   {
     path: '/news',

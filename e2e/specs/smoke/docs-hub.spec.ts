@@ -34,17 +34,12 @@ test.describe('Meeting documents archive', () => {
     await search.fill('Agenda');
   });
 
-  test('redirects /records to /contact with clerk assistance callout', async ({ page }) => {
+  test('redirects /records to /contact with administration contacts', async ({ page }) => {
     await page.goto('/records', { waitUntil: 'load' });
 
     await expect(page).toHaveURL(/\/contact$/);
-    const recordsAssistance = page.getByTestId('contact-records-assistance');
-    await expect(recordsAssistance).toBeVisible();
-    await expect(recordsAssistance).toContainText('Email the Town Clerk');
-    await expect(recordsAssistance.getByRole('link', { name: /Email the Town Clerk/i })).toHaveAttribute(
-      'href',
-      /mailto:.*@townofwiley\.gov/i,
-    );
+    await expect(page.getByTestId('contact-administration')).toBeVisible();
+    await expect(page.getByTestId('contact-town-hall')).toBeVisible();
   });
 
   test('switches meeting archive copy to Spanish', async ({ page }) => {

@@ -131,12 +131,12 @@ After deployment, confirm:
 2. The SES receipt rule set is active.
 3. The verified sender identity used in `forwarderFrom` is still healthy.
 
-## Studio workflow after deployment
+## CMS workflow after deployment
 
 For each mailbox alias:
 
-1. Open Amplify Studio Data Manager.
-2. Open the `EmailAlias` model.
+1. Open **`/admin`** → **Manage email forwarding** → **Edit content** (or **EmailAlias** in AppSync Queries if IT directs you there).
+2. Open or create the `EmailAlias` row.
 3. Create or update the record.
 4. Set `aliasAddress` to the public Town address.
 5. Set `destinationAddress` to the staff member's current inbox.

@@ -1,18 +1,164 @@
-.contact-records-assistance {
+:host {
+  display: block;
+}
+
+.contact-section-card {
+  margin-top: var(--space-lg);
+}
+
+.contact-section-card-header {
   display: grid;
-  gap: 0.75rem;
-  margin-block: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid var(--surface-border);
-  background: var(--surface-card-soft);
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg) 0;
 }
 
-.contact-records-assistance h2 {
+.contact-section-card-title {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: var(--font-size-h3);
+  font-weight: 700;
+  color: var(--ink-900);
 }
 
-.contact-records-assistance p {
+.contact-section-card-detail {
   margin: 0;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.contact-town-hall-address {
+  font-style: normal;
+  color: var(--ink-700);
+  margin: 0 0 var(--space-xs);
+}
+
+.contact-town-hall-hours {
+  color: var(--ink-700);
+  margin: 0 0 var(--space-sm);
+}
+
+.contact-town-hall-phone {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 700;
+  color: var(--civic-blue);
+  text-decoration: none;
+  font-size: var(--font-size-h3);
+}
+
+.contact-town-information-summary {
+  display: grid;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.contact-subheading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.contact-town-information-detail {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.contact-administration-skeleton {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.contact-roster-list {
+  margin: 0;
+  display: grid;
+  gap: var(--space-md);
+}
+
+.contact-roster-item {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-sm);
+  border-top: 1px solid rgba(13, 44, 84, 0.12);
+}
+
+.contact-roster-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.contact-roster-role {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+.contact-roster-value {
+  margin: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.contact-roster-name {
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.contact-roster-detail {
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  width: fit-content;
+  font-weight: 600;
+  color: var(--civic-blue);
+  text-decoration: none;
+}
+
+.contact-link:hover,
+.contact-link:focus-visible {
+  text-decoration: underline;
+}
+
+.contact-elected-section {
+  margin-top: var(--space-lg);
+}
+
+.contact-elected-panel-header {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+:host ::ng-deep .contact-section-card.p-card {
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
+}
+
+:host ::ng-deep .contact-section-card .p-card-body {
+  padding: var(--space-lg) var(--space-xl);
+}
+
+:host ::ng-deep .contact-elected-panel.p-panel {
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+:host ::ng-deep .contact-elected-panel .p-panel-header {
+  padding: var(--space-lg) var(--space-xl) var(--space-sm);
+  border-bottom: 1px solid rgba(13, 44, 84, 0.12);
+}
+
+:host ::ng-deep .contact-elected-panel .p-panel-content {
+  padding: var(--space-md) var(--space-xl) var(--space-lg);
 }

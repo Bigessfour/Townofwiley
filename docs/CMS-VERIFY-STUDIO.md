@@ -13,8 +13,8 @@ Use this checklist when onboarding staff, after AWS changes, or if the public si
 
 ### 1. Confirm AppSync console opens (Gen 1)
 
-1. Open `/admin` and copy **Content editor URL**, or use:
-   [AppSync Queries — j7b2x3sh7rcezekekkxxiak7hi](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries)
+1. Open `/admin` and expand **Advanced (IT)**, or use:
+   [AppSync Queries — j7b2x3sh7rcezekekkxxiak7hi](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) (**Open content editor** link in Content inventory)
 2. Confirm models **SiteSettings**, **Announcement**, **OfficialContact**, **PublicDocument** appear in the schema explorer.
 
 **If access is denied:** IT must fix IAM (see [CMS-STUDIO-OPERATIONS-CHECKLIST.md](./CMS-STUDIO-OPERATIONS-CHECKLIST.md)).
@@ -22,7 +22,7 @@ Use this checklist when onboarding staff, after AWS changes, or if the public si
 ### 2. Confirm you can read live records (no edit required)
 
 1. Open **SiteSettings** and confirm at least one record exists with expected town/hero fields.
-2. Open **OfficialContact** and confirm rows exist whose **`id`** is exactly `town-information` and `city-clerk` (see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md)).
+2. Open **OfficialContact** and confirm rows exist whose **`id`** is exactly `town-information`, `city-clerk`, and ideally `town-superintendent` (see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md)).
 3. Optionally open **Announcement** or **PublicDocument** and confirm lists load without errors.
 
 ### 3. Confirm the public website can reach AppSync

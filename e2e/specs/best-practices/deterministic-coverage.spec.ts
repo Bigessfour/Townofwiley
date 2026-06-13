@@ -395,14 +395,14 @@ test.describe('feature panel visual coverage', () => {
     });
   });
 
-  test('contact records assistance snapshot', async ({ homePage }) => {
+  test('contact administration snapshot', async ({ homePage }) => {
     test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toHaveScreenshot(
-      'contact-records-assistance.png',
+    await expect(homePage.page.getByTestId('contact-administration')).toHaveScreenshot(
+      'contact-administration.png',
       {
         animations: 'disabled',
         caret: 'hide',
@@ -684,14 +684,16 @@ test.describe('subcomponent aria contracts', () => {
     `);
   });
 
-  test('contact records assistance aria structure', async ({ homePage }) => {
+  test('contact administration aria structure', async ({ homePage }) => {
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toMatchAriaSnapshot(`
-      - region /Records and document requests/:
-        - heading /Records and document requests/ [level=2]
-        - paragraph
-        - link /Email the Town Clerk/
+    await expect(homePage.page.getByTestId('contact-administration')).toMatchAriaSnapshot(`
+      - heading /Town Administration/ [level=2]
+      - heading /Town Information/ [level=3]
+      - paragraph
+      - term /City Clerk/
+      - definition:
+        - link /deb.dillon@townofwiley.gov/
     `);
   });
 

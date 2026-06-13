@@ -50,14 +50,7 @@ export class HomePage {
   readonly residentServiceIssueToggle: Locator;
   readonly residentServiceWeatherToggle: Locator;
   readonly residentServicePaymentPanel: Locator;
-  readonly residentServicePaymentName: Locator;
-  readonly residentServicePaymentStreetAddress: Locator;
-  readonly residentServicePaymentPhone: Locator;
-  readonly residentServicePaymentEmail: Locator;
-  readonly residentServicePaymentPortalAction: Locator;
-  /** Billing early-access form submit (`#billing-intake`). */
-  readonly residentServicePaymentSubmit: Locator;
-  readonly residentServicePaymentStatus: Locator;
+  readonly residentServicePaymentPayBillLink: Locator;
   readonly residentServiceIssuePanel: Locator;
   readonly residentServiceIssueCategory: Locator;
   readonly residentServiceIssueName: Locator;
@@ -150,18 +143,7 @@ export class HomePage {
       name: /Weather alerts, Safety/i,
     });
     this.residentServicePaymentPanel = page.locator('#payment-help');
-    const portalForm = page.locator('#billing-intake');
-    this.residentServicePaymentName = portalForm.getByLabel('Full name');
-    this.residentServicePaymentStreetAddress = portalForm.getByLabel('Service address');
-    this.residentServicePaymentPhone = portalForm.getByLabel('Phone');
-    this.residentServicePaymentEmail = portalForm.getByLabel('Email');
-    this.residentServicePaymentPortalAction = page.locator('#payment-help').getByRole('link', {
-      name: /Pay now with Paystar/i,
-    });
-    this.residentServicePaymentSubmit = portalForm.getByRole('button', {
-      name: 'Submit request',
-    });
-    this.residentServicePaymentStatus = page.locator('#payment-help .resident-status');
+    this.residentServicePaymentPayBillLink = page.getByTestId('resident-pay-bill-link');
     this.residentServiceIssuePanel = page.locator('#issue-report');
     this.residentServiceIssueCategory = page.getByRole('combobox', {
       name: 'Water or sewer',
@@ -383,24 +365,6 @@ export class HomePage {
     }, portalUrl);
   }
 
-  async enableBillPayApi(apiEndpoint = '/api/v1/bill-pay-requests'): Promise<void> {
-    await this.page.addInitScript((endpoint) => {
-      const runtimeWindow = window as Window & {
-        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
-          contactUpdate?: { apiEndpoint?: string };
-        };
-      };
-
-      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
-        contactUpdate: {
-          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
-          apiEndpoint: endpoint,
-        },
-      };
-    }, apiEndpoint);
-  }
-
   async tapWeatherRefresh(): Promise<void> {
     await expect(this.weatherRefreshButton).toBeVisible();
     await expect(this.weatherRefreshButton).toBeEnabled();
@@ -438,32 +402,6 @@ export class HomePage {
     await this.residentServiceIssueLocation.fill(details.location);
     await this.residentServiceIssueContact.fill(details.contact);
     await this.residentServiceIssueDetails.fill(details.details);
-  }
-
-  async fillResidentPaymentRequest(details: {
-    fullName: string;
-    serviceAddress: string;
-    phone: string;
-    email: string;
-    notes?: string;
-  }): Promise<void> {
-    await this.residentServicePaymentName.fill(details.fullName);
-    await this.residentServicePaymentStreetAddress.fill(details.serviceAddress);
-    await this.residentServicePaymentPhone.fill(details.phone);
-    await this.residentServicePaymentEmail.fill(details.email);
-    const billingIntake = this.page.locator('#billing-intake');
-    await billingIntake.locator('.p-select').first().click();
-    await this.page.getByRole('option', { name: 'Email', exact: true }).click();
-    await this.page
-      .locator('#billing-intake')
-      .getByRole('checkbox', { name: /agree that the Town of Wiley/i })
-      .check();
-    if (details.notes) {
-      await this.page
-        .locator('#billing-intake')
-        .getByLabel(/Additional questions or details/i)
-        .fill(details.notes);
-    }
   }
 
   async fillAccessibilityBarrierReport(details: {

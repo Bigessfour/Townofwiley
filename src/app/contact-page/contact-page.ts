@@ -1,36 +1,77 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
+import { PanelModule } from 'primeng/panel';
 import { SkeletonModule } from 'primeng/skeleton';
 import { APP_COPY, type LeadershipGroup } from '../app';
-import { LocalizedCmsContentStore, OFFICIAL_CONTACT_ID_CITY_CLERK } from '../site-cms-content';
+import {
+  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+} from '../leadership-roster-group-ids';
+import {
+  type CmsContact,
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+  OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
+  OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
+} from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 
-interface ContactRecordsAssistanceCopy {
-  heading: string;
-  body: string;
-  emailLabel: string;
-  fallbackEmail: string;
+export interface ParsedRosterLine {
+  raw: string;
+  role: string;
+  name: string;
+  href?: string;
+  linkLabel?: string;
+  detail?: string;
 }
 
-const CONTACT_RECORDS_ASSISTANCE_COPY: Record<'en' | 'es', ContactRecordsAssistanceCopy> = {
-  en: {
-    heading: 'Records and document requests',
-    body: 'The Town Clerk can help with public records and other document requests.',
-    emailLabel: 'Email the Town Clerk',
-    fallbackEmail: 'clerk@townofwiley.gov',
-  },
-  es: {
-    heading: 'Registros y solicitudes de documentos',
-    body: 'La secretaria del pueblo puede ayudar con registros publicos y otras solicitudes.',
-    emailLabel: 'Escribir a la secretaria del pueblo',
-    fallbackEmail: 'clerk@townofwiley.gov',
-  },
-};
+export function parseRosterLine(line: string): { role: string; name: string } {
+  const colonIndex = line.indexOf(':');
+  if (colonIndex === -1) {
+    return { role: line.trim(), name: '' };
+  }
+
+  return {
+    role: line.slice(0, colonIndex).trim(),
+    name: line.slice(colonIndex + 1).trim(),
+  };
+}
+
+function contactForAdminRole(
+  role: string,
+  contacts: readonly CmsContact[],
+): CmsContact | undefined {
+  const normalized = role.toLowerCase();
+  if (normalized.includes('clerk') || normalized.includes('secretaria')) {
+    return contacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK);
+  }
+
+  if (normalized.includes('superintendent') || normalized.includes('superintendente')) {
+    return contacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT);
+  }
+
+  return undefined;
+}
+
+function enrichAdminRosterLine(line: string, contacts: readonly CmsContact[]): ParsedRosterLine {
+  const parsed = parseRosterLine(line);
+  const contact = contactForAdminRole(parsed.role, contacts);
+
+  return {
+    raw: line,
+    role: parsed.role,
+    name: parsed.name,
+    href: contact?.href,
+    linkLabel:
+      contact?.linkLabel ??
+      (contact?.href?.startsWith('mailto:') ? contact.href.replace('mailto:', '') : undefined),
+    detail: contact?.detail,
+  };
+}
 
 @Component({
   selector: 'app-contact-page',
-  imports: [CardModule, DividerModule, SkeletonModule],
+  imports: [CardModule, PanelModule, SkeletonModule],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,23 +83,9 @@ export class ContactPage {
   protected readonly copy = computed(
     () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
-  protected readonly recordsAssistanceCopy = computed(
-    () => CONTACT_RECORDS_ASSISTANCE_COPY[this.siteLanguageService.currentLanguage() || 'en'],
-  );
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly contacts = this.cmsStore.contacts;
-  protected readonly clerkEmailHref = computed(() => {
-    const clerk = this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK);
-    if (clerk?.href?.startsWith('mailto:')) {
-      return clerk.href;
-    }
 
-    return `mailto:${CONTACT_RECORDS_ASSISTANCE_COPY.en.fallbackEmail}`;
-  });
-  protected readonly clerkEmailLabel = computed(() => {
-    const clerk = this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK);
-    return clerk?.value ?? this.recordsAssistanceCopy().fallbackEmail;
-  });
   protected readonly leadershipGroups = computed<LeadershipGroup[]>(() => {
     const base = this.copy().leadershipGroups;
     const cmsMap = this.cmsStore.leadershipRosterLinesByGroup();
@@ -76,5 +103,44 @@ export class ContactPage {
 
       return group;
     });
+  });
+
+  protected readonly townInformationContact = computed(() =>
+    this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
+  );
+
+  protected readonly administrationGroup = computed(
+    () =>
+      this.leadershipGroups().find(
+        (group) => group.groupId === LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+      ) ?? null,
+  );
+
+  protected readonly administrationMembers = computed(() => {
+    const group = this.administrationGroup();
+    if (!group?.members.length) {
+      return [] as ParsedRosterLine[];
+    }
+
+    return group.members.map((line) => enrichAdminRosterLine(line, this.contacts()));
+  });
+
+  protected readonly electedOfficialsGroup = computed(
+    () =>
+      this.leadershipGroups().find(
+        (group) => group.groupId === LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+      ) ?? null,
+  );
+
+  protected readonly electedOfficialLines = computed(() => {
+    const group = this.electedOfficialsGroup();
+    if (!group?.members.length) {
+      return [] as ParsedRosterLine[];
+    }
+
+    return group.members.map((line) => ({
+      raw: line,
+      ...parseRosterLine(line),
+    }));
   });
 }

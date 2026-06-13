@@ -30,11 +30,6 @@
     {
       "name": "SEVERE_WEATHER_SIGNUP_ENABLED",
       "runtimePath": "weather.alertSignup.enabled"
-    },
-    {
-      "name": "CONTACT_UPDATE_REVIEW_API_URL",
-      "runtimePath": "contactUpdate.reviewApiEndpoint",
-      "notes": "JWT-protected API Gateway GET URL (includes /contact-updates path)"
     }
   ],
   "optionalOrModeDependent": [
@@ -42,11 +37,6 @@
       "name": "PAYSTAR_PORTAL_URL",
       "runtimePath": "payments.paystar.portalUrl",
       "notes": "Hosted Paystar only (https://docs.paystar.io/api/query/)"
-    },
-    {
-      "name": "CONTACT_UPDATE_API_ENDPOINT",
-      "runtimePath": "contactUpdate.apiEndpoint",
-      "notes": "After deploy-contact-update-backend.py (AP-05)"
     },
     {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",
@@ -61,6 +51,8 @@
     "EASYPEASY_API_ENDPOINT",
     "EASYPEASY_CHAT_URL",
     "GUESTBOOK_API_ENDPOINT",
+    "CONTACT_UPDATE_REVIEW_API_URL",
+    "CONTACT_UPDATE_API_ENDPOINT",
     "CONTACT_UPDATE_REVIEW_PROXY_URL",
     "PAYSTAR_API_ENDPOINT",
     "PAYSTAR_MODE"

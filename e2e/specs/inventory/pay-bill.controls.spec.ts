@@ -3,9 +3,9 @@ import { expect } from '@playwright/test';
 import { test } from '../../fixtures/town-pages.fixture';
 import { inventoryStep } from '../../support/inventory-step';
 
-async function gotoPayBillFormReady(page: import('@playwright/test').Page): Promise<void> {
+async function gotoPayBillReady(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#bp-full-name')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('pay-instructions-infographic')).toBeVisible({ timeout: 30_000 });
 }
 
 const DEFAULT_PAYSTAR_PORTAL_URL = 'https://secure.paystar.io/pay/town-of-wiley-utilitybill';
@@ -38,22 +38,26 @@ test.describe('pay bill page inventory controls', () => {
     });
   });
 
-  test('[pay-bill.billing-intake-validation] billing intake requires valid fields', async ({
+  test('[pay-bill.pay-instructions] instruction infographic switches with site language', async ({
     homePage,
   }) => {
-    await homePage.enableBillPayApi('/api/v1/bill-pay-requests');
-    await gotoPayBillFormReady(homePage.page);
+    await gotoPayBillReady(homePage.page);
 
-    await inventoryStep('Submit empty billing intake', async () => {
-      await homePage.page
-        .locator('#bill-pay-request')
-        .getByRole('button', { name: /Submit request/i })
-        .click();
+    await inventoryStep('Verify English pay instructions infographic', async () => {
+      await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
+        'src',
+        /pay-bill-instructions-en\.jpg/,
+      );
+      await expect(homePage.page.getByTestId('pay-instructions-card')).toBeVisible();
     });
 
-    await expect(homePage.page.locator('.p-toast-message-warn')).toBeVisible({
-      timeout: 15_000,
+    await homePage.clickSiteLanguage('es');
+
+    await inventoryStep('Verify Spanish pay instructions infographic', async () => {
+      await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(
+        'src',
+        /pay-bill-instructions-es\.jpg/,
+      );
     });
-    await expect(homePage.page.getByText('Please review the highlighted fields.')).toBeVisible();
   });
 });

@@ -21,7 +21,6 @@ export const GATED_JOBS = [
   'frontend-smoke',
   'site-monitor-tests',
   'site-runtime-proxy-tests',
-  'contact-infra-tests',
   'backend-python-tests',
   'security-audit',
   'maintainer-only-summary',

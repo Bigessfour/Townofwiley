@@ -38,12 +38,12 @@ test.describe('mega menu internal panel links', () => {
     );
   });
 
-  test('I Want To: Online Payments → services#payment-help', async ({ homePage }) => {
+  test('I Want To: Online Payments → /pay-bill', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
     await panel.getByRole('link', { name: L.onlinePayments, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/services#payment-help$/);
-    await expect(homePage.page.locator('#payment-help')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/);
+    await expect(homePage.page.getByTestId('pay-instructions-infographic')).toBeVisible();
   });
 
   test('I Want To: Report Street/Utility Issue → services#issue-report', async ({ homePage }) => {
@@ -134,7 +134,7 @@ test.describe('mega menu internal panel links', () => {
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
     await panel.getByRole('link', { name: L.transparency, exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/contact$/);
-    await expect(homePage.page.getByTestId('contact-records-assistance')).toBeVisible();
+    await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();
   });
 
   test('Government: Accessibility statement → /accessibility', async ({ homePage }) => {
@@ -157,12 +157,12 @@ test.describe('mega menu internal panel links', () => {
     ).toBeVisible();
   });
 
-  test('Services: Online Payments → services#payment-help', async ({ homePage }) => {
+  test('Services: Online Payments → /pay-bill', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[2]);
     await panel.getByRole('link', { name: L.onlinePayments, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/services#payment-help$/);
-    await expect(homePage.page.locator('#payment-help')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/);
+    await expect(homePage.page.getByTestId('pay-instructions-infographic')).toBeVisible();
   });
 
   test('Services: Report Street/Utility Issue → services#issue-report', async ({ homePage }) => {

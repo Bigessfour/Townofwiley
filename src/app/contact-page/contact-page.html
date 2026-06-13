@@ -14,80 +14,85 @@
       </div>
     </ng-template>
 
-    <div class="contact-town-hall-block">
-      <p class="contact-town-hall-name">Wiley Town Hall</p>
-      <address class="contact-town-hall-address">304 Main Street, Wiley, CO 81092</address>
-      <p class="contact-town-hall-hours">Monday – Friday &nbsp;·&nbsp; 8:00 AM – 4:00 PM</p>
-      <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
-    </div>
-
-    <section
-      class="contact-records-assistance"
-      aria-labelledby="contact-records-assistance-heading"
-      data-testid="contact-records-assistance"
-    >
-      <h2 id="contact-records-assistance-heading">{{ recordsAssistanceCopy().heading }}</h2>
-      <p>{{ recordsAssistanceCopy().body }}</p>
-      <a class="contact-link" [attr.href]="clerkEmailHref()">
-        {{ recordsAssistanceCopy().emailLabel }} · {{ clerkEmailLabel() }}
-      </a>
-    </section>
-
-    @if (cmsLoading()) {
-      <section class="contact-grid" aria-label="Town contacts" aria-live="polite" aria-busy="true">
-        @for (_ of [0, 1, 2, 3]; track $index) {
-          <article class="contact-card" aria-hidden="true">
-            <p-skeleton width="42%" height="0.7rem" styleClass="mb-2" />
-            <p-skeleton width="92%" height="1rem" styleClass="mb-2" />
-            <p-skeleton width="100%" height="0.85rem" styleClass="mb-2" />
-            <p-skeleton width="88%" height="0.8rem" />
-          </article>
-        }
-      </section>
-    } @else if (contacts().length === 0) {
-      <p class="public-empty-state" role="status">{{ copy().contactEmptyState }}</p>
-    } @else {
-      <section class="contact-grid" aria-label="Town contacts">
-        @for (contact of contacts(); track contact.id) {
-          <article class="contact-card">
-            <span class="contact-card-label">{{ contact.label }}</span>
-            @if (contact.href) {
-              @if (contact.linkLabel && contact.linkLabel !== contact.value) {
-                <p class="contact-card-value-line">
-                  <strong>{{ contact.value }}</strong>
-                  <a class="contact-link" [attr.href]="contact.href">{{ contact.linkLabel }}</a>
-                </p>
-              } @else {
-                <p class="contact-card-value-line">
-                  <a class="contact-link" [attr.href]="contact.href">{{ contact.value }}</a>
-                </p>
-              }
-            } @else {
-              <p class="contact-card-value-line">
-                <strong>{{ contact.value }}</strong>
-              </p>
-            }
-            <p class="contact-card-detail">{{ contact.detail }}</p>
-          </article>
-        }
-      </section>
-    }
-
-    <div class="leadership-roster" [attr.aria-label]="copy().leadershipAriaLabel">
-      @for (group of leadershipGroups(); track group.groupId; let idx = $index) {
-        <div class="leadership-subsection">
-          <h3>{{ group.title }}</h3>
-          <p>{{ group.detail }}</p>
-          <ul class="leadership-list">
-            @for (member of group.members; track member) {
-              <li>{{ member }}</li>
-            }
-          </ul>
+    <p-card styleClass="contact-section-card contact-town-hall-card" data-testid="contact-town-hall">
+      <ng-template pTemplate="header">
+        <div class="contact-section-card-header">
+          <h2 class="contact-section-card-title">{{ copy().contactTownHallTitle }}</h2>
         </div>
-        @if (idx < leadershipGroups().length - 1) {
-          <p-divider styleClass="section-divider" />
+      </ng-template>
+      <address class="contact-town-hall-address">304 Main Street, Wiley, CO 81092</address>
+      <p class="contact-town-hall-hours">{{ copy().contactTownHallHours }}</p>
+      <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
+    </p-card>
+
+    <p-card styleClass="contact-section-card contact-administration-card" data-testid="contact-administration">
+      <ng-template pTemplate="header">
+        <div class="contact-section-card-header">
+          @if (administrationGroup(); as adminGroup) {
+            <h2 class="contact-section-card-title">{{ adminGroup.title }}</h2>
+            <p class="contact-section-card-detail">{{ adminGroup.detail }}</p>
+          }
+        </div>
+      </ng-template>
+
+      @if (cmsLoading()) {
+        <div class="contact-administration-skeleton" aria-live="polite" aria-busy="true">
+          <p-skeleton width="100%" height="0.85rem" styleClass="mb-2" />
+          <p-skeleton width="92%" height="0.85rem" styleClass="mb-2" />
+          <p-skeleton width="88%" height="0.85rem" />
+        </div>
+      } @else {
+        @if (townInformationContact(); as townInfo) {
+          <div class="contact-town-information-summary">
+            <h3 class="contact-subheading">{{ townInfo.label }}</h3>
+            <p class="contact-town-information-detail">{{ townInfo.detail }}</p>
+          </div>
+        } @else if (contacts().length === 0) {
+          <p class="public-empty-state" role="status">{{ copy().contactEmptyState }}</p>
+        }
+
+        @if (administrationMembers().length > 0) {
+          <dl class="contact-roster-list" aria-label="Town administration contacts">
+            @for (member of administrationMembers(); track member.raw) {
+              <div class="contact-roster-item">
+                <dt class="contact-roster-role">{{ member.role }}</dt>
+                <dd class="contact-roster-value">
+                  @if (member.name) {
+                    <span class="contact-roster-name">{{ member.name }}</span>
+                  }
+                  @if (member.href && member.linkLabel) {
+                    <a class="contact-link" [attr.href]="member.href">{{ member.linkLabel }}</a>
+                  }
+                  @if (member.detail) {
+                    <span class="contact-roster-detail">{{ member.detail }}</span>
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
         }
       }
-    </div>
+    </p-card>
+
+    @if (electedOfficialsGroup(); as electedGroup) {
+      <section id="leadership" class="contact-elected-section" [attr.aria-label]="electedGroup.title">
+        <p-panel styleClass="contact-elected-panel">
+          <ng-template pTemplate="header">
+            <div class="contact-elected-panel-header">
+              <h2 class="contact-section-card-title">{{ electedGroup.title }}</h2>
+              <p class="contact-section-card-detail">{{ electedGroup.detail }}</p>
+            </div>
+          </ng-template>
+          <dl class="contact-roster-list contact-elected-list">
+            @for (official of electedOfficialLines(); track official.raw) {
+              <div class="contact-roster-item">
+                <dt class="contact-roster-role">{{ official.role }}</dt>
+                <dd class="contact-roster-name">{{ official.name }}</dd>
+              </div>
+            }
+          </dl>
+        </p-panel>
+      </section>
+    }
   </p-card>
 </section>

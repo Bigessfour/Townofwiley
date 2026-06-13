@@ -50,6 +50,7 @@ function mapLegacyClerkSetupFragment(fragment: string | undefined): string | und
   switch (fragment) {
     case 'setup':
     case 'content':
+    case 'updates':
       return 'start';
     default:
       return fragment;

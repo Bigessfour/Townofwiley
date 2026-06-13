@@ -11,7 +11,7 @@ Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeN
 
 ## CMS Architecture & Gotchas
 
-Headless CMS: **AWS AppSync (GraphQL)** + **Amplify Gen2 Data manager** for content models. Public site is **read-only**; staff writes use **Cognito** (or IAM fallback). Gen1 Amplify Studio/CLI is **legacy** — CLI in maintenance mode, **EOL May 1, 2027**; keep schema/query changes compatible with existing Gen1-shaped models until stack decommission completes ([`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md)).
+Headless CMS: **AWS AppSync (GraphQL)** on Gen 1 production API `j7b2x3sh7rcezekekkxxiak7hi`. **Staff day-to-day edits:** `/admin` in-app forms (Cognito). **IT fallback:** AppSync Queries console under **Advanced (IT)**. Amplify Studio / Data Manager is **deprecated** (June 2026). Gen1 Amplify CLI stack remains until decommission — see [`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md).
 
 ### Public vs authenticated read/write
 
@@ -19,7 +19,7 @@ Headless CMS: **AWS AppSync (GraphQL)** + **Amplify Gen2 Data manager** for cont
 | -------------------------------- | ------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Public site**                  | `LocalizedCmsContentStore` in [`src/app/site-cms-content.ts`](src/app/site-cms-content.ts) | Never from browser | AppSync **API key** (`x-api-key`) via `HttpClient` POST; config from `window.__TOW_RUNTIME_CONFIG__` / [`public/runtime-config.js`](public/runtime-config.js) |
 | **`/admin` clerk hub**           | In-app list/create/update via Amplify `generateClient().graphql()`                         | Same               | **Cognito `userPool`** when signed in; falls back to **`iam`** ([`cms-generic-model-admin.service.ts`](src/app/cms-generic-model-admin.service.ts))           |
-| **Amplify Console Data manager** | AWS Console                                                                                | CRUD on models     | **AWS IAM** (separate from Town staff `/admin/login` password)                                                                                                |
+| **Amplify Console Data manager** | AWS Console (deprecated June 2026)                                                         | CRUD on models     | **AWS IAM** — use AppSync Queries console or `/admin` in-app forms instead                                                                                    |
 
 **Public-query models (10):** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`. **`EmailAlias` is staff-only** — must not appear in `PUBLIC_CMS_*` queries ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md), [`public/cms-inventory.json`](public/cms-inventory.json)).
 
@@ -53,19 +53,20 @@ Verify guards: `npm run verify:public-cms-query`, `npm run verify:runtime-config
 
 | Task                                                                        | Where                                                                                                                                    |
 | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Routine content** (notices, events, contacts, documents, homepage fields) | Amplify Console **Data manager** on branch **`main`** (Gen2 app `d331voxr1fhoir`) — links from [`/admin`](https://townofwiley.gov/admin) |
+| **Routine content** (notices, events, contacts, documents, homepage fields) | **`/admin`** task hub → **Edit content** ([`src/app/cms-admin/`](src/app/cms-admin/)) — in-app forms → AppSync GraphQL (Cognito) |
+| **IT bulk GraphQL / troubleshooting**                                       | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console `j7b2…`) — AWS IAM login, not Town staff password   |
 | **Guided clerk tasks**                                                      | [`src/app/cms-admin/`](src/app/cms-admin/) — task hub → task guide → in-app record editor                                                |
 | **Uploads** (hero image, newsletter PDF, meeting docs)                      | `cms-clerk-upload-panel`, `cms-meeting-document-upload` → `CmsPublicDocumentAdminService` / `DocumentUploadService`                      |
 | **Connection / inventory**                                                  | `cms-site-status`, `cms-content-snapshot`, **Test CMS Connection**                                                                       |
 
-No publish step for CMS rows: save in Data manager or in-app editor → public site picks up on next successful live fetch (after cache considerations above). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
+No publish step for CMS rows: save in the in-app editor → public site picks up on next successful live fetch (after cache considerations above). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
 
-Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`; `LeadershipRosterEntry.groupId` `mayor-council`, `town-administration` ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md)).
+Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`, `town-superintendent`; `LeadershipRosterEntry.groupId` `mayor-council` (elected officials at `/contact#leadership`), `town-administration` (roster lines in Town Administration card) ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md)).
 
 ### Clerk admin code (current state)
 
 - **Shell:** [`cms-admin.ts`](src/app/cms-admin/cms-admin.ts) at route `/admin`
-- **Task hub:** [`cms-clerk-task-hub.component.ts`](src/app/cms-admin/cms-clerk-task-hub.component.ts) — 9 tasks from [`cms-clerk-tasks.ts`](src/app/cms-admin/cms-clerk-tasks.ts) (`post-notice`, `add-meeting`, `homepage`, `update-contacts`, `update-leadership`, `business-directory`, `external-news`, `emergency-banner`, `edit-site-copy`)
+- **Task hub:** [`cms-clerk-task-hub.component.ts`](src/app/cms-admin/cms-clerk-task-hub.component.ts) — 10 tasks from [`cms-clerk-tasks.ts`](src/app/cms-admin/cms-clerk-tasks.ts) (`post-notice`, `add-meeting`, `homepage`, `update-contacts`, `update-leadership`, `business-directory`, `external-news`, `emergency-banner`, `edit-site-copy`, `manage-email-aliases`)
 - **Record editor:** [`cms-clerk-record-editor.component.ts`](src/app/cms-admin/cms-clerk-record-editor.component.ts) — dynamic forms from [`cms-clerk-task-form-fields.ts`](src/app/cms-admin/cms-clerk-task-form-fields.ts)
 - **Generic CRUD:** [`CmsGenericModelAdminService`](src/app/cms-generic-model-admin.service.ts) — `listRecords`, `createModel`, `updateModel` for all 10 public models via [`cms-model-admin-fields.ts`](src/app/cms-admin/cms-model-admin-fields.ts); list failures return `[]` (warn), mutations throw
 - **Exceptions:** `CmsSiteSettingsAdminService` for `SiteSettings`; `CmsPublicDocumentAdminService` for document upload flows; legacy per-model admin services (`cms-announcement-admin`, etc.) are create-only and largely superseded

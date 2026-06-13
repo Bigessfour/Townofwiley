@@ -32,17 +32,19 @@ If the link has expired (they expire after 24 hours), ask for a new invitation.
 
 Bookmark this page first: https://townofwiley.gov/admin
 
-The admin page is a **task hub** in plain English: pick what you want to change, click **Edit content**, save in the AWS editor, then **See on website** and hard-refresh. It also has document publishing help, resident message review, and optional file uploads. **Clerk screens are English only**; the public site stays bilingual — fill Spanish fields in the editor when they appear.
+The admin page is a **task hub** in plain English: pick what you want to change, click **Edit content**, save in the **on-page form**, then **See on website** and hard-refresh. It also has document publishing help, resident message review, and optional file uploads. **Clerk screens are English only**; the public site stays bilingual — fill Spanish fields in the editor when they appear.
 
 Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
-### Step 4 — Bookmark Amplify Console Data manager
+### Step 4 — IT only: AppSync Queries console (optional bookmark)
 
-| Link                                       | What it is                                                                                                                                                                                                                                   |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AppSync Console (Gen 1 production CMS API) | [Gen 1 AppSync Queries](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) (search schema for Event/AlertBanner/Announcement etc.; use /admin for guidance and "See on website") | Edit CMS records (SiteSettings, Announcement, Event, AlertBanner, Business, etc.) when IT needs direct GraphQL. Clerks should prefer in-app forms on `/admin`. |
+Most clerks **never need this**. IT uses it for bulk GraphQL or troubleshooting.
 
-Task cards on `/admin` open the right model when possible (`…/data/models/Announcement`, etc.).
+| Link | What it is |
+| ---- | ---------- |
+| [AppSync Queries — Gen 1 production CMS API `j7b2…`](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) | Direct GraphQL against CMS models when IT needs the AWS console. Same URL as **Open content editor** under **Advanced (IT)** on `/admin`. |
+
+**Clerks:** use task cards on `/admin` → **Edit content**. Do not edit in the AWS console unless IT asks you to.
 
 ### Step 5 — Log in to the Town admin hub
 
@@ -61,7 +63,7 @@ Task cards on `/admin` open the right model when possible (`…/data/models/Anno
 
 If you do not receive the email or do not have an account yet, call Town Hall at **(719) 829-4974** so IT can help.
 
-**Amplify Console Data manager** (Step 4) uses your **AWS console** login, not this Town staff password. Clerks who only edit CMS records in Data Manager still need the `/admin/login` account when using contact updates and other staff-only tabs on the website.
+The AppSync Queries console (Step 4) uses your **AWS console** login, not your Town staff password. Routine CMS edits use **`/admin/login`** only.
 
 ---
 
@@ -82,11 +84,11 @@ IT may occasionally use the AppSync Queries console for the production API `j7b2
 
 ### How changes work
 
-When you save a record in Data Manager, the website automatically shows the new content within a few seconds. You do not need to click "publish" or "deploy."
+When you save a record in the **Edit content** form on `/admin`, the website picks up the change on the next live fetch. You do not need to click "publish" or "deploy." If the public page still looks old, hard-refresh and use **Force Refresh Live CMS Content** at the top of `/admin`.
 
 ### When IT changes payment or other website settings (not Studio)
 
-Some features—utility bill pay links, weather signup, chatbot—are controlled by environment variables / runtime-config (sourced via `scripts/generate-runtime-config.mjs`), not by Data Manager. After your IT contact changes those settings (in secrets or the generate script), rebuild and deploy the static site to S3 + CloudFront (see README "Deployment Record" and best-practice cache headers + invalidation). Until the invalidation completes, the public site may still show old behavior. (Amplify Hosting app decommissioned June 2026; current hosting uses CloudFront Response Headers Policy for CSP/security headers and managed cache policies.)
+Some features—utility bill pay links, weather signup, chatbot—are controlled by environment variables / runtime-config (sourced via `scripts/generate-runtime-config.mjs`), not by CMS records. After your IT contact changes those settings (in secrets or the generate script), rebuild and deploy the static site to S3 + CloudFront (see README "Deployment Record" and best-practice cache headers + invalidation). Until the invalidation completes, the public site may still show old behavior. (Amplify Hosting app decommissioned June 2026; current hosting uses CloudFront Response Headers Policy for CSP/security headers and managed cache policies.)
 
 **What you should do after IT says a deploy is done:**
 
@@ -96,41 +98,53 @@ Some features—utility bill pay links, weather signup, chatbot—are controlled
 
 ### The rule for every change
 
-1. Open Data Manager.
-2. Find the right model (explained in the table below).
-3. Create or edit the record.
+1. Open **https://townofwiley.gov/admin** and sign in if needed.
+2. Pick the task that matches what you want to change (or use the model table below if you are unsure).
+3. Click **Edit content**, create or edit the record in the on-page form.
 4. Save.
-5. Refresh the public website and check what residents see.
+5. Click **See on website**, hard-refresh, and check what residents see.
 
 ---
 
 ## Part 3 — What Each Model Controls
 
-Every piece of content on the website lives in one of these models in Data Manager.
+Every piece of content on the website lives in one of these CMS models. On `/admin`, each task card opens the matching model in the **Edit content** form.
 
-| What you are updating                                            | Open this model                                                                                                                                     |
+| What you are updating                                            | Model / task on `/admin`                                                                                                                            |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Homepage title, welcome text, and hero photo                     | `SiteSettings`                                                                                                                                      |
-| Emergency banner shown at the top of the homepage                | `AlertBanner`                                                                                                                                       |
-| Public notices, closures, and general announcements              | `Announcement`                                                                                                                                      |
-| Meetings, hearings, and calendar events                          | `Event`                                                                                                                                             |
-| Staff contact cards for names, phones, and emails                | `OfficialContact`                                                                                                                                   |
-| Mayor/Council and Town Administration bullets on `/contact`      | `LeadershipRosterEntry`                                                                                                                             |
-| Business directory listings                                      | `Business`                                                                                                                                          |
-| Public document archive for forms, guides, and downloads         | `PublicDocument`                                                                                                                                    |
-| External news links shown on the /news page                      | `ExternalNewsLink`                                                                                                                                  |
-| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — use **Manage email forwarding** on `/admin` (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings)) |
+| Homepage title, welcome text, and hero photo                     | `SiteSettings` — **Change homepage photo or welcome text**                                                                                          |
+| Emergency banner shown at the top of the homepage                | `AlertBanner` — **Turn on emergency banner**                                                                                                        |
+| Public notices, closures, and general announcements              | `Announcement` — **Post news or notice**                                                                                                            |
+| Meetings, hearings, and calendar events                          | `Event` — **Add meeting or event**                                                                                                                  |
+| Town Hall intro text and staff mailto links on `/contact`        | `OfficialContact` — **Update Town Hall or clerk contact**                                                                                         |
+| Mayor/Council list and administration roster lines on `/contact` | `LeadershipRosterEntry` — **Update mayor and council list**                                                                                         |
+| Business directory listings                                      | `Business` — **Update business directory**                                                                                                          |
+| Meeting agendas and approved minutes (PDF on `/meetings`)        | `PublicDocument` — **Upload a meeting agenda or packet** / document publishing section                                                              |
+| External news links shown on the /news page                      | `ExternalNewsLink` — **Add outside news link**                                                                                                      |
+| Navigation labels, headings, Quick Tasks text                    | `SiteCopy` — **Edit navigation labels, headings, and Quick Tasks text**                                                                             |
+| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — **Manage email forwarding** (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings))                 |
 
-### Important: two contact cards use fixed record IDs
+### Important: stable `OfficialContact` record IDs
 
-The website looks up the **Town Hall** block and **City Clerk** block by the **`id`** field on `OfficialContact` (not by the person’s name in the title). In Amplify Studio, keep these exact IDs:
+The **`/contact`** page uses **`OfficialContact`** rows by **`id`**, not by display name. Keep these exact IDs:
 
-| `id` field (exact) | Purpose                                                                               |
-| ------------------ | ------------------------------------------------------------------------------------- |
-| `town-information` | Main Town Hall phone block used in the site footer, services, and accessibility pages |
-| `city-clerk`       | Clerk email/phone used on Permits and related contact panels                          |
+| `id` field (exact)   | Purpose on `/contact` and elsewhere                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| `town-information`   | Intro summary in the **Town Administration** card; also footer, `/services`, `/accessibility`         |
+| `city-clerk`         | Mailto link for clerk roster lines in **Town Administration**; also `/permits`, `/services`         |
+| `town-superintendent`| Mailto link for superintendent roster lines in **Town Administration**                              |
 
-If you delete one of these records and create a new row with a different `id`, the site may show fallback wording until IT restores the IDs.
+If you delete a row and recreate it with a different `id`, the site may show bundled fallback text until IT restores the IDs.
+
+### How `/contact` is laid out (2026)
+
+Residents see three sections on [https://townofwiley.gov/contact](https://townofwiley.gov/contact):
+
+1. **Town Hall** — address, hours, and main phone (mostly fixed copy; not edited through CMS).
+2. **Town Administration** — `town-information` summary plus roster lines from **`LeadershipRosterEntry`** with `groupId` **`town-administration`** (names with optional mailto from `city-clerk` / `town-superintendent`).
+3. **Elected Officials** (`#leadership`) — roster lines from **`LeadershipRosterEntry`** with `groupId` **`mayor-council`** (role and name only; no mailto).
+
+There is no separate “records assistance” block on `/contact`. Other document requests go to **clerk@townofwiley.gov** (linked from `/permits` and related pages). **`/records`** redirects to **`/contact`**.
 
 ### Field names that match the database (use these in Studio)
 
@@ -173,7 +187,7 @@ Use this when the Clerk publishes a scanned newsletter, PDF issue, or long colum
 6. Click **Save to website**, then hard-refresh `https://townofwiley.gov/news`.
 7. Confirm one newsletter card appears with an embedded PDF preview and an **Open newsletter PDF in a new tab** link.
 
-**IT fallback — AppSync Queries or Amplify Studio:** same field names (`announcementKind` = `newsletter`, `attachmentKey` = full S3 key under `documents/newsletter/`). See [CMS_NEWSLETTER.md](./CMS_NEWSLETTER.md).
+**IT fallback — AppSync Queries console:** same field names (`announcementKind` = `newsletter`, `attachmentKey` = full S3 key under `documents/newsletter/`). See [CMS_NEWSLETTER.md](./CMS_NEWSLETTER.md).
 
 Deactivate older newsletter rows (**Show on website** off) when publishing a new issue so only the latest date is featured.
 
@@ -181,7 +195,7 @@ Short utility notices should use **Kind** = **Short notice (bulletin)** so they 
 
 ### Announcement fields explained: announcementKind, attachmentKey, priority, and imageUrl
 
-Use this table when you are unsure what to type in optional **Announcement** fields in Data Manager.
+Use this table when you are unsure what to type in optional **Announcement** fields in the **Post news or notice** form (or AppSync Queries when IT directs you there).
 
 | Field                              | What it is                                                                | What you should enter                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ---------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -194,17 +208,13 @@ Use this table when you are unsure what to type in optional **Announcement** fie
 
 Outside stories are **ExternalNewsLink** records, not automatic web crawling. Staff adds links to articles that mention Wiley, CO, or Prowers County; they appear under **Stories mentioning Wiley or Prowers County**.
 
-1. Open **ExternalNewsLink** in Data Manager.
+1. On `/admin`, open **Add outside news link** → **Edit content**.
 2. Create a record with **title**, **url**, **source** (e.g. newspaper name), **active** true, and **displayOrder** if you need a fixed order.
 3. Save and confirm on `/news`.
 
 ### Remove or archive a notice
 
-1. Open **Announcement** in Data Manager.
-2. Find the notice you want to hide.
-3. Open it and change **active** to **false**.
-4. Click **Save**.
-5. Refresh the /news page and confirm the notice is gone.
+1. On `/admin`, open **Post news or notice** → **Edit content**, find the notice, and turn **Show on website** off (or set **active** to **false** in AppSync Queries if IT directed you there).
 
 Do not delete the record unless you are certain it should be permanently removed. Turning `active` off is safe and reversible.
 
@@ -214,7 +224,7 @@ Use this only for urgent, time-sensitive information that every visitor needs to
 
 Examples: water outage, unplanned office closure, road closure, emergency public safety update.
 
-1. Open **AlertBanner** in Data Manager.
+1. On `/admin`, open **Turn on emergency banner** → **Edit content**.
 2. Open the banner record (there is usually one existing record to reuse).
 3. Change **enabled** to **true**.
 4. Fill in **label** — one to three words, like `Water Outage` or `Office Closed`.
@@ -226,7 +236,7 @@ Examples: water outage, unplanned office closure, road closure, emergency public
 
 ### Turn off an emergency banner
 
-1. Open **AlertBanner** in Data Manager.
+1. On `/admin`, open **Turn on emergency banner** → **Edit content**.
 2. Open the banner record.
 3. Change **enabled** to **false**.
 4. Click **Save**.
@@ -236,8 +246,8 @@ Examples: water outage, unplanned office closure, road closure, emergency public
 
 ### Add or change a meeting or event
 
-1. Open **Event** in Data Manager.
-2. Click **Create event** or open an existing one.
+1. On `/admin`, open **Add meeting or event** → **Edit content**.
+2. Click **Create** or open an existing event.
 3. Fill in **title** — for example `City Council Regular Meeting`.
 4. Fill in **start** — the full date and time in this format: `2026-05-06T19:00:00`.
 5. Fill in **end** if the end time is known.
@@ -249,42 +259,43 @@ Examples: water outage, unplanned office closure, road closure, emergency public
 
 To cancel or hide an event, open it and set **active** to **false**.
 
-### Update a contact card (staff names, phones, emails)
+### Update Town Hall or clerk contact (`OfficialContact`)
 
-1. Open **OfficialContact** in Data Manager.
-2. Find the contact you want to update and open it.
+1. On `/admin`, open **Update Town Hall or clerk contact** → **Edit content**.
+2. Find the row for **`town-information`**, **`city-clerk`**, or **`town-superintendent`** and open it.
 3. Update any of these fields:
-   - **label** — the role title shown on the card, like `City Clerk`
+   - **label** — the role title shown in the Town Administration summary, like `Town Information`
    - **value** — the person's name or main phone number
-   - **detail** — a short sentence describing what this person handles
-   - **href** — the button destination. For a phone: `tel:+17198294974`. For email: `mailto:name@townofwiley.gov`. For a web page, use the full `https://` address.
-   - **linkLabel** — the button text residents will see, like `Call` or `Send email`
+   - **detail** — a short sentence describing what this contact covers
+   - **href** — the link destination. For a phone: `tel:+17198294974`. For email: `mailto:name@townofwiley.gov`.
+   - **linkLabel** — the clickable text residents see, like `Call` or `Send email`
 4. Click **Save**.
-5. Refresh the /contact page and confirm the update.
+5. Click **See on website**, hard-refresh `/contact`, and confirm the **Town Administration** card.
 
-To add a new contact, click **Create officialContact** and fill in all fields.
+To add a new contact row, click **Create** and fill in all fields. Do **not** change the stable **`id`** values above unless IT helps.
 
-### Mayor and City Council roster (bullet list under leadership on /contact)
+### Mayor, council, and administration roster (`LeadershipRosterEntry`)
 
-The **Mayor and Council** and **Town Administration** bullet lists on `/contact` come from the **`LeadershipRosterEntry`** model when at least one **active** row exists for that section. If Studio has no rows yet, the site keeps the bundled lines from the app (same names as today).
+The **Elected Officials** section (`/contact#leadership`) and the **Town Administration** roster lines come from **`LeadershipRosterEntry`** when at least one **active** row exists for that group. If the CMS has no rows yet, the site keeps bundled lines from the app.
 
 **What you do as Clerk**
 
-1. Open **LeadershipRosterEntry** in Data Manager.
+1. On `/admin`, open **Update mayor and council list** → **Edit content**.
 2. Click **Create** (or open an existing row).
 3. Set **groupId** to exactly one of these keys (copy/paste):
-   - `mayor-council` — bullets under **Mayor and Council** / **Alcalde y concejo**
-   - `town-administration` — bullets under **Town Administration** / **Administracion del pueblo**
+   - `mayor-council` — lines under **Elected Officials** at `/contact#leadership`
+   - `town-administration` — lines in the **Town Administration** card (names; mailto comes from matching `OfficialContact` rows when the role mentions clerk or superintendent)
 4. Set **displayOrder** — lower numbers appear first (for example 10, 20, 30 so you can insert lines later).
 5. Fill **lineEn** and **lineEs** — one line per record, for example English `Mayor: Pat Garcia` and Spanish `Alcalde: Pat Garcia`.
 6. Set **active** to **true** and save.
-7. Refresh `/contact` and switch the site language to confirm both languages.
+7. Click **See on website**, hard-refresh `/contact` and `/contact#leadership`, and switch the site language to confirm both languages.
 
-To remove someone from the list, either set **active** to **false** or delete the row. To replace the whole section from Studio, every visible bullet must have its own **LeadershipRosterEntry** row for that **groupId** (the site replaces the whole bullet list for that section when any CMS lines exist).
+To remove someone from the list, either set **active** to **false** or delete the row. When any CMS lines exist for a **groupId**, the site replaces the whole bullet list for that section.
 
-**Do not confuse this with OfficialContact**
+**How this relates to OfficialContact**
 
-The **`OfficialContact`** rows control the **clickable contact cards** higher on the contact page. **`LeadershipRosterEntry`** only drives the **non-clickable** roster bullets in the leadership blocks below.
+- **`OfficialContact`** (`town-information`, `city-clerk`, `town-superintendent`) supplies the Town Administration summary and mailto links for clerk/superintendent roster lines.
+- **`LeadershipRosterEntry`** supplies the visible name lines (elected officials and administration roster).
 
 ### Change the homepage hero photo
 
@@ -292,7 +303,7 @@ The hero is the large photo at the top of the homepage.
 
 1. Find a public photo web address. This must be a full web address (starting with `https://`) that anyone can open in a browser without logging in. You can get one by uploading a photo to Google Photos and setting sharing to "anyone with the link", or any public file sharing service.
 2. Copy the full web address of the photo.
-3. Open **SiteSettings** in Data Manager.
+3. On `/admin`, open **Change homepage photo or welcome text** → **Edit content**.
 4. Open the one settings record.
 5. Paste the photo web address into **heroImageUrl**.
 6. Click **Save**.
@@ -302,7 +313,7 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 
 ### Update homepage text (title, welcome message)
 
-1. Open **SiteSettings** in Data Manager.
+1. On `/admin`, open **Change homepage photo or welcome text** → **Edit content**.
 2. Open the settings record.
 3. Update any of these fields:
    - **heroTitle** — the large heading residents see first on the homepage
@@ -315,8 +326,8 @@ To go back to the default photo, clear the **heroImageUrl** field (delete the ad
 
 ### Add or update a business in the business directory
 
-1. Open **Business** in Data Manager.
-2. Click **Create business** or open an existing one.
+1. On `/admin`, open **Update business directory** → **Edit content**.
+2. Click **Create** or open an existing business.
 3. Fill in **name**, **phone**, and **address**.
 4. (Optional) Fill in **website** — must be a full URL starting with `https://`.
 5. (Optional) Fill in **description** — one or two sentences about the business.
@@ -360,8 +371,8 @@ See [CMS_MEETING_AGENDA.md](./CMS_MEETING_AGENDA.md) for the full runbook.
 
 ### Add an external news link (for /news "From Other Sources")
 
-1. Open **ExternalNewsLink** in Data Manager.
-2. Click **Create externalNewsLink**.
+1. On `/admin`, open **Add outside news link** → **Edit content**.
+2. Click **Create** or open an existing row.
 3. Fill in **title** — a short description, like `Lamar Ledger — Wiley and Prowers County Coverage`.
 4. Fill in **url** — the full website address residents should open, like `https://www.lamarledger.com/`.
 5. Fill in **source** — the publication name shown with the link, like `Lamar Ledger`.
@@ -459,21 +470,21 @@ The admin page can keep a **local saved copy** of CMS content in your browser so
 
 This only affects **your** browser on **this computer** — it does not change what residents see worldwide. Other staff may need to do the same on their own machines.
 
-### When to use `/admin` vs Amplify Studio (Data manager)
+### When to use `/admin` vs AppSync Queries (IT)
 
 | What you are doing                                                   | Where to work                                                                                                    |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms) or **Content editor URL** (AppSync) when the task sends you there |
+| Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms)                                                                   |
 | **Email forwarding / proxy** (`EmailAlias`)                          | **`/admin` only** → **Manage email forwarding** (staff sign-in required)                                         |
-| Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → Content editor URL (Gen 2 AppSync Queries)                                       |
-| Legacy Gen 1 API (`j7b2…`)                                           | **Do not use for new edits** — maintenance only; ask IT                                                          |
+| Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console)                                |
+| Legacy AWS console access without `/admin`                           | Ask IT — do not edit production CMS without guidance                                                             |
 
 ### When to call IT
 
 Ask IT if:
 
 - **Force Refresh** fails or the status tag stays on “backup” / error wording
-- Data Manager or the in-app form says **not authorized** or **access denied**
+- The in-app form says **not authorized** or **access denied**
 - Email forwarding saves in `/admin` but test mail still goes to the wrong inbox (the mail router may need a sync — see [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md))
 
 **For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` and `npm run verify:staff-cms-editor-models` in the repo to confirm public queries and clerk editor models (including **SiteCopy**) stay aligned with inventory and Staff auth metadata. Clerks do not need to run these commands.
@@ -529,8 +540,8 @@ Example:
 
 | Problem                                                             | What to do                                                                                                                                               |
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cannot log in to Amplify Studio                                     | Ask for a new invitation email from your IT contact                                                                                                      |
-| Data Manager shows "Access denied"                                  | Your account permissions need updating — ask for help                                                                                                    |
+| Cannot log in to `/admin/login`                                     | Use **Forgot password?** on Cognito; if still blocked, call Town Hall **(719) 829-4974**                                                                 |
+| AppSync Queries console shows "Access denied" (IT only)             | Your AWS console permissions need updating — ask IT                                                                                                       |
 | Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin`    |
 | You updated email forwarding but mail still goes to the wrong place | Confirm the rule is **Active** in **Manage email forwarding** on `/admin`; send a new test email; if still wrong, the mail router may need IT to re-sync |
 | Not sure which model to open                                        | Check the table in Part 3 of this guide                                                                                                                  |
@@ -547,17 +558,19 @@ LOG IN:   https://townofwiley.gov/admin/login  (Town staff account)
 EDIT CMS: https://townofwiley.gov/admin → pick a task → Edit content
 PUBLIC:   https://townofwiley.gov
 
-WHAT TO OPEN IN DATA MANAGER:
+TASK → MODEL (on /admin):
   Homepage text or hero photo   ->  SiteSettings
   Emergency banner              ->  AlertBanner
   Notices and announcements     ->  Announcement
   Meetings and events           ->  Event
-  Staff contact cards           ->  OfficialContact
+  Town Hall / clerk contacts    ->  OfficialContact  (/contact Town Administration)
+  Mayor / council / admin roster->  LeadershipRosterEntry  (/contact#leadership + Administration)
   Business directory listings   ->  Business
-  Public documents              ->  PublicDocument
+  Meeting PDFs on /meetings     ->  PublicDocument
   External news links           ->  ExternalNewsLink
-  Email forwarding (proxy; staff-only)           ->  /admin -> Manage email forwarding
+  Nav labels & Quick Tasks      ->  SiteCopy
+  Email forwarding (staff-only) ->  /admin -> Manage email forwarding
 
 EVERY TIME:
-  /admin -> Edit content (or Data Manager when directed) -> Save -> Force Refresh if needed -> Hard-refresh public site
+  /admin -> Edit content -> Save -> Force Refresh if needed -> See on website -> Hard-refresh public site
 ```

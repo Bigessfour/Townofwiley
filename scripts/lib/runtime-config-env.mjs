@@ -240,19 +240,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
     'bottom-right';
   const logEndpoint = env.LOG_ENDPOINT?.trim() || localSecrets.logging?.endpoint?.trim() || '';
-  const contactUpdateApiEndpoint =
-    env.CONTACT_UPDATE_API_ENDPOINT?.trim() ||
-    localSecrets.contactUpdate?.apiEndpoint?.trim() ||
-    '';
-  const contactUpdateReviewApiEndpoint =
-    env.CONTACT_UPDATE_REVIEW_API_URL?.trim() ||
-    localSecrets.contactUpdate?.reviewApiEndpoint?.trim() ||
-    loadProductionBindingsFromRepo()?.contactReview?.reviewApiEndpoint?.trim() ||
-    '';
-  const contactUpdateReviewProxyEndpoint =
-    env.CONTACT_UPDATE_REVIEW_PROXY_URL?.trim() ||
-    localSecrets.contactUpdate?.reviewProxyEndpoint?.trim() ||
-    '';
   const guestbookApiEndpoint = '';
   const paystarMode =
     explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
@@ -286,9 +273,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     weatherAllowBrowserFallback,
     buttonPosition,
     logEndpoint,
-    contactUpdateApiEndpoint,
-    contactUpdateReviewApiEndpoint,
-    contactUpdateReviewProxyEndpoint,
     guestbookApiEndpoint,
     paystarMode,
     mode,
@@ -398,11 +382,6 @@ export function buildRuntimeConfigObject(values, buildMeta) {
     },
     logging: {
       endpoint: values.logEndpoint || undefined,
-    },
-    contactUpdate: {
-      apiEndpoint: values.contactUpdateApiEndpoint,
-      reviewApiEndpoint: values.contactUpdateReviewApiEndpoint.replace(/\/$/, ''),
-      reviewProxyEndpoint: values.contactUpdateReviewProxyEndpoint,
     },
     guestbook: {
       apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),

@@ -6,8 +6,8 @@ const deepLinkTargets = [
   { path: '/services#issue-report', selector: '#issue-report', label: 'issue report' },
   {
     path: '/contact',
-    selector: '[data-testid="contact-records-assistance"]',
-    label: 'clerk assistance',
+    selector: '#leadership',
+    label: 'leadership roster',
   },
   { path: '/meetings#calendar', selector: '#calendar', label: 'meetings calendar' },
 ];
