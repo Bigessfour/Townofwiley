@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   isDevMode,
   output,
@@ -38,6 +39,7 @@ const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
 const EMAIL_DESTINATION_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SMS_DESTINATION_PATTERN = /^1?\d{10}$/;
 const DEFAULT_ALERT_LANGUAGE = 'en';
+export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
 
 type AlertLanguage = 'en' | 'es';
 type AlertSignupChannel = 'email' | 'sms';
@@ -615,7 +617,66 @@ export class LocalizedWeatherPanel {
       this.isDestroyed = true;
     });
 
+    effect(() => {
+      if (this.isLoading()) {
+        return;
+      }
+
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const hash = window.location.hash.replace(/^#/, '');
+      if (hash === WEATHER_ALERT_SIGNUP_FRAGMENT) {
+        this.scheduleAlertSignupScroll();
+      }
+    });
+
     void this.loadWeather();
+  }
+
+  protected scrollToAlertSignup(event?: Event): void {
+    event?.preventDefault();
+
+    if (typeof window !== 'undefined') {
+      const nextUrl = `${window.location.pathname}${window.location.search}#${WEATHER_ALERT_SIGNUP_FRAGMENT}`;
+      window.history.replaceState(window.history.state, '', nextUrl);
+    }
+
+    this.scheduleAlertSignupScroll();
+  }
+
+  private scheduleAlertSignupScroll(maxAttempts = 20): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
+
+    let attempts = 0;
+    const selector = `#${WEATHER_ALERT_SIGNUP_FRAGMENT}`;
+
+    const attempt = () => {
+      attempts += 1;
+      const target = document.querySelector<HTMLElement>(selector);
+
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        if (!target.hasAttribute('tabindex')) {
+          target.setAttribute('tabindex', '-1');
+        }
+
+        queueMicrotask(() => {
+          target.focus({ preventScroll: true });
+        });
+        return;
+      }
+
+      if (attempts < maxAttempts) {
+        window.setTimeout(attempt, 100);
+      }
+    };
+
+    window.setTimeout(attempt, 0);
   }
 
   protected alertSeverityClass(severity: string): 'danger' | 'warn' | 'info' | 'secondary' {

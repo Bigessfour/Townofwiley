@@ -43,6 +43,13 @@ import {
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
+import {
+  buildLeadershipInsertOptions,
+  LEADERSHIP_INSERT_BOTTOM,
+  prepareLeadershipRosterMutationInput,
+  resolveLeadershipInsertIndex,
+} from '../leadership-roster-admin';
+import { leadershipGroupLabel } from '../leadership-roster-seed';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
@@ -87,6 +94,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly reordering = signal(false);
   protected readonly fileUploadingField = signal<string | null>(null);
   protected readonly fileUploadError = signal<string | null>(null);
+  protected readonly leadershipInsertPosition = signal(LEADERSHIP_INSERT_BOTTOM);
 
   protected readonly task = computed(() => {
     const id = this.taskId();
@@ -149,6 +157,25 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
   protected readonly showOrderedPanel = computed(
     () => this.isOrderedEditor() && !this.recordsLoading() && !this.loadError(),
+  );
+
+  protected readonly showOrderedPanelAtTop = computed(
+    () => this.showOrderedPanel() && !this.isLeadershipTask(),
+  );
+
+  protected readonly isLeadershipTask = computed(() => this.taskId() === 'update-leadership');
+
+  protected readonly selectedLeadershipGroupLabel = computed(() => {
+    const groupValue = this.formValues()['groupId'];
+    return typeof groupValue === 'string' ? leadershipGroupLabel(groupValue.trim()) : '';
+  });
+
+  protected readonly showLeadershipInsertPosition = computed(
+    () => this.isLeadershipTask() && !this.editingId() && this.orderedGroupFilterActive(),
+  );
+
+  protected readonly leadershipInsertOptions = computed(() =>
+    buildLeadershipInsertOptions(this.orderedRecords()),
   );
 
   protected readonly formTitle = computed(() => {
@@ -287,12 +314,23 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   }
 
   protected startNewRecord(): void {
+    const preservedGroupId =
+      this.isLeadershipTask() && typeof this.formValues()['groupId'] === 'string'
+        ? this.formValues()['groupId']
+        : undefined;
+
     this.editingId.set(null);
     this.submitResult.set(null);
     this.submitError.set(null);
     this.formValues.set(
       defaultDynamicFormValues(this.fields(), { taskId: this.taskId() ?? undefined }),
     );
+
+    if (typeof preservedGroupId === 'string' && preservedGroupId.trim()) {
+      this.updateField('groupId', preservedGroupId);
+    }
+
+    this.leadershipInsertPosition.set(LEADERSHIP_INSERT_BOTTOM);
     this.fileUploadError.set(null);
   }
 
@@ -328,19 +366,17 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return preview || prefix || this.recordLabel(record);
   }
 
-  protected async onOrderedListReorder(event: {
-    value?: Record<string, unknown>[];
-  }): Promise<void> {
+  protected updateLeadershipInsertPosition(value: string): void {
+    this.leadershipInsertPosition.set(value);
+  }
+
+  private async persistOrderedList(
+    reordered: Record<string, unknown>[],
+    successLabel = 'List order',
+  ): Promise<void> {
     const active = this.task();
     const config = this.orderedConfig();
-    const reordered = event.value ?? [];
     if (!active || !config || reordered.length === 0) {
-      return;
-    }
-
-    await this.staffAuth.refreshSession();
-    if (!this.staffAuth.isStaff()) {
-      this.submitError.set('Sign in at /admin/login before saving changes.');
       return;
     }
 
@@ -372,13 +408,56 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.orderedList.set(reordered);
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
-      this.showSavedToast('List order');
+      this.showSavedToast(successLabel);
     } catch (err: unknown) {
       this.orderedList.set(this.orderedRecords());
       const msg = err instanceof Error ? err.message : '';
       this.submitError.set(msg || 'Could not save the new order. Try again.');
+      throw err;
     } finally {
       this.reordering.set(false);
+    }
+  }
+
+  private async applyLeadershipInsertOrder(savedId: string, insertIndex: number): Promise<void> {
+    const existing = this.orderedRecords().filter(
+      (record) => String(record['id'] ?? '') !== savedId,
+    );
+    const newRecord = this.records().find((record) => String(record['id'] ?? '') === savedId);
+    if (!newRecord || newRecord['active'] === false) {
+      return;
+    }
+
+    const groupField = this.orderedConfig()?.groupField;
+    const groupValue = this.formValues()[groupField ?? 'groupId'];
+    const group = typeof groupValue === 'string' ? groupValue.trim() : '';
+    if (group && String(newRecord[groupField ?? 'groupId'] ?? '') !== group) {
+      return;
+    }
+
+    const reordered = [...existing];
+    reordered.splice(Math.min(insertIndex, reordered.length), 0, newRecord);
+    await this.persistOrderedList(reordered);
+  }
+
+  protected async onOrderedListReorder(event: {
+    value?: Record<string, unknown>[];
+  }): Promise<void> {
+    const reordered = event.value ?? [];
+    if (reordered.length === 0) {
+      return;
+    }
+
+    await this.staffAuth.refreshSession();
+    if (!this.staffAuth.isStaff()) {
+      this.submitError.set('Sign in at /admin/login before saving changes.');
+      return;
+    }
+
+    try {
+      await this.persistOrderedList(reordered);
+    } catch {
+      // persistOrderedList already sets submitError
     }
   }
 
@@ -399,7 +478,19 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
 
     try {
-      const input = formValuesToMutationInput(this.fields(), this.formValues(), this.editingId());
+      const rawInput = formValuesToMutationInput(
+        this.fields(),
+        this.formValues(),
+        this.editingId(),
+      );
+      const input =
+        active.id === 'update-leadership'
+          ? prepareLeadershipRosterMutationInput(rawInput, this.editingId())
+          : rawInput;
+      const insertIndex =
+        active.id === 'update-leadership' && !this.editingId()
+          ? resolveLeadershipInsertIndex(this.leadershipInsertPosition(), this.orderedRecords())
+          : null;
       let savedId: string;
 
       if (active.model === 'SiteSettings') {
@@ -420,11 +511,17 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       // Inform clerk of potential caching delay for public visitors (documented 6-hour live refresh TTL + 7-day snapshot per site-cms-content.ts and AGENTS.md).
       this.messages.add({
         severity: 'info',
-        summary: 'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
+        summary:
+          'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
         life: 10000,
       });
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
+
+      if (active.id === 'update-leadership' && insertIndex != null) {
+        await this.applyLeadershipInsertOrder(savedId, insertIndex);
+      }
+
       if (!this.isSingleton()) {
         this.startNewRecord();
       }

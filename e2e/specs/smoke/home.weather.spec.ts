@@ -74,6 +74,26 @@ test.describe('homepage weather', () => {
     await homePage.siteAlertButton.click();
     await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup/);
     await expect(homePage.weatherSignupShell).toBeVisible();
+    await expect(homePage.weatherSignupDestination).toBeInViewport();
+  });
+
+  test('weather page signup link scrolls to the SNS signup form', async ({ homePage }) => {
+    await homePage.enableWeatherProxy();
+    await homePage.enableAlertSignup('/mock-alert-signup');
+    await mockWeatherProxyRoute(homePage.page, '/mock-weather');
+
+    await homePage.page.goto('/weather', { waitUntil: 'domcontentloaded' });
+
+    await expect(homePage.weatherSignupShell).toBeVisible({ timeout: 20_000 });
+    await homePage.page.evaluate(() => window.scrollTo(0, 0));
+
+    await homePage.page
+      .locator('.weather-action-row')
+      .getByRole('link', { name: /Sign up for alerts/i })
+      .click();
+
+    await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup/);
+    await expect(homePage.weatherSignupDestination).toBeInViewport({ timeout: 10_000 });
   });
 
   test('renders the weather panel from the AWS proxy configuration', async ({ homePage }) => {
