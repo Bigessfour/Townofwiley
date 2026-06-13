@@ -102,12 +102,21 @@
     {
       "label": "serve:debug",
       "type": "shell",
-      "options": {
-        "env": {
-          "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
+      "command": "npm run serve:4300",
+      "windows": {
+        "options": {
+          "env": {
+            "PATH": "${env:NVM_SYMLINK};${env:PATH}"
+          }
         }
       },
-      "command": "/opt/homebrew/opt/node@24/bin/npx --yes kill-port 4200 4300; /opt/homebrew/opt/node@24/bin/node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4300",
+      "osx": {
+        "options": {
+          "env": {
+            "PATH": "/opt/homebrew/opt/node@24/bin:${env:PATH}"
+          }
+        }
+      },
       "isBackground": true,
       "problemMatcher": [
         {

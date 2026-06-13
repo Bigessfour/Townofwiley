@@ -26,7 +26,8 @@
     "mrmlnc.vscode-scss",
     "rangav.vscode-thunder-client",
     "wayou.vscode-todo-highlight",
-    "ecmel.vscode-html-css"
+    "ecmel.vscode-html-css",
+    "ms-edgedevtools.vscode-edge-devtools"
   ],
   "unwantedRecommendations": [
     "ms-dotnettools.csdevkit",
