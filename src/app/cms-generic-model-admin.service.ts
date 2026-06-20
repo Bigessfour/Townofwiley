@@ -21,8 +21,6 @@ import {
 } from './cms-admin/cms-staff-appsync-auth';
 import { LoggingService } from './logging.service';
 
-const client = generateClient();
-
 function safeSerializeAdminError(error: unknown): string {
   try {
     if (error instanceof Error) {
@@ -231,11 +229,11 @@ export class CmsGenericModelAdminService {
   ): Promise<GraphQLResult<TData>> {
     await requireAuthenticatedAdmin(this.staffAuth);
 
-    const response = (await client.graphql({
+    const response = (await generateClient().graphql({
       query,
       variables,
       authMode: 'userPool',
-    } as Parameters<typeof client.graphql>[0])) as GraphQLResult<TData>;
+    } as never)) as GraphQLResult<TData>;
 
     if (!response || typeof response !== 'object') {
       throw new Error('Empty GraphQL response from AppSync.');
