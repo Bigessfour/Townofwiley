@@ -33,6 +33,7 @@ import {
   prepareLeadershipRosterMutationInput,
   resolveLeadershipInsertIndex,
 } from '../leadership-roster-admin';
+import { electedRosterMissingMayorLine } from '../leadership-roster-mayor-check';
 import { leadershipGroupLabel } from '../leadership-roster-seed';
 import {
   LocalizedCmsContentStore,
@@ -190,6 +191,17 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly leadershipInsertOptions = computed(() =>
     buildLeadershipInsertOptions(this.orderedRecords()),
   );
+
+  protected readonly electedRosterMissingMayorWarning = computed(() => {
+    if (!this.isLeadershipTask()) {
+      return false;
+    }
+    const groupValue = this.formValues()['groupId'];
+    if (groupValue !== 'mayor-council') {
+      return false;
+    }
+    return electedRosterMissingMayorLine(this.records());
+  });
 
   protected readonly formTitle = computed(() => {
     const active = this.task();

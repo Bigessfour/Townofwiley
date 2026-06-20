@@ -228,6 +228,14 @@
             }
           </label>
           @if (field.name === 'groupId' && showOrderedPanel()) {
+            @if (electedRosterMissingMayorWarning()) {
+              <p-message
+                severity="warn"
+                styleClass="cms-record-editor__message"
+                data-testid="cms-mayor-missing-warning"
+                text="No Mayor line in Elected Officials yet. Adding trustees replaces the default list entirely — add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on /contact#leadership."
+              />
+            }
             <div class="cms-record-editor__ordered" data-testid="cms-ordered-panel">
               @if (isLeadershipTask() && selectedLeadershipGroupLabel()) {
                 <p class="cms-record-editor__ordered-label">

@@ -16,6 +16,7 @@
     "prebuild": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config:strict && npm run generate:cms-snapshot && node scripts/verify-public-cms-query.mjs",
     "verify:public-cms-query": "node scripts/verify-public-cms-query.mjs",
     "verify:cms-snapshot-parity": "node scripts/verify-cms-snapshot-parity.mjs",
+    "cms:ensure-mayor-row": "python3 scripts/ensure-mayor-roster-row.py",
     "verify:staff-cms-editor-models": "node scripts/verify-staff-cms-editor-models.mjs",
     "deploy:gen1:sitecopy": "python scripts/deploy-gen1-sitecopy-model.py",
     "pregenerate:ai-manifest": "node scripts/prepare-ai-manifest.mjs",

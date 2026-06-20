@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-20T18:53:24.692Z",
-  "buildSha": "b5e0c6b8192d04de2ff8976ce0fa75d6a3c02074",
+  "savedAt": "2026-06-20T19:03:38.199Z",
+  "buildSha": "e70b846f28157557ea01e7eae9b5e1d7d6d3850d",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -278,6 +278,14 @@
     }
   ],
   "leadershipRosterRecords": [
+    {
+      "id": "roster-mayor-council-0",
+      "groupId": "mayor-council",
+      "displayOrder": 0,
+      "lineEn": "Mayor: Steve McKitrick",
+      "lineEs": "Alcalde: Steve McKitrick",
+      "active": true
+    },
     {
       "id": "c4b3a770-5e48-4787-8317-3eb76a59d056",
       "groupId": "mayor-council",
