@@ -10,12 +10,11 @@
 
 ## Implementation
 
-| Piece | Location |
-| ----- | -------- |
-| Query flag + staff gate | `src/app/cms-admin/cms-preview-mode.service.ts` |
+| Piece                           | Location                                                      |
+| ------------------------------- | ------------------------------------------------------------- |
+| Query flag + staff gate         | `src/app/cms-admin/cms-preview-mode.service.ts`               |
 | Unfiltered GraphQL when preview | `PUBLIC_CMS_PREVIEW_*_QUERY` in `src/app/site-cms-content.ts` |
-| Skip 6-hour live refresh TTL | `shouldSkipLiveAppSyncFetch()` when preview is enabled |
-| Normalize inactive rows | `recordIsPublic()` in `LocalizedCmsContentStore` |
+| Inactive rows in preview        | `recordIsPublic()` in `LocalizedCmsContentStore`              |
 
 ## Future (Option B)
 

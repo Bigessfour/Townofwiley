@@ -33,7 +33,7 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-meeting>
-          <tr>
+          <tr [attr.id]="meeting.eventId ? 'event-' + meeting.eventId : null">
             <td>
               <div class="meetings-cell-title">
                 <strong>{{ meeting.title }}</strong>

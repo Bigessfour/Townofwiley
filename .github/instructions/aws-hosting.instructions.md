@@ -12,7 +12,7 @@ applyTo:
 
 # AWS Hosting Standards (Updated June 2026)
 
-**Current frontend hosting:** S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J` (SPA Function, OAI w/ OAC prepared, custom Response Headers Policy for CSP+security headers, managed CachingOptimized, logging enabled). Full details + domain + improved deploy (cache controls): `README.md` and `AWS_INFRASTRUCTURE_SOT.md` (manifest SSOT for IDs).
+**Current frontend hosting:** S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J` (SPA Function, OAC `E1UXALBLRIDL2E` active since 2026-06-20, custom Response Headers Policy for CSP+security headers, managed CachingOptimized, logging enabled). Full details + domain + improved deploy (cache controls): `README.md` and `AWS_INFRASTRUCTURE_SOT.md` (manifest SSOT for IDs).
 
 - **Production CD:** merges to `main` auto-deploy via GitHub Actions (`deploy-production` job in `git-workflow.yml`) using OIDC role `GitHubActions-TownOfWiley-StaticSiteDeploy`. Runbook: [`docs/github-actions-production-deploy.md`](../../docs/github-actions-production-deploy.md). Canonical script: [`scripts/deploy-static-site.sh`](../../scripts/deploy-static-site.sh) (`npm run deploy:site` for local break-glass).
 

@@ -3,11 +3,12 @@
   [attr.aria-label]="mode() === 'hero' ? 'Upload homepage photo' : 'Upload newsletter PDF'"
 >
   @if (mode() === 'hero') {
-    <h3 class="cms-upload-panel__title">Upload homepage photo (optional)</h3>
+    <h3 class="cms-upload-panel__title">Homepage photo — quick link</h3>
     <p class="cms-upload-panel__lead">
-      Choose a JPG, PNG, or WebP. Upload uses a secure presigned URL; CloudFront cache refreshes
-      automatically. Copy the web address into <strong>Photo web address</strong> in the homepage
-      form.
+      <strong>Easiest:</strong> open <strong>Change homepage photo or welcome text</strong> →
+      <strong>Edit content</strong> and use <strong>Choose photo from this computer</strong> at the
+      top of the form. This panel is an optional shortcut if you already uploaded and need to copy
+      the web address again.
     </p>
   } @else {
     <h3 class="cms-upload-panel__title">Upload newsletter PDF (optional)</h3>

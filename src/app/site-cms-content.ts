@@ -798,29 +798,27 @@ export const OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT = 'town-superintendent';
 /**
  * localStorage key for the client-side CMS snapshot (`tow-cms-snapshot-v1`).
  *
- * **Cache-first (live refresh):** When a build or browser snapshot is newer than
- * {@link CMS_LIVE_REFRESH_TTL_MS}, the public site skips AppSync on load and on
- * `/documents` refresh — see `docs/aws-cost-optimization-runbook.md`.
+ * **Revision-based CDN updates:** Clerks save to AppSync; DynamoDB streams publish fresh
+ * `/cms-snapshot.json` + `/cms-revision.json` to the static site bucket (~1 minute). The public
+ * site reads those files and **skips AppSync** when the revision matches — low cost, near-live UX.
  *
- * **7-day offline TTL:** After a successful live AppSync load, the browser persists
- * content here for {@link CMS_SNAPSHOT_TTL_MS} to keep the site usable when AppSync is
- * briefly unavailable. Residents may see content up to seven days old if live fetch
- * never succeeds.
+ * **7-day offline TTL:** Persisted snapshots expire after {@link CMS_SNAPSHOT_TTL_MS} when AppSync
+ * and CDN are unreachable.
  *
- * **Build snapshot:** `/cms-snapshot.json` is regenerated at deploy
- * (`scripts/generate-cms-snapshot.mjs`) and hydrated before localStorage; it is not
- * stored in localStorage and updates only on the next deploy.
- *
- * **When staff should force refresh:** After Data manager or in-app editor saves when
- * public pages still show old text; after API key rotation or a runtime-config redeploy.
- * Use {@link clearCmsCache} or `/admin` → Clear saved website copy, then Refresh from database.
+ * **Staff preview / force refresh:** `/admin` preview mode and **Refresh from database** still use
+ * live AppSync directly.
  */
 export const CMS_SNAPSHOT_STORAGE_KEY = 'tow-cms-snapshot-v1';
 
 /** All localStorage keys cleared by {@link clearCmsCache}. */
 export const CMS_SNAPSHOT_STORAGE_KEYS = [CMS_SNAPSHOT_STORAGE_KEY] as const;
 
-/** Skip live AppSync when snapshot `savedAt` is within this window (public traffic). */
+/** Poll `/cms-revision.json` while the tab is open to pick up clerk saves without AppSync. */
+export const CMS_REVISION_POLL_MS = 2 * 60 * 1000;
+
+/**
+ * @deprecated Superseded by {@link CMS_REVISION_POLL_MS} + `/cms-revision.json`. Kept for tests.
+ */
 export const CMS_LIVE_REFRESH_TTL_MS = 6 * 60 * 60 * 1000;
 
 /** Persisted snapshot TTL: seven days in milliseconds. */
@@ -844,6 +842,12 @@ export function clearCmsCache(): void {
   } catch {
     // localStorage may be blocked in private mode or SSR.
   }
+}
+
+interface CmsRevisionManifest {
+  version: 1;
+  revision: string;
+  savedAt: string;
 }
 
 interface CmsPersistedSnapshot {
@@ -904,8 +908,11 @@ export class LocalizedCmsContentStore {
   private readonly extendedLoadState = signal<CmsExtendedLoadState>('idle');
   /** True after `/cms-snapshot.json` or localStorage hydrate; used when live AppSync fails. */
   private offlineSnapshotApplied = false;
-  /** `savedAt` from the active build or localStorage snapshot (cache-first gate). */
+  /** `savedAt` from the active build or localStorage snapshot (offline TTL gate). */
   private activeSnapshotSavedAt: string | null = null;
+  /** ISO timestamp from the active snapshot; matches `/cms-revision.json` when synced. */
+  private activeContentRevision: string | null = null;
+  private revisionPollScheduled = false;
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -937,6 +944,17 @@ export class LocalizedCmsContentStore {
   /** Localized roster lines keyed by `groupId` (`mayor-council`, `town-administration`). */
   readonly leadershipRosterLinesByGroup = computed(() =>
     this.normalizeLeadershipRosterByGroup(this.leadershipRosterRecordsState(), this.siteLanguage()),
+  );
+  /**
+   * Localized roster entries (id + line) keyed by `groupId`. Adds the AppSync record id so the
+   * public template can render `id="leadership-row-{groupId}-{recordId}"` anchors for the
+   * "See on live site" deep links from `/admin`.
+   */
+  readonly leadershipRosterEntriesByGroup = computed(() =>
+    this.normalizeLeadershipRosterEntriesByGroup(
+      this.leadershipRosterRecordsState(),
+      this.siteLanguage(),
+    ),
   );
 
   /**
@@ -1015,6 +1033,8 @@ export class LocalizedCmsContentStore {
    */
   resetForUnitTests(): void {
     this.activeSnapshotSavedAt = null;
+    this.activeContentRevision = null;
+    this.revisionPollScheduled = false;
     this.offlineSnapshotApplied = false;
     this.applyFallbackContent();
     this.extendedLoadState.set('idle');
@@ -1028,55 +1048,55 @@ export class LocalizedCmsContentStore {
       this.loadState.set('studio');
     }
 
-    if (this.hasCmsCredentials()) {
-      if (this.shouldSkipLiveAppSyncFetch()) {
-        this.markContentServedFromSnapshotCache();
-        return;
-      }
+    const syncedFromCdn = await this.syncPublicContentFromCdnIfRevisionChanged();
+    if (syncedFromCdn) {
+      this.loadState.set('studio');
+    }
 
-      if (!hydratedOffline) {
-        this.loadState.set('loading');
+    if (this.shouldFetchLiveAppSync()) {
+      if (this.hasCmsCredentials()) {
+        await this.loadContent({ backgroundRefresh: hydratedOffline || syncedFromCdn });
       }
-      await this.loadContent();
+      return;
+    }
+
+    if (hydratedOffline || syncedFromCdn) {
+      this.markContentServedFromSnapshotCache();
+      this.scheduleRevisionPolling();
       return;
     }
 
     await new Promise<void>((resolve) => queueMicrotask(resolve));
 
     if (this.hasCmsCredentials()) {
-      if (this.shouldSkipLiveAppSyncFetch()) {
-        this.markContentServedFromSnapshotCache();
-        return;
-      }
-
-      if (!hydratedOffline) {
-        this.loadState.set('loading');
-      }
       await this.loadContent();
     }
   }
 
   /**
-   * Re-fetch CMS content for public pages (document hub navigation, etc.).
-   * Skips AppSync when the active snapshot is within {@link CMS_LIVE_REFRESH_TTL_MS}.
-   * On AppSync failure, falls back to localStorage or build snapshot for resilience.
+   * Re-fetch public CMS content from the CDN revision manifest (not AppSync).
    */
   async refreshContent(): Promise<void> {
+    const synced = await this.syncPublicContentFromCdnIfRevisionChanged();
+    if (synced) {
+      this.loadState.set('studio');
+      this.markContentServedFromSnapshotCache();
+    }
+
     if (!this.hasCmsCredentials()) {
-      // Re-hydrate from build snapshot / persisted cache instead of wiping PublicDocument rows
-      // (document hub calls refresh on navigation; E2E and local serve often lack AppSync keys).
-      const rehydrated = await this.hydrateFromOfflineSnapshots();
-      if (!rehydrated) {
-        this.applyFallbackContent();
+      if (!synced) {
+        const rehydrated = await this.hydrateFromOfflineSnapshots();
+        if (!rehydrated) {
+          this.applyFallbackContent();
+        }
       }
       return;
     }
 
-    if (this.shouldSkipLiveAppSyncFetch()) {
-      return;
+    if (this.shouldFetchLiveAppSync()) {
+      const hasDisplayedContent = this.loadState() === 'studio';
+      await this.loadContent({ backgroundRefresh: hasDisplayedContent });
     }
-
-    await this.loadContent();
   }
 
   /**
@@ -1087,6 +1107,7 @@ export class LocalizedCmsContentStore {
     clearCmsCache();
     this.offlineSnapshotApplied = false;
     this.activeSnapshotSavedAt = null;
+    this.activeContentRevision = null;
   }
 
   /**
@@ -1099,6 +1120,7 @@ export class LocalizedCmsContentStore {
     clearCmsCache();
     this.offlineSnapshotApplied = false;
     this.activeSnapshotSavedAt = null;
+    this.activeContentRevision = null;
 
     if (!this.hasCmsCredentials()) {
       const rehydrated = await this.hydrateFromOfflineSnapshots();
@@ -1168,10 +1190,13 @@ export class LocalizedCmsContentStore {
   private async loadContent(options?: {
     bypassOfflineFallback?: boolean;
     reconcileAnnouncements?: boolean;
+    backgroundRefresh?: boolean;
   }): Promise<void> {
-    this.loadState.set('loading');
+    if (!options?.backgroundRefresh) {
+      this.loadState.set('loading');
+      this.contentSourceState.set('loading');
+    }
     this.loadErrorState.set(null);
-    this.contentSourceState.set('loading');
 
     try {
       const coreQuery = this.previewMode.isEnabled()
@@ -1522,6 +1547,7 @@ export class LocalizedCmsContentStore {
     this.leadershipRosterRecordsState.set(snapshot.leadershipRosterRecords ?? []);
     this.siteCopyRecordsState.set(snapshot.siteCopyRecords ?? []);
     this.activeSnapshotSavedAt = snapshot.savedAt;
+    this.activeContentRevision = snapshot.savedAt;
     if (this.snapshotIncludesExtendedContent(snapshot)) {
       this.extendedLoadState.set('studio');
     }
@@ -1535,22 +1561,6 @@ export class LocalizedCmsContentStore {
       (snapshot.leadershipRosterRecords?.length ?? 0) > 0 ||
       (snapshot.siteCopyRecords?.length ?? 0) > 0
     );
-  }
-
-  private shouldSkipLiveAppSyncFetch(): boolean {
-    if (this.previewMode.isEnabled()) {
-      return false;
-    }
-
-    if (!this.hasCmsCredentials() || !this.activeSnapshotSavedAt) {
-      return false;
-    }
-
-    if (!this.isSnapshotWithinOfflineTtl(this.activeSnapshotSavedAt)) {
-      return false;
-    }
-
-    return this.isSnapshotWithinLiveRefreshTtl(this.activeSnapshotSavedAt);
   }
 
   private markContentServedFromSnapshotCache(): void {
@@ -1568,6 +1578,71 @@ export class LocalizedCmsContentStore {
     }
   }
 
+  private shouldFetchLiveAppSync(): boolean {
+    return this.previewMode.isEnabled();
+  }
+
+  private scheduleRevisionPolling(): void {
+    if (
+      this.previewMode.isEnabled() ||
+      typeof window === 'undefined' ||
+      this.revisionPollScheduled
+    ) {
+      return;
+    }
+
+    this.revisionPollScheduled = true;
+    window.setInterval(() => {
+      void this.syncPublicContentFromCdnIfRevisionChanged().then((synced) => {
+        if (synced) {
+          this.loadState.set('studio');
+          this.markContentServedFromSnapshotCache();
+        }
+      });
+    }, CMS_REVISION_POLL_MS);
+  }
+
+  private async fetchRemoteContentRevision(): Promise<string | null> {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    try {
+      const manifest = await firstValueFrom(
+        this.http.get<CmsRevisionManifest>('/cms-revision.json', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        }),
+      );
+      if (manifest?.version !== 1) {
+        return null;
+      }
+
+      const revision = manifest.revision?.trim() || manifest.savedAt?.trim();
+      return revision || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async syncPublicContentFromCdnIfRevisionChanged(): Promise<boolean> {
+    const remoteRevision = await this.fetchRemoteContentRevision();
+    if (!remoteRevision || remoteRevision === this.activeContentRevision) {
+      return false;
+    }
+
+    const loaded = await this.hydrateFromBuildSnapshot();
+    if (!loaded) {
+      return false;
+    }
+
+    this.offlineSnapshotApplied = true;
+    this.persistSnapshot();
+    this.activeContentRevision = remoteRevision;
+    return true;
+  }
+
   private isSnapshotWithinOfflineTtl(savedAt: string): boolean {
     const savedAtMs = Date.parse(savedAt);
     if (Number.isNaN(savedAtMs)) {
@@ -1575,15 +1650,6 @@ export class LocalizedCmsContentStore {
     }
 
     return Date.now() - savedAtMs <= CMS_SNAPSHOT_TTL_MS;
-  }
-
-  private isSnapshotWithinLiveRefreshTtl(savedAt: string): boolean {
-    const savedAtMs = Date.parse(savedAt);
-    if (Number.isNaN(savedAtMs)) {
-      return false;
-    }
-
-    return Date.now() - savedAtMs <= CMS_LIVE_REFRESH_TTL_MS;
   }
 
   private getRuntimeBuildSha(): string | undefined {
@@ -2026,11 +2092,27 @@ export class LocalizedCmsContentStore {
       .map((r) => ({ id: r.id, title: r.title, url: r.url, source: r.source }));
   }
 
-  private normalizeLeadershipRosterByGroup(
+  private normalizeLeadershipRosterEntriesByGroup(
     records: LeadershipRosterEntryRecord[],
     language: SiteLanguage,
-  ): ReadonlyMap<string, readonly string[]> {
-    const prepared = records
+  ): ReadonlyMap<string, readonly { id: string; line: string }[]> {
+    const prepared = this.prepareLeadershipRosterRows(records, language);
+    const map = new Map<string, { id: string; line: string }[]>();
+
+    for (const row of prepared) {
+      const bucket = map.get(row.groupId) ?? [];
+      bucket.push({ id: row.id, line: row.line! });
+      map.set(row.groupId, bucket);
+    }
+
+    return map;
+  }
+
+  private prepareLeadershipRosterRows(
+    records: LeadershipRosterEntryRecord[],
+    language: SiteLanguage,
+  ): { id: string; groupId: string; displayOrder: number; line: string | undefined }[] {
+    return records
       .filter((record) => this.recordIsPublic(record))
       .map((record) => {
         const groupId = (this.cleanText(record.groupId) ?? '').toLowerCase();
@@ -2057,7 +2139,13 @@ export class LocalizedCmsContentStore {
 
         return left.id.localeCompare(right.id);
       });
+  }
 
+  private normalizeLeadershipRosterByGroup(
+    records: LeadershipRosterEntryRecord[],
+    language: SiteLanguage,
+  ): ReadonlyMap<string, readonly string[]> {
+    const prepared = this.prepareLeadershipRosterRows(records, language);
     const map = new Map<string, string[]>();
 
     for (const row of prepared) {

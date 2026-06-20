@@ -129,7 +129,7 @@ jobs:
                 E2E_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              infrastructure/nws-weather-proxy/*|infrastructure/paystar-proxy/*)
+              infrastructure/nws-weather-proxy/*)
                 SITE_PROXY_CHANGED=true
                 DOCS_ONLY=false
                 ;;

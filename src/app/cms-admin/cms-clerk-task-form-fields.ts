@@ -1,11 +1,12 @@
-import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
 import { LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL } from '../leadership-roster-group-ids';
+import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
 import {
-    datetimeLocalToIso,
-    isoToDateInput,
-    isoToDatetimeLocal,
+  datetimeLocalToIso,
+  isoToDateInput,
+  isoToDatetimeLocal,
 } from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
+import type { ClerkUploadFieldValue } from './cms-clerk-upload-field';
 
 export type ClerkFormFieldType =
   | 'text'
@@ -32,6 +33,8 @@ export interface ClerkFormFieldDefinition {
   options?: ClerkFormFieldOption[];
   accept?: string;
   uploadSectionId?: string;
+  /** After presigned upload: store S3 key (newsletter PDF) or public HTTPS URL (hero photo). */
+  uploadValue?: ClerkUploadFieldValue;
 }
 
 /** PrimeNG form fields for every clerk CMS task (create + edit via AppSync). */
@@ -61,6 +64,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
       type: 'fileOrUrl',
       accept: 'application/pdf',
       uploadSectionId: 'newsletter',
+      uploadValue: 'storageKey',
       help: 'Upload a PDF or paste the storage file code (documents/newsletter/…).',
     },
     { name: 'priority', label: 'Priority (number)', type: 'number', help: '1 is highest' },
@@ -83,25 +87,30 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   ],
   homepage: [
     { name: 'townName', label: 'Town Name', required: true },
+    {
+      name: 'heroImageUrl',
+      label: 'Homepage hero photo',
+      type: 'fileOrUrl',
+      accept: 'image/jpeg,image/png,image/webp,image/gif',
+      uploadSectionId: 'cms-uploads/hero',
+      uploadValue: 'publicUrl',
+      placeholder: 'https://townofwiley.gov/media/cms/hero/your-photo.webp',
+      help: 'Choose a photo from this computer (recommended). The web address fills in automatically — then click Save. You can also paste a public https:// link, or leave blank for the default Town photo.',
+    },
+    { name: 'heroTitle', label: 'Hero Title' },
+    { name: 'heroMessage', label: 'Hero Message', type: 'textarea' },
+    { name: 'heroSubtext', label: 'Hero subtext' },
+    { name: 'heroEyebrow', label: 'Hero eyebrow' },
+    { name: 'heroStatus', label: 'Hero status' },
+    { name: 'welcomeLabel', label: 'Welcome label' },
+    { name: 'welcomeHeading', label: 'Welcome Heading' },
+    { name: 'welcomeBody', label: 'Welcome Body', type: 'textarea' },
+    { name: 'welcomeCaption', label: 'Welcome caption' },
     { name: 'officeHours', label: 'Office hours', placeholder: 'Monday–Friday 8am–5pm' },
     { name: 'address', label: 'Address' },
     { name: 'phone', label: 'Phone' },
     { name: 'email', label: 'Email' },
     { name: 'pageTitle', label: 'Page title (browser tab)' },
-    { name: 'heroEyebrow', label: 'Hero eyebrow' },
-    { name: 'heroStatus', label: 'Hero status' },
-    { name: 'heroTitle', label: 'Hero Title' },
-    { name: 'heroMessage', label: 'Hero Message', type: 'textarea' },
-    { name: 'heroSubtext', label: 'Hero subtext' },
-    {
-      name: 'heroImageUrl',
-      label: 'Photo web address (https://)',
-      help: 'Paste from Upload homepage photo above',
-    },
-    { name: 'welcomeLabel', label: 'Welcome label' },
-    { name: 'welcomeHeading', label: 'Welcome Heading' },
-    { name: 'welcomeBody', label: 'Welcome Body', type: 'textarea' },
-    { name: 'welcomeCaption', label: 'Welcome caption' },
   ],
   'emergency-banner': [
     { name: 'label', label: 'Label (short badge)', required: true, placeholder: 'ALERT' },

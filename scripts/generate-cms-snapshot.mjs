@@ -303,7 +303,22 @@ async function main() {
 
   const snapshot = buildSnapshot(coreDataWithFreshAnnouncements, extendedData, resolveGitSha());
   writeFileSync(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
+
+  const revisionPath = join(repoRoot, 'public', 'cms-revision.json');
+  writeFileSync(
+    revisionPath,
+    `${JSON.stringify(
+      {
+        version: 1,
+        revision: snapshot.savedAt,
+        savedAt: snapshot.savedAt,
+      },
+      null,
+      2,
+    )}\n`,
+  );
   console.log(`CMS snapshot written to ${snapshotPath}`);
+  console.log(`CMS revision manifest written to ${revisionPath}`);
 }
 
 main().catch((error) => {

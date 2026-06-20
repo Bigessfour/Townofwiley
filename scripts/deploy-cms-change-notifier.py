@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -34,6 +35,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--audit-table", default="TownOfWileyCmsAuditLog")
     parser.add_argument("--region", default="us-east-2")
     parser.add_argument("--runtime", default="python3.13")
+    parser.add_argument(
+        "--appsync-endpoint",
+        default="",
+        help="Public CMS GraphQL endpoint (defaults to gen1-production-bindings.json).",
+    )
+    parser.add_argument(
+        "--appsync-api-key",
+        default="",
+        help="Public CMS API key (defaults to APPSYNC_CMS_API_KEY / APPSYNC_API_KEY env).",
+    )
+    parser.add_argument(
+        "--snapshot-bucket",
+        default="",
+        help="Static site bucket for cms-snapshot.json (defaults to bindings hosting bucket).",
+    )
     return parser.parse_args()
 
 
@@ -165,7 +181,11 @@ def ensure_stream_enabled(table_name: str, region: str) -> str:
 
 
 def ensure_role(
-    role_name: str, *, audit_table_arn: str, source_tables: list[str]
+    role_name: str,
+    *,
+    audit_table_arn: str,
+    source_tables: list[str],
+    snapshot_bucket: str,
 ) -> str:
     account = "570912405222"
     trust = {
@@ -199,6 +219,14 @@ def ensure_role(
                 "Effect": "Allow",
                 "Action": ["dynamodb:PutItem", "dynamodb:Query"],
                 "Resource": [audit_table_arn, f"{audit_table_arn}/index/*"],
+            },
+            {
+                "Effect": "Allow",
+                "Action": ["s3:PutObject"],
+                "Resource": [
+                    f"arn:aws:s3:::{snapshot_bucket}/cms-snapshot.json",
+                    f"arn:aws:s3:::{snapshot_bucket}/cms-revision.json",
+                ],
             },
         ],
     }
@@ -296,7 +324,7 @@ def ensure_lambda(
                 "--runtime",
                 runtime,
                 "--timeout",
-                "30",
+                "60",
                 "--memory-size",
                 "256",
                 "--role",
@@ -321,7 +349,7 @@ def ensure_lambda(
                 "--handler",
                 "index.handler",
                 "--timeout",
-                "30",
+                "60",
                 "--memory-size",
                 "256",
                 "--zip-file",
@@ -337,8 +365,7 @@ def ensure_lambda(
 def ensure_stream_mapping(
     function_name: str, stream_arn: str, table_name: str, region: str
 ) -> None:
-    uuid_suffix = table_name.replace("-", "")[:16]
-    statement_id = f"CmsAuditStream{uuid_suffix}"
+    table_name.replace("-", "")[:16]
     try:
         run_aws(
             [
@@ -392,8 +419,26 @@ def main() -> int:
     audit_arn = ensure_audit_table(args.audit_table, args.region)
     stream_arns = [ensure_stream_enabled(name, args.region) for name in source_tables]
     archive = package_backend()
+    snapshot_bucket = (
+        args.snapshot_bucket.strip()
+        or bindings.get("hosting", {}).get("s3Bucket", "")
+        or "townofwiley-static-site"
+    )
+    appsync_endpoint = (
+        args.appsync_endpoint.strip()
+        or bindings.get("appSync", {}).get("graphqlEndpoint", "").strip()
+        or os.environ.get("APPSYNC_CMS_ENDPOINT", "").strip()
+    )
+    appsync_api_key = (
+        args.appsync_api_key.strip()
+        or os.environ.get("APPSYNC_CMS_API_KEY", "").strip()
+        or os.environ.get("APPSYNC_API_KEY", "").strip()
+    )
     role_arn = ensure_role(
-        args.role_name, audit_table_arn=audit_arn, source_tables=source_tables
+        args.role_name,
+        audit_table_arn=audit_arn,
+        source_tables=source_tables,
+        snapshot_bucket=snapshot_bucket,
     )
     environment = {
         "AUDIT_LOG_TABLE": args.audit_table,
@@ -402,6 +447,10 @@ def main() -> int:
         "STAFF_GROUP": bindings["cognito"].get("staffGroup", "Staff"),
         "CMS_TABLE_SUFFIX": f"-{bindings['appSync']['apiId']}-main",
         "CMS_AUDIT_IGNORED_MODELS": "EmailAlias",
+        "CMS_SNAPSHOT_BUCKET": snapshot_bucket,
+        "CMS_SNAPSHOT_PUBLISH_ENABLED": "true",
+        "APPSYNC_CMS_ENDPOINT": appsync_endpoint,
+        "APPSYNC_CMS_API_KEY": appsync_api_key,
     }
     function_arn = ensure_lambda(
         args.function_name,

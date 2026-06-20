@@ -4,14 +4,14 @@
 
 The official, bilingual (English/Spanish) website for the Town of Wiley, Colorado — built and operated as a modern, low-cost, serverless municipal platform.
 
-| Area | Stack |
-| --- | --- |
-| Frontend | Angular 21 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens |
-| Hosting | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing) |
-| Content (CMS) | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth |
-| Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing) |
-| Quality | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility |
-| CI/CD | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration |
+| Area             | Stack                                                                                                    |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| Frontend         | Angular 21 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens                         |
+| Hosting          | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing)    |
+| Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
+| Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
+| Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility         |
+| CI/CD            | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration |
 
 Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
 
@@ -212,22 +212,22 @@ Current security hardening:
 
 Required Amplify environment variables (set in Amplify Console → App settings → Environment variables for the `main` branch):
 
-| Variable                             | Purpose                                                     |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `APPSYNC_CMS_ENDPOINT`               | AppSync GraphQL endpoint URL                                |
-| `APPSYNC_CMS_API_KEY`                | AppSync public-read API key                                 |
-| `APPSYNC_CMS_REGION`                 | AWS region (e.g. `us-east-2`)                               |
-| `EASYPEASY_CHAT_URL`                 | Easy-Peasy bot embed URL                                    |
-| `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                        |
-| `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                            |
-| `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                |
-| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)             |
-| `CONTACT_UPDATE_REVIEW_API_URL`      | JWT-protected staff review API for `/admin#updates`         |
-| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | **Deprecated** public proxy (use review API URL instead)    |
-| `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub   |
-| `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links          |
-| `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links             |
-| `CLERK_SETUP_AWS_CONSOLE_URL`        | Optional direct AWS console URL for the `/admin` CMS hub    |
+| Variable                             | Purpose                                                                                         |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `APPSYNC_CMS_ENDPOINT`               | AppSync GraphQL endpoint URL                                                                    |
+| `APPSYNC_CMS_API_KEY`                | AppSync public-read API key                                                                     |
+| `APPSYNC_CMS_REGION`                 | AWS region (e.g. `us-east-2`)                                                                   |
+| `EASYPEASY_CHAT_URL`                 | Easy-Peasy bot embed URL                                                                        |
+| `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | Lambda Function URL for alert signup                                                            |
+| `SEVERE_WEATHER_SIGNUP_ENABLED`      | `true` / `false`                                                                                |
+| `LOG_ENDPOINT`                       | Frontend log ingest endpoint                                                                    |
+| `CONTACT_UPDATE_API_ENDPOINT`        | Lambda Function URL for contact updates (write)                                                 |
+| `CONTACT_UPDATE_REVIEW_API_URL`      | JWT-protected staff review API for `/admin#updates`                                             |
+| `CONTACT_UPDATE_REVIEW_PROXY_URL`    | **Deprecated** public proxy (use review API URL instead)                                        |
+| `CLERK_SETUP_AWS_ACCOUNT_ID`         | Town AWS account ID shown on the unified `/admin` CMS hub                                       |
+| `CLERK_SETUP_AMPLIFY_APP_ID`         | Amplify app ID used for the `/admin` CMS hub links                                              |
+| `CLERK_SETUP_AWS_REGION`             | AWS region used to build `/admin` console links                                                 |
+| `CLERK_SETUP_AWS_CONSOLE_URL`        | Optional direct AWS console URL for the `/admin` CMS hub                                        |
 | `CLERK_SETUP_STUDIO_URL`             | Optional override for the AppSync Queries console URL shown under **Advanced (IT)** on `/admin` |
 
 **Production builds are strict:** `npm run prebuild` / Amplify / GitHub Actions require every key in [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json) (`requiredForProduction`). Missing vars fail the build with a clear error. Local `npm start` still allows empty values for optional dev work.
@@ -378,50 +378,24 @@ The Town's preferred utility payment rollout path is now Paystar because it best
 Current implementation status:
 
 - The public payment card still supports billing-help email as the fallback path.
-- A Paystar runtime-config scaffold now exists for the resident-services payment card.
-- A town-managed proxy (`infrastructure/paystar-proxy`) implements:
-  - **Hosted portal mode**: returns the configured payer portal URL (matches Paystar’s turnkey hosted portal described in their docs).
-  - **Optional REST bridge**: when `PAYSTAR_UPSTREAM_LAUNCH_URL` and `PAYSTAR_UPSTREAM_API_KEY` are set on the Lambda, the proxy POSTs a documented town-side payload to Paystar’s tenant launch endpoint and maps common response shapes to the field the Angular app expects (`launchUrl`, `referenceId`, etc.). Paths and headers should be adjusted once Paystar confirms the contract from [their documentation](https://docs.paystar.io/).
-  - **Receipt stub**: `GET .../receipt/{id}` returns **501** until `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` (must include `{id}`) and the API key are configured—aligned with Query/Events-style APIs described for integrators.
-- Paystar **hosts** the payment APIs and portals; the Town does **not** need an “AWS host for Paystar’s API” to exist. You **do** typically need an AWS (or other) **edge** component—this Lambda (or similar)—to hold **secrets**, enforce CORS, and map payloads, because the browser must not ship vendor API keys. That matches Paystar’s model of hosted portals plus REST APIs and SDKs for deeper integration ([introduction](https://docs.paystar.io/)).
+- Hosted Paystar portal links via `resolveQuickPayHref()` on `/pay-bill` and `/services` (see `src/app/payments/paystar-quick-pay.ts`).
+- CTAs are disabled when `PAYSTAR_PORTAL_URL` is empty; no in-browser API or proxy path.
 
 Traceability:
 
 - `src/app/payments/paystar-config.ts`
-- `src/app/payments/paystar-connection.ts`
-- `src/app/payments/paystar-api-contract.ts` (town proxy HTTP contract)
-- `src/app/payments/paystar-docs.ts` (links + integration phases)
+- `src/app/payments/paystar-quick-pay.ts`
 - `src/app/resident-services/resident-services.ts`
-- `infrastructure/paystar-proxy/index.mjs`
 - `docs/incomplete-items-reference.md`
 
 Runtime configuration sources:
 
-- `PAYSTAR_MODE`
-- `PAYSTAR_PORTAL_URL`
-- `PAYSTAR_API_ENDPOINT` (browser → town API Gateway / Function URL **base**, no trailing slash; app calls `POST` base and `GET` `{base}/receipt/{id}`)
+- `PAYSTAR_PORTAL_URL` (hosted portal URL; defaults in `scripts/lib/runtime-config-env.mjs`)
 
-**Lambda-only environment variables** (never in `public/runtime-config.js`):
+Recommended deployment path:
 
-- `PAYSTAR_UPSTREAM_LAUNCH_URL` — full URL Paystar gives for creating a payer session or checkout (set when credentials arrive).
-- `PAYSTAR_UPSTREAM_API_KEY` — secret; prefer **AWS Secrets Manager** with a small bootstrap in Lambda, or encrypted env in Lambda configuration.
-- `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` — optional; e.g. `https://api.vendor.example/payments/{id}/receipt` for GET receipt proxying.
-
-**AWS MCP:** This Cursor workspace does not include an AWS MCP server (only browser and optional todo tools). Configure API Gateway + Lambda + secrets in the [AWS Console](https://console.aws.amazon.com/) or your usual IaC (SAM/CDK/Terraform) using the variables above.
-
-Supported modes:
-
-- `none`: keep the resident-facing payment card on staff-help fallback only
-- `hosted`: open the secure Paystar portal directly from the homepage card (or via proxy returning the same URL)
-- `api`: call a town-managed endpoint first; proxy either forwards to Paystar REST (when upstream env is set) or returns the hosted portal URL
-
-Recommended near-term deployment path:
-
-1. Set `PAYSTAR_MODE=hosted`.
-2. Set `PAYSTAR_PORTAL_URL` to the Town's live Paystar payment page.
-3. Point `PAYSTAR_API_ENDPOINT` at the deployed paystar-proxy base URL when you want a single CORS-safe contract; until then the site can use hosted mode without the proxy.
-4. Redeploy Amplify so the homepage payment card exposes the secure Paystar action.
-5. When Paystar provides REST details, set upstream Lambda env vars and switch to `api` mode for server-mediated launch and (later) receipts.
+1. Set `PAYSTAR_PORTAL_URL` to the Town's live Paystar payment page.
+2. Redeploy static site so `runtime-config.js` exposes the portal URL.
 
 Operational note:
 

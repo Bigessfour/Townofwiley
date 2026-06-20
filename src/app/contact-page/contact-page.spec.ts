@@ -4,19 +4,39 @@ import { type CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { ContactPage, parseRosterLine } from './contact-page';
 
+interface RosterEntry {
+  id: string;
+  line: string;
+}
+
 interface ContactPageStore {
   contacts: ReturnType<typeof signal<CmsContact[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
-  leadershipRosterLinesByGroup: ReturnType<typeof signal<ReadonlyMap<string, readonly string[]>>>;
+  leadershipRosterEntriesByGroup: ReturnType<
+    typeof signal<ReadonlyMap<string, readonly RosterEntry[]>>
+  >;
+}
+
+function rosterMapFromLines(
+  entries: Iterable<[string, readonly string[]]>,
+): ReadonlyMap<string, readonly RosterEntry[]> {
+  const map = new Map<string, readonly RosterEntry[]>();
+  for (const [groupId, lines] of entries) {
+    map.set(
+      groupId,
+      lines.map((line, index) => ({ id: `${groupId}-${index}`, line })),
+    );
+  }
+  return map;
 }
 
 function configure(
-  store: Omit<ContactPageStore, 'leadershipRosterLinesByGroup'> &
-    Partial<Pick<ContactPageStore, 'leadershipRosterLinesByGroup'>>,
+  store: Omit<ContactPageStore, 'leadershipRosterEntriesByGroup'> &
+    Partial<Pick<ContactPageStore, 'leadershipRosterEntriesByGroup'>>,
   language: 'en' | 'es' = 'en',
 ) {
   const fullStore: ContactPageStore = {
-    leadershipRosterLinesByGroup: signal(new Map<string, readonly string[]>()),
+    leadershipRosterEntriesByGroup: signal(new Map<string, readonly RosterEntry[]>()),
     ...store,
   };
   TestBed.configureTestingModule({
@@ -94,11 +114,8 @@ describe('ContactPage', () => {
   });
 
   it('renders administration roster with separate mailto links when contacts exist', () => {
-    const rosterMap = new Map<string, readonly string[]>([
-      [
-        'town-administration',
-        ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman'],
-      ],
+    const rosterMap = rosterMapFromLines([
+      ['town-administration', ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman']],
     ]);
     const fixture = configure({
       contacts: signal<CmsContact[]>([
@@ -127,7 +144,7 @@ describe('ContactPage', () => {
         },
       ]),
       isLoading: signal(false),
-      leadershipRosterLinesByGroup: signal(rosterMap),
+      leadershipRosterEntriesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.contact-administration-card .contact-roster-empty')).toBeNull();
@@ -144,13 +161,13 @@ describe('ContactPage', () => {
   });
 
   it('exposes elected officials at #leadership and replaces roster from CMS', () => {
-    const rosterMap = new Map<string, readonly string[]>([
+    const rosterMap = rosterMapFromLines([
       ['mayor-council', ['Mayor: From CMS', 'Councilman: From CMS']],
     ]);
     const fixture = configure({
       contacts: signal<CmsContact[]>([]),
       isLoading: signal(false),
-      leadershipRosterLinesByGroup: signal(rosterMap),
+      leadershipRosterEntriesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
     const leadership = el.querySelector('#leadership');
@@ -168,24 +185,55 @@ describe('ContactPage', () => {
     const fixture = configure({
       contacts: signal<CmsContact[]>([]),
       isLoading: signal(false),
-      leadershipRosterLinesByGroup: signal(new Map<string, readonly string[]>()),
+      leadershipRosterEntriesByGroup: signal(new Map<string, readonly RosterEntry[]>()),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('.contact-roster-empty').length).toBeGreaterThan(0);
   });
 
   it('replaces town administration roster from CMS', () => {
-    const rosterMap = new Map<string, readonly string[]>([
-      ['town-administration', ['City Clerk: From CMS']],
-    ]);
+    const rosterMap = rosterMapFromLines([['town-administration', ['City Clerk: From CMS']]]);
     const fixture = configure({
       contacts: signal<CmsContact[]>([]),
       isLoading: signal(false),
-      leadershipRosterLinesByGroup: signal(rosterMap),
+      leadershipRosterEntriesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.contact-administration-card .contact-roster-name')?.textContent).toBe(
       'From CMS',
     );
+  });
+
+  it('exposes per-record DOM ids for the See on live site deep links', () => {
+    const rosterMap = new Map<string, readonly RosterEntry[]>([
+      ['town-administration', [{ id: 'roster-clerk', line: 'City Clerk: Deb Dillon' }]],
+      ['mayor-council', [{ id: 'roster-mayor', line: 'Mayor: Steve McKitrick' }]],
+    ]);
+    const fixture = configure({
+      contacts: signal<CmsContact[]>([
+        {
+          id: 'town-information',
+          label: 'Town Information',
+          value: '(719) 829-4974',
+          detail: 'Call ahead for clerk assistance.',
+        },
+        {
+          id: 'city-clerk',
+          label: 'City Clerk',
+          value: 'Deb Dillon',
+          detail: 'Clerk services and records coordination.',
+          href: 'mailto:deb.dillon@townofwiley.gov',
+          linkLabel: 'deb.dillon@townofwiley.gov',
+        },
+      ]),
+      isLoading: signal(false),
+      leadershipRosterEntriesByGroup: signal(rosterMap),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('#contact-administration')).toBeTruthy();
+    expect(el.querySelector('#contact-town-information')).toBeTruthy();
+    expect(el.querySelector('#leadership-row-town-administration-roster-clerk')).toBeTruthy();
+    expect(el.querySelector('#contact-city-clerk')).toBeTruthy();
+    expect(el.querySelector('#leadership-row-mayor-council-roster-mayor')).toBeTruthy();
   });
 });

@@ -106,26 +106,9 @@ We recently completed a full post-development audit (see the attached document `
 
 ---
 
-### Slice 3 — AP-02 decision (wait for my input before code)
+### Slice 3 — AP-02 decision (Path A implemented 2026-06-20)
 
-Review `PaystarConnectionService` (`src/app/payments/paystar-connection.ts`), `infrastructure/paystar-proxy/`, `docs/e2e-feature-map.md`, and `e2e/pages/home.page.ts` (`enablePaystarApi` unused; `enablePaystarHostedWithoutPortal` used).
-
-Present **Path A vs Path B** with pros/cons and recommended default (**Path A — hosted-only** per Phase 5):
-
-|       | Path A — Hosted-only                                                      | Path B — Wire API                                                                                      |
-| ----- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Work  | Deprecate/remove unwired service surface; fix doc drift (AP-02a–d, AP-24) | Inject service in pay-bill/payment panel; wire offline queue (AP-02b′–d′)                              |
-| Tests | Shrink/remove `paystar-connection.vitest.ts` for dead methods             | Add vitest + `enablePaystarApi` in `payments.spec.ts`                                                  |
-| E2E   | Align `e2e-feature-map.md`: portal `href` only                            | Mock API launch in smoke                                                                               |
-| Docs  | Update feature map; no “browser POST via PaystarConnectionService”        | Document API + queue behavior                                                                          |
-| Risk  | Low; matches current production UX                                        | Higher; must fix **AP-08** offline copy (“submissions will sync”) in `offline-connectivity.service.ts` |
-
-**Related (note in memo, do not implement without my say-so):**
-
-- **AP-08:** Misleading offline toast if Path B chosen.
-- **AP-24:** Dead `enablePaystarApi` helper—cleanup under Path A.
-
-**Stop after the decision memo. Ask me to choose Path A or Path B before any implementation slices.**
+Path A (hosted-only) was chosen and implemented: deleted `PaystarConnectionService`, API/embedded contract files, `paystar-connection.vitest.ts`, and `infrastructure/paystar-proxy/`. Production UX uses `resolveQuickPayHref()` only. See `docs/e2e-feature-map.md`.
 
 ---
 

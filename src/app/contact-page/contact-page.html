@@ -14,7 +14,10 @@
       </div>
     </ng-template>
 
-    <p-card styleClass="contact-section-card contact-town-hall-card" data-testid="contact-town-hall">
+    <p-card
+      styleClass="contact-section-card contact-town-hall-card"
+      data-testid="contact-town-hall"
+    >
       <ng-template pTemplate="header">
         <div class="contact-section-card-header">
           <h2 class="contact-section-card-title">{{ copy().contactTownHallTitle }}</h2>
@@ -25,7 +28,11 @@
       <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
     </p-card>
 
-    <p-card styleClass="contact-section-card contact-administration-card" data-testid="contact-administration">
+    <p-card
+      styleClass="contact-section-card contact-administration-card"
+      data-testid="contact-administration"
+      id="contact-administration"
+    >
       <ng-template pTemplate="header">
         <div class="contact-section-card-header">
           @if (administrationGroup(); as adminGroup) {
@@ -43,7 +50,7 @@
         </div>
       } @else {
         @if (townInformationContact(); as townInfo) {
-          <div class="contact-town-information-summary">
+          <div class="contact-town-information-summary" [attr.id]="'contact-' + townInfo.id">
             <h3 class="contact-subheading">{{ townInfo.label }}</h3>
             <p class="contact-town-information-detail">{{ townInfo.detail }}</p>
           </div>
@@ -53,10 +60,18 @@
 
         @if (administrationMembers().length > 0) {
           <dl class="contact-roster-list" aria-label="Town administration contacts">
-            @for (member of administrationMembers(); track member.raw) {
-              <div class="contact-roster-item">
+            @for (member of administrationMembers(); track member.rosterId ?? member.raw) {
+              <div
+                class="contact-roster-item"
+                [attr.id]="
+                  member.rosterId ? 'leadership-row-town-administration-' + member.rosterId : null
+                "
+              >
                 <dt class="contact-roster-role">{{ member.role }}</dt>
-                <dd class="contact-roster-value">
+                <dd
+                  class="contact-roster-value"
+                  [attr.id]="member.contactId ? 'contact-' + member.contactId : null"
+                >
                   @if (member.name) {
                     <span class="contact-roster-name">{{ member.name }}</span>
                   }
@@ -79,7 +94,11 @@
     </p-card>
 
     @if (electedOfficialsGroup(); as electedGroup) {
-      <section id="leadership" class="contact-elected-section" [attr.aria-label]="electedGroup.title">
+      <section
+        id="leadership"
+        class="contact-elected-section"
+        [attr.aria-label]="electedGroup.title"
+      >
         <p-panel styleClass="contact-elected-panel">
           <ng-template pTemplate="header">
             <div class="contact-elected-panel-header">
@@ -89,8 +108,13 @@
           </ng-template>
           <dl class="contact-roster-list contact-elected-list">
             @if (electedOfficialLines().length > 0) {
-              @for (official of electedOfficialLines(); track official.raw) {
-                <div class="contact-roster-item">
+              @for (official of electedOfficialLines(); track official.rosterId ?? official.raw) {
+                <div
+                  class="contact-roster-item"
+                  [attr.id]="
+                    official.rosterId ? 'leadership-row-mayor-council-' + official.rosterId : null
+                  "
+                >
                   <dt class="contact-roster-role">{{ official.role }}</dt>
                   <dd class="contact-roster-name">{{ official.name }}</dd>
                 </div>

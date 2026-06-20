@@ -81,6 +81,7 @@ blob-report/
 aws-credentials.local
 *.aws-credentials.local
 scripts/__pycache__/
+scripts/.oac-backup/
 *.pyc
 .vitest-attachments/
 /public/runtime-config.js

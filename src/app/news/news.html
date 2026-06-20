@@ -213,6 +213,7 @@
         <p-card
           class="public-card panel wiley-panel news-card news-card--external"
           [pt]="newsCardPt"
+          [attr.id]="item.id ? 'external-news-' + item.id : null"
         >
           <ng-template pTemplate="header">
             <p class="meta-label">{{ item.source }}</p>

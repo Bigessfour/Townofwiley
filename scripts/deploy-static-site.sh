@@ -107,6 +107,8 @@ aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   --cache-control 'public, max-age=31536000, immutable' \
   --exclude 'index.html' \
   --exclude 'runtime-config.js' \
+  --exclude 'cms-snapshot.json' \
+  --exclude 'cms-revision.json' \
   --exclude '*/*.html'
 
 echo "Syncing HTML + runtime-config (no-cache)..."
@@ -116,6 +118,8 @@ aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   --include 'index.html' \
   --include 'runtime-config.js' \
   --include '*/*.html'
+
+echo "Skipping cms-snapshot.json / cms-revision.json — owned by TownOfWileyCmsChangeNotifier (stream → S3)."
 
 if [[ ${DRY_RUN} == true ]]; then
   echo "DRY RUN: skipping CloudFront invalidation"

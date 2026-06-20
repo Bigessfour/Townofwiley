@@ -43,8 +43,8 @@ export class OfflineConnectivityNotifier {
       severity: 'warn',
       summary: es ? 'Sin conexión a Internet' : 'You are offline',
       detail: es
-        ? 'Puede seguir explorando páginas guardadas; los envíos se sincronizarán al volver la conexión.'
-        : 'Cached pages may still work; form submissions will sync when you are back online.',
+        ? 'Las páginas en caché pueden seguir cargando. Los formularios y datos en vivo requieren conexión a Internet.'
+        : 'Cached pages may still load. Forms and live data need an internet connection.',
       life: 10_000,
       sticky: false,
     });
