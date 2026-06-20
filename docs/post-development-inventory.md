@@ -1385,7 +1385,7 @@ _No repo CI for WAF; track in ops ticket._
 
 | Slice  | Work                                                                                                     | Proven correct              | Tests                               | Strategy    | CI                  |
 | ------ | -------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------- | ----------- | ------------------- |
-| AP-19a | [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md) + EventBridge deploy script | Runbook + reminder deployed | `verify:runtime-config-cms`         | N/A         | **Done 2026-05-28** |
+| AP-19a | [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md) + EventBridge deploy script | Runbook + reminder deployed; key rotated **2026-06-20**; deletion scheduled Mon 2026-06-22 | `verify:runtime-config-cms`, `verify:appsync-key-deletion-schedule` | N/A         | **Done 2026-06-20** |
 | AP-19b | `LocalizedCmsContentStore.testCmsConnection()` documented as clerk smoke test                            | Button in `/admin` works    | `site-cms-content.spec.ts` (exists) | Test-around | `test:unit:browser` |
 
 ---

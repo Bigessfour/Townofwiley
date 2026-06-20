@@ -309,9 +309,11 @@
                 (change)="onFileOrUrlSelected(field, $event)"
               />
               @if (fileUploadingField() === field.name) {
-                Uploading…
+                Uploading via presigned URL…
+              } @else if (field.accept?.includes('image')) {
+                Choose image (presigned upload)
               } @else {
-                Choose PDF to upload
+                Choose PDF (presigned upload)
               }
             </label>
             @if (fieldValue(field); as fileCode) {

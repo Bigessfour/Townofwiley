@@ -238,10 +238,30 @@ test.describe('cms admin', () => {
     });
     await expect(homePage.page.getByText('meeting-documents', { exact: false })).toBeVisible();
 
-    await homePage.page.getByTestId('cms-task-add-meeting').getByTestId('cms-task-edit-add-meeting').click();
+    await homePage.page
+      .getByTestId('cms-task-add-meeting')
+      .getByTestId('cms-task-edit-add-meeting')
+      .click();
     await expect(homePage.page.getByTestId('cms-task-form')).toBeVisible();
     await expect(
       homePage.page.getByTestId('cms-task-form').getByLabel(/Meeting or Event Title/i),
     ).toBeVisible();
+  });
+
+  test('admin hub shows recent changes panel', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await expect(homePage.page.getByTestId('cms-recent-changes')).toBeVisible();
+    await expect(homePage.page.getByRole('heading', { name: /Recent changes/i })).toBeVisible();
+    await expect(
+      homePage.page.getByText(/No changes recorded yet|Loading recent changes/i),
+    ).toBeVisible();
+  });
+
+  test('hero upload panel is visible on admin start section', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await expect(homePage.page.getByText(/homepage photo|hero photo/i).first()).toBeVisible();
+    await expect(homePage.page.getByText(/Choose file|Choose PDF/i).first()).toBeVisible();
   });
 });

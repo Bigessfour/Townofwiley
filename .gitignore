@@ -137,9 +137,7 @@ docs/townofwiley-skill.md
 docs/figma-widgets-and-screens.md
 docs/townofwiley.zip
 docs/public-document-seed-export.json
-infrastructure/appsync-key-rotation-reminder/
 infrastructure/contact-updates-review/origin-check.mjs
-scripts/deploy-appsync-key-rotation-reminder.py
 scripts/deploy-contact-updates-review-api.py
 scripts/deploy-waf-contact-review-api.py
 scripts/figma-capture-local.mjs

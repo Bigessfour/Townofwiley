@@ -216,6 +216,16 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     env.CLERK_SETUP_S3_BUCKET?.trim() ||
     localSecrets.clerkSetup?.s3Bucket?.trim() ||
     DEFAULT_STATIC_SITE_BUCKET;
+  const cmsMediaUploadEndpoint =
+    env.CMS_MEDIA_UPLOAD_API_ENDPOINT?.trim() ||
+    localSecrets.cms?.mediaUpload?.apiEndpoint?.trim() ||
+    readDeployedFunctionUrl('TownOfWileyCmsMediaUpload') ||
+    '';
+  const cmsAuditLogEndpoint =
+    env.CMS_AUDIT_LOG_API_ENDPOINT?.trim() ||
+    localSecrets.cms?.auditLog?.apiEndpoint?.trim() ||
+    readDeployedFunctionUrl('TownOfWileyCmsChangeNotifier') ||
+    '';
   const severeWeatherSignupEnabled = (() => {
     const envFlag = env.SEVERE_WEATHER_SIGNUP_ENABLED?.trim().toLowerCase();
     if (envFlag === 'false') {
@@ -269,6 +279,8 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     clerkSetupStudioUrl,
     clerkSetupCfDistributionId,
     clerkSetupS3Bucket,
+    cmsMediaUploadEndpoint,
+    cmsAuditLogEndpoint,
     severeWeatherSignupEnabled,
     weatherAllowBrowserFallback,
     buttonPosition,
@@ -350,6 +362,20 @@ export function buildRuntimeConfigObject(values, buildMeta) {
         apiEndpoint: values.cmsApiEndpoint,
         apiKey: values.cmsApiKey,
       },
+      ...(values.cmsMediaUploadEndpoint
+        ? {
+            mediaUpload: {
+              apiEndpoint: values.cmsMediaUploadEndpoint,
+            },
+          }
+        : {}),
+      ...(values.cmsAuditLogEndpoint
+        ? {
+            auditLog: {
+              apiEndpoint: values.cmsAuditLogEndpoint,
+            },
+          }
+        : {}),
     },
     auth: values.cognitoUserPoolId
       ? {

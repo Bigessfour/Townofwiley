@@ -1,0 +1,42 @@
+<section
+  class="cms-recent-changes"
+  aria-labelledby="cms-recent-changes-heading"
+  data-testid="cms-recent-changes"
+>
+  <h2 id="cms-recent-changes-heading" class="cms-recent-changes__title">Recent changes</h2>
+  <p class="cms-recent-changes__lead">
+    Who changed CMS content and when (updates appear within a minute of saving).
+  </p>
+
+  @if (loading()) {
+    <p class="cms-recent-changes__status" role="status">Loading recent changes…</p>
+  } @else if (error(); as message) {
+    <p class="cms-recent-changes__status cms-recent-changes__status--error" role="alert">
+      {{ message }}
+    </p>
+  } @else if (entries().length === 0) {
+    <p class="cms-recent-changes__status">No changes recorded yet.</p>
+  } @else {
+    <ul class="cms-recent-changes__list">
+      @for (entry of entries(); track entry.timestamp + (entry.recordId ?? '')) {
+        <li class="cms-recent-changes__item">
+          <div class="cms-recent-changes__meta">
+            <p-tag
+              [value]="entry.operation ?? 'CHANGE'"
+              [severity]="operationSeverity(entry.operation)"
+            />
+            <span class="cms-recent-changes__model">{{ entry.modelName }}</span>
+            <time [dateTime]="entry.timestamp">{{ formatTimestamp(entry.timestamp) }}</time>
+          </div>
+          <p class="cms-recent-changes__summary">{{ entry.summary }}</p>
+          <p class="cms-recent-changes__detail">
+            {{ entry.staffEmail ?? 'unknown' }}
+            @if (entry.recordId) {
+              · ID {{ entry.recordId }}
+            }
+          </p>
+        </li>
+      }
+    </ul>
+  }
+</section>

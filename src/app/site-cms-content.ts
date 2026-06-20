@@ -1,12 +1,13 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
+import { CmsPreviewModeService } from './cms-admin/cms-preview-mode.service';
 import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import {
-    buildAgendaHubHrefByEventId,
-    buildLinkedAgendaDocumentByEventId,
+  buildAgendaHubHrefByEventId,
+  buildLinkedAgendaDocumentByEventId,
 } from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 
@@ -650,6 +651,137 @@ const PUBLIC_CMS_EXTENDED_QUERY = `query GetPublicCmsExtendedContent {
   }
 }`;
 
+const PUBLIC_CMS_PREVIEW_CORE_QUERY = `query GetPublicCmsPreviewCoreContent {
+  listSiteSettings(limit: 1) {
+    items {
+      townName
+      pageTitle
+      heroEyebrow
+      heroStatus
+      heroTitle
+      heroMessage
+      heroSubtext
+      heroImageUrl
+      welcomeLabel
+      welcomeHeading
+      welcomeBody
+      welcomeCaption
+    }
+  }
+  listAlertBanners(limit: 20) {
+    items {
+      id
+      enabled
+      label
+      title
+      detail
+      linkLabel
+      linkHref
+      updatedAt
+    }
+  }
+  listAnnouncements(limit: 50) {
+    items {
+      id
+      title
+      date
+      detail
+      announcementKind
+      attachmentKey
+      priority
+      imageUrl
+      active
+    }
+  }
+  listEvents(limit: 50) {
+    items {
+      id
+      title
+      description
+      location
+      start
+      end
+      active
+    }
+  }
+  listOfficialContacts(limit: 50) {
+    items {
+      id
+      label
+      value
+      detail
+      href
+      linkLabel
+      displayOrder
+    }
+  }
+}`;
+
+const PUBLIC_CMS_PREVIEW_EXTENDED_QUERY = `query GetPublicCmsPreviewExtendedContent {
+  listBusinesses(limit: 100) {
+    items {
+      id
+      name
+      phone
+      address
+      website
+      description
+      imageUrl
+      active
+      displayOrder
+    }
+  }
+  listPublicDocuments(limit: 100) {
+    items {
+      id
+      title
+      titleEs
+      summary
+      summaryEs
+      sectionId
+      status
+      statusEs
+      format
+      href
+      downloadFileName
+      keywords
+      active
+      displayOrder
+    }
+  }
+  listExternalNewsLinks(limit: 50) {
+    items {
+      id
+      title
+      url
+      source
+      active
+      displayOrder
+    }
+  }
+  listLeadershipRosterEntries(limit: 50) {
+    items {
+      id
+      groupId
+      displayOrder
+      lineEn
+      lineEs
+      active
+    }
+  }
+  listSiteCopies(limit: 200) {
+    items {
+      id
+      key
+      valueEn
+      valueEs
+      description
+      active
+      displayOrder
+    }
+  }
+}`;
+
 const CMS_CONNECTION_TEST_QUERY = `query TestCmsConnection {
   listSiteSettings(limit: 1) {
     items {
@@ -744,6 +876,7 @@ export class LocalizedCmsContentStore {
   private readonly http = inject(HttpClient);
   private readonly logging = inject(LoggingService);
   private readonly siteLanguageService = inject(SiteLanguageService);
+  private readonly previewMode = inject(CmsPreviewModeService);
   private readonly englishDateFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'long',
     day: 'numeric',
@@ -812,7 +945,9 @@ export class LocalizedCmsContentStore {
    * Keys are stable (e.g. "topTasks.pay-utility.title", "nav.services").
    */
   getSiteCopy(key: string): { en: string; es?: string } | undefined {
-    const record = this.siteCopyRecordsState().find((r) => r.key === key && r.active);
+    const record = this.siteCopyRecordsState().find(
+      (r) => r.key === key && (r.active || this.includeInactiveCmsRecords()),
+    );
     if (!record) return undefined;
     return {
       en: record.valueEn,
@@ -1039,7 +1174,10 @@ export class LocalizedCmsContentStore {
     this.contentSourceState.set('loading');
 
     try {
-      const coreResponse = await this.postCmsGraphql(PUBLIC_CMS_CORE_QUERY);
+      const coreQuery = this.previewMode.isEnabled()
+        ? PUBLIC_CMS_PREVIEW_CORE_QUERY
+        : PUBLIC_CMS_CORE_QUERY;
+      const coreResponse = await this.postCmsGraphql(coreQuery);
       this.applyCoreResponse(coreResponse);
       if (options?.reconcileAnnouncements) {
         await this.reconcileAnnouncementRecordsFromPrimaryKey();
@@ -1077,7 +1215,10 @@ export class LocalizedCmsContentStore {
     this.extendedLoadState.set('loading');
 
     try {
-      const extendedResponse = await this.postCmsGraphql(PUBLIC_CMS_EXTENDED_QUERY);
+      const extendedQuery = this.previewMode.isEnabled()
+        ? PUBLIC_CMS_PREVIEW_EXTENDED_QUERY
+        : PUBLIC_CMS_EXTENDED_QUERY;
+      const extendedResponse = await this.postCmsGraphql(extendedQuery);
       this.applyExtendedResponse(extendedResponse);
       this.extendedLoadState.set('studio');
       this.persistSnapshot();
@@ -1148,8 +1289,13 @@ export class LocalizedCmsContentStore {
     );
 
     this.noticeRecordsState.set(
-      refreshed.filter((item: AnnouncementRecord | null | undefined): item is AnnouncementRecord =>
-        Boolean(item?.active),
+      refreshed.filter(
+        (item: AnnouncementRecord | null | undefined): item is AnnouncementRecord => {
+          if (!item) {
+            return false;
+          }
+          return Boolean(item.active) || this.includeInactiveCmsRecords();
+        },
       ),
     );
   }
@@ -1392,6 +1538,10 @@ export class LocalizedCmsContentStore {
   }
 
   private shouldSkipLiveAppSyncFetch(): boolean {
+    if (this.previewMode.isEnabled()) {
+      return false;
+    }
+
     if (!this.hasCmsCredentials() || !this.activeSnapshotSavedAt) {
       return false;
     }
@@ -1567,6 +1717,14 @@ export class LocalizedCmsContentStore {
     return [title, detail].some((value) => Boolean(value && !this.isDefaultAlertText(value)));
   }
 
+  private includeInactiveCmsRecords(): boolean {
+    return this.previewMode.isEnabled();
+  }
+
+  private recordIsPublic(record: { active?: boolean | null }): boolean {
+    return Boolean(record.active) || this.includeInactiveCmsRecords();
+  }
+
   private isDefaultAlertText(value: string): boolean {
     const normalizedValue = this.normalizeComparableText(value);
 
@@ -1585,7 +1743,7 @@ export class LocalizedCmsContentStore {
     language: SiteLanguage,
   ): CmsNotice[] {
     const notices = records
-      .filter((record) => Boolean(record.active))
+      .filter((record) => this.recordIsPublic(record))
       .map((record) => ({
         ...record,
         id: record.id.trim(),
@@ -1793,7 +1951,7 @@ export class LocalizedCmsContentStore {
 
   private normalizeEvents(records: EventRecord[]): CmsCalendarEvent[] {
     return records
-      .filter((record) => Boolean(record.active))
+      .filter((record) => this.recordIsPublic(record))
       .map((record) => ({
         id: record.id.trim(),
         title: this.cleanText(record.title) ?? '',
@@ -1815,7 +1973,7 @@ export class LocalizedCmsContentStore {
 
   private normalizeBusinesses(records: BusinessRecord[]): CmsBusiness[] {
     return records
-      .filter((r) => Boolean(r.active))
+      .filter((r) => this.recordIsPublic(r))
       .map((r) => ({
         ...r,
         displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
@@ -1835,7 +1993,7 @@ export class LocalizedCmsContentStore {
 
   private normalizePublicDocuments(records: PublicDocumentRecord[]): CmsPublicDocument[] {
     return records
-      .filter((r) => Boolean(r.active) && r.sectionId === 'meeting-documents')
+      .filter((r) => this.recordIsPublic(r) && r.sectionId === 'meeting-documents')
       .map((r) => ({
         ...r,
         displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
@@ -1859,7 +2017,7 @@ export class LocalizedCmsContentStore {
 
   private normalizeExternalNewsLinks(records: ExternalNewsLinkRecord[]): CmsExternalNewsLink[] {
     return records
-      .filter((r) => Boolean(r.active))
+      .filter((r) => this.recordIsPublic(r))
       .map((r) => ({
         ...r,
         displayOrder: typeof r.displayOrder === 'number' ? r.displayOrder : Number.MAX_SAFE_INTEGER,
@@ -1873,7 +2031,7 @@ export class LocalizedCmsContentStore {
     language: SiteLanguage,
   ): ReadonlyMap<string, readonly string[]> {
     const prepared = records
-      .filter((record) => Boolean(record.active))
+      .filter((record) => this.recordIsPublic(record))
       .map((record) => {
         const groupId = (this.cleanText(record.groupId) ?? '').toLowerCase();
         const lineEn = this.cleanText(record.lineEn);

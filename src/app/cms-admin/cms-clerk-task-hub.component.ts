@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TagModule } from 'primeng/tag';
+import { StaffAuthService } from '../auth/staff-auth.service';
 import {
   CLERK_CMS_TASKS,
   clerkTaskPreviewUrl,
@@ -15,6 +16,17 @@ function taskShowsPublicPreview(task: ClerkCmsTask): boolean {
   return task.showPublicPreview !== false;
 }
 
+function taskVisibleForGroups(task: ClerkCmsTask, groups: string[]): boolean {
+  if (groups.includes('Staff')) {
+    return true;
+  }
+  const required = task.requiredGroups;
+  if (!required?.length) {
+    return false;
+  }
+  return required.some((group) => groups.includes(group));
+}
+
 @Component({
   selector: 'app-cms-clerk-task-hub',
   standalone: true,
@@ -24,12 +36,17 @@ function taskShowsPublicPreview(task: ClerkCmsTask): boolean {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CmsClerkTaskHubComponent {
+  private readonly staffAuth = inject(StaffAuthService);
+
   readonly modelCounts = input.required<Record<string, number>>();
 
   readonly editContent = output<ClerkCmsTaskId>();
   readonly showSteps = output<ClerkCmsTaskId>();
 
-  protected readonly tasks = CLERK_CMS_TASKS;
+  protected readonly tasks = computed(() => {
+    const groups = this.staffAuth.staffGroups();
+    return CLERK_CMS_TASKS.filter((task) => taskVisibleForGroups(task, groups));
+  });
 
   protected previewUrl(task: ClerkCmsTask): string {
     return clerkTaskPreviewUrl(task.previewPath);

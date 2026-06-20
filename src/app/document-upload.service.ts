@@ -8,6 +8,8 @@ export interface UploadedDocument {
   size: number;
   type: string;
   url: string;
+  /** Stable public URL when uploaded to the static site bucket (hero images). */
+  publicUrl?: string;
   uploadedAt: Date;
   sectionId: string;
 }
@@ -87,6 +89,110 @@ export class DocumentUploadService {
   }
 
   async uploadDocument(file: File, sectionId: string): Promise<UploadedDocument> {
+    const mediaUploadEndpoint = this.readMediaUploadEndpoint();
+    if (mediaUploadEndpoint && !this.staffAuth.playwrightStaffBypassActive()) {
+      try {
+        return await this.uploadDocumentViaPresignedUrl(file, sectionId, mediaUploadEndpoint);
+      } catch (error) {
+        console.warn('Presigned CMS upload failed; falling back to Amplify Storage.', error);
+      }
+    }
+
+    return this.uploadDocumentViaAmplifyStorage(file, sectionId);
+  }
+
+  private readMediaUploadEndpoint(): string {
+    const runtime = (
+      window as Window & {
+        __TOW_RUNTIME_CONFIG__?: { cms?: { mediaUpload?: { apiEndpoint?: string } } };
+      }
+    ).__TOW_RUNTIME_CONFIG__;
+    return runtime?.cms?.mediaUpload?.apiEndpoint?.trim() ?? '';
+  }
+
+  private async uploadDocumentViaPresignedUrl(
+    file: File,
+    sectionId: string,
+    apiEndpoint: string,
+  ): Promise<UploadedDocument> {
+    await this.staffAuth.ensureIdentityCredentials();
+    await this.staffAuth.refreshSession({ forceRefresh: true });
+    const accessToken = this.staffAuth.accessToken();
+    if (!accessToken) {
+      throw new Error('Staff access token unavailable.');
+    }
+
+    const baseUrl = apiEndpoint.replace(/\/$/, '');
+    const presignResponse = await fetch(`${baseUrl}/presign`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sectionId,
+        fileName: file.name,
+        contentType: file.type || this.getFileType(file.name),
+      }),
+    });
+
+    if (!presignResponse.ok) {
+      throw new Error(`Presign request failed (${presignResponse.status}).`);
+    }
+
+    const presignPayload = (await presignResponse.json()) as {
+      storageKey?: string;
+      uploadUrl?: string;
+      publicUrl?: string;
+    };
+    const storageKey = presignPayload.storageKey?.trim();
+    const uploadUrl = presignPayload.uploadUrl?.trim();
+    if (!storageKey || !uploadUrl) {
+      throw new Error('Presign response missing storageKey or uploadUrl.');
+    }
+
+    const putResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type || this.getFileType(file.name),
+      },
+      body: file,
+    });
+    if (!putResponse.ok) {
+      throw new Error(`S3 upload failed (${putResponse.status}).`);
+    }
+
+    const completeResponse = await fetch(`${baseUrl}/complete`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ storageKey, sectionId }),
+    });
+    if (!completeResponse.ok) {
+      throw new Error(`Upload complete callback failed (${completeResponse.status}).`);
+    }
+
+    const publicUrl = presignPayload.publicUrl?.trim();
+    const resolvedUrl = publicUrl || uploadUrl.split('?')[0] || uploadUrl;
+
+    return {
+      id: storageKey,
+      name: file.name,
+      size: file.size,
+      type: file.type || this.getFileType(file.name),
+      url: resolvedUrl,
+      publicUrl: publicUrl || undefined,
+      uploadedAt: new Date(),
+      sectionId,
+    };
+  }
+
+  private async uploadDocumentViaAmplifyStorage(
+    file: File,
+    sectionId: string,
+  ): Promise<UploadedDocument> {
     const fileName = `${Date.now()}-${this.sanitizeUploadFileName(file.name)}`;
     const storagePath = `documents/${sectionId}/${fileName}`;
 
