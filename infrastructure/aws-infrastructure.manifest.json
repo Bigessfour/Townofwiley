@@ -133,6 +133,7 @@
       "runtime": "python",
       "codePath": "infrastructure/cms-change-notifier",
       "functionUrl": { "authType": "NONE", "required": false },
+      "functionUrlEndpoint": "https://n56zrl5abadacge5zph43oxzsi0nhhsd.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-change-notifier.py",
       "required": false,
       "notes": "DynamoDB stream audit log + staff GET /recent; Cognito Staff JWT on HTTP routes"
