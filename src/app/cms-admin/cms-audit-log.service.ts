@@ -24,6 +24,10 @@ export class CmsAuditLogService {
   private readonly staffAuth = inject(StaffAuthService);
 
   async listRecent(limit = 25): Promise<CmsAuditLogEntry[]> {
+    if (this.staffAuth.playwrightStaffBypassActive()) {
+      return [];
+    }
+
     const endpoint = this.readAuditEndpoint();
     const token = this.staffAuth.accessToken();
     if (!endpoint || !token) {
@@ -31,12 +35,16 @@ export class CmsAuditLogService {
     }
 
     const url = `${endpoint.replace(/\/$/, '')}/recent?limit=${limit}`;
-    const response = await firstValueFrom(
-      this.http.get<CmsAuditLogResponse>(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-    );
-    return response.items ?? [];
+    try {
+      const response = await firstValueFrom(
+        this.http.get<CmsAuditLogResponse>(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      );
+      return response.items ?? [];
+    } catch {
+      return [];
+    }
   }
 
   private readAuditEndpoint(): string {

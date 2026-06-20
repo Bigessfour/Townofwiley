@@ -130,7 +130,7 @@ ${publicDocumentFields}
       displayOrder
     }
   }
-  listLeadershipRosterEntries(filter: { active: { eq: true } }, limit: 50) {
+  listLeadershipRosterEntries(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items {
       id
       groupId
