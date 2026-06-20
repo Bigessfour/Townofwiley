@@ -7,7 +7,6 @@ function cfg(partial: Partial<RuntimePaystarConfig>): RuntimePaystarConfig {
     provider: 'paystar',
     mode: 'none',
     portalUrl: '',
-    apiEndpoint: '',
     ...partial,
   };
 }
@@ -35,18 +34,6 @@ describe('resolveQuickPayHref', () => {
 
   it('disables without a placeholder href when hosted mode has an empty portalUrl', () => {
     expect(resolveQuickPayHref(cfg({ mode: 'hosted', portalUrl: '' }))).toEqual({
-      href: null,
-      isPlaceholder: true,
-      disabled: true,
-    });
-  });
-
-  it('disables without a placeholder href when api mode has no portalUrl', () => {
-    expect(
-      resolveQuickPayHref(
-        cfg({ mode: 'api', portalUrl: '', apiEndpoint: 'https://api.example/paystar' }),
-      ),
-    ).toEqual({
       href: null,
       isPlaceholder: true,
       disabled: true,

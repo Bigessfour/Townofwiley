@@ -36,7 +36,7 @@
     {
       "name": "PAYSTAR_PORTAL_URL",
       "runtimePath": "payments.paystar.portalUrl",
-      "notes": "Hosted Paystar only (https://docs.paystar.io/api/query/)"
+      "notes": "Hosted Paystar portal URL only"
     },
     {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",

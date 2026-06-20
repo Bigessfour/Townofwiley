@@ -1,10 +1,9 @@
-export type PaystarMode = 'none' | 'hosted' | 'api';
+export type PaystarMode = 'none' | 'hosted';
 
 export interface RuntimePaystarConfig {
   provider: 'paystar';
   mode: PaystarMode;
   portalUrl: string;
-  apiEndpoint: string;
 }
 
 interface RuntimeConfigShape {
@@ -32,8 +31,7 @@ export function getPaystarRuntimeConfig(): RuntimePaystarConfig {
 
   return {
     provider: 'paystar',
-    mode: mode === 'hosted' || mode === 'api' ? mode : 'none',
+    mode: mode === 'hosted' ? 'hosted' : 'none',
     portalUrl: typeof paystarConfig.portalUrl === 'string' ? paystarConfig.portalUrl : '',
-    apiEndpoint: typeof paystarConfig.apiEndpoint === 'string' ? paystarConfig.apiEndpoint : '',
   };
 }

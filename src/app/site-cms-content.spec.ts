@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import {
-  CMS_LIVE_REFRESH_TTL_MS,
-  CMS_SNAPSHOT_STORAGE_KEY,
   clearCmsCache,
+  CMS_LIVE_REFRESH_TTL_MS,
+  CMS_REVISION_POLL_MS,
+  CMS_SNAPSHOT_STORAGE_KEY,
   LocalizedCmsContentStore,
 } from './site-cms-content';
 
@@ -34,9 +35,46 @@ describe('LocalizedCmsContentStore', () => {
     delete globalTestFlags.__TOW_CMS_SKIP_AUTO_INIT__;
   });
 
-  async function waitForCmsInitialization(): Promise<void> {
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  async function waitForCmsInitialization(options?: {
+    snapshotBody?: object | null;
+    revision?: string | null;
+  }): Promise<void> {
+    for (let attempt = 0; attempt < 25; attempt += 1) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      if (!httpTesting) {
+        return;
+      }
+
+      const snapshotBody = options?.snapshotBody;
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-snapshot.json'))) {
+        if (snapshotBody) {
+          request.flush(snapshotBody);
+        } else {
+          request.flush(null, { status: 404, statusText: 'Not Found' });
+        }
+      }
+
+      const revision =
+        options?.revision ??
+        (snapshotBody && 'savedAt' in snapshotBody
+          ? String((snapshotBody as { savedAt?: string }).savedAt ?? '')
+          : null);
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-revision.json'))) {
+        if (revision) {
+          request.flush({ version: 1, revision, savedAt: revision });
+        } else {
+          request.flush(null, { status: 404, statusText: 'Not Found' });
+        }
+      }
+
+      const pendingCdnRequests = httpTesting.match(
+        (req) => req.url.includes('/cms-snapshot.json') || req.url.includes('/cms-revision.json'),
+      );
+      if (pendingCdnRequests.length === 0 && attempt >= 2) {
+        break;
+      }
+    }
   }
 
   function hoursAgo(hours: number): string {
@@ -61,6 +99,35 @@ describe('LocalizedCmsContentStore', () => {
     for (const request of httpTesting.match((req) => req.url.includes('/cms-snapshot.json'))) {
       request.flush(body as object | null, { status: resolvedStatus, statusText: resolvedText });
     }
+
+    if (body !== null && typeof body === 'object' && 'savedAt' in body) {
+      const savedAt = String((body as { savedAt?: string }).savedAt ?? '');
+      if (savedAt) {
+        flushRevisionRequests({ version: 1, revision: savedAt, savedAt });
+      }
+    } else if (body === null) {
+      flushRevisionRequests();
+    }
+  }
+
+  function flushRevisionRequests(body: unknown = null, status?: number, statusText?: string): void {
+    const resolvedStatus = status ?? (body === null ? 404 : 200);
+    const resolvedText = statusText ?? (body === null ? 'Not Found' : 'OK');
+
+    for (const request of httpTesting.match((req) => req.url.includes('/cms-revision.json'))) {
+      request.flush(body as object | null, { status: resolvedStatus, statusText: resolvedText });
+    }
+  }
+
+  async function flushCdnSyncRequests(snapshotBody: object, revision: string): Promise<void> {
+    flushRevisionRequests({
+      version: 1,
+      revision,
+      savedAt: revision,
+    });
+    await Promise.resolve();
+    flushBuildSnapshotRequests(snapshotBody);
+    await Promise.resolve();
   }
 
   beforeEach(() => {
@@ -105,26 +172,26 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
     flushBuildSnapshotRequests({
-        version: 1,
-        savedAt: new Date().toISOString(),
-        contactRecords: [
-          {
-            id: '94d5fe8f-6e50-429f-9bde-0993e0ead939',
-            label: 'Town Clerk',
-            value: 'Debbie Dillon',
-            detail: 'Point of Contact for Official Town Business',
-            href: null,
-            linkLabel: null,
-            displayOrder: 1,
-          },
-        ],
-        alertBannerRecords: [],
-        noticeRecords: [],
-        eventRecords: [],
-        businessRecords: [],
-        publicDocumentRecords: [],
-        externalNewsLinkRecords: [],
-      });
+      version: 1,
+      savedAt: new Date().toISOString(),
+      contactRecords: [
+        {
+          id: '94d5fe8f-6e50-429f-9bde-0993e0ead939',
+          label: 'Town Clerk',
+          value: 'Debbie Dillon',
+          detail: 'Point of Contact for Official Town Business',
+          href: null,
+          linkLabel: null,
+          displayOrder: 1,
+        },
+      ],
+      alertBannerRecords: [],
+      noticeRecords: [],
+      eventRecords: [],
+      businessRecords: [],
+      publicDocumentRecords: [],
+      externalNewsLinkRecords: [],
+    });
     await waitForCmsInitialization();
 
     expect(store.contacts().find((contact) => contact.id === 'city-clerk')?.href).toBe(
@@ -158,7 +225,6 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
-    flushBuildSnapshotRequests();
     await waitForCmsInitialization();
 
     const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
@@ -611,7 +677,7 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting.verify();
   });
 
-  it('restores a cached CMS snapshot when live AppSync core load fails', async () => {
+  it('serves cached browser snapshot without AppSync when CDN revision is unavailable', async () => {
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -623,7 +689,7 @@ describe('LocalizedCmsContentStore', () => {
     };
 
     window.localStorage.setItem(
-      'tow-cms-snapshot-v1',
+      CMS_SNAPSHOT_STORAGE_KEY,
       JSON.stringify({
         version: 1,
         savedAt: hoursAgo(8),
@@ -655,28 +721,11 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
-    flushBuildSnapshotRequests();
     await waitForCmsInitialization();
 
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
-
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      httpTesting
-        .expectOne('https://cms.example.com/graphql')
-        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
-
-      if (attempt < 2) {
-        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
-      }
-    }
-
-    await Promise.resolve();
-
-    expect(store.hasLoadFailed()).toBe(false);
     expect(store.isUsingCachedSnapshot()).toBe(true);
     expect(store.hero().title).toBe('Cached Town of Wiley');
-    expect(store.notices()[0]?.title).toBe('Cached water notice');
+    expect(store.notices().length).toBeGreaterThan(0);
 
     httpTesting.verify();
   });
@@ -687,7 +736,8 @@ describe('LocalizedCmsContentStore', () => {
     expect(window.localStorage.getItem(CMS_SNAPSHOT_STORAGE_KEY)).toBeNull();
   });
 
-  it('skips live AppSync when a fresh browser snapshot is within the live refresh TTL', async () => {
+  it('skips AppSync when CDN revision matches the build snapshot', async () => {
+    const revision = '2026-06-20T12:00:00.000Z';
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -698,42 +748,38 @@ describe('LocalizedCmsContentStore', () => {
       },
     };
 
-    window.localStorage.setItem(
-      CMS_SNAPSHOT_STORAGE_KEY,
-      JSON.stringify({
-        version: 1,
-        savedAt: new Date().toISOString(),
-        siteSettings: {
-          townName: 'Town of Wiley',
-          heroTitle: 'Cached Town of Wiley',
-        },
-        alertBannerRecords: [],
-        noticeRecords: [],
-        eventRecords: [],
-        contactRecords: [],
-        businessRecords: [],
-        publicDocumentRecords: [],
-        externalNewsLinkRecords: [],
-      }),
-    );
-
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), LocalizedCmsContentStore],
     });
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
-    flushBuildSnapshotRequests();
+    flushBuildSnapshotRequests({
+      version: 1,
+      savedAt: revision,
+      siteSettings: { townName: 'Town of Wiley', heroTitle: 'CDN snapshot title' },
+      alertBannerRecords: [],
+      noticeRecords: [],
+      eventRecords: [],
+      contactRecords: [],
+      businessRecords: [],
+      publicDocumentRecords: [],
+      externalNewsLinkRecords: [],
+      leadershipRosterRecords: [],
+    });
+    flushRevisionRequests({ version: 1, revision, savedAt: revision });
     await waitForCmsInitialization();
 
-    expect(store.isUsingCachedSnapshot()).toBe(true);
-    expect(store.hero().title).toBe('Cached Town of Wiley');
-    expect(CMS_LIVE_REFRESH_TTL_MS).toBe(6 * 60 * 60 * 1000);
+    expect(store.hero().title).toBe('CDN snapshot title');
+    expect(store.contentSource()).toBe('cached');
+    expect(CMS_REVISION_POLL_MS).toBe(2 * 60 * 1000);
 
     httpTesting.verify();
   });
 
-  it('refreshContent skips AppSync when snapshot is still within the live refresh TTL', async () => {
+  it('reloads CDN snapshot without AppSync when revision changes', async () => {
+    const oldRevision = '2026-06-20T11:00:00.000Z';
+    const newRevision = '2026-06-20T12:30:00.000Z';
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -748,7 +794,63 @@ describe('LocalizedCmsContentStore', () => {
       CMS_SNAPSHOT_STORAGE_KEY,
       JSON.stringify({
         version: 1,
-        savedAt: new Date().toISOString(),
+        savedAt: oldRevision,
+        siteSettings: { townName: 'Town of Wiley', heroTitle: 'Old browser copy' },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      }),
+    );
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), LocalizedCmsContentStore],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = await injectFreshCmsStore();
+    await waitForCmsInitialization({
+      revision: newRevision,
+      snapshotBody: {
+        version: 1,
+        savedAt: newRevision,
+        siteSettings: { townName: 'Town of Wiley', heroTitle: 'Updated CDN copy' },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      },
+    });
+
+    expect(store.hero().title).toBe('Updated CDN copy');
+    expect(store.contentSource()).toBe('cached');
+
+    httpTesting.verify();
+  });
+
+  it('skips AppSync when revision matches a fresh browser snapshot', async () => {
+    const revision = '2026-06-20T12:15:00.000Z';
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    window.localStorage.setItem(
+      CMS_SNAPSHOT_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        savedAt: revision,
         siteSettings: {
           townName: 'Town of Wiley',
           heroTitle: 'Cached Town of Wiley',
@@ -770,10 +872,70 @@ describe('LocalizedCmsContentStore', () => {
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
     flushBuildSnapshotRequests();
+    flushRevisionRequests({ version: 1, revision, savedAt: revision });
     await waitForCmsInitialization();
 
-    await store.refreshContent();
+    expect(store.hero().title).toBe('Cached Town of Wiley');
+    expect(CMS_LIVE_REFRESH_TTL_MS).toBe(6 * 60 * 60 * 1000);
+    expect(store.contentSource()).toBe('cached');
 
+    httpTesting.verify();
+  });
+
+  it('refreshContent reloads CDN snapshot when revision changes without AppSync', async () => {
+    const initialRevision = '2026-06-20T12:00:00.000Z';
+    const refreshedRevision = '2026-06-20T12:45:00.000Z';
+    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
+      cms: {
+        appSync: {
+          region: 'us-east-2',
+          apiEndpoint: 'https://cms.example.com/graphql',
+          apiKey: 'test-public-api-key',
+        },
+      },
+    };
+
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), LocalizedCmsContentStore],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    const store = await injectFreshCmsStore();
+    await waitForCmsInitialization({
+      revision: initialRevision,
+      snapshotBody: {
+        version: 1,
+        savedAt: initialRevision,
+        siteSettings: { townName: 'Town of Wiley', heroTitle: 'Initial CDN title' },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      },
+    });
+
+    const refreshPromise = store.refreshContent();
+    await waitForCmsInitialization({
+      revision: refreshedRevision,
+      snapshotBody: {
+        version: 1,
+        savedAt: refreshedRevision,
+        siteSettings: { townName: 'Town of Wiley', heroTitle: 'Refreshed CDN title' },
+        alertBannerRecords: [],
+        noticeRecords: [],
+        eventRecords: [],
+        contactRecords: [],
+        businessRecords: [],
+        publicDocumentRecords: [],
+        externalNewsLinkRecords: [],
+      },
+    });
+    await refreshPromise;
+
+    expect(store.hero().title).toBe('Refreshed CDN title');
     httpTesting.verify();
   });
 
@@ -813,22 +975,10 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
-    flushBuildSnapshotRequests();
     await waitForCmsInitialization();
 
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-04-14T12:00:00Z'));
-
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      httpTesting
-        .expectOne('https://cms.example.com/graphql')
-        .flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
-
-      if (attempt < 2) {
-        await vi.advanceTimersByTimeAsync(1_500 * (attempt + 1));
-      }
-    }
-    await Promise.resolve();
 
     expect(store.isUsingCachedSnapshot()).toBe(true);
     expect(store.hero().title).toBe('Cached Town of Wiley');

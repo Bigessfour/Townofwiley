@@ -52,7 +52,7 @@ The public site is offline-first (`localStorage` key `tow-cms-snapshot-v1`, 7-da
 
 Remaining rough edges:
 
-- **SiteCopy is persisted in browser snapshots** — included in `localStorage` / build snapshot after June 2026 cache optimization; staff still use **Refresh from database** for immediate public updates within the 6-hour cache window.
+- **SiteCopy is persisted in browser snapshots** — included in `localStorage` / build snapshot; the public site always background-refreshes from AppSync when online so staff saves reach residents within seconds.
 - Residents' browsers keep their own 7-day snapshot. The guide says new content appears "within a few seconds", which is true for fresh visitors but optimistic for returning ones whose snapshot is still valid; the "Saved browser copy" tag mitigates this on the clerk's machine only (P2, doc wording).
 
 ## Documentation gaps (CLERK-CMS-GUIDE.md)

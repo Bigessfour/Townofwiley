@@ -378,50 +378,24 @@ The Town's preferred utility payment rollout path is now Paystar because it best
 Current implementation status:
 
 - The public payment card still supports billing-help email as the fallback path.
-- A Paystar runtime-config scaffold now exists for the resident-services payment card.
-- A town-managed proxy (`infrastructure/paystar-proxy`) implements:
-  - **Hosted portal mode**: returns the configured payer portal URL (matches Paystar’s turnkey hosted portal described in their docs).
-  - **Optional REST bridge**: when `PAYSTAR_UPSTREAM_LAUNCH_URL` and `PAYSTAR_UPSTREAM_API_KEY` are set on the Lambda, the proxy POSTs a documented town-side payload to Paystar’s tenant launch endpoint and maps common response shapes to the field the Angular app expects (`launchUrl`, `referenceId`, etc.). Paths and headers should be adjusted once Paystar confirms the contract from [their documentation](https://docs.paystar.io/).
-  - **Receipt stub**: `GET .../receipt/{id}` returns **501** until `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` (must include `{id}`) and the API key are configured—aligned with Query/Events-style APIs described for integrators.
-- Paystar **hosts** the payment APIs and portals; the Town does **not** need an “AWS host for Paystar’s API” to exist. You **do** typically need an AWS (or other) **edge** component—this Lambda (or similar)—to hold **secrets**, enforce CORS, and map payloads, because the browser must not ship vendor API keys. That matches Paystar’s model of hosted portals plus REST APIs and SDKs for deeper integration ([introduction](https://docs.paystar.io/)).
+- Hosted Paystar portal links via `resolveQuickPayHref()` on `/pay-bill` and `/services` (see `src/app/payments/paystar-quick-pay.ts`).
+- CTAs are disabled when `PAYSTAR_PORTAL_URL` is empty; no in-browser API or proxy path.
 
 Traceability:
 
 - `src/app/payments/paystar-config.ts`
-- `src/app/payments/paystar-connection.ts`
-- `src/app/payments/paystar-api-contract.ts` (town proxy HTTP contract)
-- `src/app/payments/paystar-docs.ts` (links + integration phases)
+- `src/app/payments/paystar-quick-pay.ts`
 - `src/app/resident-services/resident-services.ts`
-- `infrastructure/paystar-proxy/index.mjs`
 - `docs/incomplete-items-reference.md`
 
 Runtime configuration sources:
 
-- `PAYSTAR_MODE`
-- `PAYSTAR_PORTAL_URL`
-- `PAYSTAR_API_ENDPOINT` (browser → town API Gateway / Function URL **base**, no trailing slash; app calls `POST` base and `GET` `{base}/receipt/{id}`)
+- `PAYSTAR_PORTAL_URL` (hosted portal URL; defaults in `scripts/lib/runtime-config-env.mjs`)
 
-**Lambda-only environment variables** (never in `public/runtime-config.js`):
+Recommended deployment path:
 
-- `PAYSTAR_UPSTREAM_LAUNCH_URL` — full URL Paystar gives for creating a payer session or checkout (set when credentials arrive).
-- `PAYSTAR_UPSTREAM_API_KEY` — secret; prefer **AWS Secrets Manager** with a small bootstrap in Lambda, or encrypted env in Lambda configuration.
-- `PAYSTAR_UPSTREAM_RECEIPT_URL_TEMPLATE` — optional; e.g. `https://api.vendor.example/payments/{id}/receipt` for GET receipt proxying.
-
-**AWS MCP:** This Cursor workspace does not include an AWS MCP server (only browser and optional todo tools). Configure API Gateway + Lambda + secrets in the [AWS Console](https://console.aws.amazon.com/) or your usual IaC (SAM/CDK/Terraform) using the variables above.
-
-Supported modes:
-
-- `none`: keep the resident-facing payment card on staff-help fallback only
-- `hosted`: open the secure Paystar portal directly from the homepage card (or via proxy returning the same URL)
-- `api`: call a town-managed endpoint first; proxy either forwards to Paystar REST (when upstream env is set) or returns the hosted portal URL
-
-Recommended near-term deployment path:
-
-1. Set `PAYSTAR_MODE=hosted`.
-2. Set `PAYSTAR_PORTAL_URL` to the Town's live Paystar payment page.
-3. Point `PAYSTAR_API_ENDPOINT` at the deployed paystar-proxy base URL when you want a single CORS-safe contract; until then the site can use hosted mode without the proxy.
-4. Redeploy Amplify so the homepage payment card exposes the secure Paystar action.
-5. When Paystar provides REST details, set upstream Lambda env vars and switch to `api` mode for server-mediated launch and (later) receipts.
+1. Set `PAYSTAR_PORTAL_URL` to the Town's live Paystar payment page.
+2. Redeploy static site so `runtime-config.js` exposes the portal URL.
 
 Operational note:
 

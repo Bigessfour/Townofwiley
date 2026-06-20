@@ -44,6 +44,7 @@
         @if (orderedGroupFilterActive() && orderedList().length > 0) {
           <p-orderList
             [value]="orderedList()"
+            [dragdrop]="true"
             [disabled]="reordering() || submitting() || deleting()"
             dataKey="id"
             (onReorder)="onOrderedListReorder($event)"
@@ -252,6 +253,7 @@
               @if (orderedGroupFilterActive() && orderedList().length > 0) {
                 <p-orderList
                   [value]="orderedList()"
+                  [dragdrop]="true"
                   [disabled]="reordering() || submitting() || deleting()"
                   dataKey="id"
                   (onReorder)="onOrderedListReorder($event)"

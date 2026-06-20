@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { StaffAuthService } from '../auth/staff-auth.service';
+import { buildClerkTaskHubLiveLink } from './cms-clerk-task-live-link';
 import {
   CLERK_CMS_TASKS,
   clerkTaskPreviewUrl,
@@ -49,7 +50,7 @@ export class CmsClerkTaskHubComponent {
   });
 
   protected previewUrl(task: ClerkCmsTask): string {
-    return clerkTaskPreviewUrl(task.previewPath);
+    return buildClerkTaskHubLiveLink(task.id) ?? clerkTaskPreviewUrl(task.previewPath);
   }
 
   protected taskIcon(task: ClerkCmsTask): string | null {

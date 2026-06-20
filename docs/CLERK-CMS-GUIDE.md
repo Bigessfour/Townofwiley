@@ -84,7 +84,7 @@ IT may occasionally use the AppSync Queries console for the production API `j7b2
 
 ### How changes work
 
-When you save a record in the **Edit content** form on `/admin`, the website picks up the change on the next live fetch. You do not need to click "publish" or "deploy." If the public page still looks old, hard-refresh and use **Force Refresh Live CMS Content** at the top of `/admin`.
+When you save a record in the **Edit content** form on `/admin`, the change is saved to the database immediately. The **public website** usually shows the update within **about one minute** (not instantly). An info message appears after each save to remind you of this delay. Use **See on website** and a normal page refresh to verify — hard refresh is rarely needed.
 
 ### When IT changes payment or other website settings (not Studio)
 
@@ -458,37 +458,33 @@ If IT asks you to use the AWS console instead: open **EmailAlias** in **Gen 1 Ap
 
 ## Troubleshooting Content Not Updating
 
-Use this when you saved content but the **public website** or **admin status** still looks old.
+Use this when you saved content but the **public website** still looks old after waiting ~30 seconds.
 
-### Step 1 — Hard-refresh the public page
+### Step 1 — Refresh the public page normally
 
-On the page residents see (`/news`, `/meetings`, homepage, etc.):
+On the page residents see (`/news`, `/meetings`, homepage, etc.), press **F5** or reload the tab. The site fetches live content from the database on each visit — a hard refresh is usually **not** required for CMS text changes.
 
-- **Windows:** **Ctrl+Shift+R**
-- **Mac:** **Cmd+Shift+R**
-- **Phone:** close the browser tab completely and open the site again
-
-### Step 2 — Force Refresh on `/admin` (Start here)
+### Step 2 — Force Refresh on `/admin` (verify your view)
 
 At the top of **https://townofwiley.gov/admin** (section **Start here**):
 
 1. Click **Force Refresh Live CMS Content**.
 2. Wait for the button to finish (it reloads the latest saved content from the database).
 3. Check the tag next to the button — it should show that content is coming from the live database, not an old saved copy in your browser.
-4. Try **See on website** and hard-refresh again.
+4. Open **See on website** and reload the public page.
 
-This button is especially helpful right after you save notices, events, contacts, or **email forwarding rules** in the in-app editor.
+This button verifies **your** admin session. Other residents already receive live fetches on each visit.
 
-### Step 3 — Clear saved website copy in this browser (if Step 2 is not enough)
+### Step 3 — Clear saved website copy in this browser (rare)
 
-The admin page can keep a **local saved copy** of CMS content in your browser so the site still works offline. Rarely, that copy is stale.
+Only if Step 2 shows live data but the public tab still looks wrong **in the same browser**:
 
 1. On `/admin`, scroll to **Advanced (IT)** and open that section.
-2. Click **Clear saved website copy** (clears the CMS snapshot stored in this browser’s **localStorage** for the Town site).
+2. Click **Clear saved website copy** (clears the CMS snapshot stored in this browser’s **localStorage**).
 3. Click **Force Refresh Live CMS Content** again at the top.
-4. Hard-refresh the public page.
+4. Reload the public page.
 
-This only affects **your** browser on **this computer** — it does not change what residents see worldwide. Other staff may need to do the same on their own machines.
+This only affects **your** browser on **this computer**.
 
 ### When to use `/admin` vs AppSync Queries (IT)
 

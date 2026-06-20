@@ -4,19 +4,25 @@ import { PanelModule } from 'primeng/panel';
 import { SkeletonModule } from 'primeng/skeleton';
 import { APP_COPY, type LeadershipGroup } from '../app';
 import {
+  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
+  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
+} from '../leadership-roster-group-ids';
+import {
   type CmsContact,
   LocalizedCmsContentStore,
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
   OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
 } from '../site-cms-content';
-import {
-  LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-  LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
-} from '../leadership-roster-group-ids';
 import { SiteLanguageService } from '../site-language';
 
-export type ContactLeadershipGroup = LeadershipGroup & { members: string[] };
+/** Roster member with the AppSync record id when sourced from CMS (absent for bundled fallback). */
+export interface ContactLeadershipMember {
+  id?: string;
+  line: string;
+}
+
+export type ContactLeadershipGroup = LeadershipGroup & { members: ContactLeadershipMember[] };
 
 export interface ParsedRosterLine {
   raw: string;
@@ -25,6 +31,10 @@ export interface ParsedRosterLine {
   href?: string;
   linkLabel?: string;
   detail?: string;
+  /** AppSync record id of the underlying `LeadershipRosterEntry` row when known. */
+  rosterId?: string;
+  /** AppSync record id of the matching `OfficialContact` (e.g. `city-clerk`) when known. */
+  contactId?: string;
 }
 
 export function parseRosterLine(line: string): { role: string; name: string } {
@@ -55,12 +65,15 @@ function contactForAdminRole(
   return undefined;
 }
 
-function enrichAdminRosterLine(line: string, contacts: readonly CmsContact[]): ParsedRosterLine {
-  const parsed = parseRosterLine(line);
+function enrichAdminRosterLine(
+  member: ContactLeadershipMember,
+  contacts: readonly CmsContact[],
+): ParsedRosterLine {
+  const parsed = parseRosterLine(member.line);
   const contact = contactForAdminRole(parsed.role, contacts);
 
   return {
-    raw: line,
+    raw: member.line,
     role: parsed.role,
     name: parsed.name,
     href: contact?.href,
@@ -68,6 +81,8 @@ function enrichAdminRosterLine(line: string, contacts: readonly CmsContact[]): P
       contact?.linkLabel ??
       (contact?.href?.startsWith('mailto:') ? contact.href.replace('mailto:', '') : undefined),
     detail: contact?.detail,
+    rosterId: member.id,
+    contactId: contact?.id,
   };
 }
 
@@ -90,12 +105,16 @@ export class ContactPage {
 
   protected readonly leadershipGroups = computed<ContactLeadershipGroup[]>(() => {
     const base = this.copy().leadershipGroups;
-    const cmsMap = this.cmsStore.leadershipRosterLinesByGroup();
+    const cmsMap = this.cmsStore.leadershipRosterEntriesByGroup();
 
-    return base.map((group) => ({
-      ...group,
-      members: [...(cmsMap.get(group.groupId) ?? [])],
-    }));
+    return base.map((group) => {
+      const cmsEntries = cmsMap.get(group.groupId) ?? [];
+      const members: ContactLeadershipMember[] = cmsEntries.map((entry) => ({
+        id: entry.id,
+        line: entry.line,
+      }));
+      return { ...group, members };
+    });
   });
 
   protected readonly townInformationContact = computed(() =>
@@ -115,7 +134,7 @@ export class ContactPage {
       return [] as ParsedRosterLine[];
     }
 
-    return group.members.map((line) => enrichAdminRosterLine(line, this.contacts()));
+    return group.members.map((member) => enrichAdminRosterLine(member, this.contacts()));
   });
 
   protected readonly electedOfficialsGroup = computed(
@@ -131,9 +150,10 @@ export class ContactPage {
       return [] as ParsedRosterLine[];
     }
 
-    return group.members.map((line) => ({
-      raw: line,
-      ...parseRosterLine(line),
+    return group.members.map((member) => ({
+      raw: member.line,
+      rosterId: member.id,
+      ...parseRosterLine(member.line),
     }));
   });
 }

@@ -9,7 +9,7 @@ describe('PayBillPageComponent', () => {
     payments?: { provider?: string; paystar?: { mode?: string; portalUrl?: string } };
   }
 
-  function setRuntimePaystarMode(mode: 'none' | 'hosted' | 'api', portalUrl = ''): void {
+  function setRuntimePaystarMode(mode: 'none' | 'hosted', portalUrl = ''): void {
     const w = window as Window & {
       __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeShape;
     };
@@ -110,6 +110,8 @@ describe('PayBillPageComponent', () => {
 
     expect(component['quickPayDisabled']()).toBe(true);
     expect(component['quickPayIsPlaceholder']()).toBe(true);
-    expect(fixture.nativeElement.querySelector('[data-testid="pay-bill-portal-placeholder"]')).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="pay-bill-portal-placeholder"]'),
+    ).not.toBeNull();
   });
 });

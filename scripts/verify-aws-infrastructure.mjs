@@ -442,7 +442,7 @@ if (h && h.cloudFrontDistributionId && !skipS3) {
     if (origin.OriginAccessControlId) {
       pass(`CloudFront origin using OAC ${origin.OriginAccessControlId}`);
     } else if (origin.S3OriginConfig?.OriginAccessIdentity) {
-      pass('CloudFront origin using legacy OAI (OAC migration prepared)');
+      warn('CloudFront origin using legacy OAI — run npm run migrate:cloudfront-oac');
     }
   }
 

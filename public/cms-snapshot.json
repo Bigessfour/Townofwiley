@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-06-13T13:42:25.411Z",
-  "buildSha": "1de7e0887c0e992929bea9a489ffa72df572f886",
+  "savedAt": "2026-06-20T18:53:24.692Z",
+  "buildSha": "b5e0c6b8192d04de2ff8976ce0fa75d6a3c02074",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -38,6 +38,15 @@
       "location": null,
       "start": "2026-07-14T00:00:00.000Z",
       "end": "2026-07-14T02:00:00.000Z",
+      "active": true
+    },
+    {
+      "id": "036b854a-b3cf-49e3-9840-f15f994df382",
+      "title": "City Council Meeting - October",
+      "description": null,
+      "location": null,
+      "start": "2026-10-13T00:00:00.000Z",
+      "end": "2026-10-24T02:00:00.000Z",
       "active": true
     },
     {
@@ -94,7 +103,7 @@
       "detail": "Clerk services, meeting packets, records coordination, and agenda planning support.",
       "href": "mailto:deb.dillon@townofwiley.gov",
       "linkLabel": "deb.dillon@townofwiley.gov",
-      "displayOrder": 2
+      "displayOrder": 0
     },
     {
       "id": "town-information",
@@ -266,79 +275,79 @@
       "source": "Prowers Journal",
       "active": true,
       "displayOrder": 1
-    },
-    {
-      "id": "50933697-b248-41c9-b074-50dfbcf9f763",
-      "title": "Obituary - Sally Jacobs",
-      "url": "https://theprowersjournal.com/2026/06/sally-a-jacobs-march-28-1930-june-4-2026/",
-      "source": "Lamar Ledget",
-      "active": true,
-      "displayOrder": 1
     }
   ],
   "leadershipRosterRecords": [
     {
-      "id": "roster-mayor-council-0",
+      "id": "c4b3a770-5e48-4787-8317-3eb76a59d056",
       "groupId": "mayor-council",
-      "lineEn": "Mayor: Steve McKitrick",
-      "lineEs": "Alcalde: Steve McKitrick",
-      "displayOrder": 0,
+      "displayOrder": null,
+      "lineEn": "Trustee - Allan Campbell",
+      "lineEs": "Trustee - Allan Campbell",
       "active": true
     },
     {
-      "id": "roster-mayor-council-1",
+      "id": "e713575a-7e04-4c9a-b737-127ce0756135",
       "groupId": "mayor-council",
-      "lineEn": "Councilman: Julie Esgar",
-      "lineEs": "Concejal: Julie Esgar",
-      "displayOrder": 1,
+      "displayOrder": null,
+      "lineEn": "Trustee (Mayor Pro Tem) - Dale Stewart",
+      "lineEs": "Trustee (Mayor Pro Tem) - Dale Stewart",
       "active": true
     },
     {
-      "id": "roster-mayor-council-2",
-      "groupId": "mayor-council",
-      "lineEn": "Councilman: Dale Specht",
-      "lineEs": "Concejal: Dale Specht",
-      "displayOrder": 2,
-      "active": true
-    },
-    {
-      "id": "roster-mayor-council-3",
-      "groupId": "mayor-council",
-      "lineEn": "Councilman: Dale Stewart",
-      "lineEs": "Concejal: Dale Stewart",
-      "displayOrder": 3,
-      "active": true
-    },
-    {
-      "id": "roster-mayor-council-4",
-      "groupId": "mayor-council",
-      "lineEn": "Councilman: Alan Campbell",
-      "lineEs": "Concejal: Alan Campbell",
-      "displayOrder": 4,
-      "active": true
-    },
-    {
-      "id": "roster-mayor-council-5",
-      "groupId": "mayor-council",
-      "lineEn": "Councilman: Sandy Coen",
-      "lineEs": "Concejal: Sandy Coen",
-      "displayOrder": 5,
-      "active": true
-    },
-    {
-      "id": "roster-town-administration-0",
+      "id": "2e08601a-1a38-4d44-8e86-2b1f374988bc",
       "groupId": "town-administration",
-      "lineEn": "City Clerk: Deb Dillon",
-      "lineEs": "Secretaria municipal: Deb Dillon",
-      "displayOrder": 0,
+      "displayOrder": null,
+      "lineEn": "Town Superintendent - Scott Whitman",
+      "lineEs": "Town Superintendent - Scott Whitman",
       "active": true
     },
     {
-      "id": "roster-town-administration-1",
+      "id": "5a5e5d1e-e7f8-4646-a7b9-ae2b5388acfc",
+      "groupId": "mayor-council",
+      "displayOrder": null,
+      "lineEn": "Trustee - Ken Mooney",
+      "lineEs": "Ken Mooney",
+      "active": true
+    },
+    {
+      "id": "2b10b0eb-304a-4226-a1c0-33c3de37372a",
+      "groupId": "mayor-council",
+      "displayOrder": null,
+      "lineEn": "Trustee - Julie Esgar",
+      "lineEs": "Trustee - Julie Esgar",
+      "active": true
+    },
+    {
+      "id": "07c03fe4-41a3-4b81-b68f-b8e956851152",
       "groupId": "town-administration",
-      "lineEn": "Town Superintendent: Scott Whitman",
-      "lineEs": "Superintendente del pueblo: Scott Whitman",
-      "displayOrder": 1,
+      "displayOrder": null,
+      "lineEn": "Deputy City Clerk - To Be Announced",
+      "lineEs": "Deputy City Clerk - To Be Announced",
+      "active": true
+    },
+    {
+      "id": "5aa68b27-ddf8-4c29-bcb9-16678b6592b6",
+      "groupId": "mayor-council",
+      "displayOrder": null,
+      "lineEn": "Trustee - Sandy Coen",
+      "lineEs": "Trustee - Sandy Coen",
+      "active": true
+    },
+    {
+      "id": "452cfb25-00ef-450a-8253-b6cd07870f85",
+      "groupId": "town-administration",
+      "displayOrder": null,
+      "lineEn": "City Clerk - Deb Dillon",
+      "lineEs": "Mayor - Steve McKitrick",
+      "active": true
+    },
+    {
+      "id": "b90f8774-2d93-4cbe-8cdd-c66d7be166ff",
+      "groupId": "mayor-council",
+      "displayOrder": null,
+      "lineEn": "Trustee - Dale Specht",
+      "lineEs": "Trustee - Dale Specht",
       "active": true
     }
   ],

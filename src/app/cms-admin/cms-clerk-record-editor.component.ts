@@ -28,6 +28,13 @@ import {
 } from '../cms-site-settings-admin.service';
 import { DocumentUploadService } from '../document-upload.service';
 import {
+  buildLeadershipInsertOptions,
+  LEADERSHIP_INSERT_BOTTOM,
+  prepareLeadershipRosterMutationInput,
+  resolveLeadershipInsertIndex,
+} from '../leadership-roster-admin';
+import { leadershipGroupLabel } from '../leadership-roster-seed';
+import {
   LocalizedCmsContentStore,
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
@@ -40,16 +47,11 @@ import {
   recordToFormValues,
   type ClerkFormFieldDefinition,
 } from './cms-clerk-task-form-fields';
+import { buildClerkTaskLiveLink, TASKS_WITHOUT_LIVE_LINK } from './cms-clerk-task-live-link';
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
-import {
-  buildLeadershipInsertOptions,
-  LEADERSHIP_INSERT_BOTTOM,
-  prepareLeadershipRosterMutationInput,
-  resolveLeadershipInsertIndex,
-} from '../leadership-roster-admin';
-import { leadershipGroupLabel } from '../leadership-roster-seed';
+import { resolveOrderListAfterReorder } from './cms-order-list-reorder';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
@@ -95,6 +97,17 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly fileUploadingField = signal<string | null>(null);
   protected readonly fileUploadError = signal<string | null>(null);
   protected readonly leadershipInsertPosition = signal(LEADERSHIP_INSERT_BOTTOM);
+  /**
+   * AppSync record id from the most recent successful create / update / reorder. Drives the
+   * post-save "See on live site" deep link built by `buildClerkTaskLiveLink`. Cleared whenever the
+   * clerk starts a new entry, switches tasks, or opens a different existing record for editing.
+   */
+  private readonly lastSavedId = signal<string | null>(null);
+  /**
+   * Form values captured at the moment of the last successful save. The link builder uses
+   * `announcementKind` (post-notice) and `groupId` (update-leadership) to branch on the URL.
+   */
+  private readonly lastSavedFormValues = signal<Readonly<Record<string, string | boolean>>>({});
 
   protected readonly task = computed(() => {
     const id = this.taskId();
@@ -198,6 +211,24 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     );
   });
 
+  /**
+   * URL the "See on live site (public view refreshed)" button opens.
+   * - When a record has just been saved, links straight to the per-record DOM id on the live site.
+   * - When no save has happened yet, falls back to the section-level URL so the button still works.
+   * - Returns `null` for tasks with `showPublicPreview: false` (e.g. `manage-email-aliases`).
+   */
+  protected readonly liveSiteUrl = computed<string | null>(() => {
+    const taskId = this.taskId();
+    if (!taskId || TASKS_WITHOUT_LIVE_LINK.has(taskId)) {
+      return null;
+    }
+    return buildClerkTaskLiveLink({
+      taskId,
+      savedId: this.lastSavedId(),
+      formValues: this.lastSavedFormValues(),
+    });
+  });
+
   protected readonly canDeleteRecord = computed(() => {
     const active = this.task();
     const id = this.editingId();
@@ -226,6 +257,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.submitResult.set(null);
       this.submitError.set(null);
       this.loadError.set(null);
+      this.lastSavedId.set(null);
+      this.lastSavedFormValues.set({});
       const fieldDefs = id ? clerkTaskFormFields(id) : [];
       this.formValues.set(defaultDynamicFormValues(fieldDefs, { taskId: id ?? undefined }));
       this.fileUploadingField.set(null);
@@ -322,6 +355,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.editingId.set(null);
     this.submitResult.set(null);
     this.submitError.set(null);
+    this.lastSavedId.set(null);
+    this.lastSavedFormValues.set({});
     this.formValues.set(
       defaultDynamicFormValues(this.fields(), { taskId: this.taskId() ?? undefined }),
     );
@@ -342,6 +377,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.editingId.set(id);
     this.submitResult.set(null);
     this.submitError.set(null);
+    this.lastSavedId.set(null);
+    this.lastSavedFormValues.set({});
     this.formValues.set(recordToFormValues(this.fields(), record));
   }
 
@@ -440,10 +477,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     await this.persistOrderedList(reordered);
   }
 
-  protected async onOrderedListReorder(event: {
-    value?: Record<string, unknown>[];
-  }): Promise<void> {
-    const reordered = event.value ?? [];
+  protected async onOrderedListReorder(event: unknown): Promise<void> {
+    // PrimeNG OrderList mutates the bound array in place, then emits `onReorder` with
+    // `selection` (not the full list) unless dragdrop passes a single dragged item.
+    const reordered = resolveOrderListAfterReorder(event, this.orderedList());
     if (reordered.length === 0) {
       return;
     }
@@ -501,19 +538,26 @@ export class CmsClerkRecordEditorComponent implements OnInit {
         savedId = await this.genericModel.createModel(active.model, input);
       }
 
-      this.submitResult.set(
-        `${active.model} saved (ID ${savedId}). Use the button below to verify on the live site (public cache refreshed).`,
-      );
+      const savedFormSnapshot = { ...this.formValues() };
+      const liveLink = buildClerkTaskLiveLink({
+        taskId: active.id,
+        savedId,
+        formValues: savedFormSnapshot,
+      });
+      const verifySuffix = liveLink
+        ? `Use the button below to verify on the live site after the public copy updates (usually within about one minute). Direct link: ${liveLink}`
+        : 'Use the button below to verify on the live site after the public copy updates (usually within about one minute).';
+      this.submitResult.set(`${active.model} saved (ID ${savedId}). ${verifySuffix}`);
       const savedLabel = this.editingId()
         ? this.recordLabel({ id: savedId, ...this.formValues() })
         : this.recordLabel({ id: savedId, ...input });
       this.showSavedToast(savedLabel);
-      // Inform clerk of potential caching delay for public visitors (documented 6-hour live refresh TTL + 7-day snapshot per site-cms-content.ts and AGENTS.md).
       this.messages.add({
         severity: 'info',
-        summary:
-          'Recently posted changes may take up to 6 hours to appear for all visitors due to caching. If not seen immediately, hard-refresh the page or wait up to 6 hours for changes to appear.',
-        life: 10000,
+        summary: 'Saved to the website database',
+        detail:
+          'Your change is saved. It usually appears on the public website within about one minute — instant updates are not expected. Use See on website and refresh normally to check.',
+        life: 12_000,
       });
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
@@ -525,6 +569,12 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       if (!this.isSingleton()) {
         this.startNewRecord();
       }
+
+      // startNewRecord (called above) clears lastSavedId/lastSavedFormValues so a brand-new form
+      // starts clean — but we want the post-save "See on live site" button to still target the
+      // just-saved record until the clerk clicks Add another or switches tasks.
+      this.lastSavedId.set(savedId);
+      this.lastSavedFormValues.set(savedFormSnapshot);
     } catch (err: unknown) {
       const msg =
         err instanceof Error
@@ -640,7 +690,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     }
     // Use documented forceLiveRefresh to bypass public cache (as done on save and in hub "Refresh from database").
     await this.cmsStore.forceLiveRefresh();
-    const url = `https://townofwiley.gov${active.previewPath}`;
+    const url = this.liveSiteUrl() ?? `https://townofwiley.gov${active.previewPath}`;
     window.open(url, '_blank');
   }
 }

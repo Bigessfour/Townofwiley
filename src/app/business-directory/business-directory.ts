@@ -96,6 +96,8 @@ function getVerifiedWebsite(url?: string | null): string | undefined {
 }
 
 interface Business {
+  /** AppSync record id when sourced from CMS; absent for hardcoded fallback rows. */
+  id?: string;
   displayOrder?: number;
   name: string;
   phone: string;
@@ -124,6 +126,7 @@ function compareBusinesses(left: Business, right: Business): number {
 
 function mapCmsBusiness(business: CmsBusiness): Business {
   return {
+    id: business.id,
     displayOrder: business.displayOrder,
     name: business.name,
     phone: business.phone,

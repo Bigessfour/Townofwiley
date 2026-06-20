@@ -12,11 +12,8 @@ import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
+import { getCmsNoticeLinkAriaLabel, getCmsNoticeRouteLink } from '../cms-notice-link';
 import { DocumentUploadService } from '../document-upload.service';
-import {
-  getCmsNoticeLinkAriaLabel,
-  getCmsNoticeRouteLink,
-} from '../cms-notice-link';
 import { CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
@@ -24,6 +21,8 @@ import { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
 export { appendNewsletterPdfInlineViewerParams } from './newsletter-pdf-viewer';
 
 interface ExternalLink {
+  /** AppSync record id when sourced from CMS; absent for hardcoded fallback rows. */
+  id?: string;
   title: string;
   url: string;
   source: string;
@@ -174,7 +173,7 @@ export class News {
   protected readonly externalLinks = computed<ExternalLink[]>(() => {
     const cmsLinks = this.cms.externalNewsLinks();
     if (cmsLinks.length > 0) {
-      return cmsLinks.map((l) => ({ title: l.title, url: l.url, source: l.source }));
+      return cmsLinks.map((l) => ({ id: l.id, title: l.title, url: l.url, source: l.source }));
     }
     return FALLBACK_REGIONAL_LINKS;
   });

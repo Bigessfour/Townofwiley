@@ -2,7 +2,7 @@
 
 Canonical reference for **custom AWS resources** in account **`570912405222`** (Town of Wiley).
 
-**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAI (OAC prepared), custom Response Headers Policy (ID 22d4bac1... with CSP + security headers), managed CachingOptimized, access logging to townofwiley-cf-logs, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" (updated deploy with cache controls) and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md). Manifest has latest IDs.
+**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAC `E1UXALBLRIDL2E` (migrated from OAI 2026-06-20), custom Response Headers Policy (ID 22d4bac1... with CSP + security headers), managed CachingOptimized, access logging to townofwiley-cf-logs, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" (updated deploy with cache controls) and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md). Manifest has latest IDs.
 
 When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update the manifests and this doc in the same PR.
 
@@ -28,6 +28,21 @@ npm run verify:aws-infra
 ```
 
 Options: `--skip-s3`, `--skip-amplify`, `--skip-amplify-env`.
+
+### CloudFront OAI → OAC migration (completed 2026-06-20)
+
+Distribution `E1NZ3XCY5CYR1J` origin `S3-townofwiley-static-site` now uses OAC `E1UXALBLRIDL2E`. Applied with `scripts/migrate-cloudfront-oac.py`; healthchecks passed for `https://townofwiley.gov/` and `/runtime-config.js`.
+
+To re-run idempotently (no-op when already on OAC):
+
+```bash
+source scripts/agent-aws-env.sh
+python3 scripts/migrate-cloudfront-oac.py --dry-run   # optional diff
+python3 scripts/migrate-cloudfront-oac.py             # exits 0 if already migrated
+npm run verify:aws-infra
+```
+
+Pre-migration config backups: `scripts/.oac-backup/` (gitignored). Rollback: `python3 scripts/migrate-cloudfront-oac.py --rollback-only`.
 
 ---
 

@@ -167,7 +167,7 @@ That is the recommended minimum deterministic gate for this site because it vali
 
 The workflow also runs targeted checks when website-facing backend code changes:
 
-- `npm run test:infra` for `infrastructure/nws-weather-proxy/**` and `infrastructure/paystar-proxy/**`
+- `npm run test:infra` for `infrastructure/nws-weather-proxy/**` and `infrastructure/cms-media-upload/**`
 - `npm run test:infra:alerts` for `infrastructure/severe-weather-signup/**` (Python **3.13**)
 - `npm run test:infra:mail` for `infrastructure/email-alias-router/**` (Python **3.13**)
 - `npm run test:infra:contact` for contact Lambdas and deploy scripts (see below)

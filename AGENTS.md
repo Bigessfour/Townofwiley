@@ -29,23 +29,16 @@ Headless CMS: **AWS AppSync (GraphQL)** on Gen 1 production API `j7b2x3sh7rcezek
 
 ### Client-side caching (critical)
 
-Public content uses aggressive **offline-first** caching in `LocalizedCmsContentStore`:
+Public content uses **revision-based CDN snapshots** in `LocalizedCmsContentStore`:
 
 1. **Bundled defaults** — hardcoded fallbacks in `site-cms-content.ts`
-2. **Build snapshot** — `GET /cms-snapshot.json` (from [`scripts/generate-cms-snapshot.mjs`](scripts/generate-cms-snapshot.mjs) at build)
-3. **localStorage** — key `tow-cms-snapshot-v1`, **7-day offline TTL** (`CMS_SNAPSHOT_TTL_MS`); **6-hour live refresh TTL** (`CMS_LIVE_REFRESH_TTL_MS`) skips AppSync when snapshot is fresh
-4. **Live AppSync** — `PUBLIC_CMS_CORE_QUERY` then `PUBLIC_CMS_EXTENDED_QUERY`; on success → `persistSnapshot()`. Staff `/admin` → **Refresh from database** bypasses cache. Announcement primary-key reconcile runs on staff refresh and at deploy snapshot only (not every public page load).
+2. **Build/CDN snapshot** — `/cms-snapshot.json` + `/cms-revision.json` (regenerated at deploy and on each CMS edit via `TownOfWileyCmsChangeNotifier`)
+3. **localStorage** — key `tow-cms-snapshot-v1`, **7-day offline TTL** (`CMS_SNAPSHOT_TTL_MS`)
+4. **Live AppSync** — **staff preview** (`?preview=1`) and **`/admin` → Refresh from database** only. Public visitors sync from CDN when revision changes (~1 minute after clerk save); tab polls revision every 2 minutes.
 
-`contentSourceState`: `'bundled' | 'loading' | 'live' | 'cached'`. Site can look correct while showing **stale or fallback** data.
+`contentSourceState`: `'bundled' | 'loading' | 'live' | 'cached'`.
 
-**When to clear or bypass cache**
-
-- After CMS edits not visible on public pages: **hard refresh** (`Ctrl+Shift+R`); clerks use `/admin` → **Test CMS Connection** and CMS status line (must show live AppSync, not bundled-only).
-- Force fresh client cache: DevTools → Application → Local Storage → delete `tow-cms-snapshot-v1`, or `localStorage.removeItem('tow-cms-snapshot-v1')` in console.
-- Stale entries auto-expire after **7 days**; expired keys are removed on read.
-- **New deploy** refreshes `/cms-snapshot.json` (build-time); does not clear existing localStorage until TTL or manual clear.
-- **API key rotation / runtime-config fix:** redeploy so `runtime-config.js` updates; clear localStorage if residents still see old content.
-- **Gotcha:** persisted snapshots omit **`SiteCopy`** — `SiteCopy` only hydrates from the live extended query.
+**Clerk expectation:** Saves are immediate in the database; the public site updates within **about one minute** (not instant). The in-app editor shows an info toast after save.
 
 Verify guards: `npm run verify:public-cms-query`, `npm run verify:runtime-config-cms`.
 
@@ -59,7 +52,7 @@ Verify guards: `npm run verify:public-cms-query`, `npm run verify:runtime-config
 | **Uploads** (hero image, newsletter PDF, meeting docs)                      | `cms-clerk-upload-panel`, `cms-meeting-document-upload` → `CmsPublicDocumentAdminService` / `DocumentUploadService`                      |
 | **Connection / inventory**                                                  | `cms-site-status`, `cms-content-snapshot`, **Test CMS Connection**                                                                       |
 
-No publish step for CMS rows: save in the in-app editor → public site picks up on next successful live fetch (after cache considerations above). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
+No publish step for CMS rows: save in the in-app editor → public site picks up on the next page load’s live AppSync fetch (typically within seconds). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
 
 Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`, `town-superintendent`; `LeadershipRosterEntry.groupId` `mayor-council` (elected officials at `/contact#leadership`), `town-administration` (roster lines in Town Administration card) ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md)).
 

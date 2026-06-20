@@ -1,7 +1,7 @@
 # Town of Wiley - Incomplete Items Reference
 
 **Generated:** March 26, 2026 · **Last updated:** 2026-05-22
-**Source:** codebase analysis, `src/app/app.ts`, validation reports, `README.md`, and repository memories.  
+**Source:** codebase analysis, `src/app/app.ts`, validation reports, `README.md`, and repository memories.
 **Purpose:** Historical polish checklist (March 2026). **Current remediation:** [`post-development-inventory.md`](post-development-inventory.md) (AP slices). Re-run `npm run lint`, `npm run test:vitest`, and `npm run test:e2e:smoke` after changes.
 
 Follow [.vscode/angular-best-practices.md](.vscode/angular-best-practices.md) for any Angular edits (standalone components, signals, native control flow `@if`/`@for`, `input()`/`output()`, `OnPush`, `inject()`, no `ngClass`/`ngStyle`, WCAG AA).
@@ -14,7 +14,7 @@ This site is a small-town local resource, so the best return comes from improvin
 
 - [x] Add visible form validation messages for every user-facing form field that can fail validation. Completed in `src/app/resident-services/resident-services.html` with `p-message` field feedback and covered by `src/app/resident-services/resident-services.spec.ts`.
 - [x] Add unit tests for form validation, derived state, and mailto / payload-building logic in resident services and weather flows. Validated with `npx vitest run src/app/resident-services/resident-services.vitest.ts src/app/weather-panel/weather-panel.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
-- [x] Add integration-style service tests for API failure paths, retry behavior, and user-facing error states. Validated with `npx vitest run src/app/weather-panel/weather-panel.vitest.ts src/app/contact-update/contact-update.service.vitest.ts src/app/payments/paystar-connection.vitest.ts --config vitest.mcp.config.ts` on 2026-04-14.
+- [x] Add integration-style service tests for API failure paths, retry behavior, and user-facing error states. Validated with weather and contact-update vitest suites on 2026-04-14.
 - [x] Add a global Angular `ErrorHandler` and verify uncaught errors surface a friendly fallback. Validated with `npx playwright test e2e/specs/smoke/global-error-handler.spec.ts` on 2026-04-14.
 - [x] Add keyboard and focus-state checks for form submit, modal, and navigation flows. Validated with `npx playwright test e2e/specs/smoke/accessibility-focus.spec.ts`.
 - [x] Add ARIA attributes and error-description links where validation or state feedback is shown. Validated with `npx playwright test e2e/specs/smoke/accessibility-focus.spec.ts`.

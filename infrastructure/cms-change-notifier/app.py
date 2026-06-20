@@ -234,7 +234,23 @@ def stream_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
             continue
         writer.write(mapped)
         processed += 1
-    return {"processed": processed}
+
+    snapshot_result: dict[str, Any] | None = None
+    if processed > 0:
+        from snapshot_publisher import publish_public_cms_snapshot_from_env
+
+        try:
+            snapshot_result = publish_public_cms_snapshot_from_env()
+        except (
+            Exception
+        ) as error:  # noqa: BLE001 — stream must not fail after audit writes
+            print(json.dumps({"cmsSnapshotPublishError": str(error)}))
+
+    return {
+        "processed": processed,
+        "snapshotPublished": bool(snapshot_result),
+        "snapshot": snapshot_result,
+    }
 
 
 def http_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:

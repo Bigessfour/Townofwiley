@@ -152,12 +152,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     env.PAYSTAR_PORTAL_URL?.trim() ||
     localSecrets.payments?.paystar?.portalUrl?.trim() ||
     DEFAULT_PAYSTAR_PORTAL_URL;
-  const paystarApiEndpoint =
-    env.PAYSTAR_API_ENDPOINT?.trim() || localSecrets.payments?.paystar?.apiEndpoint?.trim() || '';
-  const explicitPaystarMode =
-    env.PAYSTAR_MODE?.trim().toLowerCase() ||
-    localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
-    '';
   const cmsApiEndpoint =
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
     localSecrets.cms?.appSync?.apiEndpoint?.trim() ||
@@ -251,14 +245,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     'bottom-right';
   const logEndpoint = env.LOG_ENDPOINT?.trim() || localSecrets.logging?.endpoint?.trim() || '';
   const guestbookApiEndpoint = '';
-  const paystarMode =
-    explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
-      ? explicitPaystarMode
-      : paystarApiEndpoint
-        ? 'api'
-        : paystarPortalUrl
-          ? 'hosted'
-          : 'none';
+  const paystarMode = paystarPortalUrl ? 'hosted' : 'none';
   const mode = 'none';
 
   return {
@@ -267,7 +254,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     weatherApiEndpoint,
     severeWeatherSignupApiEndpoint,
     paystarPortalUrl,
-    paystarApiEndpoint,
     cmsApiEndpoint,
     cmsApiKey,
     cmsRegion,
@@ -352,7 +338,6 @@ export function buildRuntimeConfigObject(values, buildMeta) {
       paystar: {
         mode: values.paystarMode,
         portalUrl: values.paystarPortalUrl,
-        apiEndpoint: values.paystarApiEndpoint,
       },
     },
     cms: {

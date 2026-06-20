@@ -79,6 +79,8 @@ function assertDistReady() {
 }
 
 function applyNoCacheKeys() {
+  // cms-snapshot.json + cms-revision.json are owned by TownOfWileyCmsChangeNotifier (DynamoDB
+  // stream → S3). Uploading build artifacts here rolls back clerk CMS edits on the public site.
   const keys = ['index.html', 'runtime-config.js', '404.html'];
   for (const key of keys) {
     const localPath = join(distDir, key);
@@ -88,7 +90,11 @@ function applyNoCacheKeys() {
     run(
       `aws s3 cp "${localPath.replace(/\\/g, '/')}" s3://${bucket}/${key} ` +
         `--cache-control "${NO_CACHE}" --content-type ${
-          key.endsWith('.js') ? 'application/javascript' : 'text/html'
+          key.endsWith('.js')
+            ? 'application/javascript'
+            : key.endsWith('.json')
+              ? 'application/json'
+              : 'text/html'
         }`,
     );
   }
@@ -134,7 +140,8 @@ if (!skipBuild) {
 assertDistReady();
 
 run(
-  `aws s3 sync "${distDir.replace(/\\/g, '/')}" s3://${bucket} --delete --region ${region}`,
+  `aws s3 sync "${distDir.replace(/\\/g, '/')}" s3://${bucket} --delete --region ${region} ` +
+    `--exclude 'cms-snapshot.json' --exclude 'cms-revision.json'`,
 );
 
 applyNoCacheKeys();
@@ -146,6 +153,9 @@ const invalidationId = runCapture(
 waitForInvalidation(invalidationId);
 
 console.log('\nDeploy steps finished.');
+console.log(
+  'Note: cms-snapshot.json / cms-revision.json were NOT uploaded — Lambda republish owns those keys.',
+);
 console.log('Verify: hard-refresh https://www.townofwiley.gov/ and check /runtime-config.js gitSha.');
 if (!dryRun) {
   console.log(`CloudFront invalidation: ${invalidationId}`);

@@ -24,9 +24,8 @@ interface RuntimeConfigShape {
   };
   payments?: {
     paystar?: {
-      mode?: 'none' | 'hosted' | 'api';
+      mode?: 'none' | 'hosted';
       portalUrl?: string;
-      apiEndpoint?: string;
     };
   };
 }
@@ -125,25 +124,22 @@ describe('runtime config helpers', () => {
         paystar: {
           mode: 'hosted',
           portalUrl: 'https://paystar.example.com/portal',
-          apiEndpoint: 'https://paystar.example.com/api',
         },
       },
     };
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       payments: {
         paystar: {
-          mode: 'api',
-          portalUrl: 'https://paystar.example.com/override',
-          apiEndpoint: 'https://paystar.example.com/override-api',
+          mode: 'none',
+          portalUrl: '',
         },
       },
     };
 
     expect(getPaystarRuntimeConfig()).toEqual({
       provider: 'paystar',
-      mode: 'api',
-      portalUrl: 'https://paystar.example.com/override',
-      apiEndpoint: 'https://paystar.example.com/override-api',
+      mode: 'none',
+      portalUrl: '',
     });
   });
 });

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildClerkTaskHubLiveLink,
+  buildClerkTaskLiveLink,
+  TASKS_WITHOUT_LIVE_LINK,
+} from './cms-clerk-task-live-link';
+import {
   CLERK_CMS_TASKS,
   CLERK_VERIFY_STEPS,
   clerkTaskById,
@@ -38,5 +43,19 @@ describe('cms-clerk-tasks', () => {
     expect(task?.icon).toBe('pi-envelope');
     expect(task?.showPublicPreview).toBe(false);
     expect(clerkTaskUsesDedicatedEditor('manage-email-aliases')).toBe(true);
+  });
+
+  it('every task either opts out of the live-site link or has a hub URL', () => {
+    for (const task of CLERK_CMS_TASKS) {
+      const optedOut = task.showPublicPreview === false || TASKS_WITHOUT_LIVE_LINK.has(task.id);
+      if (optedOut) {
+        expect(buildClerkTaskHubLiveLink(task.id)).toBeNull();
+        expect(buildClerkTaskLiveLink({ taskId: task.id })).toBeNull();
+      } else {
+        const url = buildClerkTaskHubLiveLink(task.id);
+        expect(url, `Task ${task.id} must have a hub live-site URL`).not.toBeNull();
+        expect(url).toMatch(/^https:\/\/townofwiley\.gov\//);
+      }
+    }
   });
 });

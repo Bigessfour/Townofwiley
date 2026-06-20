@@ -18,8 +18,8 @@
     "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
     "loggingBucket": "townofwiley-cf-logs",
     "loggingPrefix": "cf-access/",
-    "oacPreparedId": "E1UXALBLRIDL2E",
-    "note": "OAI still active in origin (OAC migration prepared: dual bucket policy + OAC resource E1UXALBLRIDL2E exists; CLI origin switch blocked with 'origin server' validation — complete via AWS Console: edit origin > Origin access control settings). Deploy uses improved cache controls (see README + scripts/deploy-static-site.sh).",
+    "oacId": "E1UXALBLRIDL2E",
+    "note": "OAC active (E1UXALBLRIDL2E). Migrated from OAI on 2026-06-20 via scripts/migrate-cloudfront-oac.py.",
     "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
   },
   "amplify": {
@@ -136,7 +136,7 @@
       "functionUrlEndpoint": "https://n56zrl5abadacge5zph43oxzsi0nhhsd.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-change-notifier.py",
       "required": false,
-      "notes": "DynamoDB stream audit log + staff GET /recent; Cognito Staff JWT on HTTP routes"
+      "notes": "DynamoDB stream audit log + staff GET /recent; publishes cms-snapshot.json + cms-revision.json on public model changes"
     }
   ],
   "cloudWatch": {

@@ -285,7 +285,6 @@ export class HomePage {
               provider?: string;
               mode?: string;
               portalUrl?: string;
-              apiEndpoint?: string;
             };
           };
         };
@@ -299,7 +298,6 @@ export class HomePage {
             provider: 'paystar',
             mode: 'hosted',
             portalUrl: '',
-            apiEndpoint: '',
           },
         },
       };
@@ -315,7 +313,6 @@ export class HomePage {
               provider?: string;
               mode?: string;
               portalUrl?: string;
-              apiEndpoint?: string;
             };
           };
         };
@@ -329,7 +326,6 @@ export class HomePage {
             provider: 'paystar',
             mode: 'none',
             portalUrl: '',
-            apiEndpoint: '',
           },
         },
       };
@@ -345,7 +341,6 @@ export class HomePage {
               provider?: string;
               mode?: string;
               portalUrl?: string;
-              apiEndpoint?: string;
             };
           };
         };
