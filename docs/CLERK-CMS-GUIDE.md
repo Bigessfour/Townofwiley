@@ -158,7 +158,7 @@ The admin page can upload files directly — you do not need AWS Console access.
 
 | What you are uploading | Where on `/admin` | What to paste in the form after upload |
 | ---------------------- | ----------------- | -------------------------------------- |
-| **Homepage hero photo** | **Change homepage photo** upload panel | Full public URL, e.g. `https://townofwiley.gov/media/cms/hero/your-file.jpg` |
+| **Homepage hero photo** | **Change homepage photo** → **Edit content** → **Choose photo from this computer** | Full public URL after upload, e.g. `https://townofwiley.gov/media/cms/hero/your-file.jpg` |
 | **Newsletter PDF** | **Post news or notice** task or newsletter upload panel | Storage file code, e.g. `documents/newsletter/2026-06-town-newsletter.pdf` |
 | **Meeting agenda or minutes PDF** | **Document publishing** → meeting upload | The form fills the storage key automatically |
 
@@ -321,15 +321,12 @@ To remove someone from the list, either set **active** to **false** or delete th
 
 The hero is the large photo at the top of the homepage.
 
-1. Find a public photo web address. This must be a full web address (starting with `https://`) that anyone can open in a browser without logging in. You can get one by uploading a photo to Google Photos and setting sharing to "anyone with the link", or any public file sharing service.
-2. Copy the full web address of the photo.
-3. On `/admin`, open **Change homepage photo or welcome text** → **Edit content**.
-4. Open the one settings record.
-5. Paste the photo web address into **heroImageUrl**.
-6. Click **Save**.
-7. Refresh the homepage and confirm the new photo appears.
+1. On `/admin`, open **Change homepage photo or welcome text** → **Edit content**.
+2. At the top of the form, under **Homepage hero photo**, click **Choose photo from this computer** and pick a JPG, PNG, or WebP.
+3. Wait for the upload to finish — the web address fills in automatically and you will see a preview.
+4. Click **Save**, then open the homepage and hard-refresh (or wait about one minute for the public copy).
 
-To go back to the default photo, clear the **heroImageUrl** field (delete the address) and save.
+Optional: paste a public `https://` photo link into the field below the button instead of uploading. To go back to the default photo, clear **Homepage hero photo** and save.
 
 ### Update homepage text (title, welcome message)
 

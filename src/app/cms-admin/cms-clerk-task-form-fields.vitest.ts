@@ -63,6 +63,17 @@ describe('cms-clerk-task-form-fields', () => {
       (field) => field.name === 'attachmentKey',
     );
     expect(pdfField?.type).toBe('fileOrUrl');
+    expect(pdfField?.uploadValue).toBe('storageKey');
+  });
+
+  it('uses fileOrUrl hero upload on homepage with public URL result', () => {
+    const heroField = clerkTaskFormFields('homepage').find((field) => field.name === 'heroImageUrl');
+    expect(heroField?.type).toBe('fileOrUrl');
+    expect(heroField?.uploadSectionId).toBe('cms-uploads/hero');
+    expect(heroField?.uploadValue).toBe('publicUrl');
+    expect(heroField?.accept).toContain('image/jpeg');
+    const names = clerkTaskFormFields('homepage').map((field) => field.name);
+    expect(names.indexOf('heroImageUrl')).toBeLessThan(names.indexOf('heroTitle'));
   });
 
   it('uses select kind and fileOrUrl PDF upload for post-notice', () => {

@@ -53,6 +53,10 @@ import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
 import { resolveOrderListAfterReorder } from './cms-order-list-reorder';
+import {
+  clerkUploadImagePreviewUrl,
+  resolveClerkUploadFieldValue,
+} from './cms-clerk-upload-field';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
@@ -326,6 +330,14 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     }));
   }
 
+  protected uploadImagePreviewUrl(field: ClerkFormFieldDefinition): string | null {
+    return clerkUploadImagePreviewUrl(field, this.fieldValue(field));
+  }
+
+  protected isHeroPhotoField(field: ClerkFormFieldDefinition): boolean {
+    return field.name === 'heroImageUrl' && field.uploadValue === 'publicUrl';
+  }
+
   protected async onFileOrUrlSelected(
     field: ClerkFormFieldDefinition,
     event: Event,
@@ -348,9 +360,21 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.fileUploadingField.set(field.name);
     try {
       const uploaded = await this.documentUploads.uploadDocument(file, sectionId);
-      this.updateField(field.name, uploaded.id);
+      this.updateField(field.name, resolveClerkUploadFieldValue(field, uploaded));
+      if (field.uploadValue === 'publicUrl') {
+        this.messages.add({
+          severity: 'success',
+          summary: 'Photo uploaded',
+          detail: 'The web address is filled in below. Click Save to publish the new homepage photo.',
+          life: 10_000,
+        });
+      }
     } catch {
-      this.fileUploadError.set('Upload failed. Try again or paste the file code manually.');
+      this.fileUploadError.set(
+        field.uploadValue === 'publicUrl'
+          ? 'Photo upload failed. Try again, or paste a public https:// web address.'
+          : 'Upload failed. Try again or paste the file code manually.',
+      );
     } finally {
       this.fileUploadingField.set(null);
       inputEl.value = '';

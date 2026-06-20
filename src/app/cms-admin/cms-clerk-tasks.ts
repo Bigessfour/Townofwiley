@@ -118,15 +118,15 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     supportsUpload: 'hero',
     steps: [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
-      'Update welcome text fields residents read on the homepage.',
-      'For the photo: paste a Photo web address (https://…) from Upload homepage photo below.',
-      'Save, then open the homepage and hard-refresh.',
+      'Under Homepage hero photo, click Choose photo from this computer and pick a JPG, PNG, or WebP.',
+      'Click Save, then open the homepage and hard-refresh (or wait about one minute for the public copy).',
+      'Optional: paste a public https:// photo link instead of uploading, or update welcome text below the photo.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Photo web address',
+        plainLabel: 'Homepage hero photo',
         technicalName: 'heroImageUrl',
-        help: 'Must start with https:// and open without logging in. Leave blank to keep the default Town photo.',
+        help: 'Choose a file from this computer (recommended) or paste a public https:// address. Leave blank to keep the default Town photo.',
       },
       {
         plainLabel: 'Welcome heading',

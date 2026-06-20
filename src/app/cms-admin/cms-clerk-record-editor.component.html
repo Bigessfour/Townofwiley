@@ -290,49 +290,101 @@
             </div>
           }
         } @else if (field.type === 'fileOrUrl') {
-          <div class="cms-record-field cms-record-field--file">
-            <label [for]="fieldInputId(field.name)">
-              <span
-                >{{ field.label }}
-                @if (field.required) {
-                  *
-                }
-              </span>
-            </label>
-            <input
-              pInputText
-              [id]="fieldInputId(field.name)"
-              type="text"
-              [attr.placeholder]="field.placeholder ?? 'documents/newsletter/your-file.pdf'"
-              [ngModel]="fieldValue(field)"
-              (ngModelChange)="updateField(field.name, $event)"
-              [ngModelOptions]="{ standalone: true }"
-              [attr.data-testid]="'cms-field-file-or-url-' + taskId() + '-' + field.name"
-            />
-            <label class="cms-record-field__file-picker">
-              <span class="visually-hidden">Upload file for {{ field.label }}</span>
-              <input
-                type="file"
-                [accept]="field.accept ?? '*/*'"
-                [disabled]="fileUploadingField() === field.name"
-                [attr.data-testid]="'cms-field-file-input-' + taskId() + '-' + field.name"
-                (change)="onFileOrUrlSelected(field, $event)"
-              />
-              @if (fileUploadingField() === field.name) {
-                Uploading via presigned URL…
-              } @else if (field.accept?.includes('image')) {
-                Choose image (presigned upload)
-              } @else {
-                Choose PDF (presigned upload)
+          <div
+            class="cms-record-field cms-record-field--file"
+            [class.cms-record-field--hero-photo]="isHeroPhotoField(field)"
+            [attr.data-testid]="
+              isHeroPhotoField(field) ? 'cms-homepage-hero-photo-field' : null
+            "
+          >
+            @if (isHeroPhotoField(field)) {
+              <span class="cms-record-field__label cms-record-field__label--hero">{{
+                field.label
+              }}</span>
+              @if (field.help) {
+                <p class="cms-record-field__hero-lead">{{ field.help }}</p>
               }
-            </label>
-            @if (fieldValue(field); as fileCode) {
-              <p class="cms-record-field__file-code">
-                File code: <code>{{ fileCode }}</code>
-              </p>
-            }
-            @if (field.help) {
-              <span class="cms-record-field__help">{{ field.help }}</span>
+              <label
+                class="cms-record-field__file-picker cms-record-field__file-picker--hero"
+                [class.cms-record-field__file-picker--busy]="fileUploadingField() === field.name"
+              >
+                <span class="visually-hidden">Choose homepage hero photo from this computer</span>
+                <input
+                  type="file"
+                  [accept]="field.accept ?? 'image/*'"
+                  [disabled]="fileUploadingField() === field.name"
+                  [attr.data-testid]="'cms-field-file-input-' + taskId() + '-' + field.name"
+                  (change)="onFileOrUrlSelected(field, $event)"
+                />
+                @if (fileUploadingField() === field.name) {
+                  Uploading photo…
+                } @else {
+                  Choose photo from this computer
+                }
+              </label>
+              @if (uploadImagePreviewUrl(field); as previewUrl) {
+                <figure class="cms-record-field__hero-preview">
+                  <img [src]="previewUrl" alt="Preview of the homepage hero photo" />
+                  <figcaption>Preview — click Save to publish on the homepage</figcaption>
+                </figure>
+              }
+              <label class="cms-record-field__hero-url-label" [for]="fieldInputId(field.name)">
+                Or paste a photo web address (optional)
+              </label>
+              <input
+                pInputText
+                [id]="fieldInputId(field.name)"
+                type="url"
+                [attr.placeholder]="field.placeholder ?? 'https://'"
+                [ngModel]="fieldValue(field)"
+                (ngModelChange)="updateField(field.name, $event)"
+                [ngModelOptions]="{ standalone: true }"
+                [attr.data-testid]="'cms-field-file-or-url-' + taskId() + '-' + field.name"
+              />
+            } @else {
+              <label [for]="fieldInputId(field.name)">
+                <span
+                  >{{ field.label }}
+                  @if (field.required) {
+                    *
+                  }
+                </span>
+              </label>
+              <input
+                pInputText
+                [id]="fieldInputId(field.name)"
+                type="text"
+                [attr.placeholder]="field.placeholder ?? 'documents/newsletter/your-file.pdf'"
+                [ngModel]="fieldValue(field)"
+                (ngModelChange)="updateField(field.name, $event)"
+                [ngModelOptions]="{ standalone: true }"
+                [attr.data-testid]="'cms-field-file-or-url-' + taskId() + '-' + field.name"
+              />
+              <label class="cms-record-field__file-picker">
+                <span class="visually-hidden">Upload file for {{ field.label }}</span>
+                <input
+                  type="file"
+                  [accept]="field.accept ?? '*/*'"
+                  [disabled]="fileUploadingField() === field.name"
+                  [attr.data-testid]="'cms-field-file-input-' + taskId() + '-' + field.name"
+                  (change)="onFileOrUrlSelected(field, $event)"
+                />
+                @if (fileUploadingField() === field.name) {
+                  Uploading via presigned URL…
+                } @else if (field.accept?.includes('image')) {
+                  Choose image (presigned upload)
+                } @else {
+                  Choose PDF (presigned upload)
+                }
+              </label>
+              @if (fieldValue(field); as fileCode) {
+                <p class="cms-record-field__file-code">
+                  File code: <code>{{ fileCode }}</code>
+                </p>
+              }
+              @if (field.help) {
+                <span class="cms-record-field__help">{{ field.help }}</span>
+              }
             }
           </div>
         } @else {
