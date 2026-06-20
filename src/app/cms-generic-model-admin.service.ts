@@ -237,6 +237,10 @@ export class CmsGenericModelAdminService {
       authMode: 'userPool',
     } as Parameters<typeof client.graphql>[0])) as GraphQLResult<TData>;
 
+    if (!response || typeof response !== 'object') {
+      throw new Error('Empty GraphQL response from AppSync.');
+    }
+
     if (response.errors?.length) {
       throw new Error(
         response.errors

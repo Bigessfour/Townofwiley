@@ -105,7 +105,10 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords throws friendly error when GraphQL fails', async () => {
-    amplifyGraphqlMock.mockRejectedValue(new Error('Not Authorized'));
+    amplifyGraphqlMock.mockResolvedValue({
+      data: { listAnnouncements: { items: [] } },
+      errors: [{ message: 'Not Authorized' }],
+    });
 
     await expect(service.listRecords('Announcement')).rejects.toThrow(/Sign in at \/admin\/login/);
   });
