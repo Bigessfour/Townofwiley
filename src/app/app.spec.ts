@@ -143,7 +143,7 @@ describe('App', () => {
     clearCmsCache();
     window.localStorage.removeItem('tow-site-language');
     window.history.replaceState({}, '', '/');
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     httpTesting.verify();
     TestBed.resetTestingModule();
   });

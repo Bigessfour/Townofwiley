@@ -9,6 +9,11 @@
  */
 import { afterEach, vi } from 'vitest';
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __amplifyGraphqlMock: ReturnType<typeof vi.fn> | undefined;
+}
+
 const { amplifyGraphqlMock } = vi.hoisted(() => ({
   amplifyGraphqlMock: vi.fn(),
 }));
@@ -48,5 +53,5 @@ afterEach(() => {
     /* non-DOM runners */
   }
 
-  vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
