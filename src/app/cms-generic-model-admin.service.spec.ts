@@ -107,10 +107,10 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords throws friendly error when GraphQL fails', async () => {
-    graphqlMock.mockResolvedValue({
+    graphqlMock.mockImplementation(async () => ({
       data: { listAnnouncements: { items: [] } },
       errors: [{ message: 'Not Authorized' }],
-    });
+    }));
 
     await expect(service.listRecords('Announcement')).rejects.toThrow(/Sign in at \/admin\/login/);
   });
@@ -140,10 +140,10 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords SiteCopy maps GraphQL errors array to staff sign-in message', async () => {
-    graphqlMock.mockResolvedValue({
+    graphqlMock.mockImplementation(async () => ({
       data: { listSiteCopies: { items: [] } },
       errors: [{ message: 'Not Authorized' }],
-    });
+    }));
 
     await expect(service.listRecords('SiteCopy')).rejects.toThrow(/Sign in at \/admin\/login/);
   });

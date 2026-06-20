@@ -48,5 +48,5 @@ afterEach(() => {
     /* non-DOM runners */
   }
 
-  vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
