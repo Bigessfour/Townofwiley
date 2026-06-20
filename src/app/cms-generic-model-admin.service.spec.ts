@@ -138,7 +138,10 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords SiteCopy maps GraphQL errors array to staff sign-in message', async () => {
-    amplifyGraphqlMock.mockRejectedValue({ errors: [{ message: 'Not Authorized' }] });
+    amplifyGraphqlMock.mockResolvedValue({
+      data: { listSiteCopies: { items: [] } },
+      errors: [{ message: 'Not Authorized' }],
+    });
 
     await expect(service.listRecords('SiteCopy')).rejects.toThrow(/Sign in at \/admin\/login/);
   });
