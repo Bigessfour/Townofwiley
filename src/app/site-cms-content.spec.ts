@@ -119,17 +119,6 @@ describe('LocalizedCmsContentStore', () => {
     }
   }
 
-  async function flushCdnSyncRequests(snapshotBody: object, revision: string): Promise<void> {
-    flushRevisionRequests({
-      version: 1,
-      revision,
-      savedAt: revision,
-    });
-    await Promise.resolve();
-    flushBuildSnapshotRequests(snapshotBody);
-    await Promise.resolve();
-  }
-
   beforeEach(() => {
     TestBed.resetTestingModule();
     window.localStorage.setItem('tow-site-language', 'en');
