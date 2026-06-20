@@ -36,6 +36,8 @@ export interface ClerkCmsTask {
   editorMode?: 'generic' | 'dedicated';
   /** When false, hide "See on website" (mail-only / non-public tasks). */
   showPublicPreview?: boolean;
+  /** Cognito groups that may open this task. Defaults to Staff-only when omitted. */
+  requiredGroups?: string[];
 }
 
 const PUBLIC_SITE_ORIGIN = 'https://townofwiley.gov';
@@ -265,6 +267,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'Manage mayor/council names at /contact#leadership and town administration roster lines in the Town Administration card.',
     model: 'LeadershipRosterEntry',
     previewPath: '/contact',
+    requiredGroups: ['Staff', 'Council'],
     steps: [
       'Click Edit content to open the form (sign in at /admin/login first).',
       'Choose Elected Officials (Mayor & Council) or Town Administration from the list dropdown.',
@@ -491,6 +494,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     icon: 'pi-envelope',
     editorMode: 'dedicated',
     showPublicPreview: false,
+    requiredGroups: ['Staff'],
     steps: [
       'Click Edit content to open the email forwarding editor (sign in at /admin/login first).',
       'Find the rule for the Town address you need, or add a new forwarding rule.',

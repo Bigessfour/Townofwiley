@@ -1,11 +1,11 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
 } from '@angular/core';
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
@@ -34,14 +34,14 @@ interface MeetingUploadCopy {
 const MEETING_UPLOAD_COPY = {
   en: {
     title: 'Upload a meeting agenda or packet',
-    lead: 'Choose the meeting this file belongs to, then select a PDF from your computer. The file is published under Meeting documents and linked to that meeting on the Meetings page.',
+    lead: 'Choose the meeting this file belongs to, then upload a PDF via secure presigned URL. CloudFront cache for /meetings refreshes automatically. The file is published under Meeting documents and linked to that meeting on the Meetings page.',
     eventLabel: 'Which meeting is this for?',
     eventPlaceholder: 'Select a meeting',
     noEvents:
       'No upcoming meetings found. Use Add meeting or event on /admin first, then return here to upload its agenda.',
     fileLabel: 'Agenda or meeting PDF',
     uploading: 'Uploading…',
-    chooseFile: 'Choose file from computer',
+    chooseFile: 'Choose PDF (presigned upload)',
     uploadButton: 'Upload and publish',
     signInHint: 'Sign in to',
     signInLink: 'Town admin',

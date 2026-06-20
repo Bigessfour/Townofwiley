@@ -145,6 +145,9 @@ Re-enable WAF only after city council approves recurring spend (~$5+/mo per ACL)
 | AP-16  | WAF on public Function URLs                                                                             |
 | AP-17  | S3 upload AV / metadata                                                                                 |
 | AP-19  | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)) |
+| CMS audit | DynamoDB streams → `TownOfWileyCmsChangeNotifier` + `TownOfWileyCmsAuditLog` — `npm run deploy:cms-change-notifier` |
+| CMS PITR | `npm run enable:cms-dynamodb-pitr` on tables in [cms-inventory.json](../infrastructure/cms-inventory.json) |
+| AppSync WAF | `npm run deploy:appsync-waf` — rate limit + AWS managed rules on API `j7b2x3sh7rcezekekkxxiak7hi` |
 
 Full tracker: [post-development-inventory.md](./post-development-inventory.md).
 

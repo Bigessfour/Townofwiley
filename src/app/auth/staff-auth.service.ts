@@ -41,6 +41,7 @@ export class StaffAuthService {
   private readonly sessionReady = signal(false);
   private readonly authenticated = signal(false);
   private readonly staffMember = signal(false);
+  private readonly staffGroupsState = signal<string[]>([]);
   private readonly userEmail = signal<string | null>(null);
   private readonly accessTokenValue = signal<string | null>(null);
   private hostedSignInCompletion: Promise<void> | null = null;
@@ -48,6 +49,7 @@ export class StaffAuthService {
   readonly isSessionReady = computed(() => this.sessionReady());
   readonly isAuthenticated = computed(() => this.authenticated());
   readonly isStaff = computed(() => this.staffMember());
+  readonly staffGroups = computed(() => this.staffGroupsState());
   readonly email = computed(() => this.userEmail());
   readonly accessToken = computed(() => this.accessTokenValue());
 
@@ -61,6 +63,7 @@ export class StaffAuthService {
       this.accessTokenValue.set('e2e-staff-token');
       this.authenticated.set(true);
       this.staffMember.set(true);
+      this.staffGroupsState.set(['Staff']);
       this.userEmail.set('e2e-staff@townofwiley.gov');
       this.sessionReady.set(true);
       return;
@@ -70,6 +73,7 @@ export class StaffAuthService {
       this.accessTokenValue.set(null);
       this.authenticated.set(false);
       this.staffMember.set(false);
+      this.staffGroupsState.set([]);
       this.userEmail.set(null);
       this.sessionReady.set(true);
       return;
@@ -86,6 +90,7 @@ export class StaffAuthService {
       this.accessTokenValue.set(accessToken);
       this.authenticated.set(Boolean(accessToken));
       this.staffMember.set(isStaff);
+      this.staffGroupsState.set(groups);
 
       if (this.authenticated()) {
         try {
@@ -101,6 +106,7 @@ export class StaffAuthService {
       this.accessTokenValue.set(null);
       this.authenticated.set(false);
       this.staffMember.set(false);
+      this.staffGroupsState.set([]);
       this.userEmail.set(null);
     } finally {
       this.sessionReady.set(true);

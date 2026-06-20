@@ -152,6 +152,26 @@ There is no separate “records assistance” block on `/contact`. Other documen
 - **OfficialContact:** **`label`**, **`value`**, **`detail`**, **`href`** (mailto: or tel:), **`linkLabel`**, **`displayOrder`**. The **`id`** is the stable key in the table above.
 - **Announcement:** `title`, `detail`, `date` (`YYYY-MM-DD`), `active`, **`priority`** (number — lower sorts first among bulletin notices), **`announcementKind`** (leave blank for short bulletins; type **`newsletter`** in lowercase for the long newsletter block on `/news`), **`attachmentKey`** (S3 file path for a newsletter PDF — see [Announcement fields explained](#announcement-fields-explained-announcementkind-attachmentkey-priority-and-imageurl) below), **`imageUrl`** (optional full `https://` image link — see same section).
 
+### Upload files on `/admin` (presigned upload)
+
+The admin page can upload files directly — you do not need AWS Console access.
+
+| What you are uploading | Where on `/admin` | What to paste in the form after upload |
+| ---------------------- | ----------------- | -------------------------------------- |
+| **Homepage hero photo** | **Change homepage photo** upload panel | Full public URL, e.g. `https://townofwiley.gov/media/cms/hero/your-file.jpg` |
+| **Newsletter PDF** | **Post news or notice** task or newsletter upload panel | Storage file code, e.g. `documents/newsletter/2026-06-town-newsletter.pdf` |
+| **Meeting agenda or minutes PDF** | **Document publishing** → meeting upload | The form fills the storage key automatically |
+
+Steps:
+
+1. Sign in at `/admin/login`.
+2. Choose the upload area for your file type.
+3. Click **Choose file** and select the PDF or image.
+4. Wait for **Upload complete** — the form field updates automatically.
+5. Save the record and hard-refresh the public page.
+
+If upload fails, use **Test CMS Connection** on `/admin` (Advanced) or call Town Hall at (719) 829-4974.
+
 ---
 
 ## Part 4 — Step-by-Step Tasks

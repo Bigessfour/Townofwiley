@@ -11,33 +11,42 @@ Deploy the EventBridge + Lambda + SNS checker (weekly; alerts when a key expires
 ```bash
 export AWS_PROFILE=townofwiley
 export AWS_REGION=us-east-2
-python scripts/deploy-appsync-key-rotation-reminder.py --sns-email wileytown@centurytel.net
+npm run deploy:appsync-key-reminder
+# or: python scripts/deploy-appsync-key-rotation-reminder.py --sns-email bigessfour@gmail.com
 ```
 
-Confirm the SNS email subscription in your inbox after the first deploy.
+Default recipient: **bigessfour@gmail.com**. The email includes the **zero-downtime** rotation steps (create new key → update secrets → deploy → verify → delete old key after 24–48h).
+
+Confirm the SNS email subscription in your inbox after the first deploy. Test once:
+
+```bash
+aws lambda invoke --function-name TownOfWileyAppSyncKeyReminder --region us-east-2 /tmp/appsync-key-reminder-out.json
+cat /tmp/appsync-key-reminder-out.json
+```
 
 ## Rotation procedure
 
-| Step | Action |
-| ---- | ------ |
-| 1 | List keys: `aws appsync list-api-keys --api-id j7b2x3sh7rcezekekkxxiak7hi --region us-east-2` |
-| 2 | Create replacement: `aws appsync create-api-key --api-id j7b2x3sh7rcezekekkxxiak7hi --expires $(date -u -v+365d +%s)` (macOS) or use Console |
-| 3 | Update **GitHub repository secrets** and local user-secrets: `APPSYNC_CMS_API_KEY` = new value |
-| 4 | Redeploy static site: `npm run deploy:static-site` |
-| 5 | Verify live config: `curl -s https://townofwiley.gov/runtime-config.js` — `cms.appSync.apiKey` non-empty (do not paste key into tickets) |
-| 6 | Verify GraphQL: `npm run verify:runtime-config-cms` |
-| 7 | Spot-check https://townofwiley.gov/meetings#calendar after a Studio or `/admin` edit |
-| 8 | After 24–48h bake-in, delete the old key: `aws appsync delete-api-key --api-id j7b2x3sh7rcezekekkxxiak7hi --id <old-key-id>` |
-| 9 | Log evidence (date, deploy id, verifier) in your ops ticket |
+| Step | Action                                                                                                                                                                              |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | List keys: `aws appsync list-api-keys --api-id j7b2x3sh7rcezekekkxxiak7hi --region us-east-2`                                                                                       |
+| 2    | Create replacement: `aws appsync create-api-key --api-id j7b2x3sh7rcezekekkxxiak7hi --expires $(date -u -v+365d +%s)` (macOS) or use Console                                        |
+| 3    | Update **GitHub repository secrets** and local user-secrets: `APPSYNC_CMS_API_KEY` = new value                                                                                      |
+| 4    | Redeploy static site: `npm run deploy:static-site`                                                                                                                                  |
+| 5    | Verify live config: `curl -s https://townofwiley.gov/runtime-config.js` — `cms.appSync.apiKey` non-empty (do not paste key into tickets)                                            |
+| 6    | Verify GraphQL: `npm run verify:runtime-config-cms`                                                                                                                                 |
+| 7    | Spot-check https://townofwiley.gov/meetings#calendar after a Studio or `/admin` edit                                                                                                |
+| 8    | After 24–48h bake-in, delete the old key: `aws appsync delete-api-key --api-id j7b2x3sh7rcezekekkxxiak7hi --id <old-key-id>`                                                        |
+| 8b   | **Scheduled option:** `npm run schedule:appsync-key-deletion` — EventBridge one-time run **Monday 9:00 AM America/Denver** (deletes `da2-o4lt…` and `da2-dtpf…`, keeps `da2-24hg…`) |
+| 9    | Log evidence (date, deploy id, verifier) in your ops ticket                                                                                                                         |
 
 ## Completeness checks (post-rotation)
 
-| # | Check | How |
-| - | ----- | --- |
-| 1 | Build fails on missing keys | Clear `APPSYNC_CMS_API_KEY` on a test branch → strict build fails; restore |
-| 2 | New key in prod `runtime-config.js` | Step 5 above (compare prefix only in logs) |
-| 3 | `listSiteSettings` returns data | `npm run verify:runtime-config-cms` |
-| 4 | Calendar entry visible | `/admin` Event + `/meetings#calendar` |
+| #   | Check                               | How                                                                        |
+| --- | ----------------------------------- | -------------------------------------------------------------------------- |
+| 1   | Build fails on missing keys         | Clear `APPSYNC_CMS_API_KEY` on a test branch → strict build fails; restore |
+| 2   | New key in prod `runtime-config.js` | Step 5 above (compare prefix only in logs)                                 |
+| 3   | `listSiteSettings` returns data     | `npm run verify:runtime-config-cms`                                        |
+| 4   | Calendar entry visible              | `/admin` Event + `/meetings#calendar`                                      |
 
 ## Strict build
 
@@ -50,14 +59,14 @@ CMS endpoint defaults to Gen 1 from `infrastructure/gen1-production-bindings.jso
 
 ## GitHub Actions secrets
 
-| Secret | Runtime path |
-| ------ | ------------ |
-| `APPSYNC_CMS_ENDPOINT` | `cms.appSync.apiEndpoint` |
-| `APPSYNC_CMS_API_KEY` | `cms.appSync.apiKey` |
-| `APPSYNC_CMS_REGION` | `cms.appSync.region` |
-| `NWS_PROXY_ENDPOINT` | `weather.apiEndpoint` |
+| Secret                               | Runtime path                      |
+| ------------------------------------ | --------------------------------- |
+| `APPSYNC_CMS_ENDPOINT`               | `cms.appSync.apiEndpoint`         |
+| `APPSYNC_CMS_API_KEY`                | `cms.appSync.apiKey`              |
+| `APPSYNC_CMS_REGION`                 | `cms.appSync.region`              |
+| `NWS_PROXY_ENDPOINT`                 | `weather.apiEndpoint`             |
 | `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` | `weather.alertSignup.apiEndpoint` |
-| `SEVERE_WEATHER_SIGNUP_ENABLED` | `weather.alertSignup.enabled` |
-| `CONTACT_UPDATE_REVIEW_API_URL` | `contactUpdate.reviewApiEndpoint` |
+| `SEVERE_WEATHER_SIGNUP_ENABLED`      | `weather.alertSignup.enabled`     |
+| `CONTACT_UPDATE_REVIEW_API_URL`      | `contactUpdate.reviewApiEndpoint` |
 
 Never commit secret values. Endpoint should match Gen 1 SSOT — see `npm run verify:runtime-config-cms`.

@@ -97,6 +97,45 @@
       "deployScript": "scripts/deploy-email-alias-router.py",
       "required": true,
       "notes": "SES-triggered; no Function URL; required for town email alias forwarding"
+    },
+    {
+      "functionName": "TownOfWileyAppSyncKeyReminder",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/appsync-key-rotation-reminder",
+      "deployScript": "scripts/deploy-appsync-key-rotation-reminder.py",
+      "required": false,
+      "notes": "Weekly SNS email when AppSync CMS API key expires within 30 days; reminder only (manual rotation)"
+    },
+    {
+      "functionName": "TownOfWileyCmsMediaUpload",
+      "region": "us-east-2",
+      "runtime": "nodejs",
+      "codePath": "infrastructure/cms-media-upload",
+      "functionUrl": { "authType": "NONE", "required": false },
+      "functionUrlEndpoint": "https://ueboqbjxsizcg2fsendl6uyztm0nlnlo.lambda-url.us-east-2.on.aws/",
+      "deployScript": "scripts/deploy-cms-media-upload.py",
+      "required": false,
+      "notes": "Staff presigned S3 upload for CMS PDFs/images + CloudFront invalidation; Cognito Staff JWT"
+    },
+    {
+      "functionName": "TownOfWileyAppSyncKeyDeletion",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/appsync-key-deletion",
+      "deployScript": "scripts/schedule-appsync-key-deletion.py",
+      "required": false,
+      "notes": "One-time scheduled deletion of retired AppSync CMS API keys after rotation bake-in"
+    },
+    {
+      "functionName": "TownOfWileyCmsChangeNotifier",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/cms-change-notifier",
+      "functionUrl": { "authType": "NONE", "required": false },
+      "deployScript": "scripts/deploy-cms-change-notifier.py",
+      "required": false,
+      "notes": "DynamoDB stream audit log + staff GET /recent; Cognito Staff JWT on HTTP routes"
     }
   ],
   "cloudWatch": {

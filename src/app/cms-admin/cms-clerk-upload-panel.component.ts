@@ -77,16 +77,17 @@ export class CmsClerkUploadPanelComponent implements OnInit {
     try {
       if (this.mode() === 'hero') {
         const doc = await this.uploads.uploadDocument(file, 'cms-uploads/hero');
-        this.httpsUrl.set(doc.url);
-        this.copyValue.set(doc.url);
+        const displayUrl = doc.publicUrl ?? doc.url;
+        this.httpsUrl.set(displayUrl);
+        this.copyValue.set(displayUrl);
         this.resultMessage.set(
-          'Copy the web address below into Photo web address in the homepage form (click Go to homepage task).',
+          'Uploaded via secure presigned URL. CloudFront cache refreshed. Copy the web address below into Photo web address in the homepage form (click Go to homepage task).',
         );
       } else {
         const doc = await this.uploads.uploadDocument(file, 'newsletter');
         this.copyValue.set(doc.id);
         this.resultMessage.set(
-          'Copy the file code below into File code from IT on your newsletter notice form (click Go to post notice task).',
+          'Uploaded via secure presigned URL. Copy the file code below into File code from IT on your newsletter notice form (click Go to post notice task).',
         );
       }
     } catch {

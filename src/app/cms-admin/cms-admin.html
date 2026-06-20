@@ -47,6 +47,8 @@
 
     <app-cms-clerk-task-guide [taskId]="selectedTaskId()" />
 
+    <app-cms-recent-changes />
+
     <div class="cms-upload-blocks">
       <app-cms-clerk-upload-panel mode="hero" (openTaskGuide)="onShowTaskSteps($event)" />
       <app-cms-clerk-upload-panel mode="newsletter-pdf" (openTaskGuide)="onShowTaskSteps($event)" />

@@ -8,7 +8,7 @@
   </p>
 
   <ul class="cms-task-hub__grid">
-    @for (task of tasks; track task.id) {
+    @for (task of tasks(); track task.id) {
       <li>
         <article class="cms-task-card" [attr.data-testid]="'cms-task-' + task.id">
           <header class="cms-task-card__header">

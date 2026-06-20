@@ -26,6 +26,7 @@ import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 import { CmsClerkUploadPanelComponent } from './cms-clerk-upload-panel.component';
 import { CmsContentSnapshotComponent } from './cms-content-snapshot.component';
 import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
+import { CmsRecentChangesComponent } from './cms-recent-changes.component';
 import { CmsSiteStatusComponent } from './cms-site-status.component';
 
 /** AppSync console reference for IT staff. */
@@ -68,6 +69,7 @@ interface CmsAdminSetupDetail {
     CmsClerkUploadPanelComponent,
     CmsContentSnapshotComponent,
     CmsMeetingDocumentUploadComponent,
+    CmsRecentChangesComponent,
   ],
 })
 export class CmsAdmin {

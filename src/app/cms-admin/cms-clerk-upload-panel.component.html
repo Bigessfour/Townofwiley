@@ -5,14 +5,15 @@
   @if (mode() === 'hero') {
     <h3 class="cms-upload-panel__title">Upload homepage photo (optional)</h3>
     <p class="cms-upload-panel__lead">
-      Choose a JPG or PNG. After upload, copy the web address into
-      <strong>Photo web address</strong> in the homepage form.
+      Choose a JPG, PNG, or WebP. Upload uses a secure presigned URL; CloudFront cache refreshes
+      automatically. Copy the web address into <strong>Photo web address</strong> in the homepage
+      form.
     </p>
   } @else {
     <h3 class="cms-upload-panel__title">Upload newsletter PDF (optional)</h3>
     <p class="cms-upload-panel__lead">
-      Choose a PDF. After upload, copy the <strong>file code</strong> into your newsletter notice
-      form.
+      Choose a PDF. Upload uses a secure presigned URL; CloudFront cache for /news refreshes
+      automatically. Copy the <strong>file code</strong> into your newsletter notice form.
     </p>
   }
 
@@ -34,7 +35,7 @@
     @if (uploading()) {
       Uploading…
     } @else {
-      Choose file
+      Choose file (presigned upload)
     }
   </label>
 
