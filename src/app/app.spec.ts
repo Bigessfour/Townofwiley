@@ -1,8 +1,8 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
-    HttpTestingController,
-    provideHttpClientTesting,
-    TestRequest,
+  HttpTestingController,
+  provideHttpClientTesting,
+  TestRequest,
 } from '@angular/common/http/testing';
 import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -13,15 +13,16 @@ import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import {
-    emptyCmsCoreGraphqlData,
-    emptyCmsExtendedGraphqlData,
-    flushBuildCmsSnapshotNotFound,
-    flushCmsSnapshotAndWait,
+  emptyCmsCoreGraphqlData,
+  emptyCmsExtendedGraphqlData,
+  flushBuildCmsSnapshotNotFound,
+  flushCmsSnapshotAndWait,
 } from './cms-test-support';
+import { clearCmsCache } from './site-cms-content';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import {
-    LocalizedWeatherPanel,
-    type HomepageWeatherAlert,
+  LocalizedWeatherPanel,
+  type HomepageWeatherAlert,
 } from './weather-panel/localized-weather-panel';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 
@@ -84,6 +85,7 @@ describe('App', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
+    clearCmsCache();
     window.localStorage.setItem('tow-site-language', 'en');
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
@@ -138,6 +140,7 @@ describe('App', () => {
     flushPendingWeatherRequests();
     delete runtimeWindow.__TOW_RUNTIME_CONFIG__;
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    clearCmsCache();
     window.localStorage.removeItem('tow-site-language');
     window.history.replaceState({}, '', '/');
     vi.restoreAllMocks();
@@ -407,8 +410,8 @@ describe('App', () => {
               description:
                 'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
-              start: '2026-06-15T10:00:00-06:00',
-              end: '2026-06-15T13:00:00-06:00',
+              start: '2026-07-15T10:00:00-06:00',
+              end: '2026-07-15T13:00:00-06:00',
               active: true,
             },
           ],
@@ -433,11 +436,11 @@ describe('App', () => {
     };
 
     expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');
-    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-06-15T16:00:00.000Z');
+    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-07-15T16:00:00.000Z');
     expect(component.calendarOptions().events[0]).toMatchObject({
       title: 'Spring Cleanup Day',
-      start: new Date('2026-06-15T10:00:00-06:00'),
-      end: new Date('2026-06-15T13:00:00-06:00'),
+      start: new Date('2026-07-15T10:00:00-06:00'),
+      end: new Date('2026-07-15T13:00:00-06:00'),
     });
   });
 
@@ -469,8 +472,8 @@ describe('App', () => {
               description:
                 'Bring brush, yard debris, and approved bulk items to the collection site.',
               location: 'Wiley Community Park',
-              start: '2026-06-15T10:00:00-06:00',
-              end: '2026-06-15T13:00:00-06:00',
+              start: '2026-07-15T10:00:00-06:00',
+              end: '2026-07-15T13:00:00-06:00',
               active: true,
             },
           ],
