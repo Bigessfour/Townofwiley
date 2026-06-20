@@ -56,13 +56,13 @@ See also [`infrastructure/aws-infrastructure.manifest.json`](../infrastructure/a
 
 **Current policy (June 2026):** **Revision-based CDN snapshots** — clerk saves trigger `TownOfWileyCmsChangeNotifier` to republish `/cms-snapshot.json` + `/cms-revision.json` (~1 minute). Public site skips AppSync when revision matches; polls every 2 minutes. AppSync only for staff preview and `/admin` force refresh.
 
-| Control | Location | Effect |
-|--------|----------|--------|
+| Control                 | Location                                                   | Effect                                                    |
+| ----------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
 | Push-on-change snapshot | `infrastructure/cms-change-notifier/snapshot_publisher.py` | ~2 AppSync queries per CMS edit (Lambda), not per visitor |
-| Revision gate | `/cms-revision.json` + `LocalizedCmsContentStore` | Skip AppSync when browser revision matches CDN |
-| Revision poll | `CMS_REVISION_POLL_MS` (2 min) | Open tabs pick up clerk saves without AppSync |
-| Offline fallback TTL | `CMS_SNAPSHOT_TTL_MS` (7 days) | localStorage when CDN/AppSync unavailable |
-| Build/deploy snapshot | `generate-cms-snapshot.mjs`, `deploy-static-site.sh` | `no-cache` headers on snapshot + revision files |
+| Revision gate           | `/cms-revision.json` + `LocalizedCmsContentStore`          | Skip AppSync when browser revision matches CDN            |
+| Revision poll           | `CMS_REVISION_POLL_MS` (2 min)                             | Open tabs pick up clerk saves without AppSync             |
+| Offline fallback TTL    | `CMS_SNAPSHOT_TTL_MS` (7 days)                             | localStorage when CDN/AppSync unavailable                 |
+| Build/deploy snapshot   | `generate-cms-snapshot.mjs`, `deploy-static-site.sh`       | `no-cache` headers on snapshot + revision files           |
 
 **Staff workflow after CMS edits:** Save in `/admin` → wait **about one minute** → normal refresh on public page. Editor shows an info toast about the delay. **Force Refresh Live CMS Content** verifies admin view via AppSync immediately.
 

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-    applyPostNoticeAttachmentDefaults,
-    CLERK_TASK_FORM_FIELDS,
-    clerkTaskFormFields,
-    clerkTaskHasForm,
-    defaultDynamicFormValues,
-    formValuesToMutationInput,
-    recordToFormValues,
-    todayDateInputValue,
+  applyPostNoticeAttachmentDefaults,
+  CLERK_TASK_FORM_FIELDS,
+  clerkTaskFormFields,
+  clerkTaskHasForm,
+  defaultDynamicFormValues,
+  formValuesToMutationInput,
+  recordToFormValues,
+  todayDateInputValue,
 } from './cms-clerk-task-form-fields';
 import { CLERK_CMS_TASKS, clerkTaskHasInAppEditor } from './cms-clerk-tasks';
 
@@ -67,7 +67,9 @@ describe('cms-clerk-task-form-fields', () => {
   });
 
   it('uses fileOrUrl hero upload on homepage with public URL result', () => {
-    const heroField = clerkTaskFormFields('homepage').find((field) => field.name === 'heroImageUrl');
+    const heroField = clerkTaskFormFields('homepage').find(
+      (field) => field.name === 'heroImageUrl',
+    );
     expect(heroField?.type).toBe('fileOrUrl');
     expect(heroField?.uploadSectionId).toBe('cms-uploads/hero');
     expect(heroField?.uploadValue).toBe('publicUrl');

@@ -14,7 +14,10 @@
       </div>
     </ng-template>
 
-    <p-card styleClass="contact-section-card contact-town-hall-card" data-testid="contact-town-hall">
+    <p-card
+      styleClass="contact-section-card contact-town-hall-card"
+      data-testid="contact-town-hall"
+    >
       <ng-template pTemplate="header">
         <div class="contact-section-card-header">
           <h2 class="contact-section-card-title">{{ copy().contactTownHallTitle }}</h2>
@@ -47,10 +50,7 @@
         </div>
       } @else {
         @if (townInformationContact(); as townInfo) {
-          <div
-            class="contact-town-information-summary"
-            [attr.id]="'contact-' + townInfo.id"
-          >
+          <div class="contact-town-information-summary" [attr.id]="'contact-' + townInfo.id">
             <h3 class="contact-subheading">{{ townInfo.label }}</h3>
             <p class="contact-town-information-detail">{{ townInfo.detail }}</p>
           </div>
@@ -94,7 +94,11 @@
     </p-card>
 
     @if (electedOfficialsGroup(); as electedGroup) {
-      <section id="leadership" class="contact-elected-section" [attr.aria-label]="electedGroup.title">
+      <section
+        id="leadership"
+        class="contact-elected-section"
+        [attr.aria-label]="electedGroup.title"
+      >
         <p-panel styleClass="contact-elected-panel">
           <ng-template pTemplate="header">
             <div class="contact-elected-panel-header">

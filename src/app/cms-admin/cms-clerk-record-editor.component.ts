@@ -50,13 +50,10 @@ import {
 } from './cms-clerk-task-form-fields';
 import { buildClerkTaskLiveLink, TASKS_WITHOUT_LIVE_LINK } from './cms-clerk-task-live-link';
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
+import { clerkUploadImagePreviewUrl, resolveClerkUploadFieldValue } from './cms-clerk-upload-field';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
 import { resolveOrderListAfterReorder } from './cms-order-list-reorder';
-import {
-  clerkUploadImagePreviewUrl,
-  resolveClerkUploadFieldValue,
-} from './cms-clerk-upload-field';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
@@ -365,7 +362,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
         this.messages.add({
           severity: 'success',
           summary: 'Photo uploaded',
-          detail: 'The web address is filled in below. Click Save to publish the new homepage photo.',
+          detail:
+            'The web address is filled in below. Click Save to publish the new homepage photo.',
           life: 10_000,
         });
       }

@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  clerkUploadImagePreviewUrl,
-  resolveClerkUploadFieldValue,
-} from './cms-clerk-upload-field';
+import { clerkUploadImagePreviewUrl, resolveClerkUploadFieldValue } from './cms-clerk-upload-field';
 
 describe('resolveClerkUploadFieldValue', () => {
   it('uses publicUrl for homepage hero uploads', () => {

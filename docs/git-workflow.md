@@ -263,14 +263,14 @@ Amplify Hosting is decommissioned for the public site; remaining Amplify referen
 
 Production changes flow through **pull requests** to **`main`** — do not push directly to `main`.
 
-| Control | Implementation |
-|---------|------------------|
-| Merge gate | GitHub ruleset on `main`: require PR + status check **`site-ci / CI gate (merge required)`** |
-| CI validation | Path-aware Site CI in [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml) |
+| Control           | Implementation                                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Merge gate        | GitHub ruleset on `main`: require PR + status check **`site-ci / CI gate (merge required)`**                    |
+| CI validation     | Path-aware Site CI in [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml)             |
 | Merge check logic | [`scripts/ci-gate-check.mjs`](../scripts/ci-gate-check.mjs) — skipped conditional jobs are OK; failures are not |
-| Code ownership | [`.github/CODEOWNERS`](../.github/CODEOWNERS) — auto-requests review on deployable paths |
-| Production deploy | Auto **`deploy-production`** on merge when `app_changed` (no environment approval gate) |
-| Solo maintainer | Required approvals **0** until a backup GitHub collaborator exists |
+| Code ownership    | [`.github/CODEOWNERS`](../.github/CODEOWNERS) — auto-requests review on deployable paths                        |
+| Production deploy | Auto **`deploy-production`** on merge when `app_changed` (no environment approval gate)                         |
+| Solo maintainer   | Required approvals **0** until a backup GitHub collaborator exists                                              |
 
 Setup runbook: [`docs/github-branch-protection.md`](./github-branch-protection.md)
 

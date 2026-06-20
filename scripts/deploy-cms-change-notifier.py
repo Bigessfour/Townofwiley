@@ -365,8 +365,7 @@ def ensure_lambda(
 def ensure_stream_mapping(
     function_name: str, stream_arn: str, table_name: str, region: str
 ) -> None:
-    uuid_suffix = table_name.replace("-", "")[:16]
-    statement_id = f"CmsAuditStream{uuid_suffix}"
+    table_name.replace("-", "")[:16]
     try:
         run_aws(
             [

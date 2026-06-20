@@ -9,6 +9,7 @@ Usage:
   python3 scripts/ensure-mayor-roster-row.py
   python3 scripts/ensure-mayor-roster-row.py --dry-run
 """
+
 from __future__ import annotations
 
 import json
@@ -89,12 +90,16 @@ def line_looks_like_mayor(line: str) -> bool:
         role = trimmed[:colon].strip().lower()
         if role in {"mayor", "alcalde"}:
             return True
-    return bool(re.match(r"^mayor\s[-–—]", trimmed, re.I) or re.match(r"^alcalde\s[-–—]", trimmed, re.I))
+    return bool(
+        re.match(r"^mayor\s[-–—]", trimmed, re.I)
+        or re.match(r"^alcalde\s[-–—]", trimmed, re.I)
+    )
 
 
 def mayor_line_present(rows: list[dict[str, str]]) -> bool:
     return any(
-        line_looks_like_mayor(row.get("lineEn", "")) or line_looks_like_mayor(row.get("lineEs", ""))
+        line_looks_like_mayor(row.get("lineEn", ""))
+        or line_looks_like_mayor(row.get("lineEs", ""))
         for row in rows
     )
 

@@ -119,7 +119,9 @@ function waitForInvalidation(invalidationId) {
     { cwd: repoRoot, stdio: 'inherit', env: awsEnv },
   );
   if (result.status !== 0) {
-    console.warn('warning: invalidation wait failed or timed out; edge cache may still be clearing.');
+    console.warn(
+      'warning: invalidation wait failed or timed out; edge cache may still be clearing.',
+    );
   }
 }
 
@@ -146,9 +148,10 @@ run(
 
 applyNoCacheKeys();
 
-const invalidationId = runCapture(
-  `aws cloudfront create-invalidation --distribution-id ${distributionId} --paths "/*" --query Invalidation.Id --output text`,
-) || 'unknown';
+const invalidationId =
+  runCapture(
+    `aws cloudfront create-invalidation --distribution-id ${distributionId} --paths "/*" --query Invalidation.Id --output text`,
+  ) || 'unknown';
 
 waitForInvalidation(invalidationId);
 
@@ -156,7 +159,9 @@ console.log('\nDeploy steps finished.');
 console.log(
   'Note: cms-snapshot.json / cms-revision.json were NOT uploaded — Lambda republish owns those keys.',
 );
-console.log('Verify: hard-refresh https://www.townofwiley.gov/ and check /runtime-config.js gitSha.');
+console.log(
+  'Verify: hard-refresh https://www.townofwiley.gov/ and check /runtime-config.js gitSha.',
+);
 if (!dryRun) {
   console.log(`CloudFront invalidation: ${invalidationId}`);
 }

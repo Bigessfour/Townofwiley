@@ -44,13 +44,13 @@ Verify guards: `npm run verify:public-cms-query`, `npm run verify:runtime-config
 
 ### Editing workflow
 
-| Task                                                                        | Where                                                                                                                                    |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Routine content** (notices, events, contacts, documents, homepage fields) | **`/admin`** task hub → **Edit content** ([`src/app/cms-admin/`](src/app/cms-admin/)) — in-app forms → AppSync GraphQL (Cognito) |
-| **IT bulk GraphQL / troubleshooting**                                       | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console `j7b2…`) — AWS IAM login, not Town staff password   |
-| **Guided clerk tasks**                                                      | [`src/app/cms-admin/`](src/app/cms-admin/) — task hub → task guide → in-app record editor                                                |
-| **Uploads** (hero image, newsletter PDF, meeting docs)                      | `cms-clerk-upload-panel`, `cms-meeting-document-upload` → `CmsPublicDocumentAdminService` / `DocumentUploadService`                      |
-| **Connection / inventory**                                                  | `cms-site-status`, `cms-content-snapshot`, **Test CMS Connection**                                                                       |
+| Task                                                                        | Where                                                                                                                              |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Routine content** (notices, events, contacts, documents, homepage fields) | **`/admin`** task hub → **Edit content** ([`src/app/cms-admin/`](src/app/cms-admin/)) — in-app forms → AppSync GraphQL (Cognito)   |
+| **IT bulk GraphQL / troubleshooting**                                       | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console `j7b2…`) — AWS IAM login, not Town staff password |
+| **Guided clerk tasks**                                                      | [`src/app/cms-admin/`](src/app/cms-admin/) — task hub → task guide → in-app record editor                                          |
+| **Uploads** (hero image, newsletter PDF, meeting docs)                      | `cms-clerk-upload-panel`, `cms-meeting-document-upload` → `CmsPublicDocumentAdminService` / `DocumentUploadService`                |
+| **Connection / inventory**                                                  | `cms-site-status`, `cms-content-snapshot`, **Test CMS Connection**                                                                 |
 
 No publish step for CMS rows: save in the in-app editor → public site picks up on the next page load’s live AppSync fetch (typically within seconds). Clerk UI is **English-only**; public site stays **bilingual** — fill `*Es` fields when present.
 

@@ -81,7 +81,8 @@ const hostingIsS3CloudFront = manifest.hosting?.type === 's3-cloudfront';
 const skipAmplify =
   args.includes('--skip-amplify') || (hostingIsS3CloudFront && !args.includes('--check-amplify'));
 const skipEnv =
-  args.includes('--skip-amplify-env') || (hostingIsS3CloudFront && !args.includes('--check-amplify'));
+  args.includes('--skip-amplify-env') ||
+  (hostingIsS3CloudFront && !args.includes('--check-amplify'));
 
 const expectedLogRetentionDays = manifest.cloudWatch?.logRetentionDays ?? 1;
 const appsyncApiId = manifest.appsync?.apiId ?? 'j7b2x3sh7rcezekekkxxiak7hi';
@@ -162,12 +163,7 @@ if (offline) {
     fail('docs/third-party-csp-registry.md is missing (CSP third-party SSOT)');
   } else {
     const registry = readFileSync(cspRegistryPath, 'utf8');
-    const requiredMarkers = [
-      'execute-api',
-      'googletagmanager',
-      'appsync-api',
-      'unsafe-inline',
-    ];
+    const requiredMarkers = ['execute-api', 'googletagmanager', 'appsync-api', 'unsafe-inline'];
     for (const marker of requiredMarkers) {
       if (!registry.includes(marker)) {
         fail(`third-party-csp-registry.md missing marker: ${marker}`);
@@ -211,9 +207,7 @@ if (offline) {
 
   printSummary();
   console.log(
-    failures.length
-      ? `FAILED: ${failures.length} issue(s)`
-      : 'OK: manifest valid (offline)',
+    failures.length ? `FAILED: ${failures.length} issue(s)` : 'OK: manifest valid (offline)',
   );
   process.exit(failures.length ? 1 : 0);
 }

@@ -113,9 +113,7 @@ function diffLeadership(appSyncIndex, cdnIndex) {
       if (!cdn.has(id)) {
         issues.push(`missing on CDN: ${groupId} id=${id} lineEn="${lineEn}"`);
       } else if (cdn.get(id) !== lineEn) {
-        issues.push(
-          `stale on CDN: ${groupId} id=${id} AppSync="${lineEn}" CDN="${cdn.get(id)}"`,
-        );
+        issues.push(`stale on CDN: ${groupId} id=${id} AppSync="${lineEn}" CDN="${cdn.get(id)}"`);
       }
     }
 

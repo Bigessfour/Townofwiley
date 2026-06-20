@@ -1,5 +1,5 @@
-import { computed } from '@angular/core';
 import { HttpTestingController, TestRequest } from '@angular/common/http/testing';
+import { computed } from '@angular/core';
 import { LocalizedCmsContentStore } from './site-cms-content';
 
 export function matchCmsSnapshotRequests(httpTesting: HttpTestingController): TestRequest[] {

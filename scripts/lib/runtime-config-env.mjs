@@ -3,12 +3,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
 import {
-    loadProductionBindings,
-    readProductionAppSyncApiId,
-    readProductionCmsGraphqlEndpoint,
-    readProductionCmsRegion,
-    readProductionCognitoBindings,
-    readProductionStorageBindings,
+  loadProductionBindings,
+  readProductionAppSyncApiId,
+  readProductionCmsGraphqlEndpoint,
+  readProductionCmsRegion,
+  readProductionCognitoBindings,
+  readProductionStorageBindings,
 } from './gen1-cms-ssot.mjs';
 import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 

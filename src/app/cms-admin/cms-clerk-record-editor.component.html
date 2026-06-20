@@ -293,9 +293,7 @@
           <div
             class="cms-record-field cms-record-field--file"
             [class.cms-record-field--hero-photo]="isHeroPhotoField(field)"
-            [attr.data-testid]="
-              isHeroPhotoField(field) ? 'cms-homepage-hero-photo-field' : null
-            "
+            [attr.data-testid]="isHeroPhotoField(field) ? 'cms-homepage-hero-photo-field' : null"
           >
             @if (isHeroPhotoField(field)) {
               <span class="cms-record-field__label cms-record-field__label--hero">{{

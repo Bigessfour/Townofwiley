@@ -40,8 +40,8 @@ Quick reference: [clerk-desk-reference.md](./clerk-desk-reference.md)
 
 Most clerks **never need this**. IT uses it for bulk GraphQL or troubleshooting.
 
-| Link | What it is |
-| ---- | ---------- |
+| Link                                                                                                                                                                | What it is                                                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | [AppSync Queries — Gen 1 production CMS API `j7b2…`](https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries) | Direct GraphQL against CMS models when IT needs the AWS console. Same URL as **Open content editor** under **Advanced (IT)** on `/admin`. |
 
 **Clerks:** use task cards on `/admin` → **Edit content**. Do not edit in the AWS console unless IT asks you to.
@@ -110,29 +110,29 @@ Some features—utility bill pay links, weather signup, chatbot—are controlled
 
 Every piece of content on the website lives in one of these CMS models. On `/admin`, each task card opens the matching model in the **Edit content** form.
 
-| What you are updating                                            | Model / task on `/admin`                                                                                                                            |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Homepage title, welcome text, and hero photo                     | `SiteSettings` — **Change homepage photo or welcome text**                                                                                          |
-| Emergency banner shown at the top of the homepage                | `AlertBanner` — **Turn on emergency banner**                                                                                                        |
-| Public notices, closures, and general announcements              | `Announcement` — **Post news or notice**                                                                                                            |
-| Meetings, hearings, and calendar events                          | `Event` — **Add meeting or event**                                                                                                                  |
-| Town Hall intro text and staff mailto links on `/contact`        | `OfficialContact` — **Update Town Hall or clerk contact**                                                                                         |
-| Mayor/Council list and administration roster lines on `/contact` | `LeadershipRosterEntry` — **Update mayor and council list**                                                                                         |
-| Business directory listings                                      | `Business` — **Update business directory**                                                                                                          |
-| Meeting agendas and approved minutes (PDF on `/meetings`)        | `PublicDocument` — **Upload a meeting agenda or packet** / document publishing section                                                              |
-| External news links shown on the /news page                      | `ExternalNewsLink` — **Add outside news link**                                                                                                      |
-| Navigation labels, headings, Quick Tasks text                    | `SiteCopy` — **Edit navigation labels, headings, and Quick Tasks text**                                                                             |
-| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — **Manage email forwarding** (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings))                 |
+| What you are updating                                            | Model / task on `/admin`                                                                                                            |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Homepage title, welcome text, and hero photo                     | `SiteSettings` — **Change homepage photo or welcome text**                                                                          |
+| Emergency banner shown at the top of the homepage                | `AlertBanner` — **Turn on emergency banner**                                                                                        |
+| Public notices, closures, and general announcements              | `Announcement` — **Post news or notice**                                                                                            |
+| Meetings, hearings, and calendar events                          | `Event` — **Add meeting or event**                                                                                                  |
+| Town Hall intro text and staff mailto links on `/contact`        | `OfficialContact` — **Update Town Hall or clerk contact**                                                                           |
+| Mayor/Council list and administration roster lines on `/contact` | `LeadershipRosterEntry` — **Update mayor and council list**                                                                         |
+| Business directory listings                                      | `Business` — **Update business directory**                                                                                          |
+| Meeting agendas and approved minutes (PDF on `/meetings`)        | `PublicDocument` — **Upload a meeting agenda or packet** / document publishing section                                              |
+| External news links shown on the /news page                      | `ExternalNewsLink` — **Add outside news link**                                                                                      |
+| Navigation labels, headings, Quick Tasks text                    | `SiteCopy` — **Edit navigation labels, headings, and Quick Tasks text**                                                             |
+| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — **Manage email forwarding** (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings)) |
 
 ### Important: stable `OfficialContact` record IDs
 
 The **`/contact`** page uses **`OfficialContact`** rows by **`id`**, not by display name. Keep these exact IDs:
 
-| `id` field (exact)   | Purpose on `/contact` and elsewhere                                                                 |
-| -------------------- | --------------------------------------------------------------------------------------------------- |
-| `town-information`   | Intro summary in the **Town Administration** card; also footer, `/services`, `/accessibility`         |
-| `city-clerk`         | Mailto link for clerk roster lines in **Town Administration**; also `/permits`, `/services`         |
-| `town-superintendent`| Mailto link for superintendent roster lines in **Town Administration**                              |
+| `id` field (exact)    | Purpose on `/contact` and elsewhere                                                           |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `town-information`    | Intro summary in the **Town Administration** card; also footer, `/services`, `/accessibility` |
+| `city-clerk`          | Mailto link for clerk roster lines in **Town Administration**; also `/permits`, `/services`   |
+| `town-superintendent` | Mailto link for superintendent roster lines in **Town Administration**                        |
 
 If you delete a row and recreate it with a different `id`, the site may show bundled fallback text until IT restores the IDs.
 
@@ -156,11 +156,11 @@ There is no separate “records assistance” block on `/contact`. Other documen
 
 The admin page can upload files directly — you do not need AWS Console access.
 
-| What you are uploading | Where on `/admin` | What to paste in the form after upload |
-| ---------------------- | ----------------- | -------------------------------------- |
-| **Homepage hero photo** | **Change homepage photo** → **Edit content** → **Choose photo from this computer** | Full public URL after upload, e.g. `https://townofwiley.gov/media/cms/hero/your-file.jpg` |
-| **Newsletter PDF** | **Post news or notice** task or newsletter upload panel | Storage file code, e.g. `documents/newsletter/2026-06-town-newsletter.pdf` |
-| **Meeting agenda or minutes PDF** | **Document publishing** → meeting upload | The form fills the storage key automatically |
+| What you are uploading            | Where on `/admin`                                                                  | What to paste in the form after upload                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Homepage hero photo**           | **Change homepage photo** → **Edit content** → **Choose photo from this computer** | Full public URL after upload, e.g. `https://townofwiley.gov/media/cms/hero/your-file.jpg` |
+| **Newsletter PDF**                | **Post news or notice** task or newsletter upload panel                            | Storage file code, e.g. `documents/newsletter/2026-06-town-newsletter.pdf`                |
+| **Meeting agenda or minutes PDF** | **Document publishing** → meeting upload                                           | The form fills the storage key automatically                                              |
 
 Steps:
 
@@ -485,12 +485,12 @@ This only affects **your** browser on **this computer**.
 
 ### When to use `/admin` vs AppSync Queries (IT)
 
-| What you are doing                                                   | Where to work                                                                                                    |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms)                                                                   |
-| **Email forwarding / proxy** (`EmailAlias`)                          | **`/admin` only** → **Manage email forwarding** (staff sign-in required)                                         |
-| Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console)                                |
-| Legacy AWS console access without `/admin`                           | Ask IT — do not edit production CMS without guidance                                                             |
+| What you are doing                                                   | Where to work                                                                     |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms)                                    |
+| **Email forwarding / proxy** (`EmailAlias`)                          | **`/admin` only** → **Manage email forwarding** (staff sign-in required)          |
+| Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console) |
+| Legacy AWS console access without `/admin`                           | Ask IT — do not edit production CMS without guidance                              |
 
 ### When to call IT
 
@@ -554,7 +554,7 @@ Example:
 | Problem                                                             | What to do                                                                                                                                               |
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cannot log in to `/admin/login`                                     | Use **Forgot password?** on Cognito; if still blocked, call Town Hall **(719) 829-4974**                                                                 |
-| AppSync Queries console shows "Access denied" (IT only)             | Your AWS console permissions need updating — ask IT                                                                                                       |
+| AppSync Queries console shows "Access denied" (IT only)             | Your AWS console permissions need updating — ask IT                                                                                                      |
 | Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin`    |
 | You updated email forwarding but mail still goes to the wrong place | Confirm the rule is **Active** in **Manage email forwarding** on `/admin`; send a new test email; if still wrong, the mail router may need IT to re-sync |
 | Not sure which model to open                                        | Check the table in Part 3 of this guide                                                                                                                  |

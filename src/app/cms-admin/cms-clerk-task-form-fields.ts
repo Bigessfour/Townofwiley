@@ -1,9 +1,9 @@
-import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
 import { LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL } from '../leadership-roster-group-ids';
+import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
 import {
-    datetimeLocalToIso,
-    isoToDateInput,
-    isoToDatetimeLocal,
+  datetimeLocalToIso,
+  isoToDateInput,
+  isoToDatetimeLocal,
 } from './cms-clerk-datetime-fields';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
 import type { ClerkUploadFieldValue } from './cms-clerk-upload-field';

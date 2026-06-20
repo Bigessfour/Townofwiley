@@ -133,10 +133,10 @@ Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and A
 
 ## Hybrid deployment model (why Amplify + scripts)
 
-| Layer                      | Tooling                                                                                                                              | Owns                                                                           |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Layer                      | Tooling                                                                                  | Owns                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | **Public site + CMS read** | S3+CloudFront (E1NZ3XCY5CYR1J); CMS backend Gen 1 AppSync (`j7b2x3sh7rcezekekkxxiak7hi`) | Angular build, AppSync, Cognito, S3 documents, CloudFront response headers |
-| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                                                                   | NWS weather proxy, contact updates, email alias router                         |
+| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                       | NWS weather proxy, contact updates, email alias router                     |
 
 This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
 
@@ -152,17 +152,17 @@ Re-enable WAF only after city council approves recurring spend (~$5+/mo per ACL)
 
 ## Related inventory items
 
-| AP ID  | Topic                                                                                                   |
-| ------ | ------------------------------------------------------------------------------------------------------- |
-| AP-01b | Prod `runtime-config.js` vs Amplify env                                                                 |
-| AP-05  | Contact review Lambda IAM + admin proxy                                                                 |
-| AP-06  | Contact payload sanitization                                                                            |
-| AP-16  | WAF on public Function URLs                                                                             |
-| AP-17  | S3 upload AV / metadata                                                                                 |
-| AP-19  | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md)) |
-| CMS audit | DynamoDB streams → `TownOfWileyCmsChangeNotifier` + `TownOfWileyCmsAuditLog` — `npm run deploy:cms-change-notifier` |
-| CMS PITR | `npm run enable:cms-dynamodb-pitr` on tables in [cms-inventory.json](../infrastructure/cms-inventory.json) |
-| AppSync WAF | `npm run deploy:appsync-waf` — rate limit + AWS managed rules on API `j7b2x3sh7rcezekekkxxiak7hi` |
+| AP ID       | Topic                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| AP-01b      | Prod `runtime-config.js` vs Amplify env                                                                             |
+| AP-05       | Contact review Lambda IAM + admin proxy                                                                             |
+| AP-06       | Contact payload sanitization                                                                                        |
+| AP-16       | WAF on public Function URLs                                                                                         |
+| AP-17       | S3 upload AV / metadata                                                                                             |
+| AP-19       | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md))             |
+| CMS audit   | DynamoDB streams → `TownOfWileyCmsChangeNotifier` + `TownOfWileyCmsAuditLog` — `npm run deploy:cms-change-notifier` |
+| CMS PITR    | `npm run enable:cms-dynamodb-pitr` on tables in [cms-inventory.json](../infrastructure/cms-inventory.json)          |
+| AppSync WAF | `npm run deploy:appsync-waf` — rate limit + AWS managed rules on API `j7b2x3sh7rcezekekkxxiak7hi`                   |
 
 Full tracker: [post-development-inventory.md](./post-development-inventory.md).
 
