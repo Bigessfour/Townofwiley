@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { amplifyGraphqlMock } from '../testing/mock-amplify-graphql';
+import { getAmplifyGraphqlMock } from '../testing/mock-amplify-graphql';
 import { StaffAuthService } from './auth/staff-auth.service';
 import { CmsAdminAuthError } from './cms-admin/cms-staff-appsync-auth';
 import { CmsGenericModelAdminService } from './cms-generic-model-admin.service';
@@ -7,6 +7,7 @@ import { LoggingService } from './logging.service';
 
 describe('CmsGenericModelAdminService', () => {
   let service: CmsGenericModelAdminService;
+  let graphqlMock: ReturnType<typeof getAmplifyGraphqlMock>;
   let staffAuth: {
     refreshSession: ReturnType<typeof vi.fn>;
     isStaff: ReturnType<typeof vi.fn>;
@@ -14,7 +15,8 @@ describe('CmsGenericModelAdminService', () => {
   };
 
   beforeEach(() => {
-    amplifyGraphqlMock.mockReset();
+    graphqlMock = getAmplifyGraphqlMock();
+    graphqlMock.mockReset();
     staffAuth = {
       refreshSession: vi.fn().mockResolvedValue(undefined),
       isStaff: vi.fn().mockReturnValue(true),
@@ -51,11 +53,11 @@ describe('CmsGenericModelAdminService', () => {
       service.createRecord('Announcement', { title: 'Test', detail: 'Body', active: true }),
     ).rejects.toThrow(/Sign in at \/admin\/login/);
 
-    expect(amplifyGraphqlMock).not.toHaveBeenCalled();
+    expect(graphqlMock).not.toHaveBeenCalled();
   });
 
   it('createRecord uses userPool auth and strips unknown input fields', async () => {
-    amplifyGraphqlMock.mockResolvedValue({
+    graphqlMock.mockResolvedValue({
       data: { createAnnouncement: { id: 'notice-1' } },
     });
 
@@ -67,7 +69,7 @@ describe('CmsGenericModelAdminService', () => {
     });
 
     expect(id).toBe('notice-1');
-    expect(amplifyGraphqlMock).toHaveBeenCalledWith(
+    expect(graphqlMock).toHaveBeenCalledWith(
       expect.objectContaining({
         authMode: 'userPool',
         variables: {
@@ -79,7 +81,7 @@ describe('CmsGenericModelAdminService', () => {
         },
       }),
     );
-    expect(amplifyGraphqlMock.mock.calls[0]?.[0]?.variables?.input).not.toHaveProperty('hackerField');
+    expect(graphqlMock.mock.calls[0]?.[0]?.variables?.input).not.toHaveProperty('hackerField');
   });
 
   it('updateRecord requires id', async () => {
@@ -89,14 +91,14 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('deleteRecord calls deleteAnnouncement with userPool auth', async () => {
-    amplifyGraphqlMock.mockResolvedValue({
+    graphqlMock.mockResolvedValue({
       data: { deleteAnnouncement: { id: 'notice-1' } },
     });
 
     const id = await service.deleteRecord('Announcement', 'notice-1');
 
     expect(id).toBe('notice-1');
-    expect(amplifyGraphqlMock).toHaveBeenCalledWith(
+    expect(graphqlMock).toHaveBeenCalledWith(
       expect.objectContaining({
         authMode: 'userPool',
         variables: { input: { id: 'notice-1' } },
@@ -105,7 +107,7 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords throws friendly error when GraphQL fails', async () => {
-    amplifyGraphqlMock.mockResolvedValue({
+    graphqlMock.mockResolvedValue({
       data: { listAnnouncements: { items: [] } },
       errors: [{ message: 'Not Authorized' }],
     });
@@ -114,7 +116,7 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('listRecords SiteCopy uses userPool auth and listSiteCopies query', async () => {
-    amplifyGraphqlMock.mockResolvedValue({
+    graphqlMock.mockResolvedValue({
       data: {
         listSiteCopies: {
           items: [{ id: 'copy-1', key: 'topTasksKicker', valueEn: 'How do I…', active: true }],
@@ -126,19 +128,19 @@ describe('CmsGenericModelAdminService', () => {
 
     expect(items).toHaveLength(1);
     expect(items[0]?.['key']).toBe('topTasksKicker');
-    expect(amplifyGraphqlMock).toHaveBeenCalledWith(
+    expect(graphqlMock).toHaveBeenCalledWith(
       expect.objectContaining({
         authMode: 'userPool',
       }),
     );
-    const call = amplifyGraphqlMock.mock.calls[0]?.[0];
+    const call = graphqlMock.mock.calls[0]?.[0];
     expect(call?.query).toContain('listSiteCopies');
     expect(call?.query).toContain('valueEn');
     expect(call?.query).toContain('valueEs');
   });
 
   it('listRecords SiteCopy maps GraphQL errors array to staff sign-in message', async () => {
-    amplifyGraphqlMock.mockResolvedValue({
+    graphqlMock.mockResolvedValue({
       data: { listSiteCopies: { items: [] } },
       errors: [{ message: 'Not Authorized' }],
     });
@@ -147,7 +149,7 @@ describe('CmsGenericModelAdminService', () => {
   });
 
   it('reorderRecords updates displayOrder via userPool mutations', async () => {
-    amplifyGraphqlMock
+    graphqlMock
       .mockResolvedValueOnce({
         data: { updateBusiness: { id: 'biz-1' } },
       })
@@ -161,8 +163,8 @@ describe('CmsGenericModelAdminService', () => {
     ]);
 
     expect(ids).toEqual(['biz-1', 'biz-2']);
-    expect(amplifyGraphqlMock).toHaveBeenCalledTimes(2);
-    expect(amplifyGraphqlMock.mock.calls[0]?.[0]).toEqual(
+    expect(graphqlMock).toHaveBeenCalledTimes(2);
+    expect(graphqlMock.mock.calls[0]?.[0]).toEqual(
       expect.objectContaining({
         authMode: 'userPool',
         variables: { input: { id: 'biz-1', displayOrder: 0 } },
