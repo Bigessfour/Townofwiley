@@ -502,6 +502,25 @@ Ask IT if:
 
 **For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` and `npm run verify:staff-cms-editor-models` in the repo to confirm public queries and clerk editor models (including **SiteCopy**) stay aligned with inventory and Staff auth metadata. Clerks do not need to run these commands.
 
+### IT diagnostic ladder — when a clerk save does not appear on the live site
+
+Run these in order. The first failing step identifies the root cause. Most reports stop at Step 1.
+
+1. **Browser layer (have the clerk do this first).** Walk the clerk through the 6 steps in [`docs/admin-audit-2026-06-22.md`](admin-audit-2026-06-22.md) (Test CMS Connection → Save with Active on → Refresh from database → Ctrl+Shift+R on the public page → screenshot if still wrong). The vast majority of "missing edit" reports are localStorage or service-worker cache.
+2. **Did the mutation reach AppSync?** Open `/admin` → **Advanced (IT)** → **Open content editor** (AppSync Queries console). Paste the record id from the audit log. If the record is not there, the Save failed silently — capture the browser console (F12 → Console) and check for GraphQL errors.
+3. **AppSync vs CDN parity?** Run `npm run verify:cms-snapshot-parity` with `APPSYNC_CMS_ENDPOINT` + `APPSYNC_CMS_API_KEY` exported (extract from the live `runtime-config.js`). Failure means the `TownOfWileyCmsChangeNotifier` Lambda did not publish — re-saving the record fires the DynamoDB stream and republishes the snapshot. If parity still fails, inspect CloudWatch logs for the Lambda.
+4. **Public API key healthy?** `npm run verify:public-cms-query`. An auth error means the API key has rotated or expired — follow [`docs/appsync-api-key-rotation-runbook.md`](appsync-api-key-rotation-runbook.md).
+5. **Runtime config drift?** `npm run verify:runtime-config-cms`. Failure means the deployed `runtime-config.js` is stale; redeploy with `npm run deploy:site` (the deploy script already excludes `cms-snapshot.json` and `cms-revision.json` so it cannot overwrite stream-managed content).
+6. **All five steps green but the public page still wrong?** Targeted CloudFront invalidation only — never `/*` and never the stream-managed files:
+
+   ```
+   aws cloudfront create-invalidation \
+     --distribution-id E1NZ3XCY5CYR1J \
+     --paths "/index.html" "/runtime-config.js"
+   ```
+
+7. **All six steps green and clerk still cannot see her edit?** The save likely landed but the field is not wired to a public anchor. Cross-check [`docs/cms-edit-mode-verify-matrix.md`](cms-edit-mode-verify-matrix.md) — `edit-site-copy` saves many keys but only `topTasksKicker` and `topTasksHeading` render today. This is a known content gap, not a bug.
+
 ---
 
 ## Part 5 — After Every Change (Five-Minute Check)
