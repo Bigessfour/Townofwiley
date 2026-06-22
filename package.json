@@ -204,7 +204,7 @@
     "@playwright/test": "^1.61.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/express": "^5.0.1",
-    "@types/node": "^24.13.1",
+    "@types/node": "^24.13.2",
     "@vitest/browser-playwright": "^4.1.7",
     "@vitest/coverage-v8": "^4.1.7",
     "angular-eslint": "22.0.0",
