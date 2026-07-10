@@ -1,3 +1,4 @@
+import { readAdminRuntimeConfig } from '../admin-runtime-config';
 import { buildAppSyncQueriesConsoleUrl } from './appsync-console-url';
 
 interface RuntimeClerkSetupConfig {
@@ -80,8 +81,10 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     typeof window === 'undefined' ? undefined : (window as ClerkSetupRuntimeWindow);
   const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
+  const adminClerkSetup = readAdminRuntimeConfig()?.clerkSetup;
   const clerkSetupConfig = {
     ...(runtimeConfig?.clerkSetup ?? {}),
+    ...(adminClerkSetup ?? {}),
     ...(runtimeConfigOverride?.clerkSetup ?? {}),
   };
 

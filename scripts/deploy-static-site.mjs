@@ -81,7 +81,7 @@ function assertDistReady() {
 function applyNoCacheKeys() {
   // cms-snapshot.json + cms-revision.json are owned by TownOfWileyCmsChangeNotifier (DynamoDB
   // stream → S3). Uploading build artifacts here rolls back clerk CMS edits on the public site.
-  const keys = ['index.html', 'runtime-config.js', '404.html'];
+  const keys = ['index.html', 'runtime-config.js', 'runtime-config-admin.js', '404.html'];
   for (const key of keys) {
     const localPath = join(distDir, key);
     if (!existsSync(localPath)) {

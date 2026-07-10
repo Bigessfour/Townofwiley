@@ -307,11 +307,56 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
   };
 }
 
+function buildClerkSetupBlock(values) {
+  return {
+    clerkName: values.clerkSetupClerkName,
+    awsAccountId: values.clerkSetupAwsAccountId,
+    amplifyAppId: values.clerkSetupAmplifyAppId,
+    awsRegion: values.clerkSetupAwsRegion,
+    awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
+    studioUrl: values.clerkSetupStudioUrl,
+    dataManagerUrl: values.clerkSetupStudioUrl,
+    cfDistributionId: values.clerkSetupCfDistributionId,
+    s3Bucket: values.clerkSetupS3Bucket,
+  };
+}
+
+function buildAdminCmsBlock(values) {
+  return {
+    ...(values.cmsMediaUploadEndpoint
+      ? {
+          mediaUpload: {
+            apiEndpoint: values.cmsMediaUploadEndpoint,
+          },
+        }
+      : {}),
+    ...(values.cmsAuditLogEndpoint
+      ? {
+          auditLog: {
+            apiEndpoint: values.cmsAuditLogEndpoint,
+          },
+        }
+      : {}),
+  };
+}
+
+/**
+ * Staff-only runtime settings (loaded on /admin, not on the public homepage).
+ * @param {ReturnType<typeof buildRuntimeConfigValues>} values
+ */
+export function buildAdminRuntimeConfigObject(values) {
+  const cms = buildAdminCmsBlock(values);
+  return {
+    clerkSetup: buildClerkSetupBlock(values),
+    ...(Object.keys(cms).length > 0 ? { cms } : {}),
+  };
+}
+
 /**
  * @param {ReturnType<typeof buildRuntimeConfigValues>} values
  * @param {{ timestamp: string; gitSha: string }} buildMeta
  */
-export function buildRuntimeConfigObject(values, buildMeta) {
+export function buildPublicRuntimeConfigObject(values, buildMeta) {
   return {
     chatbot: {
       provider: 'none',
@@ -347,20 +392,6 @@ export function buildRuntimeConfigObject(values, buildMeta) {
         apiEndpoint: values.cmsApiEndpoint,
         apiKey: values.cmsApiKey,
       },
-      ...(values.cmsMediaUploadEndpoint
-        ? {
-            mediaUpload: {
-              apiEndpoint: values.cmsMediaUploadEndpoint,
-            },
-          }
-        : {}),
-      ...(values.cmsAuditLogEndpoint
-        ? {
-            auditLog: {
-              apiEndpoint: values.cmsAuditLogEndpoint,
-            },
-          }
-        : {}),
     },
     auth: values.cognitoUserPoolId
       ? {
@@ -380,22 +411,29 @@ export function buildRuntimeConfigObject(values, buildMeta) {
           },
         }
       : undefined,
-    clerkSetup: {
-      clerkName: values.clerkSetupClerkName,
-      awsAccountId: values.clerkSetupAwsAccountId,
-      amplifyAppId: values.clerkSetupAmplifyAppId,
-      awsRegion: values.clerkSetupAwsRegion,
-      awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
-      studioUrl: values.clerkSetupStudioUrl,
-      dataManagerUrl: values.clerkSetupStudioUrl,
-      cfDistributionId: values.clerkSetupCfDistributionId,
-      s3Bucket: values.clerkSetupS3Bucket,
-    },
     logging: {
       endpoint: values.logEndpoint || undefined,
     },
     guestbook: {
       apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),
+    },
+  };
+}
+
+/**
+ * Full merged config (tests and local overrides only).
+ * @param {ReturnType<typeof buildRuntimeConfigValues>} values
+ * @param {{ timestamp: string; gitSha: string }} buildMeta
+ */
+export function buildRuntimeConfigObject(values, buildMeta) {
+  const admin = buildAdminRuntimeConfigObject(values);
+  const publicConfig = buildPublicRuntimeConfigObject(values, buildMeta);
+  return {
+    ...publicConfig,
+    clerkSetup: admin.clerkSetup,
+    cms: {
+      ...publicConfig.cms,
+      ...admin.cms,
     },
   };
 }

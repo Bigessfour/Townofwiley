@@ -85,6 +85,7 @@ scripts/.oac-backup/
 *.pyc
 .vitest-attachments/
 /public/runtime-config.js
+/public/runtime-config-admin.js
 *-access-logs.csv
 .tmp-*.log
 changed-smoke-report.json

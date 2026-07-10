@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+    buildAdminRuntimeConfigObject,
+    buildPublicRuntimeConfigObject,
     buildRuntimeConfigValues,
     collectRequiredEnvErrors,
     formatStrictEnvErrors,
@@ -102,6 +104,31 @@ describe('buildRuntimeConfigValues manifest fallbacks', () => {
     const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: true });
     assert.match(values.cmsApiEndpoint, /327diwc6cvdqjocdudvrdv7wwu\.appsync-api\.us-east-2\.amazonaws\.com/);
     assert.equal(values.cognitoUserPoolId, 'us-east-2_DmY7BCBIp');
+  });
+});
+
+describe('public vs admin runtime config split', () => {
+  it('keeps clerk setup and staff CMS endpoints off the public payload', () => {
+    const values = buildRuntimeConfigValues(
+      {},
+      {
+        CMS_MEDIA_UPLOAD_API_ENDPOINT: 'https://upload.example/',
+        CMS_AUDIT_LOG_API_ENDPOINT: 'https://audit.example/',
+      },
+      { allowManifestFallbacks: true },
+    );
+    const publicConfig = buildPublicRuntimeConfigObject(values, {
+      timestamp: '2026-01-01T00:00:00.000Z',
+      gitSha: 'abc1234',
+    });
+    const adminConfig = buildAdminRuntimeConfigObject(values);
+
+    assert.equal(publicConfig.clerkSetup, undefined);
+    assert.equal(publicConfig.cms?.mediaUpload, undefined);
+    assert.equal(publicConfig.cms?.auditLog, undefined);
+    assert.ok(adminConfig.clerkSetup?.awsAccountId);
+    assert.equal(adminConfig.cms?.mediaUpload?.apiEndpoint, 'https://upload.example/');
+    assert.equal(adminConfig.cms?.auditLog?.apiEndpoint, 'https://audit.example/');
   });
 });
 

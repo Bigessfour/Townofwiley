@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { readAdminRuntimeConfig } from '../admin-runtime-config';
 import { StaffAuthService } from '../auth/staff-auth.service';
 
 export interface CmsAuditLogEntry {
@@ -51,9 +52,12 @@ export class CmsAuditLogService {
     if (typeof window === 'undefined') {
       return '';
     }
-    const runtime = window as Window & {
-      __TOW_RUNTIME_CONFIG__?: { cms?: { auditLog?: { apiEndpoint?: string } } };
-    };
-    return runtime.__TOW_RUNTIME_CONFIG__?.cms?.auditLog?.apiEndpoint?.trim() ?? '';
+    const legacyPublic = (
+      window as Window & {
+        __TOW_RUNTIME_CONFIG__?: { cms?: { auditLog?: { apiEndpoint?: string } } };
+      }
+    ).__TOW_RUNTIME_CONFIG__?.cms?.auditLog?.apiEndpoint;
+    const adminEndpoint = readAdminRuntimeConfig()?.cms?.auditLog?.apiEndpoint;
+    return (adminEndpoint ?? legacyPublic)?.trim() ?? '';
   }
 }

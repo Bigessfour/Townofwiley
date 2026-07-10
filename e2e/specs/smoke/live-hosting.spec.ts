@@ -106,6 +106,19 @@ test.describe('live hosting readiness', () => {
         `cms.appSync.${key} should be a string (may be empty in dev)`,
       ).toBe('string');
     }
+    expect(cfg.clerkSetup, 'public runtime-config must not expose clerkSetup').toBeUndefined();
+    expect(cms?.mediaUpload, 'public runtime-config must not expose cms.mediaUpload').toBeUndefined();
+    expect(cms?.auditLog, 'public runtime-config must not expose cms.auditLog').toBeUndefined();
+  });
+
+  test('runtime-config-admin.js hosts staff-only clerk setup block', async ({ request }) => {
+    const adminConfig = await request.get('/runtime-config-admin.js');
+    expect(adminConfig.ok(), 'runtime-config-admin.js should be hosted').toBe(true);
+    const body = await adminConfig.text();
+    const cfg = parseRuntimeConfigJson(body);
+    const clerk = cfg.clerkSetup as Record<string, unknown> | undefined;
+    expect(clerk, 'admin runtime-config should include clerkSetup').toBeTruthy();
+    expect(typeof clerk?.awsRegion, 'clerkSetup.awsRegion should be a string').toBe('string');
   });
 
   test('admin CMS connection succeeds when E2E_ASSERT_LIVE_CMS is true', async ({ page }) => {

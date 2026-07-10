@@ -95,6 +95,11 @@ if [[ ! -f "${DIST_DIR}/runtime-config.js" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${DIST_DIR}/runtime-config-admin.js" ]]; then
+  echo "error: missing ${DIST_DIR}/runtime-config-admin.js — strict build should emit this file" >&2
+  exit 1
+fi
+
 SYNC_EXTRA=()
 if [[ ${DRY_RUN} == true ]]; then
   SYNC_EXTRA+=(--dryrun)
@@ -107,6 +112,7 @@ aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   --cache-control 'public, max-age=31536000, immutable' \
   --exclude 'index.html' \
   --exclude 'runtime-config.js' \
+  --exclude 'runtime-config-admin.js' \
   --exclude 'cms-snapshot.json' \
   --exclude 'cms-revision.json' \
   --exclude '*/*.html'
@@ -117,6 +123,7 @@ aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   --cache-control 'no-cache, no-store, must-revalidate' \
   --include 'index.html' \
   --include 'runtime-config.js' \
+  --include 'runtime-config-admin.js' \
   --include '*/*.html'
 
 echo "Skipping cms-snapshot.json / cms-revision.json — owned by TownOfWileyCmsChangeNotifier (stream → S3)."

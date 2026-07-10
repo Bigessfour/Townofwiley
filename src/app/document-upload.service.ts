@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { getUrl, list, remove, uploadData } from '@aws-amplify/storage';
+import { readAdminRuntimeConfig } from './admin-runtime-config';
 import { StaffAuthService } from './auth/staff-auth.service';
 
 export interface UploadedDocument {
@@ -102,12 +103,13 @@ export class DocumentUploadService {
   }
 
   private readMediaUploadEndpoint(): string {
-    const runtime = (
+    const legacyPublic = (
       window as Window & {
         __TOW_RUNTIME_CONFIG__?: { cms?: { mediaUpload?: { apiEndpoint?: string } } };
       }
-    ).__TOW_RUNTIME_CONFIG__;
-    return runtime?.cms?.mediaUpload?.apiEndpoint?.trim() ?? '';
+    ).__TOW_RUNTIME_CONFIG__?.cms?.mediaUpload?.apiEndpoint;
+    const adminEndpoint = readAdminRuntimeConfig()?.cms?.mediaUpload?.apiEndpoint;
+    return (adminEndpoint ?? legacyPublic)?.trim() ?? '';
   }
 
   private async uploadDocumentViaPresignedUrl(

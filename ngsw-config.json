@@ -13,7 +13,8 @@
           "/manifest.webmanifest",
           "/*.css",
           "/*.js",
-          "!/runtime-config.js"
+          "!/runtime-config.js",
+          "!/runtime-config-admin.js"
         ]
       }
     },
