@@ -5,8 +5,21 @@
 @source './app/**/*.{html,ts}';
 @source './index.html';
 
-/* Town of Wiley — Tailwind v4 theme (maps to :root tokens in styles.scss). */
+/* Town of Wiley — Tailwind v4 theme (maps to :root tokens in _wiley-tokens.scss). */
 @theme {
+  --color-wiley-forest-50: var(--wiley-forest-50);
+  --color-wiley-forest-100: var(--wiley-forest-100);
+  --color-wiley-forest-200: var(--wiley-forest-200);
+  --color-wiley-forest-300: var(--wiley-forest-300);
+  --color-wiley-forest-400: var(--wiley-forest-400);
+  --color-wiley-forest-500: var(--wiley-forest-500);
+  --color-wiley-forest-600: var(--wiley-forest-600);
+  --color-wiley-forest-700: var(--wiley-forest-700);
+  --color-wiley-forest-800: var(--wiley-forest-800);
+  --color-wiley-forest-900: var(--wiley-forest-900);
+  --color-wiley-forest-950: var(--wiley-forest-950);
+  --color-wiley-header: var(--wiley-header-bg);
+  --color-wiley-header-nav: var(--wiley-header-nav-text);
   --color-wiley-navy-950: var(--wiley-navy-950);
   --color-wiley-navy-900: var(--wiley-navy-900);
   --color-wiley-navy-800: var(--wiley-navy-800);
@@ -21,8 +34,10 @@
   --color-wiley-sage-700: var(--wiley-sage-700);
   --color-wiley-earth-500: var(--wiley-earth-500);
   --color-wiley-earth-700: var(--wiley-earth-700);
+  --color-wiley-gold-300: var(--wiley-gold-300);
   --color-wiley-gold-400: var(--wiley-gold-400);
   --color-wiley-gold-500: var(--wiley-gold-500);
+  --color-wiley-gold-600: var(--wiley-gold-600);
   --color-wiley-cream-0: var(--wiley-cream-0);
   --color-wiley-cream-50: var(--wiley-cream-50);
   --color-wiley-cream-100: var(--wiley-cream-100);

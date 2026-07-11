@@ -114,7 +114,7 @@
 
   <header
     #headerElement
-    class="site-header sticky top-0 z-50 w-full max-w-none border-t-[2px] border-t-wiley-teal-600/50 border-b border-wiley-cream-100/90 bg-wiley-cream-0/95 shadow-wiley-card backdrop-blur-md transition-shadow"
+    class="site-header sticky top-0 z-50 w-full max-w-none border-b border-wiley-header/20 bg-wiley-forest-900 text-wiley-inverse shadow-wiley-card transition-shadow"
     [class.is-feature-page]="isFeaturePageMode() || isNotFoundMode()"
     [class.scrolled]="headerScrolled()"
     role="banner"
@@ -127,7 +127,7 @@
           <div class="mobile-menu-bar shrink-0">
             <button
               type="button"
-              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 px-3 text-sm font-semibold text-wiley-navy-900 shadow-wiley-card"
+              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-header/25 bg-wiley-forest-800 px-3 text-sm font-semibold text-wiley-inverse shadow-wiley-card"
               pRipple
               [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
               [attr.aria-expanded]="sidebarVisible()"
@@ -145,11 +145,11 @@
             [attr.aria-label]="appCopy().townLogoAriaLabel"
           >
             <span
-              class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+              class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
               >{{ heroContent().status }}</span
             >
             <strong
-              class="font-display text-lg font-bold leading-tight text-wiley-navy-900 sm:text-xl"
+              class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
               >Town of Wiley</strong
             >
           </a>
@@ -157,17 +157,17 @@
 
         <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
           <div
-            class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-cream-100 bg-wiley-sage-50 p-0.5"
+            class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
             role="group"
             [attr.aria-label]="appCopy().languageLabel"
           >
             @for (choice of languageChoices(); track choice.value) {
               <button
                 type="button"
-                class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
+                class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
                 [class.active]="siteLanguage() === choice.value"
-                [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
-                [class.text-wiley-inverse]="siteLanguage() === choice.value"
+                [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
+                [class.text-wiley-forest-900]="siteLanguage() === choice.value"
                 [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
                 [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                 [attr.aria-pressed]="siteLanguage() === choice.value"
@@ -186,7 +186,7 @@
           [model]="menuItems()"
           [pt]="desktopMegaMenuPt"
           orientation="horizontal"
-          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
+          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-none"
           data-testid="homepage-section-nav"
         >
           <ng-template pTemplate="start">
@@ -196,11 +196,11 @@
               aria-label="Return to homepage"
             >
               <span
-                class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+                class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
                 >{{ heroContent().status }}</span
               >
               <strong
-                class="font-display text-lg font-bold leading-tight text-wiley-navy-900 sm:text-xl"
+                class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
                 >Town of Wiley</strong
               >
             </a>
@@ -245,7 +245,6 @@
                   type="button"
                   pRipple
                   class="mega-menu-root-link"
-                  tabindex="-1"
                   (click)="item.command ? item.command($event) : null"
                 >
                   @if (item.icon) {
@@ -262,8 +261,9 @@
                 <a
                   pRipple
                   class="mega-menu-sub-link"
-                  [attr.href]="megaMenuLeafHref(item)"
-                  (click)="onMegaMenuLeafClick(item, $event)"
+                  [routerLink]="item.routerLink"
+                  [fragment]="item.fragment"
+                  (click)="item.command ? item.command($event) : null"
                 >
                   @if (item.icon) {
                     <i [class]="item.icon" aria-hidden="true"></i>
@@ -304,9 +304,9 @@
                 >
                   <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
                   <div
-                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-2 focus-within:ring-wiley-teal-600/25"
+                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-header/30 bg-wiley-inverse px-3 shadow-wiley-card focus-within:border-wiley-gold-400 focus-within:ring-2 focus-within:ring-wiley-gold-400/30"
                   >
-                    <i class="pi pi-search text-wiley-sage-500" aria-hidden="true"></i>
+                    <i class="pi pi-search text-wiley-forest-700" aria-hidden="true"></i>
                     <input
                       pInputText
                       id="mega-site-search"
@@ -327,7 +327,7 @@
                 [attr.aria-label]="appCopy().languageLabel"
               >
                 <div
-                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-cream-100 bg-wiley-sage-50 p-0.5"
+                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
                   role="group"
                   [attr.aria-label]="appCopy().languageLabel"
                 >
@@ -335,10 +335,10 @@
                     <!-- duplicate id avoided here (menu context); header instance provides the site-language-es/en ids -->
                     <button
                       type="button"
-                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
+                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
                       [class.active]="siteLanguage() === choice.value"
-                      [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
-                      [class.text-wiley-inverse]="siteLanguage() === choice.value"
+                      [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
+                      [class.text-wiley-forest-900]="siteLanguage() === choice.value"
                       [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                       [attr.aria-pressed]="siteLanguage() === choice.value"
                       [attr.title]="appCopy().languageLabel + ': ' + choice.label"

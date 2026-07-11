@@ -440,6 +440,11 @@ interface AppCopy {
   menuQuickTasksServicesColumnLabel: string;
   /** Column heading in the mega menu under menuQuickTasksLabel (weather/calendar side). */
   menuQuickTasksWeatherColumnLabel: string;
+  /** Flyout column under Government & Meetings. */
+  menuGovernmentMeetingsColumnLabel: string;
+  menuGovernmentTownColumnLabel: string;
+  /** Flyout column under Services (meetings/documents). */
+  menuServicesRelatedColumnLabel: string;
 }
 
 export const WEATHER_ALERT_POLICY_COPY: Record<
@@ -800,6 +805,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuLeadershipLabel: 'Leadership',
     menuQuickTasksServicesColumnLabel: 'Popular shortcuts',
     menuQuickTasksWeatherColumnLabel: 'Weather & calendar',
+    menuGovernmentMeetingsColumnLabel: 'Meetings & records',
+    menuGovernmentTownColumnLabel: 'Town information',
+    menuServicesRelatedColumnLabel: 'Meetings & documents',
     topTasks: [
       {
         title: 'Pay utility bill',
@@ -1217,6 +1225,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuLeadershipLabel: 'Liderazgo',
     menuQuickTasksServicesColumnLabel: 'Atajos populares',
     menuQuickTasksWeatherColumnLabel: 'Clima y calendario',
+    menuGovernmentMeetingsColumnLabel: 'Reuniones y registros',
+    menuGovernmentTownColumnLabel: 'Información del pueblo',
+    menuServicesRelatedColumnLabel: 'Reuniones y documentos',
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
@@ -1431,15 +1442,15 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
 /** In-page anchor for severe weather alert signup on `/weather`. */
 export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
 
-function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuItem[] {
-  const row: MegaMenuItem = {
-    items: links as MegaMenuItem[][],
-  };
-  const trimmed = columnLabel?.trim();
+/** One flyout column: optional group label + flat leaf links (Prime MegaMenu group row). */
+function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuItem[] {
+  // Prime typings declare `items` as MenuItem[][]; flyout group rows use a flat leaf list at runtime.
+  const group: MegaMenuItem = { items: links as MegaMenuItem[][] };
+  const trimmed = groupLabel?.trim();
   if (trimmed) {
-    row.label = trimmed;
+    group.label = trimmed;
   }
-  return [row];
+  return [group];
 }
 
 @Component({
@@ -1769,16 +1780,22 @@ export class App {
         label: copy.menuGovernmentLabel,
         icon: 'pi pi-building',
         items: [
-          megaMenuColumn([
-            { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
-            { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
-            { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
-          ]),
-          megaMenuColumn([
-            { label: copy.transparencyKicker, routerLink: '/contact' },
-            { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
-            { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
-          ]),
+          megaMenuColumn(
+            [
+              { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+              { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
+              { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
+            ],
+            copy.menuGovernmentMeetingsColumnLabel,
+          ),
+          megaMenuColumn(
+            [
+              { label: copy.transparencyKicker, routerLink: '/contact' },
+              { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
+              { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
+            ],
+            copy.menuGovernmentTownColumnLabel,
+          ),
         ],
       },
       {
@@ -1786,15 +1803,24 @@ export class App {
         label: copy.menuServicesPermitsLabel,
         icon: 'pi pi-briefcase',
         items: [
-          megaMenuColumn([
-            {
-              label: copy.mobileOnlinePaymentsLabel,
-              routerLink: '/pay-bill',
-            },
-            { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
-            { label: copy.featureTitles.services, routerLink: '/services' },
-          ]),
-          megaMenuColumn([{ label: copy.featureTitles.records, routerLink: '/meetings' }]),
+          megaMenuColumn(
+            [
+              {
+                label: copy.mobileOnlinePaymentsLabel,
+                routerLink: '/pay-bill',
+              },
+              { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
+              { label: copy.featureTitles.services, routerLink: '/services' },
+            ],
+            copy.menuServicesPermitsLabel,
+          ),
+          megaMenuColumn(
+            [
+              { label: copy.featureTitles.records, routerLink: '/meetings' },
+              { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
+            ],
+            copy.menuServicesRelatedColumnLabel,
+          ),
         ],
       },
       {

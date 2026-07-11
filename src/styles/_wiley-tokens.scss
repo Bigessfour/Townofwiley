@@ -1,16 +1,45 @@
-/* Town of Wiley — canonical design tokens (light theme). */
+/* Town of Wiley — canonical design tokens (light theme).
+   Visual target: src/imagine-6c23f989-1b29-4204-bdf3-ae35e4f4ad73.jpg */
 
 :root {
-  /* Primary — deep navy + teal */
-  --wiley-navy-950: #020617;
-  --wiley-navy-900: #0f172a;
-  --wiley-navy-800: #1e293b;
-  --wiley-navy-700: #334155;
-  --wiley-teal-600: #0d9488;
-  --wiley-teal-700: #0f766e;
-  --wiley-teal-800: #115e59;
+  /* ── Forest primary (header, links, calendar highlights) ── */
+  --wiley-forest-50: #eef5f1;
+  --wiley-forest-100: #d5e8df;
+  --wiley-forest-200: #a9cdbd;
+  --wiley-forest-300: #6fa892;
+  --wiley-forest-400: #45806c;
+  --wiley-forest-500: #2f6354;
+  --wiley-forest-600: #245044;
+  --wiley-forest-700: #1a3c34;
+  --wiley-forest-800: #153229;
+  --wiley-forest-900: #0f3d2e;
+  --wiley-forest-950: #061f18;
 
-  /* Secondary — sage + earth (soft sage promoted for consistent secondary surfaces) */
+  /* Legacy aliases → forest (gradual template migration) */
+  --wiley-navy-950: var(--wiley-forest-950);
+  --wiley-navy-900: var(--wiley-forest-900);
+  --wiley-navy-800: var(--wiley-forest-800);
+  --wiley-navy-700: var(--wiley-forest-700);
+  --wiley-teal-600: var(--wiley-forest-600);
+  --wiley-teal-700: var(--wiley-forest-700);
+  --wiley-teal-800: var(--wiley-forest-800);
+
+  /* ── Gold accent (CTAs, icons, active nav indicator) ── */
+  --wiley-gold-300: #e4b86a;
+  --wiley-gold-400: #d4a14b;
+  --wiley-gold-500: #c4923a;
+  --wiley-gold-600: #a67a2f;
+
+  /* ── Warm neutrals & page surfaces ── */
+  --wiley-cream-0: #fffdfb;
+  --wiley-cream-50: #faf6f0;
+  --wiley-cream-100: #f1ebe3;
+  --wiley-surface-page: var(--wiley-cream-50);
+  --wiley-surface-card: #ffffff;
+  --wiley-surface-card-muted: #f7f5f2;
+  --wiley-surface-secondary: var(--wiley-surface-card);
+
+  /* Secondary — sage + earth (supporting accents, not primary cards) */
   --wiley-sage-50: #f4f7f2;
   --wiley-sage-100: #e3ebe0;
   --wiley-sage-200: #d0d9c9;
@@ -19,27 +48,97 @@
   --wiley-earth-500: #9a7b5a;
   --wiley-earth-700: #6b5344;
 
-  /* Consistent soft sage-tinted secondary surface (used repo-wide for cards, panels, supporting sections to add gentle color interest against the cream base) */
-  --wiley-surface-secondary: color-mix(in srgb, var(--wiley-cream-0) 86%, var(--wiley-sage-50));
-
-  /* Accents — gold + warm neutrals */
-  --wiley-gold-400: #d4a14b;
-  --wiley-gold-500: #c4923a;
-  --wiley-cream-0: #fffdfb;
-  --wiley-cream-50: #faf6f0;
-  --wiley-cream-100: #f1ebe3;
-
-  /* High-contrast neutrals */
-  --wiley-ink-900: #0f172a;
-  --wiley-ink-700: #334155;
-  --wiley-ink-500: #64748b;
+  /* ── Ink ── */
+  --wiley-ink-900: #1c2b26;
+  --wiley-ink-700: #3d5249;
+  --wiley-ink-500: #5c6f66;
   --wiley-inverse: #ffffff;
 
-  /* Notice / alert surfaces */
+  /* ── Semantic shortcuts ── */
+  --wiley-color-primary: var(--wiley-forest-900);
+  --wiley-color-primary-contrast: var(--wiley-inverse);
+  --wiley-color-accent: var(--wiley-gold-400);
+  --wiley-color-accent-contrast: var(--wiley-forest-900);
+  --wiley-color-link: var(--wiley-forest-700);
+  --wiley-color-link-hover: var(--wiley-forest-900);
+
+  /* ── Header (solid bar per mock) ── */
+  --wiley-header-bg: var(--wiley-forest-900);
+  --wiley-header-bg-scrolled: var(--wiley-forest-800);
+  --wiley-header-text: var(--wiley-inverse);
+  /* Nav labels on forest bar — full white for WCAG contrast (avoid Prime surface-muted greens). */
+  --wiley-header-nav-text: #ffffff;
+  --wiley-header-nav-text-hover: #ffffff;
+  --wiley-header-text-muted: color-mix(in srgb, var(--wiley-inverse) 94%, transparent);
+  --wiley-header-border: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
+  --wiley-header-nav-active-indicator: var(--wiley-gold-400);
+
+  /* ── Typography ── */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Source Sans 3', sans-serif;
+  --font-size-small: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-kicker: 0.8125rem;
+  --font-size-h6: 0.875rem;
+  --font-size-h5: 1rem;
+  --font-size-h4: 1.125rem;
+  --font-size-h3: 1.25rem;
+  --font-size-h2: 1.75rem;
+  --font-size-h1: 2.5rem;
+  --line-height-tight: 1.08;
+  --line-height-heading: 1.24;
+  --line-height-title: 1.3;
+  --line-height-body: 1.68;
+  --line-height-loose: 1.78;
+  --letter-spacing-caps: 0.12em;
+
+  /* ── Spacing (8px grid) ── */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --section-gap: var(--space-xl);
+  --section-gap-compact: var(--space-lg);
+  --section-header-gap: var(--space-md);
+  --panel-padding: var(--space-xl);
+  --panel-padding-compact: var(--space-lg);
+  --card-padding: var(--space-md);
+  --card-gap: var(--space-md);
+  --grid-gap: var(--space-lg);
+  --grid-gap-compact: var(--space-sm);
+
+  /* ── Shadows (forest-tinted) ── */
+  --shadow-subtle: 0 4px 12px rgba(15, 61, 46, 0.08);
+  --shadow-medium: 0 12px 24px rgba(15, 61, 46, 0.12);
+  --shadow-strong: 0 22px 44px rgba(15, 61, 46, 0.16);
+  --shadow-floating: 0 26px 70px rgba(15, 61, 46, 0.2);
+
+  /* ── Radius ── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ── Motion ── */
+  --motion-fast: 160ms;
+  --motion-medium: 220ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+  --lift-hover: translateY(-2px);
+  --press-scale: scale(0.97);
+  --focus-ring-width: 3px;
+  --focus-ring-offset-rest: 2px;
+  --focus-ring-offset-focus: 4px;
+
+  /* ── Notice / alert surfaces ── */
   --wiley-alert-info-bg: var(--wiley-sage-50);
   --wiley-alert-info-border: var(--wiley-sage-100);
   --wiley-alert-warn-bg: #fef9ee;
   --wiley-alert-warn-border: color-mix(in srgb, var(--wiley-gold-400) 35%, var(--wiley-cream-100));
-  --wiley-alert-urgent-start: color-mix(in srgb, #b91c1c 86%, var(--wiley-navy-900));
-  --wiley-alert-urgent-end: color-mix(in srgb, #dc2626 88%, var(--wiley-navy-900));
+  --wiley-alert-urgent-start: color-mix(in srgb, #b91c1c 86%, var(--wiley-forest-900));
+  --wiley-alert-urgent-end: color-mix(in srgb, #dc2626 88%, var(--wiley-forest-900));
 }
