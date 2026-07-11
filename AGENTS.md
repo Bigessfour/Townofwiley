@@ -187,8 +187,9 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 - Cost optimization: [`docs/aws-cost-optimization-runbook.md`](docs/aws-cost-optimization-runbook.md) — `npm run aws:optimize:discover` / `aws:optimize:apply`
 - See also: `scripts/configure-aws-cli-profile.sh`, `scripts/agent-aws-env.sh`, and `infrastructure/aws-infrastructure.manifest.json` (Single Source of Truth).
 
-## Git
+## Git and production deploy
 
 - Feature branches; **never push directly to `main`** — open a PR and wait for **`site-ci / CI gate (merge required)`** to pass before merge.
 - Merge to `main` when CI is green. Do not force-push `main`.
 - Branch protection setup: [`docs/github-branch-protection.md`](docs/github-branch-protection.md).
+- **Production frontend deploy SSOT:** merge to `main` → GitHub Actions OIDC → S3 + CloudFront — [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md). Break-glass: `npm run deploy:site`. **Ansible is deprecated** for deploy. **Terraform** is IaC scaffold only (not site publish).

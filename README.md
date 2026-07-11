@@ -11,7 +11,7 @@ The official, bilingual (English/Spanish) website for the Town of Wiley, Colorad
 | Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
 | Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
 | Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility         |
-| CI/CD            | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration; advisory Ollama PR/CI triage ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)); ops observability ([docs/ops-observability.md](docs/ops-observability.md)) |
+| CI/CD            | GitHub Actions only for production frontend deploy (merge `main` → S3 + CloudFront); Terraform IaC scaffold; Ansible **deprecated** ([docs/DEPLOYMENT_SSOT.md](docs/DEPLOYMENT_SSOT.md)); Ollama advisory ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)); ops ([docs/ops-observability.md](docs/ops-observability.md)) |
 
 Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
 
@@ -84,18 +84,10 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   # GitHub: Actions → Deploy production (manual) on main
   ```
 
-  For full orchestrated deploys (frontend + lambdas + IAM policy application from `infrastructure/iam/` JSONs + verification), use the Ansible entrypoints (now the consistent pipeline path):
+  **Do not use Ansible for deploy** (deprecated July 2026). SSOT: [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md).  
+  **Terraform** remains for IaC scaffolding only (not static-site publish): `npm run terraform:town:plan`.
 
-  ```bash
-  npm run ansible:deploy            # full (or -- --tags frontend etc.)
-  npm run ansible:deploy:frontend
-  npm run ansible:verify
-  npm run ansible:check             # syntax/inventory validation (no AWS)
-  ```
-
-  The `scripts/ansible-deploy.sh` wrapper + root `ansible.cfg` hide sourcing and config details. See `ansible/README.md` and `package.json` scripts.
-
-  The helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.
+  The static-site helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.
   **Critical:** Output must be at the S3 **bucket root** (no `browser/` prefix). CloudFront origin has no OriginPath.
   Current hosting uses managed CachingOptimized policy + custom Response Headers Policy (CSP + security headers from customHttp.yml) + access logging. See manifest for IDs. OAC migration prepared (see SOT).
 
