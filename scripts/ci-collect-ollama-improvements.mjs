@@ -53,7 +53,12 @@ function addImprovement(category, detail, priority = 'medium') {
 
 if (ollamaDir) {
   suggestions.sources.push(`artifact:ollama-ci-diagnosis-${runId}`);
-  for (const file of ['03-feedback-loop.txt', '04-ci-improvements.json']) {
+  for (const file of [
+    '00-deterministic-facts.json',
+    '05-quality-review.txt',
+    '03-feedback-loop.txt',
+    '04-ci-improvements.json',
+  ]) {
     const path = join(ollamaDir, file);
     if (existsSync(path)) {
       suggestions.sources.push(file);
@@ -69,6 +74,22 @@ if (ollamaDir) {
       }
     }
   }
+  const factsPath = join(ollamaDir, '00-deterministic-facts.json');
+  if (existsSync(factsPath)) {
+    try {
+      const facts = JSON.parse(readFileSync(factsPath, 'utf8'));
+      if (facts.summary) {
+        suggestions.improvements.unshift({
+          category: 'deterministic',
+          detail: facts.summary,
+          priority: 'high',
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
   const feedback = join(ollamaDir, '03-feedback-loop.txt');
   if (existsSync(feedback)) {
     const text = readFileSync(feedback, 'utf8');

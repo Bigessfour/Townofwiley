@@ -122,9 +122,23 @@ runs:
           echo "**Failed run:** [${{ steps.meta.outputs.run_id }}](${{ steps.meta.outputs.run_url }})"
           echo "**Model:** \`${{ steps.meta.outputs.model }}\`"
           echo ""
+          if [ -f outputs/00-deterministic-triage.txt ]; then
+            echo "### Deterministic facts (ground truth)"
+            echo '```'
+            head -n 20 outputs/00-deterministic-triage.txt
+            echo '```'
+            echo ""
+          fi
+          if [ -f outputs/05-quality-review.txt ]; then
+            echo "### Reviewed summary"
+            echo '```'
+            sed -n '/MERGED_SUMMARY:/,/CONFIDENCE:/p' outputs/05-quality-review.txt | head -n 12
+            echo '```'
+            echo ""
+          fi
           echo "### Triage"
           echo '```'
-          head -n 40 outputs/01-triage.txt 2>/dev/null || echo "(triage unavailable)"
+          sed -n '/FAILING_JOB:/,/CONFIDENCE:/p' outputs/01-triage.txt 2>/dev/null | head -n 35 || head -n 40 outputs/01-triage.txt 2>/dev/null || echo "(triage unavailable)"
           echo '```'
           echo ""
           echo "### Immediate fix"

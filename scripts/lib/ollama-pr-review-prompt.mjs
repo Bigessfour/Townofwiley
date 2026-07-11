@@ -50,13 +50,15 @@ Review pull request #${input.prNumber} "${input.prTitle}" (${input.repository}, 
 
 ${truncationNote}Respond in this exact structure:
 
-SUMMARY: (2-3 sentences)
+SUMMARY:
+EVIDENCE: (file paths / patterns you relied on from the diff)
+REASONING: (short step-by-step, then conclusion)
 RISK_LEVEL: low|medium|high
-MUST_FIX: (numbered list — blocking issues for merge; use "none" if empty)
-SHOULD_FIX: (numbered list — non-blocking improvements)
-SECURITY: (secrets, auth, CMS exposure, runtime-config — one short paragraph)
-ACCESSIBILITY_I18N: (a11y + EN/ES copy gaps)
-TEST_PLAN: (concrete commands: npm run lint, test:vitest, test:unit:browser, test:e2e:smoke)
+MUST_FIX:
+SHOULD_FIX:
+SECURITY:
+ACCESSIBILITY_I18N:
+TEST_PLAN:
 CONFIDENCE: low|medium|high
 
 Diff:

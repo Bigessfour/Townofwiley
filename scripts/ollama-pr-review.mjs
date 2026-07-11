@@ -3,8 +3,9 @@
  * Advisory Ollama PR review — posts a comment (never auto-approves).
  * Requires: gh CLI, ollama serve + model pulled, GH_TOKEN with pull-requests: write.
  */
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { ollamaGenerate } from './lib/ollama-api.mjs';
 import { buildPrReviewPrompt } from './lib/ollama-pr-review-prompt.mjs';
 
 const OUTPUT_DIR = process.env.OUTPUT_DIR ?? 'outputs/pr-review';
@@ -17,15 +18,15 @@ function gh(args) {
   return execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 }).trim();
 }
 
-function runOllama(prompt) {
-  const result = spawnSync('ollama', ['run', MODEL, prompt], {
-    encoding: 'utf8',
-    maxBuffer: 8 * 1024 * 1024,
+async function runOllama(prompt) {
+  return ollamaGenerate({
+    model: MODEL,
+    prompt,
+    system: `You review Town of Wiley pull requests (Angular 21, PrimeNG, bilingual EN/ES, AWS CMS).
+Use plain text only. Follow the output structure exactly. Reason step-by-step, then emit labeled sections.`,
+    temperature: 0.2,
+    numPredict: 2800,
   });
-  if (result.status !== 0) {
-    throw new Error(result.stderr || `ollama run failed with status ${result.status}`);
-  }
-  return result.stdout.trim();
 }
 
 function isDocsOnlyDiff(diff) {
@@ -36,7 +37,7 @@ function isDocsOnlyDiff(diff) {
   return files.every((f) => f.startsWith('docs/') || f === 'README.md' || f.endsWith('.md'));
 }
 
-function main() {
+async function main() {
   if (!REPO || !PR_NUMBER) {
     console.error('GITHUB_REPOSITORY and PR_NUMBER are required');
     process.exit(1);
@@ -82,7 +83,7 @@ function main() {
   });
 
   writeFileSync(`${OUTPUT_DIR}/prompt.txt`, prompt, 'utf8');
-  const review = runOllama(prompt);
+  const review = await runOllama(prompt);
   writeFileSync(`${OUTPUT_DIR}/review.txt`, review, 'utf8');
 
   const body = [
@@ -106,4 +107,7 @@ function main() {
   console.log('Posted Ollama PR review comment.');
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

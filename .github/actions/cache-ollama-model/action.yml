@@ -13,7 +13,7 @@ runs:
       uses: actions/cache@v5
       with:
         path: ~/.ollama/models
-        key: ollama-models-${{ inputs.model }}-${{ hashFiles('.github/actions/cache-ollama-model/action.yml', '.github/actions/ollama-ci-diagnosis/action.yml', 'scripts/ollama_ci_diagnosis.sh', 'scripts/ollama-pr-review.mjs') }}
+        key: ollama-models-${{ inputs.model }}-${{ hashFiles('.github/actions/cache-ollama-model/action.yml', '.github/actions/ollama-ci-diagnosis/action.yml', 'scripts/ollama_ci_diagnosis.sh', 'scripts/ollama-pr-review.mjs', 'scripts/ollama-run-prompt.mjs', 'scripts/lib/ollama-api.mjs', 'scripts/lib/ci-failure-facts.mjs', 'scripts/lib/ollama-ci-system-prompt.txt') }}
         restore-keys: |
           ollama-models-${{ inputs.model }}-
           ollama-models-

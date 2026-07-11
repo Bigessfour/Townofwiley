@@ -9,11 +9,6 @@
  */
 import { afterEach, beforeEach, vi } from 'vitest';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __amplifyGraphqlMock: ReturnType<typeof vi.fn> | undefined;
-}
-
 const { amplifyGraphqlMock } = vi.hoisted(() => ({
   amplifyGraphqlMock: vi.fn(),
 }));
@@ -24,7 +19,11 @@ vi.mock('aws-amplify/api', () => ({
   }),
 }));
 
-globalThis.__amplifyGraphqlMock = amplifyGraphqlMock;
+(
+  globalThis as typeof globalThis & {
+    __amplifyGraphqlMock?: ReturnType<typeof vi.fn>;
+  }
+).__amplifyGraphqlMock = amplifyGraphqlMock;
 
 const defaultAdminRuntimeConfig = {
   clerkSetup: {

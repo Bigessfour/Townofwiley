@@ -110,19 +110,48 @@ writeFileSync(outPath, formatPrefilteredLogs(readFileSync(rawPath, 'utf8')), 'ut
   log "High-signal prefilter written: $filtered ($(wc -c <"$filtered" | tr -d ' ') bytes)"
 }
 
+extract_deterministic_facts() {
+  node scripts/extract-ci-failure-facts.mjs \
+    "$OUTPUT_DIR/failed-workflow-logs.txt" \
+    "$OUTPUT_DIR/00-deterministic-facts.json" \
+    "$OUTPUT_DIR/failure-snapshot" 2>"$OUTPUT_DIR/extract-facts-errors.txt" || true
+
+  if [ -f "$OUTPUT_DIR/00-deterministic-facts.json" ]; then
+    python3 - "$OUTPUT_DIR/00-deterministic-facts.json" "$OUTPUT_DIR/00-deterministic-triage.txt" <<'PY'
+import json, sys
+from pathlib import Path
+facts = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+lines = [
+    "DETERMINISTIC_FAILURE_FACTS",
+    f"SUMMARY: {facts.get('summary', 'unknown')}",
+    f"FAILING_JOBS: {', '.join(facts.get('failingJobs') or []) or 'unknown'}",
+    "",
+    "ERROR_LINES:",
+]
+for line in facts.get("errorLines") or []:
+    lines.append(f"- {line}")
+if facts.get("eslintErrors"):
+    lines.append("")
+    lines.append("ESLINT:")
+    for item in facts["eslintErrors"]:
+        lines.append(f"- {item['file']}:{item['line']}:{item['column']} {item['message']}")
+Path(sys.argv[2]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+PY
+    log "Deterministic facts: $(head -n 2 "$OUTPUT_DIR/00-deterministic-triage.txt" | tr '\n' ' ')"
+  fi
+}
+
 run_prompt() {
   local name="$1"
   local prompt="$2"
   local outfile="$OUTPUT_DIR/${name}.txt"
 
-  log "Running prompt: $name (model=$MODEL)"
-  {
-    echo "# Ollama CI Diagnosis — ${name}"
-    echo "# Model: ${MODEL}"
-    echo "# Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-    echo ""
-    ollama run "$MODEL" "$prompt"
-  } | tee "$outfile"
+  log "Running prompt: $name (model=$MODEL via API)"
+  printf '%s' "$prompt" | node scripts/ollama-run-prompt.mjs \
+    --model "$MODEL" \
+    --out "$outfile" \
+    --title "$name" \
+    --system scripts/lib/ollama-ci-system-prompt.txt
   echo ""
 }
 
@@ -144,6 +173,11 @@ build_context_file() {
     echo "Merge gate: ci-gate runs scripts/ci-gate-check.mjs — failures block merge."
     echo "Node 24.x, Angular 21, PrimeNG, bilingual CMS via AppSync API key on public site."
     echo ""
+    if [ -f "$OUTPUT_DIR/00-deterministic-triage.txt" ]; then
+      echo "=== DETERMINISTIC_FAILURE_FACTS (ground truth) ==="
+      cat "$OUTPUT_DIR/00-deterministic-triage.txt"
+      echo ""
+    fi
     if [ -f "$OUTPUT_DIR/high-signal-logs.txt" ]; then
       echo "=== HIGH-SIGNAL PREFILTERED LINES ==="
       cat "$OUTPUT_DIR/high-signal-logs.txt"
@@ -228,30 +262,36 @@ main() {
 
   fetch_failed_logs "$RUN_ID"
   prefilter_logs
+  extract_deterministic_facts
   local context
   context="$(build_context_file)"
   log "Context written to $context"
 
-  local triage_prompt fix_prompt loop_prompt
+  local triage_prompt fix_prompt loop_prompt review_prompt
   triage_prompt=$(cat <<EOF
-You are a senior DevOps engineer triaging a failed GitHub Actions workflow for the Town of Wiley site (Angular 21 + PrimeNG + Node 24, Playwright e2e, Vitest, AppSync CMS).
+Task: Triage the failed Site CI run.
+
+Method:
+1) Read DETERMINISTIC_FAILURE_FACTS first.
+2) List concrete evidence (quoted log fragments).
+3) Infer failing job/step only when supported by evidence.
+4) State root cause in one paragraph.
 
 SITE CI CONTEXT:
-- Workflow: git-workflow.yml — detect-changes (path-aware), frontend-lint-build, frontend-smoke, security-audit, ci-gate (scripts/ci-gate-check.mjs).
-- Common failures: ESLint, Vitest/browser unit tests (admin runtime-config, CMS snapshots), strict runtime-config build, Playwright smoke, npm audit critical.
-- Public site must not leak staff CMS config in runtime-config.js (split admin bundle pattern).
+- git-workflow.yml: frontend-lint-build (lint → test:unit:browser → test:vitest → build), frontend-smoke, ci-gate.
+- Typical failures: ESLint @typescript-eslint/*, Vitest/Karma CMS/admin runtime tests, strict runtime-config build, Playwright smoke.
 
-If logs are missing or empty, infer from job/step metadata and patterns above. Note "logs limited — best-effort triage".
-
-Respond in this exact structure:
+Output exactly these labels (no extra sections):
 
 FAILING_JOB:
 FAILING_STEP:
-ERROR_SIGNATURE: (one line)
-ROOT_CAUSE: (2-3 sentences)
+ERROR_SIGNATURE:
+EVIDENCE:
+REASONING:
+ROOT_CAUSE:
 CONFIDENCE: low|medium|high
 
-Logs and metadata:
+CONTEXT:
 $(cat "$context")
 EOF
 )
@@ -267,12 +307,13 @@ $(cat "$OUTPUT_DIR/01-triage.txt" 2>/dev/null || echo "unavailable")
 
 Respond in this exact structure:
 
-IMMEDIATE_FIX: (numbered steps — exact commands or file paths)
-VERIFY_LOCALLY: (npm scripts)
+IMMEDIATE_FIX:
+VERIFY_LOCALLY:
 ESTIMATED_EFFORT: minutes|hours
-RISKS: (what could still fail)
+RISKS:
+REASONING:
 
-Logs and metadata:
+CONTEXT:
 $(cat "$context")
 EOF
 )
@@ -290,16 +331,41 @@ $(cat "$OUTPUT_DIR/02-fix-plan.txt" 2>/dev/null || echo "unavailable")
 
 Respond in this exact structure:
 
-PRE_COMMIT_CHECK: (what to run before push)
-CI_HARDENING: (workflow or script changes)
-OLLAMA_PROMPT_TIP: (one better prompt for this failure type)
-PREVENTION: (one guardrail to add)
+PRE_COMMIT_CHECK:
+CI_HARDENING:
+OLLAMA_PROMPT_TIP:
+PREVENTION:
+REASONING:
+EOF
+)
+
+  review_prompt=$(cat <<EOF
+Validate the triage and fix plan against DETERMINISTIC_FAILURE_FACTS and CONTEXT.
+
+If the model triage contradicts deterministic facts, correct it.
+
+Output:
+
+VALIDATION: pass|fail
+CORRECTIONS: (bullets, or "none")
+MERGED_SUMMARY: (3-5 sentences a maintainer can paste into a PR comment)
+CONFIDENCE: low|medium|high
+
+DETERMINISTIC_FACTS:
+$(cat "$OUTPUT_DIR/00-deterministic-triage.txt" 2>/dev/null || echo "unavailable")
+
+TRIAGE:
+$(cat "$OUTPUT_DIR/01-triage.txt" 2>/dev/null || echo "unavailable")
+
+FIX_PLAN:
+$(cat "$OUTPUT_DIR/02-fix-plan.txt" 2>/dev/null || echo "unavailable")
 EOF
 )
 
   run_prompt "01-triage" "$triage_prompt"
   run_prompt "02-fix-plan" "$fix_prompt"
   run_prompt "03-feedback-loop" "$loop_prompt"
+  run_prompt "05-quality-review" "$review_prompt"
   write_ci_improvements_json
   write_summary
   write_github_step_summary
@@ -313,13 +379,18 @@ write_ci_improvements_json() {
 import json, re, sys
 from pathlib import Path
 
+ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+def clean(text: str) -> str:
+    return ANSI.sub("", text).strip()
+
 out = Path(sys.argv[1])
 feedback = Path(sys.argv[2])
-text = feedback.read_text(encoding="utf-8", errors="replace") if feedback.is_file() else ""
+text = clean(feedback.read_text(encoding="utf-8", errors="replace")) if feedback.is_file() else ""
 
 def section(name: str) -> str:
     m = re.search(rf"^{name}:(.*?)(?=^[A-Z_]+:|\Z)", text, re.M | re.S)
-    return (m.group(1).strip() if m else "")
+    return clean(m.group(1)) if m else ""
 
 improvements = []
 for label, category in (
@@ -332,8 +403,14 @@ for label, category in (
     if body:
         improvements.append({"category": category, "detail": body, "priority": "high" if category == "ci-hardening" else "medium"})
 
+facts_path = out.parent / "00-deterministic-facts.json"
+deterministic = None
+if facts_path.is_file():
+    deterministic = json.loads(facts_path.read_text(encoding="utf-8"))
+
 payload = {
-    "schema": "townofwiley-ci-improvements-v1",
+    "schema": "townofwiley-ci-improvements-v2",
+    "deterministicSummary": (deterministic or {}).get("summary"),
     "improvements": improvements,
 }
 out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

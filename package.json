@@ -29,7 +29,7 @@
     "test": "ng test",
     "test:unit": "ng test",
     "test:unit:browser": "ng test --watch=false --browsers=chromiumHeadless",
-    "test:vitest": "vitest run && npm run verify:staff-cms-editor-models && npm run test:runtime-config-strict && npm run test:csp-inline-style-policy && node --test scripts/ci-gate-check.test.mjs scripts/deploy-static-site.manifest.test.mjs scripts/ollama-log-prefilter.test.mjs scripts/ollama-pr-review-prompt.test.mjs",
+    "test:vitest": "vitest run && npm run verify:staff-cms-editor-models && npm run test:runtime-config-strict && npm run test:csp-inline-style-policy && node --test scripts/ci-gate-check.test.mjs scripts/deploy-static-site.manifest.test.mjs scripts/ollama-log-prefilter.test.mjs scripts/ollama-pr-review-prompt.test.mjs scripts/ci-failure-facts.test.mjs scripts/ollama-text.test.mjs",
     "ci:collect-improvements": "node scripts/ci-collect-ollama-improvements.mjs",
     "test:coverage": "vitest run --coverage",
     "test:vitest:watch": "vitest",
