@@ -1,0 +1,23 @@
+{
+  "$schema": "./town-aws-account.schema.json",
+  "version": 1,
+  "description": "Canonical AWS identity for this repository. All agents, scripts, and Terraform must target this account only.",
+  "accountId": "570912405222",
+  "accountLabel": "Town of Wiley production",
+  "defaultProfile": "townofwiley",
+  "primaryRegion": "us-east-2",
+  "site": "townofwiley.gov",
+  "verifyCommand": "aws sts get-caller-identity --query Account --output text",
+  "agentAccess": {
+    "iamUserName": "copilot",
+    "cliProfile": "townofwiley",
+    "credentialSetup": "npm run aws:configure-profile",
+    "iamPoliciesPath": "infrastructure/iam/copilot-*.json",
+    "expectedCallerArnSuffix": ":user/copilot"
+  },
+  "agentSetup": "source scripts/agent-aws-env.sh",
+  "notThisWorkspace": {
+    "note": "Do not use other AWS accounts for Town site work in this repo (training/personal profiles belong elsewhere).",
+    "exampleOtherAccountIds": ["388691194728"]
+  }
+}

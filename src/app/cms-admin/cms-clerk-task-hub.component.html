@@ -31,8 +31,10 @@
           }
           <div class="cms-task-card__actions">
             <button
+              pButton
               type="button"
-              class="button-cta button-cta--solid cms-task-card__btn"
+              severity="primary"
+              class="cms-task-card__btn"
               [attr.data-testid]="'cms-task-edit-' + task.id"
               (click)="onEditContent(task.id)"
             >
@@ -43,7 +45,10 @@
             </button>
             @if (showsPublicPreview(task)) {
               <a
-                class="button-cta button-cta--light cms-task-card__btn"
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                class="cms-task-card__btn"
                 [href]="previewUrl(task)"
                 target="_blank"
                 rel="noreferrer noopener"

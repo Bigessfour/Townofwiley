@@ -66,9 +66,17 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
     button: {
       root: {
         borderRadius: '9999px',
+        roundedBorderRadius: '9999px',
         gap: '0.5rem',
         paddingX: '1.35rem',
         paddingY: '0.95rem',
+        label: {
+          fontWeight: '700',
+        },
+        sm: {
+          paddingX: '1rem',
+          paddingY: '0.65rem',
+        },
       },
       colorScheme: {
         light: {
@@ -91,6 +99,55 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
               activeBorderColor: '{primary.600}',
               color: '#0f3d2e',
             },
+          },
+          outlined: {
+            contrast: {
+              hoverBackground: 'color-mix(in srgb, #ffffff 25%, transparent)',
+              activeBackground: 'color-mix(in srgb, #ffffff 35%, transparent)',
+              borderColor: 'color-mix(in srgb, #ffffff 40%, transparent)',
+              color: '#ffffff',
+            },
+            secondary: {
+              hoverBackground: 'color-mix(in srgb, #0f3d2e 8%, transparent)',
+              activeBackground: 'color-mix(in srgb, #0f3d2e 14%, transparent)',
+              borderColor: 'color-mix(in srgb, #0f3d2e 22%, transparent)',
+              color: '#0f3d2e',
+            },
+          },
+        },
+      },
+    },
+    megamenu: {
+      root: {
+        background: 'transparent',
+        borderColor: 'transparent',
+        gap: '0.5rem',
+      },
+      overlay: {
+        background: '#ffffff',
+        borderColor: '{surface.200}',
+        borderRadius: '1.25rem',
+        shadow: '0 18px 40px rgba(15, 61, 46, 0.14)',
+      },
+      item: {
+        color: '{surface.800}',
+        focusBackground: '{surface.50}',
+        activeBackground: '{surface.100}',
+        borderRadius: '0.5rem',
+      },
+      submenuLabel: {
+        color: '{primary.700}',
+        fontWeight: '700',
+      },
+    },
+    drawer: {
+      colorScheme: {
+        light: {
+          root: {
+            background: '#ffffff',
+            borderColor: '{surface.200}',
+            color: '{surface.800}',
+            shadow: '0 18px 40px rgba(15, 61, 46, 0.15)',
           },
         },
       },

@@ -151,27 +151,6 @@
   text-underline-offset: 0.16em;
 }
 
-/* CTA button */
-.button-cta {
-  padding: 0.85rem 1.35rem;
-  border-radius: 999px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all 160ms ease;
-}
-
-.button-cta--light {
-  background: var(--surface-card);
-  color: var(--civic-blue-strong);
-  border: 1px solid var(--surface-border);
-}
-
-.button-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--surface-shadow-soft);
-}
-
 .text-link {
   background: none;
   border: none;

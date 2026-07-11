@@ -1,65 +1,56 @@
-# PrimeNG public surface inventory (Town of Wiley)
+# PrimeNG surface inventory (Town of Wiley)
 
-Generated for the forest theme + MegaMenu alignment PR. Component list is from templates under `src/app/`. Doc expectations reference [PrimeNG](https://primeng.dev) via the **primeng MCP** (`get_component_sections`, `get_example`).
+Component list from templates under `src/app/`. Expectations reference [PrimeNG](https://primeng.dev). **Hello-from / guestbook** was removed July 2026 (deprecated).
 
-## Site shell (all public routes)
+## Site shell (public routes with full chrome)
 
-| Route context | PrimeNG components | Notes vs PrimeNG docs |
-|---------------|-------------------|------------------------|
-| [`app.html`](../src/app/app.html) | Toast, Card, MegaMenu, Drawer, Tag, Divider, Skeleton, Timeline, Avatar | **MegaMenu:** aligned in this PR (column/group labels, `p-megamenu-grid`, leaf `routerLink`). **Drawer:** mobile nav overlay — verify `modal` + `dismissible` per Drawer docs. **Timeline:** homepage notices — confirm `value` shape matches Timeline API. |
+| Route context | PrimeNG components | Notes |
+|---------------|-------------------|--------|
+| [`app.html`](../src/app/app.html) | Toast, Card, MegaMenu, Drawer, Tag, Divider, Skeleton, Timeline, Avatar, Button, InputText | MegaMenu: custom `#start` / `#item` / `#end` + `routerLink` leaves. Search: reactive `siteSearchForm` + `pInputText`. CTAs: `pButton` + forest preset. |
 
-## Per-route inventory
+## Public routes
 
-| Public route | Template | PrimeNG components |
-|--------------|----------|------------------|
-| `/` (home) | `app.html` | (shell above) |
-| `/notices` | `notices-page.html` | Card, Skeleton |
-| `/meetings` | `meetings-page.html`, `meeting-documents-archive.component.html` | Card, Table, Button, Skeleton |
-| `/weather` | `localized-weather-panel.html`, `weather-alert-banner` | Card, Panel, Tag, Accordion, Select, Message, Button, Skeleton |
-| `/services` | `resident-services.html`, `panels/*` | Toast, Card, Select, Message, Button |
-| `/businesses` | `business-directory.html` | IconField, InputIcon, InputText (native input inside) |
-| `/pay-bill` | `pay-bill-page`, `pay-instructions` | Message, Card |
-| `/news` | `news.html` | Card, Skeleton |
-| `/contact` | `contact-page.html` | Card, Panel, Skeleton |
-| `/accessibility` | `accessibility-page.html`, `accessibility-support.html` | Card, Message, InputText, Textarea |
-| `/privacy`, `/terms` | `privacy-page.html`, `terms-page.html` | Card |
-| `/not-found` | `not-found` | Card |
-| AI chat (embedded) | `localized-ai-chat.html` | Fieldset, Button, Panel, Chip, ScrollPanel, Card |
+| Route | Template | PrimeNG components | Forms |
+|-------|----------|-------------------|--------|
+| `/` | `app.html` | (shell) | Site search `FormGroup` |
+| `/notices` | `notices-page.html` | Card, Skeleton | — |
+| `/meetings` | `meetings-page.html`, `meeting-documents-archive` | Card, Table, Button, Skeleton | — |
+| `/weather` | `localized-weather-panel.html`, `weather-alert-banner` | Card, Panel, Tag, Accordion, Select, Message, Button, InputText, Skeleton | Alert signup: reactive `alertSignupForm` + `p-message` |
+| `/services` | `resident-services.html`, `panels/*` | Toast, Card, Select, Message, Button, InputText, Textarea | Issue report: reactive `issueForm` |
+| `/businesses` | `business-directory.html` | IconField, InputIcon, InputText, Button | Directory search: `FormControl`; call / website: `pButton` |
+| `/pay-bill` | `pay-bill-page`, `pay-instructions` | Message, Card, Button | External Paystar CTA only (`pButton`) |
+| `/news` | `news.html` | Card, Skeleton, Button | External / PDF CTAs: `pButton` outlined |
+| `/contact` | `contact-page.html` | Card, Panel, Skeleton | — |
+| `/accessibility` | `accessibility-page`, `accessibility-support` | Card, Message, InputText, Textarea | Barrier report: reactive `reportForm` + `p-message` |
+| `/privacy`, `/terms` | `privacy-page`, `terms-page` | Card | — |
+| `/not-found` | `not-found` | Card | — |
+| AI chat (embedded) | `localized-ai-chat.html` | Fieldset, Button, Panel, Chip, ScrollPanel, Card | — |
 
-Staff-only (`/admin`, `/admin/login`, clerk tools) use additional Table, Dialog, OrderList, InputNumber, Checkbox — out of scope for resident-facing alignment.
+## Staff / admin routes
 
-## MegaMenu (fixed in this PR)
+| Route | Template | PrimeNG components | Forms |
+|-------|----------|-------------------|--------|
+| `/admin/login` | `admin-login.component.html` | Message, Button | Cognito Hosted UI (no local form) |
+| `/admin` hub | `cms-admin.html` | Button, Toast | — |
+| Task hub | `cms-clerk-task-hub` | Tag, Button | — |
+| Record editor | `cms-clerk-record-editor` | Button, Select, InputText, Textarea, InputNumber, Checkbox, Message, OrderList, Dialog | Dynamic fields via `ngModel` (metadata-driven); **accepted** for generic CRUD |
+| Email aliases | `cms-email-alias-admin` | Table, Button, Message, InputText | Reactive `aliasForm` |
+| Meeting doc upload | `cms-meeting-document-upload` | Message, FileUpload patterns | Upload flow |
+| Clerk upload panel | `cms-clerk-upload-panel` | Message, Button | — |
+| Site status / snapshot | `cms-site-status`, `cms-content-snapshot` | Button, Message, Card | — |
+| Recent changes | `cms-recent-changes` | Table, Tag | — |
+| Task guide | `cms-clerk-task-guide` | Card | — |
 
-PrimeNG **Basic** + **Router** examples require:
+## Theme and buttons (2026)
 
-1. Root `items`: `MegaMenuItem[][]` (columns).
-2. Each column: array of **groups** `{ label?, items: leaf[] }`.
-3. Leaves: `routerLink` / `url` / `command` on innermost items.
-4. Horizontal custom chrome: **Template** example uses `#start`, `#item` with `item.root`, `#end`.
+- Preset: [`wiley-theme-preset.ts`](../src/app/wiley-theme-preset.ts) — forest primary, gold CTAs, megamenu/drawer tokens.
+- Prefer **`pButton`** + preset severities on public and staff surfaces; legacy `.button-cta` remains only on `/not-found` until migrated.
+- Reactive forms + **`p-message`** for resident-facing validation (weather, accessibility, services issue).
 
-**Changes applied:**
+## Remaining low-priority gaps
 
-- Labeled flyout groups (Government, Services second column).
-- Removed custom 2-column CSS grid on `.p-megamenu-submenu`; style `.p-megamenu-grid` instead.
-- Submenu leaves use `[routerLink]` + `[fragment]` (Router example).
-- `megaMenuColumn()` documents Prime `MenuItem[][]` typing vs flat leaf runtime.
-
-## Remaining gaps (follow-up)
-
-| Component | Where | PrimeNG expectation | Gap |
-|-----------|-------|---------------------|-----|
-| Card | Most public pages | Prefer `[pt]` or theme tokens; optional header/footer templates | Heavy `styleClass` + global SCSS overrides — acceptable but not preset-first. |
-| Table | `/meetings` | Sort/paginate APIs documented per Table | Custom calendar table — verify `pTemplate` columns match Table doc patterns. |
-| Select | Weather, services | `optionLabel` / `optionValue` + form binding | Confirm reactive forms match Select “filled/outlined” guidance. |
-| Accordion | Weather alerts | `value` / multiple panel API (v21+) | Audit accordion panel `value` indices for a11y. |
-| IconField | Businesses | Wrap InputText per IconField doc | Uses native `<input>` — consider `pInputText` inside IconField for PT consistency. |
-| Message | Pay bill, services | `severity` + optional icon | Text-only bindings — OK per Message basic. |
-| Toast | App, services | `MessageService` + key | Two toast hosts (global + services key) — intentional. |
-
-## MCP commands used
-
-```text
-get_component_sections({ component: "megamenu" })
-get_example({ component: "megamenu", section: "basic", variant: "typescript" })
-get_example({ component: "megamenu", section: "router", variant: "typescript" })
-```
+| Area | Gap |
+|------|-----|
+| Record editor | Dynamic `ngModel` per field type — migrating to reactive would be a large refactor; keep until a form-generator rewrite. |
+| Meetings Table | Custom column templates — verify sort API if server-side sort is added later. |
+| Not-found page | `.button-cta` home / contact links — migrate to `pButton` when touched. |

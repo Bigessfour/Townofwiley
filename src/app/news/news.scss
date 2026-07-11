@@ -137,36 +137,6 @@
   flex: 1;
 }
 
-.button-cta {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.85rem 1.35rem;
-  border-radius: 999px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.button-cta--light {
-  background: var(--surface-overlay);
-  color: var(--civic-blue-strong);
-  border: 1px solid var(--surface-border);
-}
-
-.button-cta:hover,
-.button-cta:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(13, 44, 84, 0.18);
-}
-
-.button-cta:focus-visible {
-  outline: 3px solid rgba(13, 44, 84, 0.24);
-  outline-offset: 3px;
-}
-
 /* Mobile-first grid — stacks on phones, 2-col at tablet, 3-col at desktop */
 .news-card-grid {
   display: grid;

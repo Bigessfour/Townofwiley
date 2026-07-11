@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Hub } from 'aws-amplify/utils';
+import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ADMIN_LOGIN_COPY } from './admin-login-copy';
 import { readStaffAuthErrorMessage } from './staff-auth-error';
@@ -19,7 +20,7 @@ const AUTO_REDIRECT_DELAY_MS = 300;
 @Component({
   selector: 'app-admin-login',
   standalone: true,
-  imports: [MessageModule, RouterLink],
+  imports: [ButtonModule, MessageModule, RouterLink],
   templateUrl: './admin-login.component.html',
   styleUrl: './admin-login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

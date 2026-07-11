@@ -1,0 +1,5 @@
+bucket         = "townofwiley-terraform-state-570912405222"
+key            = "town-production/terraform.tfstate"
+region         = "us-east-2"
+dynamodb_table = "townofwiley-terraform-locks"
+encrypt        = true

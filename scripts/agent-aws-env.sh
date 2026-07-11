@@ -29,9 +29,25 @@
 
 set -euo pipefail
 
-readonly DEFAULT_PROFILE="townofwiley"
-readonly DEFAULT_REGION="us-east-2"
-readonly EXPECTED_ACCOUNT="570912405222"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ACCOUNT_JSON="${REPO_ROOT}/infrastructure/town-aws-account.json"
+
+read_account_field() {
+  local field="$1"
+  local fallback="$2"
+  if [[ -f "${ACCOUNT_JSON}" ]] && command -v node >/dev/null 2>&1; then
+    node -e "const j=require(process.argv[1]);const v=j[process.argv[2]];process.stdout.write(v!=null?String(v):'')" "${ACCOUNT_JSON}" "${field}" 2>/dev/null || echo "${fallback}"
+  else
+    echo "${fallback}"
+  fi
+}
+
+readonly DEFAULT_PROFILE="$(read_account_field defaultProfile townofwiley)"
+readonly DEFAULT_REGION="$(read_account_field primaryRegion us-east-2)"
+readonly EXPECTED_ACCOUNT="$(read_account_field accountId 570912405222)"
+AGENT_IAM_USER="$(node -e "const j=require(process.argv[1]);process.stdout.write(j.agentAccess?.iamUserName||'copilot')" "${ACCOUNT_JSON}" 2>/dev/null || echo "copilot")"
+readonly AGENT_IAM_USER
 
 PROFILE="${AWS_PROFILE_NAME:-$DEFAULT_PROFILE}"
 REGION="${AWS_DEFAULT_REGION:-$DEFAULT_REGION}"
@@ -67,12 +83,25 @@ echo "[agent-aws-env] AWS environment configured for agent use:"
 echo "  AWS_PROFILE=$AWS_PROFILE"
 echo "  AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
 echo "  Expected account: $EXPECTED_ACCOUNT"
+echo "  Agent IAM user:   $AGENT_IAM_USER (profile $PROFILE)"
 echo ""
 
 # Quick health check (non-fatal)
 if command -v aws >/dev/null 2>&1; then
-  if AWS_PROFILE="$PROFILE" aws sts get-caller-identity --output text --query Account >/dev/null 2>&1; then
+  if IDENTITY="$(AWS_PROFILE="$PROFILE" aws sts get-caller-identity --output json 2>/dev/null)"; then
     echo "[agent-aws-env] ✅ AWS CLI is working with profile '$PROFILE'"
+    if command -v node >/dev/null 2>&1; then
+      node -e "
+        const id = JSON.parse(process.argv[1]);
+        const acct = id.Account || '';
+        const arn = id.Arn || '';
+        const user = process.argv[2];
+        const expect = process.argv[3];
+        if (acct !== expect) console.log('[agent-aws-env] ⚠️  Account mismatch: got', acct, 'expected', expect);
+        else if (!arn.endsWith(':user/' + user)) console.log('[agent-aws-env] ⚠️  Expected IAM user', user + '; Arn:', arn);
+        else console.log('[agent-aws-env]    Caller:', arn);
+      " "${IDENTITY}" "${AGENT_IAM_USER}" "${EXPECTED_ACCOUNT}" 2>/dev/null || true
+    fi
   else
     echo "[agent-aws-env] ⚠️  Profile '$PROFILE' not fully configured or credentials expired."
     echo "               Run: npm run aws:configure-profile"

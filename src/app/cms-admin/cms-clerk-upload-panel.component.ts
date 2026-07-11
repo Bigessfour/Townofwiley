@@ -8,6 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { DocumentUploadService } from '../document-upload.service';
@@ -18,7 +19,7 @@ export type ClerkUploadMode = 'hero' | 'newsletter-pdf';
 @Component({
   selector: 'app-cms-clerk-upload-panel',
   standalone: true,
-  imports: [MessageModule],
+  imports: [ButtonModule, MessageModule],
   templateUrl: './cms-clerk-upload-panel.component.html',
   styleUrl: './cms-clerk-upload-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

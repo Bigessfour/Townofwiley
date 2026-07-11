@@ -19,7 +19,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -1460,7 +1461,7 @@ function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuIte
     RouterLink,
     RouterLinkActive,
     DrawerModule,
-    FormsModule,
+    ReactiveFormsModule,
     AvatarModule,
     ButtonModule,
     DividerModule,
@@ -1622,8 +1623,25 @@ export class App {
     })),
   }));
 
-  protected readonly searchDraftQuery = signal('');
+  protected readonly siteSearchForm = new FormGroup({
+    query: new FormControl('', { nonNullable: true }),
+  });
+
+  private readonly siteSearchDraftValue = toSignal(
+    this.siteSearchForm.controls.query.valueChanges.pipe(
+      startWith(this.siteSearchForm.controls.query.value),
+    ),
+    { initialValue: this.siteSearchForm.controls.query.value },
+  );
+
+  protected readonly searchDraftQuery = computed(() => this.siteSearchDraftValue());
   protected readonly searchQuery = signal('');
+
+  constructor() {
+    this.siteSearchForm.controls.query.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((query) => this.applySearchDraft(query));
+  }
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly nwsBannerDismissed = signal(false);
   private lastHomepageWeatherAlertDismissKey: string | null = null;
@@ -2509,9 +2527,7 @@ export class App {
 
   protected readonly trackCalendarRow = (_index: number, item: CalendarItem): string => item.id;
 
-  protected updateSearch(query: string): void {
-    this.searchDraftQuery.set(query);
-
+  protected applySearchDraft(query: string): void {
     if (this.searchDebounceHandle) {
       clearTimeout(this.searchDebounceHandle);
       this.searchDebounceHandle = null;
@@ -2551,7 +2567,7 @@ export class App {
   protected performSearch(event?: Event): void {
     event?.preventDefault();
 
-    const query = this.searchDraftQuery().trim();
+    const query = this.siteSearchForm.controls.query.value.trim();
 
     if (this.searchDebounceHandle) {
       clearTimeout(this.searchDebounceHandle);

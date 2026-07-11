@@ -244,7 +244,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.chatbot?.easyPeasy?.buttonPosition?.trim() ||
     'bottom-right';
   const logEndpoint = env.LOG_ENDPOINT?.trim() || localSecrets.logging?.endpoint?.trim() || '';
-  const guestbookApiEndpoint = '';
   const paystarMode = paystarPortalUrl ? 'hosted' : 'none';
   const mode = 'none';
 
@@ -271,7 +270,6 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     weatherAllowBrowserFallback,
     buttonPosition,
     logEndpoint,
-    guestbookApiEndpoint,
     paystarMode,
     mode,
     cognitoUserPoolId:
@@ -413,9 +411,6 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
       : undefined,
     logging: {
       endpoint: values.logEndpoint || undefined,
-    },
-    guestbook: {
-      apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),
     },
   };
 }

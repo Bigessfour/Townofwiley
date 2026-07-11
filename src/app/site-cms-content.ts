@@ -913,6 +913,9 @@ export class LocalizedCmsContentStore {
   /** ISO timestamp from the active snapshot; matches `/cms-revision.json` when synced. */
   private activeContentRevision: string | null = null;
   private revisionPollScheduled = false;
+  private initGeneration = 0;
+  private initInFlight = false;
+  private initSettledResolvers: Array<() => void> = [];
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -1039,7 +1042,27 @@ export class LocalizedCmsContentStore {
     this.applyFallbackContent();
     this.extendedLoadState.set('idle');
     this.loadErrorState.set(null);
-    void this.initializeContentLoad();
+    const generation = ++this.initGeneration;
+    this.initInFlight = true;
+    void this.initializeContentLoad().finally(() => {
+      if (generation === this.initGeneration) {
+        this.initInFlight = false;
+        const resolvers = this.initSettledResolvers.splice(0);
+        for (const resolve of resolvers) {
+          resolve();
+        }
+      }
+    });
+  }
+
+  /** @internal Await in-flight {@link initializeContentLoad} (unit tests only). */
+  whenInitSettledForTests(): Promise<void> {
+    if (!this.initInFlight) {
+      return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      this.initSettledResolvers.push(resolve);
+    });
   }
 
   private async initializeContentLoad(): Promise<void> {

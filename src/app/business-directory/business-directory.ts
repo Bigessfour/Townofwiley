@@ -1,4 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { startWith } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -201,7 +205,13 @@ const FALLBACK_BUSINESSES: Business[] = [
 
 @Component({
   selector: 'app-business-directory',
-  imports: [IconFieldModule, InputIconModule, InputTextModule],
+  imports: [
+    ButtonModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './business-directory.html',
   styleUrl: './business-directory.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -210,7 +220,14 @@ export class BusinessDirectory {
   protected readonly logging = inject(LoggingService);
   private readonly cms = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
-  protected readonly directoryQuery = signal('');
+  protected readonly directorySearchControl = new FormControl('', { nonNullable: true });
+
+  private readonly directorySearchValue = toSignal(
+    this.directorySearchControl.valueChanges.pipe(startWith(this.directorySearchControl.value)),
+    { initialValue: this.directorySearchControl.value },
+  );
+
+  protected readonly directoryQuery = computed(() => this.directorySearchValue());
   protected readonly failedLogoNames = signal<Set<string>>(new Set());
 
   protected readonly cmsLoading = this.cms.isLoading;
@@ -264,8 +281,8 @@ export class BusinessDirectory {
 
   protected readonly hasActiveSearch = computed(() => this.directoryQuery().trim().length > 0);
 
-  protected updateDirectoryQuery(value: string): void {
-    this.directoryQuery.set(value);
+  protected clearDirectorySearch(): void {
+    this.directorySearchControl.setValue('');
   }
 
   protected markLogoFailed(name: string): void {

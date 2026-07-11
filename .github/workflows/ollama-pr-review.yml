@@ -1,0 +1,64 @@
+# Advisory Ollama code review on pull requests (does not gate merge).
+name: Ollama PR review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ollama-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  ollama-pr-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache Ollama models
+        uses: ./.github/actions/cache-ollama-model
+        with:
+          model: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama and pull model
+        env:
+          OLLAMA_MODEL: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
+        run: |
+          ollama serve &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:11434/api/tags && break
+            sleep 2
+          done
+          ollama pull "$OLLAMA_MODEL"
+
+      - name: Post advisory PR review comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OLLAMA_MODEL: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
+        run: node scripts/ollama-pr-review.mjs
+
+      - name: Upload review artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ollama-pr-review-${{ github.event.pull_request.number }}
+          path: outputs/pr-review/
+          retention-days: 14
+          if-no-files-found: ignore

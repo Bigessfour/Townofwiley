@@ -123,9 +123,9 @@ describe('BusinessDirectory', () => {
       isLoading: signal(false),
     });
     const component = fixture.componentInstance as unknown as {
-      updateDirectoryQuery: (value: string) => void;
+      directorySearchControl: { setValue: (value: string) => void };
     };
-    component.updateDirectoryQuery('zzzzz-no-match');
+    component.directorySearchControl.setValue('zzzzz-no-match');
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;

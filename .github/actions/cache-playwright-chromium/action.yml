@@ -1,0 +1,25 @@
+name: Cache Playwright Chromium
+description: Restore Playwright browser binaries (SSOT key; pair with PLAYWRIGHT_BROWSERS_PATH).
+
+inputs:
+  browsers_path:
+    description: PLAYWRIGHT_BROWSERS_PATH value
+    required: false
+    default: ~/.cache/ms-playwright
+
+outputs:
+  cache-hit:
+    description: Whether the browser cache restored a hit
+    value: ${{ steps.playwright-cache.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    - name: Cache Playwright Chromium
+      id: playwright-cache
+      uses: actions/cache@v5
+      with:
+        path: ${{ inputs.browsers_path }}
+        key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          playwright-chromium-${{ runner.os }}-

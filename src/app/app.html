@@ -30,16 +30,24 @@
       </p>
       <div class="cms-load-status__actions">
         <button
+          pButton
           type="button"
-          class="button-cta button-cta--ghost cms-load-status__retry"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          class="cms-load-status__retry"
           [disabled]="cmsContentLoading()"
           (click)="retryCmsContent()"
         >
           {{ appCopy().cmsLoadRetryLabel }}
         </button>
         <button
+          pButton
           type="button"
-          class="button-cta button-cta--ghost cms-load-status__dismiss"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          class="cms-load-status__dismiss"
           (click)="dismissCmsLoadFallbackNotice()"
         >
           {{ appCopy().cmsLoadDismissLabel }}
@@ -90,7 +98,10 @@
             <div class="site-alert-actions">
               @if (alertBanner().linkLabel && alertBanner().linkHref) {
                 <a
-                  class="site-alert-link button-cta button-cta--ghost"
+                  pButton
+                  class="site-alert-link"
+                  severity="secondary"
+                  [outlined]="true"
                   [attr.href]="alertBanner().linkHref"
                 >
                   {{ alertBanner().linkLabel }}
@@ -98,7 +109,10 @@
               }
 
               <a
-                class="site-alert-button button-cta button-cta--ghost"
+                pButton
+                class="site-alert-button"
+                severity="secondary"
+                [outlined]="true"
                 routerLink="/weather"
                 [fragment]="weatherAlertSignupFragment"
                 (click)="trackAlertSignupClick()"
@@ -300,7 +314,8 @@
                 <form
                   class="header-search-form w-full max-w-2xl"
                   role="search"
-                  (submit)="performSearch($event)"
+                  [formGroup]="siteSearchForm"
+                  (ngSubmit)="performSearch($event)"
                 >
                   <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
                   <div
@@ -312,9 +327,7 @@
                       id="mega-site-search"
                       class="search-input min-h-10 flex-1 border-0 bg-transparent shadow-none"
                       type="search"
-                      [ngModel]="searchDraftQuery()"
-                      (ngModelChange)="updateSearch($event)"
-                      [ngModelOptions]="{ standalone: true }"
+                      formControlName="query"
                       [placeholder]="appCopy().searchPlaceholder"
                       [attr.aria-label]="appCopy().searchLabel"
                       autocomplete="off"
@@ -371,7 +384,12 @@
       (onHide)="closeMobileMenu()"
     >
       <div class="mobile-menu-drawer-content flex flex-col gap-6 p-2">
-        <form class="header-search-form w-full" role="search" (submit)="performSearch($event)">
+        <form
+          class="header-search-form w-full"
+          role="search"
+          [formGroup]="siteSearchForm"
+          (ngSubmit)="performSearch($event)"
+        >
           <label class="sr-only" for="mobile-site-search">{{ appCopy().searchLabel }}</label>
           <div
             class="flex min-h-11 items-center gap-2 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card"
@@ -382,9 +400,7 @@
               id="mobile-site-search"
               class="min-h-10 flex-1 border-0 bg-transparent shadow-none"
               type="search"
-              [ngModel]="searchDraftQuery()"
-              (ngModelChange)="updateSearch($event)"
-              [ngModelOptions]="{ standalone: true }"
+              formControlName="query"
               [placeholder]="appCopy().searchPlaceholder"
               autocomplete="off"
             />
@@ -499,16 +515,21 @@
             class="hero-landing-actions mt-2 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:justify-center"
           >
             <a
-              class="button-cta button-cta--solid inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse shadow-wiley-lift no-underline transition hover:bg-wiley-teal-700 sm:flex-none"
+              pButton
+              class="hero-landing-cta flex-1 sm:flex-none"
+              severity="primary"
+              [rounded]="true"
               routerLink="/services"
-              pRipple
             >
               {{ appCopy().heroPrimaryActionLabel }}
             </a>
             <a
-              class="button-cta button-cta--ghost inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full border border-wiley-inverse/40 bg-wiley-inverse/15 px-6 font-sans text-sm font-bold text-wiley-inverse no-underline backdrop-blur-sm transition hover:bg-wiley-inverse/25 sm:flex-none"
+              pButton
+              class="hero-landing-cta flex-1 sm:flex-none"
+              severity="contrast"
+              [outlined]="true"
+              [rounded]="true"
               routerLink="/meetings"
-              pRipple
             >
               {{ appCopy().heroSecondaryActionLabel }}
             </a>
@@ -827,7 +848,12 @@
           <p class="search-panel-copy m-0 text-wiley-ink-700">{{ appCopy().searchLabel }}</p>
         </header>
 
-        <form class="wiley-search-form w-full" role="search" (submit)="performSearch($event)">
+        <form
+          class="wiley-search-form w-full"
+          role="search"
+          [formGroup]="siteSearchForm"
+          (ngSubmit)="performSearch($event)"
+        >
           <label class="sr-only" for="landing-site-search">{{ appCopy().searchLabel }}</label>
           <div
             class="flex min-h-14 items-stretch overflow-hidden rounded-wiley-xl border-2 border-wiley-teal-600/30 bg-wiley-cream-0 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-4 focus-within:ring-wiley-teal-600/20"
@@ -840,15 +866,16 @@
               id="landing-site-search"
               class="min-h-14 flex-1 border-0 bg-transparent px-0 text-base shadow-none"
               type="search"
-              [ngModel]="searchDraftQuery()"
-              (ngModelChange)="updateSearch($event)"
-              [ngModelOptions]="{ standalone: true }"
+              formControlName="query"
               [placeholder]="appCopy().searchPlaceholder"
               autocomplete="off"
             />
             <button
+              pButton
               type="submit"
-              class="m-1.5 inline-flex min-h-11 shrink-0 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse transition hover:bg-wiley-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-gold-400"
+              class="search-form-submit m-1.5 shrink-0"
+              severity="primary"
+              [rounded]="true"
             >
               {{ appCopy().searchActionLabel }}
             </button>

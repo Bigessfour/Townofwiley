@@ -45,10 +45,10 @@
       <code>{{ value }}</code>
     </p>
     <div class="cms-upload-panel__actions">
-      <button type="button" class="button-cta button-cta--light" (click)="copyToClipboard()">
+      <button pButton type="button" severity="secondary" [outlined]="true" (click)="copyToClipboard()">
         Copy
       </button>
-      <button type="button" class="button-cta button-cta--solid" (click)="onOpenTaskGuide()">
+      <button pButton type="button" severity="primary" (click)="onOpenTaskGuide()">
         @if (mode() === 'hero') {
           Go to homepage task
         } @else {

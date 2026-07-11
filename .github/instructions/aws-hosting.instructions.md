@@ -21,7 +21,7 @@ applyTo:
 - Amplify references in docs/scripts are for the **Gen 1 backend** (AppSync `j7b2x3sh7rcezekekkxxiak7hi`, Cognito `us-east-2_DmY7BCBIp`, document storage) or historical hosting context. Amplify Gen 2 and hosting app `d331voxr1fhoir` are decommissioned — see `docs/gen2-decommissioned.md`.
 - Prefer the AWS Toolkit and AWS AI Toolkit extensions for cloud navigation when they are available in VS Code.
 - Keep CloudFormation, IAM, S3, and CloudFront changes narrow and reversible.
-- Treat backend (AppSync, Lambda Function URLs for chatbot/guestbook/contact, DynamoDB) changes as high-impact.
+- Treat backend (AppSync, Lambda Function URLs for chatbot/contact, DynamoDB) changes as high-impact.
 - Do not change secrets or environment values unless the repo scripts or runbooks call for it.
 - Verify hosting / infra changes against `npm run verify:aws-infra`, live `curl -I https://townofwiley.gov` (or the CloudFront domain), and the manifests before widening scope.
 - Cost and free-tier posture: see `docs/aws-cost-optimization-runbook.md` (1-day CW retention, no WAF rate ACLs on public endpoints, minimal resources).

@@ -277,25 +277,10 @@
   text-wrap: pretty;
 }
 
-.site-alert-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--touch-target-min);
-  box-sizing: border-box;
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--surface-inverse) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--surface-inverse) 22%, transparent);
-  color: var(--surface-inverse);
-  text-decoration: none;
-  font-weight: 700;
+.site-alert-link,
+.site-alert-button {
   max-width: 100%;
   overflow-wrap: anywhere;
-}
-
-.site-alert-button {
-  cursor: pointer;
 }
 
 @media (max-width: 480px) {
@@ -3009,8 +2994,13 @@ button:not(:disabled):active,
   margin-top: 0.4rem;
 }
 
-.hero-landing-actions .button-cta {
+.hero-landing-actions .hero-landing-cta {
   min-width: 13rem;
+  flex: 1 1 auto;
+}
+
+.hero-landing-actions .hero-landing-cta.p-button-outlined.p-button-contrast {
+  backdrop-filter: blur(10px);
 }
 
 .town-title {
@@ -3145,7 +3135,7 @@ button:not(:disabled):active,
     flex-direction: column;
   }
 
-  .hero-landing-actions .button-cta {
+  .hero-landing-actions .hero-landing-cta {
     width: 100%;
   }
 

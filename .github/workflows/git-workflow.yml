@@ -121,7 +121,7 @@ jobs:
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|docs/third-party-csp-registry.md)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|.github/workflows/ollama-ci-diagnosis.yml|.github/workflows/ollama-pr-review.yml|scripts/ollama_ci_diagnosis.sh|scripts/ollama-pr-review.mjs|scripts/lib/ollama-log-prefilter.mjs|scripts/lib/ollama-pr-review-prompt.mjs|docs/third-party-csp-registry.md)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -231,9 +231,11 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+          cache: pip
+          cache-dependency-path: scripts/requirements-ci.txt
 
       - name: Install Ansible (core) for validation
-        run: python -m pip install --quiet ansible
+        run: python -m pip install --quiet -r scripts/requirements-ci.txt
 
       - name: Ansible syntax check (playbook)
         run: ANSIBLE_CONFIG=ansible.cfg ansible-playbook --syntax-check ansible/playbooks/deploy.yml
@@ -260,12 +262,10 @@ jobs:
           cache: npm
 
       - name: Restore Angular CLI cache
-        uses: actions/cache@v5
-        with:
-          path: .angular/cache
-          key: ${{ runner.os }}-angular-cache-${{ hashFiles('package-lock.json', 'angular.json', 'tsconfig*.json') }}
-          restore-keys: |
-            ${{ runner.os }}-angular-cache-
+        uses: ./.github/actions/cache-angular-cli
+
+      - name: Prepare failure log directory
+        run: mkdir -p failure-context
 
       - name: Verify Node version
         run: node --version | grep -qE '^v24\.' || (echo "::error::Expected Node 24.x, got $(node --version)" && exit 1)
@@ -274,13 +274,19 @@ jobs:
         run: npm ci --prefer-offline --no-audit
 
       - name: Lint
-        run: npm run lint
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee failure-context/lint.log
 
       - name: Run Angular browser unit tests
-        run: npm run test:unit:browser
+        run: |
+          set -o pipefail
+          npm run test:unit:browser 2>&1 | tee failure-context/unit-browser.log
 
       - name: Run Vitest helper tests
-        run: npm run test:vitest
+        run: |
+          set -o pipefail
+          npm run test:vitest 2>&1 | tee failure-context/vitest.log
 
       - name: Verify WebP hero assets exist
         run: |
@@ -289,7 +295,9 @@ jobs:
           done
 
       - name: Build
-        run: npm run build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee failure-context/build.log
         env:
           STRICT_RUNTIME_CONFIG: '1'
           APPSYNC_CMS_ENDPOINT: ${{ secrets.APPSYNC_CMS_ENDPOINT }}
@@ -301,7 +309,6 @@ jobs:
           EASYPEASY_API_ENDPOINT: ${{ secrets.EASYPEASY_API_ENDPOINT }}
           EASYPEASY_CHAT_URL: ${{ secrets.EASYPEASY_CHAT_URL }}
           CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
-          GUESTBOOK_API_ENDPOINT: ${{ secrets.GUESTBOOK_API_ENDPOINT }}
           COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
           COGNITO_USER_POOL_CLIENT_ID: ${{ secrets.COGNITO_USER_POOL_CLIENT_ID }}
           COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
@@ -318,6 +325,30 @@ jobs:
           path: dist/townofwiley-app/browser/
           retention-days: 1
           if-no-files-found: error
+
+      - name: Capture failure snapshot for Ollama triage
+        if: failure()
+        run: |
+          {
+            echo "job=frontend-lint-build"
+            echo "sha=${{ github.sha }}"
+            echo "ref=${{ github.ref }}"
+            echo "event=${{ github.event_name }}"
+          } > failure-context/meta.txt
+          for f in lint unit-browser vitest build; do
+            if [ -f "failure-context/${f}.log" ]; then
+              tail -n 120 "failure-context/${f}.log" > "failure-context/${f}-tail.txt" || true
+            fi
+          done
+
+      - name: Upload CI failure snapshot
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-failure-snapshot-${{ github.run_id }}
+          path: failure-context/
+          retention-days: 14
+          if-no-files-found: ignore
 
   frontend-smoke:
     name: Test Browsers + Full E2E Regression
@@ -340,13 +371,10 @@ jobs:
         run: npm ci --no-audit
 
       - name: Cache Playwright Chromium
-        uses: actions/cache@v5
         id: playwright-cache
+        uses: ./.github/actions/cache-playwright-chromium
         with:
-          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            playwright-chromium-${{ runner.os }}-
+          browsers_path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
 
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -401,6 +429,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+          cache: pip
+          cache-dependency-path: scripts/requirements-ci.txt
 
       - name: Run site monitor tests
         run: npm run test:infra:monitor
@@ -460,9 +490,11 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+          cache: pip
+          cache-dependency-path: scripts/requirements-ci.txt
 
-      - name: Install pytest
-        run: python -m pip install --quiet pytest
+      - name: Install Python CI test dependencies
+        run: python -m pip install --quiet -r scripts/requirements-ci.txt
 
       - name: Run Python backend tests
         run: npm run test:infra:backend
@@ -523,6 +555,28 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
         run: node scripts/ci-gate-check.mjs
+
+  ollama-ci-diagnosis:
+    name: Ollama CI failure triage (advisory)
+    needs:
+      - ci-gate
+    if: always() && needs.ci-gate.result == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Ollama failure diagnosis
+        uses: ./.github/actions/ollama-ci-diagnosis
+        with:
+          run_id: ${{ github.run_id }}
+          workflow_name: Site CI
+          model: ${{ vars.OLLAMA_CI_MODEL || 'llama3.2:3b' }}
 
   deploy-production:
     name: Deploy production (S3 + CloudFront)

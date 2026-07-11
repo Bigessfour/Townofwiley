@@ -53,6 +53,12 @@
               reportForm.controls.preferredContact.touched
             "
           />
+          @if (
+            reportFieldMessage(reportForm.controls.preferredContact, copy().contactLabel);
+            as message
+          ) {
+            <p-message severity="error" [text]="message" />
+          }
         </label>
         <label class="accessibility-field accessibility-field--wide grid gap-1">
           <span>{{ copy().pageLabel }}</span>
@@ -65,6 +71,9 @@
               reportForm.controls.pageOrDocument.touched
             "
           />
+          @if (reportFieldMessage(reportForm.controls.pageOrDocument, copy().pageLabel); as message) {
+            <p-message severity="error" [text]="message" />
+          }
         </label>
         <label class="accessibility-field accessibility-field--wide grid gap-1">
           <span>{{ copy().detailsLabel }}</span>
@@ -74,6 +83,9 @@
             formControlName="details"
             [invalid]="reportForm.controls.details.invalid && reportForm.controls.details.touched"
           ></textarea>
+          @if (reportFieldMessage(reportForm.controls.details, copy().detailsLabel); as message) {
+            <p-message severity="error" [text]="message" />
+          }
         </label>
       </section>
 

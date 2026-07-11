@@ -164,7 +164,7 @@
       "WAF Web ACLs (TownOfWileyContactReviewApiRateLimit and Amplify Firewall)",
       "Secrets Manager secret Grok (Wiley Widget)",
       "Wiley Widget VPC wiley-co-aurora-vpc and interface endpoints",
-      "DynamoDB WileyWidgetMessages, Guestbook, DeveloperMonitorState",
+      "DynamoDB WileyWidgetMessages, TownOfWileyGuestbook, DeveloperMonitorState",
       "Gen 2 Cognito us-east-2_pkewJMUJF",
       "ECR cdk-hnb659fds-container-assets-570912405222-us-east-2"
     ],

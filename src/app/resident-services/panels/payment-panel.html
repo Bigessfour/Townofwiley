@@ -25,13 +25,14 @@
   <div class="resident-pay-bill-link">
     <a
       pButton
-      pRipple
       routerLink="/pay-bill"
-      class="p-button-sm"
+      size="small"
+      severity="primary"
       icon="pi pi-arrow-right"
-      [label]="copy().payBillLinkLabel"
       [attr.aria-label]="copy().payBillLinkLabel"
       data-testid="resident-pay-bill-link"
-    ></a>
+    >
+      {{ copy().payBillLinkLabel }}
+    </a>
   </div>
 </div>

@@ -1,0 +1,13 @@
+name: Cache Angular CLI
+description: Restore/save .angular/cache for ng build and ng test (SSOT key).
+
+runs:
+  using: composite
+  steps:
+    - name: Restore Angular CLI cache
+      uses: actions/cache@v5
+      with:
+        path: .angular/cache
+        key: ${{ runner.os }}-angular-cache-${{ hashFiles('package-lock.json', 'angular.json', 'tsconfig*.json') }}
+        restore-keys: |
+          ${{ runner.os }}-angular-cache-

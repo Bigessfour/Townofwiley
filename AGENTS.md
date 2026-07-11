@@ -167,7 +167,8 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## AWS and secrets
 
-- AWS account **570912405222**; profile **`townofwiley`**. Never commit credentials; use `npm run secrets:*` scripts.
+- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — account **`570912405222`** only (starts with **57**); IAM user **`copilot`** for agent/IDE CLI access; profile **`townofwiley`**; region **`us-east-2`**. Policies: [`infrastructure/iam/`](infrastructure/iam/) (`copilot-*`). Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Other AWS accounts on your machine are **not** this repo.
+- Never commit credentials; use `npm run secrets:*` scripts.
 - **For agent access (Grok, Cursor, etc.):** Source the helper before working with AWS:
   ```bash
   source scripts/agent-aws-env.sh

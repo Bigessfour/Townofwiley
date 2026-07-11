@@ -10,7 +10,15 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { startWith } from 'rxjs';
+import { publicRequiredFieldMessage } from '../forms/public-field-validation';
+import {
+  type AlertLanguage,
+  type AlertSignupChannel,
+  createAlertSignupForm,
+} from './alert-signup-form';
 import { RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
@@ -36,13 +44,9 @@ const WILEY_FORECAST_PAGE_URL =
   'https://forecast.weather.gov/MapClick.php?lat=38.155356&lon=-102.719248';
 const NWS_FORECAST_MAPS_URL = 'https://www.weather.gov/forecastmaps';
 const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
-const EMAIL_DESTINATION_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SMS_DESTINATION_PATTERN = /^1?\d{10}$/;
 const DEFAULT_ALERT_LANGUAGE = 'en';
 export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
 
-type AlertLanguage = 'en' | 'es';
-type AlertSignupChannel = 'email' | 'sms';
 type AlertSignupFeedbackTone = 'success' | 'error';
 
 interface SelectOption<TValue extends string> {
@@ -228,6 +232,7 @@ interface WeatherCopy {
   manageAlerts: string;
   invalidEmail: string;
   invalidSms: string;
+  requiredFieldMessage: string;
   signupSuccess: string;
   signupError: string;
   signupNavLabel: string;
@@ -316,6 +321,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     manageAlerts: 'Manage your alerts or unsubscribe',
     invalidEmail: 'Enter a valid email address before signing up for severe weather alerts.',
     invalidSms: 'Enter a valid mobile number with area code before signing up for text alerts.',
+    requiredFieldMessage: 'This field is required.',
     signupSuccess:
       'Request received. Confirm the {language} alert link that was sent before alerts start flowing.',
     signupError:
@@ -410,6 +416,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
       'Ingrese un correo electronico valido antes de suscribirse a alertas de clima severo.',
     invalidSms:
       'Ingrese un numero celular valido con codigo de area antes de suscribirse a alertas por texto.',
+    requiredFieldMessage: 'Este campo es obligatorio.',
     signupSuccess:
       'Solicitud recibida. Confirme el enlace de alertas en {language} que se envio antes de que empiecen a llegar las alertas.',
     signupError:
@@ -446,7 +453,7 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
 @Component({
   selector: 'app-weather-panel',
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     RouterLink,
     ButtonModule,
     InputTextModule,
@@ -514,10 +521,23 @@ export class LocalizedWeatherPanel {
   protected readonly hourlyPeriodsState = signal<NwsForecastPeriod[]>([]);
   protected readonly solarState = signal<SolarTimes | null>(null);
   protected readonly aqiState = signal<AqiReading | null>(null);
-  protected readonly alertSignupChannel = signal<AlertSignupChannel>('sms');
-  protected readonly alertSignupLanguage = signal<AlertLanguage>(DEFAULT_ALERT_LANGUAGE);
-  protected readonly alertSignupDestination = signal('');
-  protected readonly alertSignupFullName = signal('');
+  protected readonly alertSignupForm = createAlertSignupForm();
+
+  private readonly alertSignupFormValue = toSignal(
+    this.alertSignupForm.valueChanges.pipe(startWith(this.alertSignupForm.getRawValue())),
+    { initialValue: this.alertSignupForm.getRawValue() },
+  );
+
+  protected readonly alertSignupChannel = computed(
+    () => this.alertSignupFormValue().channel,
+  );
+  protected readonly alertSignupLanguage = computed(
+    () => this.alertSignupFormValue().preferredLanguage,
+  );
+  protected readonly alertSignupDestination = computed(
+    () => this.alertSignupFormValue().destination,
+  );
+  protected readonly alertSignupFullName = computed(() => this.alertSignupFormValue().fullName);
   protected readonly alertSignupFeedback = signal<string | null>(null);
   protected readonly alertSignupFeedbackTone = signal<AlertSignupFeedbackTone>('success');
   protected readonly isAlertSignupSubmitting = signal(false);
@@ -590,19 +610,11 @@ export class LocalizedWeatherPanel {
       ? this.copy().optionSpanish
       : this.copy().optionEnglish;
   });
-  protected readonly isAlertSignupDestinationValid = computed(() => {
-    const destination = this.alertSignupDestination().trim();
+  protected isAlertSignupDestinationValid(): boolean {
+    const destinationControl = this.alertSignupForm.controls.destination;
 
-    if (!destination) {
-      return false;
-    }
-
-    if (this.alertSignupChannel() === 'sms') {
-      return SMS_DESTINATION_PATTERN.test(destination.replace(/\D/g, ''));
-    }
-
-    return EMAIL_DESTINATION_PATTERN.test(destination);
-  });
+    return destinationControl.valid && destinationControl.value.trim().length > 0;
+  }
   protected readonly alertSignupSubmitLabel = computed(() => {
     return this.isAlertSignupSubmitting() ? this.copy().submitting : this.copy().submit;
   });
@@ -616,6 +628,14 @@ export class LocalizedWeatherPanel {
     this.destroyRef.onDestroy(() => {
       this.isDestroyed = true;
     });
+
+    this.alertSignupForm.controls.channel.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.alertSignupForm.controls.destination.setValue('');
+        this.alertSignupForm.controls.destination.updateValueAndValidity();
+        this.alertSignupFeedback.set(null);
+      });
 
     effect(() => {
       if (this.isLoading()) {
@@ -718,24 +738,37 @@ export class LocalizedWeatherPanel {
   }
 
   protected updateAlertSignupChannel(value: string): void {
-    this.alertSignupChannel.set(value === 'sms' ? 'sms' : 'email');
-    this.alertSignupDestination.set('');
-    this.alertSignupFeedback.set(null);
+    this.alertSignupForm.controls.channel.setValue(value === 'sms' ? 'sms' : 'email');
   }
 
   protected updateAlertSignupLanguage(value: string): void {
-    this.alertSignupLanguage.set(value === 'es' ? 'es' : DEFAULT_ALERT_LANGUAGE);
+    this.alertSignupForm.controls.preferredLanguage.setValue(
+      value === 'es' ? 'es' : DEFAULT_ALERT_LANGUAGE,
+    );
     this.alertSignupFeedback.set(null);
   }
 
   protected updateAlertSignupDestination(value: string): void {
-    this.alertSignupDestination.set(value);
+    this.alertSignupForm.controls.destination.setValue(value);
     this.alertSignupFeedback.set(null);
   }
 
   protected updateAlertSignupFullName(value: string): void {
-    this.alertSignupFullName.set(value);
+    this.alertSignupForm.controls.fullName.setValue(value);
     this.alertSignupFeedback.set(null);
+  }
+
+  protected alertSignupFieldMessage(
+    control: typeof this.alertSignupForm.controls.destination,
+    fieldLabel: string,
+  ): string | null {
+    const copy = this.copy();
+
+    return publicRequiredFieldMessage(control, fieldLabel, {
+      requiredFieldMessage: copy.requiredFieldMessage,
+      invalidEmailMessage: copy.invalidEmail,
+      invalidSmsMessage: copy.invalidSms,
+    });
   }
 
   protected async submitAlertSignup(event?: Event): Promise<void> {
@@ -743,17 +776,24 @@ export class LocalizedWeatherPanel {
 
     this.alertSignupUnsubscribeUrl.set(null);
 
-    const destination = this.alertSignupDestination().trim();
-    const fullName = this.alertSignupFullName().trim();
+    const destinationControl = this.alertSignupForm.controls.destination;
+    const { channel, preferredLanguage, destination, fullName } =
+      this.alertSignupForm.getRawValue();
+    const trimmedDestination = destination.trim();
+    const trimmedFullName = fullName.trim();
 
-    if (!this.isAlertSignupEnabled() || this.isAlertSignupSubmitting() || !destination) {
+    if (!this.isAlertSignupEnabled() || this.isAlertSignupSubmitting()) {
       return;
     }
 
-    if (!this.isAlertSignupDestinationValid()) {
+    if (destinationControl.invalid || !trimmedDestination) {
+      destinationControl.markAsTouched();
       this.alertSignupFeedbackTone.set('error');
       this.alertSignupFeedback.set(
-        this.alertSignupChannel() === 'sms' ? this.copy().invalidSms : this.copy().invalidEmail,
+        this.alertSignupFieldMessage(
+          destinationControl,
+          this.alertSignupDestinationLabel(),
+        ) ?? this.copy().requiredFieldMessage,
       );
       return;
     }
@@ -764,10 +804,10 @@ export class LocalizedWeatherPanel {
     try {
       const response = await firstValueFrom(
         this.http.post<AlertSignupResponse>(this.buildAlertSignupUrl('/subscriptions'), {
-          channel: this.alertSignupChannel(),
-          preferredLanguage: this.alertSignupLanguage(),
-          destination,
-          fullName,
+          channel,
+          preferredLanguage,
+          destination: trimmedDestination,
+          fullName: trimmedFullName,
           zipCode: ALLOWED_ALERT_SIGNUP_ZIP_CODE,
         }),
       );
@@ -783,8 +823,9 @@ export class LocalizedWeatherPanel {
         ),
       );
       this.alertSignupUnsubscribeUrl.set(response.unsubscribeUrl?.trim() || null);
-      this.alertSignupDestination.set('');
-      this.alertSignupFullName.set('');
+      this.alertSignupForm.controls.destination.setValue('');
+      this.alertSignupForm.controls.fullName.setValue('');
+      this.alertSignupForm.controls.destination.markAsUntouched();
     } catch (error) {
       const signupError = this.readAlertSignupError(error);
       this.alertSignupFeedbackTone.set('error');

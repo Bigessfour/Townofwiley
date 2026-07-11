@@ -134,11 +134,6 @@ function runtimeConfigToEnv(cfg) {
   }
 
 
-  const guestbook = cfg.guestbook?.apiEndpoint?.trim?.() ?? '';
-  if (guestbook) {
-    env.GUESTBOOK_API_ENDPOINT = guestbook.replace(/\/$/, '');
-  }
-
   return env;
 }
 
@@ -164,12 +159,6 @@ function applyAwsSupplements(env) {
   if (!isLikelyHttpUrl(env.EASYPEASY_CHAT_URL)) {
     env.EASYPEASY_CHAT_URL = 'https://bots.easy-peasy.ai/';
   }
-  if (!isLikelyHttpUrl(env.GUESTBOOK_API_ENDPOINT)) {
-    env.GUESTBOOK_API_ENDPOINT =
-      lambdaFunctionUrl('TownOfWileyGuestbook').replace(/\/$/, '') ||
-      readDeployedFunctionUrl('TownOfWileyGuestbook')?.replace(/\/$/, '');
-  }
-
   if (!env.APPSYNC_CMS_ENDPOINT || !env.APPSYNC_CMS_API_KEY) {
     const apis = awsJson(['appsync', 'list-graphql-apis']).graphqlApis ?? [];
     const preferred =

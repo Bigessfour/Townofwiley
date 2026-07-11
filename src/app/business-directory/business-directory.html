@@ -20,8 +20,7 @@
         <input
           pInputText
           type="search"
-          [value]="directoryQuery()"
-          (input)="updateDirectoryQuery($any($event.target).value)"
+          [formControl]="directorySearchControl"
           [placeholder]="copy().searchPlaceholder"
           autocomplete="off"
         />
@@ -101,7 +100,11 @@
                         {{ business.phone }}
                       </a>
                       <a
-                        class="button-cta button-cta--light directory-call-button"
+                        pButton
+                        severity="secondary"
+                        [outlined]="true"
+                        [rounded]="true"
+                        class="directory-call-button"
                         [href]="phoneHref"
                         (click)="logging.buttonClick('business-call', business.name)"
                       >
@@ -133,7 +136,11 @@
           <div class="public-card-actions flex flex-col sm:flex-row flex-wrap gap-3 mt-auto">
             @if (business.website) {
               <a
-                class="button-cta button-cta--light w-full sm:w-auto"
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                [rounded]="true"
+                class="w-full sm:w-auto"
                 [href]="business.website"
                 target="_blank"
                 rel="noreferrer noopener"
@@ -148,7 +155,7 @@
   } @else if (hasActiveSearch()) {
     <p class="public-empty-state">
       {{ copy().filteredEmptyPrefix
-      }}<button type="button" (click)="updateDirectoryQuery('')" class="text-link">
+      }}<button type="button" (click)="clearDirectorySearch()" class="text-link">
         {{ copy().filteredEmptyClearLink }}</button
       >{{ copy().filteredEmptySuffix }}
     </p>

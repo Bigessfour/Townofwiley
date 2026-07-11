@@ -141,7 +141,7 @@ Custom Lambdas, AppSync, DynamoDB, and remaining backends are defined in the rep
 npm run verify:aws-infra
 ```
 
-**Deploy contact / guestbook / chatbot backends (after code review):**
+**Deploy contact / chatbot backends (after code review):**
 
 ```bash
 python scripts/deploy-*.py   # see individual scripts

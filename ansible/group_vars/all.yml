@@ -18,10 +18,6 @@ lambdas:
     name: TownOfWileySevereWeatherBackend
     path: infrastructure/severe-weather-signup
     deploy_script: scripts/deploy-severe-weather-backend.py
-  guestbook:
-    name: TownOfWileyGuestbook
-    path: infrastructure/guestbook-lambda
-    deploy_script: scripts/deploy-guestbook-backend.py
   contact_update:
     name: TownOfWileyContactUpdate
     path: infrastructure/contact-update-lambda

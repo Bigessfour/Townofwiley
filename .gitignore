@@ -117,6 +117,7 @@ aws-exports.js
 awsconfiguration.json
 # Retired Amplify Gen 2 build artifact — do not use (see docs/gen2-decommissioned.md)
 amplify_outputs.json
+outputs/
 amplifyconfiguration.json
 amplifyconfiguration.dart
 amplify-build-config.json
@@ -185,3 +186,17 @@ scripts/gen1-appsync-schema*.graphql
 # One-off AWS / AppSync probe scripts (local IT scratch)
 scripts/_aws_inventory_once.py
 scripts/_list-ds.py
+
+# Terraform (local state and provider cache)
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+!**/terraform.tfvars.example
+**/backend.hcl
+!**/backend.hcl.example
+**/crash.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json

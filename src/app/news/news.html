@@ -88,10 +88,14 @@
           <ng-template pTemplate="footer">
             @if (resolvedNewsletterHref(); as href) {
               <a
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                [rounded]="true"
                 [href]="href"
                 target="_blank"
                 rel="noreferrer noopener"
-                class="button-cta button-cta--light newsletter-download-link"
+                class="newsletter-download-link"
                 data-testid="newsletter-download-link"
               >
                 {{ copy().openPdfLabel }}
@@ -131,7 +135,14 @@
             <p>{{ featuredNotice.detail }}</p>
           </ng-template>
           <ng-template pTemplate="footer">
-            <span class="button-cta button-cta--light featured-news-link">
+            <span
+              pButton
+              severity="secondary"
+              [outlined]="true"
+              [rounded]="true"
+              class="featured-news-link pointer-events-none"
+              aria-hidden="true"
+            >
               {{ copy().readArticleLabel }}
             </span>
           </ng-template>
@@ -222,10 +233,13 @@
           <ng-template pTemplate="footer">
             <div class="public-card-actions flex flex-wrap gap-3">
               <a
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                [rounded]="true"
                 [href]="item.url"
                 target="_blank"
                 rel="noreferrer noopener"
-                class="button-cta button-cta--light"
               >
                 {{ copy().readArticleLabel }}
                 <span class="visually-hidden">({{ copy().externalLinkSuffixLabel }})</span>

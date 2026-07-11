@@ -1,0 +1,19 @@
+name: Cache Ollama models
+description: Restore ~/.ollama/models to avoid repeated large model downloads.
+
+inputs:
+  model:
+    description: Ollama model tag (cache key segment)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Cache Ollama model weights
+      uses: actions/cache@v5
+      with:
+        path: ~/.ollama/models
+        key: ollama-models-${{ inputs.model }}-${{ hashFiles('.github/actions/cache-ollama-model/action.yml', '.github/actions/ollama-ci-diagnosis/action.yml', 'scripts/ollama_ci_diagnosis.sh', 'scripts/ollama-pr-review.mjs') }}
+        restore-keys: |
+          ollama-models-${{ inputs.model }}-
+          ollama-models-

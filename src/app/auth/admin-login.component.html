@@ -31,7 +31,14 @@
       <p-message severity="error" [text]="loadError()!" styleClass="admin-login__banner" />
       @if (showRetrySignIn()) {
         <p class="admin-login__secondary-action">
-          <button type="button" class="admin-login__text-button" (click)="retrySignIn()">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            [text]="true"
+            class="admin-login__text-button"
+            (click)="retrySignIn()"
+          >
             {{ copy.retrySignIn }}
           </button>
         </p>
