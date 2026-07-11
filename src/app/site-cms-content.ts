@@ -915,7 +915,7 @@ export class LocalizedCmsContentStore {
   private revisionPollScheduled = false;
   private initGeneration = 0;
   private initInFlight = false;
-  private initSettledResolvers: Array<() => void> = [];
+  private initSettledResolvers: (() => void)[] = [];
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
