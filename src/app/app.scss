@@ -2950,8 +2950,28 @@ button:not(:disabled):active,
   }
 }
 
+/* Full-width gold CTA at top of mobile drawer (label always visible). */
+.mobile-menu-nav .header-pay-bill-btn.mobile-drawer-pay-bill {
+  flex: 1 1 100%;
+  width: 100%;
+  min-height: 3rem;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--wiley-gold-400) 70%, #fff 10%);
+  background: var(--wiley-gold-400);
+  color: var(--wiley-forest-900);
+  font-weight: 800;
+
+  &:hover {
+    background: var(--wiley-gold-500, #c4923a);
+    color: var(--wiley-forest-900);
+  }
+}
+
 @media (max-width: 380px) {
-  .header-pay-bill-btn span {
+  .header-pay-bill-btn:not(.mobile-drawer-pay-bill) span {
     /* Icon-only on very narrow phones; aria-label remains. */
     position: absolute;
     width: 1px;
@@ -2964,7 +2984,7 @@ button:not(:disabled):active,
     border: 0;
   }
 
-  .header-pay-bill-btn {
+  .header-pay-bill-btn:not(.mobile-drawer-pay-bill) {
     min-width: 2.75rem;
     padding-inline: 0.65rem;
   }

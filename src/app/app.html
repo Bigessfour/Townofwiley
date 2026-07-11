@@ -432,6 +432,16 @@
           [attr.aria-labelledby]="'mobile-menu-drawer-title'"
         >
           <a
+            routerLink="/pay-bill"
+            class="header-pay-bill-btn mobile-drawer-pay-bill"
+            data-testid="mobile-drawer-pay-bill"
+            [attr.aria-label]="appCopy().headerPayBillLabel"
+            (click)="closeMobileMenu()"
+          >
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            <span>{{ appCopy().headerPayBillLabel }}</span>
+          </a>
+          <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
             routerLink="/"
             (click)="closeMobileMenu()"

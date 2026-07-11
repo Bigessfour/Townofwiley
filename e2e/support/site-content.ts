@@ -30,10 +30,11 @@ export const siteContent = {
       'Find taxes, meetings, utilities, and issue reporting in one place.',
   },
   /**
-   * Mobile drawer anchors (`mobile-menu-nav` in `app.html`), EN locale.
+   * Mobile drawer anchors (`mobile-menu-nav` + pay CTA in `app.html`), EN locale.
    * Not a 1:1 mirror of desktop `menuItems()` deep links.
    */
   mobileDrawerLinksEn: [
+    { label: 'Pay your bill', urlRegex: /\/pay-bill$/ },
     { label: 'Home', urlRegex: /\/$/ },
     { label: 'I Want To...', urlRegex: /\/#top-tasks$/ },
     { label: 'Government & Meetings', urlRegex: /\/meetings$/ },
