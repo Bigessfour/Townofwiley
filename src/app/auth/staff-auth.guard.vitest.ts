@@ -4,6 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { staffAuthGuard } from './staff-auth.guard';
 import { StaffAuthService } from './staff-auth.service';
 
+// Guard awaits ensureAdminRuntimeConfigLoaded() before refreshSession.
+// Mock it so Vitest never hangs on a real /runtime-config-admin.js script inject.
+vi.mock('../admin-runtime-config', () => ({
+  ensureAdminRuntimeConfigLoaded: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe('staffAuthGuard', () => {
   const refreshSession = vi.fn();
   const isStaff = vi.fn();
@@ -17,16 +23,6 @@ describe('staffAuthGuard', () => {
     refreshSession.mockReset();
     isStaff.mockReset();
     createUrlTree.mockClear();
-
-    // Guard awaits ensureAdminRuntimeConfigLoaded(); seed staff config so Vitest
-    // does not hang on a missing /runtime-config-admin.js script tag.
-    (
-      window as Window & {
-        __TOW_RUNTIME_CONFIG_ADMIN__?: { clerkSetup?: { clerkName?: string } };
-      }
-    ).__TOW_RUNTIME_CONFIG_ADMIN__ = {
-      clerkSetup: { clerkName: 'Deb Dillon' },
-    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,6 +47,7 @@ describe('staffAuthGuard', () => {
     );
 
     expect(result).toBe(true);
+    expect(refreshSession).toHaveBeenCalledOnce();
   });
 
   it('redirects unauthenticated users to /admin/login with returnUrl', async () => {
