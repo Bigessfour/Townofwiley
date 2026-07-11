@@ -632,7 +632,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
     heroAlt:
-      'Wiley Town Hall at 304 Main Street in Wiley, Colorado, with the eastern plains and open sky in the background.',
+      'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -1052,7 +1052,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroAlt:
-      'Ayuntamiento de Wiley en 304 Main Street, Wiley, Colorado, con las llanuras orientales y un cielo despejado al fondo.',
+      'Carretera de entrada a Wiley, Colorado, con el letrero de limites del pueblo junto a la via.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
     heroSecondaryActionLabel: 'Ver reuniones y avisos',
     topTasksKicker: 'Tareas rapidas',

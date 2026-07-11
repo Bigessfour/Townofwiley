@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-07-11T16:32:34.366Z",
-  "buildSha": "393161096b6335a33812bffdd49ca6988c3e38c5",
+  "savedAt": "2026-07-11T20:30:00.000Z",
+  "buildSha": "f102897fd8e734031f34eb21ff5803de7751da43",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -10,7 +10,7 @@
     "heroTitle": null,
     "heroMessage": null,
     "heroSubtext": null,
-    "heroImageUrl": "https://townofwiley-documents-storage-main.s3.us-east-2.amazonaws.com/documents/cms-uploads/hero/1782174199216-wiley_town.png?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAYJ3IH63TAPHUYEUJ%2F20260623%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20260623T002320Z&X-Amz-SignedHeaders=host&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEgaCXVzLWVhc3QtMiJGMEQCIBKcp%2FeaYCEIZ3WVblpGUngUiah%2BcJamI9OSgZ%2FAme32AiAJ1JyOZTclkLhSXLE1P2vgKWTY5gMjIRVmZnCwvSPntyrGBAgSEAQaDDU3MDkxMjQwNTIyMiIMS4X4L7nxKdUYHL8NKqME%2BrP9XYOFVI1JIYsEfXdv94LCdn0pgjn1JajdSDB2M6ThfzdYJe7jRxkxf3h%2FSjVBo9%2Fe8wXMp61nRXTarKpVVcMhiGgqyDOQxlGSpz7qPW4HLfVixRlGYU6OyD2RU9eAj%2B6UmlHLzWocgZK8ZqwTAiP7Mq1u9bVc1V1Fnb297tqW0Jxn49Ha56CIwIk3c0p03em7Rygw56NdEf8YGmSusb7dany%2BM8kIfYQzejlzN54gWPPjAHrvy9oRSL75%2B0Li3Fq8cCk4U8XaTtiH67DEvB%2BKr59Qcszjhy08qAMk4oBWMzp1Mpymj5%2BpLZrkHlxln1Bqgqmg22TVLdcSKRd5iyBTGM9P9qM0RCPFCgmf7RYB34EQHalDnDRRxtO%2BwVGCnBEs4uCdwPv%2BADHC4dR%2BScFhb2NIB%2BOhy7anFUT15JumnhlL4m11nwgYtMtbU3UIWFsZhHDqftOVJcef0ULzeUrYGYf5B7YMfC1pzNy4ggIRh0Wf%2FlWZY9YhRnHvKHPA%2FqTs4s9IRpWviQrJXL7IBdZu4xFOKTEEW1AOQwJdB4WiNjPTBH7bsNc3pUAfv196Lztbj9G5828fguXbnN5T%2FRdaU4uDfaJx83tOEPOCQrHqTmVnDjK6s3j8PJdKwpfrl8Qe3vWJq78Y5kFjrJcL4EJarl97NYgihyVcJ7ExgW%2BWx6PdNSZszW5TomuGx8QanA%2FeQ07SABfC0YoMcETIuz3LvjD3o%2BfRBjqEAgUUrwl522zUGvK2GTo68uqBSoHhiQEg%2BkJqb1QlwVl8OqeNB1xeonWwFxfP2b9BIR4TZA6SmaJpFoCoHFQAc2jSeAE9ctGjBYQRQTeMROUSYG7zFc6ksO9q%2BLXeBG2RTdNVVs6mmAL0TtjZkXUPeUV8ki9DplHedX%2FwoPeODK8UsJmpghtGaIv3GIIb%2FAAtEKsTQYbeNcXDiJBk0MXUEKHhkRS1%2BmHnLsxy4X1W7BQi0gnL%2FC4fl85WtmC8S55yQBcWDr3qhEMbR124IaUjcibwfD3f2H3S5GkRwKWjyhu5d1KfUpE2iAxKBJcgIVm1wPaaSoI3wv2bDQopyufSHiYoPJ6f&X-Amz-Signature=9127cc207e908a235a2837154d4c597977322f29abc871d1af1634383038800b",
+    "heroImageUrl": "/hero-wiley.webp",
     "welcomeLabel": null,
     "welcomeHeading": null,
     "welcomeBody": null,
