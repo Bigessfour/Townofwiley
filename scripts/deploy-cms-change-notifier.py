@@ -434,6 +434,12 @@ def main() -> int:
         or os.environ.get("APPSYNC_CMS_API_KEY", "").strip()
         or os.environ.get("APPSYNC_API_KEY", "").strip()
     )
+    if not appsync_endpoint or not appsync_api_key:
+        raise RuntimeError(
+            "APPSYNC_CMS_ENDPOINT and APPSYNC_CMS_API_KEY are required so the "
+            "change notifier can republish /cms-snapshot.json. Pass --appsync-endpoint "
+            "/ --appsync-api-key or export env vars from runtime-config / secrets."
+        )
     role_arn = ensure_role(
         args.role_name,
         audit_table_arn=audit_arn,

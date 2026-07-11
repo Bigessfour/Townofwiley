@@ -22,6 +22,7 @@ import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
+import { isEphemeralCmsAssetUrl } from '../cms-public-asset-url';
 import {
   CmsSiteSettingsAdminService,
   type SiteSettingsInput,
@@ -363,16 +364,18 @@ export class CmsClerkRecordEditorComponent implements OnInit {
           severity: 'success',
           summary: 'Photo uploaded',
           detail:
-            'The web address is filled in below. Click Save to publish the new homepage photo.',
-          life: 10_000,
+            'A durable townofwiley.gov photo address is filled in below. Click Save to publish. Public site updates within about one minute.',
+          life: 12_000,
         });
       }
-    } catch {
-      this.fileUploadError.set(
-        field.uploadValue === 'publicUrl'
-          ? 'Photo upload failed. Try again, or paste a public https:// web address.'
-          : 'Upload failed. Try again or paste the file code manually.',
-      );
+    } catch (error: unknown) {
+      const detail =
+        error instanceof Error && error.message.trim()
+          ? error.message.trim()
+          : field.uploadValue === 'publicUrl'
+            ? 'Photo upload failed. Sign in again, then choose the photo once more (do not paste temporary S3 links).'
+            : 'Upload failed. Try again or paste the file code manually.';
+      this.fileUploadError.set(detail);
     } finally {
       this.fileUploadingField.set(null);
       inputEl.value = '';
@@ -413,7 +416,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
     this.lastSavedId.set(null);
     this.lastSavedFormValues.set({});
-    this.formValues.set(recordToFormValues(this.fields(), record));
+    const values = recordToFormValues(this.fields(), record);
+    // Stale temporary S3 hero links look “filled in” but never render on the public site.
+    const hero = values['heroImageUrl'];
+    if (typeof hero === 'string' && isEphemeralCmsAssetUrl(hero)) {
+      values['heroImageUrl'] = '';
+      this.fileUploadError.set(
+        'The saved homepage photo used a temporary link. Choose the photo again from this computer, then Save.',
+      );
+    }
+    this.formValues.set(values);
   }
 
   protected recordLabel(record: Record<string, unknown>): string {

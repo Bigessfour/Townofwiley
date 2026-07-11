@@ -47,6 +47,9 @@ PUBLIC_CMS_EXTENDED_QUERY = """query GetPublicCmsExtendedContent {
   listLeadershipRosterEntries(filter: { and: [{ active: { eq: true } }] }, limit: 50) {
     items { id groupId displayOrder lineEn lineEs active }
   }
+  listSiteCopies(filter: { and: [{ active: { eq: true } }] }, limit: 200) {
+    items { id key valueEn valueEs description active }
+  }
 }"""
 
 NO_CACHE = "no-cache, no-store, must-revalidate"

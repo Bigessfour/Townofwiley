@@ -143,7 +143,8 @@ assertDistReady();
 
 run(
   `aws s3 sync "${distDir.replace(/\\/g, '/')}" s3://${bucket} --delete --region ${region} ` +
-    `--exclude 'cms-snapshot.json' --exclude 'cms-revision.json'`,
+    `--exclude 'cms-snapshot.json' --exclude 'cms-revision.json' ` +
+    `--exclude 'media/cms/*' --exclude 'media/cms/*/*'`,
 );
 
 applyNoCacheKeys();
@@ -158,6 +159,9 @@ waitForInvalidation(invalidationId);
 console.log('\nDeploy steps finished.');
 console.log(
   'Note: cms-snapshot.json / cms-revision.json were NOT uploaded — Lambda republish owns those keys.',
+);
+console.log(
+  'Note: media/cms/* was not deleted — clerk hero uploads (TownOfWileyCmsMediaUpload) own those keys.',
 );
 console.log(
   'Verify: hard-refresh https://www.townofwiley.gov/ and check /runtime-config.js gitSha.',

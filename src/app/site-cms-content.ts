@@ -2,6 +2,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
 import { CmsPreviewModeService } from './cms-admin/cms-preview-mode.service';
+import {
+  DEFAULT_HERO_IMAGE_PATH,
+  resolvePublicHeroImageUrl,
+} from './cms-public-asset-url';
 import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
@@ -10,6 +14,14 @@ import {
   buildLinkedAgendaDocumentByEventId,
 } from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
+
+/** Bundled homepage hero helpers (wheat / plains); never rely on short-lived S3 presigns. */
+export {
+  DEFAULT_HERO_IMAGE_PATH,
+  isDurablePublicHeroImageUrl,
+  isEphemeralCmsAssetUrl,
+  resolvePublicHeroImageUrl,
+} from './cms-public-asset-url';
 
 export interface CmsNotice {
   id: string;
@@ -99,25 +111,6 @@ export interface CmsExternalNewsLink {
   title: string;
   url: string;
   source: string;
-}
-
-/** Bundled homepage hero (wheat / plains); never rely on short-lived S3 presigns. */
-export const DEFAULT_HERO_IMAGE_PATH = '/hero-wiley.webp';
-
-/**
- * Resolve a durable public hero URL. CMS clerks sometimes paste short-lived
- * S3 presigned URLs that break after expiry — fall back to the bundled asset.
- */
-export function resolvePublicHeroImageUrl(url?: string | null): string {
-  const trimmed = typeof url === 'string' ? url.trim() : '';
-  if (!trimmed) {
-    return DEFAULT_HERO_IMAGE_PATH;
-  }
-  // AWS SigV4 / temporary GetObject URLs are not valid long-term hero sources.
-  if (/X-Amz-(?:Signature|Expires|Credential|Security-Token)=/i.test(trimmed)) {
-    return DEFAULT_HERO_IMAGE_PATH;
-  }
-  return trimmed;
 }
 
 const DEFAULT_CMS_HERO: CmsHeroContent = {

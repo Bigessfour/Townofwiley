@@ -1,3 +1,4 @@
+import { isEphemeralCmsAssetUrl } from '../cms-public-asset-url';
 import { LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL } from '../leadership-roster-group-ids';
 import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
 import {
@@ -95,7 +96,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
       uploadSectionId: 'cms-uploads/hero',
       uploadValue: 'publicUrl',
       placeholder: 'https://townofwiley.gov/media/cms/hero/your-photo.webp',
-      help: 'Choose a photo from this computer (recommended). The web address fills in automatically — then click Save. You can also paste a public https:// link, or leave blank for the default Town photo.',
+      help: 'Choose a photo from this computer (recommended). Wait for the web address to fill in as https://townofwiley.gov/media/cms/hero/… — then click Save. Temporary S3 links are rejected. Leave blank for the default Town photo.',
     },
     { name: 'heroTitle', label: 'Hero Title' },
     { name: 'heroMessage', label: 'Hero Message', type: 'textarea' },
@@ -314,11 +315,22 @@ export function formValuesToMutationInput(
       if (field.required && !editingId) {
         throw new Error(`${field.label} is required.`);
       }
+      // Allow clearing optional hero photo back to the site default.
+      if (field.name === 'heroImageUrl' && editingId) {
+        input[field.name] = null;
+      }
       continue;
     }
     if (field.name === 'id' && !editingId) {
       input['id'] = text;
       continue;
+    }
+    if (field.uploadValue === 'publicUrl' || field.name === 'heroImageUrl') {
+      if (isEphemeralCmsAssetUrl(text)) {
+        throw new Error(
+          `${field.label} cannot use a temporary S3 link. Choose the photo again from this computer, or clear the field and Save to use the default Town photo.`,
+        );
+      }
     }
     if (field.type === 'number') {
       const parsed = Number(text);
