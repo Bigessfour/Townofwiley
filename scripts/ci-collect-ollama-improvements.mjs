@@ -55,6 +55,8 @@ if (ollamaDir) {
   suggestions.sources.push(`artifact:ollama-ci-diagnosis-${runId}`);
   for (const file of [
     '00-deterministic-facts.json',
+    '06-actionable.json',
+    'ACTIONABLE.md',
     '05-quality-review.txt',
     '03-feedback-loop.txt',
     '04-ci-improvements.json',
@@ -67,6 +69,14 @@ if (ollamaDir) {
           const parsed = JSON.parse(readFileSync(path, 'utf8'));
           if (Array.isArray(parsed.improvements)) {
             suggestions.improvements.push(...parsed.improvements);
+          }
+          if (parsed.actionable?.nextSteps) {
+            for (const step of parsed.actionable.nextSteps) {
+              addImprovement('actionable-next-step', step, 'high');
+            }
+          }
+          if (parsed.actionable?.verifyCommands) {
+            suggestions.verifyCommands = parsed.actionable.verifyCommands;
           }
         } catch {
           /* ignore */
@@ -85,9 +95,19 @@ if (ollamaDir) {
           priority: 'high',
         });
       }
+      if (facts.actionable) {
+        suggestions.actionable = facts.actionable;
+      }
+      suggestions.confidence = facts.confidence;
+      suggestions.fastPathEligible = facts.fastPathEligible;
     } catch {
       /* ignore */
     }
+  }
+
+  const actionableMd = join(ollamaDir, 'ACTIONABLE.md');
+  if (existsSync(actionableMd)) {
+    suggestions.actionableMarkdown = readFileSync(actionableMd, 'utf8');
   }
 
   const feedback = join(ollamaDir, '03-feedback-loop.txt');

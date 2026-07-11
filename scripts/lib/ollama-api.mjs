@@ -9,6 +9,7 @@ const DEFAULT_HOST = process.env.OLLAMA_HOST ?? 'http://127.0.0.1:11434';
  *   system?: string;
  *   temperature?: number;
  *   numPredict?: number;
+ *   numCtx?: number;
  * }} options
  * @returns {Promise<string>}
  */
@@ -19,6 +20,7 @@ export async function ollamaGenerate(options) {
     system,
     temperature = 0.2,
     numPredict = 2048,
+    numCtx = Number(process.env.OLLAMA_NUM_CTX ?? 8192),
   } = options;
 
   const response = await fetch(`${DEFAULT_HOST}/api/generate`, {
@@ -32,6 +34,7 @@ export async function ollamaGenerate(options) {
       options: {
         temperature,
         num_predict: numPredict,
+        num_ctx: numCtx,
       },
     }),
   });

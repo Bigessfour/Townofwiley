@@ -21,6 +21,8 @@ const model = readArg('--model') ?? process.env.OLLAMA_MODEL ?? 'llama3.2:3b';
 const outPath = readArg('--out');
 const title = readArg('--title') ?? 'ollama-prompt';
 const systemPath = readArg('--system');
+const numPredict = Number(readArg('--num-predict') ?? process.env.OLLAMA_NUM_PREDICT ?? 1200);
+const numCtx = Number(readArg('--num-ctx') ?? process.env.OLLAMA_NUM_CTX ?? 8192);
 
 if (!outPath) {
   console.error('--out is required');
@@ -35,7 +37,8 @@ const body = await ollamaGenerate({
   prompt,
   system,
   temperature: 0.15,
-  numPredict: 2400,
+  numPredict,
+  numCtx,
 });
 
 const header = [

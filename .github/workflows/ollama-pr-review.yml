@@ -27,24 +27,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Cache Ollama models
-        uses: ./.github/actions/cache-ollama-model
+      - name: Setup Ollama
+        uses: ./.github/actions/setup-ollama
         with:
+          # Prefer coder model when var set; default stays small for free GH runners.
           model: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
-
-      - name: Install Ollama
-        run: curl -fsSL https://ollama.com/install.sh | sh
-
-      - name: Start Ollama and pull model
-        env:
-          OLLAMA_MODEL: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
-        run: |
-          ollama serve &
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:11434/api/tags && break
-            sleep 2
-          done
-          ollama pull "$OLLAMA_MODEL"
+          version: ${{ vars.OLLAMA_VERSION || '' }}
 
       - name: Post advisory PR review comment
         env:

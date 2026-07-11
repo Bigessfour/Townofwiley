@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Advisory Ollama PR review — posts a comment (never auto-approves).
+ * Advisory Ollama PR review — sticky comment (never auto-approves).
  * Requires: gh CLI, ollama serve + model pulled, GH_TOKEN with pull-requests: write.
  */
 import { execFileSync } from 'node:child_process';
@@ -23,9 +23,11 @@ async function runOllama(prompt) {
     model: MODEL,
     prompt,
     system: `You review Town of Wiley pull requests (Angular 21, PrimeNG, bilingual EN/ES, AWS CMS).
-Use plain text only. Follow the output structure exactly. Reason step-by-step, then emit labeled sections.`,
+Use plain text only. Follow the output structure exactly. Reason step-by-step, then emit labeled sections.
+Never approve merge; flag CMS staff-only model exposure (e.g. EmailAlias) and a11y regressions.`,
     temperature: 0.2,
-    numPredict: 2800,
+    numPredict: 2000,
+    numCtx: Number(process.env.OLLAMA_NUM_CTX ?? 8192),
   });
 }
 
@@ -83,28 +85,44 @@ async function main() {
   });
 
   writeFileSync(`${OUTPUT_DIR}/prompt.txt`, prompt, 'utf8');
-  const review = await runOllama(prompt);
+
+  let review;
+  try {
+    review = await runOllama(prompt);
+  } catch (error) {
+    review = `MODEL_OUTPUT: unavailable\nREASONING: ${error}\nCONFIDENCE: low\nMUST_FIX: (model failed — review diff manually)\n`;
+    console.error('Ollama generate failed:', error);
+  }
   writeFileSync(`${OUTPUT_DIR}/review.txt`, review, 'utf8');
 
   const body = [
+    '<!-- tow-sticky:ollama-pr-review -->',
     '## Ollama PR review (advisory)',
     '',
     '_Automated local-model review — not a substitute for human review or the required CI gate._',
     '',
     `**Model:** \`${MODEL}\``,
+    `**Head:** \`${pr.headRefOid.slice(0, 7)}\``,
     '',
     '```',
     review.slice(0, 12_000),
     review.length > 12_000 ? '\n... [truncated for GitHub comment]' : '',
     '```',
+    '',
+    'Artifacts: `ollama-pr-review-*` workflow upload (`outputs/pr-review/`).',
   ].join('\n');
 
   writeFileSync(`${OUTPUT_DIR}/comment.md`, body, 'utf8');
-  execFileSync('gh', ['pr', 'comment', PR_NUMBER, '--body-file', `${OUTPUT_DIR}/comment.md`], {
-    stdio: 'inherit',
-  });
+  execFileSync(
+    'node',
+    ['scripts/lib/ollama-sticky-comment.mjs', PR_NUMBER, 'ollama-pr-review', `${OUTPUT_DIR}/comment.md`],
+    {
+      stdio: 'inherit',
+      env: process.env,
+    },
+  );
 
-  console.log('Posted Ollama PR review comment.');
+  console.log('Upserted sticky Ollama PR review comment.');
 }
 
 main().catch((error) => {

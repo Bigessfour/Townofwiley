@@ -1,0 +1,56 @@
+name: Setup Ollama
+description: Cache models, install Ollama (optional pin), serve API, pull model, wait until ready.
+
+inputs:
+  model:
+    description: Ollama model tag to pull
+    required: true
+  version:
+    description: Optional Ollama version pin (empty = install script default)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Cache Ollama model weights
+      uses: ./.github/actions/cache-ollama-model
+      with:
+        model: ${{ inputs.model }}
+
+    - name: Install Ollama
+      shell: bash
+      env:
+        OLLAMA_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        if [ -n "${OLLAMA_VERSION}" ]; then
+          curl -fsSL "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-linux-amd64.tgz" -o /tmp/ollama.tgz \
+            || curl -fsSL https://ollama.com/install.sh | sh
+          if [ -f /tmp/ollama.tgz ]; then
+            sudo tar -C /usr -xzf /tmp/ollama.tgz
+          fi
+        else
+          curl -fsSL https://ollama.com/install.sh | sh
+        fi
+        command -v ollama
+
+    - name: Start Ollama and pull model
+      shell: bash
+      env:
+        OLLAMA_MODEL: ${{ inputs.model }}
+      run: |
+        set -euo pipefail
+        ollama serve &
+        for attempt in $(seq 1 30); do
+          if curl -sf http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+            echo "Ollama API ready (attempt ${attempt})"
+            break
+          fi
+          sleep 2
+          if [ "$attempt" -eq 30 ]; then
+            echo "Ollama API did not become ready within 60s" >&2
+            exit 1
+          fi
+        done
+        ollama pull "$OLLAMA_MODEL"

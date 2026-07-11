@@ -1,5 +1,5 @@
 name: Ollama CI Diagnosis
-description: Install Ollama, triage a failed Actions run, upload artifacts, and comment on open PRs.
+description: Install Ollama, triage a failed Actions run, upload actionable artifacts, sticky-comment PRs.
 
 inputs:
   run_id:
@@ -59,21 +59,12 @@ runs:
       with:
         ref: ${{ steps.meta.outputs.head_sha }}
 
-    - name: Cache Ollama models
-      uses: ./.github/actions/cache-ollama-model
+    - name: Setup Ollama
+      uses: ./.github/actions/setup-ollama
       with:
         model: ${{ steps.meta.outputs.model }}
-
-    - name: Install Ollama
-      shell: bash
-      run: curl -fsSL https://ollama.com/install.sh | sh
-
-    - name: Start Ollama service
-      shell: bash
-      run: |
-        ollama serve &
-        sleep 10
-        curl -sf http://localhost:11434/api/tags || (sleep 10 && curl -sf http://localhost:11434/api/tags)
+        version: ${{ vars.OLLAMA_VERSION || '' }}
+      continue-on-error: true
 
     - name: Run CI failure diagnosis
       shell: bash
@@ -100,12 +91,14 @@ runs:
         retention-days: 30
         if-no-files-found: warn
 
-    - name: Comment diagnosis on PR
-      if: steps.meta.outputs.conclusion == 'failure'
+    - name: Sticky comment diagnosis on PR
+      if: always() && steps.meta.outputs.conclusion == 'failure'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
+        set -euo pipefail
         PR_NUMBER=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${{ steps.meta.outputs.head_sha }}/pulls" \
           --jq '[.[] | select(.state == "open")][0].number' 2>/dev/null || true)
         if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
@@ -114,6 +107,7 @@ runs:
         fi
 
         {
+          echo "<!-- tow-sticky:ollama-ci-diagnosis -->"
           echo "## Ollama CI Diagnosis"
           echo ""
           echo "_Advisory triage — does not replace the required CI gate._"
@@ -122,10 +116,16 @@ runs:
           echo "**Failed run:** [${{ steps.meta.outputs.run_id }}](${{ steps.meta.outputs.run_url }})"
           echo "**Model:** \`${{ steps.meta.outputs.model }}\`"
           echo ""
+          if [ -f outputs/ACTIONABLE.md ]; then
+            echo "### Actionable fix"
+            # Skip H1 title; keep checklist body compact for comments
+            sed -n '3,55p' outputs/ACTIONABLE.md
+            echo ""
+          fi
           if [ -f outputs/00-deterministic-triage.txt ]; then
             echo "### Deterministic facts (ground truth)"
             echo '```'
-            head -n 20 outputs/00-deterministic-triage.txt
+            head -n 25 outputs/00-deterministic-triage.txt
             echo '```'
             echo ""
           fi
@@ -138,15 +138,10 @@ runs:
           fi
           echo "### Triage"
           echo '```'
-          sed -n '/FAILING_JOB:/,/CONFIDENCE:/p' outputs/01-triage.txt 2>/dev/null | head -n 35 || head -n 40 outputs/01-triage.txt 2>/dev/null || echo "(triage unavailable)"
+          sed -n '/FAILING_JOB:/,/CONFIDENCE:/p' outputs/01-triage.txt 2>/dev/null | head -n 35 || head -n 40 outputs/01-triage.txt 2>/dev/null || echo "(triage unavailable — use ACTIONABLE.md in artifact)"
           echo '```'
           echo ""
-          echo "### Immediate fix"
-          echo '```'
-          sed -n '/IMMEDIATE_FIX:/,/VERIFY_LOCALLY:/p' outputs/02-fix-plan.txt 2>/dev/null | head -n 25 || echo "(fix plan unavailable)"
-          echo '```'
-          echo ""
-          echo "Full reports: workflow artifact \`ollama-ci-diagnosis-${{ steps.meta.outputs.run_id }}\`."
+          echo "Full reports: workflow artifact \`ollama-ci-diagnosis-${{ steps.meta.outputs.run_id }}\` (\`ACTIONABLE.md\`, \`06-actionable.json\`)."
         } > /tmp/ollama-pr-comment.md
 
-        gh pr comment "$PR_NUMBER" --body-file /tmp/ollama-pr-comment.md
+        node scripts/lib/ollama-sticky-comment.mjs "$PR_NUMBER" ollama-ci-diagnosis /tmp/ollama-pr-comment.md
