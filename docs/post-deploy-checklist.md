@@ -26,16 +26,19 @@ npm run start
 
 ## Production deploy (S3 + CloudFront)
 
-Frontend hosting is **S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`** (Amplify Hosting app decommissioned June 2026). See [README.md](../README.md) § Deployment Record.
+Frontend hosting is **S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`** (Amplify Hosting app decommissioned June 2026). See [README.md](../README.md) § Deployment Record and [github-actions-production-deploy.md](./github-actions-production-deploy.md).
 
-1. **Merge to `main`** when CI is green.
-2. **Deploy** (invalidates CloudFront automatically):
+1. **Merge to `main`** when **`site-ci / CI gate (merge required)`** is green.
+2. **Automatic deploy (normal):** push/merge to `main` with app changes → Site CI → `deploy-production` (OIDC → S3 + CloudFront invalidation + homepage/CSP smoke).
+3. **Manual break-glass:**
    ```bash
-   AWS_PROFILE=townofwiley npm run deploy:static-site
+   source scripts/agent-aws-env.sh
+   npm run deploy:site
    ```
    Use `--skip-build` only if you already ran `npm run build` with production env/secrets.
-3. **Cache:** if anything still looks stale after invalidation, hard-refresh (`Ctrl+Shift+R`) or check `https://www.townofwiley.gov/runtime-config.js` for the expected `gitSha`. If the CMS fallback banner persists with a valid `cms.appSync.apiKey`, unregister the site service worker once (DevTools → Application → Service Workers → Unregister) so an old cached `runtime-config.js` is not reused.
-4. **Smoke production:** `https://townofwiley.gov/` — hero, nav, search, pay bill link, weather panel (scroll), footer contact.
+4. **Cache:** if anything still looks stale after invalidation, hard-refresh (`Ctrl+Shift+R`) or check `https://www.townofwiley.gov/runtime-config.js` for the expected payload. If the CMS fallback banner persists with a valid `cms.appSync.apiKey`, unregister the site service worker once (DevTools → Application → Service Workers → Unregister) so an old cached `runtime-config.js` is not reused.
+5. **Smoke production:** `https://townofwiley.gov/` — hero, **forest header / MegaMenu**, search, pay bill link, weather panel (scroll), footer contact; EN/ES toggle.
+6. **Ops (optional):** if `TOW_OPS_SNS_TOPIC_ARN` is configured, confirm site-monitor still healthy; see [ops-observability.md](./ops-observability.md).
 
 ## Environment / runtime (unchanged by theme, still verify after any release)
 
@@ -58,18 +61,20 @@ Frontend hosting is **S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`
 - Document hub `/documents` (standalone layout with site bar)
 - Clerk **admin** `/admin` and **clerk-setup** (unchanged chrome; not full public header)
 
-## Amplify console — watch list
+## Watch list (post-Amplify Hosting)
 
-See [design-system.md](./design-system.md) and [amplify-deployment-runbook.md](./amplify-deployment-runbook.md) for full detail. Highlights:
+See [design-system.md](./design-system.md) and [github-actions-production-deploy.md](./github-actions-production-deploy.md). Highlights:
 
-1. **Build failure — `generate:runtime-config:strict`** — missing branch env secrets; fix in Amplify → Environment variables, rebuild.
-2. **Build failure — Node version** — project requires Node **24.x**; build image must match `.nvmrc` / `amplify.yml`.
-3. **SSR/prerender warnings** — weather runtime during prerender may log errors; confirm production page still hydrates (known pattern in dev build logs).
-4. **CSP / custom headers** — if you edited `customHttp.yml`, run `npm run amplify:sync-headers` and redeploy; compare live CSP with `npm run verify:live-csp-vs-repo` when needed.
+1. **Build failure — `generate:runtime-config:strict`** — missing GitHub Actions secrets for production build; fix secrets, re-run Site CI.
+2. **Build failure — Node version** — project requires Node **24.x** (`.nvmrc` / Site CI `NODE_VERSION`).
+3. **SSR/prerender warnings** — weather runtime during prerender may log errors; confirm production page still hydrates.
+4. **CSP / custom headers** — if you edited `customHttp.yml`, keep `angular.json` parity (`npm run verify:custom-http-yaml`); live probe via deploy post-steps / `npm run verify:live-csp-vs-repo`.
 5. **404 on new assets** — hero WebP (`/hero-wiley.webp`) must be in `public/` at build time; run `npm run assets:hero` before commit if source photo changed.
 6. **Paystar / proxy CORS** — payment and weather flows depend on Lambda/API URLs in runtime config; test `/pay-bill` after env changes.
-7. **Cost / limits** — AppSync, Lambda, CloudFront as usual; no extra services from CSS-only deploys.
+7. **Cost / limits** — AppSync, Lambda, CloudFront as usual; ops SNS/S3 optional and low-volume ([ops-observability.md](./ops-observability.md)).
 
 ## Rollback
 
-Amplify → branch **main** → select previous successful deployment → **Redeploy this version**.
+1. **Preferred:** Actions → previous green **Deploy production** / re-run deploy of last known good `main` commit, or merge a revert PR.
+2. **Break-glass:** check out last good tag/commit, `source scripts/agent-aws-env.sh && npm run deploy:site`.
+3. CloudFront may take 1–2 minutes after invalidation; hard-refresh if needed.
