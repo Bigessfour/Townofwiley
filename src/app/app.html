@@ -169,28 +169,39 @@
           </a>
         </div>
 
-        <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
-          <div
-            class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
-            role="group"
-            [attr.aria-label]="appCopy().languageLabel"
+        <div class="flex shrink-0 items-center gap-2">
+          <a
+            routerLink="/pay-bill"
+            class="header-pay-bill-btn"
+            data-testid="header-pay-bill"
+            [attr.aria-label]="appCopy().headerPayBillLabel"
           >
-            @for (choice of languageChoices(); track choice.value) {
-              <button
-                type="button"
-                class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
-                [class.active]="siteLanguage() === choice.value"
-                [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
-                [class.text-wiley-forest-900]="siteLanguage() === choice.value"
-                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
-                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
-                [attr.aria-pressed]="siteLanguage() === choice.value"
-                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
-                (click)="updateSiteLanguage(choice.value)"
-              >
-                {{ choice.label }}
-              </button>
-            }
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            <span>{{ appCopy().headerPayBillLabel }}</span>
+          </a>
+          <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
+            <div
+              class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
+              role="group"
+              [attr.aria-label]="appCopy().languageLabel"
+            >
+              @for (choice of languageChoices(); track choice.value) {
+                <button
+                  type="button"
+                  class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
+                  [class.active]="siteLanguage() === choice.value"
+                  [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
+                  [class.text-wiley-forest-900]="siteLanguage() === choice.value"
+                  [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                  [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                  [attr.aria-pressed]="siteLanguage() === choice.value"
+                  [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                  (click)="updateSiteLanguage(choice.value)"
+                >
+                  {{ choice.label }}
+                </button>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -335,6 +346,15 @@
                   </div>
                 </form>
               }
+              <a
+                routerLink="/pay-bill"
+                class="header-pay-bill-btn"
+                data-testid="header-pay-bill-desktop"
+                [attr.aria-label]="appCopy().headerPayBillLabel"
+              >
+                <i class="pi pi-wallet" aria-hidden="true"></i>
+                <span>{{ appCopy().headerPayBillLabel }}</span>
+              </a>
               <div
                 class="site-language-switcher shrink-0"
                 [attr.aria-label]="appCopy().languageLabel"
@@ -473,7 +493,7 @@
     >
       <figure class="hero-landing-media absolute inset-0 m-0">
         <img
-          class="h-full w-full object-cover object-[60%_center]"
+          class="h-full w-full object-cover object-[50%_55%]"
           [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
           [attr.alt]="appCopy().heroAlt"
           fill

@@ -271,6 +271,8 @@ interface AppCopy {
   primaryNavMeetingsLabel: string;
   primaryNavDocumentsLabel: string;
   primaryNavPayLabel: string;
+  /** Compact header CTA so bill-payers find /pay-bill without hunting menus. */
+  headerPayBillLabel: string;
   primaryNavContactLabel: string;
   homepageWeatherKicker: string;
   homepageWeatherHeading: string;
@@ -593,6 +595,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     primaryNavMeetingsLabel: 'Meetings',
     primaryNavDocumentsLabel: 'Meetings & documents',
     primaryNavPayLabel: 'Pay',
+    headerPayBillLabel: 'Pay bill',
     primaryNavContactLabel: 'Contact',
     homepageWeatherKicker: 'Local conditions',
     homepageWeatherHeading: 'Wiley weather',
@@ -1012,6 +1015,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     primaryNavMeetingsLabel: 'Reuniones',
     primaryNavDocumentsLabel: 'Reuniones y documentos',
     primaryNavPayLabel: 'Pagar',
+    headerPayBillLabel: 'Pagar factura',
     primaryNavContactLabel: 'Contacto',
     homepageWeatherKicker: 'Condiciones locales',
     homepageWeatherHeading: 'Clima en Wiley',

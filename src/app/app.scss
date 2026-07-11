@@ -2909,8 +2909,65 @@ button:not(:disabled):active,
 
 .hero-landing-media img {
   object-fit: cover;
-  /* Balanced focal point for town / plains photography (tune per CMS default image). */
-  object-position: 50% 42%;
+  /* Wheat / plains field — keep horizon and crop mid-frame. */
+  object-position: 50% 55%;
+}
+
+/* Compact gold CTA on forest header / mega menu end — high visibility for bill payers. */
+.header-pay-bill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--wiley-gold-400) 70%, #fff 10%);
+  background: var(--wiley-gold-400);
+  color: var(--wiley-forest-900);
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 color-mix(in srgb, #000 12%, transparent);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+
+  .pi {
+    font-size: 0.95rem;
+  }
+
+  &:hover {
+    background: var(--wiley-gold-500, #c4923a);
+    color: var(--wiley-forest-900);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--wiley-gold-300);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .header-pay-bill-btn span {
+    /* Icon-only on very narrow phones; aria-label remains. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .header-pay-bill-btn {
+    min-width: 2.75rem;
+    padding-inline: 0.65rem;
+  }
 }
 
 .hero-landing-scrim {

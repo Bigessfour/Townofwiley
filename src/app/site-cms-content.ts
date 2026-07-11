@@ -101,12 +101,32 @@ export interface CmsExternalNewsLink {
   source: string;
 }
 
+/** Bundled homepage hero (wheat / plains); never rely on short-lived S3 presigns. */
+export const DEFAULT_HERO_IMAGE_PATH = '/hero-wiley.webp';
+
+/**
+ * Resolve a durable public hero URL. CMS clerks sometimes paste short-lived
+ * S3 presigned URLs that break after expiry — fall back to the bundled asset.
+ */
+export function resolvePublicHeroImageUrl(url?: string | null): string {
+  const trimmed = typeof url === 'string' ? url.trim() : '';
+  if (!trimmed) {
+    return DEFAULT_HERO_IMAGE_PATH;
+  }
+  // AWS SigV4 / temporary GetObject URLs are not valid long-term hero sources.
+  if (/X-Amz-(?:Signature|Expires|Credential|Security-Token)=/i.test(trimmed)) {
+    return DEFAULT_HERO_IMAGE_PATH;
+  }
+  return trimmed;
+}
+
 const DEFAULT_CMS_HERO: CmsHeroContent = {
   eyebrow: 'Town of Wiley, Colorado',
   status: 'Official Town Website',
   title: 'Town of Wiley',
   message: 'Town notices, meetings, weather, and services.',
   subtext: 'Services, meetings, and Town Hall contacts for Wiley residents.',
+  heroImageUrl: DEFAULT_HERO_IMAGE_PATH,
   welcomeLabel: '',
   welcomeHeading: 'Welcome to the Town of Wiley online home',
   welcomeBody: '',
@@ -119,6 +139,7 @@ const DEFAULT_CMS_HERO_ES: CmsHeroContent = {
   title: 'Pueblo de Wiley',
   message: 'Avisos, reuniones, clima y servicios del pueblo.',
   subtext: 'Servicios, reuniones y contactos del Ayuntamiento para residentes de Wiley.',
+  heroImageUrl: DEFAULT_HERO_IMAGE_PATH,
   welcomeLabel: '',
   welcomeHeading: 'Bienvenidos al sitio en linea del Pueblo de Wiley',
   welcomeBody: '',
@@ -1756,7 +1777,8 @@ export class LocalizedCmsContentStore {
         englishFallback.welcomeCaption,
         localizedFallback.welcomeCaption,
       ),
-      heroImageUrl: siteSettings?.heroImageUrl ?? undefined,
+      // Prefer durable public path; never keep expired S3 presigned URLs as hero src.
+      heroImageUrl: resolvePublicHeroImageUrl(siteSettings?.heroImageUrl),
     };
   }
 
