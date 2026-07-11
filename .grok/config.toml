@@ -54,9 +54,10 @@ enabled = true
 startup_timeout_sec = 15
 tool_timeout_sec = 120
 
+# Local JS codebase RAG (search_codebase, rag_status). Instant start; optional .rag/ cache.
 [mcp_servers.townofwiley-rag]
 command = "node"
 args = ["scripts/rag-mcp.mjs"]
 enabled = true
-startup_timeout_sec = 90
+startup_timeout_sec = 30
 tool_timeout_sec = 120

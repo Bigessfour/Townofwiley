@@ -43,10 +43,15 @@ infrastructure/aws-resource-tags.manifest.json
 scripts/apply-aws-resource-tags.py
 scripts/verify-gen1-aws-bindings.sh
 
-# Local codebase RAG (Chroma vector store + manifest; venv under rag/)
+# Local codebase RAG caches / legacy Python venv (source under rag/js is tracked)
 .rag/
 rag/.venv/
 rag/**/__pycache__/
+rag/tow_rag/
+rag/tow_rag.egg-info/
+rag/tests/
+rag/pyproject.toml
+rag/requirements.txt
 
 # Miscellaneous
 /.scorer-source/
@@ -145,13 +150,10 @@ scripts/deploy-contact-updates-review-api.py
 scripts/deploy-waf-contact-review-api.py
 scripts/figma-capture-local.mjs
 scripts/purge-contact-update-test-data.py
-scripts/rag-*.mjs
-scripts/rag-*.sh
 scripts/retire-contact-review-proxy.py
 
 scripts/store-xai-api-key.sh
 
-rag/
 mcp/*
 !mcp/primeng/
 mcp/primeng/node_modules/
