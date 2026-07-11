@@ -577,6 +577,7 @@ jobs:
           run_id: ${{ github.run_id }}
           workflow_name: Site CI
           model: ${{ vars.OLLAMA_CI_MODEL || 'llama3.2:3b' }}
+          ollama_version: ${{ vars.OLLAMA_VERSION || '' }}
 
   deploy-production:
     name: Deploy production (S3 + CloudFront)

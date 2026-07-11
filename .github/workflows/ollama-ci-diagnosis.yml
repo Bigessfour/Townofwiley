@@ -38,3 +38,4 @@ jobs:
           run_id: ${{ github.event.inputs.run_id }}
           model: ${{ github.event.inputs.model }}
           workflow_name: Site CI
+          ollama_version: ${{ vars.OLLAMA_VERSION || '' }}

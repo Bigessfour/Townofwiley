@@ -18,6 +18,16 @@ describe('staffAuthGuard', () => {
     isStaff.mockReset();
     createUrlTree.mockClear();
 
+    // Guard awaits ensureAdminRuntimeConfigLoaded(); seed staff config so Vitest
+    // does not hang on a missing /runtime-config-admin.js script tag.
+    (
+      window as Window & {
+        __TOW_RUNTIME_CONFIG_ADMIN__?: { clerkSetup?: { clerkName?: string } };
+      }
+    ).__TOW_RUNTIME_CONFIG_ADMIN__ = {
+      clerkSetup: { clerkName: 'Deb Dillon' },
+    };
+
     TestBed.configureTestingModule({
       providers: [
         {

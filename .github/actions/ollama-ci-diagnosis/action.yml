@@ -13,6 +13,10 @@ inputs:
     description: Ollama model (llama3.2:3b default for GH runners; override for quality vs RAM)
     required: false
     default: llama3.2:3b
+  ollama_version:
+    description: Optional Ollama version pin (empty = install script default). Pass from workflow vars — composites cannot read vars.* directly.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -63,7 +67,7 @@ runs:
       uses: ./.github/actions/setup-ollama
       with:
         model: ${{ steps.meta.outputs.model }}
-        version: ${{ vars.OLLAMA_VERSION || '' }}
+        version: ${{ inputs.ollama_version }}
       continue-on-error: true
 
     - name: Run CI failure diagnosis
