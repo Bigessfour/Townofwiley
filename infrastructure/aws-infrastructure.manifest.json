@@ -139,6 +139,15 @@
       "notes": "DynamoDB stream audit log + staff GET /recent; publishes cms-snapshot.json + cms-revision.json on public model changes"
     }
   ],
+  "opsObservability": {
+    "docs": "docs/ops-observability.md",
+    "sharedLib": "infrastructure/ops_lib",
+    "snsTopicNameHint": "tow-ops-alerts",
+    "snsTopicArnEnv": "TOW_OPS_SNS_TOPIC_ARN",
+    "artifactsBucketEnv": "TOW_OPS_ARTIFACTS_BUCKET",
+    "ciFailureScript": "scripts/ops_ci_on_failure.py",
+    "notes": "Optional SNS + S3 ops archive; site-monitor SES remains primary. Create topic/bucket once (IT); secrets optional in GitHub Actions."
+  },
   "cloudWatch": {
     "logRetentionDays": 1,
     "configureScript": "npm run configure:cloudwatch-logging",

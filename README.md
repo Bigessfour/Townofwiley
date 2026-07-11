@@ -11,7 +11,7 @@ The official, bilingual (English/Spanish) website for the Town of Wiley, Colorad
 | Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
 | Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
 | Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility         |
-| CI/CD            | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration; advisory Ollama PR/CI triage ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)) |
+| CI/CD            | GitHub Actions (required CI gate, automatic production deploy on merge to `main`), Ansible orchestration; advisory Ollama PR/CI triage ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)); ops observability ([docs/ops-observability.md](docs/ops-observability.md)) |
 
 Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
 

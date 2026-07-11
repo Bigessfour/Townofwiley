@@ -133,7 +133,7 @@ jobs:
                 SITE_PROXY_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              infrastructure/site-monitor/**|scripts/deploy-site-monitor.py)
+              infrastructure/site-monitor/**|infrastructure/ops_lib/**|scripts/deploy-site-monitor.py|scripts/ops_ci_on_failure.py|docs/ops-observability.md)
                 SITE_MONITOR_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -578,6 +578,52 @@ jobs:
           workflow_name: Site CI
           model: ${{ vars.OLLAMA_CI_MODEL || 'llama3.2:3b' }}
           ollama_version: ${{ vars.OLLAMA_VERSION || '' }}
+
+  # Optional SNS + S3 ops archive (no-op without secrets). See docs/ops-observability.md
+  ops-ci-failure-notify:
+    name: Ops CI failure notify (advisory)
+    needs:
+      - ci-gate
+      - ollama-ci-diagnosis
+    if: always() && needs.ci-gate.result == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure AWS credentials (optional OIDC)
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Prefer dedicated ops role when present; fall back to static-site deploy role.
+          role-to-assume: ${{ secrets.TOW_OPS_AWS_ROLE_ARN != '' && secrets.TOW_OPS_AWS_ROLE_ARN || 'arn:aws:iam::570912405222:role/GitHubActions-TownOfWiley-StaticSiteDeploy' }}
+          aws-region: us-east-2
+
+      - name: Download failure / Ollama artifacts when present
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p failure-context outputs
+          gh run download "${{ github.run_id }}" -n "ci-failure-snapshot-${{ github.run_id }}" -D failure-context 2>/dev/null || true
+          gh run download "${{ github.run_id }}" -n "ollama-ci-diagnosis-${{ github.run_id }}" -D outputs 2>/dev/null || true
+
+      - name: SNS notify + S3 archive (optional)
+        env:
+          TOW_OPS_SNS_TOPIC_ARN: ${{ secrets.TOW_OPS_SNS_TOPIC_ARN }}
+          TOW_OPS_ARTIFACTS_BUCKET: ${{ secrets.TOW_OPS_ARTIFACTS_BUCKET }}
+          CORRELATION_ID: ${{ github.run_id }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          AWS_REGION: us-east-2
+          LOG_FORMAT: json
+        run: python3 scripts/ops_ci_on_failure.py --run-id "${{ github.run_id }}"
 
   deploy-production:
     name: Deploy production (S3 + CloudFront)
