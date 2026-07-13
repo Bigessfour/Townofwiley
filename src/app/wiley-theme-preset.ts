@@ -1,63 +1,61 @@
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
-/** Town of Wiley — Aura preset: deep navy brand, teal CTAs, slightly warm neutral surfaces. */
+/** Town of Wiley — Aura preset: deep forest brand, gold CTAs, white cards on cream. */
 export const WILEY_THEME_PRESET = definePreset(Aura, {
   semantic: {
     primary: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
-      950: '#020617',
+      50: '#eef5f1',
+      100: '#d5e8df',
+      200: '#a9cdbd',
+      300: '#6fa892',
+      400: '#45806c',
+      500: '#2f6354',
+      600: '#245044',
+      700: '#1a3c34',
+      800: '#153229',
+      900: '#0f3d2e',
+      950: '#061f18',
     },
     focusRing: {
       width: '3px',
       style: 'solid',
-      color: '#14b8a6',
+      color: '#d4a14b',
       offset: '2px',
     },
     colorScheme: {
       light: {
         primary: {
-          color: '{primary.800}',
+          color: '{primary.700}',
           inverseColor: '#ffffff',
-          hoverColor: '{primary.900}',
-          activeColor: '{primary.950}',
+          hoverColor: '{primary.800}',
+          activeColor: '{primary.900}',
         },
         highlight: {
-          /* Soft sage highlight (complementary to our promoted sage surfaces) */
-          background: '#eef4ec',
-          focusBackground: '#e3ebe0',
+          background: '#eef5f1',
+          focusBackground: '#d5e8df',
           color: '{primary.900}',
           focusColor: '{primary.950}',
         },
         surface: {
-          /* Base surface remains cream-leaning; components use --wiley-surface-secondary for secondary cards/panels for consistent soft sage color */
-          0: '#fffdfb',
+          0: '#ffffff',
           50: '#faf6f0',
           100: '#f1ebe3',
           200: '#e6dfd6',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          300: '#c5d4cc',
+          400: '#8fa89c',
+          500: '#5c6f66',
+          600: '#3d5249',
+          700: '#2f6354',
+          800: '#1a3c34',
+          900: '#0f3d2e',
+          950: '#061f18',
         },
         formField: {
           background: '{surface.0}',
           borderColor: '{surface.200}',
-          hoverBorderColor: '#0d9488',
-          focusBorderColor: '#0d9488',
+          hoverBorderColor: '{primary.600}',
+          focusBorderColor: '{primary.600}',
           color: '{surface.900}',
           placeholderColor: '{surface.500}',
         },
@@ -68,38 +66,95 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
     button: {
       root: {
         borderRadius: '9999px',
+        roundedBorderRadius: '9999px',
         gap: '0.5rem',
         paddingX: '1.35rem',
         paddingY: '0.95rem',
+        label: {
+          fontWeight: '700',
+        },
+        sm: {
+          paddingX: '1rem',
+          paddingY: '0.65rem',
+        },
       },
       colorScheme: {
         light: {
           root: {
             primary: {
-              background: '#0d9488',
-              hoverBackground: '#0f766e',
-              activeBackground: '#115e59',
-              borderColor: '#0d9488',
-              hoverBorderColor: '#0f766e',
-              activeBorderColor: '#115e59',
+              background: '#d4a14b',
+              hoverBackground: '#c4923a',
+              activeBackground: '#a67a2f',
+              borderColor: '#d4a14b',
+              hoverBorderColor: '#c4923a',
+              activeBorderColor: '#a67a2f',
+              color: '#0f3d2e',
+            },
+            secondary: {
+              background: '#ffffff',
+              hoverBackground: '#faf6f0',
+              activeBackground: '#f1ebe3',
+              borderColor: '#e6dfd6',
+              hoverBorderColor: '{primary.500}',
+              activeBorderColor: '{primary.600}',
+              color: '#0f3d2e',
+            },
+          },
+          outlined: {
+            contrast: {
+              hoverBackground: 'color-mix(in srgb, #ffffff 25%, transparent)',
+              activeBackground: 'color-mix(in srgb, #ffffff 35%, transparent)',
+              borderColor: 'color-mix(in srgb, #ffffff 40%, transparent)',
               color: '#ffffff',
             },
             secondary: {
-              background: '#f4f7f2',
-              hoverBackground: '#e3ebe0',
-              activeBackground: '#d4e0d0',
-              borderColor: '#e3ebe0',
-              hoverBorderColor: '#6b8f71',
-              activeBorderColor: '#4a6b50',
-              color: '#0f172a',
+              hoverBackground: 'color-mix(in srgb, #0f3d2e 8%, transparent)',
+              activeBackground: 'color-mix(in srgb, #0f3d2e 14%, transparent)',
+              borderColor: 'color-mix(in srgb, #0f3d2e 22%, transparent)',
+              color: '#0f3d2e',
             },
+          },
+        },
+      },
+    },
+    megamenu: {
+      root: {
+        background: 'transparent',
+        borderColor: 'transparent',
+        gap: '0.5rem',
+      },
+      overlay: {
+        background: '#ffffff',
+        borderColor: '{surface.200}',
+        borderRadius: '1.25rem',
+        shadow: '0 18px 40px rgba(15, 61, 46, 0.14)',
+      },
+      item: {
+        color: '{surface.800}',
+        focusBackground: '{surface.50}',
+        activeBackground: '{surface.100}',
+        borderRadius: '0.5rem',
+      },
+      submenuLabel: {
+        color: '{primary.700}',
+        fontWeight: '700',
+      },
+    },
+    drawer: {
+      colorScheme: {
+        light: {
+          root: {
+            background: '#ffffff',
+            borderColor: '{surface.200}',
+            color: '{surface.800}',
+            shadow: '0 18px 40px rgba(15, 61, 46, 0.15)',
           },
         },
       },
     },
     card: {
       root: {
-        borderRadius: '1.5rem',
+        borderRadius: '1.25rem',
       },
       body: {
         gap: '1.5rem',
@@ -108,8 +163,7 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
       colorScheme: {
         light: {
           root: {
-            /* Cards lean on the repo-wide --wiley-surface-secondary for soft sage consistency */
-            background: 'var(--wiley-surface-secondary)',
+            background: 'var(--wiley-surface-card)',
             color: '{surface.800}',
           },
           subtitle: {
@@ -136,13 +190,12 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
     },
     panel: {
       root: {
-        borderRadius: '1.5rem',
+        borderRadius: '1.25rem',
       },
       colorScheme: {
         light: {
           root: {
-            /* Panels use the consistent soft sage secondary surface */
-            background: 'var(--wiley-surface-secondary)',
+            background: 'var(--wiley-surface-card)',
             borderColor: '{surface.200}',
             color: '{surface.800}',
           },

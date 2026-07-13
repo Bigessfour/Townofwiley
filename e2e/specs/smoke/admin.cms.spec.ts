@@ -76,7 +76,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
     await expect(
       homePage.page.getByRole('heading', {
-        name: /Edit: Edit navigation labels, headings, and Quick Tasks text/i,
+        name: /Edit: Homepage & menu labels \(SiteCopy\)/i,
       }),
     ).toBeVisible();
     await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
@@ -251,6 +251,7 @@ test.describe('cms admin', () => {
   test('admin hub shows recent changes panel', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin');
 
+    await expect(homePage.page.getByTestId('cms-clerk-coverage')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-recent-changes')).toBeVisible();
     await expect(homePage.page.getByRole('heading', { name: /Recent changes/i })).toBeVisible();
     await expect(

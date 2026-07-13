@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "accountId", "defaultProfile", "primaryRegion", "agentAccess"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "accountId": { "type": "string", "pattern": "^[0-9]{12}$" },
+    "defaultProfile": { "type": "string", "minLength": 1 },
+    "primaryRegion": { "type": "string", "minLength": 1 },
+    "agentAccess": {
+      "type": "object",
+      "required": ["iamUserName", "cliProfile"],
+      "properties": {
+        "iamUserName": { "type": "string", "minLength": 1 },
+        "cliProfile": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "additionalProperties": true
+}

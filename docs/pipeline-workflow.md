@@ -16,8 +16,8 @@ feature branch → PR → site-ci / CI gate (merge required) → merge main
 | Merge gate | GitHub ruleset + `scripts/ci-gate-check.mjs` | [`github-branch-protection.md`](./github-branch-protection.md) |
 | CI | `.github/workflows/git-workflow.yml` | [`git-workflow.md`](./git-workflow.md) |
 | Runtime secrets | GitHub repository secrets + local locker | [`secrets/README.md`](../secrets/README.md) |
-| Production deploy | OIDC → `scripts/deploy-static-site.sh` | [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) |
-| Operator orchestration | Ansible (optional) | [`ansible-deployment.md`](./ansible-deployment.md) |
+| Production deploy | OIDC → `scripts/deploy-static-site.sh` via Actions | [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) · [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md) |
+| IaC | Terraform (`infrastructure/terraform/`) | [terraform README](../infrastructure/terraform/README.md) |
 
 ## Shell setup (every session)
 
@@ -46,7 +46,7 @@ npm ci
 npm run secrets:init:local-passphrase   # if locker not initialized
 bash scripts/setup-github-actions-deploy-role.sh   # IAM admin; OIDC deploy role
 bash scripts/setup-github-governance.sh  # auto-merge, branch rules checklist
-brew install ansible                     # optional; operator deploy only
+# IaC: Terraform (infrastructure/terraform/) — not the frontend publisher
 ```
 
 ## Runtime secrets (required for strict build + CI)
@@ -154,21 +154,6 @@ npm run verify:live-csp-probe
 source scripts/agent-aws-env.sh
 npm run deploy:site              # build + S3 + CloudFront invalidation
 npm run deploy:site:dry          # S3 dry-run only
-```
-
-## Ansible operator path (optional)
-
-Does not replace GitHub Actions on merge; use for local dry-runs and break-glass orchestration.
-
-```bash
-brew install ansible
-source scripts/agent-aws-env.sh
-export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
-npm run secrets:sync-runtime     # ensure local secrets current
-
-npm run deploy:ansible:dry       # S3 sync dry-run (skips build by default)
-npm run deploy:ansible             # full build + deploy
-cd ansible && ansible-playbook playbooks/site.yml --tags verify
 ```
 
 ## When things fail

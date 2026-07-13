@@ -3,13 +3,43 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
+
+# Shared ops_lib: Lambda zip has /var/task/ops_lib; local repo has infrastructure/ops_lib
+_HERE = Path(__file__).resolve().parent
+for _candidate in (_HERE, _HERE.parent):
+    if (_candidate / "ops_lib").is_dir() and str(_candidate) not in sys.path:
+        sys.path.insert(0, str(_candidate))
+        break
+
+try:
+    from ops_lib.logging_json import get_logger, new_correlation_id
+    from ops_lib.notify import send_ops_notification
+    from ops_lib.reliability import timer
+except ImportError:  # pragma: no cover
+    import logging
+    from contextlib import contextmanager
+
+    def get_logger(name: str, **kwargs: Any) -> logging.Logger:  # type: ignore[misc]
+        return logging.getLogger(name)
+
+    def new_correlation_id() -> str:
+        return "local"
+
+    def send_ops_notification(*args: Any, **kwargs: Any) -> bool:
+        return False
+
+    @contextmanager
+    def timer(operation_name: str, log: Any = None):  # type: ignore[misc]
+        yield
 
 DEFAULT_SITE_URL = "https://townofwiley.gov"
 DEFAULT_ADMIN_PATH = "/admin"
@@ -67,6 +97,8 @@ DEFAULT_SENDER_NAME = "Town of Wiley Alerts"
 DEFAULT_MONITOR_NAME = "TownOfWileySiteMonitor"
 DEFAULT_STATE_TABLE_NAME = "TownOfWileyDeveloperMonitorState"
 DEFAULT_USER_AGENT = "TownOfWileySiteMonitor/1.0 (contact: bigessfour@gmail.com)"
+
+logger = get_logger(__name__, service="site-monitor")
 
 
 def _serialize_dynamo_value(value: Any) -> dict[str, Any]:
@@ -218,6 +250,41 @@ class SesMailer:
         )
 
 
+class CompositeMailer:
+    """SES primary + optional SNS ops topic (SNS failures never break the run)."""
+
+    def __init__(
+        self,
+        ses_mailer: Mailer,
+        *,
+        sns_topic_arn: str = "",
+        sns_client: Any | None = None,
+        correlation_id: str = "",
+    ) -> None:
+        self._ses = ses_mailer
+        self._sns_topic_arn = sns_topic_arn.strip()
+        self._sns_client = sns_client
+        self._correlation_id = correlation_id
+
+    def send_message(self, subject: str, body: str) -> None:
+        self._ses.send_message(subject, body)
+        if not self._sns_topic_arn:
+            return
+        severity = "ERROR"
+        if "Recovery:" in subject or "healthy again" in subject:
+            severity = "INFO"
+        full_body = body
+        if self._correlation_id:
+            full_body = f"correlation_id={self._correlation_id}\n\n{body}"
+        send_ops_notification(
+            subject.replace("[Town of Wiley] ", "Site monitor: ", 1),
+            full_body,
+            severity=severity,
+            topic_arn=self._sns_topic_arn,
+            sns_client=self._sns_client,
+        )
+
+
 class TownSiteMonitor:
     def __init__(
         self,
@@ -248,8 +315,17 @@ class TownSiteMonitor:
         return json_response(status_code, result)
 
     def _handle_monitor_run(self, send_email: bool = True) -> dict[str, Any]:
+        correlation_id = new_correlation_id()
+        logger.info(
+            "Monitor run starting site=%s correlation_id=%s",
+            self._config.site_url,
+            correlation_id,
+        )
         checked_at = utc_now_iso()
-        results = self.run_checks()
+        start = time.perf_counter()
+        with timer("site-monitor.run_checks", log=logger):
+            results = self.run_checks()
+        duration_ms = int((time.perf_counter() - start) * 1000)
         healthy = all(result.ok for result in results)
         incident_hash = build_incident_hash(results)
         previous_state = self._state_store.load_state(self._config.monitor_name) or {}
@@ -262,10 +338,17 @@ class TownSiteMonitor:
             "incidentHash": incident_hash if not healthy else "",
             "lastCheckedAt": checked_at,
             "lastResultSummary": summarize_results(results),
+            "lastCorrelationId": correlation_id,
+            "lastDurationMs": duration_ms,
         }
 
         if healthy:
             current_state["lastHealthyAt"] = checked_at
+            logger.info(
+                "Monitor healthy duration_ms=%s checks=%s",
+                duration_ms,
+                len(results),
+            )
             if send_email and previous_status == "unhealthy":
                 self._mailer.send_message(
                     subject=f"[Town of Wiley] Recovery: {self._config.site_url} is healthy again",
@@ -275,6 +358,13 @@ class TownSiteMonitor:
                 )
         else:
             current_state["lastUnhealthyAt"] = checked_at
+            failed = [r.name for r in results if not r.ok]
+            logger.error(
+                "Monitor unhealthy duration_ms=%s failed=%s hash=%s",
+                duration_ms,
+                ",".join(failed),
+                incident_hash[:12],
+            )
             if send_email and (
                 previous_status != "unhealthy" or previous_hash != incident_hash
             ):
@@ -292,6 +382,8 @@ class TownSiteMonitor:
             "status": "healthy" if healthy else "unhealthy",
             "checkedAt": checked_at,
             "siteUrl": self._config.site_url,
+            "correlationId": correlation_id,
+            "durationMs": duration_ms,
             "results": [probe_result_to_dict(result) for result in results],
         }
 
@@ -751,24 +843,37 @@ def build_runtime_monitor() -> TownSiteMonitor:
     boto3 = __import__("boto3")
     dynamodb_kwargs: dict[str, str] = {}
     ses_kwargs: dict[str, str] = {}
+    sns_kwargs: dict[str, str] = {}
 
     if state_table_region:
         dynamodb_kwargs["region_name"] = state_table_region
 
     if aws_region:
         ses_kwargs["region_name"] = aws_region
+        sns_kwargs["region_name"] = aws_region
+
+    ses_mailer = SesMailer(
+        sender_email=config.notification_sender,
+        sender_name=config.notification_sender_name,
+        recipient_email=config.notification_recipient,
+        ses_client=boto3.client("sesv2", **ses_kwargs),
+    )
+    sns_topic = os.environ.get("TOW_OPS_SNS_TOPIC_ARN", "").strip()
+    mailer: Mailer = ses_mailer
+    if sns_topic:
+        mailer = CompositeMailer(
+            ses_mailer,
+            sns_topic_arn=sns_topic,
+            sns_client=boto3.client("sns", **sns_kwargs),
+            correlation_id=new_correlation_id(),
+        )
 
     return TownSiteMonitor(
         config=config,
         state_store=DynamoStateStore(
             state_table_name, boto3.client("dynamodb", **dynamodb_kwargs)
         ),
-        mailer=SesMailer(
-            sender_email=config.notification_sender,
-            sender_name=config.notification_sender_name,
-            recipient_email=config.notification_recipient,
-            ses_client=boto3.client("sesv2", **ses_kwargs),
-        ),
+        mailer=mailer,
     )
 
 

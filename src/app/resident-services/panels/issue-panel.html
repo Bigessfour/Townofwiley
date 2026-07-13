@@ -126,13 +126,14 @@
       <footer class="resident-action-row grid gap-3">
         <button
           pButton
-          pRipple
           type="submit"
+          severity="primary"
           icon="pi pi-send"
-          [label]="copy().issueSubmitLabel"
           [attr.aria-label]="copy().issueSubmitLabel"
           [loading]="issueSubmitting()"
-        ></button>
+        >
+          {{ copy().issueSubmitLabel }}
+        </button>
       </footer>
     </form>
   </div>

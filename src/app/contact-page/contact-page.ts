@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { CardModule } from 'primeng/card';
 import { PanelModule } from 'primeng/panel';
 import { SkeletonModule } from 'primeng/skeleton';
-import { APP_COPY, type LeadershipGroup } from '../app';
+import { APP_COPY, type AppCopy, type LeadershipGroup } from '../app';
 import {
   LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
   LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
@@ -15,6 +15,14 @@ import {
   OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
 } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
+import {
+  applyAppCopySiteCopyOverrides,
+  resolveSiteCopyLabel,
+  siteCopyTelHref,
+} from '../site-copy-overrides';
+
+const DEFAULT_TOWN_HALL_ADDRESS = '304 Main Street, Wiley, CO 81092';
+const DEFAULT_TOWN_HALL_PHONE = '(719) 829-4974';
 
 /** Roster member with the AppSync record id when sourced from CMS (absent for bundled fallback). */
 export interface ContactLeadershipMember {
@@ -97,8 +105,34 @@ export class ContactPage {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
 
-  protected readonly copy = computed(
-    () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  protected readonly copy = computed((): AppCopy => {
+    const lang = this.siteLanguageService.currentLanguage() || 'en';
+    const base = APP_COPY[lang];
+    return applyAppCopySiteCopyOverrides(base, (key) => this.cmsStore.getSiteCopy(key), lang);
+  });
+
+  protected readonly townHallAddress = computed(() => {
+    const lang = this.siteLanguageService.currentLanguage() || 'en';
+    return resolveSiteCopyLabel(
+      (key) => this.cmsStore.getSiteCopy(key),
+      lang,
+      'contactTownHallAddress',
+      DEFAULT_TOWN_HALL_ADDRESS,
+    );
+  });
+
+  protected readonly townHallPhone = computed(() => {
+    const lang = this.siteLanguageService.currentLanguage() || 'en';
+    return resolveSiteCopyLabel(
+      (key) => this.cmsStore.getSiteCopy(key),
+      lang,
+      'contactTownHallPhone',
+      DEFAULT_TOWN_HALL_PHONE,
+    );
+  });
+
+  protected readonly townHallPhoneHref = computed(() =>
+    siteCopyTelHref(this.townHallPhone(), DEFAULT_TOWN_HALL_PHONE),
   );
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly contacts = this.cmsStore.contacts;

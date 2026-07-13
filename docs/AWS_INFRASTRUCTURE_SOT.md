@@ -140,6 +140,8 @@ Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and A
 
 This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
 
+**Terraform (optional scaffold):** Gradual IaC under [infrastructure/terraform/README.md](../infrastructure/terraform/README.md) — account `570912405222`, workspace `environments/town-production`. Does not replace Amplify Gen1 or deploy scripts until resources are explicitly imported/migrated.
+
 ---
 
 ## WAF and rate limits (AP-16)

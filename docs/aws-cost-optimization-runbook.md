@@ -12,6 +12,7 @@ Never commit AWS credentials. Use `source scripts/agent-aws-env.sh` (falls back 
 source scripts/agent-aws-env.sh
 npm run aws:optimize:discover   # Cost Explorer, current resources
 npm run aws:optimize:budget     # ALERT_EMAIL=admin@townofwiley.gov npm run aws:optimize:budget
+npm run aws:guestbook:discover  # hello-from guestbook-only Lambda/DynamoDB/IAM (July 2026)
 npm run verify:aws-infra
 ```
 
@@ -24,7 +25,7 @@ npm run verify:aws-infra
 - **CloudWatch:** 1-day retention on all Lambda / custom log groups (via `configure-townofwiley-cloudwatch-logging.py` or manual).
 - **S3:** Document bucket lifecycle policies in place; static site bucket minimal.
 - **AppSync + DynamoDB:** Pay-per-use CMS backend. Public site uses **stale-while-revalidate** reads in `site-cms-content.ts`: paint from `/cms-snapshot.json` / localStorage, then **always** fetch live AppSync when credentials exist. Staff **Refresh from database** on `/admin` forces a clean reload. See **AppSync public read optimization** below.
-- **Lambda Function URLs:** Chatbot (Easy-Peasy proxy), guestbook, contact-review, etc. — pay per request, free tier eligible.
+- **Lambda Function URLs:** Chatbot (Easy-Peasy proxy), contact-review, weather signup, etc. — pay per request, free tier eligible.
 - **Hosting:** S3 + CloudFront (very low cost for static SPA; free tier eligible).
 - **Budget:** `Townofwiley-Monthly-50` + email alerts active.
 

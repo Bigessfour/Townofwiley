@@ -17,7 +17,7 @@ This repo has **local semantic search** over source and docs. Full runbook: [`do
 1. **Preferred (and instantly available)**: MCP server **`townofwiley-rag`** → tool **`search_codebase`** (`query`, optional `limit`, `path_prefix`).
 2. **Fallback**: `npm run rag:query -- "<question>"` in the repo root.
 
-The server is launched under WSL (see `.grok/config.toml` etc.) so it runs in the correct Linux environment. No manual `rag:index` step is required for the JS implementation to be useful.
+Native **Node** JS engine (`rag/js/`) — no Python venv. Optional `npm run rag:index` caches chunks under `.rag/` for faster startup. Global MCP may set `TOW_RAG_ROOT` when the session cwd is not this repo.
 
 ## After results
 
@@ -39,14 +39,12 @@ The server is launched under WSL (see `.grok/config.toml` etc.) so it runs in th
 
 ## Setup (human / first clone)
 
-No long setup required for the current high-availability implementation:
-
 ```bash
-npm run rag:status   # should succeed immediately and show file count
+npm run rag:setup
+npm run rag:status   # ok (JS local)
+npm run rag:index    # optional cache
 ```
 
-(MCP launches via native Node — see `.cursor/mcp.json`.)
+MCP: project [`.cursor/mcp.json`](../mcp.json) / [`.grok/config.toml`](../../.grok/config.toml); global launcher `~/.cursor/scripts/townofwiley-rag-mcp.sh`.
 
-The RAG is designed to be **instantly available** on every agent session with no failing tool calls. Generation stays with the IDE model; RAG only retrieves.
-
-If the original heavy Python (sentence-transformers + Chroma) implementation is restored later, the classic `rag:setup && rag:index` flow will apply again.
+Generation stays with the IDE model; RAG only retrieves.

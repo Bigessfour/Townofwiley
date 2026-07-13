@@ -2,6 +2,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
 import { CmsPreviewModeService } from './cms-admin/cms-preview-mode.service';
+import {
+  DEFAULT_HERO_IMAGE_PATH,
+  resolvePublicHeroImageUrl,
+} from './cms-public-asset-url';
 import { isNoticeDateStillVisible } from './cms-notice-visibility';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
@@ -10,6 +14,14 @@ import {
   buildLinkedAgendaDocumentByEventId,
 } from './public-document-event-link';
 import { SiteLanguage, SiteLanguageService } from './site-language';
+
+/** Bundled homepage hero helpers (wheat / plains); never rely on short-lived S3 presigns. */
+export {
+  DEFAULT_HERO_IMAGE_PATH,
+  isDurablePublicHeroImageUrl,
+  isEphemeralCmsAssetUrl,
+  resolvePublicHeroImageUrl,
+} from './cms-public-asset-url';
 
 export interface CmsNotice {
   id: string;
@@ -107,6 +119,7 @@ const DEFAULT_CMS_HERO: CmsHeroContent = {
   title: 'Town of Wiley',
   message: 'Town notices, meetings, weather, and services.',
   subtext: 'Services, meetings, and Town Hall contacts for Wiley residents.',
+  heroImageUrl: DEFAULT_HERO_IMAGE_PATH,
   welcomeLabel: '',
   welcomeHeading: 'Welcome to the Town of Wiley online home',
   welcomeBody: '',
@@ -119,6 +132,7 @@ const DEFAULT_CMS_HERO_ES: CmsHeroContent = {
   title: 'Pueblo de Wiley',
   message: 'Avisos, reuniones, clima y servicios del pueblo.',
   subtext: 'Servicios, reuniones y contactos del Ayuntamiento para residentes de Wiley.',
+  heroImageUrl: DEFAULT_HERO_IMAGE_PATH,
   welcomeLabel: '',
   welcomeHeading: 'Bienvenidos al sitio en linea del Pueblo de Wiley',
   welcomeBody: '',
@@ -913,6 +927,9 @@ export class LocalizedCmsContentStore {
   /** ISO timestamp from the active snapshot; matches `/cms-revision.json` when synced. */
   private activeContentRevision: string | null = null;
   private revisionPollScheduled = false;
+  private initGeneration = 0;
+  private initInFlight = false;
+  private initSettledResolvers: (() => void)[] = [];
 
   readonly hero = computed(() => this.normalizeHero(this.siteSettingsState(), this.siteLanguage()));
   readonly alertBanner = computed(() =>
@@ -1039,7 +1056,27 @@ export class LocalizedCmsContentStore {
     this.applyFallbackContent();
     this.extendedLoadState.set('idle');
     this.loadErrorState.set(null);
-    void this.initializeContentLoad();
+    const generation = ++this.initGeneration;
+    this.initInFlight = true;
+    void this.initializeContentLoad().finally(() => {
+      if (generation === this.initGeneration) {
+        this.initInFlight = false;
+        const resolvers = this.initSettledResolvers.splice(0);
+        for (const resolve of resolvers) {
+          resolve();
+        }
+      }
+    });
+  }
+
+  /** @internal Await in-flight {@link initializeContentLoad} (unit tests only). */
+  whenInitSettledForTests(): Promise<void> {
+    if (!this.initInFlight) {
+      return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      this.initSettledResolvers.push(resolve);
+    });
   }
 
   private async initializeContentLoad(): Promise<void> {
@@ -1733,7 +1770,8 @@ export class LocalizedCmsContentStore {
         englishFallback.welcomeCaption,
         localizedFallback.welcomeCaption,
       ),
-      heroImageUrl: siteSettings?.heroImageUrl ?? undefined,
+      // Prefer durable public path; never keep expired S3 presigned URLs as hero src.
+      heroImageUrl: resolvePublicHeroImageUrl(siteSettings?.heroImageUrl),
     };
   }
 

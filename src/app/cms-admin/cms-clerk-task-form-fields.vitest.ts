@@ -39,6 +39,28 @@ describe('cms-clerk-task-form-fields', () => {
     );
   });
 
+  it('rejects ephemeral S3 hero URLs on save and allows clearing hero photo', () => {
+    const fields = clerkTaskFormFields('homepage');
+    expect(() =>
+      formValuesToMutationInput(
+        fields,
+        {
+          townName: 'Town of Wiley',
+          heroImageUrl:
+            'https://bucket.s3.amazonaws.com/x.jpg?X-Amz-Signature=abc&X-Amz-Credential=y',
+        },
+        'site-settings-1',
+      ),
+    ).toThrow(/temporary S3 link/i);
+
+    const cleared = formValuesToMutationInput(
+      fields,
+      { townName: 'Town of Wiley', heroImageUrl: '' },
+      'site-settings-1',
+    );
+    expect(cleared.heroImageUrl).toBeNull();
+  });
+
   it('defaults checkbox fields to true and text fields to empty strings', () => {
     const values = defaultDynamicFormValues(CLERK_TASK_FORM_FIELDS['edit-site-copy']);
     expect(values.active).toBe(true);

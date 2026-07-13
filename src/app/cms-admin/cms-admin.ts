@@ -20,9 +20,11 @@ import {
   DOCUMENT_SECTIONS,
 } from './cms-admin-constants';
 import { IT_ADMIN_COPY } from './cms-admin-it-copy';
+import { CmsClerkCoverageSheetComponent } from './cms-clerk-coverage-sheet.component';
 import { CmsClerkTaskGuideComponent } from './cms-clerk-task-guide.component';
 import { CmsClerkTaskHubComponent } from './cms-clerk-task-hub.component';
 import type { ClerkCmsTaskId } from './cms-clerk-tasks';
+import { clerkTaskUsesDocumentsWorkflow } from './cms-clerk-tasks';
 import { CmsClerkUploadPanelComponent } from './cms-clerk-upload-panel.component';
 import { CmsContentSnapshotComponent } from './cms-content-snapshot.component';
 import { CmsMeetingDocumentUploadComponent } from './cms-meeting-document-upload.component';
@@ -65,6 +67,7 @@ interface CmsAdminSetupDetail {
     MessageModule,
     CmsSiteStatusComponent,
     CmsClerkTaskHubComponent,
+    CmsClerkCoverageSheetComponent,
     CmsClerkTaskGuideComponent,
     CmsClerkUploadPanelComponent,
     CmsContentSnapshotComponent,
@@ -115,6 +118,7 @@ export class CmsAdmin {
   })();
 
   protected readonly selectedTaskId = signal<ClerkCmsTaskId | null>(null);
+  protected readonly taskGuideHelpOpen = signal(false);
   protected readonly connectionTestResult = signal<CmsConnectionTestResult | null>(null);
   protected readonly connectionTestLoading = signal(false);
   protected readonly cacheClearMessage = signal<string | null>(null);
@@ -180,16 +184,45 @@ export class CmsAdmin {
     }
   }
 
+  protected onEditContent(taskId: ClerkCmsTaskId): void {
+    this.selectedTaskId.set(taskId);
+    this.taskGuideHelpOpen.set(false);
+    this.scrollAdminToTask(taskId, 'editor');
+  }
+
   protected onShowTaskSteps(taskId: ClerkCmsTaskId): void {
     this.selectedTaskId.set(taskId);
+    this.taskGuideHelpOpen.set(true);
+    this.scrollAdminToTask(
+      taskId,
+      clerkTaskUsesDocumentsWorkflow(taskId) ? 'documents' : 'help',
+    );
+  }
+
+  protected onOpenDocumentsSection(): void {
+    this.selectedTaskId.set('upload-meeting-documents');
+    this.taskGuideHelpOpen.set(false);
+    this.scrollAdminToTask('upload-meeting-documents', 'documents');
+  }
+
+  private scrollAdminToTask(
+    taskId: ClerkCmsTaskId,
+    target: 'editor' | 'help' | 'documents',
+  ): void {
     if (typeof document === 'undefined') {
       return;
     }
     queueMicrotask(() => {
       requestAnimationFrame(() => {
-        document
-          .getElementById('cms-task-form')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const elementId =
+          target === 'documents'
+            ? 'documents'
+            : target === 'help'
+              ? 'cms-task-guide'
+              : clerkTaskUsesDocumentsWorkflow(taskId)
+                ? 'documents'
+                : 'cms-task-form';
+        document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   }

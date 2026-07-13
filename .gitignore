@@ -35,6 +35,8 @@ yarn-error.log
 # Cursor / local scratch (keep rules and skills; ignore session logs)
 .cursor/*.log
 .todo
+/.tmp-grok-test/
+/skills-lock.json
 
 # Local AWS tagging / Gen1 verification scratch (not repo SoT)
 docs/aws-resource-tagging.md
@@ -43,10 +45,15 @@ infrastructure/aws-resource-tags.manifest.json
 scripts/apply-aws-resource-tags.py
 scripts/verify-gen1-aws-bindings.sh
 
-# Local codebase RAG (Chroma vector store + manifest; venv under rag/)
+# Local codebase RAG caches / legacy Python venv (source under rag/js is tracked)
 .rag/
 rag/.venv/
 rag/**/__pycache__/
+rag/tow_rag/
+rag/tow_rag.egg-info/
+rag/tests/
+rag/pyproject.toml
+rag/requirements.txt
 
 # Miscellaneous
 /.scorer-source/
@@ -85,6 +92,7 @@ scripts/.oac-backup/
 *.pyc
 .vitest-attachments/
 /public/runtime-config.js
+/public/runtime-config-admin.js
 *-access-logs.csv
 .tmp-*.log
 changed-smoke-report.json
@@ -116,6 +124,7 @@ aws-exports.js
 awsconfiguration.json
 # Retired Amplify Gen 2 build artifact — do not use (see docs/gen2-decommissioned.md)
 amplify_outputs.json
+outputs/
 amplifyconfiguration.json
 amplifyconfiguration.dart
 amplify-build-config.json
@@ -143,13 +152,10 @@ scripts/deploy-contact-updates-review-api.py
 scripts/deploy-waf-contact-review-api.py
 scripts/figma-capture-local.mjs
 scripts/purge-contact-update-test-data.py
-scripts/rag-*.mjs
-scripts/rag-*.sh
 scripts/retire-contact-review-proxy.py
 
 scripts/store-xai-api-key.sh
 
-rag/
 mcp/*
 !mcp/primeng/
 mcp/primeng/node_modules/
@@ -184,3 +190,17 @@ scripts/gen1-appsync-schema*.graphql
 # One-off AWS / AppSync probe scripts (local IT scratch)
 scripts/_aws_inventory_once.py
 scripts/_list-ds.py
+
+# Terraform (local state and provider cache)
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+!**/terraform.tfvars.example
+**/backend.hcl
+!**/backend.hcl.example
+**/crash.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json

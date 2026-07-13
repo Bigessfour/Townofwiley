@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { publicRequiredFieldMessage } from '../forms/public-field-validation';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
@@ -28,6 +29,7 @@ interface AccessibilitySupportCopy {
   detailsLabel: string;
   actionLabel: string;
   validationMessage: string;
+  requiredFieldMessage: string;
   mailClientMessage: string;
   phoneFallbackLabel: string;
   emailFallbackLabel: string;
@@ -56,6 +58,7 @@ const ACCESSIBILITY_SUPPORT_COPY: Record<SiteLanguage, AccessibilitySupportCopy>
     actionLabel: 'Open accessibility report email',
     validationMessage:
       'Complete the contact, page, and barrier details so the site can prepare the report.',
+    requiredFieldMessage: 'This field is required.',
     mailClientMessage:
       'Your email app should open with a prepared accessibility report. If nothing happens, use the direct phone or email links below.',
     phoneFallbackLabel: 'Call Town Hall',
@@ -83,6 +86,7 @@ const ACCESSIBILITY_SUPPORT_COPY: Record<SiteLanguage, AccessibilitySupportCopy>
     actionLabel: 'Abrir correo de reporte de accesibilidad',
     validationMessage:
       'Complete el contacto, la pagina y los detalles de la barrera para que el sitio pueda preparar el reporte.',
+    requiredFieldMessage: 'Este campo es obligatorio.',
     mailClientMessage:
       'Su aplicacion de correo debe abrirse con un reporte de accesibilidad preparado. Si no ocurre nada, use los enlaces directos de telefono o correo de abajo.',
     phoneFallbackLabel: 'Llamar al ayuntamiento',
@@ -160,6 +164,12 @@ export class AccessibilitySupport {
     this.reportForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.status.set(null);
       this.statusTone.set('info');
+    });
+  }
+
+  protected reportFieldMessage(control: AbstractControl, fieldLabel: string): string | null {
+    return publicRequiredFieldMessage(control, fieldLabel, {
+      requiredFieldMessage: this.copy().requiredFieldMessage,
     });
   }
 

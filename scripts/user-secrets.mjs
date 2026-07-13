@@ -97,9 +97,6 @@ const templateSecrets = {
       apiKey: '',
     },
   },
-  guestbook: {
-    apiEndpoint: '',
-  },
   logging: {
     endpoint: '',
   },

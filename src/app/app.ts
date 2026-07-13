@@ -19,7 +19,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -72,6 +73,7 @@ import {
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
+import { applyAppCopySiteCopyOverrides } from './site-copy-overrides';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
@@ -263,13 +265,15 @@ interface FeaturePage {
   showOnHomepage: boolean;
 }
 
-interface AppCopy {
+export interface AppCopy {
   skipLinkLabel: string;
   homeLabel: string;
   primaryNavServicesLabel: string;
   primaryNavMeetingsLabel: string;
   primaryNavDocumentsLabel: string;
   primaryNavPayLabel: string;
+  /** Compact header CTA so bill-payers find /pay-bill without hunting menus. */
+  headerPayBillLabel: string;
   primaryNavContactLabel: string;
   homepageWeatherKicker: string;
   homepageWeatherHeading: string;
@@ -440,6 +444,11 @@ interface AppCopy {
   menuQuickTasksServicesColumnLabel: string;
   /** Column heading in the mega menu under menuQuickTasksLabel (weather/calendar side). */
   menuQuickTasksWeatherColumnLabel: string;
+  /** Flyout column under Government & Meetings. */
+  menuGovernmentMeetingsColumnLabel: string;
+  menuGovernmentTownColumnLabel: string;
+  /** Flyout column under Services (meetings/documents). */
+  menuServicesRelatedColumnLabel: string;
 }
 
 export const WEATHER_ALERT_POLICY_COPY: Record<
@@ -587,6 +596,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     primaryNavMeetingsLabel: 'Meetings',
     primaryNavDocumentsLabel: 'Meetings & documents',
     primaryNavPayLabel: 'Pay',
+    headerPayBillLabel: 'Pay your bill',
     primaryNavContactLabel: 'Contact',
     homepageWeatherKicker: 'Local conditions',
     homepageWeatherHeading: 'Wiley weather',
@@ -623,7 +633,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
     heroAlt:
-      'Wiley Town Hall at 304 Main Street in Wiley, Colorado, with the eastern plains and open sky in the background.',
+      'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -800,6 +810,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuLeadershipLabel: 'Leadership',
     menuQuickTasksServicesColumnLabel: 'Popular shortcuts',
     menuQuickTasksWeatherColumnLabel: 'Weather & calendar',
+    menuGovernmentMeetingsColumnLabel: 'Meetings & records',
+    menuGovernmentTownColumnLabel: 'Town information',
+    menuServicesRelatedColumnLabel: 'Meetings & documents',
     topTasks: [
       {
         title: 'Pay utility bill',
@@ -1003,6 +1016,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     primaryNavMeetingsLabel: 'Reuniones',
     primaryNavDocumentsLabel: 'Reuniones y documentos',
     primaryNavPayLabel: 'Pagar',
+    headerPayBillLabel: 'Pagar su factura',
     primaryNavContactLabel: 'Contacto',
     homepageWeatherKicker: 'Condiciones locales',
     homepageWeatherHeading: 'Clima en Wiley',
@@ -1039,7 +1053,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     communityFactsAriaLabel: 'Perfil de Wiley',
     leadershipAriaLabel: 'Directorio de liderazgo del pueblo',
     heroAlt:
-      'Ayuntamiento de Wiley en 304 Main Street, Wiley, Colorado, con las llanuras orientales y un cielo despejado al fondo.',
+      'Carretera de entrada a Wiley, Colorado, con el letrero de limites del pueblo junto a la via.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
     heroSecondaryActionLabel: 'Ver reuniones y avisos',
     topTasksKicker: 'Tareas rapidas',
@@ -1217,6 +1231,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuLeadershipLabel: 'Liderazgo',
     menuQuickTasksServicesColumnLabel: 'Atajos populares',
     menuQuickTasksWeatherColumnLabel: 'Clima y calendario',
+    menuGovernmentMeetingsColumnLabel: 'Reuniones y registros',
+    menuGovernmentTownColumnLabel: 'Información del pueblo',
+    menuServicesRelatedColumnLabel: 'Reuniones y documentos',
     topTasks: [
       {
         title: 'Pagar recibo de servicios',
@@ -1431,15 +1448,15 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
 /** In-page anchor for severe weather alert signup on `/weather`. */
 export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
 
-function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuItem[] {
-  const row: MegaMenuItem = {
-    items: links as MegaMenuItem[][],
-  };
-  const trimmed = columnLabel?.trim();
+/** One flyout column: optional group label + flat leaf links (Prime MegaMenu group row). */
+function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuItem[] {
+  // Prime typings declare `items` as MenuItem[][]; flyout group rows use a flat leaf list at runtime.
+  const group: MegaMenuItem = { items: links as MegaMenuItem[][] };
+  const trimmed = groupLabel?.trim();
   if (trimmed) {
-    row.label = trimmed;
+    group.label = trimmed;
   }
-  return [row];
+  return [group];
 }
 
 @Component({
@@ -1449,7 +1466,7 @@ function megaMenuColumn(links: MegaMenuItem[], columnLabel?: string): MegaMenuIt
     RouterLink,
     RouterLinkActive,
     DrawerModule,
-    FormsModule,
+    ReactiveFormsModule,
     AvatarModule,
     ButtonModule,
     DividerModule,
@@ -1611,8 +1628,25 @@ export class App {
     })),
   }));
 
-  protected readonly searchDraftQuery = signal('');
+  protected readonly siteSearchForm = new FormGroup({
+    query: new FormControl('', { nonNullable: true }),
+  });
+
+  private readonly siteSearchDraftValue = toSignal(
+    this.siteSearchForm.controls.query.valueChanges.pipe(
+      startWith(this.siteSearchForm.controls.query.value),
+    ),
+    { initialValue: this.siteSearchForm.controls.query.value },
+  );
+
+  protected readonly searchDraftQuery = computed(() => this.siteSearchDraftValue());
   protected readonly searchQuery = signal('');
+
+  constructor() {
+    this.siteSearchForm.controls.query.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((query) => this.applySearchDraft(query));
+  }
   protected readonly homepageWeatherAlert = signal<HomepageWeatherAlert | null>(null);
   protected readonly nwsBannerDismissed = signal(false);
   private lastHomepageWeatherAlertDismissKey: string | null = null;
@@ -1715,7 +1749,11 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly weatherAlertSignupFragment = WEATHER_ALERT_SIGNUP_FRAGMENT;
-  protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly appCopy = computed((): AppCopy => {
+    const lang = this.siteLanguage();
+    const base = APP_COPY[lang];
+    return applyAppCopySiteCopyOverrides(base, (key) => this.cmsStore.getSiteCopy(key), lang);
+  });
   protected readonly menuItems = computed<MegaMenuItem[]>(() => {
     const copy = this.appCopy();
 
@@ -1769,16 +1807,22 @@ export class App {
         label: copy.menuGovernmentLabel,
         icon: 'pi pi-building',
         items: [
-          megaMenuColumn([
-            { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
-            { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
-            { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
-          ]),
-          megaMenuColumn([
-            { label: copy.transparencyKicker, routerLink: '/contact' },
-            { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
-            { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
-          ]),
+          megaMenuColumn(
+            [
+              { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+              { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
+              { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
+            ],
+            copy.menuGovernmentMeetingsColumnLabel,
+          ),
+          megaMenuColumn(
+            [
+              { label: copy.transparencyKicker, routerLink: '/contact' },
+              { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
+              { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
+            ],
+            copy.menuGovernmentTownColumnLabel,
+          ),
         ],
       },
       {
@@ -1786,15 +1830,24 @@ export class App {
         label: copy.menuServicesPermitsLabel,
         icon: 'pi pi-briefcase',
         items: [
-          megaMenuColumn([
-            {
-              label: copy.mobileOnlinePaymentsLabel,
-              routerLink: '/pay-bill',
-            },
-            { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
-            { label: copy.featureTitles.services, routerLink: '/services' },
-          ]),
-          megaMenuColumn([{ label: copy.featureTitles.records, routerLink: '/meetings' }]),
+          megaMenuColumn(
+            [
+              {
+                label: copy.mobileOnlinePaymentsLabel,
+                routerLink: '/pay-bill',
+              },
+              { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
+              { label: copy.featureTitles.services, routerLink: '/services' },
+            ],
+            copy.menuServicesPermitsLabel,
+          ),
+          megaMenuColumn(
+            [
+              { label: copy.featureTitles.records, routerLink: '/meetings' },
+              { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
+            ],
+            copy.menuServicesRelatedColumnLabel,
+          ),
         ],
       },
       {
@@ -1985,12 +2038,8 @@ export class App {
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
 
   // Live (CMS-overridable) values for the top "How do I..." section.
-  protected readonly topTasksKicker = computed(() =>
-    this.getDynamicLabel('topTasksKicker', this.appCopy().topTasksKicker),
-  );
-  protected readonly topTasksHeading = computed(() =>
-    this.getDynamicLabel('topTasksHeading', this.appCopy().topTasksHeading),
-  );
+  protected readonly topTasksKicker = computed(() => this.appCopy().topTasksKicker);
+  protected readonly topTasksHeading = computed(() => this.appCopy().topTasksHeading);
 
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
@@ -2483,9 +2532,7 @@ export class App {
 
   protected readonly trackCalendarRow = (_index: number, item: CalendarItem): string => item.id;
 
-  protected updateSearch(query: string): void {
-    this.searchDraftQuery.set(query);
-
+  protected applySearchDraft(query: string): void {
     if (this.searchDebounceHandle) {
       clearTimeout(this.searchDebounceHandle);
       this.searchDebounceHandle = null;
@@ -2525,7 +2572,7 @@ export class App {
   protected performSearch(event?: Event): void {
     event?.preventDefault();
 
-    const query = this.searchDraftQuery().trim();
+    const query = this.siteSearchForm.controls.query.value.trim();
 
     if (this.searchDebounceHandle) {
       clearTimeout(this.searchDebounceHandle);

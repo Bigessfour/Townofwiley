@@ -11,8 +11,17 @@
   font-size: 1.25rem;
 }
 
+.cms-recent-changes__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
 .cms-recent-changes__lead {
-  margin: 0 0 var(--space-4);
+  margin: 0;
   color: var(--text-color-secondary, #4b5563);
 }
 
@@ -52,6 +61,12 @@
 
 .cms-recent-changes__summary {
   margin: 0 0 var(--space-1);
+}
+
+.cms-recent-changes__fields {
+  margin: 0 0 var(--space-1);
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .cms-recent-changes__detail {

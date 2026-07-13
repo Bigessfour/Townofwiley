@@ -1,5 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { getUrl, list, remove, uploadData } from '@aws-amplify/storage';
+import {
+  ensureAdminRuntimeConfigLoaded,
+  readAdminRuntimeConfig,
+} from './admin-runtime-config';
+import { isDurablePublicHeroImageUrl, isEphemeralCmsAssetUrl } from './cms-public-asset-url';
 import { StaffAuthService } from './auth/staff-auth.service';
 
 export interface UploadedDocument {
@@ -88,26 +93,63 @@ export class DocumentUploadService {
     return href;
   }
 
+  /**
+   * Hero and other public-site media must land on a durable URL (static site /media/…).
+   * Amplify Storage getUrl() only yields short-lived presigns — never fall back for those sections.
+   */
+  private requiresDurablePublicUrl(sectionId: string): boolean {
+    return sectionId === 'cms-uploads/hero' || sectionId.startsWith('cms-uploads/hero/');
+  }
+
   async uploadDocument(file: File, sectionId: string): Promise<UploadedDocument> {
+    await ensureAdminRuntimeConfigLoaded();
     const mediaUploadEndpoint = this.readMediaUploadEndpoint();
+    const needsPublicUrl = this.requiresDurablePublicUrl(sectionId);
+
     if (mediaUploadEndpoint && !this.staffAuth.playwrightStaffBypassActive()) {
       try {
-        return await this.uploadDocumentViaPresignedUrl(file, sectionId, mediaUploadEndpoint);
+        const uploaded = await this.uploadDocumentViaPresignedUrl(
+          file,
+          sectionId,
+          mediaUploadEndpoint,
+        );
+        if (needsPublicUrl) {
+          const publicUrl = uploaded.publicUrl?.trim() ?? '';
+          if (!isDurablePublicHeroImageUrl(publicUrl) || isEphemeralCmsAssetUrl(publicUrl)) {
+            throw new Error(
+              'Media upload succeeded but did not return a durable public URL for the homepage photo.',
+            );
+          }
+        }
+        return uploaded;
       } catch (error) {
+        if (needsPublicUrl) {
+          // Do not fall back to Amplify Storage — that path only produces temporary S3 URLs.
+          throw error instanceof Error
+            ? error
+            : new Error('Homepage photo upload failed. Sign in again and try once more.');
+        }
         console.warn('Presigned CMS upload failed; falling back to Amplify Storage.', error);
       }
+    }
+
+    if (needsPublicUrl) {
+      throw new Error(
+        'Homepage photo upload is not configured (missing staff media upload endpoint). Contact IT.',
+      );
     }
 
     return this.uploadDocumentViaAmplifyStorage(file, sectionId);
   }
 
   private readMediaUploadEndpoint(): string {
-    const runtime = (
+    const legacyPublic = (
       window as Window & {
         __TOW_RUNTIME_CONFIG__?: { cms?: { mediaUpload?: { apiEndpoint?: string } } };
       }
-    ).__TOW_RUNTIME_CONFIG__;
-    return runtime?.cms?.mediaUpload?.apiEndpoint?.trim() ?? '';
+    ).__TOW_RUNTIME_CONFIG__?.cms?.mediaUpload?.apiEndpoint;
+    const adminEndpoint = readAdminRuntimeConfig()?.cms?.mediaUpload?.apiEndpoint;
+    return (adminEndpoint ?? legacyPublic)?.trim() ?? '';
   }
 
   private async uploadDocumentViaPresignedUrl(

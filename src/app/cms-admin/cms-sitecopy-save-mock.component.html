@@ -1,0 +1,47 @@
+@if (hasContent()) {
+  <aside
+    class="cms-sitecopy-mock"
+    aria-label="How this text may look on the website"
+    data-testid="cms-sitecopy-save-mock"
+  >
+    <h4 class="cms-sitecopy-mock__title">How this may look on the website</h4>
+    <p class="cms-sitecopy-mock__lead">
+      This is a rough mock from your form — not the live site. After you save, use
+      <strong>See on live website</strong> to verify.
+      @if (appearsOn(); as where) {
+        <span class="cms-sitecopy-mock__where">Location: {{ where }}</span>
+      }
+    </p>
+
+    @if (showTownHallCard()) {
+      <div class="cms-sitecopy-mock__town-hall" data-testid="cms-sitecopy-mock-town-hall">
+        <p class="cms-sitecopy-mock__town-hall-title">Wiley Town Hall</p>
+        @if (key() === 'contactTownHallAddress' || key() === 'contactTownHallTitle') {
+          <p class="cms-sitecopy-mock__town-hall-line">{{ valueEn() }}</p>
+        }
+        @if (key() === 'contactTownHallPhone') {
+          <p class="cms-sitecopy-mock__town-hall-line cms-sitecopy-mock__phone">{{ valueEn() }}</p>
+        }
+        @if (key() === 'contactTownHallHours') {
+          <p class="cms-sitecopy-mock__town-hall-line">{{ valueEn() }}</p>
+        }
+      </div>
+    } @else if (showQuickTasks()) {
+      <div class="cms-sitecopy-mock__quick-tasks">
+        @if (key() === 'topTasksKicker') {
+          <p class="cms-sitecopy-mock__kicker">{{ valueEn() }}</p>
+        }
+        @if (key() === 'topTasksHeading') {
+          <p class="cms-sitecopy-mock__heading">{{ valueEn() }}</p>
+        }
+      </div>
+    } @else {
+      <div class="cms-sitecopy-mock__generic">
+        <p><strong>English:</strong> {{ valueEn() || '—' }}</p>
+        @if (valueEs()) {
+          <p><strong>Spanish:</strong> {{ valueEs() }}</p>
+        }
+      </div>
+    }
+  </aside>
+}

@@ -22,7 +22,7 @@ alwaysApply: true
 - **Git**: Feature branches, only deployable to main. 
 
 ## AWS (Town of Wiley only in this workspace)
-- **Account `570912405222` (`57…`).** Workspace defaults: `.vscode/settings.json` uses **`aws.profile` `townofwiley`** and sets **`AWS_PROFILE=townofwiley`** in integrated terminals. Configure `[profile townofwiley]` under `~/.aws/` for Wiley IAM credentials (or SSO/assume-role to `570912405222`). Code Platoon / other accounts (**`388…`**) belong in separate profiles (**not** repo defaults).
+- **Account `570912405222` (`57…`), IAM user `copilot` for agent CLI.** Workspace defaults: `.vscode/settings.json` uses **`aws.profile` `townofwiley`** and sets **`AWS_PROFILE=townofwiley`** in integrated terminals. Configure `[profile townofwiley]` with **copilot** access keys (`npm run aws:configure-profile`) or SSO into `570912405222` as copilot. See [`infrastructure/town-aws-account.json`](../infrastructure/town-aws-account.json). Code Platoon / other accounts (**`388…`**) belong in separate profiles (**not** repo defaults).
 
 ## Cursor agent terminal (Town of Wiley)
 - If Agent terminal sessions are **read-only**, **stall**, or **ignore input**, turn on **Legacy Terminal Tool**: **Cursor → Settings → Cursor Settings → Chat → Inline Editing & Terminal → Legacy Terminal Tool** (then reload the window if needed). This is a Cursor-side switch, not `angular.json`.

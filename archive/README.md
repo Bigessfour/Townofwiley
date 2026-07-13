@@ -1,6 +1,6 @@
 # Archive — non-production and historical artifacts
 
-**Purpose:** Keep the repo root and `docs/` focused on the live Town of Wiley site. Nothing under `archive/` is deployed to Amplify or served to residents.
+**Purpose:** Keep the repo root and `docs/` focused on the live Town of Wiley site. Nothing under `archive/` is deployed to production (S3 + CloudFront) or served to residents.
 
 | Path                           | Contents                                       | Maintainer notes                                                                       |
 | ------------------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------- |

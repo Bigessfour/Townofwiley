@@ -59,6 +59,31 @@
     }
   </div>
 
+  @if (uploadPreview(); as preview) {
+    <aside
+      class="cms-meeting-upload__preview"
+      aria-label="Review before upload"
+      data-testid="cms-meeting-upload-preview"
+    >
+      <h4 class="cms-meeting-upload__preview-title">Review before upload</h4>
+      <p class="cms-meeting-upload__preview-lead">
+        Residents will see this PDF on <strong>/meetings</strong> linked to the meeting below. Nothing
+        is published until you click Upload and publish. After upload, open
+        <strong>/meetings</strong> on the live site to verify.
+      </p>
+      <dl class="cms-meeting-upload__preview-list">
+        <div>
+          <dt>Meeting</dt>
+          <dd>{{ preview.meetingLabel }}</dd>
+        </div>
+        <div>
+          <dt>PDF file</dt>
+          <dd>{{ preview.fileName }}</dd>
+        </div>
+      </dl>
+    </aside>
+  }
+
   <div class="cms-meeting-upload__actions">
     <button
       type="button"

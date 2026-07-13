@@ -30,16 +30,24 @@
       </p>
       <div class="cms-load-status__actions">
         <button
+          pButton
           type="button"
-          class="button-cta button-cta--ghost cms-load-status__retry"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          class="cms-load-status__retry"
           [disabled]="cmsContentLoading()"
           (click)="retryCmsContent()"
         >
           {{ appCopy().cmsLoadRetryLabel }}
         </button>
         <button
+          pButton
           type="button"
-          class="button-cta button-cta--ghost cms-load-status__dismiss"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          class="cms-load-status__dismiss"
           (click)="dismissCmsLoadFallbackNotice()"
         >
           {{ appCopy().cmsLoadDismissLabel }}
@@ -90,7 +98,10 @@
             <div class="site-alert-actions">
               @if (alertBanner().linkLabel && alertBanner().linkHref) {
                 <a
-                  class="site-alert-link button-cta button-cta--ghost"
+                  pButton
+                  class="site-alert-link"
+                  severity="secondary"
+                  [outlined]="true"
                   [attr.href]="alertBanner().linkHref"
                 >
                   {{ alertBanner().linkLabel }}
@@ -98,7 +109,10 @@
               }
 
               <a
-                class="site-alert-button button-cta button-cta--ghost"
+                pButton
+                class="site-alert-button"
+                severity="secondary"
+                [outlined]="true"
                 routerLink="/weather"
                 [fragment]="weatherAlertSignupFragment"
                 (click)="trackAlertSignupClick()"
@@ -114,7 +128,7 @@
 
   <header
     #headerElement
-    class="site-header sticky top-0 z-50 w-full max-w-none border-t-[2px] border-t-wiley-teal-600/50 border-b border-wiley-cream-100/90 bg-wiley-cream-0/95 shadow-wiley-card backdrop-blur-md transition-shadow"
+    class="site-header sticky top-0 z-50 w-full max-w-none border-b border-wiley-header/20 bg-wiley-forest-900 text-wiley-inverse shadow-wiley-card transition-shadow"
     [class.is-feature-page]="isFeaturePageMode() || isNotFoundMode()"
     [class.scrolled]="headerScrolled()"
     role="banner"
@@ -127,7 +141,7 @@
           <div class="mobile-menu-bar shrink-0">
             <button
               type="button"
-              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 px-3 text-sm font-semibold text-wiley-navy-900 shadow-wiley-card"
+              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-header/25 bg-wiley-forest-800 px-3 text-sm font-semibold text-wiley-inverse shadow-wiley-card"
               pRipple
               [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
               [attr.aria-expanded]="sidebarVisible()"
@@ -145,38 +159,49 @@
             [attr.aria-label]="appCopy().townLogoAriaLabel"
           >
             <span
-              class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+              class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
               >{{ heroContent().status }}</span
             >
             <strong
-              class="font-display text-lg font-bold leading-tight text-wiley-navy-900 sm:text-xl"
+              class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
               >Town of Wiley</strong
             >
           </a>
         </div>
 
-        <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
-          <div
-            class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-cream-100 bg-wiley-sage-50 p-0.5"
-            role="group"
-            [attr.aria-label]="appCopy().languageLabel"
+        <div class="flex shrink-0 items-center gap-2">
+          <a
+            routerLink="/pay-bill"
+            class="header-pay-bill-btn"
+            data-testid="header-pay-bill"
+            [attr.aria-label]="appCopy().headerPayBillLabel"
           >
-            @for (choice of languageChoices(); track choice.value) {
-              <button
-                type="button"
-                class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
-                [class.active]="siteLanguage() === choice.value"
-                [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
-                [class.text-wiley-inverse]="siteLanguage() === choice.value"
-                [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
-                [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
-                [attr.aria-pressed]="siteLanguage() === choice.value"
-                [attr.title]="appCopy().languageLabel + ': ' + choice.label"
-                (click)="updateSiteLanguage(choice.value)"
-              >
-                {{ choice.label }}
-              </button>
-            }
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            <span>{{ appCopy().headerPayBillLabel }}</span>
+          </a>
+          <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
+            <div
+              class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
+              role="group"
+              [attr.aria-label]="appCopy().languageLabel"
+            >
+              @for (choice of languageChoices(); track choice.value) {
+                <button
+                  type="button"
+                  class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
+                  [class.active]="siteLanguage() === choice.value"
+                  [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
+                  [class.text-wiley-forest-900]="siteLanguage() === choice.value"
+                  [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
+                  [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
+                  [attr.aria-pressed]="siteLanguage() === choice.value"
+                  [attr.title]="appCopy().languageLabel + ': ' + choice.label"
+                  (click)="updateSiteLanguage(choice.value)"
+                >
+                  {{ choice.label }}
+                </button>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -186,7 +211,7 @@
           [model]="menuItems()"
           [pt]="desktopMegaMenuPt"
           orientation="horizontal"
-          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-sm"
+          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-none"
           data-testid="homepage-section-nav"
         >
           <ng-template pTemplate="start">
@@ -196,11 +221,11 @@
               aria-label="Return to homepage"
             >
               <span
-                class="official-badge font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-wiley-sage-700 sm:text-xs"
+                class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
                 >{{ heroContent().status }}</span
               >
               <strong
-                class="font-display text-lg font-bold leading-tight text-wiley-navy-900 sm:text-xl"
+                class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
                 >Town of Wiley</strong
               >
             </a>
@@ -245,7 +270,6 @@
                   type="button"
                   pRipple
                   class="mega-menu-root-link"
-                  tabindex="-1"
                   (click)="item.command ? item.command($event) : null"
                 >
                   @if (item.icon) {
@@ -262,8 +286,9 @@
                 <a
                   pRipple
                   class="mega-menu-sub-link"
-                  [attr.href]="megaMenuLeafHref(item)"
-                  (click)="onMegaMenuLeafClick(item, $event)"
+                  [routerLink]="item.routerLink"
+                  [fragment]="item.fragment"
+                  (click)="item.command ? item.command($event) : null"
                 >
                   @if (item.icon) {
                     <i [class]="item.icon" aria-hidden="true"></i>
@@ -300,21 +325,20 @@
                 <form
                   class="header-search-form w-full max-w-2xl"
                   role="search"
-                  (submit)="performSearch($event)"
+                  [formGroup]="siteSearchForm"
+                  (ngSubmit)="performSearch($event)"
                 >
                   <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
                   <div
-                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-2 focus-within:ring-wiley-teal-600/25"
+                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-header/30 bg-wiley-inverse px-3 shadow-wiley-card focus-within:border-wiley-gold-400 focus-within:ring-2 focus-within:ring-wiley-gold-400/30"
                   >
-                    <i class="pi pi-search text-wiley-sage-500" aria-hidden="true"></i>
+                    <i class="pi pi-search text-wiley-forest-700" aria-hidden="true"></i>
                     <input
                       pInputText
                       id="mega-site-search"
                       class="search-input min-h-10 flex-1 border-0 bg-transparent shadow-none"
                       type="search"
-                      [ngModel]="searchDraftQuery()"
-                      (ngModelChange)="updateSearch($event)"
-                      [ngModelOptions]="{ standalone: true }"
+                      formControlName="query"
                       [placeholder]="appCopy().searchPlaceholder"
                       [attr.aria-label]="appCopy().searchLabel"
                       autocomplete="off"
@@ -322,12 +346,21 @@
                   </div>
                 </form>
               }
+              <a
+                routerLink="/pay-bill"
+                class="header-pay-bill-btn"
+                data-testid="header-pay-bill-desktop"
+                [attr.aria-label]="appCopy().headerPayBillLabel"
+              >
+                <i class="pi pi-wallet" aria-hidden="true"></i>
+                <span>{{ appCopy().headerPayBillLabel }}</span>
+              </a>
               <div
                 class="site-language-switcher shrink-0"
                 [attr.aria-label]="appCopy().languageLabel"
               >
                 <div
-                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-cream-100 bg-wiley-sage-50 p-0.5"
+                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
                   role="group"
                   [attr.aria-label]="appCopy().languageLabel"
                 >
@@ -335,10 +368,10 @@
                     <!-- duplicate id avoided here (menu context); header instance provides the site-language-es/en ids -->
                     <button
                       type="button"
-                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-navy-800 transition"
+                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
                       [class.active]="siteLanguage() === choice.value"
-                      [class.bg-wiley-navy-900]="siteLanguage() === choice.value"
-                      [class.text-wiley-inverse]="siteLanguage() === choice.value"
+                      [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
+                      [class.text-wiley-forest-900]="siteLanguage() === choice.value"
                       [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                       [attr.aria-pressed]="siteLanguage() === choice.value"
                       [attr.title]="appCopy().languageLabel + ': ' + choice.label"
@@ -371,7 +404,12 @@
       (onHide)="closeMobileMenu()"
     >
       <div class="mobile-menu-drawer-content flex flex-col gap-6 p-2">
-        <form class="header-search-form w-full" role="search" (submit)="performSearch($event)">
+        <form
+          class="header-search-form w-full"
+          role="search"
+          [formGroup]="siteSearchForm"
+          (ngSubmit)="performSearch($event)"
+        >
           <label class="sr-only" for="mobile-site-search">{{ appCopy().searchLabel }}</label>
           <div
             class="flex min-h-11 items-center gap-2 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-cream-0 px-3 shadow-wiley-card"
@@ -382,9 +420,7 @@
               id="mobile-site-search"
               class="min-h-10 flex-1 border-0 bg-transparent shadow-none"
               type="search"
-              [ngModel]="searchDraftQuery()"
-              (ngModelChange)="updateSearch($event)"
-              [ngModelOptions]="{ standalone: true }"
+              formControlName="query"
               [placeholder]="appCopy().searchPlaceholder"
               autocomplete="off"
             />
@@ -395,6 +431,16 @@
           class="mobile-menu-nav flex flex-col gap-1"
           [attr.aria-labelledby]="'mobile-menu-drawer-title'"
         >
+          <a
+            routerLink="/pay-bill"
+            class="header-pay-bill-btn mobile-drawer-pay-bill"
+            data-testid="mobile-drawer-pay-bill"
+            [attr.aria-label]="appCopy().headerPayBillLabel"
+            (click)="closeMobileMenu()"
+          >
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            <span>{{ appCopy().headerPayBillLabel }}</span>
+          </a>
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
             routerLink="/"
@@ -457,7 +503,7 @@
     >
       <figure class="hero-landing-media absolute inset-0 m-0">
         <img
-          class="h-full w-full object-cover object-[60%_center]"
+          class="h-full w-full object-cover object-[58%_45%]"
           [ngSrc]="heroContent().heroImageUrl || '/hero-wiley.webp'"
           [attr.alt]="appCopy().heroAlt"
           fill
@@ -499,16 +545,21 @@
             class="hero-landing-actions mt-2 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:justify-center"
           >
             <a
-              class="button-cta button-cta--solid inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse shadow-wiley-lift no-underline transition hover:bg-wiley-teal-700 sm:flex-none"
+              pButton
+              class="hero-landing-cta flex-1 sm:flex-none"
+              severity="primary"
+              [rounded]="true"
               routerLink="/services"
-              pRipple
             >
               {{ appCopy().heroPrimaryActionLabel }}
             </a>
             <a
-              class="button-cta button-cta--ghost inline-flex min-h-11 flex-1 items-center justify-center rounded-wiley-full border border-wiley-inverse/40 bg-wiley-inverse/15 px-6 font-sans text-sm font-bold text-wiley-inverse no-underline backdrop-blur-sm transition hover:bg-wiley-inverse/25 sm:flex-none"
+              pButton
+              class="hero-landing-cta flex-1 sm:flex-none"
+              severity="contrast"
+              [outlined]="true"
+              [rounded]="true"
               routerLink="/meetings"
-              pRipple
             >
               {{ appCopy().heroSecondaryActionLabel }}
             </a>
@@ -827,7 +878,12 @@
           <p class="search-panel-copy m-0 text-wiley-ink-700">{{ appCopy().searchLabel }}</p>
         </header>
 
-        <form class="wiley-search-form w-full" role="search" (submit)="performSearch($event)">
+        <form
+          class="wiley-search-form w-full"
+          role="search"
+          [formGroup]="siteSearchForm"
+          (ngSubmit)="performSearch($event)"
+        >
           <label class="sr-only" for="landing-site-search">{{ appCopy().searchLabel }}</label>
           <div
             class="flex min-h-14 items-stretch overflow-hidden rounded-wiley-xl border-2 border-wiley-teal-600/30 bg-wiley-cream-0 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-4 focus-within:ring-wiley-teal-600/20"
@@ -840,15 +896,16 @@
               id="landing-site-search"
               class="min-h-14 flex-1 border-0 bg-transparent px-0 text-base shadow-none"
               type="search"
-              [ngModel]="searchDraftQuery()"
-              (ngModelChange)="updateSearch($event)"
-              [ngModelOptions]="{ standalone: true }"
+              formControlName="query"
               [placeholder]="appCopy().searchPlaceholder"
               autocomplete="off"
             />
             <button
+              pButton
               type="submit"
-              class="m-1.5 inline-flex min-h-11 shrink-0 items-center justify-center rounded-wiley-full bg-wiley-teal-600 px-6 font-sans text-sm font-bold text-wiley-inverse transition hover:bg-wiley-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-gold-400"
+              class="search-form-submit m-1.5 shrink-0"
+              severity="primary"
+              [rounded]="true"
             >
               {{ appCopy().searchActionLabel }}
             </button>

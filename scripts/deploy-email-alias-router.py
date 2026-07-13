@@ -35,6 +35,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--receipt-prefix", default="")
     parser.add_argument("--runtime", default="python3.13")
     parser.add_argument("--skip-receipt-rule-setup", action="store_true")
+    parser.add_argument(
+        "--fallback-alias-address",
+        default="",
+        help="Active EmailAlias row used when no recipient matches (e.g. clerk@townofwiley.gov).",
+    )
     return parser.parse_args()
 
 
@@ -608,6 +613,11 @@ def main() -> int:
         for recipient in receipt_recipients_text.split(",")
         if recipient.strip()
     ]
+    fallback_alias_address = resolve_value(
+        args.fallback_alias_address,
+        mail_defaults.get("fallbackAliasAddress"),
+        "clerk@townofwiley.gov",
+    )
 
     archive_path = package_backend()
     bucket_arn = ensure_bucket(bucket_name, ingress_region)
@@ -625,6 +635,7 @@ def main() -> int:
             "FORWARDER_FROM": forwarder_from,
             "ALIAS_DOMAIN": alias_domain,
             "SES_SEND_REGION": send_region,
+            "FALLBACK_ALIAS_ADDRESS": fallback_alias_address,
         },
         region=ingress_region,
     )
@@ -659,6 +670,7 @@ def main() -> int:
         "forwarderFrom": forwarder_from,
         "sendRegion": send_region,
         "aliasDomain": alias_domain,
+        "fallbackAliasAddress": fallback_alias_address,
     }
     print(json.dumps(summary, indent=2))
     return 0

@@ -8,9 +8,17 @@ import { NoticesPage } from './notices-page';
 interface NoticesPageStore {
   notices: ReturnType<typeof signal<CmsNotice[]>>;
   isLoading: ReturnType<typeof signal<boolean>>;
+  getSiteCopy: (key: string) => { en: string; es?: string } | undefined;
 }
 
-function configure(store: NoticesPageStore, language: 'en' | 'es' = 'en') {
+function configure(
+  store: Omit<NoticesPageStore, 'getSiteCopy'> & Partial<Pick<NoticesPageStore, 'getSiteCopy'>>,
+  language: 'en' | 'es' = 'en',
+) {
+  const fullStore: NoticesPageStore = {
+    ...store,
+    getSiteCopy: store.getSiteCopy ?? (() => undefined),
+  };
   TestBed.configureTestingModule({
     imports: [NoticesPage],
     providers: [
@@ -18,7 +26,7 @@ function configure(store: NoticesPageStore, language: 'en' | 'es' = 'en') {
       provideRouter([]),
       {
         provide: LocalizedCmsContentStore,
-        useValue: store as unknown as LocalizedCmsContentStore,
+        useValue: fullStore as unknown as LocalizedCmsContentStore,
       },
     ],
   });

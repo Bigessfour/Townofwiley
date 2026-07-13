@@ -1,0 +1,25 @@
+---
+description: Canonical AWS account for Town of Wiley — prevents cross-account mistakes
+alwaysApply: true
+---
+
+# AWS account (this repo only)
+
+**This repository is for Town of Wiley production AWS account `570912405222` only** (account ID starts with **57**).
+
+| Setting | Value |
+| -------- | ----- |
+| Account ID | **`570912405222`** |
+| IAM user (agent / IDE access) | **`copilot`** |
+| CLI profile | **`townofwiley`** (maps to **copilot** access keys in `~/.aws/credentials`) |
+| Region | **`us-east-2`** (some resources in `us-east-1`, e.g. SES email alias) |
+| Site | [townofwiley.gov](https://townofwiley.gov) |
+
+**Source of truth:** [`infrastructure/town-aws-account.json`](../infrastructure/town-aws-account.json)
+
+## Agent rules
+
+1. Before **any** mutating AWS CLI/Terraform/deploy action, run `aws sts get-caller-identity` and confirm **Account** is `570912405222` and **Arn** ends with `:user/copilot` (Town agent IAM user).
+2. If the active profile resolves to another account (e.g. `388691194728` Code Platoon), **stop** — do not change Town resources. Ask the user to refresh **copilot** keys: `npm run aws:configure-profile` (IAM → Users → **copilot** → Security credentials) or SSO that assumes into `570912405222` as **copilot**.
+3. Use `source scripts/agent-aws-env.sh` in agent shells; workspace terminals set `AWS_PROFILE=townofwiley` via [`.vscode/settings.json`](../.vscode/settings.json).
+4. Do not conflate this account with personal Cloud Resume / other accounts that may share the same machine’s `~/.aws/credentials`.

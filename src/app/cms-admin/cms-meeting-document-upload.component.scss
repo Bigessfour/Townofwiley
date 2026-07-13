@@ -58,6 +58,40 @@
   clip: rect(0 0 0 0);
 }
 
+.cms-meeting-upload__preview {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #17344d) 16%, transparent);
+  background: #fff;
+}
+
+.cms-meeting-upload__preview-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.cms-meeting-upload__preview-lead {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.cms-meeting-upload__preview-list {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.cms-meeting-upload__preview-list dt {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.cms-meeting-upload__preview-list dd {
+  margin: 0.1rem 0 0;
+}
+
 .cms-meeting-upload__actions {
   display: flex;
   flex-wrap: wrap;

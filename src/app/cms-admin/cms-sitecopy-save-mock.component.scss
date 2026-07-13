@@ -1,0 +1,62 @@
+.cms-sitecopy-mock {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--wiley-cream-100, #e8e0d4);
+  background: color-mix(in srgb, var(--wiley-cream-50, #faf8f5) 90%, #fff);
+}
+
+.cms-sitecopy-mock__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.cms-sitecopy-mock__lead {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-sitecopy-mock__where {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.cms-sitecopy-mock__town-hall {
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  background: #fff;
+  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+}
+
+.cms-sitecopy-mock__town-hall-title {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.cms-sitecopy-mock__town-hall-line {
+  margin: 0.2rem 0 0;
+}
+
+.cms-sitecopy-mock__phone {
+  font-weight: 600;
+}
+
+.cms-sitecopy-mock__kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cms-sitecopy-mock__heading {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.cms-sitecopy-mock__generic p {
+  margin: 0.25rem 0 0;
+}

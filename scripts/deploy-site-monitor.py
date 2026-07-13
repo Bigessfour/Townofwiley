@@ -78,12 +78,23 @@ def load_amplify_config() -> dict[str, str]:
 
 
 def package_backend() -> Path:
+    """Zip site-monitor + shared ops_lib for Lambda."""
     temp_dir = Path(tempfile.mkdtemp(prefix="townofwiley-site-monitor-"))
     archive_path = temp_dir / "site-monitor.zip"
 
+    ops_lib_dir = REPO_ROOT / "infrastructure" / "ops_lib"
     with ZipFile(archive_path, "w", ZIP_DEFLATED) as archive:
         for path in BACKEND_DIR.rglob("*.py"):
+            if "tests" in path.parts:
+                continue
             archive.write(path, path.relative_to(BACKEND_DIR))
+        # ops_lib at zip root so `import ops_lib` works next to app.py
+        if ops_lib_dir.is_dir():
+            for path in ops_lib_dir.rglob("*.py"):
+                if "tests" in path.parts or path.name == "__pycache__":
+                    continue
+                arcname = Path("ops_lib") / path.relative_to(ops_lib_dir)
+                archive.write(path, arcname)
 
     return archive_path
 

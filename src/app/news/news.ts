@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { getCmsNoticeLinkAriaLabel, getCmsNoticeRouteLink } from '../cms-notice-link';
@@ -121,7 +122,7 @@ const FALLBACK_REGIONAL_LINKS: ExternalLink[] = [
 
 @Component({
   selector: 'app-news',
-  imports: [NgOptimizedImage, CardModule, RouterLink, SkeletonModule],
+  imports: [NgOptimizedImage, ButtonModule, CardModule, RouterLink, SkeletonModule],
   templateUrl: './news.html',
   styleUrl: './news.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

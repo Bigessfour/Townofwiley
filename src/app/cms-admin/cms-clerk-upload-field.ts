@@ -1,3 +1,7 @@
+import {
+  isDurablePublicHeroImageUrl,
+  isEphemeralCmsAssetUrl,
+} from '../cms-public-asset-url';
 import type { UploadedDocument } from '../document-upload.service';
 
 /** What to store in the form after a presigned upload completes. */
@@ -8,7 +12,13 @@ export function resolveClerkUploadFieldValue(
   uploaded: UploadedDocument,
 ): string {
   if (field.uploadValue === 'publicUrl') {
-    return (uploaded.publicUrl ?? uploaded.url).trim();
+    const candidate = (uploaded.publicUrl ?? uploaded.url).trim();
+    if (!isDurablePublicHeroImageUrl(candidate) || isEphemeralCmsAssetUrl(candidate)) {
+      throw new Error(
+        'Upload did not return a durable public photo URL. Sign in again and retry; do not paste temporary S3 links.',
+      );
+    }
+    return candidate;
   }
   return uploaded.id;
 }
@@ -23,7 +33,7 @@ export function clerkUploadImagePreviewUrl(
   }
 
   const value = typeof rawValue === 'string' ? rawValue.trim() : '';
-  if (!/^https?:\/\//i.test(value)) {
+  if (!isDurablePublicHeroImageUrl(value) || isEphemeralCmsAssetUrl(value)) {
     return null;
   }
 

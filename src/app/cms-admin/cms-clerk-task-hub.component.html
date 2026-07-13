@@ -31,19 +31,24 @@
           }
           <div class="cms-task-card__actions">
             <button
+              pButton
               type="button"
-              class="button-cta button-cta--solid cms-task-card__btn"
+              severity="primary"
+              class="cms-task-card__btn"
               [attr.data-testid]="'cms-task-edit-' + task.id"
               (click)="onEditContent(task.id)"
             >
               @if (taskIcon(task); as iconClass) {
                 <i [class]="iconClass + ' cms-task-card__btn-icon'" aria-hidden="true"></i>
               }
-              Edit content
+              {{ task.primaryActionLabel ?? 'Edit content' }}
             </button>
             @if (showsPublicPreview(task)) {
               <a
-                class="button-cta button-cta--light cms-task-card__btn"
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                class="cms-task-card__btn"
                 [href]="previewUrl(task)"
                 target="_blank"
                 rel="noreferrer noopener"
@@ -52,7 +57,7 @@
               </a>
             }
             <button type="button" class="cms-task-card__steps" (click)="onShowSteps(task.id)">
-              Show step-by-step
+              Show step-by-step help
             </button>
           </div>
         </article>

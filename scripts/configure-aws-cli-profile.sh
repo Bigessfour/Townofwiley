@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Configure a named AWS CLI profile for Town of Wiley (account 570912405222).
 # Default local profile name: townofwiley (see .vscode/settings.json "aws.profile"; [townofwiley] in ~/.aws/credentials).
-# Keys come from IAM (e.g. user copilot in account 570912405222). Code Platoon is 388691194728 — use a separate ~/.aws profile for each account.
+# Keys come from IAM user copilot in account 570912405222 (see infrastructure/town-aws-account.json).
+# Code Platoon is 388691194728 — use a separate ~/.aws profile for each account.
 #
 # Best practice: credentials only under ~/.aws/ with chmod 600 — never in the git repo.
 # See: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
@@ -21,7 +22,7 @@ readonly EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-570912405222}"
 echo "This script writes credentials only to ~/.aws/ (not this repository)."
 echo "Profile: ${PROFILE}   Region: ${REGION}   (expected account: ${EXPECTED_ACCOUNT})"
 echo ""
-echo "In IAM → Users → (e.g. copilot) → Security credentials, use one access key and its secret."
+echo "In IAM → Users → copilot → Security credentials, use one access key and its secret."
 echo "If you do not have the secret, choose Create access key and deactivate the old key when done."
 echo ""
 

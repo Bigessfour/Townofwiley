@@ -178,7 +178,7 @@ describe('WeatherPanel', () => {
     await settle();
 
     panel.alertSignupFeedback.set('Old message');
-    panel.alertSignupDestination.set('7195550102');
+    panel.updateAlertSignupDestination('7195550102');
 
     expect(panel.weatherSourceLabel()).toContain(
       'weather.gov via Town of Wiley AWS weather service',

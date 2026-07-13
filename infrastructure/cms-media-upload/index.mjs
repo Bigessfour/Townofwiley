@@ -56,13 +56,30 @@ function getJwtVerifier() {
   return jwtVerifier;
 }
 
-const DEFAULT_ALLOWED_ORIGIN = 'https://www.townofwiley.gov';
+const DEFAULT_ALLOWED_ORIGIN = 'https://townofwiley.gov';
+
+/** Apex + www (and any townofwiley.gov host) must both be allowed — clerks use townofwiley.gov/admin. */
+function isAllowedStaffOrigin(origin) {
+  const value = String(origin ?? '').trim();
+  if (!value) {
+    return false;
+  }
+  try {
+    const { protocol, hostname } = new URL(value);
+    if (protocol !== 'https:' && protocol !== 'http:') {
+      return false;
+    }
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return protocol === 'http:' || protocol === 'https:';
+    }
+    return hostname === 'townofwiley.gov' || hostname.endsWith('.townofwiley.gov');
+  } catch {
+    return false;
+  }
+}
 
 function corsHeaders(origin, methods = 'POST, OPTIONS') {
-  const allowOrigin =
-    origin && (origin === DEFAULT_ALLOWED_ORIGIN || origin.endsWith('.townofwiley.gov'))
-      ? origin
-      : DEFAULT_ALLOWED_ORIGIN;
+  const allowOrigin = isAllowedStaffOrigin(origin) ? String(origin).trim() : DEFAULT_ALLOWED_ORIGIN;
   return {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowOrigin,
@@ -71,6 +88,8 @@ function corsHeaders(origin, methods = 'POST, OPTIONS') {
     Vary: 'Origin',
   };
 }
+
+export { isAllowedStaffOrigin };
 
 function jsonResponse(statusCode, body, origin) {
   return {

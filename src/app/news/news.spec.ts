@@ -86,7 +86,7 @@ describe('News', () => {
     expect(compiled.querySelector('.featured-news-date')?.textContent).toContain('May 1, 2026');
     expect(compiled.querySelector('.news-card h3')?.textContent).toContain('Water notice');
     const externalCta = compiled.querySelector(
-      '.news-card--external .button-cta',
+      '.news-card--external a.p-button',
     ) as HTMLAnchorElement | null;
     expect(externalCta?.getAttribute('href')).toBe('https://example.com/regional');
     expect(externalCta?.getAttribute('target')).toBe('_blank');

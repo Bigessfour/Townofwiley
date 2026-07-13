@@ -16,6 +16,8 @@ concurrency:
 permissions:
   contents: read
   id-token: write # OIDC for deploy-production job in reusable workflow
+  actions: read # Ollama CI triage reads failed run logs
+  pull-requests: write # Ollama CI triage comments on PRs
 
 # E2E regression (smoke + interaction inventory) runs in git-workflow.yml → frontend-smoke.
 jobs:

@@ -20,6 +20,23 @@ describe('resolveClerkUploadFieldValue', () => {
     ).toBe('https://townofwiley.gov/media/cms/hero/x.jpg');
   });
 
+  it('rejects ephemeral S3 URLs for publicUrl fields', () => {
+    expect(() =>
+      resolveClerkUploadFieldValue(
+        { uploadValue: 'publicUrl' },
+        {
+          id: 'documents/cms-uploads/hero/x.jpg',
+          name: 'x.jpg',
+          size: 1,
+          type: 'image/jpeg',
+          url: 'https://bucket.s3.amazonaws.com/x.jpg?X-Amz-Signature=abc',
+          uploadedAt: new Date(),
+          sectionId: 'cms-uploads/hero',
+        },
+      ),
+    ).toThrow(/durable public photo URL/i);
+  });
+
   it('uses storage id for newsletter PDF uploads', () => {
     expect(
       resolveClerkUploadFieldValue(
@@ -48,11 +65,17 @@ describe('clerkUploadImagePreviewUrl', () => {
     ).toBe('https://townofwiley.gov/media/cms/hero/photo.webp');
   });
 
-  it('returns null for storage keys', () => {
+  it('returns null for storage keys and ephemeral URLs', () => {
     expect(
       clerkUploadImagePreviewUrl(
         { uploadValue: 'publicUrl', accept: 'image/jpeg' },
         'documents/newsletter/x.pdf',
+      ),
+    ).toBeNull();
+    expect(
+      clerkUploadImagePreviewUrl(
+        { uploadValue: 'publicUrl', accept: 'image/jpeg' },
+        'https://bucket.s3.amazonaws.com/x.jpg?X-Amz-Signature=abc',
       ),
     ).toBeNull();
   });

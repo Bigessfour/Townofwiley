@@ -15,6 +15,7 @@ interface ContactPageStore {
   leadershipRosterEntriesByGroup: ReturnType<
     typeof signal<ReadonlyMap<string, readonly RosterEntry[]>>
   >;
+  getSiteCopy: (key: string) => { en: string; es?: string } | undefined;
 }
 
 function rosterMapFromLines(
@@ -31,13 +32,16 @@ function rosterMapFromLines(
 }
 
 function configure(
-  store: Omit<ContactPageStore, 'leadershipRosterEntriesByGroup'> &
-    Partial<Pick<ContactPageStore, 'leadershipRosterEntriesByGroup'>>,
+  store: Omit<ContactPageStore, 'leadershipRosterEntriesByGroup' | 'getSiteCopy'> &
+    Partial<Pick<ContactPageStore, 'leadershipRosterEntriesByGroup' | 'getSiteCopy'>>,
   language: 'en' | 'es' = 'en',
 ) {
   const fullStore: ContactPageStore = {
-    leadershipRosterEntriesByGroup: signal(new Map<string, readonly RosterEntry[]>()),
     ...store,
+    leadershipRosterEntriesByGroup:
+      store.leadershipRosterEntriesByGroup ??
+      signal(new Map<string, readonly RosterEntry[]>()),
+    getSiteCopy: store.getSiteCopy ?? (() => undefined),
   };
   TestBed.configureTestingModule({
     imports: [ContactPage],

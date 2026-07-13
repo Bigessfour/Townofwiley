@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { buildClerkTaskHubLiveLink } from './cms-clerk-task-live-link';
@@ -31,7 +32,7 @@ function taskVisibleForGroups(task: ClerkCmsTask, groups: string[]): boolean {
 @Component({
   selector: 'app-cms-clerk-task-hub',
   standalone: true,
-  imports: [TagModule],
+  imports: [ButtonModule, TagModule],
   templateUrl: './cms-clerk-task-hub.component.html',
   styleUrl: './cms-clerk-task-hub.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

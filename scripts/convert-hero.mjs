@@ -4,7 +4,7 @@
  * Resolution order for source:
  * 1. `--input <path>` (relative to repo root or absolute)
  * 2. First positional argument (relative to repo root or absolute)
- * 3. `Photos/wiley01.webp` when present
+ * 3. `Photos/Wley,_Colorado.JPG` or `Photos/wiley01.webp` when present
  * 4. `public/hero-wiley.jpg` (legacy)
  *
  * Usage:
@@ -40,12 +40,19 @@ function parseCliSource() {
   return null;
 }
 
+const defaultPhotoJpg = join(rootDir, 'Photos', 'Wley,_Colorado.JPG');
 const defaultWebp = join(rootDir, 'Photos', 'wiley01.webp');
 const fallbackJpg = join(publicDir, 'hero-wiley.jpg');
 
 const src =
   parseCliSource() ??
-  (existsSync(defaultWebp) ? defaultWebp : existsSync(fallbackJpg) ? fallbackJpg : null);
+  (existsSync(defaultPhotoJpg)
+    ? defaultPhotoJpg
+    : existsSync(defaultWebp)
+      ? defaultWebp
+      : existsSync(fallbackJpg)
+        ? fallbackJpg
+        : null);
 
 if (!src || !existsSync(src)) {
   console.error('No hero source image found.');

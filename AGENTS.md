@@ -1,6 +1,6 @@
 # Town of Wiley — Grok Build project rules
 
-Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
+Official site for [townofwiley.gov](https://townofwiley.gov): Angular 22, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
 
 ## Stack and conventions
 
@@ -110,7 +110,7 @@ See full details and setup in [`docs/codebase-rag.md`](docs/codebase-rag.md) and
 
 Project MCP is in [`.grok/config.toml`](.grok/config.toml) (mirrors [`.cursor/mcp.json`](.cursor/mcp.json)):
 
-- **angular-cli** — Angular 21 patterns, `list_projects`, `get_best_practices`.
+- **angular-cli** — Angular 22 patterns, `list_projects`, `get_best_practices`.
 - **primeng** — PrimeNG component usage (Cursor); run `npm run mcp:primeng:install` once — pinned SDK in [`mcp/primeng/`](mcp/primeng/) — see [`docs/grok-cli.md`](docs/grok-cli.md).
 - **playwright-test** — run/fix e2e via `run-test-mcp-server`.
 - **playwright-mcp** — exploratory browser automation (`@playwright/mcp@latest`).
@@ -167,7 +167,8 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## AWS and secrets
 
-- AWS account **570912405222**; profile **`townofwiley`**. Never commit credentials; use `npm run secrets:*` scripts.
+- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — account **`570912405222`** only (starts with **57**); IAM user **`copilot`** for agent/IDE CLI access; profile **`townofwiley`**; region **`us-east-2`**. Policies: [`infrastructure/iam/`](infrastructure/iam/) (`copilot-*`). Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Other AWS accounts on your machine are **not** this repo.
+- Never commit credentials; use `npm run secrets:*` scripts.
 - **For agent access (Grok, Cursor, etc.):** Source the helper before working with AWS:
   ```bash
   source scripts/agent-aws-env.sh
@@ -186,8 +187,9 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 - Cost optimization: [`docs/aws-cost-optimization-runbook.md`](docs/aws-cost-optimization-runbook.md) — `npm run aws:optimize:discover` / `aws:optimize:apply`
 - See also: `scripts/configure-aws-cli-profile.sh`, `scripts/agent-aws-env.sh`, and `infrastructure/aws-infrastructure.manifest.json` (Single Source of Truth).
 
-## Git
+## Git and production deploy
 
 - Feature branches; **never push directly to `main`** — open a PR and wait for **`site-ci / CI gate (merge required)`** to pass before merge.
 - Merge to `main` when CI is green. Do not force-push `main`.
 - Branch protection setup: [`docs/github-branch-protection.md`](docs/github-branch-protection.md).
+- **Production frontend deploy SSOT:** merge to `main` → GitHub Actions OIDC → S3 + CloudFront — [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md). Break-glass: `npm run deploy:site`. **Ansible removed**; **Terraform** is IaC (`infrastructure/terraform/`, not site publish).

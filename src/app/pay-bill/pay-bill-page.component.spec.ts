@@ -99,7 +99,7 @@ describe('PayBillPageComponent', () => {
       '[data-testid="pay-bill-portal-cta"]',
     ) as HTMLAnchorElement | null;
     expect(activeCta).not.toBeNull();
-    expect(activeCta?.classList.contains('p-button-sm')).toBe(false);
+    expect(activeCta?.classList.contains('p-button-primary')).toBe(true);
     expect(activeCta?.getAttribute('href')).toContain('paystar.io');
   });
 

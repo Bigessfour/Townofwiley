@@ -6,6 +6,8 @@ This guide is written for the Town Clerk or any staff member who manages the Wil
 
 **Verify CMS is working (Studio + website):** follow [CMS-VERIFY-STUDIO.md](./CMS-VERIFY-STUDIO.md) — about five minutes, no code required.
 
+**IT reliability / hero photo / AppSync↔CDN parity:** [cms-clerk-reliability-runbook.md](./cms-clerk-reliability-runbook.md).
+
 ---
 
 ## Part 1 — Get Access (Do This Once)

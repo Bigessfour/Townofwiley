@@ -29,7 +29,7 @@ export const runtimeSecretEnvMappings = [
   { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },
   { env: 'EASYPEASY_API_KEY', path: ['chatbot', 'easyPeasy', 'apiKey'], secret: true },
-  { env: 'GUESTBOOK_API_ENDPOINT', path: ['guestbook', 'apiEndpoint'] },
+
   { env: 'PAYSTAR_PORTAL_URL', path: ['payments', 'paystar', 'portalUrl'] },
   { env: 'LOG_ENDPOINT', path: ['logging', 'endpoint'] },
   { env: 'COGNITO_USER_POOL_ID', path: ['auth', 'cognito', 'userPoolId'] },

@@ -1,0 +1,4 @@
+expected_account_id         = "570912405222"
+aws_region                  = "us-east-2"
+environment                 = "production"
+manage_lambda_log_retention = false

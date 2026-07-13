@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { readAdminRuntimeConfig } from '../admin-runtime-config';
 import { StaffAuthService } from '../auth/staff-auth.service';
 
 export interface CmsAuditLogEntry {
@@ -22,6 +23,15 @@ interface CmsAuditLogResponse {
 export class CmsAuditLogService {
   private readonly http = inject(HttpClient);
   private readonly staffAuth = inject(StaffAuthService);
+
+  isConfigured(): boolean {
+    if (this.staffAuth.playwrightStaffBypassActive()) {
+      return false;
+    }
+    const endpoint = this.readAuditEndpoint();
+    const token = this.staffAuth.accessToken();
+    return Boolean(endpoint?.trim()) && Boolean(token?.trim());
+  }
 
   async listRecent(limit = 25): Promise<CmsAuditLogEntry[]> {
     if (this.staffAuth.playwrightStaffBypassActive()) {
@@ -51,9 +61,12 @@ export class CmsAuditLogService {
     if (typeof window === 'undefined') {
       return '';
     }
-    const runtime = window as Window & {
-      __TOW_RUNTIME_CONFIG__?: { cms?: { auditLog?: { apiEndpoint?: string } } };
-    };
-    return runtime.__TOW_RUNTIME_CONFIG__?.cms?.auditLog?.apiEndpoint?.trim() ?? '';
+    const legacyPublic = (
+      window as Window & {
+        __TOW_RUNTIME_CONFIG__?: { cms?: { auditLog?: { apiEndpoint?: string } } };
+      }
+    ).__TOW_RUNTIME_CONFIG__?.cms?.auditLog?.apiEndpoint;
+    const adminEndpoint = readAdminRuntimeConfig()?.cms?.auditLog?.apiEndpoint;
+    return (adminEndpoint ?? legacyPublic)?.trim() ?? '';
   }
 }

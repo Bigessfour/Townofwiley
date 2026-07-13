@@ -25,6 +25,22 @@
             </div>
           }
         </div>
+      } @else if (usesDocumentsWorkflow(id)) {
+        <div id="cms-task-form" class="cms-task-guide__form-panel" data-testid="cms-task-form">
+          <p class="cms-task-guide__form-lead">
+            Upload PDFs in <strong>Document publishing</strong> on this page. Choose the meeting,
+            then select the agenda or minutes file.
+          </p>
+          <a
+            pButton
+            severity="primary"
+            class="cms-task-guide__documents-link"
+            href="#documents"
+            data-testid="cms-task-open-documents"
+          >
+            Open upload form
+          </a>
+        </div>
       } @else {
         <div id="cms-task-form" class="cms-task-guide__form-panel" data-testid="cms-task-form">
           <app-cms-clerk-record-editor [taskId]="taskId()" />
@@ -32,7 +48,7 @@
       }
     }
 
-    <details class="cms-task-guide__help">
+    <details class="cms-task-guide__help" [open]="helpExpanded()">
       <summary>Step-by-step help and field names</summary>
       <ol class="cms-task-guide__steps">
         @for (step of active.steps; track step) {
@@ -53,6 +69,18 @@
             </div>
           }
         </dl>
+      }
+
+      @if (taskId() === 'edit-site-copy') {
+        <h3 class="cms-task-guide__subtitle">SiteCopy keys that work on the live site</h3>
+        <ul class="cms-task-guide__key-list">
+          @for (entry of siteCopyKeys; track entry.key) {
+            <li>
+              <code>{{ entry.key }}</code> — {{ entry.plainLabel }}
+              <span class="cms-task-guide__tech">({{ entry.appearsOn }})</span>
+            </li>
+          }
+        </ul>
       }
 
       <h3 class="cms-task-guide__subtitle">After you save</h3>

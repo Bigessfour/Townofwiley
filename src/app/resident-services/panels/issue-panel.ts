@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { Ripple } from 'primeng/ripple';
+
 
 export type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 
@@ -42,7 +42,6 @@ export interface IssuePanelCopy {
     InputTextModule,
     MessageModule,
     ReactiveFormsModule,
-    Ripple,
     SelectModule,
     TextareaModule,
   ],

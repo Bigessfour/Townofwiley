@@ -267,7 +267,13 @@ describe('App', () => {
         label: 'Meetings & documents',
         routerLink: '/meetings',
       },
+      {
+        label: 'Open the full town calendar',
+        routerLink: '/meetings',
+        fragment: 'calendar',
+      },
     ]);
+    expect(secondColumnGroup?.label).toBe('Meetings & documents');
   });
 
   it('should keep non-core public routes lazy-loaded or redirected', () => {

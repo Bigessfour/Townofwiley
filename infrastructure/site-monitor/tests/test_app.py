@@ -43,6 +43,32 @@ class RecordingMailer:
         self.messages.append({"subject": subject, "body": body})
 
 
+class RecordingSns:
+    def __init__(self) -> None:
+        self.messages: list[dict[str, str]] = []
+
+    def publish(self, **kwargs: str) -> dict[str, str]:
+        self.messages.append(kwargs)
+        return {"MessageId": "test"}
+
+
+class CompositeMailerTests(unittest.TestCase):
+    def test_composite_calls_ses_and_sns(self) -> None:
+        ses = RecordingMailer()
+        sns = RecordingSns()
+        mailer = APP.CompositeMailer(
+            ses,
+            sns_topic_arn="arn:aws:sns:us-east-2:570912405222:tow-ops-alerts",
+            sns_client=sns,
+            correlation_id="cid-test",
+        )
+        mailer.send_message("[Town of Wiley] Site unhealthy", "detail body")
+        self.assertEqual(len(ses.messages), 1)
+        self.assertEqual(len(sns.messages), 1)
+        self.assertIn("[ERROR]", sns.messages[0]["Subject"])
+        self.assertIn("cid-test", sns.messages[0]["Message"])
+
+
 class MemoryStateStore:
     def __init__(self) -> None:
         self.state: dict[str, dict[str, object]] = {}

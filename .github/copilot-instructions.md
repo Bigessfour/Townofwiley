@@ -147,7 +147,7 @@ Required merge check name: **`site-ci / CI gate (merge required)`**. Deploy runs
 ```bash
 source scripts/agent-aws-env.sh
 npm run deploy:site
-# or: npm run deploy:ansible:dry / npm run deploy:ansible
+# IaC: npm run terraform:town:validate / terraform:e2e:validate (with Town AWS creds)
 ```
 
 CI failures: `gh run view <run-id> --log-failed` — not Grok fetch of GitHub URLs.

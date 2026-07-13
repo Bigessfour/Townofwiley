@@ -25,26 +25,26 @@ const skipProbe = args.has('--skip-probe');
 
 const bindingsPath = join(repoRoot, 'infrastructure', 'gen1-production-bindings.json');
 const runtimeConfigPath = join(repoRoot, 'public', 'runtime-config.js');
+const runtimeConfigAdminPath = join(repoRoot, 'public', 'runtime-config-admin.js');
 
 function fail(message) {
   console.error(`error: ${message}`);
   process.exit(1);
 }
 
-function loadRuntimeConfigObject() {
-  if (!existsSync(runtimeConfigPath)) {
-    fail(`missing ${runtimeConfigPath} — run npm run generate:runtime-config:strict`);
+function loadRuntimeConfigObject(path, marker) {
+  if (!existsSync(path)) {
+    fail(`missing ${path} — run npm run generate:runtime-config:strict`);
   }
-  const source = readFileSync(runtimeConfigPath, 'utf8');
-  const marker = 'window.__TOW_RUNTIME_CONFIG__ = ';
+  const source = readFileSync(path, 'utf8');
   const start = source.indexOf(marker);
   if (start === -1) {
-    fail('runtime-config.js: missing window.__TOW_RUNTIME_CONFIG__ assignment');
+    fail(`${path}: missing ${marker.trim()} assignment`);
   }
   const jsonStart = start + marker.length;
   const jsonEnd = source.lastIndexOf(';');
   if (jsonEnd <= jsonStart) {
-    fail('runtime-config.js: could not parse JSON payload');
+    fail(`${path}: could not parse JSON payload`);
   }
   return JSON.parse(source.slice(jsonStart, jsonEnd));
 }
@@ -63,10 +63,25 @@ if (!bindings?.appSync?.graphqlEndpoint) {
   fail(`missing appSync.graphqlEndpoint in ${bindingsPath}`);
 }
 
-const config = loadRuntimeConfigObject();
+const config = loadRuntimeConfigObject(
+  runtimeConfigPath,
+  'window.__TOW_RUNTIME_CONFIG__ = ',
+);
+const adminConfig = loadRuntimeConfigObject(
+  runtimeConfigAdminPath,
+  'window.__TOW_RUNTIME_CONFIG_ADMIN__ = ',
+);
 const cms = config.cms?.appSync ?? {};
 const auth = config.auth?.cognito ?? {};
-const clerk = config.clerkSetup ?? {};
+const clerk = adminConfig.clerkSetup ?? {};
+
+if (config.clerkSetup) {
+  fail('runtime-config.js must not include clerkSetup (use runtime-config-admin.js)');
+}
+if (config.cms?.mediaUpload || config.cms?.auditLog) {
+  fail('runtime-config.js must not include cms.mediaUpload or cms.auditLog');
+}
+console.log('OK: public runtime-config excludes staff-only blocks');
 
 expectEqual('cms.appSync.apiEndpoint', cms.apiEndpoint, bindings.appSync.graphqlEndpoint);
 expectEqual('cms.appSync.region', cms.region, bindings.storage?.region ?? 'us-east-2');

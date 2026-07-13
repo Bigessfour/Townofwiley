@@ -3,13 +3,34 @@
   aria-labelledby="cms-recent-changes-heading"
   data-testid="cms-recent-changes"
 >
-  <h2 id="cms-recent-changes-heading" class="cms-recent-changes__title">Recent changes</h2>
-  <p class="cms-recent-changes__lead">
-    Who changed CMS content and when (updates appear within a minute of saving).
-  </p>
+  <div class="cms-recent-changes__header">
+    <div>
+      <h2 id="cms-recent-changes-heading" class="cms-recent-changes__title">Recent changes</h2>
+      <p class="cms-recent-changes__lead">
+        Who changed website content and when (usually within a minute of saving).
+      </p>
+    </div>
+    <button
+      pButton
+      type="button"
+      class="p-button-outlined p-button-sm"
+      icon="pi pi-refresh"
+      [loading]="refreshLoading()"
+      [disabled]="loading() || refreshLoading()"
+      data-testid="cms-recent-changes-refresh"
+      (click)="refresh()"
+    >
+      Refresh list
+    </button>
+  </div>
 
   @if (loading()) {
     <p class="cms-recent-changes__status" role="status">Loading recent changes…</p>
+  } @else if (auditUnavailable()) {
+    <p class="cms-recent-changes__status" role="status">
+      Sign in at /admin/login to see change history. If you are signed in and this stays empty, ask
+      Town IT to verify the audit log is configured.
+    </p>
   } @else if (error(); as message) {
     <p class="cms-recent-changes__status cms-recent-changes__status--error" role="alert">
       {{ message }}
@@ -22,13 +43,18 @@
         <li class="cms-recent-changes__item">
           <div class="cms-recent-changes__meta">
             <p-tag
-              [value]="entry.operation ?? 'CHANGE'"
+              [value]="operationLabel(entry.operation)"
               [severity]="operationSeverity(entry.operation)"
             />
-            <span class="cms-recent-changes__model">{{ entry.modelName }}</span>
+            <span class="cms-recent-changes__model">{{ taskTitle(entry.modelName) }}</span>
             <time [dateTime]="entry.timestamp">{{ formatTimestamp(entry.timestamp) }}</time>
           </div>
           <p class="cms-recent-changes__summary">{{ entry.summary }}</p>
+          @if (formatChangedFields(entry.changedFields); as fields) {
+            <p class="cms-recent-changes__fields">
+              <strong>Fields changed:</strong> {{ fields }}
+            </p>
+          }
           <p class="cms-recent-changes__detail">
             {{ entry.staffEmail ?? 'unknown' }}
             @if (entry.recordId) {

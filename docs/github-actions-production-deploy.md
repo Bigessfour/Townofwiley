@@ -2,6 +2,8 @@
 
 Production frontend hosting for [townofwiley.gov](https://townofwiley.gov) is **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`). After Site CI passes on a push to **`main`** with deployable app changes, GitHub Actions syncs the CI-built artifact and invalidates CloudFront.
 
+**This is the only supported production frontend deploy path.** Ansible was removed; Terraform is IaC only (not the static site publisher). See [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md).
+
 Amplify Hosting is **not** the deploy authority (app `d331voxr1fhoir` was deleted June 2026).
 
 ## Architecture
@@ -69,7 +71,7 @@ Deploy consumes the **artifact from `frontend-lint-build`**, which runs `npm run
 - `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`, `SEVERE_WEATHER_SIGNUP_ENABLED`
 - `EASYPEASY_API_ENDPOINT`, `EASYPEASY_CHAT_URL`
 - `CONTACT_UPDATE_REVIEW_API_URL`
-- `GUESTBOOK_API_ENDPOINT`
+
 
 No new secrets are required for S3/CloudFront when using OIDC.
 

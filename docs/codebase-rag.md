@@ -1,88 +1,107 @@
 # Local codebase RAG
 
-Semantic search over this repository for **IDE agents** (Cursor, VS Code Copilot, Grok). Embeddings run locally; **generation stays with your IDE model** (Claude, GPT, Grok, etc.).
+Semantic / lexical search over this repository for **IDE agents** (Cursor, VS Code Copilot, Grok). **Generation stays with your IDE model** (Claude, GPT, Grok, etc.).
 
-## Architecture (current high-availability local implementation)
+## Architecture (current high-availability implementation)
 
-| Layer        | Technology                                                                 |
-| ------------ | -------------------------------------------------------------------------- |
-| Search       | ripgrep (primary when available) + Node lexical + path/structural scoring  |
-| Storage      | In-memory per-process (instant startup); optional manifest for incremental |
-| Agent access | MCP `townofwiley-rag` (native Node) or `npm run rag:query`                 |
+| Layer        | Technology                                                                |
+| ------------ | ------------------------------------------------------------------------- |
+| Search       | ripgrep (boost when available) + Node lexical + path/structural scoring |
+| Storage      | In-memory on demand; optional cache under `.rag/js-index.json`            |
+| Agent access | MCP **`townofwiley-rag`** (native Node) or `npm run rag:query`            |
 
-**Design goals (per user requirements)**: Local only (never deployed), WSL terminal environment, "instantly available" with no failing tool calls or long first-time setup, reusable via MCP tool + best-practice skill.
+**Design goals:** Local only (never deployed), instantly available, no failing tool calls or long first-time setup, reusable via MCP + project rules.
 
-The original Python sentence-transformers + ChromaDB vision (see previous version of this doc) can be restored later by re-adding `rag/requirements.txt` + `rag/tow_rag/` package. The current JS implementation delivers the required reliability and zero-setup experience while covering the same high-signal paths.
+> Legacy Python (sentence-transformers + Chroma) is **not** required. Optional local leftovers under `rag/tow_rag/` are gitignored.
 
-## First-time setup (current reliable mode)
-
-No Python or long setup required for instant availability.
+## First-time setup
 
 ```bash
-# (optional) one-time environment sanity in WSL
 npm run rag:setup
-npm run rag:status          # should report "ok (JS local)" + file count
+npm run rag:status          # should report "ok (JS local)" + file counts
+npm run rag:index           # optional — writes .rag/ for faster MCP warm start
 npm run rag:query -- "How does staff admin login work?"
+npm run rag:test
 ```
 
-The MCP server (`townofwiley-rag`) starts in <1s via native Node (see `.cursor/mcp.json`).
+No Python venv. Node **20+** (repo pins **24.x**).
 
 Reload Cursor / VS Code / Grok after MCP config changes so **`townofwiley-rag`** appears in the tool list.
 
-(If you want the heavier original Python `BAAI/bge-small-en-v1.5` + Chroma version, restore the requirements + tow_rag package and update the wrappers.)
-
 ## npm scripts
 
-| Script                  | Purpose                                             |
-| ----------------------- | --------------------------------------------------- |
-| `rag:setup`             | Create venv + `pip install -r rag/requirements.txt` |
-| `rag:index`             | Full re-index                                       |
-| `rag:index:incremental` | Only changed files (vs manifest hashes)             |
-| `rag:query -- "…"`      | CLI search (markdown to stdout)                     |
-| `rag:status`            | Manifest + stale vs `git HEAD`                      |
-| `rag:test`              | Unit tests (chunking/format; no full index)         |
+| Script                  | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
+| `rag:setup`             | Sanity check + create `.rag/`                    |
+| `rag:index`             | Full chunk index → `.rag/js-index.json`          |
+| `rag:index:incremental` | Refresh index (currently full rebuild; fast)     |
+| `rag:query -- "…"`      | CLI search (markdown to stdout)                  |
+| `rag:status`            | Manifest + stale vs git HEAD + discoverable files |
+| `rag:test`              | Unit tests (globs, discover, search smoke)       |
 
-## MCP tools (preferred in Cursor)
+## MCP tools
 
 Server name: **`townofwiley-rag`**
 
 | Tool              | Description                                                     |
 | ----------------- | --------------------------------------------------------------- |
 | `search_codebase` | `query` (required), `limit` (default 8), optional `path_prefix` |
-| `rag_status`      | Index age, chunk counts, stale hint                             |
+| `rag_status`      | Index age, chunk counts, engine, stale hint                     |
 
-Configured in [`.cursor/mcp.json`](../.cursor/mcp.json), [`.vscode/mcp.json`](../.vscode/mcp.json), [`.grok/config.toml`](../.grok/config.toml).
+### Project config
+
+- [`.cursor/mcp.json`](../.cursor/mcp.json)
+- [`.vscode/mcp.json`](../.vscode/mcp.json)
+- [`.grok/config.toml`](../.grok/config.toml)
+
+### Global config (available in other projects)
+
+When working outside this repo, point MCP at this tree with **`TOW_RAG_ROOT`**:
+
+| Client | Location |
+| ------ | -------- |
+| Grok Build | `~/.grok/config.toml` → `[mcp_servers.townofwiley-rag]` |
+| Cursor | `~/.cursor/mcp.json` → `townofwiley-rag` |
+| Launcher | `~/.cursor/scripts/townofwiley-rag-mcp.sh` |
+
+```bash
+# Env used by the global launcher
+export TOW_RAG_ROOT="/absolute/path/to/TOW Wiley Website"
+```
 
 ## Agent workflow
 
-1. **When**: Cross-cutting questions (“where is X handled?”), before 3+ speculative greps — after skimming `docs/` and `.cursor/rules/`.
-2. **How**: MCP `search_codebase` or `npm run rag:query -- "…"`.
-3. **Then**: Open cited `path:start-end` with the editor Read tool; snippets are not full files.
-4. **Re-index**: If `rag_status` says stale or index missing → `npm run rag:index` (or `rag:index:incremental` after small edits).
-5. **Skip RAG**: Exact symbol strings, secrets, live URLs — use grep instead.
+1. **When:** Cross-cutting “where is X?” questions — after skimming `docs/` / rules, before 3+ speculative greps.
+2. **How:** MCP `search_codebase` or `npm run rag:query -- "…"`.
+3. **Then:** Open cited `path:start-end` with the editor Read tool; snippets are not full files.
+4. **Re-index:** If `rag_status` says stale → `npm run rag:index` (or `rag:index:incremental`).
+5. **Skip RAG:** Exact symbol strings, secrets, live URLs — use grep instead.
 
-See also [`.cursor/rules/codebase-rag.mdc`](../.cursor/rules/codebase-rag.mdc) and [`.github/copilot-instructions.md`](../.github/copilot-instructions.md).
+See also [`.cursor/rules/codebase-rag.mdc`](../.cursor/rules/codebase-rag.mdc).
 
 ## What gets indexed
 
-High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/`, `rag/tow_rag/` (the RAG implementation itself), Amplify GraphQL/config, `.github/skills/`, `.github/instructions/`, `.cursor/rules/`, agent instruction markdown (AGENTS.md, .instructions.md, copilot-instructions, etc.).
+High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/` (including `infrastructure/terraform/`), `.github/workflows/`, `.github/actions/`, Amplify GraphQL/config, `.github/skills/`, `.github/instructions/`, `.cursor/rules/`, agent instruction markdown, `customHttp.yml`, `angular.json`, `package.json`, `rag/js/`, `rag/*.md`.
 
-**Never indexed**: `node_modules/`, `dist/`, `secrets/`, lockfiles, generated `public/cms-snapshot.json`, binaries, `rag/.venv/`.
+**Never indexed:** `node_modules/`, `dist/`, `secrets/`, lockfiles, generated `public/cms-snapshot.json`, binaries, `rag/.venv/`.
 
 ## Troubleshooting
 
-| Issue                                                    | Fix                                                                                                                                                               |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RAG venv missing`                                       | `npm run rag:setup`                                                                                                                                               |
-| `RAG index missing`                                      | `npm run rag:index`                                                                                                                                               |
-| Stale index after many commits                           | `npm run rag:index` or `rag:index:incremental`                                                                                                                    |
-| MCP server not listed                                    | Reload window; ensure `npm run rag:setup` completed                                                                                                               |
-| `No module named 'mcp.server'`                           | Cursor is not using the venv — run `npm run rag:setup`, confirm [`.cursor/mcp.json`](../.cursor/mcp.json) uses `node scripts/rag-mcp.mjs`, then reload the window |
-| MCP log lines like `ListToolsRequest` shown as `[error]` | Usually **INFO on stderr**, not a failure — if status is `connected: true`, the server is healthy                                                                 |
-| Slow first query                                         | Model download on first embed; normal                                                                                                                             |
+| Issue | Fix |
+| ----- | --- |
+| MCP server not listed | Reload window; confirm `scripts/rag-mcp.mjs` exists |
+| Empty / weak results | `npm run rag:index`; try a more specific query or `path_prefix` |
+| Stale after large commits | `npm run rag:index` |
+| Global MCP fails | Set `TOW_RAG_ROOT` in the launcher to this repo’s absolute path |
+| ripgrep missing | Optional — install `rg` for boosts; lexical search still works |
 
 ## Implementation
 
-- Wrappers (Node, WSL-launched): [`scripts/rag-mcp.mjs`](../scripts/rag-mcp.mjs) (MCP stdio server), [`scripts/rag-run.mjs`](../scripts/rag-run.mjs), [`scripts/rag-setup.mjs`](../scripts/rag-setup.mjs).
-- Self-description for the RAG (indexed): [`rag/tow_rag/self-description.md`](../rag/tow_rag/self-description.md).
-- The implementation is intentionally lightweight JS + ripgrep so the tool is **always available** the moment the MCP server starts (no venv, no model download, no multi-minute `rag:index` required for basic use).
+| Path | Role |
+| ---- | ---- |
+| [`rag/js/`](../rag/js/) | Core: config, discover, chunk, search, MCP, CLI |
+| [`scripts/rag-mcp.mjs`](../scripts/rag-mcp.mjs) | MCP launcher |
+| [`scripts/rag-run.mjs`](../scripts/rag-run.mjs) | npm CLI bridge |
+| [`rag/self-description.md`](../rag/self-description.md) | Indexed meta-doc for agents |
+
+Search does **not** require a pre-built index (in-memory discover + chunk on first use). Indexing is recommended for faster cold starts.

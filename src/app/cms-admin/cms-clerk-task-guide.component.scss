@@ -153,3 +153,17 @@
   font-weight: 500;
   font-size: 0.875rem;
 }
+
+.cms-task-guide__key-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.cms-task-guide__documents-link {
+  display: inline-flex;
+  text-decoration: none;
+}

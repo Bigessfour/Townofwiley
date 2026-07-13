@@ -88,6 +88,10 @@ describe('LocalizedCmsContentStore', () => {
     return store;
   }
 
+  async function settleCmsStore(store: LocalizedCmsContentStore): Promise<void> {
+    await store.whenInitSettledForTests();
+  }
+
   function flushBuildSnapshotRequests(
     body: unknown = null,
     status?: number,
@@ -710,7 +714,10 @@ describe('LocalizedCmsContentStore', () => {
 
     httpTesting = TestBed.inject(HttpTestingController);
     const store = await injectFreshCmsStore();
+    flushBuildSnapshotRequests();
+    flushRevisionRequests();
     await waitForCmsInitialization();
+    await settleCmsStore(store);
 
     expect(store.isUsingCachedSnapshot()).toBe(true);
     expect(store.hero().title).toBe('Cached Town of Wiley');
@@ -824,7 +831,7 @@ describe('LocalizedCmsContentStore', () => {
   });
 
   it('skips AppSync when revision matches a fresh browser snapshot', async () => {
-    const revision = '2026-06-20T12:15:00.000Z';
+    const revision = hoursAgo(2);
     runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
       cms: {
         appSync: {
@@ -863,6 +870,7 @@ describe('LocalizedCmsContentStore', () => {
     flushBuildSnapshotRequests();
     flushRevisionRequests({ version: 1, revision, savedAt: revision });
     await waitForCmsInitialization();
+    await settleCmsStore(store);
 
     expect(store.hero().title).toBe('Cached Town of Wiley');
     expect(CMS_LIVE_REFRESH_TTL_MS).toBe(6 * 60 * 60 * 1000);

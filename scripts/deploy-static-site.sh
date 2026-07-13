@@ -95,6 +95,11 @@ if [[ ! -f "${DIST_DIR}/runtime-config.js" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${DIST_DIR}/runtime-config-admin.js" ]]; then
+  echo "error: missing ${DIST_DIR}/runtime-config-admin.js — strict build should emit this file" >&2
+  exit 1
+fi
+
 SYNC_EXTRA=()
 if [[ ${DRY_RUN} == true ]]; then
   SYNC_EXTRA+=(--dryrun)
@@ -102,24 +107,35 @@ if [[ ${DRY_RUN} == true ]]; then
 fi
 
 echo "Syncing ${DIST_DIR} -> s3://${S3_BUCKET}/ (immutable assets)..."
+# Never --delete clerk media under media/cms/* (hero uploads) or stream-managed CMS JSON.
 aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   ${SYNC_EXTRA[@]+"${SYNC_EXTRA[@]}"} \
   --cache-control 'public, max-age=31536000, immutable' \
   --exclude 'index.html' \
   --exclude 'runtime-config.js' \
+  --exclude 'runtime-config-admin.js' \
   --exclude 'cms-snapshot.json' \
   --exclude 'cms-revision.json' \
+  --exclude 'media/cms/*' \
+  --exclude 'media/cms/*/*' \
   --exclude '*/*.html'
 
 echo "Syncing HTML + runtime-config (no-cache)..."
 aws s3 sync "${DIST_DIR}" "s3://${S3_BUCKET}" --delete \
   ${SYNC_EXTRA[@]+"${SYNC_EXTRA[@]}"} \
   --cache-control 'no-cache, no-store, must-revalidate' \
+  --exclude '*' \
   --include 'index.html' \
   --include 'runtime-config.js' \
-  --include '*/*.html'
+  --include 'runtime-config-admin.js' \
+  --include '*/*.html' \
+  --exclude 'cms-snapshot.json' \
+  --exclude 'cms-revision.json' \
+  --exclude 'media/cms/*' \
+  --exclude 'media/cms/*/*'
 
 echo "Skipping cms-snapshot.json / cms-revision.json — owned by TownOfWileyCmsChangeNotifier (stream → S3)."
+echo "Skipping media/cms/* — owned by TownOfWileyCmsMediaUpload (clerk hero photos)."
 
 if [[ ${DRY_RUN} == true ]]; then
   echo "DRY RUN: skipping CloudFront invalidation"

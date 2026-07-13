@@ -23,6 +23,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24.16.0
+          cache: npm
+
+      - name: Restore Angular CLI cache
+        uses: ./.github/actions/cache-angular-cli
 
       - name: Install dependencies
         run: npm ci
@@ -31,13 +35,10 @@ jobs:
         run: npm run lint
 
       - name: Cache Playwright Chromium
-        uses: actions/cache@v4
         id: playwright-cache
+        uses: ./.github/actions/cache-playwright-chromium
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            playwright-chromium-${{ runner.os }}-
+          browsers_path: ~/.cache/ms-playwright
 
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -46,6 +47,13 @@ jobs:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
-      # Customize this step as needed
-      - name: Build application
-        run: npm run build
+      # Copilot workspaces often lack production secrets. Use non-strict runtime
+      # config so setup validation still proves lint + ng build work.
+      - name: Build application (non-strict runtime config)
+        run: |
+          set -euo pipefail
+          node scripts/ensure-node-version.mjs
+          npm run generate:runtime-config
+          npm run generate:cms-snapshot
+          node scripts/verify-public-cms-query.mjs
+          npx ng build

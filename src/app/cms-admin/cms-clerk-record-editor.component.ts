@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -22,6 +23,7 @@ import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
+import { isEphemeralCmsAssetUrl } from '../cms-public-asset-url';
 import {
   CmsSiteSettingsAdminService,
   type SiteSettingsInput,
@@ -53,13 +55,24 @@ import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
 import { clerkUploadImagePreviewUrl, resolveClerkUploadFieldValue } from './cms-clerk-upload-field';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
+import { buildClerkSavePreviewLines } from './cms-clerk-save-preview';
+import {
+  clerkFormSectionTrack,
+  clerkFormSections,
+  type ClerkFormSection,
+} from './cms-clerk-form-field-layout';
+import { resolveFieldPreviewHint } from './cms-clerk-task-field-layout';
+import { confirmClerkSensitiveSave } from './cms-clerk-sensitive-save';
+import { CmsSitecopySaveMockComponent } from './cms-sitecopy-save-mock.component';
 import { resolveOrderListAfterReorder } from './cms-order-list-reorder';
 
 @Component({
   selector: 'app-cms-clerk-record-editor',
   imports: [
+    NgTemplateOutlet,
     FormsModule,
     ButtonModule,
+    CmsSitecopySaveMockComponent,
     CheckboxModule,
     InputNumberModule,
     InputTextModule,
@@ -89,6 +102,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly records = signal<Record<string, unknown>[]>([]);
   protected readonly editingId = signal<string | null>(null);
   protected readonly formValues = signal<Record<string, string | boolean>>({});
+  protected readonly baselineFormValues = signal<Record<string, string | boolean> | null>(null);
   protected readonly submitting = signal(false);
   protected readonly deleting = signal(false);
   protected readonly submitResult = signal<string | null>(null);
@@ -120,6 +134,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     const id = this.taskId();
     return id ? clerkTaskFormFields(id) : [];
   });
+
+  protected readonly formSections = computed(() => clerkFormSections(this.fields()));
 
   protected readonly isSingleton = computed(() => {
     const active = this.task();
@@ -251,6 +267,15 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     return !this.isProtectedDeleteTarget(active.model, id);
   });
 
+  protected readonly savePreviewLines = computed(() =>
+    buildClerkSavePreviewLines(
+      this.fields(),
+      this.formValues(),
+      this.baselineFormValues(),
+      Boolean(this.editingId()),
+    ),
+  );
+
   protected readonly deleteBlockedReason = computed(() => {
     const active = this.task();
     const id = this.editingId();
@@ -273,7 +298,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.lastSavedId.set(null);
       this.lastSavedFormValues.set({});
       const fieldDefs = id ? clerkTaskFormFields(id) : [];
-      this.formValues.set(defaultDynamicFormValues(fieldDefs, { taskId: id ?? undefined }));
+      this.commitFormValues(
+        defaultDynamicFormValues(fieldDefs, { taskId: id ?? undefined }),
+        true,
+      );
       this.fileUploadingField.set(null);
       this.fileUploadError.set(null);
       if (id) {
@@ -295,6 +323,15 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected fieldInputId(fieldName: string): string {
     const task = this.taskId() ?? 'task';
     return `cms-field-${task}-${fieldName}`;
+  }
+
+  protected sectionTrack(section: ClerkFormSection): string {
+    return clerkFormSectionTrack(section);
+  }
+
+  protected fieldPreviewHint(field: ClerkFormFieldDefinition): string | null {
+    const id = this.taskId();
+    return id ? resolveFieldPreviewHint(id, field, this.formValues()) : null;
   }
 
   protected fieldValue(field: ClerkFormFieldDefinition): string | boolean {
@@ -363,16 +400,18 @@ export class CmsClerkRecordEditorComponent implements OnInit {
           severity: 'success',
           summary: 'Photo uploaded',
           detail:
-            'The web address is filled in below. Click Save to publish the new homepage photo.',
-          life: 10_000,
+            'A durable townofwiley.gov photo address is filled in below. Click Save to publish. Public site updates within about one minute.',
+          life: 12_000,
         });
       }
-    } catch {
-      this.fileUploadError.set(
-        field.uploadValue === 'publicUrl'
-          ? 'Photo upload failed. Try again, or paste a public https:// web address.'
-          : 'Upload failed. Try again or paste the file code manually.',
-      );
+    } catch (error: unknown) {
+      const detail =
+        error instanceof Error && error.message.trim()
+          ? error.message.trim()
+          : field.uploadValue === 'publicUrl'
+            ? 'Photo upload failed. Sign in again, then choose the photo once more (do not paste temporary S3 links).'
+            : 'Upload failed. Try again or paste the file code manually.';
+      this.fileUploadError.set(detail);
     } finally {
       this.fileUploadingField.set(null);
       inputEl.value = '';
@@ -391,8 +430,9 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
     this.lastSavedId.set(null);
     this.lastSavedFormValues.set({});
-    this.formValues.set(
+    this.commitFormValues(
       defaultDynamicFormValues(this.fields(), { taskId: this.taskId() ?? undefined }),
+      true,
     );
 
     if (typeof preservedGroupId === 'string' && preservedGroupId.trim()) {
@@ -413,7 +453,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.submitError.set(null);
     this.lastSavedId.set(null);
     this.lastSavedFormValues.set({});
-    this.formValues.set(recordToFormValues(this.fields(), record));
+    const values = recordToFormValues(this.fields(), record);
+    // Stale temporary S3 hero links look “filled in” but never render on the public site.
+    const hero = values['heroImageUrl'];
+    if (typeof hero === 'string' && isEphemeralCmsAssetUrl(hero)) {
+      values['heroImageUrl'] = '';
+      this.fileUploadError.set(
+        'The saved homepage photo used a temporary link. Choose the photo again from this computer, then Save.',
+      );
+    }
+    this.commitFormValues(values, true);
   }
 
   protected recordLabel(record: Record<string, unknown>): string {
@@ -541,6 +590,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     await this.staffAuth.refreshSession();
     if (!this.staffAuth.isStaff()) {
       this.submitError.set('Sign in at /admin/login before saving changes.');
+      return;
+    }
+
+    if (!confirmClerkSensitiveSave(active.id, this.formValues())) {
       return;
     }
 
@@ -678,6 +731,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return false;
     }
     return id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION || id === OFFICIAL_CONTACT_ID_CITY_CLERK;
+  }
+
+  private commitFormValues(
+    values: Record<string, string | boolean>,
+    resetBaseline: boolean,
+  ): void {
+    this.formValues.set(values);
+    if (resetBaseline) {
+      this.baselineFormValues.set({ ...values });
+    }
   }
 
   private async loadRecords(taskId: ClerkCmsTaskId): Promise<void> {

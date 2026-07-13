@@ -81,7 +81,7 @@ function assertDistReady() {
 function applyNoCacheKeys() {
   // cms-snapshot.json + cms-revision.json are owned by TownOfWileyCmsChangeNotifier (DynamoDB
   // stream → S3). Uploading build artifacts here rolls back clerk CMS edits on the public site.
-  const keys = ['index.html', 'runtime-config.js', '404.html'];
+  const keys = ['index.html', 'runtime-config.js', 'runtime-config-admin.js', '404.html'];
   for (const key of keys) {
     const localPath = join(distDir, key);
     if (!existsSync(localPath)) {
@@ -143,7 +143,8 @@ assertDistReady();
 
 run(
   `aws s3 sync "${distDir.replace(/\\/g, '/')}" s3://${bucket} --delete --region ${region} ` +
-    `--exclude 'cms-snapshot.json' --exclude 'cms-revision.json'`,
+    `--exclude 'cms-snapshot.json' --exclude 'cms-revision.json' ` +
+    `--exclude 'media/cms/*' --exclude 'media/cms/*/*'`,
 );
 
 applyNoCacheKeys();
@@ -158,6 +159,9 @@ waitForInvalidation(invalidationId);
 console.log('\nDeploy steps finished.');
 console.log(
   'Note: cms-snapshot.json / cms-revision.json were NOT uploaded — Lambda republish owns those keys.',
+);
+console.log(
+  'Note: media/cms/* was not deleted — clerk hero uploads (TownOfWileyCmsMediaUpload) own those keys.',
 );
 console.log(
   'Verify: hard-refresh https://www.townofwiley.gov/ and check /runtime-config.js gitSha.',

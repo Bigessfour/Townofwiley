@@ -77,13 +77,10 @@ jobs:
         run: npm ci --no-audit
 
       - name: Cache Playwright Chromium
-        uses: actions/cache@v4
         id: playwright-cache
+        uses: ./.github/actions/cache-playwright-chromium
         with:
-          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            playwright-chromium-${{ runner.os }}-
+          browsers_path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
 
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'

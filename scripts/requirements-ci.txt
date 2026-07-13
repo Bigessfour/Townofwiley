@@ -1,0 +1,2 @@
+# Python deps for Site CI jobs (backend-python-tests, e2e preflight).
+pytest

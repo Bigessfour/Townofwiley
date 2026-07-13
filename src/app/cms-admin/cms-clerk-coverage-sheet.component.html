@@ -1,0 +1,52 @@
+<section
+  class="cms-coverage"
+  aria-labelledby="cms-coverage-heading"
+  data-testid="cms-clerk-coverage"
+>
+  <h2 id="cms-coverage-heading" class="cms-coverage__title">What to use for each part of the website</h2>
+  <p class="cms-coverage__lead">
+    Pick the row that matches what residents see. <strong>Admin task</strong> and
+    <strong>Upload section</strong> open on this page. <strong>Town IT only</strong> means call Town
+    Hall / IT — not the CMS forms.
+  </p>
+
+  <div class="cms-coverage__table-wrap">
+    <table class="cms-coverage__table">
+      <thead>
+        <tr>
+          <th scope="col">Residents see</th>
+          <th scope="col">Where</th>
+          <th scope="col">How to change</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.whatResidentsSee + row.whereOnSite) {
+          <tr>
+            <td>{{ row.whatResidentsSee }}</td>
+            <td>{{ row.whereOnSite }}</td>
+            <td>
+              <p-tag [value]="methodLabel(row.method)" [severity]="methodSeverity(row.method)" />
+              <p class="cms-coverage__hint">{{ row.adminHint }}</p>
+            </td>
+            <td>
+              @if (canOpenRow(row)) {
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-outlined"
+                  [attr.data-testid]="'cms-coverage-open-' + (row.taskId ?? 'docs')"
+                  (click)="onOpenRow(row)"
+                >
+                  Open
+                </button>
+              } @else {
+                <span class="cms-coverage__na">—</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

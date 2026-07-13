@@ -1,7 +1,0 @@
-[local]
-localhost ansible_connection=local ansible_python_interpreter=python3
-
-[all:vars]
-aws_profile = townofwiley
-aws_region = us-east-2
-project_root = "{{ playbook_dir | dirname | dirname }}"

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
+
 
 export interface PaymentPanelCopy {
   paymentMeta: string;
@@ -15,7 +15,7 @@ export interface PaymentPanelCopy {
 
 @Component({
   selector: 'app-resident-payment-panel',
-  imports: [ButtonModule, Ripple, RouterLink],
+  imports: [ButtonModule, RouterLink],
   templateUrl: './payment-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -3,7 +3,9 @@
     <div>
       <h3 class="cms-email-alias-admin__title">Email forwarding rules</h3>
       <p class="cms-email-alias-admin__lead">
-        Control where mail sent to Town addresses is delivered. Residents never see these rules.
+        Add a Town address and the staff inbox where mail should land. Saving writes to the Town
+        database; AWS forwarding uses the rule on the next email (no IT deploy). Residents never
+        see destination inboxes.
       </p>
     </div>
     @if (isSignedIn()) {
@@ -19,6 +21,14 @@
       </button>
     }
   </header>
+
+  @if (isSignedIn()) {
+    <p-message
+      severity="info"
+      styleClass="cms-email-alias-admin__message"
+      text="Example: steve.mckitrick@townofwiley.gov → bigessfour@gmail.com with Active on. To show the address on the website, also update Update contacts."
+    />
+  }
 
   @if (!isSignedIn()) {
     <p-message
@@ -111,9 +121,13 @@
           type="email"
           formControlName="aliasAddress"
           autocomplete="email"
-          placeholder="clerk@townofwiley.gov"
+          placeholder="steve.mckitrick or clerk@townofwiley.gov"
         />
-        @if (fieldInvalid('aliasAddress')) {
+        @if (fieldError('aliasAddress') === 'townDomain') {
+          <small class="cms-email-alias-admin__error"
+            >Use an address at @townofwiley.gov (you can type only the part before @).</small
+          >
+        } @else if (fieldInvalid('aliasAddress')) {
           <small class="cms-email-alias-admin__error">Enter a valid Town email address.</small>
         }
       </label>
@@ -126,9 +140,14 @@
           type="email"
           formControlName="destinationAddress"
           autocomplete="email"
-          placeholder="staff@example.com"
+          placeholder="example@example.com"
         />
-        @if (fieldInvalid('destinationAddress')) {
+        @if (fieldError('destinationAddress') === 'townLoop') {
+          <small class="cms-email-alias-admin__error"
+            >Use a personal or shared inbox (Gmail, CenturyLink, etc.), not another
+            @townofwiley.gov address.</small
+          >
+        } @else if (fieldInvalid('destinationAddress')) {
           <small class="cms-email-alias-admin__error">Enter a valid destination email.</small>
         }
       </label>
@@ -138,38 +157,56 @@
         <label for="cms-email-alias-active">Active (forward mail)</label>
       </div>
 
-      <label class="cms-email-alias-admin__field" for="cms-email-alias-display-name">
-        <span>Display name</span>
-        <input
-          pInputText
-          id="cms-email-alias-display-name"
-          type="text"
-          formControlName="displayName"
-          placeholder="City Clerk mailbox"
-        />
-      </label>
+      <details class="cms-email-alias-admin__optional">
+        <summary>Optional labels and notes (not shown to the public)</summary>
+        <div class="cms-email-alias-admin__optional-fields">
+          <label class="cms-email-alias-admin__field" for="cms-email-alias-display-name">
+            <span>Display name</span>
+            <input
+              pInputText
+              id="cms-email-alias-display-name"
+              type="text"
+              formControlName="displayName"
+              placeholder="City Clerk mailbox"
+            />
+          </label>
 
-      <label class="cms-email-alias-admin__field" for="cms-email-alias-role-label">
-        <span>Role label</span>
-        <input
-          pInputText
-          id="cms-email-alias-role-label"
-          type="text"
-          formControlName="roleLabel"
-          placeholder="Clerk"
-        />
-      </label>
+          <label class="cms-email-alias-admin__field" for="cms-email-alias-role-label">
+            <span>Role label</span>
+            <input
+              pInputText
+              id="cms-email-alias-role-label"
+              type="text"
+              formControlName="roleLabel"
+              placeholder="Clerk"
+            />
+          </label>
 
-      <label class="cms-email-alias-admin__field" for="cms-email-alias-notes">
-        <span>Notes</span>
-        <textarea
-          pTextarea
-          id="cms-email-alias-notes"
-          formControlName="notes"
-          rows="3"
-          placeholder="Optional internal notes for IT or clerks"
-        ></textarea>
-      </label>
+          <label class="cms-email-alias-admin__field" for="cms-email-alias-notes">
+            <span>Notes</span>
+            <textarea
+              pTextarea
+              id="cms-email-alias-notes"
+              formControlName="notes"
+              rows="3"
+              placeholder="Optional internal notes for IT or clerks"
+            ></textarea>
+          </label>
+        </div>
+      </details>
+
+      @if (aliasForm.controls.aliasAddress.value && aliasForm.controls.destinationAddress.value) {
+        <aside class="cms-email-alias-admin__preview" aria-label="Review before save">
+          <h4 class="cms-email-alias-admin__preview-title">Review before save</h4>
+          <p class="cms-email-alias-admin__preview-lead">
+            Mail to
+            <strong>{{ aliasForm.controls.aliasAddress.value }}</strong>
+            will forward to
+            <strong>{{ aliasForm.controls.destinationAddress.value }}</strong>
+            when Active is on. Residents do not see the staff inbox.
+          </p>
+        </aside>
+      }
 
       <div class="cms-email-alias-admin__dialog-actions">
         <button

@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { ensureAdminRuntimeConfigLoaded } from '../admin-runtime-config';
 import { StaffAuthService } from './staff-auth.service';
 
 /** Requires Staff Cognito session; sends unauthenticated users to Hosted UI login flow. */
@@ -7,6 +8,7 @@ export const staffAuthGuard: CanActivateFn = async (route, state) => {
   const auth = inject(StaffAuthService);
   const router = inject(Router);
 
+  await ensureAdminRuntimeConfigLoaded();
   await auth.refreshSession();
   if (auth.isStaff()) {
     return true;

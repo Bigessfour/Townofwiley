@@ -11,12 +11,14 @@ This repository provides AI-development context for Angular-aware assistants and
 - [Codebase RAG (local semantic search)](./docs/codebase-rag.md)
 - [AI application development standards](./.github/instructions/ai-application-development.instructions.md)
 - [TownOfWiley Dev Skill](./.github/skills/TownOfWiley-Dev/SKILL.md)
+- [Angular official skills](./.agents/skills/) — `angular-developer`, `angular-new-app`
 
 ## Project Summary
 
-- Framework: Angular 21
+- Framework: Angular 22
 - Architecture: standalone components, signals-first state, native template control flow
 - UI stack: PrimeNG, SCSS, Playwright, Vitest
+- Deploy: merge `main` → GitHub Actions (S3 + CloudFront); IaC: `infrastructure/terraform/` (Ansible removed)
 - Quality focus: WCAG AA accessibility, deterministic e2e coverage, Angular MCP-assisted development
 
 ## Recommended Tooling

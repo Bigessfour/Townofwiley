@@ -345,16 +345,18 @@
           </header>
 
           @if (isAlertSignupEnabled()) {
-            <form class="weather-signup-form grid gap-4" (submit)="submitAlertSignup($event)">
+            <form
+              class="weather-signup-form grid gap-4"
+              [formGroup]="alertSignupForm"
+              (ngSubmit)="submitAlertSignup($event)"
+            >
               <section class="weather-signup-grid grid gap-3 sm:grid-cols-2">
                 <label class="weather-signup-field grid gap-1" for="weather-alert-signup-channel">
                   <span>{{ copy().notificationMethod }}</span>
                   <p-select
                     inputId="weather-alert-signup-channel"
+                    formControlName="channel"
                     [options]="alertSignupChannelOptions()"
-                    [ngModel]="alertSignupChannel()"
-                    (ngModelChange)="updateAlertSignupChannel($event)"
-                    [ngModelOptions]="{ standalone: true }"
                     optionLabel="label"
                     optionValue="value"
                     [disabled]="isAlertSignupSubmitting()"
@@ -370,28 +372,34 @@
                   <input
                     pInputText
                     id="weather-alert-signup-destination"
+                    formControlName="destination"
                     [type]="alertSignupDestinationType()"
-                    [value]="alertSignupDestination()"
-                    (input)="updateAlertSignupDestination($any($event.target).value)"
                     [placeholder]="alertSignupDestinationPlaceholder()"
                     [attr.inputmode]="alertSignupChannel() === 'sms' ? 'tel' : 'email'"
                     [invalid]="
-                      alertSignupFeedbackTone() === 'error' && !isAlertSignupDestinationValid()
+                      alertSignupForm.controls.destination.invalid &&
+                      alertSignupForm.controls.destination.touched
                     "
                     [disabled]="isAlertSignupSubmitting()"
                     autocomplete="off"
-                    required
                   />
+                  @if (
+                    alertSignupFieldMessage(
+                      alertSignupForm.controls.destination,
+                      alertSignupDestinationLabel()
+                    );
+                    as message
+                  ) {
+                    <p-message severity="error" [text]="message" />
+                  }
                 </label>
 
                 <label class="weather-signup-field grid gap-1" for="weather-alert-signup-language">
                   <span>{{ copy().alertLanguage }}</span>
                   <p-select
                     inputId="weather-alert-signup-language"
+                    formControlName="preferredLanguage"
                     [options]="alertSignupLanguageOptions()"
-                    [ngModel]="alertSignupLanguage()"
-                    (ngModelChange)="updateAlertSignupLanguage($event)"
-                    [ngModelOptions]="{ standalone: true }"
                     optionLabel="label"
                     optionValue="value"
                     [disabled]="isAlertSignupSubmitting()"
@@ -405,8 +413,7 @@
                     pInputText
                     id="weather-alert-signup-full-name"
                     type="text"
-                    [value]="alertSignupFullName()"
-                    (input)="updateAlertSignupFullName($any($event.target).value)"
+                    formControlName="fullName"
                     [attr.placeholder]="copy().fullNamePlaceholder"
                     [disabled]="isAlertSignupSubmitting()"
                     autocomplete="name"
@@ -453,12 +460,14 @@
                 </p>
               }
 
-              <p-button
+              <button
+                pButton
                 type="submit"
-                styleClass="weather-action weather-signup-submit"
-                [label]="alertSignupSubmitLabel()"
+                class="weather-action weather-signup-submit"
                 [disabled]="isAlertSignupSubmitting() || !isAlertSignupDestinationValid()"
-              />
+              >
+                {{ alertSignupSubmitLabel() }}
+              </button>
             </form>
           } @else {
             <div class="weather-signup-unavailable grid gap-3" role="status">
