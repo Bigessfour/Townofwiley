@@ -94,7 +94,7 @@ Branch protection complements IAM: even with credentials, only merged `main` con
 1. Wait for `site-ci / CI gate (merge required)` green
 2. Merge (or enable auto-merge when a backup reviewer exists)
 
-Dependabot-triggered workflows do **not** receive repository secrets. Site CI runs a **non-strict** production build for `dependabot[bot]` PRs (lint, unit tests, and compile still run). **Close** red Dependabot PRs that predate a CI or `main` fix rather than merging without a green gate; Dependabot will open fresh PRs on the next schedule.
+Dependabot-triggered workflows do **not** receive repository secrets (manual **Re-run** on those PRs is secretless too). Site CI uses `npm run build:ci`, which runs a **non-strict** runtime-config path when `APPSYNC_CMS_API_KEY` is unavailable; lint, unit tests, and compile still run. Staff PRs with secrets keep strict validation. **Close** red Dependabot PRs that predate a CI or `main` fix rather than merging without a green gate; Dependabot will open fresh PRs on the next schedule.
 
 Optional later: [Dependabot auto-merge](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions) for grouped patch updates.
 

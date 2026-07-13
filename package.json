@@ -14,6 +14,7 @@
     "serve:prodlike": "npm run prestart && ng serve --configuration=production",
     "serve:4300": "npx --yes kill-port 4200 4300 && npm run prestart && ng serve --host 127.0.0.1 --port 4300",
     "prebuild": "node scripts/ensure-node-version.mjs && npm run generate:runtime-config:strict && npm run generate:cms-snapshot && node scripts/verify-public-cms-query.mjs",
+    "build:ci": "node scripts/ensure-node-version.mjs && node scripts/ci-production-build.mjs",
     "verify:public-cms-query": "node scripts/verify-public-cms-query.mjs",
     "verify:cms-snapshot-parity": "node scripts/verify-cms-snapshot-parity.mjs",
     "cms:ensure-mayor-row": "python3 scripts/ensure-mayor-roster-row.py",
