@@ -1,9 +1,11 @@
 <main id="main-content" class="admin-login" tabindex="-1">
   <section class="admin-login__panel panel wiley-panel" aria-labelledby="admin-login-heading">
-    <p class="admin-login__new-user">
-      {{ copy.newUserPrompt }}
-      <a class="admin-login__new-user-link" href="/admin/new-staff">{{ copy.newUserLink }}</a>
-    </p>
+    @if (!isNewStaffGuideRoute()) {
+      <p class="admin-login__new-user">
+        {{ copy.newUserPrompt }}
+        <a class="admin-login__new-user-link" href="/admin/new-staff">{{ copy.newUserLink }}</a>
+      </p>
+    }
     <p class="admin-login__kicker">{{ copy.kicker }}</p>
     <h1 id="admin-login-heading" class="admin-login__title">{{ copy.title }}</h1>
     <p class="admin-login__body">{{ copy.body }}</p>

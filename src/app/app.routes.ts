@@ -9,8 +9,8 @@ export const routes: Routes = [
   },
   {
     path: 'admin/new-staff',
-    loadComponent: () =>
-      import('./auth/admin-new-staff-redirect').then((m) => m.AdminNewStaffRedirect),
+    loadComponent: () => import('./auth/admin-login.component').then((m) => m.AdminLoginComponent),
+    data: { newStaffGuide: true },
   },
   {
     path: 'admin',
