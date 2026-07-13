@@ -52,6 +52,8 @@ export const INCLUDE_GLOBS = [
   'angular.json',
   'package.json',
   'docs/ci-ollama-review.md',
+  'docs/DEPLOYMENT_SSOT.md',
+  'infrastructure/terraform/README.md',
 ];
 
 export const EXCLUDE_DIR_NAMES = new Set([
@@ -87,6 +89,7 @@ export const EXCLUDE_FILE_GLOBS = [
   '**/*.jpeg',
   '**/*.gif',
   '**/*.webp',
+  'archive/artifacts/**',
   '**/*.log',
   '**/.env',
   '**/.env.*',

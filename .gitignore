@@ -35,6 +35,8 @@ yarn-error.log
 # Cursor / local scratch (keep rules and skills; ignore session logs)
 .cursor/*.log
 .todo
+/.tmp-grok-test/
+/skills-lock.json
 
 # Local AWS tagging / Gen1 verification scratch (not repo SoT)
 docs/aws-resource-tagging.md
