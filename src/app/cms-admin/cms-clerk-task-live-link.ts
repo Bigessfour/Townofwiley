@@ -69,6 +69,9 @@ const TASK_LIVE_LINK_MAP: Readonly<Record<ClerkCmsTaskId, TaskLiveLinkEntry>> = 
     hubFragment: 'calendar',
     buildRecordFragment: (savedId) => `event-${savedId}`,
   },
+  'upload-meeting-documents': {
+    hubFragment: 'meeting-documents-archive-heading',
+  },
   homepage: {
     hubFragment: 'site-hero-title',
   },

@@ -23,9 +23,9 @@
           <h2 class="contact-section-card-title">{{ copy().contactTownHallTitle }}</h2>
         </div>
       </ng-template>
-      <address class="contact-town-hall-address">304 Main Street, Wiley, CO 81092</address>
+      <address class="contact-town-hall-address">{{ townHallAddress() }}</address>
       <p class="contact-town-hall-hours">{{ copy().contactTownHallHours }}</p>
-      <a class="contact-town-hall-phone" href="tel:+17198294974">(719) 829-4974</a>
+      <a class="contact-town-hall-phone" [href]="townHallPhoneHref()">{{ townHallPhone() }}</a>
     </p-card>
 
     <p-card

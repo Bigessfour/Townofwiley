@@ -23,7 +23,7 @@ feature branch → PR → site-ci / CI gate (merge required) → merge main
 
 | Tool | Status |
 |------|--------|
-| **Ansible** (`ansible/`, `npm run ansible:*`, `deploy:ansible*`) | **Deprecated** for deploy. Tree retained for reference only. See [`ansible-DEPRECATED.md`](./ansible-DEPRECATED.md). |
+| **Ansible** | **Removed** (July 2026). Use **Terraform** for IaC — [`infrastructure/terraform/`](../infrastructure/terraform/README.md). See [`ansible-DEPRECATED.md`](./ansible-DEPRECATED.md). |
 | Amplify Hosting | Decommissioned June 2026 |
 | Terraform `apply` of static site | **Not implemented** — TF does not manage S3/CF site publish |
 

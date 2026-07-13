@@ -2,7 +2,7 @@
 
 Production frontend hosting for [townofwiley.gov](https://townofwiley.gov) is **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`). After Site CI passes on a push to **`main`** with deployable app changes, GitHub Actions syncs the CI-built artifact and invalidates CloudFront.
 
-**This is the only supported production frontend deploy path.** Ansible is deprecated; Terraform does not publish the static site. See [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md).
+**This is the only supported production frontend deploy path.** Ansible was removed; Terraform is IaC only (not the static site publisher). See [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md).
 
 Amplify Hosting is **not** the deploy authority (app `d331voxr1fhoir` was deleted June 2026).
 

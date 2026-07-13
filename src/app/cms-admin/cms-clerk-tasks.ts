@@ -1,8 +1,10 @@
 import { buildAmplifyConsoleDataManagerModelUrl } from '../clerk-setup/clerk-setup-config';
+import { SITE_COPY_KEY_CATALOG } from '../site-copy-overrides';
 
 export type ClerkCmsTaskId =
   | 'post-notice'
   | 'add-meeting'
+  | 'upload-meeting-documents'
   | 'homepage'
   | 'update-contacts'
   | 'update-leadership'
@@ -11,6 +13,8 @@ export type ClerkCmsTaskId =
   | 'emergency-banner'
   | 'edit-site-copy' // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
   | 'manage-email-aliases';
+
+export type ClerkCmsEditorMode = 'generic' | 'dedicated' | 'documents';
 
 export interface ClerkCmsFieldGlossaryEntry {
   /** Label clerks see in Data Manager (technical name in parentheses for IT). */
@@ -32,8 +36,10 @@ export interface ClerkCmsTask {
   supportsUpload?: 'hero' | 'newsletter-pdf';
   /** PrimeIcons class shown on the task hub card (e.g. pi-envelope). */
   icon?: string;
-  /** generic = cms-clerk-record-editor; dedicated = task-specific editor component. */
-  editorMode?: 'generic' | 'dedicated';
+  /** generic = record editor; dedicated = custom component; documents = meeting PDF upload section. */
+  editorMode?: ClerkCmsEditorMode;
+  /** Overrides the task card primary button (default: Edit content). */
+  primaryActionLabel?: string;
   /** When false, hide "See on website" (mail-only / non-public tasks). */
   showPublicPreview?: boolean;
   /** Cognito groups that may open this task. Defaults to Staff-only when omitted. */
@@ -98,7 +104,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       'Click Edit content to open the in-app form (sign in at /admin/login first).',
       'Enter Title, Start date and time, and turn Active on.',
       'Add Location and Description if residents need them.',
-      'Save, then scroll to Document publishing and upload the agenda PDF for that meeting.',
+      'Save, then use Upload meeting agenda or minutes for the PDF (or Document publishing below).',
       'Hard-refresh /meetings and click View agenda on the meeting row to confirm the PDF opens.',
     ],
     fieldGlossary: [
@@ -108,6 +114,36 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         help: 'Required. Use the date and time picker for when the meeting begins (ISO format in editor).',
       },
     ],
+  },
+  {
+    id: 'upload-meeting-documents',
+    title: 'Upload meeting agenda or minutes',
+    shortDescription:
+      'Attach a PDF to a meeting already on the calendar. Residents see it on /meetings.',
+    model: 'PublicDocument',
+    previewPath: '/meetings',
+    editorMode: 'documents',
+    primaryActionLabel: 'Open upload form',
+    icon: 'pi pi-file-pdf',
+    steps: [
+      'Add the meeting first (Add meeting or event) if it is not on the calendar yet.',
+      'Click Open upload form — the Document publishing section opens on this page.',
+      'Choose the meeting from the list, pick the PDF, and upload.',
+      'Hard-refresh /meetings and open View agenda or the documents archive to verify.',
+    ],
+    fieldGlossary: [
+      {
+        plainLabel: 'Meeting',
+        technicalName: 'eventId',
+        help: 'Select the calendar event this PDF belongs to.',
+      },
+      {
+        plainLabel: 'PDF file',
+        technicalName: 'file',
+        help: 'Agenda before the meeting; approved minutes after.',
+      },
+    ],
+    emptyStateMessage: 'Upload a PDF after at least one active meeting exists on the calendar.',
   },
   {
     id: 'homepage',
@@ -209,9 +245,9 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   },
   {
     id: 'update-contacts',
-    title: 'Update Town Hall or clerk contact',
+    title: 'Update administration contacts (not Town Hall card)',
     shortDescription:
-      'Change phone, email, or intro text in the Town Administration section on /contact.',
+      'Change clerk/superintendent mailto lines and Town Administration intro on /contact. For the main Town Hall address and phone card, use Homepage & menu labels.',
     model: 'OfficialContact',
     previewPath: '/contact',
     steps: [
@@ -442,23 +478,23 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   },
   {
     id: 'edit-site-copy',
-    title: 'Edit navigation labels, headings, and Quick Tasks text',
+    title: 'Homepage & menu labels (SiteCopy)',
     shortDescription:
-      'Update frequently changed UI copy (menu items, "How do I..." tasks, section headings) without a deploy.',
+      'Change menu text, page headings, and Town Hall card address/phone/hours without a code deploy.',
     model: 'SiteCopy',
     previewPath: '/',
     steps: [
       'Click Edit content to open the form (sign in at /admin/login first).',
-      'Create or edit a row with a stable key. Keys the website uses today: "topTasksKicker" and "topTasksHeading" (the "How do I..." section heading). Other keys only take effect after IT connects them.',
-      'Fill valueEn (required) and valueEs for Spanish visitors.',
+      'Create or edit a row with a stable key from the key list in this help section (e.g. contactTownHallAddress, menuQuickTasksLabel).',
+      'Fill English (required) and Spanish when residents use Spanish.',
       'Set Active on. Use description to note where the text appears.',
-      'Save and hard-refresh the homepage (or relevant page) to see the change.',
+      'Save and hard-refresh the page where the text appears.',
     ],
     fieldGlossary: [
       {
         plainLabel: 'Key (stable ID)',
         technicalName: 'key',
-        help: 'Keys the website understands today: "topTasksKicker" and "topTasksHeading". A row with any other key is saved but changes nothing until IT connects that key.',
+        help: `Use one of the wired keys, for example: ${SITE_COPY_KEY_CATALOG.slice(0, 4).map((e) => e.key).join(', ')}, … (see full list below).`,
       },
       {
         plainLabel: 'English text',
@@ -497,10 +533,11 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     requiredGroups: ['Staff'],
     steps: [
       'Click Edit content to open the email forwarding editor (sign in at /admin/login first).',
-      'Find the rule for the Town address you need, or add a new forwarding rule.',
-      'Set the public Town address (aliasAddress) and the staff inbox where mail should land (destinationAddress).',
-      'Turn Active on and save.',
-      'Send a test email to the Town address and confirm it arrives in the correct inbox.',
+      'Click Add forwarding rule (or Edit an existing row).',
+      'Town email address: e.g. steve.mckitrick@townofwiley.gov (you can type only steve.mckitrick).',
+      'Staff inbox: the real mailbox where mail lands, e.g. example@example.com — not another @townofwiley.gov address.',
+      'Leave Active on and Save. AWS picks up the rule on the next message; send a test to confirm.',
+      'If residents should see the address on the site, also update Update contacts.',
     ],
     fieldGlossary: [
       {
@@ -542,7 +579,7 @@ export const CLERK_IN_APP_EDITOR_TASK_IDS = CLERK_CMS_TASKS.filter(
   (task) => (task.editorMode ?? 'generic') === 'generic',
 ).map((task) => task.id) as ClerkCmsTaskId[];
 
-export function clerkTaskEditorMode(id: ClerkCmsTaskId): 'generic' | 'dedicated' {
+export function clerkTaskEditorMode(id: ClerkCmsTaskId): ClerkCmsEditorMode {
   return clerkTaskById(id)?.editorMode ?? 'generic';
 }
 
@@ -552,6 +589,10 @@ export function clerkTaskHasInAppEditor(id: ClerkCmsTaskId): boolean {
 
 export function clerkTaskUsesDedicatedEditor(id: ClerkCmsTaskId): boolean {
   return clerkTaskEditorMode(id) === 'dedicated';
+}
+
+export function clerkTaskUsesDocumentsWorkflow(id: ClerkCmsTaskId): boolean {
+  return clerkTaskEditorMode(id) === 'documents';
 }
 
 export function clerkTaskById(id: ClerkCmsTaskId): ClerkCmsTask | undefined {

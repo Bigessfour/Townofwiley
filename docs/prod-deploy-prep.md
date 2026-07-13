@@ -5,7 +5,7 @@ Use after **PR #108** (or current feature branch) is green and ready to ship the
 ## Pre-merge (already done if CI green)
 
 - [x] Single deploy authority: **GitHub Actions** ([DEPLOYMENT_SSOT.md](./DEPLOYMENT_SSOT.md))
-- [x] Ansible deploy **blocked** by default ([ansible-DEPRECATED.md](./ansible-DEPRECATED.md))
+- [x] Ansible **removed**; IaC via Terraform ([ansible-DEPRECATED.md](./ansible-DEPRECATED.md))
 - [x] Terraform **kept** as IaC scaffold (not site publisher)
 - [ ] **`site-ci / CI gate (merge required)`** green on tip SHA
 
@@ -45,6 +45,6 @@ npm run deploy:site
 
 ## Do not
 
-- `npm run ansible:deploy*` (exits deprecated)
+- Legacy Ansible paths (removed from repo)
 - Terraform apply expecting the SPA to appear on CloudFront
 - Force-push `main`

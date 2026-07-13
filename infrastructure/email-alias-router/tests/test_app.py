@@ -62,7 +62,10 @@ class RecordingSesClient:
 
 
 def build_router(
-    raw_message: bytes, aliases: list[APP.EmailAliasRecord]
+    raw_message: bytes,
+    aliases: list[APP.EmailAliasRecord],
+    *,
+    fallback_alias_address: str = "",
 ) -> tuple[APP.EmailAliasRouter, RecordingForwarder]:
     forwarder = RecordingForwarder()
     router = APP.EmailAliasRouter(
@@ -72,6 +75,7 @@ def build_router(
             forwarder_from="mailer@townofwiley.gov",
             alias_domain="townofwiley.gov",
             ses_send_region="us-east-2",
+            fallback_alias_address=fallback_alias_address,
         ),
         alias_directory=MemoryAliasDirectory(aliases),
         object_store=StaticObjectStore(
@@ -163,6 +167,47 @@ class EmailAliasRouterTests(unittest.TestCase):
         self.assertEqual(response["forwarded"], 0)
         self.assertEqual(response["results"][0]["reason"], "no_active_alias_match")
         self.assertEqual(forwarder.calls, [])
+
+    def test_falls_back_to_clerk_alias_for_unknown_town_address(self) -> None:
+        raw_message = (
+            b"From: Resident <resident@example.com>\n"
+            b"To: Utilities <utilities@townofwiley.gov>\n"
+            b"Subject: Water bill\n\n"
+            b"Question about my bill."
+        )
+        router, forwarder = build_router(
+            raw_message,
+            [
+                APP.EmailAliasRecord(
+                    alias_address="clerk@townofwiley.gov",
+                    destination_address="clerk-inbox@secom.example",
+                    active=True,
+                    display_name="Town Clerk",
+                    role_label="Clerk",
+                ),
+            ],
+            fallback_alias_address="clerk@townofwiley.gov",
+        )
+
+        response = router.handle(
+            {
+                "Records": [
+                    {
+                        "eventSource": "aws:s3",
+                        "s3": {
+                            "bucket": {"name": "incoming-bucket"},
+                            "object": {"key": "inbox/message-1.eml"},
+                        },
+                    },
+                ],
+            },
+        )
+
+        self.assertEqual(response["forwarded"], 1)
+        self.assertEqual(forwarder.calls[0]["alias_address"], "clerk@townofwiley.gov")
+        self.assertEqual(
+            forwarder.calls[0]["destination_address"], "clerk-inbox@secom.example"
+        )
 
     def test_build_forward_email_preserves_alias_and_reply_path(self) -> None:
         raw_message = (

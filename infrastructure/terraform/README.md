@@ -5,7 +5,7 @@
 | Concern | Authority |
 |---------|-----------|
 | **Static site → townofwiley.gov** | GitHub Actions `deploy-production` (OIDC → S3 + CloudFront) — see [docs/DEPLOYMENT_SSOT.md](../../docs/DEPLOYMENT_SSOT.md) |
-| **Ansible** | **Deprecated** — [docs/ansible-DEPRECATED.md](../../docs/ansible-DEPRECATED.md) |
+| **Ansible** | **Removed** — use this Terraform tree; [docs/ansible-DEPRECATED.md](../../docs/ansible-DEPRECATED.md) |
 | **This tree** | Manifest alignment, optional log retention, state bootstrap, small stacks |
 
 This repo does **not** manage all AWS through Terraform today. Production CMS uses **Amplify Gen1** (AppSync, Cognito, storage) plus **Python/Node deploy scripts** for integration Lambdas. See [docs/AWS_INFRASTRUCTURE_SOT.md](../../docs/AWS_INFRASTRUCTURE_SOT.md).

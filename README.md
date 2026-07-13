@@ -11,7 +11,7 @@ The official, bilingual (English/Spanish) website for the Town of Wiley, Colorad
 | Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
 | Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
 | Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility         |
-| CI/CD            | GitHub Actions only for production frontend deploy (merge `main` → S3 + CloudFront); Terraform IaC scaffold; Ansible **deprecated** ([docs/DEPLOYMENT_SSOT.md](docs/DEPLOYMENT_SSOT.md)); Ollama advisory ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)); ops ([docs/ops-observability.md](docs/ops-observability.md)) |
+| CI/CD            | GitHub Actions for production frontend deploy (merge `main` → S3 + CloudFront); **Terraform** IaC ([infrastructure/terraform/](infrastructure/terraform/)); Ansible **removed** ([docs/DEPLOYMENT_SSOT.md](docs/DEPLOYMENT_SSOT.md)); Ollama advisory ([docs/ci-ollama-review.md](docs/ci-ollama-review.md)); ops ([docs/ops-observability.md](docs/ops-observability.md)) |
 
 Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
 
@@ -84,7 +84,7 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   # GitHub: Actions → Deploy production (manual) on main
   ```
 
-  **Do not use Ansible for deploy** (deprecated July 2026). SSOT: [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md).  
+  **Ansible removed** (July 2026); use Terraform for IaC and merge-to-`main` for the public site. SSOT: [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md).
   **Terraform** remains for IaC scaffolding only (not static-site publish): `npm run terraform:town:plan`.
 
   The static-site helper applies tiered Cache-Control (immutable for assets, no-cache for HTML/runtime-config) + invalidation.

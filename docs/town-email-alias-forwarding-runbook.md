@@ -19,12 +19,52 @@ The public address stays the same for residents. The private destination inbox c
 
 Do not put private destination inboxes in `OfficialContact`.
 
+## AWS-documented architecture (aligned)
+
+This matches [Amazon SES email receiving](https://docs.aws.amazon.com/ses/latest/dg/receiving-email.html):
+
+1. **MX** for `townofwiley.gov` → `inbound-smtp.us-east-1.amazonaws.com` (receiving region must support SES inbound; we use `us-east-1`).
+2. **Active receipt rule set** with a rule whose recipients include the domain `townofwiley.gov` (domain-wide match for all `@townofwiley.gov` addresses).
+3. **Deliver to S3 bucket** action ([S3 action docs](https://docs.aws.amazon.com/ses/latest/dg/receiving-email-action-s3.html)) — raw MIME objects under `incoming/`.
+4. **S3 `ObjectCreated` event** invokes `TownOfWileyEmailAliasRouter` (standard async worker pattern).
+5. Lambda loads **`EmailAlias`** from DynamoDB (Gen 1 prod table), then **sends** the wrapped message with SES in `us-east-2` ([sending region](https://docs.aws.amazon.com/ses/latest/dg/regions.html) where the domain identity is verified).
+
+**`FORWARDER_FROM`** must be an address on verified domain `townofwiley.gov` (domain verification covers all local-parts). Use `clerk@townofwiley.gov`.
+
+**`FALLBACK_ALIAS_ADDRESS`** (Lambda env) should be `clerk@townofwiley.gov` so any `@townofwiley.gov` address without its own active row still forwards to the clerk rule’s `destinationAddress`.
+
+Do **not** set `destinationAddress` to `clerk@townofwiley.gov` — that is the public SES alias and would loop. Set it to the clerk’s **real inbox** at SECOM (or another provider).
+
 ## Before you deploy
 
 1. Deploy the Amplify schema change so the `EmailAlias` model exists in the backend.
 2. Find the DynamoDB table name created for `EmailAlias`.
-3. Choose the sender address the forwarder will use, such as `mailer@townofwiley.gov`.
-4. Decide which SES region will handle inbound mail. Use a region that supports SES receiving.
+3. Choose the sender address the forwarder will use (`clerk@townofwiley.gov` on verified domain).
+4. Decide which SES region will handle inbound mail. Use a region that supports SES receiving (`us-east-1` for this account).
+
+## CenturyTel → SECOM clerk cutover
+
+Residents and vendors should use **`clerk@townofwiley.gov`** (and other Town aliases on the website). AWS intercepts those at MX → SES.
+
+1. **Before CenturyTel/`wileytown@centurytel.net` is removed:** at the old ISP, set **auto-forward** `wileytown@centurytel.net` → `clerk@townofwiley.gov` so stragglers still reach Town mail during the transition.
+2. **SECOM inbox:** obtain the clerk’s new mailbox address (e.g. `…@secom…`).
+3. **Update CMS routing** (private destinations only):
+
+   ```bash
+   TOWN_MAIL_DESTINATION='clerk-inbox@your-secom-domain' npm run mail:forwarding:configure
+   ```
+
+   This sets `clerk@townofwiley.gov` and `deb.dillon@townofwiley.gov` to that destination, deactivates the typo `steve.mckirick@` row, and retires `centurytel.net` / `centurylink.net` destinations.
+
+4. **Redeploy router** (fixes Lambda table + fallback + receipt rule):
+
+   ```bash
+   npm run mail:forwarding:deploy
+   ```
+
+5. **Live test:** send to `clerk@townofwiley.gov` and an uncommon alias like `utilities@townofwiley.gov`; both should land in the SECOM inbox with `X-Town-Alias` showing the original To.
+
+Forwarding was **paused** operationally in July 2026 (SES rule disabled, S3 trigger removed, aliases inactive). Repeat steps 3–5 to go live on SECOM.
 
 ## Current verified sending status
 
@@ -52,13 +92,15 @@ Current deployed router infrastructure:
 - Receipt rule set: `TownOfWileyAliasForwarding`
 - Receipt rule: `StoreTownMailInS3`
 - Outbound SES send region from the Lambda: `us-east-2`
-- Current `FORWARDER_FROM`: `steve.mckitrick@townofwiley.gov`
+- Target `FORWARDER_FROM`: `clerk@townofwiley.gov` (domain `townofwiley.gov` verified in SES `us-east-2`)
+- Target `FALLBACK_ALIAS_ADDRESS`: `clerk@townofwiley.gov`
+- Prod `EmailAlias` table: `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main` (Lambda must use this table, not a stale Amplify `NONE` suffix)
 
 Current live routing state:
 
-- Route 53 now publishes `townofwiley.gov MX 10 inbound-smtp.us-east-1.amazonaws.com`.
-- The SES receipt rule path is active in `us-east-1`.
-- The first live `EmailAlias` record is active for `steve.mckitrick@townofwiley.gov -> bigessfour@gmail.com`.
+- Route 53 publishes `townofwiley.gov MX 10 inbound-smtp.us-east-1.amazonaws.com`.
+- Receipt rule recipients should include **`townofwiley.gov`** (domain-wide) per SES receiving guidance.
+- Clerk-centric aliases in CMS: `clerk@townofwiley.gov`, `deb.dillon@townofwiley.gov` (destinations updated via `mail:forwarding:configure`).
 
 Current remaining AWS blockers:
 

@@ -43,6 +43,7 @@ describe('CmsEmailAliasAdminComponent', () => {
     forceLiveRefresh.mockReset().mockResolvedValue(undefined);
     mockMessages.add.mockReset();
     mockStaffAuth.isStaff.mockReturnValue(true);
+    vi.stubGlobal('confirm', vi.fn(() => true));
 
     TestBed.configureTestingModule({
       providers: [
@@ -106,7 +107,33 @@ describe('CmsEmailAliasAdminComponent', () => {
     );
     expect(forceLiveRefresh).toHaveBeenCalled();
     expect(mockMessages.add).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'success', summary: 'Forwarding rule saved' }),
+      expect.objectContaining({
+        severity: 'success',
+        summary: 'Forwarding rule saved',
+        detail: expect.stringContaining('AWS reads this automatically'),
+      }),
+    );
+  });
+
+  it('saveAlias normalizes shorthand Town local-part before create', async () => {
+    const component = createHarness();
+    component.openCreateDialog();
+    component.aliasForm.patchValue({
+      aliasAddress: 'steve.mckitrick',
+      destinationAddress: 'BigEssFour@gmail.com',
+      active: true,
+    });
+
+    await component.saveAlias();
+    await settle();
+
+    expect(createRecord).toHaveBeenCalledWith(
+      'EmailAlias',
+      expect.objectContaining({
+        aliasAddress: 'steve.mckitrick@townofwiley.gov',
+        destinationAddress: 'bigessfour@gmail.com',
+        active: true,
+      }),
     );
   });
 

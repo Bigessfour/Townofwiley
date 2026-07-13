@@ -78,12 +78,14 @@ def seed_official_contacts(ts: str) -> None:
 
 
 def seed_sitecopy(ts: str) -> None:
+    # Keep in sync with src/app/cms-admin/cms-sitecopy-seed-defaults.ts
     rows = [
         {
             "id": {"S": "topTasksKicker"},
             "key": {"S": "topTasksKicker"},
             "valueEn": {"S": "Quick Tasks"},
             "valueEs": {"S": "Tareas rapidas"},
+            "description": {"S": "Homepage Quick Tasks kicker above How do I…"},
             "active": {"BOOL": True},
             "displayOrder": {"N": "1"},
             "__typename": {"S": "SiteCopy"},
@@ -95,8 +97,33 @@ def seed_sitecopy(ts: str) -> None:
             "key": {"S": "topTasksHeading"},
             "valueEn": {"S": "How do I..."},
             "valueEs": {"S": "Como puedo..."},
+            "description": {"S": "Homepage How do I… section heading"},
             "active": {"BOOL": True},
             "displayOrder": {"N": "2"},
+            "__typename": {"S": "SiteCopy"},
+            "createdAt": {"S": ts},
+            "updatedAt": {"S": ts},
+        },
+        {
+            "id": {"S": "contactTownHallAddress"},
+            "key": {"S": "contactTownHallAddress"},
+            "valueEn": {"S": "304 Main Street, Wiley, CO 81092"},
+            "valueEs": {"S": "304 Main Street, Wiley, CO 81092"},
+            "description": {"S": "Town Hall card street address on /contact"},
+            "active": {"BOOL": True},
+            "displayOrder": {"N": "10"},
+            "__typename": {"S": "SiteCopy"},
+            "createdAt": {"S": ts},
+            "updatedAt": {"S": ts},
+        },
+        {
+            "id": {"S": "contactTownHallPhone"},
+            "key": {"S": "contactTownHallPhone"},
+            "valueEn": {"S": "(719) 829-4974"},
+            "valueEs": {"S": "(719) 829-4974"},
+            "description": {"S": "Town Hall card phone number on /contact"},
+            "active": {"BOOL": True},
+            "displayOrder": {"N": "11"},
             "__typename": {"S": "SiteCopy"},
             "createdAt": {"S": ts},
             "updatedAt": {"S": ts},

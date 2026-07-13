@@ -17,8 +17,7 @@ feature branch → PR → site-ci / CI gate (merge required) → merge main
 | CI | `.github/workflows/git-workflow.yml` | [`git-workflow.md`](./git-workflow.md) |
 | Runtime secrets | GitHub repository secrets + local locker | [`secrets/README.md`](../secrets/README.md) |
 | Production deploy | OIDC → `scripts/deploy-static-site.sh` via Actions | [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) · [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md) |
-| IaC scaffold | Terraform (`infrastructure/terraform/`) | [terraform README](../infrastructure/terraform/README.md) |
-| Ansible | **Deprecated** — not a deploy path | [`ansible-DEPRECATED.md`](./ansible-DEPRECATED.md) |
+| IaC | Terraform (`infrastructure/terraform/`) | [terraform README](../infrastructure/terraform/README.md) |
 
 ## Shell setup (every session)
 
@@ -47,7 +46,7 @@ npm ci
 npm run secrets:init:local-passphrase   # if locker not initialized
 bash scripts/setup-github-actions-deploy-role.sh   # IAM admin; OIDC deploy role
 bash scripts/setup-github-governance.sh  # auto-merge, branch rules checklist
-# Ansible is deprecated — do not install for production deploy
+# IaC: Terraform (infrastructure/terraform/) — not the frontend publisher
 ```
 
 ## Runtime secrets (required for strict build + CI)
@@ -156,11 +155,6 @@ source scripts/agent-aws-env.sh
 npm run deploy:site              # build + S3 + CloudFront invalidation
 npm run deploy:site:dry          # S3 dry-run only
 ```
-
-## Ansible (deprecated)
-
-Do **not** use Ansible for deploy. See [`ansible-DEPRECATED.md`](./ansible-DEPRECATED.md).  
-Break-glass frontend: `npm run deploy:site` · Ship: merge to `main`.
 
 ## When things fail
 

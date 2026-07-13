@@ -18,6 +18,7 @@ class AppConfig:
     forwarder_from: str
     alias_domain: str
     ses_send_region: str
+    fallback_alias_address: str = ""
 
 
 @dataclass(frozen=True)
@@ -265,9 +266,7 @@ class EmailAliasRouter:
         candidate_recipients = extract_candidate_recipients(
             parsed_message, self._config.alias_domain
         )
-        alias_record = self._alias_directory.find_first_active_alias(
-            candidate_recipients
-        )
+        alias_record = self._resolve_active_alias(candidate_recipients)
 
         if not alias_record:
             return RouteResult(
@@ -286,6 +285,21 @@ class EmailAliasRouter:
             reason="forwarded",
         )
 
+    def _resolve_active_alias(
+        self, candidate_recipients: list[str]
+    ) -> EmailAliasRecord | None:
+        alias_record = self._alias_directory.find_first_active_alias(
+            candidate_recipients
+        )
+        if alias_record:
+            return alias_record
+
+        fallback_address = normalize_email_address(self._config.fallback_alias_address)
+        if not fallback_address:
+            return None
+
+        return self._alias_directory.find_first_active_alias([fallback_address])
+
 
 def build_runtime_router() -> EmailAliasRouter:
     config = AppConfig(
@@ -295,6 +309,7 @@ def build_runtime_router() -> EmailAliasRouter:
         alias_domain=os.environ.get("ALIAS_DOMAIN", "townofwiley.gov").strip().lower()
         or "townofwiley.gov",
         ses_send_region=os.environ.get("SES_SEND_REGION", "").strip(),
+        fallback_alias_address=os.environ.get("FALLBACK_ALIAS_ADDRESS", "").strip(),
     )
 
     boto3 = __import__("boto3")

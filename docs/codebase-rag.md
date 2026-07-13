@@ -81,7 +81,7 @@ See also [`.cursor/rules/codebase-rag.mdc`](../.cursor/rules/codebase-rag.mdc).
 
 ## What gets indexed
 
-High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/`, `ansible/`, `.github/workflows/`, `.github/actions/`, Amplify GraphQL/config, `.github/skills/`, `.github/instructions/`, `.cursor/rules/`, agent instruction markdown, `customHttp.yml`, `angular.json`, `package.json`, `rag/js/`, `rag/*.md`.
+High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/` (including `infrastructure/terraform/`), `.github/workflows/`, `.github/actions/`, Amplify GraphQL/config, `.github/skills/`, `.github/instructions/`, `.cursor/rules/`, agent instruction markdown, `customHttp.yml`, `angular.json`, `package.json`, `rag/js/`, `rag/*.md`.
 
 **Never indexed:** `node_modules/`, `dist/`, `secrets/`, lockfiles, generated `public/cms-snapshot.json`, binaries, `rag/.venv/`.
 

@@ -112,8 +112,33 @@
       </div>
     }
 
+    @if (taskId() === 'edit-site-copy') {
+      <app-cms-sitecopy-save-mock [formValues]="formValues()" />
+    }
+
     <form class="cms-record-editor__form" (submit)="submitForm(); $event.preventDefault()">
-      @for (field of fields(); track field.name) {
+      @for (section of formSections(); track sectionTrack(section)) {
+        @if (section.type === 'group') {
+          <fieldset class="cms-record-editor__section">
+            <legend class="cms-record-editor__section-legend">{{ section.title }}</legend>
+            @for (field of section.fields; track field.name) {
+              <ng-container *ngTemplateOutlet="clerkField; context: { $implicit: field }" />
+            }
+          </fieldset>
+        } @else {
+          <details class="cms-record-editor__optional">
+            <summary class="cms-record-editor__optional-summary">Optional fields</summary>
+            @for (field of section.fields; track field.name) {
+              <ng-container *ngTemplateOutlet="clerkField; context: { $implicit: field }" />
+            }
+          </details>
+        }
+      }
+
+      <ng-template #clerkField let-field>
+        @if (fieldPreviewHint(field); as hint) {
+          <p class="cms-record-field__preview-hint">{{ hint }}</p>
+        }
         @if (field.name === 'lineEn' && showLeadershipInsertPosition()) {
           <label class="cms-record-field" for="cms-leadership-insert-position">
             <span>Where should this name appear?</span>
@@ -407,7 +432,7 @@
             }
           </label>
         }
-      }
+      </ng-template>
 
       @if (fileUploadError()) {
         <p-message
@@ -419,6 +444,29 @@
 
       @if (deleteBlockedReason(); as blocked) {
         <p-message severity="warn" [text]="blocked" styleClass="cms-record-editor__message" />
+      }
+
+      @if (savePreviewLines().length > 0) {
+        <aside
+          class="cms-record-editor__preview"
+          aria-label="Review before save"
+          data-testid="cms-save-preview"
+        >
+          <h4 class="cms-record-editor__preview-title">Review before save</h4>
+          <p class="cms-record-editor__preview-lead">
+            Nothing goes live until you click Save. After saving, use
+            <strong>See on live website</strong> to verify (public copy usually updates within about
+            one minute).
+          </p>
+          <ul class="cms-record-editor__preview-list">
+            @for (line of savePreviewLines(); track line.label) {
+              <li>
+                <span class="cms-record-editor__preview-label">{{ line.label }}</span>
+                <span class="cms-record-editor__preview-value">{{ line.value }}</span>
+              </li>
+            }
+          </ul>
+        </aside>
       }
 
       <div class="cms-record-editor__actions">

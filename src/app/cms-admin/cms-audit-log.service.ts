@@ -24,6 +24,15 @@ export class CmsAuditLogService {
   private readonly http = inject(HttpClient);
   private readonly staffAuth = inject(StaffAuthService);
 
+  isConfigured(): boolean {
+    if (this.staffAuth.playwrightStaffBypassActive()) {
+      return false;
+    }
+    const endpoint = this.readAuditEndpoint();
+    const token = this.staffAuth.accessToken();
+    return Boolean(endpoint?.trim()) && Boolean(token?.trim());
+  }
+
   async listRecent(limit = 25): Promise<CmsAuditLogEntry[]> {
     if (this.staffAuth.playwrightStaffBypassActive()) {
       return [];

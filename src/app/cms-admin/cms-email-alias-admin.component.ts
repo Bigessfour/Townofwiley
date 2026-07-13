@@ -19,6 +19,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsGenericModelAdminService } from '../cms-generic-model-admin.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
+import {
+  destinationInboxValidator,
+  normalizeTownAliasAddress,
+  townAliasAddressValidator,
+} from './cms-email-alias-forwarding.util';
+import { confirmEmailAliasSave } from './cms-clerk-sensitive-save';
 
 const EMAIL_ALIAS_MODEL = 'EmailAlias';
 
@@ -72,8 +78,11 @@ export class CmsEmailAliasAdminComponent implements OnInit {
   );
 
   protected readonly aliasForm = this.fb.nonNullable.group({
-    aliasAddress: ['', [Validators.required, Validators.email]],
-    destinationAddress: ['', [Validators.required, Validators.email]],
+    aliasAddress: ['', [Validators.required, townAliasAddressValidator()]],
+    destinationAddress: [
+      '',
+      [Validators.required, Validators.email, destinationInboxValidator()],
+    ],
     active: [true],
     displayName: [''],
     roleLabel: [''],
@@ -132,8 +141,8 @@ export class CmsEmailAliasAdminComponent implements OnInit {
 
     const raw = this.aliasForm.getRawValue();
     const input: Record<string, unknown> = {
-      aliasAddress: raw.aliasAddress.trim(),
-      destinationAddress: raw.destinationAddress.trim(),
+      aliasAddress: normalizeTownAliasAddress(raw.aliasAddress),
+      destinationAddress: raw.destinationAddress.trim().toLowerCase(),
       active: raw.active,
     };
     if (raw.displayName.trim()) {
@@ -144,6 +153,12 @@ export class CmsEmailAliasAdminComponent implements OnInit {
     }
     if (raw.notes.trim()) {
       input['notes'] = raw.notes.trim();
+    }
+
+    const alias = String(input['aliasAddress']);
+    const dest = String(input['destinationAddress']);
+    if (!confirmEmailAliasSave(alias, dest)) {
+      return;
     }
 
     this.saving.set(true);
@@ -157,11 +172,14 @@ export class CmsEmailAliasAdminComponent implements OnInit {
 
       await this.refreshAdminSnapshotAfterMutation();
 
+      const active = input['active'] === true;
       this.messages.add({
         severity: 'success',
         summary: 'Forwarding rule saved',
-        detail: 'Email forwarding updated in the content database.',
-        life: 5_000,
+        detail: active
+          ? `${alias} will forward to ${dest} on the next message (AWS reads this automatically). Send a test email to confirm.`
+          : `${alias} is saved but not forwarding until Active is turned on.`,
+        life: 8_000,
       });
       this.dialogOpen.set(false);
       this.editingId.set(null);
@@ -209,6 +227,28 @@ export class CmsEmailAliasAdminComponent implements OnInit {
   protected fieldInvalid(name: 'aliasAddress' | 'destinationAddress'): boolean {
     const control = this.aliasForm.controls[name];
     return control.invalid && (control.dirty || control.touched);
+  }
+
+  protected fieldError(
+    name: 'aliasAddress' | 'destinationAddress',
+  ): 'email' | 'townDomain' | 'townLoop' | 'required' | null {
+    const control = this.aliasForm.controls[name];
+    if (!this.fieldInvalid(name) || !control.errors) {
+      return null;
+    }
+    if (control.errors['required']) {
+      return 'required';
+    }
+    if (control.errors['townLoop']) {
+      return 'townLoop';
+    }
+    if (control.errors['townDomain']) {
+      return 'townDomain';
+    }
+    if (control.errors['email']) {
+      return 'email';
+    }
+    return null;
   }
 
   private async loadAliases(): Promise<void> {

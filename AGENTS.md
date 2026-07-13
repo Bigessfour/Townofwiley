@@ -1,6 +1,6 @@
 # Town of Wiley — Grok Build project rules
 
-Official site for [townofwiley.gov](https://townofwiley.gov): Angular 21, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
+Official site for [townofwiley.gov](https://townofwiley.gov): Angular 22, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
 
 ## Stack and conventions
 
@@ -110,7 +110,7 @@ See full details and setup in [`docs/codebase-rag.md`](docs/codebase-rag.md) and
 
 Project MCP is in [`.grok/config.toml`](.grok/config.toml) (mirrors [`.cursor/mcp.json`](.cursor/mcp.json)):
 
-- **angular-cli** — Angular 21 patterns, `list_projects`, `get_best_practices`.
+- **angular-cli** — Angular 22 patterns, `list_projects`, `get_best_practices`.
 - **primeng** — PrimeNG component usage (Cursor); run `npm run mcp:primeng:install` once — pinned SDK in [`mcp/primeng/`](mcp/primeng/) — see [`docs/grok-cli.md`](docs/grok-cli.md).
 - **playwright-test** — run/fix e2e via `run-test-mcp-server`.
 - **playwright-mcp** — exploratory browser automation (`@playwright/mcp@latest`).
@@ -192,4 +192,4 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 - Feature branches; **never push directly to `main`** — open a PR and wait for **`site-ci / CI gate (merge required)`** to pass before merge.
 - Merge to `main` when CI is green. Do not force-push `main`.
 - Branch protection setup: [`docs/github-branch-protection.md`](docs/github-branch-protection.md).
-- **Production frontend deploy SSOT:** merge to `main` → GitHub Actions OIDC → S3 + CloudFront — [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md). Break-glass: `npm run deploy:site`. **Ansible is deprecated** for deploy. **Terraform** is IaC scaffold only (not site publish).
+- **Production frontend deploy SSOT:** merge to `main` → GitHub Actions OIDC → S3 + CloudFront — [`docs/DEPLOYMENT_SSOT.md`](docs/DEPLOYMENT_SSOT.md). Break-glass: `npm run deploy:site`. **Ansible removed**; **Terraform** is IaC (`infrastructure/terraform/`, not site publish).

@@ -18,7 +18,7 @@ Use composite actions under `.github/actions/` so cache keys stay consistent acr
 | Angular `.angular/cache` | `./.github/actions/cache-angular-cli` | `ng build`, `ng test` (`frontend-lint-build`, Copilot setup build) |
 | Playwright Chromium | `./.github/actions/cache-playwright-chromium` | Any job that runs Playwright (`PLAYWRIGHT_BROWSERS_PATH` must match input) |
 | Ollama model weights | `./.github/actions/setup-ollama` (wraps `cache-ollama-model`) | Ollama PR review + CI diagnosis |
-| pip (ansible, pytest) | `actions/setup-python@v6` with `cache: pip` and `cache-dependency-path: scripts/requirements-ci.txt` | Python validation / infra test jobs |
+| pip (pytest) | `actions/setup-python@v6` with `cache: pip` and `cache-dependency-path: scripts/requirements-ci.txt` | Python backend / infra test jobs |
 
 ## Rules
 

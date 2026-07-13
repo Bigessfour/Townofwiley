@@ -41,11 +41,19 @@
 
     <app-cms-clerk-task-hub
       [modelCounts]="modelCounts()"
-      (editContent)="onShowTaskSteps($event)"
+      (editContent)="onEditContent($event)"
       (showSteps)="onShowTaskSteps($event)"
     />
 
-    <app-cms-clerk-task-guide [taskId]="selectedTaskId()" />
+    <app-cms-clerk-coverage-sheet
+      (openTask)="onEditContent($event)"
+      (openDocuments)="onOpenDocumentsSection()"
+    />
+
+    <app-cms-clerk-task-guide
+      [taskId]="selectedTaskId()"
+      [helpExpanded]="taskGuideHelpOpen()"
+    />
 
     <app-cms-recent-changes />
 

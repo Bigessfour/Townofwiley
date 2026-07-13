@@ -13,7 +13,7 @@
 
 ## Indexed high-signal paths
 
-`src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/`, `ansible/`, `.github/workflows/`, `.github/actions/`, skills, instructions, cursor rules, agent markdown, `customHttp.yml`, `angular.json`, `package.json`, this `rag/` tree.
+`src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/` (including `terraform/`), `.github/workflows/`, `.github/actions/`, skills, instructions, cursor rules, agent markdown, `customHttp.yml`, `angular.json`, `package.json`, this `rag/` tree.
 
 ## Not indexed
 

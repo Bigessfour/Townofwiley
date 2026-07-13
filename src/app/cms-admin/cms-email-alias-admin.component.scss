@@ -65,9 +65,45 @@
   color: var(--p-red-600, #dc2626);
 }
 
+.cms-email-alias-admin__preview {
+  margin: 0.75rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--wiley-primary, #17344d) 14%, transparent);
+  background: color-mix(in srgb, var(--wiley-cream-50, #faf8f5) 75%, #fff);
+}
+
+.cms-email-alias-admin__preview-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.cms-email-alias-admin__preview-lead {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .cms-email-alias-admin__dialog-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+.cms-email-alias-admin__optional {
+  margin: 0;
+  padding: 0.5rem 0 0;
+}
+
+.cms-email-alias-admin__optional summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+}
+
+.cms-email-alias-admin__optional-fields {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.75rem;
 }

@@ -1,4 +1,2 @@
-# Python deps for Site CI jobs (ansible-validation, backend-python-tests, e2e preflight).
-ansible
-ansible-lint
+# Python deps for Site CI jobs (backend-python-tests, e2e preflight).
 pytest

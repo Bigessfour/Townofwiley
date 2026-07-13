@@ -14,6 +14,7 @@ import { DocumentRefreshService } from '../document-refresh.service';
 import { DocumentUploadService } from '../document-upload.service';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
+import { confirmMeetingDocumentUpload } from './cms-clerk-sensitive-save';
 
 interface MeetingUploadCopy {
   title: string;
@@ -126,6 +127,22 @@ export class CmsMeetingDocumentUploadComponent implements OnInit {
     () => Boolean(this.selectedEventId()) && Boolean(this.selectedFile()) && !this.uploading(),
   );
 
+  protected readonly uploadPreview = computed(() => {
+    const eventId = this.selectedEventId();
+    const file = this.selectedFile();
+    if (!eventId || !file) {
+      return null;
+    }
+    const meeting = this.meetingOptions().find((option) => option.id === eventId);
+    if (!meeting) {
+      return null;
+    }
+    return {
+      meetingLabel: meeting.label,
+      fileName: file.name,
+    };
+  });
+
   protected onEventChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedEventId.set(select.value);
@@ -159,6 +176,11 @@ export class CmsMeetingDocumentUploadComponent implements OnInit {
       this.error.set(
         `${this.copy().signInHint} ${this.copy().signInLink} at /admin/login before uploading.`,
       );
+      return;
+    }
+
+    const meetingLabel = event.title?.trim() || 'Selected meeting';
+    if (!confirmMeetingDocumentUpload(meetingLabel, file.name)) {
       return;
     }
 

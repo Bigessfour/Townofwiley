@@ -41,7 +41,7 @@
               @if (taskIcon(task); as iconClass) {
                 <i [class]="iconClass + ' cms-task-card__btn-icon'" aria-hidden="true"></i>
               }
-              Edit content
+              {{ task.primaryActionLabel ?? 'Edit content' }}
             </button>
             @if (showsPublicPreview(task)) {
               <a
@@ -57,7 +57,7 @@
               </a>
             }
             <button type="button" class="cms-task-card__steps" (click)="onShowSteps(task.id)">
-              Show step-by-step
+              Show step-by-step help
             </button>
           </div>
         </article>

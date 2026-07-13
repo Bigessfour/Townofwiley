@@ -24,7 +24,14 @@
     "functionName": "TownOfWileyEmailAliasRouter",
     "region": "us-east-1",
     "emailAliasTable": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
-    "emailAliasTableRegion": "us-east-2"
+    "emailAliasTableRegion": "us-east-2",
+    "ingressBucket": "townofwiley-email-alias-570912405222-us-east-1",
+    "receiptRuleSetName": "TownOfWileyAliasForwarding",
+    "receiptRuleName": "StoreTownMailInS3",
+    "receiptRecipients": "townofwiley.gov",
+    "forwarderFrom": "clerk@townofwiley.gov",
+    "fallbackAliasAddress": "clerk@townofwiley.gov",
+    "sendRegion": "us-east-2"
   },
   "hosting": {
     "s3Bucket": "townofwiley-static-site",

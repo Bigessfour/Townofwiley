@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "savedAt": "2026-07-11T20:30:00.000Z",
-  "buildSha": "f102897fd8e734031f34eb21ff5803de7751da43",
+  "savedAt": "2026-07-13T16:09:52.134Z",
+  "buildSha": "809df6b822f44589651c7fff7f535f3f01bc310c",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
     "heroEyebrow": null,
     "heroStatus": null,
-    "heroTitle": null,
+    "heroTitle": "Town of Wiley",
     "heroMessage": null,
     "heroSubtext": null,
-    "heroImageUrl": "/hero-wiley.webp",
+    "heroImageUrl": "https://townofwiley.gov/hero-wiley.webp",
     "welcomeLabel": null,
     "welcomeHeading": null,
     "welcomeBody": null,
@@ -229,6 +229,37 @@
   ],
   "publicDocumentRecords": [
     {
+      "id": "dca3340f-f4ab-4963-a0ee-98b3f18f0304",
+      "title": "City Council Meeting - July — Agenda (July 13, 2026)",
+      "titleEs": null,
+      "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
+      "summaryEs": null,
+      "sectionId": "meeting-documents",
+      "status": "Published",
+      "statusEs": null,
+      "format": "PDF",
+      "href": "storage:documents/meeting-documents/1783802700448-town_of_wiley_minutes_2026-06-08_text.pdf",
+      "downloadFileName": "Town_of_Wiley_Minutes_2026-06-08_TEXT.pdf",
+      "keywords": [
+        "meeting-documents",
+        "uploaded",
+        "cms",
+        "town",
+        "of",
+        "wiley",
+        "minutes",
+        "2026",
+        "06",
+        "08",
+        "text",
+        "agenda",
+        "event:2c8690af-eebd-4b2b-bb1b-1521cb0d6f91",
+        "2026-07-14"
+      ],
+      "active": true,
+      "displayOrder": 1783987200
+    },
+    {
       "id": "07770a7b-ce61-4429-ab06-ae4188e173de",
       "title": "City Council Meeting — Agenda (June 8, 2026)",
       "titleEs": null,
@@ -300,7 +331,7 @@
     {
       "id": "c4b3a770-5e48-4787-8317-3eb76a59d056",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 2,
       "lineEn": "Trustee - Allan Campbell",
       "lineEs": "Trustee - Allan Campbell",
       "active": true
@@ -308,7 +339,7 @@
     {
       "id": "e713575a-7e04-4c9a-b737-127ce0756135",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 1,
       "lineEn": "Trustee (Mayor Pro Tem) - Dale Stewart",
       "lineEs": "Trustee (Mayor Pro Tem) - Dale Stewart",
       "active": true
@@ -324,7 +355,7 @@
     {
       "id": "5a5e5d1e-e7f8-4646-a7b9-ae2b5388acfc",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 3,
       "lineEn": "Trustee - Ken Mooney",
       "lineEs": "Ken Mooney",
       "active": true
@@ -332,7 +363,7 @@
     {
       "id": "2b10b0eb-304a-4226-a1c0-33c3de37372a",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 4,
       "lineEn": "Trustee - Julie Esgar",
       "lineEs": "Trustee - Julie Esgar",
       "active": true
@@ -348,7 +379,7 @@
     {
       "id": "5aa68b27-ddf8-4c29-bcb9-16678b6592b6",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 5,
       "lineEn": "Trustee - Sandy Coen",
       "lineEs": "Trustee - Sandy Coen",
       "active": true
@@ -364,7 +395,7 @@
     {
       "id": "b90f8774-2d93-4cbe-8cdd-c66d7be166ff",
       "groupId": "mayor-council",
-      "displayOrder": null,
+      "displayOrder": 6,
       "lineEn": "Trustee - Dale Specht",
       "lineEs": "Trustee - Dale Specht",
       "active": true

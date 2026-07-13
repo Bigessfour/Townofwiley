@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
-import { APP_COPY } from '../app';
+import { APP_COPY, type AppCopy } from '../app';
 import {
   cmsNoticeFragmentId,
   getCmsNoticeLinkAriaLabel,
@@ -11,6 +11,7 @@ import {
 } from '../cms-notice-link';
 import { CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
+import { applyAppCopySiteCopyOverrides } from '../site-copy-overrides';
 
 @Component({
   selector: 'app-notices-page',
@@ -22,9 +23,11 @@ export class NoticesPage {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
 
-  protected readonly copy = computed(
-    () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
-  );
+  protected readonly copy = computed((): AppCopy => {
+    const lang = this.siteLanguageService.currentLanguage() || 'en';
+    const base = APP_COPY[lang];
+    return applyAppCopySiteCopyOverrides(base, (key) => this.cmsStore.getSiteCopy(key), lang);
+  });
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly notices = this.cmsStore.notices;
   protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;

@@ -73,6 +73,7 @@ import {
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
+import { applyAppCopySiteCopyOverrides } from './site-copy-overrides';
 import { SiteLanguage, SiteLanguageService } from './site-language';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
@@ -264,7 +265,7 @@ interface FeaturePage {
   showOnHomepage: boolean;
 }
 
-interface AppCopy {
+export interface AppCopy {
   skipLinkLabel: string;
   homeLabel: string;
   primaryNavServicesLabel: string;
@@ -1748,7 +1749,11 @@ export class App {
   protected readonly contacts = this.cmsStore.contacts;
   protected readonly siteLanguage = this.siteLanguageService.currentLanguage;
   protected readonly weatherAlertSignupFragment = WEATHER_ALERT_SIGNUP_FRAGMENT;
-  protected readonly appCopy = computed(() => APP_COPY[this.siteLanguage()]);
+  protected readonly appCopy = computed((): AppCopy => {
+    const lang = this.siteLanguage();
+    const base = APP_COPY[lang];
+    return applyAppCopySiteCopyOverrides(base, (key) => this.cmsStore.getSiteCopy(key), lang);
+  });
   protected readonly menuItems = computed<MegaMenuItem[]>(() => {
     const copy = this.appCopy();
 
@@ -2033,12 +2038,8 @@ export class App {
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
 
   // Live (CMS-overridable) values for the top "How do I..." section.
-  protected readonly topTasksKicker = computed(() =>
-    this.getDynamicLabel('topTasksKicker', this.appCopy().topTasksKicker),
-  );
-  protected readonly topTasksHeading = computed(() =>
-    this.getDynamicLabel('topTasksHeading', this.appCopy().topTasksHeading),
-  );
+  protected readonly topTasksKicker = computed(() => this.appCopy().topTasksKicker);
+  protected readonly topTasksHeading = computed(() => this.appCopy().topTasksHeading);
 
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();

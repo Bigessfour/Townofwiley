@@ -1,6 +1,0 @@
----
-deploy_script: '{{ repo_root }}/scripts/deploy-static-site.sh'
-# Dry-run defaults to sync-only (no strict prebuild) unless deploy_force_build=true
-deploy_skip_build_effective: >-
-  {{ deploy_skip_build | bool
-     or (deploy_dry_run | bool and not (deploy_force_build | bool)) }}
