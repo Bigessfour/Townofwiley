@@ -76,7 +76,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-task-guide')).toBeVisible();
     await expect(
       homePage.page.getByRole('heading', {
-        name: /Edit: Edit navigation labels, headings, and Quick Tasks text/i,
+        name: /Edit: Homepage & menu labels \(SiteCopy\)/i,
       }),
     ).toBeVisible();
     await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
