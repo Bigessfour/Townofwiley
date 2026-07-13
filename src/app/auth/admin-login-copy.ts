@@ -1,5 +1,7 @@
 /** Clerk/staff admin login — English only (public site stays bilingual). */
 export const ADMIN_LOGIN_COPY = {
+  newUserPrompt: 'New staff?',
+  newUserLink: 'First-time access — start here',
   kicker: 'Staff access',
   title: 'Sign in — Town admin',
   body: 'You will be redirected to the secure Town sign-in page (Amazon Cognito). Use the staff email and password IT gave you.',
@@ -19,4 +21,5 @@ export const ADMIN_LOGIN_COPY = {
   authError:
     'Sign-in could not be completed. Confirm you are in the Staff group or contact Town Hall for help.',
   retrySignIn: 'Sign in again',
+  manualSignInCta: 'Sign in with your Town staff account',
 };

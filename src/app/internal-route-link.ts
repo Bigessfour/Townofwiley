@@ -9,6 +9,7 @@ const APP_ROUTE_PATHS = new Set([
   '/',
   '/admin',
   '/admin/login',
+  '/admin/new-staff',
   '/clerk-setup',
   '/documents',
   '/notices',

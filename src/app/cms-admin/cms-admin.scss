@@ -21,6 +21,18 @@
   margin: 0 auto;
 }
 
+.cms-new-staff-banner {
+  max-width: 1100px;
+  margin: 0 auto 0.5rem;
+  font-size: 0.875rem;
+  color: var(--wiley-ink-700, #334155);
+}
+
+.cms-new-staff-banner a {
+  font-weight: 600;
+  color: var(--wiley-green-800, #1a4d3e);
+}
+
 .cms-header {
   display: grid;
   gap: 1.25rem;
