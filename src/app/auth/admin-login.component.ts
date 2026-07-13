@@ -35,6 +35,7 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   protected readonly statusMessage = signal<string | null>(null);
   protected readonly showRetrySignIn = signal(false);
   protected readonly showManualSignIn = signal(false);
+  protected readonly isNewStaffGuideRoute = signal(false);
   protected readonly copy = ADMIN_LOGIN_COPY;
 
   private hubStop?: () => void;
@@ -144,11 +145,16 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   }
 
   private shouldDeferHostedSignInRedirect(): boolean {
+    if (this.route.snapshot.data['newStaffGuide'] === true) {
+      return true;
+    }
     return this.route.snapshot.fragment === 'new-staff';
   }
 
   private syncNewStaffGuideState(): void {
-    if (!this.shouldDeferHostedSignInRedirect()) {
+    const guide = this.shouldDeferHostedSignInRedirect();
+    this.isNewStaffGuideRoute.set(guide);
+    if (!guide) {
       return;
     }
     if (this.redirectTimer) {
