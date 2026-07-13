@@ -296,7 +296,9 @@ jobs:
           set -o pipefail
           npm run build 2>&1 | tee failure-context/build.log
         env:
-          STRICT_RUNTIME_CONFIG: '1'
+          # Dependabot PR workflows cannot read repository secrets (GitHub security).
+          # Non-strict build still compiles the app; push-to-main keeps strict + secrets.
+          STRICT_RUNTIME_CONFIG: ${{ github.actor == 'dependabot[bot]' && '0' || '1' }}
           APPSYNC_CMS_ENDPOINT: ${{ secrets.APPSYNC_CMS_ENDPOINT }}
           APPSYNC_CMS_API_KEY: ${{ secrets.APPSYNC_CMS_API_KEY }}
           APPSYNC_CMS_REGION: ${{ secrets.APPSYNC_CMS_REGION }}
