@@ -1652,7 +1652,10 @@ export class App {
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
-  protected readonly isAdminLoginMode = computed(() => this.currentPath() === '/admin/login');
+  protected readonly isAdminLoginMode = computed(() => {
+    const path = this.currentPath();
+    return path === '/admin/login' || path === '/admin/new-staff';
+  });
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
   protected readonly isDocumentHubMode = computed(() => false);
   protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');

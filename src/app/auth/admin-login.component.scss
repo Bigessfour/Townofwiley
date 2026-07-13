@@ -16,6 +16,24 @@
   box-shadow: var(--shadow-card, 0 4px 24px rgb(15 23 42 / 8%));
 }
 
+.admin-login__new-user {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+}
+
+.admin-login__new-user-link {
+  font-weight: 600;
+  color: var(--wiley-green-800, #1a4d3e);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.admin-login__new-user-link:focus-visible {
+  outline: 2px solid var(--wiley-green-700, #2d6a4f);
+  outline-offset: 2px;
+}
+
 .admin-login__kicker {
   font-size: 0.875rem;
   font-weight: 600;
@@ -31,6 +49,10 @@
 }
 
 .admin-login__body {
+  margin: 0 0 1rem;
+}
+
+.admin-login__manual-sign-in {
   margin: 0 0 1rem;
 }
 
