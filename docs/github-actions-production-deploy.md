@@ -64,7 +64,7 @@ aws iam get-role --role-name GitHubActions-TownOfWiley-StaticSiteDeploy
 
 ### Required repository secrets (CI build)
 
-Deploy consumes the **artifact from `frontend-lint-build`**, which runs `npm run build` with strict runtime config. These secrets must exist (see [`infrastructure/amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json) `requiredForProduction`):
+Deploy consumes the **artifact from `frontend-lint-build`**, which runs `npm run build:ci` with **strict** runtime config when repository secrets are present (`STRICT_RUNTIME_CONFIG=1`). These secrets must exist on staff PRs and on `main` deploy paths (see [`infrastructure/amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json) `requiredForProduction`):
 
 - `APPSYNC_CMS_ENDPOINT`, `APPSYNC_CMS_API_KEY`, `APPSYNC_CMS_REGION`
 - `NWS_PROXY_ENDPOINT`

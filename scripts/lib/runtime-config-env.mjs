@@ -105,6 +105,15 @@ export function shouldUseStrictMode(argv, env) {
 }
 
 /**
+ * Site CI (`npm run build:ci`) — strict from env only, never from `--strict` argv.
+ *
+ * @param {import('node:process').env} env
+ */
+export function shouldRunStrictProductionBuild(env) {
+  return shouldUseStrictMode([], env);
+}
+
+/**
  * Whether generate-runtime-config may read deployed Lambda URLs from infrastructure SSOT.
  * Off for strict Amplify builds and when E2E_RUNTIME_MANIFEST_FALLBACKS=0 (CI E2E).
  *

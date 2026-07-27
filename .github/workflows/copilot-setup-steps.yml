@@ -47,13 +47,6 @@ jobs:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
-      # Copilot workspaces often lack production secrets. Use non-strict runtime
-      # config so setup validation still proves lint + ng build work.
-      - name: Build application (non-strict runtime config)
-        run: |
-          set -euo pipefail
-          node scripts/ensure-node-version.mjs
-          npm run generate:runtime-config
-          npm run generate:cms-snapshot
-          node scripts/verify-public-cms-query.mjs
-          npx ng build
+      # Copilot workspaces lack production secrets — build:ci uses non-strict runtime config.
+      - name: Build application (CI production build)
+        run: npm run build:ci

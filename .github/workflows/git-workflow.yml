@@ -294,9 +294,11 @@ jobs:
       - name: Build
         run: |
           set -o pipefail
-          npm run build 2>&1 | tee failure-context/build.log
+          npm run build:ci 2>&1 | tee failure-context/build.log
         env:
-          STRICT_RUNTIME_CONFIG: '1'
+          # Secretless PR workflows (Dependabot, re-runs): non-strict runtime + SSOT fallbacks.
+          # Staff PRs with repository secrets keep strict validation (same as npm run build).
+          STRICT_RUNTIME_CONFIG: ${{ secrets.APPSYNC_CMS_API_KEY != '' && '1' || '0' }}
           APPSYNC_CMS_ENDPOINT: ${{ secrets.APPSYNC_CMS_ENDPOINT }}
           APPSYNC_CMS_API_KEY: ${{ secrets.APPSYNC_CMS_API_KEY }}
           APPSYNC_CMS_REGION: ${{ secrets.APPSYNC_CMS_REGION }}

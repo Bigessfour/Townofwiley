@@ -7,6 +7,7 @@ import {
     collectRequiredEnvErrors,
     formatStrictEnvErrors,
     shouldAllowManifestFallbacks,
+    shouldRunStrictProductionBuild,
     shouldUseStrictMode,
 } from './lib/runtime-config-env.mjs';
 
@@ -60,6 +61,21 @@ describe('shouldUseStrictMode', () => {
 
   it('is off for local dev without flags', () => {
     assert.equal(shouldUseStrictMode([], {}), false);
+  });
+});
+
+describe('shouldRunStrictProductionBuild (build:ci)', () => {
+  it('is strict when STRICT_RUNTIME_CONFIG=1', () => {
+    assert.equal(shouldRunStrictProductionBuild({ STRICT_RUNTIME_CONFIG: '1' }), true);
+  });
+
+  it('is non-strict when STRICT_RUNTIME_CONFIG=0 (Dependabot / secretless CI)', () => {
+    assert.equal(shouldRunStrictProductionBuild({ STRICT_RUNTIME_CONFIG: '0' }), false);
+  });
+
+  it('ignores --strict argv (only env governs build:ci)', () => {
+    assert.equal(shouldRunStrictProductionBuild({ STRICT_RUNTIME_CONFIG: '0' }), false);
+    assert.equal(shouldRunStrictProductionBuild({ STRICT_RUNTIME_CONFIG: '1' }), true);
   });
 });
 
