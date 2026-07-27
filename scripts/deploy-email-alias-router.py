@@ -234,7 +234,12 @@ def get_table_arn(table_name: str, region: str) -> str:
     return table["Table"]["TableArn"]
 
 
-def ensure_role(role_name: str, bucket_arn: str, alias_table_arn: str) -> str:
+def ensure_role(
+    role_name: str,
+    bucket_arn: str,
+    alias_table_arn: str,
+    dlq_arn: str = "",
+) -> str:
     trust_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -245,30 +250,39 @@ def ensure_role(role_name: str, bucket_arn: str, alias_table_arn: str) -> str:
             },
         ],
     }
+    statements: list[dict[str, Any]] = [
+        {
+            "Effect": "Allow",
+            "Action": ["s3:GetObject"],
+            "Resource": [f"{bucket_arn}/*"],
+        },
+        {
+            "Effect": "Allow",
+            "Action": ["s3:ListBucket"],
+            "Resource": [bucket_arn],
+        },
+        {
+            "Effect": "Allow",
+            "Action": ["dynamodb:Scan"],
+            "Resource": [alias_table_arn],
+        },
+        {
+            "Effect": "Allow",
+            "Action": ["ses:SendEmail", "ses:SendRawEmail", "sesv2:SendEmail"],
+            "Resource": "*",
+        },
+    ]
+    if dlq_arn:
+        statements.append(
+            {
+                "Effect": "Allow",
+                "Action": ["sqs:SendMessage"],
+                "Resource": [dlq_arn],
+            }
+        )
     inline_policy = {
         "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": ["s3:GetObject"],
-                "Resource": [f"{bucket_arn}/*"],
-            },
-            {
-                "Effect": "Allow",
-                "Action": ["s3:ListBucket"],
-                "Resource": [bucket_arn],
-            },
-            {
-                "Effect": "Allow",
-                "Action": ["dynamodb:Scan"],
-                "Resource": [alias_table_arn],
-            },
-            {
-                "Effect": "Allow",
-                "Action": ["ses:SendEmail", "ses:SendRawEmail", "sesv2:SendEmail"],
-                "Resource": "*",
-            },
-        ],
+        "Statement": statements,
     }
 
     try:
@@ -327,6 +341,20 @@ def ensure_role(role_name: str, bucket_arn: str, alias_table_arn: str) -> str:
     return role_arn
 
 
+def wait_lambda_updated(function_name: str, region: str) -> None:
+    run_aws(
+        [
+            "lambda",
+            "wait",
+            "function-updated",
+            "--function-name",
+            function_name,
+        ],
+        expect_json=False,
+        region=region,
+    )
+
+
 def ensure_lambda_function(
     function_name: str,
     role_arn: str,
@@ -350,6 +378,7 @@ def ensure_lambda_function(
             ],
             region=region,
         )
+        wait_lambda_updated(function_name, region)
         run_aws(
             [
                 "lambda",
@@ -371,6 +400,7 @@ def ensure_lambda_function(
             ],
             region=region,
         )
+        wait_lambda_updated(function_name, region)
         return details["Configuration"]["FunctionArn"]
     except RuntimeError:
         details = run_aws(
@@ -396,7 +426,170 @@ def ensure_lambda_function(
             ],
             region=region,
         )
+        wait_lambda_updated(function_name, region)
         return details["FunctionArn"]
+
+
+def ensure_dlq(queue_name: str, region: str) -> str:
+    """Ensure the async failure DLQ exists and return its ARN."""
+    try:
+        response = run_aws(
+            ["sqs", "get-queue-url", "--queue-name", queue_name],
+            region=region,
+        )
+        queue_url = response["QueueUrl"]
+    except RuntimeError:
+        response = run_aws(
+            [
+                "sqs",
+                "create-queue",
+                "--queue-name",
+                queue_name,
+                "--attributes",
+                json.dumps({"MessageRetentionPeriod": "1209600"}),
+            ],
+            region=region,
+        )
+        queue_url = response["QueueUrl"]
+
+    attributes = run_aws(
+        [
+            "sqs",
+            "get-queue-attributes",
+            "--queue-url",
+            queue_url,
+            "--attribute-names",
+            "QueueArn",
+        ],
+        region=region,
+    )
+    return str(attributes["Attributes"]["QueueArn"])
+
+
+def ensure_lambda_dlq(function_name: str, dlq_arn: str, region: str) -> None:
+    run_aws(
+        [
+            "lambda",
+            "update-function-configuration",
+            "--function-name",
+            function_name,
+            "--dead-letter-config",
+            json.dumps({"TargetArn": dlq_arn}),
+        ],
+        region=region,
+    )
+    # Configuration updates are async; wait briefly before further changes.
+    time.sleep(3)
+
+
+def ensure_cloudwatch_alarm(
+    *,
+    alarm_name: str,
+    function_name: str,
+    metric_name: str,
+    sns_topic_arn: str,
+    region: str,
+    threshold: float = 1.0,
+    period: int = 300,
+) -> None:
+    if not sns_topic_arn:
+        print(
+            f"Warning: skipping alarm {alarm_name} (no SNS topic ARN).",
+            file=sys.stderr,
+        )
+        return
+
+    run_aws(
+        [
+            "cloudwatch",
+            "put-metric-alarm",
+            "--alarm-name",
+            alarm_name,
+            "--alarm-description",
+            f"Town of Wiley email alias router {metric_name}",
+            "--namespace",
+            "AWS/Lambda",
+            "--metric-name",
+            metric_name,
+            "--dimensions",
+            f"Name=FunctionName,Value={function_name}",
+            "--statistic",
+            "Sum",
+            "--period",
+            str(period),
+            "--evaluation-periods",
+            "1",
+            "--threshold",
+            str(threshold),
+            "--comparison-operator",
+            "GreaterThanOrEqualToThreshold",
+            "--treat-missing-data",
+            "notBreaching",
+            "--alarm-actions",
+            sns_topic_arn,
+        ],
+        expect_json=False,
+        region=region,
+    )
+
+
+def ensure_dlq_depth_alarm(
+    *,
+    alarm_name: str,
+    queue_name: str,
+    sns_topic_arn: str,
+    region: str,
+) -> None:
+    if not sns_topic_arn:
+        return
+
+    run_aws(
+        [
+            "cloudwatch",
+            "put-metric-alarm",
+            "--alarm-name",
+            alarm_name,
+            "--alarm-description",
+            "Town of Wiley email alias DLQ has undelivered failures",
+            "--namespace",
+            "AWS/SQS",
+            "--metric-name",
+            "ApproximateNumberOfMessagesVisible",
+            "--dimensions",
+            f"Name=QueueName,Value={queue_name}",
+            "--statistic",
+            "Maximum",
+            "--period",
+            "300",
+            "--evaluation-periods",
+            "1",
+            "--threshold",
+            "1",
+            "--comparison-operator",
+            "GreaterThanOrEqualToThreshold",
+            "--treat-missing-data",
+            "notBreaching",
+            "--alarm-actions",
+            sns_topic_arn,
+        ],
+        expect_json=False,
+        region=region,
+    )
+
+
+def publish_lambda_version(function_name: str, region: str, description: str) -> str:
+    response = run_aws(
+        [
+            "lambda",
+            "publish-version",
+            "--function-name",
+            function_name,
+            "--description",
+            description[:250],
+        ],
+        region=region,
+    )
+    return str(response.get("Version", ""))
 
 
 def ensure_lambda_s3_permission(
@@ -619,11 +812,23 @@ def main() -> int:
         "clerk@townofwiley.gov",
     )
 
+    dlq_name = resolve_value(
+        "",
+        mail_defaults.get("dlqName"),
+        "TownOfWileyEmailAliasDLQ",
+    )
+    sns_topic_arn = resolve_value(
+        "",
+        mail_defaults.get("opsAlertTopicArn"),
+        f"arn:aws:sns:{ingress_region}:{account_id}:TownOfWileyOpsAlerts",
+    )
+
     archive_path = package_backend()
     bucket_arn = ensure_bucket(bucket_name, ingress_region)
     ensure_bucket_policy(bucket_name, account_id, ingress_region)
     alias_table_arn = get_table_arn(alias_table, alias_table_region)
-    role_arn = ensure_role(role_name, bucket_arn, alias_table_arn)
+    dlq_arn = ensure_dlq(dlq_name, ingress_region)
+    role_arn = ensure_role(role_name, bucket_arn, alias_table_arn, dlq_arn=dlq_arn)
     function_arn = ensure_lambda_function(
         function_name=function_name,
         role_arn=role_arn,
@@ -639,8 +844,36 @@ def main() -> int:
         },
         region=ingress_region,
     )
+    wait_lambda_updated(function_name, ingress_region)
+    ensure_lambda_dlq(function_name, dlq_arn, ingress_region)
+    wait_lambda_updated(function_name, ingress_region)
     ensure_lambda_s3_permission(function_name, bucket_arn, account_id, ingress_region)
-    time.sleep(5)
+    ensure_cloudwatch_alarm(
+        alarm_name=f"TownOfWiley-{function_name}-Errors",
+        function_name=function_name,
+        metric_name="Errors",
+        sns_topic_arn=sns_topic_arn,
+        region=ingress_region,
+    )
+    ensure_cloudwatch_alarm(
+        alarm_name=f"TownOfWiley-{function_name}-Throttles",
+        function_name=function_name,
+        metric_name="Throttles",
+        sns_topic_arn=sns_topic_arn,
+        region=ingress_region,
+    )
+    ensure_dlq_depth_alarm(
+        alarm_name=f"TownOfWiley-{function_name}-DLQ-Depth",
+        queue_name=dlq_name,
+        sns_topic_arn=sns_topic_arn,
+        region=ingress_region,
+    )
+    published_version = publish_lambda_version(
+        function_name,
+        ingress_region,
+        description="MIME passthrough + hardening deploy",
+    )
+    time.sleep(2)
     ensure_bucket_notification(
         bucket_name, function_arn, receipt_prefix, ingress_region
     )
@@ -660,13 +893,17 @@ def main() -> int:
     summary = {
         "functionName": function_name,
         "functionRegion": ingress_region,
+        "functionVersion": published_version,
         "roleName": role_name,
         "bucketName": bucket_name,
+        "dlqName": dlq_name,
+        "dlqArn": dlq_arn,
         "receiptRuleSet": None if args.skip_receipt_rule_setup else receipt_rule_set,
         "receiptRuleName": None if args.skip_receipt_rule_setup else receipt_rule_name,
         "receiptRecipients": [] if args.skip_receipt_rule_setup else receipt_recipients,
         "aliasTable": alias_table,
         "aliasTableRegion": alias_table_region,
+        "mimeMode": "passthrough",
         "forwarderFrom": forwarder_from,
         "sendRegion": send_region,
         "aliasDomain": alias_domain,

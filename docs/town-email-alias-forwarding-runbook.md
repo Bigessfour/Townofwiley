@@ -186,13 +186,54 @@ For each mailbox alias:
 7. Optionally fill in `displayName`, `roleLabel`, and `notes`.
 8. Save the record.
 
+## MIME passthrough (do not reintroduce the wrap bug)
+
+The router must **preserve the original MIME body** (text, HTML, and file/inline attachments) and only rewrite delivery headers (`From`, `To`, `Subject`, `Reply-To`, `X-Town-*`).
+
+**Do not** reintroduce the older “shell + `original-message.eml` (`message/rfc822`) attachment” design. That pattern delivers a short wrap notice only; many clients (especially Outlook / new Outlook) show an empty body and hide or fail to open the nested `.eml`, so staff see the mail arrive with no text and no attachments.
+
+### Regression hardening (required)
+
+| Guard | Command / resource |
+| --- | --- |
+| Static source guard | `npm run verify:email-alias-mime` |
+| Unit tests (passthrough + wrap rejection) | `npm run test:infra:mail` |
+| Deploy gate (runs both above) | `npm run mail:forwarding:deploy` |
+| Runtime integrity | `assert_mime_passthrough_integrity` inside Lambda before `SendRawEmail` |
+| Structured logs | CloudWatch `/aws/lambda/TownOfWileyEmailAliasRouter` (`email_alias_router.forward`) |
+| Errors alarm | `TownOfWiley-TownOfWileyEmailAliasRouter-Errors` → `TownOfWileyOpsAlerts` |
+| Throttles alarm | `TownOfWiley-TownOfWileyEmailAliasRouter-Throttles` |
+| DLQ | SQS `TownOfWileyEmailAliasDLQ` + depth alarm |
+| Published versions | each deploy publishes a Lambda version for rollback |
+| CI | when `email_alias_changed`, git-workflow runs verify + unit tests |
+
+### Reforward historical mail (lost body/attachments)
+
+SES stores the **original raw MIME** under `s3://townofwiley-email-alias-570912405222-us-east-1/incoming/`. After deploying a passthrough fix, re-send:
+
+```bash
+# Preview
+npm run mail:forwarding:reforward
+
+# Re-send everything (adds subject prefix [Town reforward] and X-Town-Reforward)
+npm run mail:forwarding:reforward -- --execute
+
+# Only since a date
+npm run mail:forwarding:reforward -- --execute --since 2026-07-01
+```
+
+Staff will receive **additional** copies (duplicates of earlier incomplete shells). Filter on subject `[Town reforward]` or header `X-Town-Reforward: true`.
+
+Live test must confirm the **body text and any attachments are visible inline** in the destination client, not only that a message envelope arrived.
+
 ## Live test routine
 
-1. Send a test message to the public Town alias.
+1. Send a test message to the public Town alias (include a short body **and** a small PDF attachment).
 2. Confirm the destination inbox receives the forwarded message.
-3. Confirm the forwarded message includes the `X-Town-Alias` header.
-4. Confirm replies go back to the resident sender through the message `Reply-To`.
-5. Disable or correct the `EmailAlias` record immediately if the test routes to the wrong person.
+3. Confirm the body text and attachment open normally in Outlook/Gmail (not only a nested `.eml`).
+4. Confirm the forwarded message includes the `X-Town-Alias` header.
+5. Confirm replies go back to the resident sender through the message `Reply-To`.
+6. Disable or correct the `EmailAlias` record immediately if the test routes to the wrong person.
 
 ## Rollback options
 

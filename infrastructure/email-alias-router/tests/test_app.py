@@ -38,19 +38,31 @@ class StaticObjectStore:
 
 class RecordingForwarder:
     def __init__(self) -> None:
-        self.calls: list[dict[str, str]] = []
+        self.calls: list[dict[str, object]] = []
 
     def forward(
-        self, alias: APP.EmailAliasRecord, raw_message: bytes, parsed_message
-    ) -> None:
+        self,
+        alias: APP.EmailAliasRecord,
+        raw_message: bytes,
+        parsed_message,
+        *,
+        reforward: bool = False,
+    ) -> dict[str, object]:
         del raw_message
         self.calls.append(
             {
                 "alias_address": alias.alias_address,
                 "destination_address": alias.destination_address,
                 "subject": parsed_message.get("Subject", ""),
+                "reforward": reforward,
             },
         )
+        return {
+            "original_bytes": 1,
+            "forward_bytes": 1,
+            "content_type": "text/plain",
+            "attachment_count": 0,
+        }
 
 
 class RecordingSesClient:
@@ -231,6 +243,7 @@ class EmailAliasRouterTests(unittest.TestCase):
         forward_message = APP.build_forward_email(
             alias, raw_message, parsed_message, "mailer@townofwiley.gov"
         )
+        raw_out = forward_message.as_bytes(policy=APP.policy.SMTP)
 
         self.assertEqual(forward_message["To"], "bigessfour@gmail.com")
         self.assertEqual(forward_message["Reply-To"], "resident.reply@example.com")
@@ -238,6 +251,51 @@ class EmailAliasRouterTests(unittest.TestCase):
             forward_message["X-Town-Alias"], "steve.mckitrick@townofwiley.gov"
         )
         self.assertIn("Fwd: Test subject", forward_message["Subject"])
+        # Body must stay inline — not only nested as message/rfc822 .eml
+        self.assertIn(b"Original message body.", raw_out)
+        self.assertNotIn(b"original-message.eml", raw_out)
+        self.assertNotIn(b"The original message is attached", raw_out)
+
+    def test_build_forward_email_preserves_multipart_attachments_inline(self) -> None:
+        raw_message = (
+            b"From: Vendor <vendor@example.com>\n"
+            b"To: Clerk <clerk@townofwiley.gov>\n"
+            b"Subject: Packet with PDF\n"
+            b"MIME-Version: 1.0\n"
+            b'Content-Type: multipart/mixed; boundary="bound123"\n'
+            b"\n"
+            b"--bound123\n"
+            b"Content-Type: text/plain; charset=utf-8\n"
+            b"\n"
+            b"Please see the attached packet.\n"
+            b"--bound123\n"
+            b"Content-Type: application/pdf\n"
+            b"Content-Disposition: attachment; filename=packet.pdf\n"
+            b"Content-Transfer-Encoding: base64\n"
+            b"\n"
+            b"JVBERi0xLjQK\n"
+            b"--bound123--\n"
+        )
+        parsed_message = APP.BytesParser(policy=APP.policy.default).parsebytes(
+            raw_message
+        )
+        alias = APP.EmailAliasRecord(
+            alias_address="clerk@townofwiley.gov",
+            destination_address="clerk-inbox@example.com",
+            active=True,
+        )
+
+        forward_message = APP.build_forward_email(
+            alias, raw_message, parsed_message, "mailer@townofwiley.gov"
+        )
+        raw_out = forward_message.as_bytes(policy=APP.policy.SMTP)
+
+        self.assertIn(b"Please see the attached packet.", raw_out)
+        self.assertIn(b'filename="packet.pdf"', raw_out)
+        self.assertIn(b"JVBERi0xLjQK", raw_out)
+        self.assertIn(b"application/pdf", raw_out)
+        self.assertEqual(forward_message["To"], "clerk-inbox@example.com")
+        self.assertIn("mailer@townofwiley.gov", forward_message["From"])
 
     def test_ses_mail_forwarder_sends_raw_message_with_alias_metadata(self) -> None:
         raw_message = (
@@ -264,10 +322,13 @@ class EmailAliasRouterTests(unittest.TestCase):
         self.assertEqual(len(ses_client.calls), 1)
         self.assertEqual(ses_client.calls[0]["Source"], "mailer@townofwiley.gov")
         self.assertEqual(ses_client.calls[0]["Destinations"], ["bigessfour@gmail.com"])
+        raw_data = ses_client.calls[0]["RawMessage"]["Data"]
         self.assertIn(
             b"X-Town-Alias: steve.mckitrick@townofwiley.gov",
-            ses_client.calls[0]["RawMessage"]["Data"],
+            raw_data,
         )
+        self.assertIn(b"Original message body.", raw_data)
+        self.assertNotIn(b"original-message.eml", raw_data)
 
     def test_health_endpoint_reports_service_status(self) -> None:
         router, _forwarder = build_router(b"", [])
@@ -373,6 +434,128 @@ class EmailAliasRouterTests(unittest.TestCase):
 
         # With no Reply-To header the sender (From) address becomes the reply target
         self.assertEqual(forward_message["Reply-To"], "resident@example.com")
+        self.assertIn(b"Body text.", forward_message.as_bytes(policy=APP.policy.SMTP))
+        self.assertEqual(
+            forward_message["X-Town-Original-From"],
+            "Resident <resident@example.com>",
+        )
+
+    def test_build_forward_email_marks_reforward_subject(self) -> None:
+        raw_message = (
+            b"From: Resident <resident@example.com>\n"
+            b"To: Clerk <clerk@townofwiley.gov>\n"
+            b"Subject: Minutes packet\n\n"
+            b"Please review the attached agenda packet carefully."
+        )
+        parsed_message = APP.BytesParser(policy=APP.policy.default).parsebytes(
+            raw_message
+        )
+        alias = APP.EmailAliasRecord(
+            alias_address="clerk@townofwiley.gov",
+            destination_address="clerk@example.com",
+            active=True,
+        )
+
+        forward_message = APP.build_forward_email(
+            alias,
+            raw_message,
+            parsed_message,
+            "mailer@townofwiley.gov",
+            reforward=True,
+        )
+
+        self.assertTrue(forward_message["Subject"].startswith("[Town reforward]"))
+        self.assertEqual(forward_message["X-Town-Reforward"], "true")
+
+    def test_assert_mime_passthrough_rejects_wrap_shell(self) -> None:
+        raw_message = (
+            b"From: Resident <resident@example.com>\n"
+            b"To: Clerk <clerk@townofwiley.gov>\n"
+            b"Subject: Important\n\n"
+            b"This is the real body with enough unique words for the probe."
+        )
+        shell = APP.EmailMessage()
+        shell["Subject"] = "Fwd: Important"
+        shell["From"] = "mailer@townofwiley.gov"
+        shell["To"] = "clerk@example.com"
+        shell.set_content(
+            "Town of Wiley alias forward\n"
+            "The original message is attached as original-message.eml."
+        )
+        shell.add_attachment(
+            raw_message,
+            maintype="message",
+            subtype="rfc822",
+            filename="original-message.eml",
+        )
+
+        with self.assertRaises(RuntimeError) as raised:
+            APP.assert_mime_passthrough_integrity(raw_message, shell)
+
+        self.assertIn("forbidden wrap marker", str(raised.exception))
+
+    def test_sanitize_quotes_unquoted_filename_with_spaces(self) -> None:
+        raw_message = (
+            b"From: Vendor <vendor@example.com>\n"
+            b"To: Clerk <clerk@townofwiley.gov>\n"
+            b"Subject: Image mail\n"
+            b"MIME-Version: 1.0\n"
+            b'Content-Type: multipart/mixed; boundary="b1"\n'
+            b"\n"
+            b"--b1\n"
+            b"Content-Type: text/plain; charset=utf-8\n"
+            b"\n"
+            b"Please review the diving services brochure carefully.\n"
+            b"--b1\n"
+            b"Content-Type: image/png\n"
+            b"Content-Disposition: inline; filename=Diver logo Potable .png\n"
+            b"Content-Transfer-Encoding: base64\n"
+            b"\n"
+            b"iVBORw0KGgo=\n"
+            b"--b1--\n"
+        )
+        parsed_message = APP.BytesParser(policy=APP.policy.default).parsebytes(
+            raw_message
+        )
+        alias = APP.EmailAliasRecord(
+            alias_address="clerk@townofwiley.gov",
+            destination_address="clerk@example.com",
+            active=True,
+        )
+
+        forward_message = APP.build_forward_email(
+            alias, raw_message, parsed_message, "mailer@townofwiley.gov"
+        )
+        raw_out = forward_message.as_bytes(policy=APP.policy.SMTP)
+
+        self.assertIn(b'filename="Diver logo Potable .png"', raw_out)
+        self.assertNotIn(b"filename=Diver logo Potable .png", raw_out)
+
+    def test_skips_ses_setup_notification_objects(self) -> None:
+        router, forwarder = build_router(b"", [])
+
+        response = router.handle(
+            {
+                "Records": [
+                    {
+                        "eventSource": "aws:s3",
+                        "s3": {
+                            "bucket": {"name": "incoming-bucket"},
+                            "object": {
+                                "key": "incoming/AMAZON_SES_SETUP_NOTIFICATION"
+                            },
+                        },
+                    },
+                ],
+            },
+        )
+
+        self.assertEqual(response["processed"], 1)
+        self.assertEqual(response["forwarded"], 0)
+        self.assertEqual(
+            response["results"][0]["reason"], "skipped_ses_setup_notification"
+        )
+        self.assertEqual(forwarder.calls, [])
 
 
 if __name__ == "__main__":
