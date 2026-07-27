@@ -498,6 +498,12 @@ jobs:
       - name: Run Python backend tests
         run: npm run test:infra:backend
 
+      - name: Verify email alias MIME passthrough guards
+        if: needs.detect-changes.outputs.email_alias_changed == 'true'
+        run: |
+          npm run verify:email-alias-mime
+          npm run test:infra:mail
+
   maintainer-only-summary:
     runs-on: ubuntu-latest
     needs: detect-changes
