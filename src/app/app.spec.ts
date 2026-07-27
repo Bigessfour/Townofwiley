@@ -12,12 +12,7 @@ import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
-import {
-  emptyCmsCoreGraphqlData,
-  emptyCmsExtendedGraphqlData,
-  flushBuildCmsSnapshotNotFound,
-  flushCmsSnapshotAndWait,
-} from './cms-test-support';
+import { flushBuildCmsSnapshotNotFound, flushCmsSnapshotAndWait } from './cms-test-support';
 import { clearCmsCache } from './site-cms-content';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import {
