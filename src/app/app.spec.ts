@@ -12,12 +12,7 @@ import { providePrimeNG } from 'primeng/config';
 import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
-import {
-  emptyCmsCoreGraphqlData,
-  emptyCmsExtendedGraphqlData,
-  flushBuildCmsSnapshotNotFound,
-  flushCmsSnapshotAndWait,
-} from './cms-test-support';
+import { flushBuildCmsSnapshotNotFound, flushCmsSnapshotAndWait } from './cms-test-support';
 import { clearCmsCache } from './site-cms-content';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
 import {
@@ -389,47 +384,52 @@ describe('App', () => {
   });
 
   it('should map published CMS events into the meetings calendar month view', async () => {
-    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-      cms: {
-        appSync: {
-          region: 'us-east-2',
-          apiEndpoint: 'https://cms.example.com/graphql',
-          apiKey: 'test-public-api-key',
-        },
-      },
-    };
-
+    // Public site loads events from CDN snapshot (not live AppSync). Flush a
+    // snapshot with a known event so the calendar maps CMS → FullCalendar.
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    await flushCmsSnapshotAndWait(httpTesting);
+    // normalizeEvents only keeps upcoming events (end >= now). Use a far-future day.
+    const springCleanupEvent = {
+      id: 'spring-cleanup-day',
+      title: 'Spring Cleanup Day',
+      description:
+        'Bring brush, yard debris, and approved bulk items to the collection site.',
+      location: 'Wiley Community Park',
+      start: '2026-12-15T10:00:00-07:00',
+      end: '2026-12-15T13:00:00-07:00',
+      active: true,
+    };
 
-    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    coreRequest.flush({
-      data: {
-        ...emptyCmsCoreGraphqlData,
-        listEvents: {
-          items: [
-            {
-              id: 'spring-cleanup-day',
-              title: 'Spring Cleanup Day',
-              description:
-                'Bring brush, yard debris, and approved bulk items to the collection site.',
-              location: 'Wiley Community Park',
-              start: '2026-07-15T10:00:00-06:00',
-              end: '2026-07-15T13:00:00-06:00',
-              active: true,
-            },
-          ],
-        },
-      },
-    });
-
-    await Promise.resolve();
-
-    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
-    for (const request of extendedRequest) {
-      request.flush({ data: emptyCmsExtendedGraphqlData });
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      for (const request of httpTesting.match((req) =>
+        req.url.includes('/cms-snapshot.json'),
+      )) {
+        request.flush({
+          version: 1,
+          savedAt: '2026-07-27T12:00:00.000Z',
+          siteSettings: null,
+          alertBannerRecords: [],
+          noticeRecords: [],
+          eventRecords: [springCleanupEvent],
+          contactRecords: [],
+          businessRecords: [],
+          publicDocumentRecords: [],
+          externalNewsLinkRecords: [],
+          leadershipRosterRecords: [],
+          siteCopyRecords: [],
+        });
+      }
+      for (const request of httpTesting.match((req) =>
+        req.url.includes('/cms-revision.json'),
+      )) {
+        request.flush({
+          version: 1,
+          revision: 'test-spring-cleanup',
+          savedAt: '2026-07-27T12:00:00.000Z',
+        });
+      }
+      await Promise.resolve();
     }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
@@ -442,56 +442,58 @@ describe('App', () => {
     };
 
     expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');
-    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-07-15T16:00:00.000Z');
+    expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-12-15T17:00:00.000Z');
     expect(component.calendarOptions().events[0]).toMatchObject({
       title: 'Spring Cleanup Day',
-      start: new Date('2026-07-15T10:00:00-06:00'),
-      end: new Date('2026-07-15T13:00:00-06:00'),
+      start: new Date('2026-12-15T10:00:00-07:00'),
+      end: new Date('2026-12-15T13:00:00-07:00'),
     });
   });
 
   it('should render published CMS events in the meetings card list', async () => {
-    runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-      cms: {
-        appSync: {
-          region: 'us-east-2',
-          apiEndpoint: 'https://cms.example.com/graphql',
-          apiKey: 'test-public-api-key',
-        },
-      },
-    };
-
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    await flushCmsSnapshotAndWait(httpTesting);
+    const springCleanupEvent = {
+      id: 'spring-cleanup-day',
+      title: 'Spring Cleanup Day',
+      description:
+        'Bring brush, yard debris, and approved bulk items to the collection site.',
+      location: 'Wiley Community Park',
+      start: '2026-12-15T10:00:00-07:00',
+      end: '2026-12-15T13:00:00-07:00',
+      active: true,
+    };
 
-    const coreRequest = httpTesting.expectOne('https://cms.example.com/graphql');
-    coreRequest.flush({
-      data: {
-        ...emptyCmsCoreGraphqlData,
-        listEvents: {
-          items: [
-            {
-              id: 'spring-cleanup-day',
-              title: 'Spring Cleanup Day',
-              description:
-                'Bring brush, yard debris, and approved bulk items to the collection site.',
-              location: 'Wiley Community Park',
-              start: '2026-07-15T10:00:00-06:00',
-              end: '2026-07-15T13:00:00-06:00',
-              active: true,
-            },
-          ],
-        },
-      },
-    });
-
-    await Promise.resolve();
-
-    const extendedRequest = httpTesting.match('https://cms.example.com/graphql');
-    for (const request of extendedRequest) {
-      request.flush({ data: emptyCmsExtendedGraphqlData });
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      for (const request of httpTesting.match((req) =>
+        req.url.includes('/cms-snapshot.json'),
+      )) {
+        request.flush({
+          version: 1,
+          savedAt: '2026-07-27T12:00:00.000Z',
+          siteSettings: null,
+          alertBannerRecords: [],
+          noticeRecords: [],
+          eventRecords: [springCleanupEvent],
+          contactRecords: [],
+          businessRecords: [],
+          publicDocumentRecords: [],
+          externalNewsLinkRecords: [],
+          leadershipRosterRecords: [],
+          siteCopyRecords: [],
+        });
+      }
+      for (const request of httpTesting.match((req) =>
+        req.url.includes('/cms-revision.json'),
+      )) {
+        request.flush({
+          version: 1,
+          revision: 'test-spring-cleanup',
+          savedAt: '2026-07-27T12:00:00.000Z',
+        });
+      }
+      await Promise.resolve();
     }
 
     await TestBed.inject(Router).navigateByUrl('/meetings');
