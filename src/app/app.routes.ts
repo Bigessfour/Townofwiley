@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/admin-login.component').then((m) => m.AdminLoginComponent),
   },
   {
+    path: 'admin/new-staff',
+    loadComponent: () => import('./auth/admin-login.component').then((m) => m.AdminLoginComponent),
+    data: { newStaffGuide: true },
+  },
+  {
     path: 'admin',
     canActivate: [staffAuthGuard],
     loadComponent: () => import('./cms-admin/cms-admin').then((m) => m.CmsAdmin),

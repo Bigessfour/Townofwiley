@@ -34,9 +34,12 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   protected readonly loadError = signal<string | null>(null);
   protected readonly statusMessage = signal<string | null>(null);
   protected readonly showRetrySignIn = signal(false);
+  protected readonly showManualSignIn = signal(false);
+  protected readonly isNewStaffGuideRoute = signal(false);
   protected readonly copy = ADMIN_LOGIN_COPY;
 
   private hubStop?: () => void;
+  private fragmentSubscription?: { unsubscribe: () => void };
   private redirectTimer?: ReturnType<typeof setTimeout>;
   private redirectStarted = false;
   private navigationStarted = false;
@@ -47,14 +50,28 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
       const data = 'data' in message.payload ? (message.payload.data as unknown) : undefined;
       void this.handleAuthHubEvent(event, data);
     });
+    this.syncNewStaffGuideState();
+    this.fragmentSubscription = this.route.fragment.subscribe(() => {
+      this.syncNewStaffGuideState();
+      this.cdr.markForCheck();
+    });
     void this.runLoginFlow();
   }
 
   ngOnDestroy(): void {
     this.hubStop?.();
+    this.fragmentSubscription?.unsubscribe();
     if (this.redirectTimer) {
       clearTimeout(this.redirectTimer);
     }
+  }
+
+  protected startHostedSignIn(): void {
+    this.showManualSignIn.set(false);
+    this.redirectStarted = false;
+    this.statusMessage.set(this.copy.redirectingLabel);
+    this.cdr.markForCheck();
+    void this.beginHostedSignInRedirect();
   }
 
   protected retrySignIn(): void {
@@ -111,12 +128,52 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
         return;
       }
 
+      if (this.shouldDeferHostedSignInRedirect()) {
+        this.statusMessage.set(null);
+        this.showManualSignIn.set(true);
+        this.cdr.markForCheck();
+        this.scrollToNewStaffGuide();
+        return;
+      }
+
       this.statusMessage.set(this.copy.redirectingLabel);
       this.cdr.markForCheck();
       this.scheduleHostedSignInRedirect();
     } catch (error) {
       this.showAuthError(error);
     }
+  }
+
+  private shouldDeferHostedSignInRedirect(): boolean {
+    if (this.route.snapshot.data['newStaffGuide'] === true) {
+      return true;
+    }
+    return this.route.snapshot.fragment === 'new-staff';
+  }
+
+  private syncNewStaffGuideState(): void {
+    const guide = this.shouldDeferHostedSignInRedirect();
+    this.isNewStaffGuideRoute.set(guide);
+    if (!guide) {
+      return;
+    }
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = undefined;
+    }
+    this.redirectStarted = false;
+    this.showManualSignIn.set(true);
+    this.statusMessage.set(null);
+    this.scrollToNewStaffGuide();
+  }
+
+  private scrollToNewStaffGuide(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    queueMicrotask(() => {
+      document.getElementById('new-staff')?.scrollIntoView({ block: 'start' });
+    });
   }
 
   private scheduleHostedSignInRedirect(): void {

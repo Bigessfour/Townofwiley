@@ -1,10 +1,20 @@
 <main id="main-content" class="admin-login" tabindex="-1">
   <section class="admin-login__panel panel wiley-panel" aria-labelledby="admin-login-heading">
+    @if (!isNewStaffGuideRoute()) {
+      <p class="admin-login__new-user">
+        {{ copy.newUserPrompt }}
+        <a class="admin-login__new-user-link" href="/admin/new-staff">{{ copy.newUserLink }}</a>
+      </p>
+    }
     <p class="admin-login__kicker">{{ copy.kicker }}</p>
     <h1 id="admin-login-heading" class="admin-login__title">{{ copy.title }}</h1>
     <p class="admin-login__body">{{ copy.body }}</p>
 
-    <section class="admin-login__instructions" aria-labelledby="admin-login-steps-heading">
+    <section
+      id="new-staff"
+      class="admin-login__instructions"
+      aria-labelledby="admin-login-steps-heading"
+    >
       <h2 id="admin-login-steps-heading" class="admin-login__instructions-title">
         {{ copy.howToHeading }}
       </h2>
@@ -24,6 +34,20 @@
         aria-live="polite"
       >
         {{ statusMessage() }}
+      </p>
+    }
+
+    @if (showManualSignIn()) {
+      <p class="admin-login__manual-sign-in">
+        <button
+          pButton
+          type="button"
+          severity="primary"
+          data-testid="admin-login-manual-sign-in"
+          (click)="startHostedSignIn()"
+        >
+          {{ copy.manualSignInCta }}
+        </button>
       </p>
     }
 
