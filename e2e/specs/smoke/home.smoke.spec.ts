@@ -386,7 +386,7 @@ test.describe('homepage smoke', () => {
     }
     await triggerHomepageViewportDefers(homePage);
     await expect(homePage.featureCards).toHaveCount(5);
-    await expect(homePage.topTaskCards).toHaveCount(4);
+    await expect(homePage.topTaskCards).toHaveCount(5);
     await expect(
       homePage.page.locator('.feature-grid .feature-card[href="/weather"]'),
     ).toContainText('Local weather');
@@ -462,7 +462,13 @@ test.describe('homepage smoke', () => {
 
     const taskGrid = homePage.page.locator('.landing-task-grid');
     /** Matches `APP_COPY.en.topTasks` href order in `app.ts` (titles also in `siteContent.topTaskHeadings`). */
-    const topTaskHrefs = ['/pay-bill', '/services#issue-report', '/meetings', '/contact'] as const;
+    const topTaskHrefs = [
+      '/pay-bill',
+      '/services#issue-report',
+      '/meetings',
+      '/meetings#community',
+      '/contact',
+    ] as const;
 
     await expect(taskGrid.locator('a.task-card')).toHaveCount(topTaskHrefs.length, {
       timeout: 25_000,
