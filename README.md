@@ -672,30 +672,34 @@ Required AWS resources created by the deploy script:
 - DynamoDB subscriptions table
 - DynamoDB delivery deduplication table
 - EventBridge schedule for repeated alert polling
-- IAM role with Lambda basic execution, DynamoDB access, SNS publish, SES send permissions, and Amazon Translate `TranslateText`
+- IAM role with Lambda basic execution, DynamoDB access, SNS publish, SES send, End User Messaging `SendTextMessage`, and Amazon Translate `TranslateText`
+- Toll-free SMS origination via AWS End User Messaging (two-way enabled for STOP/HELP)
 
 Live backend identifiers at last successful deployment:
 
 - Lambda function name: `TownOfWileySevereWeatherBackend`
 - Lambda role: `arn:aws:iam::570912405222:role/TownOfWileySevereWeatherRole`
-- Public Function URL: `https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws`
+- Public Function URL: `https://o2k7thyksa422tsobyokzgnaly0smhzf.lambda-url.us-east-2.on.aws`
 - Subscriptions table: `TownOfWileySevereWeatherSubscriptions`
 - Deliveries table: `TownOfWileySevereWeatherDeliveries`
 - EventBridge rule name: `TownOfWileySevereWeatherPoller`
+- SMS origination (toll-free): `+18666509844`
+- SMS configuration set: `Alert`
 - Current sender email: `bigessfour@gmail.com`
 - Current notification sender name: `Town of Wiley Alerts`
 - Current NWS user agent: `TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)`
 - Current allowed ZIP code: `81092`
 - Current alert zone: `COZ098`
 
-Amplify branch settings related to alert signup at last successful deployment:
+Runtime / hosting settings related to alert signup:
 
-- `SEVERE_WEATHER_SIGNUP_API_ENDPOINT=https://myqlw4fgzf5hwnes5ki2msye2m0bbbue.lambda-url.us-east-2.on.aws`
-- `SEVERE_WEATHER_SIGNUP_ENABLED=true`
+- `SEVERE_WEATHER_SIGNUP_API_ENDPOINT` / `weather.alertSignup.apiEndpoint` should point at the Function URL above
+- `SEVERE_WEATHER_SIGNUP_ENABLED=true` / `weather.alertSignup.enabled`
 
 Operational warning for future maintainers:
 
 - If email confirmations suddenly stop working, verify the SES identity status for `bigessfour@gmail.com` in `us-east-2` first.
+- If SMS confirmations fail, verify End User Messaging toll-free registration is `COMPLETE`, Lambda env `SMS_ORIGINATION_IDENTITY=+18666509844`, and IAM allows `sms-voice:SendTextMessage` on that phone number.
 - If the Function URL starts returning `403`, check both Lambda resource-policy statements for Function URL access before changing app code.
 - The current IAM user still lacks `events:DescribeRule`, so deployment verification from this workspace may not be able to read back the EventBridge rule even when the scheduler itself already exists.
 
@@ -710,8 +714,10 @@ Required runtime and secret settings:
   - `ALERT_ZONE_CODE`
   - `PUBLIC_API_BASE_URL`
   - `NWS_USER_AGENT`
+  - `SMS_ORIGINATION_IDENTITY` (default `+18666509844`)
+  - `SMS_CONFIGURATION_SET` (default `Alert`)
   - Optional `NWS_API_KEY`
-- Amplify branch environment variables:
+- Hosting / runtime-config equivalents:
   - `SEVERE_WEATHER_SIGNUP_API_ENDPOINT`
   - `SEVERE_WEATHER_SIGNUP_ENABLED`
 - Repo-local secrets support:
@@ -721,26 +727,26 @@ Required runtime and secret settings:
 
 Deployment flow:
 
-1. Unlock or import repo-local secrets so AWS credentials, Amplify app ID, and NWS sender values are available.
+1. Unlock or import repo-local secrets so AWS credentials, Amplify app ID (if still used), and NWS sender values are available.
 2. Ensure the sender address you plan to use in `SENDER_EMAIL` is verified in SES for `us-east-2`.
-3. Run `npm run deploy:severe-weather-backend`.
-4. The script packages the Python backend, creates or updates the Lambda function, creates the Function URL, provisions DynamoDB tables, configures the EventBridge poller, updates the Amplify branch environment, and starts an Amplify release unless skipped.
+3. Run `npm run deploy:severe-weather-backend` (or `python3 scripts/deploy-severe-weather-backend.py`).
+4. The script packages the Python backend, creates or updates the Lambda function, creates the Function URL, provisions DynamoDB tables, configures the EventBridge poller, enables two-way SMS on the toll-free number, updates hosting env when applicable, and starts an Amplify release unless skipped.
 
 Optional deployment flags:
 
 ```bash
-python scripts/deploy-severe-weather-backend.py --skip-amplify-release
-python scripts/deploy-severe-weather-backend.py --sender-email alerts@townofwiley.gov
-python scripts/deploy-severe-weather-backend.py --branch-name main
+python3 scripts/deploy-severe-weather-backend.py --skip-amplify-release
+python3 scripts/deploy-severe-weather-backend.py --sender-email alerts@townofwiley.gov
+python3 scripts/deploy-severe-weather-backend.py --branch-name main
+python3 scripts/deploy-severe-weather-backend.py --sms-origination-identity +18666509844
 ```
 
 Operational notes:
 
 - The deploy script reads AWS credentials and default metadata from `secrets/local/user-secrets.json` when environment variables are not already set.
 - The weather signup form now lets residents choose English or Spanish alerts. The backend stores that preference and uses Amazon Translate `translate_text` for Spanish confirmation and alert delivery, while preserving confirmation and unsubscribe URLs.
-- The script updates Amplify `main` branch environment values to keep the Angular runtime config aligned with the live backend URL.
 - Email confirmation and alert delivery will remain blocked until the configured SES sender identity is verified.
-- SMS sending uses SNS directly, so destination-country and spend-limit policies still apply in the AWS account.
+- SMS confirmation and alert delivery use AWS End User Messaging (`SendTextMessage`) from toll-free `+18666509844` (not classic SNS `Publish`). Two-way SMS is enabled so carrier `STOP`/`HELP` can route to SNS topic `TownOfWileySevereWeatherSmsInbound`. Monthly SMS spend limits still apply.
 
 ## Regression Testing
 

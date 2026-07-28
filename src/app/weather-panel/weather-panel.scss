@@ -387,18 +387,36 @@
   color: var(--p-red-800);
 }
 
-/* Contrast fix: PrimeNG default #10b981 on white is 2.53:1 (fails WCAG AA 4.5:1).
-   Darkened to #0a7a52 which passes at ~5.1:1 against white. */
+/* Contrast fix: filled success CTA needs light label text.
+   `.weather-action` sets `color: var(--civic-blue)` (dark) which disappears on this fill. */
+.weather-signup-submit.weather-action,
 .weather-signup-submit.p-button,
+.weather-signup-submit.weather-action.p-button,
 .weather-signup-submit .p-button {
   background: color-mix(in srgb, var(--success-text) 92%, black);
   border-color: color-mix(in srgb, var(--success-text) 92%, black);
+  color: var(--p-primary-contrast-color, #ffffff);
 }
 
+.weather-signup-submit .p-button-label,
+.weather-signup-submit.p-button .p-button-label,
+.weather-signup-submit.weather-action .p-button-label {
+  color: inherit;
+}
+
+.weather-signup-submit.weather-action:hover,
 .weather-signup-submit.p-button:hover,
+.weather-signup-submit.weather-action.p-button:hover,
 .weather-signup-submit .p-button:hover {
   background: color-mix(in srgb, var(--success-text) 80%, black);
   border-color: color-mix(in srgb, var(--success-text) 80%, black);
+  color: var(--p-primary-contrast-color, #ffffff);
+}
+
+.weather-signup-submit.weather-action:disabled,
+.weather-signup-submit.p-button:disabled,
+.weather-signup-submit.weather-action.p-button:disabled {
+  color: var(--p-primary-contrast-color, #ffffff);
 }
 
 .weather-alert-meta {

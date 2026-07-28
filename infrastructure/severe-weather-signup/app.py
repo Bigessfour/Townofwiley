@@ -26,6 +26,8 @@ UNSUBSCRIBED_STATUS = "unsubscribed"
 DEFAULT_ALLOWED_ZIP_CODE = "81092"
 DEFAULT_ALERT_ZONE_CODE = "COZ098"
 DEFAULT_NOTIFICATION_NAME = "Town of Wiley Alerts"
+DEFAULT_SMS_ORIGINATION_IDENTITY = "+18666509844"
+DEFAULT_SMS_CONFIGURATION_SET = "Alert"
 SUPPORTED_ALERT_LANGUAGES = {LANGUAGE_EN, LANGUAGE_ES}
 # Reflect Origin when allowlisted; otherwise a single safe default (never '*') so Lambda Function URL
 # CORS in AWS cannot merge a second ACAO value. See infrastructure/nws-weather-proxy/index.mjs.
@@ -63,6 +65,8 @@ class AppConfig:
     developer_test_token_secret_name: str = ""
     developer_test_token: str = ""
     cloudwatch_namespace: str = "TownOfWiley/SevereWeather"
+    sms_origination_identity: str = DEFAULT_SMS_ORIGINATION_IDENTITY
+    sms_configuration_set: str = DEFAULT_SMS_CONFIGURATION_SET
 
 
 class SubscriptionStore(Protocol):
@@ -350,12 +354,20 @@ class DynamoDeliveryStore:
 
 class AwsNotificationGateway:
     def __init__(
-        self, sender_email: str, sender_name: str, ses_client: Any, sns_client: Any
+        self,
+        sender_email: str,
+        sender_name: str,
+        ses_client: Any,
+        sms_client: Any,
+        sms_origination_identity: str,
+        sms_configuration_set: str = "",
     ) -> None:
         self._sender_email = sender_email
         self._sender_name = sender_name
         self._ses_client = ses_client
-        self._sns_client = sns_client
+        self._sms_client = sms_client
+        self._sms_origination_identity = sms_origination_identity.strip()
+        self._sms_configuration_set = sms_configuration_set.strip()
 
     def send_confirmation(
         self, channel: str, destination: str, subject: str, message: str
@@ -387,7 +399,21 @@ class AwsNotificationGateway:
             return
 
         if channel == SMS_CHANNEL:
-            self._sns_client.publish(PhoneNumber=destination, Message=message)
+            if not self._sms_origination_identity:
+                raise RuntimeError(
+                    "SMS_ORIGINATION_IDENTITY must be configured before SMS alerts can be sent."
+                )
+
+            params: dict[str, Any] = {
+                "DestinationPhoneNumber": destination,
+                "OriginationIdentity": self._sms_origination_identity,
+                "MessageBody": message,
+                "MessageType": "TRANSACTIONAL",
+            }
+            if self._sms_configuration_set:
+                params["ConfigurationSetName"] = self._sms_configuration_set
+
+            self._sms_client.send_text_message(**params)
             return
 
         raise ValueError(f"Unsupported notification channel: {channel}")
@@ -679,6 +705,7 @@ class SevereWeatherBackend:
                 payload.get("unsubscribeToken") or uuid.uuid4().hex
             ),
             "preferredLanguage": preferred_language,
+            "fullName": normalize_whitespace(str(payload.get("fullName", "")).strip()),
         }
 
         destinations_sent: list[dict[str, str]] = []
@@ -847,6 +874,7 @@ class SevereWeatherBackend:
                     confirm_url,
                     unsubscribe_url,
                     preferred_language,
+                    str(existing.get("fullName", "") or ""),
                 )
             except RuntimeError as error:
                 log_signup_attempt(
@@ -916,6 +944,7 @@ class SevereWeatherBackend:
                 confirm_url,
                 unsubscribe_url,
                 preferred_language,
+                full_name,
             )
         except RuntimeError as error:
             log_signup_attempt(
@@ -1104,9 +1133,15 @@ class SevereWeatherBackend:
         }
 
     def _build_confirmation_message(
-        self, confirm_url: str, unsubscribe_url: str
+        self,
+        confirm_url: str,
+        unsubscribe_url: str,
+        full_name: str = "",
     ) -> str:
+        greeting = format_resident_greeting(full_name)
+        prefix = f"{greeting}\n\n" if greeting else ""
         return (
+            f"{prefix}"
             "Town of Wiley severe weather alerts\n\n"
             f"Coverage area: ZIP {self._config.allowed_zip_code} and NWS forecast zone {self._config.alert_zone_code}.\n\n"
             f"Confirm alerts: {confirm_url}\n"
@@ -1121,6 +1156,7 @@ class SevereWeatherBackend:
         confirm_url: str,
         unsubscribe_url: str,
         preferred_language: str,
+        full_name: str = "",
     ) -> None:
         try:
             self._notification_gateway.send_confirmation(
@@ -1130,7 +1166,9 @@ class SevereWeatherBackend:
                     "Confirm Town of Wiley severe weather alerts", preferred_language
                 ),
                 self._localize_message(
-                    self._build_confirmation_message(confirm_url, unsubscribe_url),
+                    self._build_confirmation_message(
+                        confirm_url, unsubscribe_url, full_name
+                    ),
                     preferred_language,
                 ),
             )
@@ -1161,14 +1199,22 @@ class SevereWeatherBackend:
         self, subscription: dict[str, Any], alert: dict[str, Any]
     ) -> str:
         expires_label = format_expiration(alert.get("expires", ""))
-        lines = [
-            f"Town of Wiley severe weather alert for ZIP {subscription['zipCode']}",
-            "",
-            f"Event: {alert['event']}",
-            f"Headline: {alert['headline']}",
-            f"Severity: {alert['severity']}",
-            f"Urgency: {alert['urgency']}",
-        ]
+        greeting = format_resident_greeting(str(subscription.get("fullName", "") or ""))
+        lines: list[str] = []
+
+        if greeting:
+            lines.extend([greeting, ""])
+
+        lines.extend(
+            [
+                f"Town of Wiley severe weather alert for ZIP {subscription['zipCode']}",
+                "",
+                f"Event: {alert['event']}",
+                f"Headline: {alert['headline']}",
+                f"Severity: {alert['severity']}",
+                f"Urgency: {alert['urgency']}",
+            ]
+        )
 
         if expires_label:
             lines.append(f"Expires: {expires_label}")
@@ -1398,6 +1444,19 @@ def normalize_whitespace(value: str) -> str:
     return " ".join(value.split())
 
 
+def format_resident_greeting(full_name: str) -> str:
+    """Return a short English greeting line, or empty when no name was provided."""
+    cleaned = normalize_whitespace(full_name or "")
+    if not cleaned:
+        return ""
+
+    first_name = cleaned.split(" ", 1)[0]
+    if not first_name:
+        return ""
+
+    return f"Hi {first_name},"
+
+
 def log_http_request(method: str, path: str) -> None:
     LOGGER.info(
         json.dumps(
@@ -1611,7 +1670,7 @@ def build_token_url(base_url: str, path: str, token: str) -> str:
     normalized_base = base_url.rstrip("/")
     normalized_path = path if path.startswith("/") else f"/{path}"
     return (
-        f'{normalized_base}{normalized_path}?{urlencode({"token": token})}'
+        f"{normalized_base}{normalized_path}?{urlencode({'token': token})}"
         if normalized_base
         else ""
     )
@@ -1647,6 +1706,15 @@ def read_config() -> AppConfig:
             "CLOUDWATCH_NAMESPACE", "TownOfWiley/SevereWeather"
         ).strip()
         or "TownOfWiley/SevereWeather",
+        sms_origination_identity=(
+            os.environ.get(
+                "SMS_ORIGINATION_IDENTITY", DEFAULT_SMS_ORIGINATION_IDENTITY
+            ).strip()
+            or DEFAULT_SMS_ORIGINATION_IDENTITY
+        ),
+        sms_configuration_set=os.environ.get(
+            "SMS_CONFIGURATION_SET", DEFAULT_SMS_CONFIGURATION_SET
+        ).strip(),
     )
 
 
@@ -1657,7 +1725,7 @@ def build_runtime_backend() -> SevereWeatherBackend:
     region_name = os.environ.get("AWS_REGION") or None
     dynamodb = boto3.resource("dynamodb", region_name=region_name)
     ses_client = boto3.client("sesv2", region_name=region_name)
-    sns_client = boto3.client("sns", region_name=region_name)
+    sms_client = boto3.client("pinpoint-sms-voice-v2", region_name=region_name)
     translate_client = boto3.client("translate", region_name=region_name)
 
     return SevereWeatherBackend(
@@ -1667,7 +1735,12 @@ def build_runtime_backend() -> SevereWeatherBackend:
         ),
         delivery_store=DynamoDeliveryStore(dynamodb.Table(config.deliveries_table)),
         notification_gateway=AwsNotificationGateway(
-            config.sender_email, config.notification_sender_name, ses_client, sns_client
+            config.sender_email,
+            config.notification_sender_name,
+            ses_client,
+            sms_client,
+            config.sms_origination_identity,
+            config.sms_configuration_set,
         ),
         nws_client=WeatherGovNwsClient(),
         translation_gateway=AwsTranslationGateway(translate_client),

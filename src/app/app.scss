@@ -2488,6 +2488,11 @@ h6 {
 :host ::ng-deep app-weather-panel .weather-signup-submit.p-button {
   width: 100%;
   max-width: 100%;
+  color: var(--p-primary-contrast-color, #ffffff);
+}
+
+:host ::ng-deep app-weather-panel .weather-signup-submit .p-button-label {
+  color: inherit;
 }
 
 /* Homepage shell links — matches _wiley-layout.scss .text-link (teal + underline). */

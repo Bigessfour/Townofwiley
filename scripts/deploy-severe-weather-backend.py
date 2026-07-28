@@ -17,6 +17,9 @@ ENCRYPTED_SECRETS_PATH = (
     REPO_ROOT / "secrets" / "encrypted" / "user-secrets.lockbox.json"
 )
 BACKEND_DIR = REPO_ROOT / "infrastructure" / "severe-weather-signup"
+DEFAULT_SMS_ORIGINATION_IDENTITY = "+18666509844"
+DEFAULT_SMS_CONFIGURATION_SET = "Alert"
+DEFAULT_SMS_PHONE_NUMBER_ID = "phone-3f96352013184d59946f771dd31fd7d0"
 
 
 def parse_args() -> argparse.Namespace:
@@ -49,6 +52,21 @@ def parse_args() -> argparse.Namespace:
         "--alarm-notification-email", default="steve.mckitrick@townofwiley.gov"
     )
     parser.add_argument("--cloudwatch-namespace", default="TownOfWiley/SevereWeather")
+    parser.add_argument(
+        "--sms-origination-identity",
+        default=DEFAULT_SMS_ORIGINATION_IDENTITY,
+        help="Toll-free E.164 number used as End User Messaging OriginationIdentity.",
+    )
+    parser.add_argument(
+        "--sms-configuration-set",
+        default=DEFAULT_SMS_CONFIGURATION_SET,
+        help="End User Messaging configuration set name (empty to omit).",
+    )
+    parser.add_argument(
+        "--sms-phone-number-id",
+        default=DEFAULT_SMS_PHONE_NUMBER_ID,
+        help="End User Messaging phone number id for the town toll-free number.",
+    )
     parser.add_argument("--runtime", default="python3.13")
     parser.add_argument("--app-id", default="")
     parser.add_argument("--skip-amplify-update", action="store_true")
@@ -331,7 +349,11 @@ def ensure_table(table_name: str, key_name: str) -> str:
 
 
 def ensure_role(
-    role_name: str, subscriptions_arn: str, deliveries_arn: str, secret_arn: str = ""
+    role_name: str,
+    subscriptions_arn: str,
+    deliveries_arn: str,
+    secret_arn: str = "",
+    sms_phone_number_arn: str = "",
 ) -> str:
     trust_policy = {
         "Version": "2012-10-17",
@@ -343,6 +365,11 @@ def ensure_role(
             },
         ],
     }
+    # SendTextMessage does not reliably authorize when limited to a phone-number ARN
+    # (OriginationIdentity may be an E.164 string). Keep describe on *.
+    # sms_phone_number_arn is resolved at deploy time for validation/logging only.
+    _ = sms_phone_number_arn
+    sms_send_resources = ["*"]
     inline_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -364,6 +391,16 @@ def ensure_role(
             {
                 "Effect": "Allow",
                 "Action": ["sns:Publish"],
+                "Resource": "*",
+            },
+            {
+                "Effect": "Allow",
+                "Action": ["sms-voice:SendTextMessage"],
+                "Resource": sms_send_resources,
+            },
+            {
+                "Effect": "Allow",
+                "Action": ["sms-voice:DescribePhoneNumbers"],
                 "Resource": "*",
             },
             {
@@ -438,6 +475,105 @@ def ensure_role(
         expect_json=False,
     )
     return role_arn
+
+
+def resolve_sms_phone_number_arn(phone_number_id: str) -> str:
+    details = run_aws(
+        [
+            "pinpoint-sms-voice-v2",
+            "describe-phone-numbers",
+            "--phone-number-ids",
+            phone_number_id,
+        ]
+    )
+    phone_numbers = details.get("PhoneNumbers") or []
+    if not phone_numbers:
+        raise RuntimeError(
+            f"End User Messaging phone number id {phone_number_id} was not found."
+        )
+    return str(phone_numbers[0]["PhoneNumberArn"])
+
+
+def ensure_sms_inbound_topic_policy(topic_arn: str) -> None:
+    """Allow End User Messaging to publish inbound SMS to the two-way SNS topic."""
+    account_id = topic_arn.split(":")[4]
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "AllowEndUserMessagingPublish",
+                "Effect": "Allow",
+                "Principal": {"Service": "sms-voice.amazonaws.com"},
+                "Action": "sns:Publish",
+                "Resource": topic_arn,
+                "Condition": {
+                    "StringEquals": {"aws:SourceAccount": account_id},
+                },
+            }
+        ],
+    }
+    with tempfile.NamedTemporaryFile(
+        "w", suffix="-sms-inbound-policy.json", delete=False, encoding="utf-8"
+    ) as file_handle:
+        json.dump(policy, file_handle)
+        policy_path = file_handle.name
+
+    run_aws(
+        [
+            "sns",
+            "set-topic-attributes",
+            "--topic-arn",
+            topic_arn,
+            "--attribute-name",
+            "Policy",
+            "--attribute-value",
+            f"file://{policy_path}",
+        ],
+        expect_json=False,
+    )
+
+
+def ensure_toll_free_two_way(phone_number_id: str) -> str:
+    """Enable two-way SMS on the toll-free number for STOP/HELP compliance."""
+    details = run_aws(
+        [
+            "pinpoint-sms-voice-v2",
+            "describe-phone-numbers",
+            "--phone-number-ids",
+            phone_number_id,
+        ]
+    )
+    phone_numbers = details.get("PhoneNumbers") or []
+    if not phone_numbers:
+        raise RuntimeError(
+            f"End User Messaging phone number id {phone_number_id} was not found."
+        )
+
+    phone = phone_numbers[0]
+    if phone.get("TwoWayEnabled") and phone.get("TwoWayChannelArn"):
+        return (
+            f"Two-way SMS already enabled on {phone.get('PhoneNumber')} "
+            f"({phone_number_id})."
+        )
+
+    inbound_topic_arn = ensure_sns_topic("TownOfWileySevereWeatherSmsInbound")
+    ensure_sms_inbound_topic_policy(inbound_topic_arn)
+    run_aws(
+        [
+            "pinpoint-sms-voice-v2",
+            "update-phone-number",
+            "--phone-number-id",
+            phone_number_id,
+            "--two-way-enabled",
+            "--two-way-channel-arn",
+            inbound_topic_arn,
+        ],
+        expect_json=True,
+    )
+    return (
+        f"Enabled two-way SMS on {phone.get('PhoneNumber')} ({phone_number_id}) "
+        f"via SNS topic {inbound_topic_arn}."
+    )
 
 
 def ensure_lambda_function(
@@ -803,8 +939,21 @@ def main() -> int:
     secret_arn = ensure_secrets_manager_secret(
         developer_test_secret_name, developer_test_token
     )
+    sms_origination_identity = (
+        args.sms_origination_identity.strip() or DEFAULT_SMS_ORIGINATION_IDENTITY
+    )
+    sms_configuration_set = args.sms_configuration_set.strip()
+    sms_phone_number_id = (
+        args.sms_phone_number_id.strip() or DEFAULT_SMS_PHONE_NUMBER_ID
+    )
+    sms_phone_number_arn = resolve_sms_phone_number_arn(sms_phone_number_id)
+    two_way_status = ensure_toll_free_two_way(sms_phone_number_id)
     role_arn = ensure_role(
-        args.role_name, subscriptions_arn, deliveries_arn, secret_arn
+        args.role_name,
+        subscriptions_arn,
+        deliveries_arn,
+        secret_arn,
+        sms_phone_number_arn,
     )
     environment = {
         "SUBSCRIPTIONS_TABLE": args.subscriptions_table,
@@ -818,6 +967,8 @@ def main() -> int:
         "NWS_API_KEY": nws_api_key,
         "DEVELOPER_TEST_TOKEN_SECRET_NAME": developer_test_secret_name,
         "CLOUDWATCH_NAMESPACE": cloudwatch_namespace,
+        "SMS_ORIGINATION_IDENTITY": sms_origination_identity,
+        "SMS_CONFIGURATION_SET": sms_configuration_set,
     }
     function_arn = ensure_lambda_function(
         args.function_name, role_arn, args.runtime, archive_path, environment
@@ -847,6 +998,9 @@ def main() -> int:
                 "branchName": args.branch_name,
                 "developerTestSecretArn": secret_arn,
                 "cloudwatchNamespace": cloudwatch_namespace,
+                "smsOriginationIdentity": sms_origination_identity,
+                "smsConfigurationSet": sms_configuration_set,
+                "smsTwoWayStatus": two_way_status,
                 "senderStatus": sender_status,
             },
             indent=2,
