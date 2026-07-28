@@ -14,7 +14,7 @@ test.describe('homepage responsive coverage', () => {
     });
 
     expect(overflowPixels).toBeLessThanOrEqual(1);
-    await expect(homePage.topTaskCards).toHaveCount(4);
+    await expect(homePage.topTaskCards).toHaveCount(5);
     await expect(homePage.featureCards).toHaveCount(6);
     await expect(homePage.page.locator('.feature-card[href="/weather"]')).toBeVisible();
     await expect(homePage.page.locator('.feature-card[href="/services"]')).toBeVisible();

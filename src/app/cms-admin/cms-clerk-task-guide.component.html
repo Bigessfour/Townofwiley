@@ -23,6 +23,10 @@
             <div data-testid="cms-email-alias-editor-slot">
               <app-cms-email-alias-admin />
             </div>
+          } @else if (id === 'manage-community-calendar') {
+            <div data-testid="cms-community-calendar-editor-slot">
+              <app-cms-community-calendar-admin />
+            </div>
           }
         </div>
       } @else if (usesDocumentsWorkflow(id)) {

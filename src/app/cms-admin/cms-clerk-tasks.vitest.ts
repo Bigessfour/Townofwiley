@@ -45,6 +45,13 @@ describe('cms-clerk-tasks', () => {
     expect(clerkTaskUsesDedicatedEditor('manage-email-aliases')).toBe(true);
   });
 
+  it('defines manage-community-calendar as a dedicated editor task', () => {
+    const task = clerkTaskById('manage-community-calendar');
+    expect(task?.model).toBe('CommunityEvent');
+    expect(task?.previewPath).toBe('/meetings');
+    expect(clerkTaskUsesDedicatedEditor('manage-community-calendar')).toBe(true);
+  });
+
   it('every task either opts out of the live-site link or has a hub URL', () => {
     for (const task of CLERK_CMS_TASKS) {
       const optedOut = task.showPublicPreview === false || TASKS_WITHOUT_LIVE_LINK.has(task.id);

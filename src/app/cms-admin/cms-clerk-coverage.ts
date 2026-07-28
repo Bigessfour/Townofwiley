@@ -97,6 +97,13 @@ export const CLERK_COVERAGE_ROWS: readonly ClerkCoverageRow[] = [
     adminHint: 'Use stable keys from the key list in the task help (English + Spanish)',
   },
   {
+    whatResidentsSee: 'Community events (yard sales, fundraisers, school events)',
+    whereOnSite: '/meetings#community',
+    method: 'admin-task',
+    taskId: 'manage-community-calendar',
+    adminHint: 'Approve pending submissions or add/edit community events',
+  },
+  {
     whatResidentsSee: 'Staff email forwarding (not on website)',
     whereOnSite: 'Email only',
     method: 'admin-task',

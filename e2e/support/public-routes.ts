@@ -34,6 +34,13 @@ export const publicRouteContracts: PublicRouteContract[] = [
     primaryAction: (page) => page.locator('#calendar'),
   },
   {
+    path: '/community-calendar',
+    label: 'community calendar redirect',
+    heading: /Council meetings & schedules/i,
+    standardShell: true,
+    primaryAction: (page) => page.locator('#community'),
+  },
+  {
     path: '/services',
     label: 'services page',
     heading: /Town services in one place/i,
@@ -62,7 +69,8 @@ export const publicRouteContracts: PublicRouteContract[] = [
     path: '/pay-bill',
     label: 'pay bill page',
     heading: /Pay Your Utility Bill Online/i,
-    primaryAction: (page) => page.getByTestId('pay-bill-portal-cta').or(page.getByTestId('pay-bill-portal-cta-disabled')),
+    primaryAction: (page) =>
+      page.getByTestId('pay-bill-portal-cta').or(page.getByTestId('pay-bill-portal-cta-disabled')),
   },
   {
     path: '/news',

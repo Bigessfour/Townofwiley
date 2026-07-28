@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -33,6 +34,7 @@ function configure(
     providers: [
       SiteLanguageService,
       MessageService,
+      provideHttpClient(),
       provideRouter([]),
       {
         provide: DocumentUploadService,

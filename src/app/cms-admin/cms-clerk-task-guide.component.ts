@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
 import { StaffAuthService } from '../auth/staff-auth.service';
+import { CmsCommunityCalendarAdminComponent } from './cms-community-calendar-admin.component';
 import { CmsClerkRecordEditorComponent } from './cms-clerk-record-editor.component';
 import { CmsEmailAliasAdminComponent } from './cms-email-alias-admin.component';
 import { clerkTaskHasForm } from './cms-clerk-task-form-fields';
@@ -19,6 +20,7 @@ import { MessageModule } from 'primeng/message';
   imports: [
     ButtonModule,
     CmsClerkRecordEditorComponent,
+    CmsCommunityCalendarAdminComponent,
     CmsEmailAliasAdminComponent,
     MessageModule,
   ],

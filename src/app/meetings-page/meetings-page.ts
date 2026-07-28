@@ -1,48 +1,60 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    PLATFORM_ID,
-    computed,
-    effect,
-    inject,
-    signal,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import type { CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FormsModule } from '@angular/forms';
 import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { APP_COPY } from '../app';
+import { CommunityCalendarPanel } from '../community-calendar/community-calendar.page';
+import { COMMUNITY_CALENDAR_COPY } from '../community-calendar/community-calendar.copy';
+import type { CommunityEvent } from '../community-calendar/community-calendar.types';
 import { DocumentUploadService } from '../document-upload.service';
 import {
-    openAgendaPdfInNewTab,
-    resolveAgendaUrlsByEventId,
-    showAgendaUnavailableToast,
+  openAgendaPdfInNewTab,
+  resolveAgendaUrlsByEventId,
+  showAgendaUnavailableToast,
 } from '../meeting-agenda-actions';
 import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { MeetingDocumentsArchiveComponent } from './meeting-documents-archive.component';
 import {
-    buildCalendarItems,
-    buildMeetingItems,
-    type CalendarAction,
-    type CalendarItem,
-    type MeetingItem,
+  buildCalendarItems,
+  buildMeetingItems,
+  type CalendarAction,
+  type CalendarItem,
+  type MeetingItem,
 } from './meetings-page.helpers';
+
+export type MeetingsSourceFilter = 'all' | 'official' | 'community';
 
 @Component({
   selector: 'app-meetings-page',
   imports: [
     ButtonModule,
     CardModule,
+    CommunityCalendarPanel,
+    FormsModule,
     FullCalendarModule,
     MeetingDocumentsArchiveComponent,
+    SelectButtonModule,
     SkeletonModule,
     Ripple,
     RouterLink,
@@ -52,7 +64,7 @@ import {
   styleUrl: './meetings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MeetingsPage {
+export class MeetingsPage implements AfterViewInit {
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly siteLanguageService = inject(SiteLanguageService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -62,11 +74,36 @@ export class MeetingsPage {
 
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly resolvedAgendaUrls = signal<Record<string, string>>({});
+  protected readonly sourceFilter = signal<MeetingsSourceFilter>('all');
+  protected readonly communityEvents = signal<CommunityEvent[]>([]);
 
   protected readonly copy = computed(
     () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
+  protected readonly communityCopy = computed(
+    () => COMMUNITY_CALENDAR_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
   protected readonly isBrowser = computed(() => isPlatformBrowser(this.platformId));
+
+  protected readonly sourceFilterOptions = computed(() => {
+    const c = this.communityCopy();
+    return [
+      { label: c.sourceFilterAll, value: 'all' as const },
+      { label: c.sourceFilterOfficial, value: 'official' as const },
+      { label: c.sourceFilterCommunity, value: 'community' as const },
+    ];
+  });
+
+  protected readonly showOfficial = computed(() => {
+    const filter = this.sourceFilter();
+    return filter === 'all' || filter === 'official';
+  });
+
+  protected readonly showCommunity = computed(() => {
+    const filter = this.sourceFilter();
+    return filter === 'all' || filter === 'community';
+  });
+
   private readonly liveCalendarEvents = this.cmsStore.events;
   protected readonly meetings = computed<MeetingItem[]>(() => {
     return buildMeetingItems(
@@ -101,23 +138,75 @@ export class MeetingsPage {
       this.cmsStore.linkedAgendaDocumentByEventId(),
     );
   });
-  protected readonly calendarOptions = computed(() => ({
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    buttonIcons: false as const,
-    events: this.calendarItems().map((item) => ({
-      title: item.title,
-      start: item.startDate,
-      end: item.endDate,
-      allDay: false,
-    })),
-  }));
+
+  protected readonly calendarOptions = computed<CalendarOptions>(() => {
+    const filter = this.sourceFilter();
+    const events: EventInput[] = [];
+
+    if (filter === 'all' || filter === 'official') {
+      for (const item of this.calendarItems()) {
+        events.push({
+          id: `official-${item.id}`,
+          title: item.title,
+          start: item.startDate,
+          end: item.endDate,
+          allDay: false,
+          classNames: ['fc-event--official'],
+          extendedProps: { source: 'official' },
+        });
+      }
+    }
+
+    if (filter === 'all' || filter === 'community') {
+      for (const item of this.communityEvents()) {
+        events.push({
+          id: `community-${item.eventId}`,
+          title: item.title,
+          start: item.startDateTime,
+          end: item.endDateTime,
+          allDay: false,
+          classNames: ['fc-event--community'],
+          extendedProps: { source: 'community' },
+        });
+      }
+    }
+
+    return {
+      plugins: [dayGridPlugin],
+      initialView: 'dayGridMonth',
+      buttonIcons: false as const,
+      height: 'auto',
+      events,
+    };
+  });
 
   constructor() {
     effect(() => {
       const linked = this.cmsStore.linkedAgendaDocumentByEventId();
       void this.refreshResolvedAgendaUrls(linked);
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash === 'community') {
+      queueMicrotask(() => {
+        document.getElementById('community')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }
+
+  protected onCommunityEvents(events: CommunityEvent[]): void {
+    this.communityEvents.set(events);
+  }
+
+  protected onSourceFilter(value: MeetingsSourceFilter | null): void {
+    if (value) {
+      this.sourceFilter.set(value);
+    }
   }
 
   protected calendarActionTrackKey(action: CalendarAction, index: number): string {

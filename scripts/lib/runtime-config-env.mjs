@@ -3,12 +3,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
 import {
-  loadProductionBindings,
-  readProductionAppSyncApiId,
-  readProductionCmsGraphqlEndpoint,
-  readProductionCmsRegion,
-  readProductionCognitoBindings,
-  readProductionStorageBindings,
+    loadProductionBindings,
+    readProductionAppSyncApiId,
+    readProductionCmsGraphqlEndpoint,
+    readProductionCmsRegion,
+    readProductionCognitoBindings,
+    readProductionStorageBindings,
 } from './gen1-cms-ssot.mjs';
 import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
@@ -157,6 +157,11 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileySevereWeatherBackend') : '') ||
     '';
+  const communityCalendarApiEndpoint =
+    env.COMMUNITY_CALENDAR_ENDPOINT?.trim() ||
+    localSecrets.communityCalendar?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCommunityCalendar') : '') ||
+    '';
   const paystarPortalUrl =
     env.PAYSTAR_PORTAL_URL?.trim() ||
     localSecrets.payments?.paystar?.portalUrl?.trim() ||
@@ -261,6 +266,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     apiEndpoint,
     weatherApiEndpoint,
     severeWeatherSignupApiEndpoint,
+    communityCalendarApiEndpoint,
     paystarPortalUrl,
     cmsApiEndpoint,
     cmsApiKey,
@@ -384,6 +390,9 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
         enabled: values.severeWeatherSignupEnabled,
         apiEndpoint: values.severeWeatherSignupApiEndpoint,
       },
+    },
+    communityCalendar: {
+      apiEndpoint: values.communityCalendarApiEndpoint,
     },
     payments: {
       provider: 'paystar',

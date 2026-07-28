@@ -12,7 +12,7 @@ tool_timeout_sec = 120
 [mcp_servers.primeng]
 command = "node"
 args = ["scripts/primeng-mcp.mjs"]
-enabled = true                                                 # pinned mcp/primeng — run npm run mcp:primeng:install once
+enabled = true                     # pinned mcp/primeng — run npm run mcp:primeng:install once
 startup_timeout_sec = 30
 tool_timeout_sec = 120
 
@@ -56,8 +56,10 @@ tool_timeout_sec = 120
 
 # Local JS codebase RAG (search_codebase, rag_status). Instant start; optional .rag/ cache.
 [mcp_servers.townofwiley-rag]
-command = "node"
-args = ["scripts/rag-mcp.mjs"]
+command = "bash"
+args = ["scripts/rag-mcp.sh"]
 enabled = true
 startup_timeout_sec = 30
 tool_timeout_sec = 120
+[mcp_servers.townofwiley-rag.env]
+PATH = "/opt/homebrew/opt/node@24/bin:/usr/local/opt/node@24/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"

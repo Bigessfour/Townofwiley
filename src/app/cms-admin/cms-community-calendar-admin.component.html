@@ -1,0 +1,186 @@
+<section class="cms-community-calendar-admin" data-testid="cms-community-calendar-admin">
+  @if (!isSignedIn()) {
+    <p-message
+      severity="warn"
+      text="Sign in at /admin/login before managing community calendar events."
+    />
+  } @else {
+    <div class="cms-community-calendar-admin__toolbar">
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusFilter($event)"
+        [ngModelOptions]="{ standalone: true }"
+        inputId="community-admin-status-filter"
+        ariaLabel="Filter by status"
+      />
+      <p-button label="Add event" icon="pi pi-plus" (onClick)="openCreateDialog()" />
+      <p-button
+        label="Refresh"
+        icon="pi pi-refresh"
+        [outlined]="true"
+        (onClick)="reload()"
+        [loading]="loading()"
+      />
+    </div>
+
+    @if (loadError()) {
+      <p-message severity="error" [text]="loadError()!" />
+    }
+
+    <p-table
+      [value]="events()"
+      [loading]="loading()"
+      dataKey="eventId"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      ariaLabel="Community calendar events"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">When</th>
+          <th scope="col">Status</th>
+          <th scope="col">Submitter</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>
+            <strong>{{ row.title }}</strong>
+            <div class="cms-community-calendar-admin__meta">{{ categoryLabel(row.category) }}</div>
+          </td>
+          <td>{{ row.startDateTime }}</td>
+          <td>
+            <p-tag [value]="row.status" [severity]="statusSeverity(row.status)" />
+          </td>
+          <td>
+            <div>{{ row.submitterName }}</div>
+            <div class="cms-community-calendar-admin__meta">{{ row.submitterEmail }}</div>
+          </td>
+          <td>
+            <div class="cms-community-calendar-admin__actions">
+              <p-button
+                label="Edit"
+                [text]="true"
+                size="small"
+                (onClick)="openEditDialog(row)"
+              />
+              @if (row.status === 'pending') {
+                <p-button
+                  label="Approve"
+                  [text]="true"
+                  size="small"
+                  severity="success"
+                  (onClick)="approve(row)"
+                />
+                <p-button
+                  label="Reject"
+                  [text]="true"
+                  size="small"
+                  severity="danger"
+                  (onClick)="reject(row)"
+                />
+              }
+              <p-button
+                label="Delete"
+                [text]="true"
+                size="small"
+                severity="danger"
+                (onClick)="remove(row)"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5">No community events match this filter.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <p-dialog
+    [header]="dialogHeader()"
+    [visible]="dialogOpen()"
+    (visibleChange)="onDialogVisibleChange($event)"
+    [modal]="true"
+    [style]="{ width: 'min(40rem, 96vw)' }"
+    [draggable]="false"
+  >
+    <form class="cms-community-calendar-admin__form" [formGroup]="eventForm" (ngSubmit)="saveEvent()">
+      <label>
+        Title
+        <input pInputText formControlName="title" />
+      </label>
+      <label>
+        Location
+        <input pInputText formControlName="location" />
+      </label>
+      <label for="community-admin-category">
+        Category
+        <p-select
+          inputId="community-admin-category"
+          [options]="categoryOptions"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="category"
+        />
+      </label>
+      <label for="community-admin-status">
+        Status
+        <p-select
+          inputId="community-admin-status"
+          [options]="statusOptions.slice(1)"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="status"
+        />
+      </label>
+      <label>
+        Start
+        <input type="datetime-local" formControlName="startDateTime" />
+      </label>
+      <label>
+        End (optional)
+        <input type="datetime-local" formControlName="endDateTime" />
+      </label>
+      <label class="cms-community-calendar-admin__wide">
+        Description
+        <textarea pTextarea rows="3" formControlName="description"></textarea>
+      </label>
+      <label>
+        Submitter name
+        <input pInputText formControlName="submitterName" />
+      </label>
+      <label>
+        Submitter phone
+        <input pInputText formControlName="submitterPhone" />
+      </label>
+      <label>
+        Submitter email
+        <input pInputText type="email" formControlName="submitterEmail" />
+      </label>
+      <label>
+        Organizer (optional)
+        <input pInputText formControlName="organizerName" />
+      </label>
+      <label>
+        Social link (optional)
+        <input pInputText formControlName="socialLink" />
+      </label>
+      <div class="cms-community-calendar-admin__dialog-actions">
+        <p-button
+          type="button"
+          label="Cancel"
+          [text]="true"
+          (onClick)="onDialogVisibleChange(false)"
+        />
+        <p-button type="submit" label="Save" [loading]="saving()" />
+      </div>
+    </form>
+  </p-dialog>
+</section>

@@ -63,7 +63,10 @@ describe('StaffAuthService', () => {
     fetchAuthSession.mockResolvedValue({
       tokens: {
         accessToken: { toString: () => 'access-token', payload: {} },
-        idToken: { payload: { 'cognito:groups': ['Staff'] } },
+        idToken: {
+          toString: () => 'id-token',
+          payload: { 'cognito:groups': ['Staff'] },
+        },
       },
     });
     getCurrentUser.mockResolvedValue({
@@ -77,6 +80,7 @@ describe('StaffAuthService', () => {
 
     expect(service.isStaff()).toBe(true);
     expect(service.accessToken()).toBe('access-token');
+    expect(service.apiBearerToken()).toBe('id-token');
   });
 
   it('redirects to Cognito Hosted UI when no session exists', async () => {

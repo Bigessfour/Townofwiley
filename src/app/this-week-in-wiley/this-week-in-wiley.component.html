@@ -1,0 +1,43 @@
+<section
+  class="this-week"
+  [attr.aria-labelledby]="'this-week-heading'"
+  data-testid="this-week-in-wiley"
+>
+  <header class="this-week__header">
+    <p class="this-week__kicker">{{ copy().kicker }}</p>
+    <h2 id="this-week-heading" class="this-week__heading">{{ heading() }}</h2>
+  </header>
+
+  @if (selection().events.length === 0) {
+    <p class="this-week__empty">{{ copy().empty }}</p>
+  } @else {
+    <ul class="this-week__list">
+      @for (event of selection().events; track event.id) {
+        <li class="this-week__item" [class.this-week__item--community]="event.source === 'community'">
+          <a
+            class="this-week__link"
+            routerLink="/meetings"
+            [fragment]="event.source === 'community' ? 'community' : event.id.replace('official-', 'event-')"
+          >
+            <span class="this-week__badge">
+              {{ event.source === 'community' ? copy().communityBadge : copy().officialBadge }}
+            </span>
+            <span class="this-week__title">{{ event.title }}</span>
+            <span class="this-week__when">{{ event.startDateTime | date: 'EEE, MMM d · shortTime' }}</span>
+            @if (event.location) {
+              <span class="this-week__where">{{ event.location }}</span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  }
+
+  <a
+    pButton
+    class="this-week__cta p-button-outlined"
+    routerLink="/meetings"
+    fragment="community"
+    >{{ copy().viewCalendar }}</a
+  >
+</section>

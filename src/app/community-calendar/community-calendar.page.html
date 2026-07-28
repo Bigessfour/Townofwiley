@@ -1,0 +1,178 @@
+<p-toast />
+
+<section
+  class="community-calendar"
+  id="community"
+  aria-labelledby="community-calendar-heading"
+>
+  <header class="community-calendar__intro">
+    <p class="eyebrow">{{ copy().pageKicker }}</p>
+    <h2 id="community-calendar-heading">{{ copy().pageHeading }}</h2>
+    <p class="lede">{{ copy().pageIntro }}</p>
+  </header>
+
+  <div class="community-calendar__filters" role="group" [attr.aria-label]="copy().filterLabel">
+    <label class="community-calendar__filter-label" for="community-category-filter">{{
+      copy().filterLabel
+    }}</label>
+    <p-select
+      inputId="community-category-filter"
+      [options]="filterOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="selectedCategory()"
+      (ngModelChange)="onCategoryFilter($event)"
+      [ngModelOptions]="{ standalone: true }"
+      styleClass="community-calendar__filter-select"
+    />
+  </div>
+
+  @if (loading()) {
+    <p class="community-calendar__status" role="status">{{ copy().loadingLabel }}</p>
+  } @else if (loadError()) {
+    <div class="community-calendar__status" role="alert">
+      <p>{{ copy().loadError }}</p>
+      <button type="button" pButton (click)="reloadEvents()">{{ copy().retryLabel }}</button>
+    </div>
+  } @else if (filteredEvents().length === 0) {
+    <p class="community-calendar__status">{{ copy().emptyState }}</p>
+  } @else {
+    <section class="community-calendar__list" aria-labelledby="community-list-heading">
+      <h3 id="community-list-heading">{{ copy().listHeading }}</h3>
+      <ul class="community-calendar__cards">
+        @for (event of filteredEvents(); track event.eventId) {
+          <li class="community-calendar__card">
+            <div class="community-calendar__card-meta">
+              <span class="community-calendar__category" aria-hidden="true">
+                <i [class]="categoryIcons[event.category]"></i>
+              </span>
+              <span class="visually-hidden">{{ categoryLabel(event.category) }}</span>
+              <p class="community-calendar__category-label">{{ categoryLabel(event.category) }}</p>
+            </div>
+            <h4>{{ event.title }}</h4>
+            <p class="community-calendar__when">
+              {{ event.startDateTime | date: 'medium' }}
+              @if (event.endDateTime) {
+                <span> – {{ event.endDateTime | date: 'shortTime' }}</span>
+              }
+            </p>
+            <p class="community-calendar__location">{{ event.location }}</p>
+            <p>{{ event.description }}</p>
+            <div class="community-calendar__actions">
+              <a
+                pButton
+                class="p-button-outlined"
+                [href]="googleHref(event)"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{ copy().googleActionLabel }}</a
+              >
+              <a pButton class="p-button-text" [href]="icsHref(event)" download="wiley-event.ics">{{
+                copy().icsActionLabel
+              }}</a>
+              @if (event.socialLink) {
+                <a
+                  [href]="event.socialLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ copy().socialLinkLabel }}</a
+                >
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section class="community-calendar__submit" aria-labelledby="community-submit-heading">
+    <h3 id="community-submit-heading">{{ copy().submitHeading }}</h3>
+    <p>{{ copy().submitIntro }}</p>
+    <p class="community-calendar__hint">{{ copy().requiredHint }}</p>
+
+    <form class="community-calendar__form" [formGroup]="submitForm" (ngSubmit)="submitEvent()">
+      <div class="community-calendar__honeypot" aria-hidden="true">
+        <label for="community-website">Website</label>
+        <input id="community-website" type="text" tabindex="-1" autocomplete="off" formControlName="website" />
+      </div>
+
+      <div class="community-calendar__field">
+        <label for="community-submitter-name">{{ copy().fields.submitterName }}</label>
+        <input id="community-submitter-name" pInputText formControlName="submitterName" required />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-submitter-phone">{{ copy().fields.submitterPhone }}</label>
+        <input id="community-submitter-phone" pInputText formControlName="submitterPhone" required />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-submitter-email">{{ copy().fields.submitterEmail }}</label>
+        <input
+          id="community-submitter-email"
+          pInputText
+          type="email"
+          formControlName="submitterEmail"
+          required
+        />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-location">{{ copy().fields.location }}</label>
+        <input id="community-location" pInputText formControlName="location" required />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-title">{{ copy().fields.title }}</label>
+        <input id="community-title" pInputText formControlName="title" required />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-start">{{ copy().fields.startDateTime }}</label>
+        <input
+          id="community-start"
+          type="datetime-local"
+          formControlName="startDateTime"
+          required
+        />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-end">{{ copy().fields.endDateTime }}</label>
+        <input id="community-end" type="datetime-local" formControlName="endDateTime" />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-category">{{ copy().fields.category }}</label>
+        <p-select
+          inputId="community-category"
+          [options]="categoryOptions()"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="category"
+        />
+      </div>
+      <div class="community-calendar__field community-calendar__field--wide">
+        <label for="community-description">{{ copy().fields.description }}</label>
+        <textarea id="community-description" pTextarea rows="4" formControlName="description" required></textarea>
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-organizer">{{ copy().fields.organizerName }}</label>
+        <input id="community-organizer" pInputText formControlName="organizerName" />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-social">{{ copy().fields.socialLink }}</label>
+        <input id="community-social" pInputText type="url" formControlName="socialLink" />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-audience">{{ copy().fields.audience }}</label>
+        <input id="community-audience" pInputText formControlName="audience" />
+      </div>
+      <div class="community-calendar__field">
+        <label for="community-cost">{{ copy().fields.cost }}</label>
+        <input id="community-cost" pInputText formControlName="cost" />
+      </div>
+      <div class="community-calendar__field community-calendar__field--wide">
+        <label for="community-a11y">{{ copy().fields.accessibilityNotes }}</label>
+        <textarea id="community-a11y" pTextarea rows="2" formControlName="accessibilityNotes"></textarea>
+      </div>
+
+      <button type="submit" pButton [disabled]="submitting()">
+        {{ submitting() ? copy().submittingLabel : copy().submitButtonLabel }}
+      </button>
+    </form>
+  </section>
+</section>

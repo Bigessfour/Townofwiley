@@ -10,7 +10,8 @@ export const siteContent = {
     'Pay utility bill',
     'Report a street or utility issue',
     'Find a meeting or agenda',
-    'Request records or clerk help',
+    'Browse the Community Calendar',
+    'Contact the Town Clerk',
   ],
   communityFactLabels: ['Town profile', 'Location', 'Regional access'],
   /** English mega menu root labels (matches `APP_COPY.en` in `app.ts`). */
