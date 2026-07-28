@@ -932,7 +932,7 @@ class SevereWeatherBackendTests(unittest.TestCase):
             subscription_store=APP.MemorySubscriptionStore(),
             delivery_store=APP.MemoryDeliveryStore(),
             notification_gateway=FailingNotificationGateway(
-                "SNS publish failed: Invalid phone number"
+                "SendTextMessage failed: Invalid phone number"
             ),
             nws_client=APP.StaticNwsClient([]),
             translation_gateway=APP.MemoryTranslationGateway(),
@@ -1109,6 +1109,190 @@ class SevereWeatherBackendTests(unittest.TestCase):
         body = json.loads(response["body"])
         self.assertEqual(body["messagesSent"], 0)
         self.assertEqual(body["activeAlerts"], 0)
+
+    def test_alert_message_includes_first_name_when_provided(self) -> None:
+        backend = build_backend(
+            alerts=[
+                {
+                    "id": "alert-named",
+                    "event": "Tornado Warning",
+                    "headline": "Take shelter now.",
+                    "severity": "Extreme",
+                    "urgency": "Immediate",
+                    "expires": "",
+                    "instruction": "Move to an interior room.",
+                    "areaDesc": "Wiley",
+                }
+            ]
+        )
+        create = backend.handle(
+            {
+                "requestContext": {"http": {"method": "POST"}},
+                "rawPath": "/subscriptions",
+                "headers": {"host": "alerts.example.com", "x-forwarded-proto": "https"},
+                "body": json.dumps(
+                    {
+                        "channel": "sms",
+                        "destination": "(719) 555-0199",
+                        "zipCode": "81092",
+                        "fullName": "Heather McKit",
+                    }
+                ),
+            },
+        )
+        self.assertEqual(create["statusCode"], 202)
+        confirmation = backend._notification_gateway.confirmation_messages[0]["message"]
+        self.assertTrue(confirmation.startswith("Hi Heather,"))
+
+        pending = backend._subscription_store.find_existing_subscription(
+            "sms", "+17195550199"
+        )
+        assert pending is not None
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "GET"}},
+                "rawPath": "/confirm",
+                "queryStringParameters": {"token": pending["confirmationToken"]},
+            },
+        )
+
+        scheduled = backend.handle(
+            {"source": "aws.events", "detail-type": "Scheduled Event"}
+        )
+        self.assertEqual(scheduled["statusCode"], 200)
+        alert_message = backend._notification_gateway.alert_messages[0]["message"]
+        self.assertTrue(alert_message.startswith("Hi Heather,"))
+        self.assertIn("Tornado Warning", alert_message)
+        self.assertNotIn("McKit", alert_message)
+
+    def test_alert_message_omits_name_when_not_provided(self) -> None:
+        backend = build_backend(
+            alerts=[
+                {
+                    "id": "alert-anonymous",
+                    "event": "Winter Weather Advisory",
+                    "headline": "Snow expected.",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "expires": "",
+                    "instruction": "Travel with caution.",
+                    "areaDesc": "Wiley",
+                }
+            ]
+        )
+        create = backend.handle(
+            {
+                "requestContext": {"http": {"method": "POST"}},
+                "rawPath": "/subscriptions",
+                "headers": {"host": "alerts.example.com", "x-forwarded-proto": "https"},
+                "body": json.dumps(
+                    {
+                        "channel": "sms",
+                        "destination": "(719) 555-0188",
+                        "zipCode": "81092",
+                    }
+                ),
+            },
+        )
+        self.assertEqual(create["statusCode"], 202)
+        confirmation = backend._notification_gateway.confirmation_messages[0]["message"]
+        self.assertTrue(confirmation.startswith("Town of Wiley severe weather alerts"))
+        self.assertNotIn("Hi ", confirmation)
+
+        pending = backend._subscription_store.find_existing_subscription(
+            "sms", "+17195550188"
+        )
+        assert pending is not None
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "GET"}},
+                "rawPath": "/confirm",
+                "queryStringParameters": {"token": pending["confirmationToken"]},
+            },
+        )
+
+        scheduled = backend.handle(
+            {"source": "aws.events", "detail-type": "Scheduled Event"}
+        )
+        self.assertEqual(scheduled["statusCode"], 200)
+        alert_message = backend._notification_gateway.alert_messages[0]["message"]
+        self.assertTrue(
+            alert_message.startswith("Town of Wiley severe weather alert for ZIP 81092")
+        )
+        self.assertNotIn("Hi ", alert_message)
+
+
+class FormatResidentGreetingTests(unittest.TestCase):
+    def test_empty_name_returns_empty_greeting(self) -> None:
+        self.assertEqual(APP.format_resident_greeting(""), "")
+        self.assertEqual(APP.format_resident_greeting("   "), "")
+
+    def test_uses_first_name_only(self) -> None:
+        self.assertEqual(APP.format_resident_greeting("Heather McKit"), "Hi Heather,")
+        self.assertEqual(APP.format_resident_greeting("Jordan"), "Hi Jordan,")
+
+
+class RecordingSmsClient:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    def send_text_message(self, **kwargs: object) -> dict[str, str]:
+        self.calls.append(kwargs)
+        return {"MessageId": "msg-test-1"}
+
+
+class RecordingSesClient:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    def send_email(self, **kwargs: object) -> dict[str, str]:
+        self.calls.append(kwargs)
+        return {"MessageId": "email-test-1"}
+
+
+class AwsNotificationGatewayTests(unittest.TestCase):
+    def test_sms_uses_end_user_messaging_toll_free_origination(self) -> None:
+        sms_client = RecordingSmsClient()
+        gateway = APP.AwsNotificationGateway(
+            sender_email="alerts@townofwiley.gov",
+            sender_name="Town of Wiley Alerts",
+            ses_client=RecordingSesClient(),
+            sms_client=sms_client,
+            sms_origination_identity="+18666509844",
+            sms_configuration_set="Alert",
+        )
+
+        gateway.send_alert(
+            "sms",
+            "+17195550101",
+            "ignored for SMS",
+            "Town of Wiley severe weather alert",
+        )
+
+        self.assertEqual(len(sms_client.calls), 1)
+        call = sms_client.calls[0]
+        self.assertEqual(call["DestinationPhoneNumber"], "+17195550101")
+        self.assertEqual(call["OriginationIdentity"], "+18666509844")
+        self.assertEqual(call["MessageBody"], "Town of Wiley severe weather alert")
+        self.assertEqual(call["MessageType"], "TRANSACTIONAL")
+        self.assertEqual(call["ConfigurationSetName"], "Alert")
+
+    def test_sms_requires_origination_identity(self) -> None:
+        gateway = APP.AwsNotificationGateway(
+            sender_email="alerts@townofwiley.gov",
+            sender_name="Town of Wiley Alerts",
+            ses_client=RecordingSesClient(),
+            sms_client=RecordingSmsClient(),
+            sms_origination_identity="",
+            sms_configuration_set="Alert",
+        )
+
+        with self.assertRaisesRegex(
+            RuntimeError, "SMS_ORIGINATION_IDENTITY must be configured"
+        ):
+            gateway.send_confirmation(
+                "sms", "+17195550101", "Confirm", "Please confirm"
+            )
 
 
 if __name__ == "__main__":
