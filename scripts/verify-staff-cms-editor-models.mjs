@@ -17,11 +17,19 @@ const MODEL_FIELDS_PATH = join(repoRoot, 'src/app/cms-admin/cms-model-admin-fiel
 /** Models edited via dedicated admin components (still require staff userPool CRUD). */
 const DEDICATED_EDITOR_MODELS = new Set(['EmailAlias']);
 
+/**
+ * Clerk task `model` labels that are not AppSync / cms-inventory models
+ * (custom Function URL / DynamoDB backends). Skipped by inventory assertions.
+ */
+const NON_APPSYNC_CLERK_MODELS = new Set(['CommunityEvent']);
+
 function extractClerkEditorModels(clerkTasksSource) {
   const models = new Set();
   const pattern = /model:\s*'([A-Za-z][A-Za-z0-9]*)'/g;
   for (const match of clerkTasksSource.matchAll(pattern)) {
-    models.add(match[1]);
+    if (!NON_APPSYNC_CLERK_MODELS.has(match[1])) {
+      models.add(match[1]);
+    }
   }
   return [...models].sort();
 }
