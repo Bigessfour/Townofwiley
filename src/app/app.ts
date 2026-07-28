@@ -18,9 +18,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -75,6 +74,7 @@ import {
 } from './site-cms-content';
 import { applyAppCopySiteCopyOverrides } from './site-copy-overrides';
 import { SiteLanguage, SiteLanguageService } from './site-language';
+import { ThisWeekInWileyComponent } from './this-week-in-wiley/this-week-in-wiley.component';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 import {
@@ -292,6 +292,7 @@ export interface AppCopy {
   /** Close control in the mobile navigation drawer header. */
   mobileMenuDrawerCloseLabel: string;
   meetingsQuickLinkLabel: string;
+  communityCalendarQuickLinkLabel: string;
   siteAlertAriaLabel: string;
   alertHeadline: string;
   alertActionLabel: string;
@@ -616,6 +617,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     townLogoAriaLabel: 'Town of Wiley, return to homepage',
     mobileMenuDrawerCloseLabel: 'Close menu',
     meetingsQuickLinkLabel: 'Meetings and Calendar',
+    communityCalendarQuickLinkLabel: 'Community Calendar',
     siteAlertAriaLabel: 'Town alert banner',
     alertHeadline: 'Severe weather and service alerts for Wiley, 81092',
     alertActionLabel: 'Sign up for text or email alerts',
@@ -632,8 +634,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     homepageSectionsAriaLabel: 'Homepage sections',
     communityFactsAriaLabel: 'Wiley profile',
     leadershipAriaLabel: 'Town leadership roster',
-    heroAlt:
-      'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
+    heroAlt: 'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     heroPrimaryActionLabel: 'Explore resident services',
     heroSecondaryActionLabel: 'View meetings and notices',
     topTasksKicker: 'Quick Tasks',
@@ -831,6 +832,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         description: 'View upcoming meetings, agendas, and past minutes.',
         href: '/meetings',
         note: 'All meeting information is available here.',
+      },
+      {
+        title: 'Browse the Community Calendar',
+        description: 'See yard sales, school events, fundraisers, and other community gatherings.',
+        href: '/meetings#community',
+        note: 'Residents can also submit events for Clerk review.',
       },
       {
         title: 'Contact the Town Clerk',
@@ -1036,6 +1043,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     townLogoAriaLabel: 'Pueblo de Wiley, volver a la pagina principal',
     mobileMenuDrawerCloseLabel: 'Cerrar menú',
     meetingsQuickLinkLabel: 'Reuniones y calendario',
+    communityCalendarQuickLinkLabel: 'Calendario comunitario',
     siteAlertAriaLabel: 'Banner de alerta del pueblo',
     alertHeadline: 'Alertas de clima severo y servicios para Wiley, 81092',
     alertActionLabel: 'Inscribirse para alertas por texto o correo',
@@ -1252,6 +1260,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         description: 'Ver reuniones próximas, agendas y minutas pasadas.',
         href: '/meetings',
         note: 'Toda la información de reuniones está disponible aquí.',
+      },
+      {
+        title: 'Ver el calendario comunitario',
+        description:
+          'Vea ventas de garaje, eventos escolares, recaudaciones y otras reuniones comunitarias.',
+        href: '/meetings#community',
+        note: 'Los residentes también pueden enviar eventos para revisión de la secretaria.',
       },
       {
         title: 'Contactar a la secretaria del pueblo',
@@ -1487,6 +1502,7 @@ function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuIte
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
     LocalizedWeatherPanel,
+    ThisWeekInWileyComponent,
     Ripple,
   ],
   templateUrl: './app.html',
@@ -1783,6 +1799,11 @@ export class App {
                 fragment: 'calendar',
               },
               {
+                label: copy.communityCalendarQuickLinkLabel,
+                routerLink: '/meetings',
+                fragment: 'community',
+              },
+              {
                 label: copy.mobileSearchAllServicesLabel,
                 routerLink: ['/'],
                 fragment: 'search-panel',
@@ -1800,6 +1821,12 @@ export class App {
                 fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
               },
               { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
+              {
+                label: copy.communityCalendarQuickLinkLabel,
+                routerLink: '/meetings',
+                fragment: 'community',
+                icon: 'pi pi-calendar-plus',
+              },
             ],
             copy.menuQuickTasksWeatherColumnLabel,
           ),
@@ -1812,8 +1839,18 @@ export class App {
         items: [
           megaMenuColumn(
             [
-              { label: copy.featureTitles.meetings, routerLink: '/meetings', icon: 'pi pi-calendar' },
+              {
+                label: copy.featureTitles.meetings,
+                routerLink: '/meetings',
+                icon: 'pi pi-calendar',
+              },
               { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
+              {
+                label: copy.communityCalendarQuickLinkLabel,
+                routerLink: '/meetings',
+                fragment: 'community',
+                icon: 'pi pi-calendar-plus',
+              },
               { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
             ],
             copy.menuGovernmentMeetingsColumnLabel,
@@ -1981,6 +2018,11 @@ export class App {
       { label: copy.homeLabel, routerLink: '/' },
       { label: copy.primaryNavServicesLabel, routerLink: '/services' },
       { label: copy.primaryNavMeetingsLabel, routerLink: '/meetings' },
+      {
+        label: copy.communityCalendarQuickLinkLabel,
+        routerLink: '/meetings',
+        fragment: 'community',
+      },
       { label: copy.primaryNavDocumentsLabel, routerLink: '/meetings' },
       { label: copy.primaryNavPayLabel, routerLink: '/pay-bill' },
       { label: copy.primaryNavContactLabel, routerLink: '/contact' },

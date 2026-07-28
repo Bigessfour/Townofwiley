@@ -65,8 +65,8 @@ When working outside this repo, point MCP at this tree with **`TOW_RAG_ROOT`**:
 | Launcher | `~/.cursor/scripts/townofwiley-rag-mcp.sh` |
 
 ```bash
-# Env used by the global launcher
-export TOW_RAG_ROOT="/absolute/path/to/TOW Wiley Website"
+# Env used by the global launcher (must be the real clone path — not a removed iCloud path)
+export TOW_RAG_ROOT="/absolute/path/to/Townofwiley"
 ```
 
 ## Agent workflow
@@ -89,10 +89,11 @@ High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/` (inclu
 
 | Issue | Fix |
 | ----- | --- |
-| MCP server not listed | Reload window; confirm `scripts/rag-mcp.mjs` exists |
+| MCP server not listed | Reload window; confirm `scripts/rag-mcp.sh` exists |
+| Stuck on “loading tools” | Cursor MCP often has no Homebrew `node` on PATH. Project config must use `bash scripts/rag-mcp.sh` + Node 24 on `PATH` (see `.cursor/mcp.json`). Then **MCP: Restart Servers** or reload the window. |
 | Empty / weak results | `npm run rag:index`; try a more specific query or `path_prefix` |
 | Stale after large commits | `npm run rag:index` |
-| Global MCP fails | Set `TOW_RAG_ROOT` in the launcher to this repo’s absolute path |
+| Global MCP fails | Point `TOW_RAG_ROOT` / `~/.cursor/scripts/townofwiley-rag-mcp.sh` at this repo’s absolute path (not the old iCloud path) |
 | ripgrep missing | Optional — install `rg` for boosts; lexical search still works |
 
 ## Implementation

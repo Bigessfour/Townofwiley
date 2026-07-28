@@ -102,6 +102,9 @@ const TASK_LIVE_LINK_MAP: Readonly<Record<ClerkCmsTaskId, TaskLiveLinkEntry>> = 
     hubFragment: 'top-tasks-heading',
   },
   'manage-email-aliases': {},
+  'manage-community-calendar': {
+    hubFragment: 'community',
+  },
 };
 
 /**

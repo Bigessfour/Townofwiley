@@ -30,8 +30,11 @@
       "args": ["-y", "chrome-devtools-mcp@latest"]
     },
     "townofwiley-rag": {
-      "command": "node",
-      "args": ["scripts/rag-mcp.mjs"]
+      "command": "bash",
+      "args": ["scripts/rag-mcp.sh"],
+      "env": {
+        "PATH": "/opt/homebrew/opt/node@24/bin:/usr/local/opt/node@24/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     }
   }
 }

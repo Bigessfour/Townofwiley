@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.cms-community-calendar-admin__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 0.75rem);
+  align-items: center;
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.cms-community-calendar-admin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.cms-community-calendar-admin__meta {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.cms-community-calendar-admin__form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm, 0.75rem);
+}
+
+.cms-community-calendar-admin__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.cms-community-calendar-admin__wide,
+.cms-community-calendar-admin__dialog-actions {
+  grid-column: 1 / -1;
+}
+
+.cms-community-calendar-admin__dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm, 0.75rem);
+  margin-top: var(--space-sm, 0.75rem);
+}
+
+@media (max-width: 640px) {
+  .cms-community-calendar-admin__form {
+    grid-template-columns: 1fr;
+  }
+}

@@ -12,4 +12,5 @@ export const smokeCriticalGlobs = [
   'smoke/documents-cms.spec.ts',
   'smoke/admin.cms.spec.ts',
   'smoke/forms-and-empty-states.spec.ts',
+  'smoke/community-calendar.spec.ts',
 ];

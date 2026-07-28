@@ -25,6 +25,10 @@ export const runtimeSecretEnvMappings = [
     env: 'SEVERE_WEATHER_SIGNUP_API_ENDPOINT',
     path: ['weather', 'alertSignup', 'apiEndpoint'],
   },
+  {
+    env: 'COMMUNITY_CALENDAR_ENDPOINT',
+    path: ['communityCalendar', 'apiEndpoint'],
+  },
   { env: 'EASYPEASY_API_ENDPOINT', path: ['chatbot', 'easyPeasy', 'apiEndpoint'] },
   { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },

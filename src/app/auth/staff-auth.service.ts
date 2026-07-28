@@ -44,6 +44,7 @@ export class StaffAuthService {
   private readonly staffGroupsState = signal<string[]>([]);
   private readonly userEmail = signal<string | null>(null);
   private readonly accessTokenValue = signal<string | null>(null);
+  private readonly idTokenValue = signal<string | null>(null);
   private hostedSignInCompletion: Promise<void> | null = null;
 
   readonly isSessionReady = computed(() => this.sessionReady());
@@ -52,6 +53,28 @@ export class StaffAuthService {
   readonly staffGroups = computed(() => this.staffGroupsState());
   readonly email = computed(() => this.userEmail());
   readonly accessToken = computed(() => this.accessTokenValue());
+  readonly idToken = computed(() => this.idTokenValue());
+
+  /**
+   * Bearer token for staff API calls. Prefers the JWT that actually carries
+   * `cognito:groups` Staff (often the ID token when access lacks groups).
+   */
+  readonly apiBearerToken = computed(() => {
+    const access = this.accessTokenValue();
+    const id = this.idTokenValue();
+    if (access && this.jwtHasStaffGroup(access)) {
+      return access;
+    }
+    if (id && this.jwtHasStaffGroup(id)) {
+      return id;
+    }
+    // Staff membership may come from Amplify token payloads even when the
+    // access JWT string omits cognito:groups — send the ID token in that case.
+    if (this.staffMember() && id) {
+      return id;
+    }
+    return access ?? id;
+  });
 
   /** Playwright e2e sets runtime e2e.staffAuth without a real Cognito JWT. */
   playwrightStaffBypassActive(): boolean {
@@ -61,6 +84,7 @@ export class StaffAuthService {
   async refreshSession(options?: { forceRefresh?: boolean }): Promise<void> {
     if (this.isE2eStaffBypass()) {
       this.accessTokenValue.set('e2e-staff-token');
+      this.idTokenValue.set('e2e-staff-token');
       this.authenticated.set(true);
       this.staffMember.set(true);
       this.staffGroupsState.set(['Staff']);
@@ -70,11 +94,7 @@ export class StaffAuthService {
     }
 
     if (this.isE2eStaffAuthDisabled()) {
-      this.accessTokenValue.set(null);
-      this.authenticated.set(false);
-      this.staffMember.set(false);
-      this.staffGroupsState.set([]);
-      this.userEmail.set(null);
+      this.clearSessionState();
       this.sessionReady.set(true);
       return;
     }
@@ -84,11 +104,13 @@ export class StaffAuthService {
         forceRefresh: options?.forceRefresh ?? false,
       });
       const accessToken = session.tokens?.accessToken?.toString() ?? null;
+      const idToken = session.tokens?.idToken?.toString() ?? null;
       const groups = this.resolveStaffGroups(session.tokens);
       const isStaff = groups.includes(this.staffGroup);
 
       this.accessTokenValue.set(accessToken);
-      this.authenticated.set(Boolean(accessToken));
+      this.idTokenValue.set(idToken);
+      this.authenticated.set(Boolean(accessToken || idToken));
       this.staffMember.set(isStaff);
       this.staffGroupsState.set(groups);
 
@@ -103,14 +125,19 @@ export class StaffAuthService {
         this.userEmail.set(null);
       }
     } catch {
-      this.accessTokenValue.set(null);
-      this.authenticated.set(false);
-      this.staffMember.set(false);
-      this.staffGroupsState.set([]);
-      this.userEmail.set(null);
+      this.clearSessionState();
     } finally {
       this.sessionReady.set(true);
     }
+  }
+
+  private clearSessionState(): void {
+    this.accessTokenValue.set(null);
+    this.idTokenValue.set(null);
+    this.authenticated.set(false);
+    this.staffMember.set(false);
+    this.staffGroupsState.set([]);
+    this.userEmail.set(null);
   }
 
   /** Redirects to Cognito Hosted UI for staff sign-in. */
@@ -337,6 +364,10 @@ export class StaffAuthService {
       return [raw.trim()];
     }
     return [];
+  }
+
+  private jwtHasStaffGroup(jwt: string): boolean {
+    return this.readGroupsFromToken(this.decodeJwtPayload(jwt)).includes(this.staffGroup);
   }
 
   private resolveStaffGroups(

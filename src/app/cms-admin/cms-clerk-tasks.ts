@@ -12,7 +12,8 @@ export type ClerkCmsTaskId =
   | 'external-news'
   | 'emergency-banner'
   | 'edit-site-copy' // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
-  | 'manage-email-aliases';
+  | 'manage-email-aliases'
+  | 'manage-community-calendar';
 
 export type ClerkCmsEditorMode = 'generic' | 'dedicated' | 'documents';
 
@@ -572,6 +573,42 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage: 'No forwarding rules saved yet. Ask IT to add the first rule.',
+  },
+  {
+    id: 'manage-community-calendar',
+    title: 'Manage community calendar',
+    shortDescription:
+      'Review resident submissions and publish community events on the Meetings calendar.',
+    model: 'CommunityEvent',
+    previewPath: '/meetings',
+    icon: 'pi-calendar-plus',
+    editorMode: 'dedicated',
+    requiredGroups: ['Staff'],
+    steps: [
+      'Click Edit content to open the community calendar editor (sign in at /admin/login first).',
+      'Filter by Pending to review resident submissions.',
+      'Approve to publish on /meetings (community section), or Reject to keep it off the public calendar.',
+      'Use Add event to create a community listing directly, or Edit / Delete to maintain existing ones.',
+      'Hard-refresh /meetings#community to confirm the public list.',
+    ],
+    fieldGlossary: [
+      {
+        plainLabel: 'Status',
+        technicalName: 'status',
+        help: 'pending = awaiting review; approved = public; rejected = hidden.',
+      },
+      {
+        plainLabel: 'Category',
+        technicalName: 'category',
+        help: 'yard_sale, bake_sale, school, fundraiser, and other community types.',
+      },
+      {
+        plainLabel: 'Submitter email',
+        technicalName: 'submitterEmail',
+        help: 'Receives an email when you approve (not shown on the public calendar).',
+      },
+    ],
+    emptyStateMessage: 'No community events yet. Residents can submit from /meetings#community.',
   },
 ];
 

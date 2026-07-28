@@ -2,6 +2,61 @@
   display: block;
 }
 
+.meetings-source-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm, 0.75rem);
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.meetings-source-filter__label {
+  font-weight: 600;
+}
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 0.75rem);
+  margin-top: var(--space-sm, 0.75rem);
+}
+
+.calendar-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.calendar-legend__item::before {
+  content: '';
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+.calendar-legend__item--official::before {
+  background: var(--p-primary-color, #1f4e5f);
+}
+
+.calendar-legend__item--community::before {
+  background: color-mix(in srgb, var(--p-orange-500, #c45c26) 88%, transparent);
+}
+
+:host ::ng-deep .fc-event--official {
+  background-color: var(--p-primary-color, #1f4e5f);
+  border-color: var(--p-primary-color, #1f4e5f);
+}
+
+:host ::ng-deep .fc-event--community {
+  background-color: color-mix(in srgb, var(--p-orange-500, #c45c26) 92%, #fff);
+  border-color: color-mix(in srgb, var(--p-orange-600, #a34a1c) 90%, transparent);
+}
+
+.community-calendar-panel {
+  scroll-margin-top: 5rem;
+}
+
 .meetings-panel-header {
   display: flex;
   flex-wrap: wrap;

@@ -9,6 +9,7 @@ const formRoutes = [
   { path: '/accessibility', label: 'accessibility report' },
   { path: '/businesses', label: 'business directory' },
   { path: '/meetings', label: 'meeting archive search' },
+  { path: '/meetings#community', label: 'community calendar submit' },
 ];
 
 test.describe('public form labeling', () => {

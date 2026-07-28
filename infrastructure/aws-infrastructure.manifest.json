@@ -137,6 +137,17 @@
       "deployScript": "scripts/deploy-cms-change-notifier.py",
       "required": false,
       "notes": "DynamoDB stream audit log + staff GET /recent; publishes cms-snapshot.json + cms-revision.json on public model changes"
+    },
+    {
+      "functionName": "TownOfWileyCommunityCalendar",
+      "region": "us-east-2",
+      "runtime": "python",
+      "codePath": "infrastructure/community-calendar",
+      "functionUrl": { "authType": "NONE", "required": false },
+      "functionUrlEndpoint": "",
+      "deployScript": "scripts/deploy-community-calendar-backend.py",
+      "required": false,
+      "notes": "Community calendar public submit/list + email approve/reject + Cognito Staff JWT admin CRUD; run deploy script to set functionUrlEndpoint"
     }
   ],
   "opsObservability": {

@@ -36,6 +36,13 @@ export const routes: Routes = [
     loadComponent: () => import('./meetings-page/meetings-page').then((m) => m.MeetingsPage),
   },
   {
+    path: 'community-calendar',
+    loadComponent: () =>
+      import('./community-calendar/community-calendar-redirect').then(
+        (m) => m.CommunityCalendarRedirect,
+      ),
+  },
+  {
     path: 'weather',
     loadComponent: () =>
       import('./weather-panel/localized-weather-panel').then((m) => m.LocalizedWeatherPanel),
