@@ -120,18 +120,20 @@
         Location
         <input pInputText formControlName="location" />
       </label>
-      <label>
+      <label for="community-admin-category">
         Category
         <p-select
+          inputId="community-admin-category"
           [options]="categoryOptions"
           optionLabel="label"
           optionValue="value"
           formControlName="category"
         />
       </label>
-      <label>
+      <label for="community-admin-status">
         Status
         <p-select
+          inputId="community-admin-status"
           [options]="statusOptions.slice(1)"
           optionLabel="label"
           optionValue="value"

@@ -32,7 +32,7 @@
   } @else if (loadError()) {
     <div class="community-calendar__status" role="alert">
       <p>{{ copy().loadError }}</p>
-      <button type="button" pButton [label]="copy().retryLabel" (click)="reloadEvents()"></button>
+      <button type="button" pButton (click)="reloadEvents()">{{ copy().retryLabel }}</button>
     </div>
   } @else if (filteredEvents().length === 0) {
     <p class="community-calendar__status">{{ copy().emptyState }}</p>
@@ -170,12 +170,9 @@
         <textarea id="community-a11y" pTextarea rows="2" formControlName="accessibilityNotes"></textarea>
       </div>
 
-      <button
-        type="submit"
-        pButton
-        [disabled]="submitting()"
-        [label]="submitting() ? copy().submittingLabel : copy().submitButtonLabel"
-      ></button>
+      <button type="submit" pButton [disabled]="submitting()">
+        {{ submitting() ? copy().submittingLabel : copy().submitButtonLabel }}
+      </button>
     </form>
   </section>
 </section>
