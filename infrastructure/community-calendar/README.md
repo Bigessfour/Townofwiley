@@ -16,7 +16,7 @@ aws sts get-caller-identity   # must be 570912405222 / copilot
 python3 scripts/deploy-community-calendar-backend.py
 ```
 
-Then set `COMMUNITY_CALENDAR_ENDPOINT` (or `communityCalendar.apiEndpoint` in secrets) and regenerate runtime-config.
+Then set GitHub Actions secret `COMMUNITY_CALENDAR_ENDPOINT` to the Function URL (wired into Site CI / production deploys) and redeploy the site so `runtime-config.js` includes `communityCalendar.apiEndpoint`.
 
 ## Routes
 

@@ -1,7 +1,7 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). Resident billing/contact intake stack decommissioned June 2026 — see docs/contact-intake-decommission.md. CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
+  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). Resident billing/contact intake stack decommissioned June 2026 \u2014 see docs/contact-intake-decommission.md. CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
   "accountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
@@ -12,7 +12,10 @@
     "cloudFrontDistributionId": "E1NZ3XCY5CYR1J",
     "cloudFrontDomain": "d34qrz3qxoppc5.cloudfront.net",
     "spaRedirectFunction": "townofwiley-spa-redirect",
-    "aliases": ["townofwiley.gov", "www.townofwiley.gov"],
+    "aliases": [
+      "townofwiley.gov",
+      "www.townofwiley.gov"
+    ],
     "acmCertArn": "arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90",
     "responseHeadersPolicyId": "22d4bac1-d4fc-4e81-bb48-ab7df3a37c59",
     "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
@@ -42,7 +45,10 @@
     "apiName": "townofwiley-main",
     "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
     "defaultAuthorizationType": "API_KEY",
-    "additionalAuthorizationTypes": ["AWS_IAM", "AMAZON_COGNITO_USER_POOLS"],
+    "additionalAuthorizationTypes": [
+      "AWS_IAM",
+      "AMAZON_COGNITO_USER_POOLS"
+    ],
     "bindingsFile": "infrastructure/gen1-production-bindings.json"
   },
   "s3Buckets": [
@@ -72,7 +78,10 @@
       "region": "us-east-2",
       "runtime": "nodejs",
       "codePath": "infrastructure/nws-weather-proxy",
-      "functionUrl": { "authType": "NONE", "required": true },
+      "functionUrl": {
+        "authType": "NONE",
+        "required": true
+      },
       "functionUrlEndpoint": "https://a5wbyzz6iiawupk3xwpozdy5ji0awggh.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-nws-weather-proxy.py",
       "required": true,
@@ -83,7 +92,10 @@
       "region": "us-east-2",
       "runtime": "python",
       "codePath": "infrastructure/severe-weather-signup",
-      "functionUrl": { "authType": "NONE", "required": true },
+      "functionUrl": {
+        "authType": "NONE",
+        "required": true
+      },
       "functionUrlEndpoint": "https://gldmik4rmy6clmuysb4slzvzda0whlfh.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-severe-weather-backend.py",
       "required": true,
@@ -112,7 +124,10 @@
       "region": "us-east-2",
       "runtime": "nodejs",
       "codePath": "infrastructure/cms-media-upload",
-      "functionUrl": { "authType": "NONE", "required": false },
+      "functionUrl": {
+        "authType": "NONE",
+        "required": false
+      },
       "functionUrlEndpoint": "https://ueboqbjxsizcg2fsendl6uyztm0nlnlo.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-media-upload.py",
       "required": false,
@@ -132,7 +147,10 @@
       "region": "us-east-2",
       "runtime": "python",
       "codePath": "infrastructure/cms-change-notifier",
-      "functionUrl": { "authType": "NONE", "required": false },
+      "functionUrl": {
+        "authType": "NONE",
+        "required": false
+      },
       "functionUrlEndpoint": "https://n56zrl5abadacge5zph43oxzsi0nhhsd.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-change-notifier.py",
       "required": false,
@@ -143,11 +161,14 @@
       "region": "us-east-2",
       "runtime": "python",
       "codePath": "infrastructure/community-calendar",
-      "functionUrl": { "authType": "NONE", "required": false },
-      "functionUrlEndpoint": "",
+      "functionUrl": {
+        "authType": "NONE",
+        "required": true
+      },
+      "functionUrlEndpoint": "https://vkdnqjk5dlz6yddetbviqaysqa0rpzek.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-community-calendar-backend.py",
       "required": false,
-      "notes": "Community calendar public submit/list + email approve/reject + Cognito Staff JWT admin CRUD; run deploy script to set functionUrlEndpoint"
+      "notes": "Community calendar submissions + clerk email approve/reject"
     }
   ],
   "opsObservability": {
@@ -178,8 +199,12 @@
       "TownOfWileyContactUpdatesReviewProxy",
       "TownOfWileyPaystarProxy"
     ],
-    "dynamodbTables": ["TownOfWileyContactUpdates"],
-    "apiGateway": ["lmppzxwh3h contact-updates HTTP API"],
+    "dynamodbTables": [
+      "TownOfWileyContactUpdates"
+    ],
+    "apiGateway": [
+      "lmppzxwh3h contact-updates HTTP API"
+    ],
     "other": [
       "WAF Web ACLs (TownOfWileyContactReviewApiRateLimit and Amplify Firewall)",
       "Secrets Manager secret Grok (Wiley Widget)",
@@ -188,7 +213,7 @@
       "Gen 2 Cognito us-east-2_pkewJMUJF",
       "ECR cdk-hnb659fds-container-assets-570912405222-us-east-2"
     ],
-    "paystar": "Hosted portal only per https://docs.paystar.io/api/query/ — PAYSTAR_PORTAL_URL in runtime-config; no API proxy Lambda",
+    "paystar": "Hosted portal only per https://docs.paystar.io/api/query/ \u2014 PAYSTAR_PORTAL_URL in runtime-config; no API proxy Lambda",
     "stephenmckitrick": "CloudFront E1VI8ZZ8L1HW1F remains in this account until DNS/assets migrate to the other account (low-volume bill pay site)"
   },
   "deploymentOrder": [
@@ -196,43 +221,58 @@
       "step": 1,
       "name": "Amplify backend",
       "action": "amplify push or Amplify Studio (AppSync, Cognito, Storage)",
-      "paths": ["amplify/backend/"]
+      "paths": [
+        "amplify/backend/"
+      ]
     },
     {
       "step": 2,
       "name": "NWS weather proxy",
       "action": "python scripts/deploy-nws-weather-proxy.py",
-      "paths": ["infrastructure/nws-weather-proxy/"]
+      "paths": [
+        "infrastructure/nws-weather-proxy/"
+      ]
     },
     {
       "step": 3,
       "name": "Severe weather backend",
       "action": "python scripts/deploy-severe-weather-backend.py",
-      "paths": ["infrastructure/severe-weather-signup/"]
+      "paths": [
+        "infrastructure/severe-weather-signup/"
+      ]
     },
     {
       "step": 4,
       "name": "Email alias router",
       "action": "python scripts/deploy-email-alias-router.py",
-      "paths": ["infrastructure/email-alias-router/"]
+      "paths": [
+        "infrastructure/email-alias-router/"
+      ]
     },
     {
       "step": 5,
       "name": "Runtime config + static deploy",
       "action": "Set GitHub secrets per infrastructure/gen1-production-bindings.json; deploy runtime-config.js + S3/CloudFront",
-      "paths": ["scripts/generate-runtime-config.mjs", "infrastructure/hosting/"]
+      "paths": [
+        "scripts/generate-runtime-config.mjs",
+        "infrastructure/hosting/"
+      ]
     },
     {
       "step": 6,
       "name": "CloudWatch logging + alarms",
       "action": "python scripts/configure-townofwiley-cloudwatch-logging.py",
-      "paths": ["scripts/configure-townofwiley-cloudwatch-logging.py"]
+      "paths": [
+        "scripts/configure-townofwiley-cloudwatch-logging.py"
+      ]
     },
     {
       "step": 7,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
-      "paths": ["infrastructure/aws-infrastructure.manifest.json"]
+      "paths": [
+        "infrastructure/aws-infrastructure.manifest.json"
+      ]
     }
   ]
 }
