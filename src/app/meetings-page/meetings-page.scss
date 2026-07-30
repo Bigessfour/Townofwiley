@@ -36,21 +36,129 @@
 }
 
 .calendar-legend__item--official::before {
-  background: var(--p-primary-color, #1f4e5f);
+  background: color-mix(in srgb, var(--wiley-forest-700, #1f4e5f) 18%, #fff);
+  border: 2px solid var(--wiley-forest-700, #1f4e5f);
+  box-sizing: border-box;
 }
 
 .calendar-legend__item--community::before {
-  background: color-mix(in srgb, var(--p-orange-500, #c45c26) 88%, transparent);
+  background: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 35%, #fff);
+  border: 2px solid var(--wiley-gold-500, #a8841a);
+  box-sizing: border-box;
+}
+
+/* High-contrast chips: dark fill was hiding titles against theme text color. */
+:host ::ng-deep .fc-event {
+  cursor: pointer;
+  border-radius: var(--radius-sm, 0.25rem);
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  padding: 0.1rem 0.25rem;
+}
+
+:host ::ng-deep .fc-event .fc-event-main,
+:host ::ng-deep .fc-event .fc-event-title {
+  color: inherit;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 :host ::ng-deep .fc-event--official {
-  background-color: var(--p-primary-color, #1f4e5f);
-  border-color: var(--p-primary-color, #1f4e5f);
+  background-color: color-mix(in srgb, var(--wiley-forest-700, #1f4e5f) 14%, #fff) !important;
+  border: 1px solid var(--wiley-forest-700, #1f4e5f) !important;
+  color: var(--wiley-forest-900, #12313c) !important;
+}
+
+:host ::ng-deep .fc-event--official:hover,
+:host ::ng-deep .fc-event--official:focus-visible {
+  background-color: color-mix(in srgb, var(--wiley-forest-700, #1f4e5f) 24%, #fff) !important;
 }
 
 :host ::ng-deep .fc-event--community {
-  background-color: color-mix(in srgb, var(--p-orange-500, #c45c26) 92%, #fff);
-  border-color: color-mix(in srgb, var(--p-orange-600, #a34a1c) 90%, transparent);
+  background-color: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 28%, #fff) !important;
+  border: 1px solid var(--wiley-gold-500, #a8841a) !important;
+  color: var(--wiley-ink-900, #1f2a2e) !important;
+}
+
+:host ::ng-deep .fc-event--community:hover,
+:host ::ng-deep .fc-event--community:focus-visible {
+  background-color: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 40%, #fff) !important;
+}
+
+:host ::ng-deep .fc-event--selected {
+  outline: 2px solid var(--focus-ring, var(--wiley-gold-400, #c9a227));
+  outline-offset: 1px;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.08));
+}
+
+.calendar-selection {
+  margin-top: var(--space-md, 1rem);
+  padding: var(--space-md, 1rem);
+  border-radius: var(--radius-md, 0.75rem);
+  border: 1px solid var(--surface-border, rgb(31 78 95 / 0.16));
+  background: var(--surface-card-soft, #f7f5ef);
+}
+
+.calendar-selection__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm, 0.75rem);
+  margin-bottom: var(--space-sm, 0.75rem);
+}
+
+.calendar-selection__kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-color) 65%, transparent);
+}
+
+.calendar-selection__title {
+  margin: 0.15rem 0 0;
+  font-size: 1.25rem;
+  color: var(--wiley-forest-900, #12313c);
+}
+
+.calendar-selection__badge {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.calendar-selection__badge--official {
+  background: color-mix(in srgb, var(--wiley-forest-700, #1f4e5f) 14%, #fff);
+  color: var(--wiley-forest-900, #12313c);
+  border: 1px solid var(--wiley-forest-700, #1f4e5f);
+}
+
+.calendar-selection__badge--community {
+  background: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 28%, #fff);
+  color: var(--wiley-ink-900, #1f2a2e);
+  border: 1px solid var(--wiley-gold-500, #a8841a);
+}
+
+.calendar-selection__meta {
+  margin: 0.25rem 0;
+  color: color-mix(in srgb, var(--text-color) 88%, transparent);
+}
+
+.calendar-selection__detail {
+  margin: 0.75rem 0 0;
+  line-height: 1.55;
+}
+
+.calendar-selection-hint {
+  margin: var(--space-sm, 0.75rem) 0 0;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
 }
 
 .community-calendar-panel {
