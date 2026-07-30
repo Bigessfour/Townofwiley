@@ -243,8 +243,9 @@ def ensure_lambda_function(
     environment: dict[str, str],
 ) -> str:
     env_payload = {"Variables": environment}
-    try:
-        run_aws(["lambda", "get-function", "--function-name", function_name])
+
+    def update_existing() -> None:
+        wait_lambda_updated(function_name)
         run_aws(
             [
                 "lambda",
@@ -255,7 +256,7 @@ def ensure_lambda_function(
                 f"fileb://{archive_path}",
             ]
         )
-        time.sleep(2)
+        wait_lambda_updated(function_name)
         run_aws(
             [
                 "lambda",
@@ -274,38 +275,82 @@ def ensure_lambda_function(
                 json.dumps(env_payload),
             ]
         )
-    except RuntimeError:
-        run_aws(
-            [
-                "lambda",
-                "create-function",
-                "--function-name",
-                function_name,
-                "--runtime",
-                runtime,
-                "--role",
-                role_arn,
-                "--handler",
-                "index.handler",
-                "--timeout",
-                "30",
-                "--memory-size",
-                "256",
-                "--zip-file",
-                f"fileb://{archive_path}",
-                "--environment",
-                json.dumps(env_payload),
-            ]
-        )
+        wait_lambda_updated(function_name)
+
+    try:
+        run_aws(["lambda", "get-function", "--function-name", function_name])
+        update_existing()
+    except RuntimeError as error:
+        if "ResourceNotFoundException" not in str(error) and "Function not found" not in str(
+            error
+        ):
+            # Function may exist but be briefly unreadable; try update path.
+            try:
+                update_existing()
+            except RuntimeError:
+                raise error from error
+        else:
+            try:
+                run_aws(
+                    [
+                        "lambda",
+                        "create-function",
+                        "--function-name",
+                        function_name,
+                        "--runtime",
+                        runtime,
+                        "--role",
+                        role_arn,
+                        "--handler",
+                        "index.handler",
+                        "--timeout",
+                        "30",
+                        "--memory-size",
+                        "256",
+                        "--zip-file",
+                        f"fileb://{archive_path}",
+                        "--environment",
+                        json.dumps(env_payload),
+                    ]
+                )
+            except RuntimeError as create_error:
+                if "ResourceConflictException" in str(create_error):
+                    update_existing()
+                else:
+                    raise
     details = run_aws(["lambda", "get-function", "--function-name", function_name])
     return details["Configuration"]["FunctionArn"]
+
+
+def wait_lambda_updated(function_name: str, *, attempts: int = 30) -> None:
+    for _ in range(attempts):
+        state = run_aws(
+            [
+                "lambda",
+                "get-function-configuration",
+                "--function-name",
+                function_name,
+                "--query",
+                "LastUpdateStatus",
+                "--output",
+                "text",
+            ],
+            expect_json=False,
+        ).strip()
+        if state in {"Successful", "None", ""}:
+            return
+        if state == "Failed":
+            raise RuntimeError(f"Lambda {function_name} last update failed.")
+        time.sleep(2)
+    raise RuntimeError(f"Timed out waiting for Lambda {function_name} to finish updating.")
 
 
 def ensure_function_url(function_name: str) -> str:
     cors = {
         "AllowCredentials": False,
         "AllowHeaders": ["content-type", "authorization"],
-        "AllowMethods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        # OPTIONS is handled by Lambda Function URL CORS automatically; it is not a valid AllowMethods value.
+        "AllowMethods": ["GET", "POST", "PUT", "DELETE"],
         "AllowOrigins": [
             "https://townofwiley.gov",
             "https://www.townofwiley.gov",
