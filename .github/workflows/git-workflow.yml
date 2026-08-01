@@ -426,7 +426,7 @@ jobs:
         run: node --version | grep -qE '^v24\.' || (echo "::error::Expected Node 24.x, got $(node --version)" && exit 1)
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
           cache: pip
@@ -487,7 +487,7 @@ jobs:
           cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
           cache: pip
