@@ -68,7 +68,7 @@ jobs:
           E2E_BASE_URL: https://www.townofwiley.gov/
         run: npm run verify:live-csp-vs-repo
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24.16.0
           cache: npm
