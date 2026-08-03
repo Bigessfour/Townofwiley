@@ -166,6 +166,11 @@ export class MeetingsPage implements AfterViewInit {
           start: item.startDate,
           end: item.endDate,
           allDay: false,
+          // Solid hex for FullCalendar inline styles (vars/color-mix are unreliable there).
+          display: 'block',
+          backgroundColor: '#e0e6e9',
+          borderColor: '#1f4e5f',
+          textColor: '#12313c',
           classNames: [
             'fc-event--official',
             ...(selectedId === id ? ['fc-event--selected'] : []),
@@ -184,6 +189,10 @@ export class MeetingsPage implements AfterViewInit {
           start: item.startDateTime,
           end: item.endDateTime,
           allDay: false,
+          display: 'block',
+          backgroundColor: '#f0e5c2',
+          borderColor: '#a8841a',
+          textColor: '#1f2a2e',
           classNames: [
             'fc-event--community',
             ...(selectedId === id ? ['fc-event--selected'] : []),
@@ -198,6 +207,8 @@ export class MeetingsPage implements AfterViewInit {
       initialView: 'dayGridMonth',
       buttonIcons: false as const,
       height: 'auto',
+      // Prefer solid month chips over list-item/dot style (dot + dark title washout).
+      eventDisplay: 'block',
       events,
       eventClick: (info) => this.onCalendarEventClick(info),
     };
