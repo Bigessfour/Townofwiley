@@ -19,6 +19,9 @@ SECRETS_PATH = REPO_ROOT / "secrets" / "local" / "user-secrets.json"
 BACKEND_DIR = REPO_ROOT / "infrastructure" / "community-calendar"
 MANIFEST_PATH = REPO_ROOT / "infrastructure" / "aws-infrastructure.manifest.json"
 
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from _deploy_lambda_url import ensure_handler_only_function_url_cors  # noqa: E402
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -281,9 +284,9 @@ def ensure_lambda_function(
         run_aws(["lambda", "get-function", "--function-name", function_name])
         update_existing()
     except RuntimeError as error:
-        if "ResourceNotFoundException" not in str(error) and "Function not found" not in str(
+        if "ResourceNotFoundException" not in str(
             error
-        ):
+        ) and "Function not found" not in str(error):
             # Function may exist but be briefly unreadable; try update path.
             try:
                 update_existing()
@@ -342,105 +345,30 @@ def wait_lambda_updated(function_name: str, *, attempts: int = 30) -> None:
         if state == "Failed":
             raise RuntimeError(f"Lambda {function_name} last update failed.")
         time.sleep(2)
-    raise RuntimeError(f"Timed out waiting for Lambda {function_name} to finish updating.")
+    raise RuntimeError(
+        f"Timed out waiting for Lambda {function_name} to finish updating."
+    )
 
 
 def ensure_function_url(function_name: str) -> str:
-    cors = {
-        "AllowCredentials": False,
-        "AllowHeaders": ["content-type", "authorization"],
-        # OPTIONS is handled by Lambda Function URL CORS automatically; it is not a valid AllowMethods value.
-        "AllowMethods": ["GET", "POST", "PUT", "DELETE"],
-        "AllowOrigins": [
-            "https://townofwiley.gov",
-            "https://www.townofwiley.gov",
-            "https://staging.townofwiley.gov",
-            "http://localhost:4200",
-            "http://localhost:4300",
-            "http://127.0.0.1:4200",
-            "http://127.0.0.1:4300",
-        ],
-        "MaxAge": 86400,
-    }
-    try:
-        existing = run_aws(
-            [
-                "lambda",
-                "list-function-url-configs",
-                "--function-name",
-                function_name,
-            ]
-        )
-        configs = existing.get("FunctionUrlConfigs") or []
-        if configs:
-            run_aws(
-                [
-                    "lambda",
-                    "update-function-url-config",
-                    "--function-name",
-                    function_name,
-                    "--auth-type",
-                    "NONE",
-                    "--cors",
-                    json.dumps(cors),
-                ]
-            )
-            return str(configs[0]["FunctionUrl"]).rstrip("/")
-    except RuntimeError:
-        pass
-
-    created = run_aws(
-        [
-            "lambda",
-            "create-function-url-config",
-            "--function-name",
-            function_name,
-            "--auth-type",
-            "NONE",
-            "--cors",
-            json.dumps(cors),
-        ]
+    """Handler-only CORS — Function URL must not emit a second ACAO header."""
+    region = (
+        os.environ.get("AWS_REGION")
+        or os.environ.get("AWS_DEFAULT_REGION")
+        or "us-east-2"
     )
-    # Public invoke permission
-    try:
-        run_aws(
-            [
-                "lambda",
-                "add-permission",
-                "--function-name",
-                function_name,
-                "--statement-id",
-                "FunctionURLAllowPublicInvoke",
-                "--action",
-                "lambda:InvokeFunctionUrl",
-                "--principal",
-                "*",
-                "--function-url-auth-type",
-                "NONE",
-            ],
-            expect_json=False,
-        )
-    except RuntimeError:
-        pass
-    try:
-        run_aws(
-            [
-                "lambda",
-                "add-permission",
-                "--function-name",
-                function_name,
-                "--statement-id",
-                "FunctionURLAllowPublicInvokeFunction",
-                "--action",
-                "lambda:InvokeFunction",
-                "--principal",
-                "*",
-            ],
-            expect_json=False,
-        )
-    except RuntimeError:
-        pass
-    return str(created["FunctionUrl"]).rstrip("/")
+
+    def run_aws_with_region(
+        command: list[str], expect_json: bool = True, region: str | None = None
+    ) -> Any:
+        if region:
+            os.environ.setdefault("AWS_DEFAULT_REGION", region)
+            os.environ.setdefault("AWS_REGION", region)
+        return run_aws(command, expect_json=expect_json)
+
+    return ensure_handler_only_function_url_cors(
+        function_name, region, run_aws_with_region
+    ).rstrip("/")
 
 
 def update_manifest(function_name: str, function_url: str) -> None:
