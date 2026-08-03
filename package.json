@@ -201,8 +201,8 @@
     "@primeuix/themes": "^2.0.3",
     "aws-amplify": "^6.18.0",
     "express": "^5.1.0",
-    "primeicons": "^7.0.0",
-    "primeng": "^21.1.9",
+    "primeicons": "^8.0.0",
+    "primeng": "^22.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
