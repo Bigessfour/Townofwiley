@@ -4,6 +4,7 @@ import importlib.util
 import json
 import sys
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "app.py"
@@ -411,6 +412,218 @@ class SevereWeatherBackendTests(unittest.TestCase):
         self.assertEqual(json.loads(first["body"])["messagesSent"], 1)
         self.assertEqual(json.loads(second["body"])["messagesSent"], 0)
         self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
+
+    def test_scheduled_event_suppresses_same_series_update_within_cooldown(self) -> None:
+        backend = build_backend(
+            alerts=[
+                {
+                    "id": "https://api.weather.gov/alerts/heat-1",
+                    "event": "Heat Advisory",
+                    "headline": "Heat Advisory remains in effect.",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "expires": "2026-08-03T20:00:00+00:00",
+                    "instruction": "Drink plenty of fluids.",
+                    "areaDesc": "Prowers County",
+                    "messageType": "Update",
+                    "vtec": "/O.CON.KPUB.HT.Y.0007.000000T0000Z-260804T0200Z/",
+                    "vtecAction": "CON",
+                    "seriesKey": "KPUB.HT.Y.0007",
+                },
+            ],
+        )
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "POST"}},
+                "rawPath": "/subscriptions",
+                "headers": {"host": "alerts.example.com", "x-forwarded-proto": "https"},
+                "body": json.dumps(
+                    {
+                        "channel": "sms",
+                        "destination": "(719) 555-0102",
+                        "zipCode": "81092",
+                    },
+                ),
+            },
+        )
+        token = (
+            backend._notification_gateway.confirmation_messages[0]["message"]
+            .split("Confirm alerts: ")[1]
+            .split("\n")[0]
+            .split("token=")[1]
+        )
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "GET"}},
+                "rawPath": "/confirm",
+                "queryStringParameters": {"token": token},
+            },
+        )
+
+        first = backend.handle(
+            {"source": "aws.events", "detail-type": "Scheduled Event"}
+        )
+        backend._nws_client = APP.StaticNwsClient(
+            [
+                {
+                    "id": "https://api.weather.gov/alerts/heat-2",
+                    "event": "Heat Advisory",
+                    "headline": "Heat Advisory remains in effect until 8 PM.",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "expires": "2026-08-03T20:00:00+00:00",
+                    "instruction": "Drink plenty of fluids.",
+                    "areaDesc": "Prowers County",
+                    "messageType": "Update",
+                    "vtec": "/O.CON.KPUB.HT.Y.0007.000000T0000Z-260804T0200Z/",
+                    "vtecAction": "CON",
+                    "seriesKey": "KPUB.HT.Y.0007",
+                },
+            ],
+        )
+        second = backend.handle(
+            {"source": "aws.events", "detail-type": "Scheduled Event"}
+        )
+
+        self.assertEqual(json.loads(first["body"])["messagesSent"], 1)
+        self.assertEqual(json.loads(second["body"])["messagesSent"], 0)
+        self.assertEqual(json.loads(second["body"])["messagesSkippedCooldown"], 1)
+        self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
+
+    def test_scheduled_event_sends_new_series_immediately(self) -> None:
+        backend = build_backend(
+            alerts=[
+                {
+                    "id": "heat-1",
+                    "event": "Heat Advisory",
+                    "headline": "Heat Advisory in effect.",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "expires": "2026-08-03T20:00:00+00:00",
+                    "instruction": "Drink fluids.",
+                    "areaDesc": "Prowers County",
+                    "messageType": "Update",
+                    "vtecAction": "CON",
+                    "seriesKey": "KPUB.HT.Y.0007",
+                },
+            ],
+        )
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "POST"}},
+                "rawPath": "/subscriptions",
+                "headers": {"host": "alerts.example.com", "x-forwarded-proto": "https"},
+                "body": json.dumps(
+                    {
+                        "channel": "sms",
+                        "destination": "(719) 555-0102",
+                        "zipCode": "81092",
+                    },
+                ),
+            },
+        )
+        token = (
+            backend._notification_gateway.confirmation_messages[0]["message"]
+            .split("Confirm alerts: ")[1]
+            .split("\n")[0]
+            .split("token=")[1]
+        )
+        backend.handle(
+            {
+                "requestContext": {"http": {"method": "GET"}},
+                "rawPath": "/confirm",
+                "queryStringParameters": {"token": token},
+            },
+        )
+        backend.handle({"source": "aws.events", "detail-type": "Scheduled Event"})
+
+        backend._nws_client = APP.StaticNwsClient(
+            [
+                {
+                    "id": "heat-1b",
+                    "event": "Heat Advisory",
+                    "headline": "Heat Advisory remains in effect.",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "expires": "2026-08-03T20:00:00+00:00",
+                    "instruction": "Drink fluids.",
+                    "areaDesc": "Prowers County",
+                    "messageType": "Update",
+                    "vtecAction": "CON",
+                    "seriesKey": "KPUB.HT.Y.0007",
+                },
+                {
+                    "id": "tor-1",
+                    "event": "Tornado Warning",
+                    "headline": "Tornado Warning for Wiley area.",
+                    "severity": "Extreme",
+                    "urgency": "Immediate",
+                    "expires": "2026-08-03T21:00:00+00:00",
+                    "instruction": "Take shelter now.",
+                    "areaDesc": "Prowers County",
+                    "messageType": "Alert",
+                    "vtecAction": "NEW",
+                    "seriesKey": "KPUB.TO.W.0001",
+                },
+            ],
+        )
+        response = backend.handle(
+            {"source": "aws.events", "detail-type": "Scheduled Event"}
+        )
+        body = json.loads(response["body"])
+        self.assertEqual(body["messagesSent"], 1)
+        self.assertEqual(body["messagesSkippedCooldown"], 1)
+        self.assertIn(
+            "Tornado Warning",
+            backend._notification_gateway.alert_messages[-1]["subject"],
+        )
+
+    def test_should_deliver_alert_force_send_and_cooldown(self) -> None:
+        prior = {
+            "alertId": "old-id",
+            "severity": "Moderate",
+            "sentAt": "2026-08-03T12:00:00+00:00",
+        }
+        now = datetime(2026, 8, 3, 14, 0, tzinfo=UTC)
+        continued = {
+            "id": "new-id",
+            "severity": "Moderate",
+            "messageType": "Update",
+            "vtecAction": "CON",
+        }
+        self.assertFalse(
+            APP.should_deliver_alert(prior, continued, now=now, cooldown_seconds=6 * 3600)
+        )
+        upgraded = {
+            "id": "severe-id",
+            "severity": "Severe",
+            "messageType": "Update",
+            "vtecAction": "CON",
+        }
+        self.assertTrue(
+            APP.should_deliver_alert(prior, upgraded, now=now, cooldown_seconds=6 * 3600)
+        )
+        extended = {
+            "id": "ext-id",
+            "severity": "Moderate",
+            "messageType": "Update",
+            "vtecAction": "EXT",
+        }
+        self.assertTrue(
+            APP.should_deliver_alert(prior, extended, now=now, cooldown_seconds=6 * 3600)
+        )
+        after_cooldown = datetime(2026, 8, 3, 19, 0, tzinfo=UTC)
+        self.assertTrue(
+            APP.should_deliver_alert(
+                prior, continued, now=after_cooldown, cooldown_seconds=6 * 3600
+            )
+        )
+        self.assertEqual(
+            APP.parse_vtec_identity(
+                "/O.CON.KPUB.HT.Y.0007.000000T0000Z-260804T0200Z/"
+            ),
+            ("CON", "KPUB.HT.Y.0007"),
+        )
 
     def test_scheduled_event_continues_when_one_delivery_fails(self) -> None:
         backend = build_backend(
