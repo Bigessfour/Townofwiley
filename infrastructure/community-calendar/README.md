@@ -2,6 +2,30 @@
 
 Python Lambda Function URL for resident community-event submissions, Clerk email approve/reject, and Cognito Staff JWT admin CRUD.
 
+## Mail (clerk notifications)
+
+**Community calendar submit** (resident → town) sends via **Amazon SES** to
+`clerk@townofwiley.gov`. That address is delivered by **MailPlus on mr_storage**
+(MX unchanged). Clerk then signs in at
+[https://www.townofwiley.gov/admin](https://www.townofwiley.gov/admin) →
+**Manage community calendar** → **Approve**.
+
+SES is outbound-only for this form (and similar form→clerk APIs). Day-to-day
+human mail stays on MailPlus.
+
+1. Domain `townofwiley.gov` must be verified in SES `us-east-2` (DKIM CNAMEs + SPF `include:amazonses.com`).
+2. Deploy with SES:
+
+```bash
+python3 scripts/deploy-community-calendar-backend.py --mail-transport ses
+```
+
+Optional MailPlus SMTP fallback: `--mail-transport smtp` plus Secrets Manager
+`townofwiley/community-calendar/smtp` (see earlier notes).
+
+Clerk notification uses **Reply-To** = submitter email so Reply goes to the
+resident. From is `noreply@townofwiley.gov` (SES-authenticated).
+
 ## Local tests
 
 ```bash

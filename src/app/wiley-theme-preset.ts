@@ -121,19 +121,31 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
       root: {
         background: 'transparent',
         borderColor: 'transparent',
+        color: '#ffffff',
         gap: '0.5rem',
       },
       overlay: {
         background: '#ffffff',
         borderColor: '{surface.200}',
         borderRadius: '1.25rem',
+        color: '{surface.800}',
         shadow: '0 18px 40px rgba(15, 61, 46, 0.14)',
       },
+      // Shared item tokens default to the light overlay panel (dark ink).
+      // Root bar overrides --p-megamenu-item-* under .p-megamenu-root-list in app.scss
+      // so white labels are never paired with surface.50/100 wash on the forest header.
       item: {
         color: '{surface.800}',
-        focusBackground: '{surface.50}',
-        activeBackground: '{surface.100}',
+        focusColor: '{surface.900}',
+        activeColor: '{surface.900}',
+        focusBackground: 'color-mix(in srgb, #0f3d2e 8%, #ffffff)',
+        activeBackground: 'color-mix(in srgb, #0f3d2e 12%, #ffffff)',
         borderRadius: '0.5rem',
+        icon: {
+          color: '{surface.700}',
+          focusColor: '{surface.900}',
+          activeColor: '{surface.900}',
+        },
       },
       submenuLabel: {
         color: '{primary.700}',

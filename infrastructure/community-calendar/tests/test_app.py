@@ -19,10 +19,13 @@ from app import (  # noqa: E402
     REJECTED,
     AllowBearerStaffAuthenticator,
     AppConfig,
+    AwsSesMailGateway,
     CommunityCalendarBackend,
     InMemoryRateLimiter,
     MemoryEventStore,
     MemoryMailGateway,
+    SmtpMailGateway,
+    SmtpSettings,
 )
 
 
@@ -57,7 +60,9 @@ class CommunityCalendarTests(unittest.TestCase):
             self.store,
             self.mail,
             authenticator=AllowBearerStaffAuthenticator(),
-            submit_rate_limiter=InMemoryRateLimiter(max_requests=100, window_seconds=900),
+            submit_rate_limiter=InMemoryRateLimiter(
+                max_requests=100, window_seconds=900
+            ),
         )
         self.staff_headers = {"authorization": "Bearer staff-ok"}
 
@@ -122,8 +127,11 @@ class CommunityCalendarTests(unittest.TestCase):
         self.assertEqual(item["status"], PENDING)
         self.assertEqual(len(self.mail.sent), 1)
         self.assertEqual(self.mail.sent[0]["to"], "clerk@townofwiley.gov")
+        self.assertEqual(self.mail.sent[0]["reply_to"], "jane@example.com")
+        self.assertEqual(self.mail.sent[0]["from_name"], "Jane Resident")
         self.assertIn("/approve?token=", self.mail.sent[0]["body"])
         self.assertIn("/reject?token=", self.mail.sent[0]["body"])
+        self.assertIn("townofwiley.gov/admin", self.mail.sent[0]["body"])
         self.assertIn("confirm", self.mail.sent[0]["body"].lower())
 
         public = self.backend.handle(
@@ -272,6 +280,72 @@ class CommunityCalendarTests(unittest.TestCase):
             )["body"]
         )
         self.assertEqual(len(match["events"]), 1)
+
+    def test_ses_send_failure_does_not_raise(self) -> None:
+        class RejectingSes:
+            def send_email(self, **_kwargs: object) -> None:
+                raise RuntimeError("Email address is not verified")
+
+        gateway = AwsSesMailGateway(
+            "noreply@townofwiley.gov",
+            "Town of Wiley",
+            ses_client=RejectingSes(),
+        )
+        # Must not raise — submissions should still succeed when SES is down.
+        gateway.send_email("clerk@townofwiley.gov", "Subject", "Body")
+
+    def test_ses_source_uses_formataddr_for_special_names(self) -> None:
+        captured: dict[str, object] = {}
+
+        class CapturingSes:
+            def send_email(self, **kwargs: object) -> None:
+                captured.update(kwargs)
+
+        gateway = AwsSesMailGateway(
+            "noreply@townofwiley.gov",
+            "Town of Wiley",
+            ses_client=CapturingSes(),
+        )
+        gateway.send_email(
+            "clerk@townofwiley.gov",
+            "Subject",
+            "Body",
+            from_name='Jane "Resident", <Test>',
+            reply_to="jane@example.com",
+        )
+        source = str(captured.get("Source") or "")
+        self.assertIn("noreply@townofwiley.gov", source)
+        self.assertNotIn("<Test>", source)
+        self.assertEqual(captured.get("ReplyToAddresses"), ["jane@example.com"])
+
+    def test_smtp_send_failure_does_not_raise(self) -> None:
+        gateway = SmtpMailGateway(
+            SmtpSettings(
+                host="mail.townofwiley.gov",
+                port=587,
+                username="noreply@townofwiley.gov",
+                password="bad-password",
+                sender_email="noreply@townofwiley.gov",
+                sender_name="Town of Wiley",
+            )
+        )
+        with patch("app.smtplib.SMTP", side_effect=OSError("connection refused")):
+            gateway.send_email("clerk@townofwiley.gov", "Subject", "Body")
+
+    def test_smtp_skips_when_credentials_missing(self) -> None:
+        gateway = SmtpMailGateway(
+            SmtpSettings(
+                host="mail.townofwiley.gov",
+                port=587,
+                username="",
+                password="",
+                sender_email="noreply@townofwiley.gov",
+                sender_name="Town of Wiley",
+            )
+        )
+        with patch("app.smtplib.SMTP") as smtp_cls:
+            gateway.send_email("clerk@townofwiley.gov", "Subject", "Body")
+            smtp_cls.assert_not_called()
 
     def test_submit_rate_limit(self) -> None:
         limited = CommunityCalendarBackend(
@@ -441,7 +515,9 @@ class CommunityCalendarTests(unittest.TestCase):
             }
         )
         self.assertEqual(updated["statusCode"], 200)
-        self.assertEqual(json.loads(updated["body"])["event"]["title"], "Staff Bake Sale Updated")
+        self.assertEqual(
+            json.loads(updated["body"])["event"]["title"], "Staff Bake Sale Updated"
+        )
 
         approve = self.backend.handle(
             {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Town of Wiley Community Calendar backend (Function URL + DynamoDB + SES)."""
+"""Town of Wiley Community Calendar backend (Function URL + DynamoDB + mail)."""
 
 from __future__ import annotations
 
@@ -8,10 +8,13 @@ import json
 import logging
 import os
 import re
+import smtplib
+import ssl
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from email.utils import parseaddr
+from email.message import EmailMessage
+from email.utils import formataddr, parseaddr
 from html import escape
 from typing import Any, Protocol
 from urllib.parse import parse_qs, urlencode
@@ -97,7 +100,15 @@ class EventStore(Protocol):
 
 
 class MailGateway(Protocol):
-    def send_email(self, to_address: str, subject: str, body_text: str) -> None: ...
+    def send_email(
+        self,
+        to_address: str,
+        subject: str,
+        body_text: str,
+        *,
+        reply_to: str = "",
+        from_name: str = "",
+    ) -> None: ...
 
 
 class StaffAuthenticator(Protocol):
@@ -216,8 +227,24 @@ class MemoryMailGateway:
     def __init__(self) -> None:
         self.sent: list[dict[str, str]] = []
 
-    def send_email(self, to_address: str, subject: str, body_text: str) -> None:
-        self.sent.append({"to": to_address, "subject": subject, "body": body_text})
+    def send_email(
+        self,
+        to_address: str,
+        subject: str,
+        body_text: str,
+        *,
+        reply_to: str = "",
+        from_name: str = "",
+    ) -> None:
+        self.sent.append(
+            {
+                "to": to_address,
+                "subject": subject,
+                "body": body_text,
+                "reply_to": reply_to.strip(),
+                "from_name": from_name.strip(),
+            }
+        )
 
 
 class DynamoEventStore:
@@ -367,7 +394,15 @@ class AwsSesMailGateway:
         self._sender_name = sender_name.strip() or DEFAULT_SENDER_NAME
         self._ses_client = ses_client
 
-    def send_email(self, to_address: str, subject: str, body_text: str) -> None:
+    def send_email(
+        self,
+        to_address: str,
+        subject: str,
+        body_text: str,
+        *,
+        reply_to: str = "",
+        from_name: str = "",
+    ) -> None:
         if not self._sender_email:
             LOGGER.warning("SENDER_EMAIL unset; skipping email to %s", to_address)
             return
@@ -375,15 +410,237 @@ class AwsSesMailGateway:
             import boto3
 
             self._ses_client = boto3.client("ses")
-        source = f"{self._sender_name} <{self._sender_email}>"
-        self._ses_client.send_email(
-            Source=source,
-            Destination={"ToAddresses": [to_address]},
-            Message={
-                "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {"Text": {"Data": body_text, "Charset": "UTF-8"}},
-            },
+        display = sanitize_from_display_name(
+            from_name or self._sender_name, fallback=DEFAULT_SENDER_NAME
         )
+        source = formataddr((display, self._sender_email))
+        try:
+            kwargs: dict[str, Any] = {
+                "Source": source,
+                "Destination": {"ToAddresses": [to_address]},
+                "Message": {
+                    "Subject": {"Data": subject, "Charset": "UTF-8"},
+                    "Body": {"Text": {"Data": body_text, "Charset": "UTF-8"}},
+                },
+            }
+            reply = reply_to.strip()
+            if reply and EMAIL_PATTERN.match(reply):
+                kwargs["ReplyToAddresses"] = [reply]
+            self._ses_client.send_email(**kwargs)
+        except Exception as error:
+            # Never fail the resident/admin mutation because SES is misconfigured.
+            # Submissions still land in DynamoDB for clerk review in /admin.
+            LOGGER.warning(
+                "SES send failed (to=%s subject=%s): %s",
+                to_address,
+                subject,
+                error,
+            )
+
+
+def sanitize_from_display_name(name: str, *, fallback: str = DEFAULT_SENDER_NAME) -> str:
+    """Normalize resident-supplied display names for RFC5322 From headers."""
+    cleaned = " ".join(str(name or "").replace("\r", " ").replace("\n", " ").split())
+    cleaned = cleaned.replace("<", "").replace(">", "").replace('"', "")
+    cleaned = cleaned.strip()[:120]
+    return cleaned or fallback
+
+
+@dataclass(frozen=True)
+class SmtpSettings:
+    host: str
+    port: int
+    username: str
+    password: str
+    sender_email: str
+    sender_name: str
+    use_ssl: bool = False
+
+
+class SmtpMailGateway:
+    """Send mail via Synology MailPlus (or any SMTP AUTH server)."""
+
+    def __init__(self, settings: SmtpSettings) -> None:
+        self._settings = settings
+
+    def send_email(
+        self,
+        to_address: str,
+        subject: str,
+        body_text: str,
+        *,
+        reply_to: str = "",
+        from_name: str = "",
+    ) -> None:
+        settings = self._settings
+        if not settings.sender_email:
+            LOGGER.warning("SENDER_EMAIL unset; skipping email to %s", to_address)
+            return
+        if not settings.host:
+            LOGGER.warning("SMTP_HOST unset; skipping email to %s", to_address)
+            return
+        if not settings.username or not settings.password:
+            LOGGER.warning("SMTP credentials unset; skipping email to %s", to_address)
+            return
+
+        display = sanitize_from_display_name(
+            from_name or settings.sender_name, fallback=DEFAULT_SENDER_NAME
+        )
+        message = EmailMessage()
+        message["Subject"] = subject
+        message["From"] = formataddr((display, settings.sender_email))
+        message["To"] = to_address
+        reply = reply_to.strip()
+        if reply and EMAIL_PATTERN.match(reply):
+            message["Reply-To"] = reply
+        message.set_content(body_text)
+
+        try:
+            context = ssl.create_default_context()
+            if settings.use_ssl or settings.port == 465:
+                with smtplib.SMTP_SSL(
+                    settings.host, settings.port, timeout=30, context=context
+                ) as smtp:
+                    smtp.login(settings.username, settings.password)
+                    smtp.send_message(message)
+            else:
+                with smtplib.SMTP(settings.host, settings.port, timeout=30) as smtp:
+                    smtp.ehlo()
+                    smtp.starttls(context=context)
+                    smtp.ehlo()
+                    smtp.login(settings.username, settings.password)
+                    smtp.send_message(message)
+        except Exception as error:
+            # Never fail the resident/admin mutation because SMTP is misconfigured.
+            LOGGER.warning(
+                "SMTP send failed (host=%s to=%s subject=%s): %s",
+                settings.host,
+                to_address,
+                subject,
+                error,
+            )
+
+
+def _truthy_env(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _load_secret_payload(secret_id: str) -> dict[str, Any]:
+    import boto3
+
+    client = boto3.client("secretsmanager")
+    response = client.get_secret_value(SecretId=secret_id)
+    secret_string = response.get("SecretString") or ""
+    if not secret_string:
+        return {}
+    try:
+        payload = json.loads(secret_string)
+    except json.JSONDecodeError:
+        return {"password": secret_string}
+    return payload if isinstance(payload, dict) else {"password": secret_string}
+
+
+def read_smtp_settings(config: AppConfig) -> SmtpSettings | None:
+    """Build SMTP settings from env + optional Secrets Manager JSON."""
+    secret_id = os.environ.get("SMTP_SECRET_ID", "").strip()
+    secret: dict[str, Any] = {}
+    if secret_id:
+        try:
+            secret = _load_secret_payload(secret_id)
+        except Exception as error:
+            LOGGER.warning("Failed to load SMTP secret %s: %s", secret_id, error)
+
+    host = (
+        os.environ.get("SMTP_HOST", "").strip()
+        or str(secret.get("host") or secret.get("Host") or "").strip()
+        or "mail.townofwiley.gov"
+    )
+    port_raw = os.environ.get("SMTP_PORT", "").strip() or str(
+        secret.get("port") or secret.get("Port") or "587"
+    )
+    try:
+        port = int(port_raw)
+    except ValueError:
+        port = 587
+    username = (
+        os.environ.get("SMTP_USER", "").strip()
+        or str(secret.get("username") or secret.get("user") or "").strip()
+    )
+    password = (
+        os.environ.get("SMTP_PASSWORD", "").strip()
+        or str(secret.get("password") or secret.get("Password") or "").strip()
+    )
+    sender_email = (
+        str(secret.get("senderEmail") or secret.get("sender_email") or "").strip()
+        or config.sender_email
+    )
+    sender_name = (
+        str(secret.get("senderName") or secret.get("sender_name") or "").strip()
+        or config.sender_name
+    )
+    use_ssl = _truthy_env("SMTP_USE_SSL", default=port == 465)
+    if secret.get("useSsl") is True or str(secret.get("useSsl") or "").lower() in {
+        "1",
+        "true",
+        "yes",
+    }:
+        use_ssl = True
+
+    if not username or not password:
+        return None
+    return SmtpSettings(
+        host=host,
+        port=port,
+        username=username,
+        password=password,
+        sender_email=sender_email,
+        sender_name=sender_name,
+        use_ssl=use_ssl,
+    )
+
+
+def resolve_mail_transport() -> str:
+    """Return 'smtp' or 'ses'. Defaults to smtp when SMTP_HOST / SMTP_SECRET_ID set."""
+    explicit = os.environ.get("MAIL_TRANSPORT", "").strip().lower()
+    if explicit in {"smtp", "ses"}:
+        return explicit
+    if (
+        os.environ.get("SMTP_HOST", "").strip()
+        or os.environ.get("SMTP_SECRET_ID", "").strip()
+    ):
+        return "smtp"
+    return "ses"
+
+
+def build_mail_gateway(config: AppConfig) -> MailGateway:
+    transport = resolve_mail_transport()
+    if transport == "smtp":
+        settings = read_smtp_settings(config)
+        if settings is None:
+            LOGGER.warning(
+                "MAIL_TRANSPORT=smtp but SMTP credentials missing; "
+                "emails will be skipped until SMTP_SECRET_ID / SMTP_USER+PASSWORD set"
+            )
+            try:
+                fallback_port = int(os.environ.get("SMTP_PORT", "587"))
+            except ValueError:
+                fallback_port = 587
+            return SmtpMailGateway(
+                SmtpSettings(
+                    host=os.environ.get("SMTP_HOST", "mail.townofwiley.gov").strip()
+                    or "mail.townofwiley.gov",
+                    port=fallback_port,
+                    username="",
+                    password="",
+                    sender_email=config.sender_email,
+                    sender_name=config.sender_name,
+                )
+            )
+        return SmtpMailGateway(settings)
+    return AwsSesMailGateway(config.sender_email, config.sender_name)
 
 
 class CommunityCalendarBackend:
@@ -463,14 +720,18 @@ class CommunityCalendarBackend:
             return unauthorized
 
         event_id, action = parse_admin_path(path)
-        if event_id is None and action is None and path.rstrip("/").endswith(
-            "/admin/events"
+        if (
+            event_id is None
+            and action is None
+            and path.rstrip("/").endswith("/admin/events")
         ):
             if method == "GET":
                 return self._admin_list_events(event)
             if method == "POST":
                 return self._admin_create_event(event)
-            return json_response(405, {"error": "Method not allowed."}, request_event=event)
+            return json_response(
+                405, {"error": "Method not allowed."}, request_event=event
+            )
 
         if event_id and action == "approve" and method == "POST":
             return self._admin_set_status(event, event_id, APPROVED)
@@ -534,7 +795,9 @@ class CommunityCalendarBackend:
     ) -> dict[str, Any]:
         existing = self._store.get_event(event_id)
         if not existing or str(existing.get("eventId") or "").startswith("TOKEN#"):
-            return json_response(404, {"error": "Event not found."}, request_event=event)
+            return json_response(
+                404, {"error": "Event not found."}, request_event=event
+            )
 
         try:
             payload = parse_json_body(event)
@@ -563,10 +826,7 @@ class CommunityCalendarBackend:
 
         updated = self._store.update_event(event_id, updates)
         merged_view = updated or {**existing, **updates}
-        if (
-            updates.get("status") == APPROVED
-            and previous_status != APPROVED
-        ):
+        if updates.get("status") == APPROVED and previous_status != APPROVED:
             self._notify_submitter_approved(merged_view)
         return json_response(
             200,
@@ -579,19 +839,27 @@ class CommunityCalendarBackend:
     ) -> dict[str, Any]:
         existing = self._store.get_event(event_id)
         if not existing or str(existing.get("eventId") or "").startswith("TOKEN#"):
-            return json_response(404, {"error": "Event not found."}, request_event=event)
+            return json_response(
+                404, {"error": "Event not found."}, request_event=event
+            )
         self._invalidate_tokens(existing)
         deleted = self._store.delete_event(event_id)
         if not deleted:
-            return json_response(404, {"error": "Event not found."}, request_event=event)
-        return json_response(200, {"ok": True, "eventId": event_id}, request_event=event)
+            return json_response(
+                404, {"error": "Event not found."}, request_event=event
+            )
+        return json_response(
+            200, {"ok": True, "eventId": event_id}, request_event=event
+        )
 
     def _admin_set_status(
         self, event: dict[str, Any], event_id: str, status: str
     ) -> dict[str, Any]:
         existing = self._store.get_event(event_id)
         if not existing or str(existing.get("eventId") or "").startswith("TOKEN#"):
-            return json_response(404, {"error": "Event not found."}, request_event=event)
+            return json_response(
+                404, {"error": "Event not found."}, request_event=event
+            )
 
         now = utc_now_iso()
         updates: dict[str, Any] = {
@@ -692,6 +960,10 @@ class CommunityCalendarBackend:
             self._config.clerk_email,
             f"Community calendar submission: {item['title']}",
             build_clerk_email_body(item, approve_url, reject_url),
+            # Resident → town: Reply goes to the submitter; MailPlus still
+            # authenticates as the town SMTP mailbox for delivery.
+            reply_to=str(item.get("submitterEmail") or ""),
+            from_name=str(item.get("submitterName") or ""),
         )
 
         return json_response(
@@ -985,7 +1257,11 @@ def build_clerk_email_body(
     item: dict[str, Any], approve_url: str, reject_url: str
 ) -> str:
     lines = [
-        "A resident submitted a community calendar event for review.",
+        "A resident requested that an event be posted to the community calendar.",
+        "",
+        "Review and approve in the clerk admin:",
+        "https://www.townofwiley.gov/admin",
+        "(Sign in → Manage community calendar → Approve)",
         "",
         f"Title: {item.get('title')}",
         f"Category: {item.get('category')}",
@@ -1003,10 +1279,11 @@ def build_clerk_email_body(
         f"Social link: {item.get('socialLink') or '—'}",
         f"Language: {item.get('language')}",
         "",
-        f"Approve (open link, then confirm): {approve_url}",
-        f"Reject (open link, then confirm): {reject_url}",
+        "Optional one-click links (open, then Confirm — opening alone does nothing):",
+        f"Approve: {approve_url}",
+        f"Reject: {reject_url}",
         "",
-        "These links expire in 7 days. Opening the link alone does not change the event — you must click Confirm.",
+        "These links expire in 7 days.",
     ]
     return "\n".join(lines)
 
@@ -1135,18 +1412,15 @@ def parse_json_body(event: dict[str, Any]) -> dict[str, Any]:
 
 
 def build_cors_headers(event: dict[str, Any] | None) -> dict[str, str]:
-    origin_raw = request_header(event, "Origin") if event else ""
-    allow = DEFAULT_CORS_FALLBACK_ORIGIN
-    if origin_raw:
-        canonical = CANONICAL_ORIGIN_BY_LOWER.get(origin_raw.lower())
-        if canonical is not None:
-            allow = canonical
-    return {
-        "access-control-allow-origin": allow,
-        "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "access-control-allow-headers": "content-type,authorization",
-        "vary": "Origin",
-    }
+    """
+    CORS for this API is configured on the Lambda Function URL.
+
+    Do not also emit Access-Control-* here — duplicate
+    access-control-allow-origin headers break browsers (fetch fails even when
+    the Lambda returns 200).
+    """
+    del event  # request origin is applied by Function URL CORS
+    return {}
 
 
 def json_response(
@@ -1267,7 +1541,7 @@ def build_default_backend() -> CommunityCalendarBackend:
     return CommunityCalendarBackend(
         config,
         DynamoEventStore(config.events_table),
-        AwsSesMailGateway(config.sender_email, config.sender_name),
+        build_mail_gateway(config),
     )
 
 

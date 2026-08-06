@@ -30,15 +30,150 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sender-email", default="")
     parser.add_argument("--sender-name", default="Town of Wiley")
     parser.add_argument("--clerk-email", default="clerk@townofwiley.gov")
+    parser.add_argument(
+        "--mail-transport",
+        default="",
+        choices=["", "smtp", "ses"],
+        help="smtp (MailPlus) or ses. Default: smtp when SMTP secret/creds exist.",
+    )
+    parser.add_argument("--smtp-host", default="")
+    parser.add_argument("--smtp-port", default="")
+    parser.add_argument("--smtp-user", default="")
+    parser.add_argument(
+        "--smtp-secret-id",
+        default="townofwiley/community-calendar/smtp",
+        help="Secrets Manager id for MailPlus SMTP JSON (password, optional host/user).",
+    )
     parser.add_argument("--runtime", default="python3.13")
     parser.add_argument("--skip-manifest-update", action="store_true")
     return parser.parse_args()
+
+
+SMTP_SECRET_ID_DEFAULT = "townofwiley/community-calendar/smtp"
 
 
 def load_local_secrets() -> dict[str, Any]:
     if not SECRETS_PATH.exists():
         return {}
     return json.loads(SECRETS_PATH.read_text(encoding="utf-8"))
+
+
+def community_calendar_secrets(secrets: dict[str, Any]) -> dict[str, Any]:
+    block = secrets.get("communityCalendar")
+    return block if isinstance(block, dict) else {}
+
+
+def resolve_smtp_secret_payload(
+    args: argparse.Namespace, secrets: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Build SMTP secret JSON from CLI / env / local user-secrets (never commit)."""
+    calendar = community_calendar_secrets(secrets)
+    smtp_block = calendar.get("smtp") if isinstance(calendar.get("smtp"), dict) else {}
+    username = (
+        (args.smtp_user or "").strip()
+        or os.environ.get("SMTP_USER", "").strip()
+        or str(smtp_block.get("username") or smtp_block.get("user") or "").strip()
+    )
+    password = (
+        os.environ.get("SMTP_PASSWORD", "").strip()
+        or str(smtp_block.get("password") or "").strip()
+    )
+    if not username or not password:
+        return None
+    host = (
+        (args.smtp_host or "").strip()
+        or os.environ.get("SMTP_HOST", "").strip()
+        or str(smtp_block.get("host") or "").strip()
+        or "mail.townofwiley.gov"
+    )
+    port_raw = (
+        (args.smtp_port or "").strip()
+        or os.environ.get("SMTP_PORT", "").strip()
+        or str(smtp_block.get("port") or "587")
+    )
+    try:
+        port = int(port_raw)
+    except ValueError:
+        port = 587
+    sender_email = (
+        (args.sender_email or "").strip()
+        or str(calendar.get("senderEmail") or "").strip()
+        or str(smtp_block.get("senderEmail") or "").strip()
+        or "noreply@townofwiley.gov"
+    )
+    return {
+        "host": host,
+        "port": port,
+        "username": username,
+        "password": password,
+        "senderEmail": sender_email,
+        "senderName": args.sender_name or "Town of Wiley",
+        "useSsl": port == 465,
+    }
+
+
+def ensure_smtp_secret(secret_id: str, payload: dict[str, Any] | None) -> bool:
+    """Create/update Secrets Manager secret when payload is provided. Returns True if secret exists."""
+    if not secret_id:
+        return False
+    exists = False
+    try:
+        run_aws(
+            [
+                "secretsmanager",
+                "describe-secret",
+                "--secret-id",
+                secret_id,
+            ]
+        )
+        exists = True
+    except RuntimeError:
+        exists = False
+
+    if payload is None:
+        return exists
+
+    secret_string = json.dumps(payload)
+    if exists:
+        run_aws(
+            [
+                "secretsmanager",
+                "put-secret-value",
+                "--secret-id",
+                secret_id,
+                "--secret-string",
+                secret_string,
+            ],
+            expect_json=False,
+        )
+        print(f"Updated SMTP secret {secret_id}")
+        return True
+
+    run_aws(
+        [
+            "secretsmanager",
+            "create-secret",
+            "--name",
+            secret_id,
+            "--description",
+            "MailPlus SMTP credentials for community calendar clerk notifications",
+            "--secret-string",
+            secret_string,
+        ]
+    )
+    print(f"Created SMTP secret {secret_id}")
+    return True
+
+
+def secret_arn_for_id(secret_id: str) -> str:
+    account = run_aws(["sts", "get-caller-identity"])["Account"]
+    region = (
+        os.environ.get("AWS_REGION")
+        or os.environ.get("AWS_DEFAULT_REGION")
+        or "us-east-2"
+    )
+    # Wildcard suffix matches Secrets Manager random suffix on the ARN.
+    return f"arn:aws:secretsmanager:{region}:{account}:secret:{secret_id}*"
 
 
 def ensure_env_from_secrets(secrets: dict[str, Any]) -> None:
@@ -146,7 +281,9 @@ def ensure_table(table_name: str) -> str:
         return table["Table"]["TableArn"]
 
 
-def ensure_role(role_name: str, table_arn: str) -> str:
+def ensure_role(
+    role_name: str, table_arn: str, smtp_secret_id: str = SMTP_SECRET_ID_DEFAULT
+) -> str:
     trust_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -176,6 +313,13 @@ def ensure_role(role_name: str, table_arn: str) -> str:
                 "Effect": "Allow",
                 "Action": ["ses:SendEmail", "ses:SendRawEmail", "sesv2:SendEmail"],
                 "Resource": "*",
+            },
+            {
+                "Effect": "Allow",
+                "Action": ["secretsmanager:GetSecretValue"],
+                "Resource": [
+                    secret_arn_for_id(smtp_secret_id or SMTP_SECRET_ID_DEFAULT),
+                ],
             },
         ],
     }
@@ -281,9 +425,9 @@ def ensure_lambda_function(
         run_aws(["lambda", "get-function", "--function-name", function_name])
         update_existing()
     except RuntimeError as error:
-        if "ResourceNotFoundException" not in str(error) and "Function not found" not in str(
+        if "ResourceNotFoundException" not in str(
             error
-        ):
+        ) and "Function not found" not in str(error):
             # Function may exist but be briefly unreadable; try update path.
             try:
                 update_existing()
@@ -342,7 +486,9 @@ def wait_lambda_updated(function_name: str, *, attempts: int = 30) -> None:
         if state == "Failed":
             raise RuntimeError(f"Lambda {function_name} last update failed.")
         time.sleep(2)
-    raise RuntimeError(f"Timed out waiting for Lambda {function_name} to finish updating.")
+    raise RuntimeError(
+        f"Timed out waiting for Lambda {function_name} to finish updating."
+    )
 
 
 def ensure_function_url(function_name: str) -> str:
@@ -476,16 +622,46 @@ def main() -> int:
     if not os.environ.get("AWS_REGION"):
         raise RuntimeError("AWS_REGION is required before deployment can continue.")
 
+    calendar = community_calendar_secrets(secrets)
     sender_email = (
         args.sender_email
-        or secrets.get("communityCalendar", {}).get("senderEmail", "")
+        or calendar.get("senderEmail", "")
         or secrets.get("weather", {}).get("alertSignup", {}).get("senderEmail", "")
         or "noreply@townofwiley.gov"
     )
 
+    smtp_secret_id = (args.smtp_secret_id or SMTP_SECRET_ID_DEFAULT).strip()
+    smtp_payload = resolve_smtp_secret_payload(args, secrets)
+
+    mail_transport = (args.mail_transport or "").strip().lower()
+    if not mail_transport:
+        # Default: SES for resident→clerk form notifications (MailPlus keeps inbound MX).
+        mail_transport = "ses"
+
+    smtp_ready = False
+    if mail_transport == "smtp":
+        # Only create/update Secrets Manager when explicitly deploying SMTP.
+        # SES deploys must not overwrite production MailPlus credentials.
+        smtp_ready = ensure_smtp_secret(smtp_secret_id, smtp_payload)
+    elif smtp_payload is not None:
+        print(
+            "NOTE: Local SMTP credentials were found but MAIL_TRANSPORT=ses; "
+            "not writing Secrets Manager secret "
+            f"{smtp_secret_id!r}.",
+            file=sys.stderr,
+        )
+
+    if mail_transport == "smtp" and not smtp_ready:
+        print(
+            "WARNING: MAIL_TRANSPORT=smtp but Secrets Manager secret "
+            f"{smtp_secret_id!r} is missing. Create it with SMTP_USER + SMTP_PASSWORD "
+            "(or secrets/local/user-secrets.json communityCalendar.smtp) then redeploy.",
+            file=sys.stderr,
+        )
+
     archive_path = package_backend()
     table_arn = ensure_table(args.events_table)
-    role_arn = ensure_role(args.role_name, table_arn)
+    role_arn = ensure_role(args.role_name, table_arn, smtp_secret_id)
 
     bindings_path = REPO_ROOT / "infrastructure" / "gen1-production-bindings.json"
     cognito = {}
@@ -500,10 +676,29 @@ def main() -> int:
         "SENDER_NAME": args.sender_name,
         "CLERK_EMAIL": args.clerk_email,
         "PUBLIC_API_BASE_URL": "",
+        "MAIL_TRANSPORT": mail_transport,
         "COGNITO_USER_POOL_ID": str(cognito.get("userPoolId") or ""),
         "COGNITO_CLIENT_ID": str(cognito.get("userPoolClientId") or ""),
         "STAFF_GROUP": str(cognito.get("staffGroup") or "Staff"),
     }
+    if mail_transport == "smtp":
+        environment["SMTP_HOST"] = (
+            (args.smtp_host or "").strip()
+            or os.environ.get("SMTP_HOST", "").strip()
+            or "mail.townofwiley.gov"
+        )
+        environment["SMTP_PORT"] = (
+            (args.smtp_port or "").strip()
+            or os.environ.get("SMTP_PORT", "").strip()
+            or "587"
+        )
+        if (args.smtp_user or "").strip() or os.environ.get("SMTP_USER", "").strip():
+            environment["SMTP_USER"] = (args.smtp_user or "").strip() or os.environ.get(
+                "SMTP_USER", ""
+            ).strip()
+        # Always point at the secret id so a later secret upsert works without redeploy.
+        environment["SMTP_SECRET_ID"] = smtp_secret_id
+
     ensure_lambda_function(
         args.function_name, role_arn, args.runtime, archive_path, environment
     )
@@ -519,6 +714,9 @@ def main() -> int:
 
     print(f"Deployed {args.function_name}")
     print(f"Function URL: {function_url}")
+    print(f"Mail transport: {mail_transport}")
+    if mail_transport == "smtp":
+        print(f"SMTP secret: {smtp_secret_id} ({'ready' if smtp_ready else 'MISSING'})")
     print("Set COMMUNITY_CALENDAR_ENDPOINT to this URL for runtime-config.")
     return 0
 

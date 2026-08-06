@@ -230,7 +230,7 @@ export class CommunityCalendarPanel implements OnInit {
           const detail =
             error instanceof HttpErrorResponse && typeof error.error?.error === 'string'
               ? error.error.error
-              : copy.submitUnavailableDetail;
+              : copy.submitFailureDetail;
           this.messages.add({
             severity: 'error',
             summary: copy.submitErrorSummary,

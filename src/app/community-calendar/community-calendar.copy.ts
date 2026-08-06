@@ -26,6 +26,8 @@ export interface CommunityCalendarCopy {
   submitSuccessDetail: string;
   submitErrorSummary: string;
   submitUnavailableDetail: string;
+  /** Shown when the API is configured but the submit request fails. */
+  submitFailureDetail: string;
   googleActionLabel: string;
   icsActionLabel: string;
   socialLinkLabel: string;
@@ -80,6 +82,8 @@ export const COMMUNITY_CALENDAR_COPY: Record<'en' | 'es', CommunityCalendarCopy>
     submitErrorSummary: 'Could not submit',
     submitUnavailableDetail:
       'The community calendar service is not configured yet. Email clerk@townofwiley.gov to share your event.',
+    submitFailureDetail:
+      'We could not send your event right now. Please try again, or email clerk@townofwiley.gov.',
     googleActionLabel: 'Add to Google Calendar',
     icsActionLabel: 'Download ICS',
     socialLinkLabel: 'Event link',
@@ -141,6 +145,8 @@ export const COMMUNITY_CALENDAR_COPY: Record<'en' | 'es', CommunityCalendarCopy>
     submitErrorSummary: 'No se pudo enviar',
     submitUnavailableDetail:
       'El servicio del calendario comunitario aún no está configurado. Escriba a clerk@townofwiley.gov para compartir su evento.',
+    submitFailureDetail:
+      'No pudimos enviar su evento ahora. Intente de nuevo o escriba a clerk@townofwiley.gov.',
     googleActionLabel: 'Agregar a Google Calendar',
     icsActionLabel: 'Descargar ICS',
     socialLinkLabel: 'Enlace del evento',
