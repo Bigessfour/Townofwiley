@@ -103,8 +103,8 @@
       "label": "Town Clerk",
       "value": "Debbie Dillon",
       "detail": "Point of Contact for Official Town Business",
-      "href": null,
-      "linkLabel": null,
+      "href": "mailto:clerk@townofwiley.gov",
+      "linkLabel": "clerk@townofwiley.gov",
       "displayOrder": 1
     },
     {
@@ -112,9 +112,27 @@
       "label": "City Clerk",
       "value": "Deb Dillon",
       "detail": "Clerk services, meeting packets, records coordination, and agenda planning support.",
-      "href": "mailto:deb.dillon@townofwiley.gov",
-      "linkLabel": "deb.dillon@townofwiley.gov",
+      "href": "mailto:clerk@townofwiley.gov",
+      "linkLabel": "clerk@townofwiley.gov",
       "displayOrder": 0
+    },
+    {
+      "id": "town-superintendent",
+      "label": "Town Superintendent",
+      "value": "Scott Whitman",
+      "detail": "Town operations, public works coordination, and service follow-up.",
+      "href": "mailto:clerk@townofwiley.gov",
+      "linkLabel": "clerk@townofwiley.gov",
+      "displayOrder": 3
+    },
+    {
+      "id": "mayor",
+      "label": "Mayor",
+      "value": "Stephen McKitrick",
+      "detail": "Contact the Mayor by email for official town business or council-related questions.",
+      "href": "mailto:clerk@townofwiley.gov",
+      "linkLabel": "clerk@townofwiley.gov",
+      "displayOrder": 1
     },
     {
       "id": "town-information",
@@ -230,7 +248,7 @@
   "publicDocumentRecords": [
     {
       "id": "dca3340f-f4ab-4963-a0ee-98b3f18f0304",
-      "title": "City Council Meeting - July — Agenda (July 13, 2026)",
+      "title": "City Council Meeting - July \u2014 Agenda (July 13, 2026)",
       "titleEs": null,
       "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
       "summaryEs": null,
@@ -261,7 +279,7 @@
     },
     {
       "id": "07770a7b-ce61-4429-ab06-ae4188e173de",
-      "title": "City Council Meeting — Agenda (June 8, 2026)",
+      "title": "City Council Meeting \u2014 Agenda (June 8, 2026)",
       "titleEs": null,
       "summary": "Agenda packet for City Council Meeting on June 8, 2026.",
       "summaryEs": null,

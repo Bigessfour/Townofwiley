@@ -63,19 +63,19 @@ Use these contacts when routing residents.
 
 - Name: Stephen McKitrick
 <!-- trunk-ignore(markdownlint/MD034) -->
-- Public email: stephen.mckitrick@townofwiley.gov
+- Public email: clerk@townofwiley.gov
 - Use for: official mayoral correspondence
 
 ### City Clerk
 
 - Name: Deb Dillon
-- Public email: deb.dillon@townofwiley.gov
+- Public email: clerk@townofwiley.gov
 - Use for: clerk services, meeting packets, records coordination, agenda planning support, records requests, permit guidance, and general administrative follow-up
 
 ### Town Superintendent
 
 - Name: Scott Whitman
-- Public email: scott.whitman@townofwiley.gov
+- Public email: clerk@townofwiley.gov
 - Use for: town operations, public works coordination, utility follow-up, street issues, nuisance issues, signage, drainage, and service-related follow-up
 
 ## Town Leadership
@@ -101,7 +101,7 @@ If a user asks about the difference between Stephen McKitrick and Steve McKitric
 - Schedule: every second Monday of each month
 - Start time: 6:00 PM
 - Location: Wiley Town Hall, 304 Main Street
-- Resident guidance: residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they want time on the agenda
+- Resident guidance: residents should call Town Hall at (719) 829-4974 or email Deb Dillon at clerk@townofwiley.gov if they want time on the agenda
 - What the site intends to publish with this meeting: agenda packets, approved minutes, livestream or recording links, accessible documents, cancellations, and room changes
 
 ### Planning And Zoning Review
@@ -159,7 +159,7 @@ Recommended answer pattern:
 
 Best escalation contacts:
 
-- Deb Dillon, City Clerk, deb.dillon@townofwiley.gov
+- Deb Dillon, City Clerk, clerk@townofwiley.gov
 - Town Hall, (719) 829-4974
 
 ### Street, Utility, And Property Issue Reporting
@@ -185,7 +185,7 @@ Ground truth:
 
 Best escalation contacts:
 
-- Scott Whitman, Town Superintendent, scott.whitman@townofwiley.gov
+- Scott Whitman, Town Superintendent, clerk@townofwiley.gov
 - Town Hall, (719) 829-4974
 
 Recommended answer pattern:
@@ -216,7 +216,7 @@ Ground truth:
 
 Best escalation contact:
 
-- Deb Dillon, City Clerk, deb.dillon@townofwiley.gov
+- Deb Dillon, City Clerk, clerk@townofwiley.gov
 
 Recommended answer pattern:
 
@@ -450,26 +450,26 @@ Spanish:
 ### Payment Fallback
 
 English:
-"Wiley currently routes billing help through a guided contact path. I recommend using the payment help workflow or contacting Deb Dillon at deb.dillon@townofwiley.gov."
+"Wiley currently routes billing help through a guided contact path. I recommend using the payment help workflow or contacting Deb Dillon at clerk@townofwiley.gov."
 
 Spanish:
-"Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada de contacto. Le recomiendo usar el flujo de ayuda de facturacion o escribir a Deb Dillon a deb.dillon@townofwiley.gov."
+"Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada de contacto. Le recomiendo usar el flujo de ayuda de facturacion o escribir a Deb Dillon a clerk@townofwiley.gov."
 
 ### Issue Reporting Fallback
 
 English:
-"For street, utility, or public works concerns, the best direct contact is Town Superintendent Scott Whitman at scott.whitman@townofwiley.gov."
+"For street, utility, or public works concerns, the best direct contact is Town Superintendent Scott Whitman at clerk@townofwiley.gov."
 
 Spanish:
-"Para asuntos de calles, servicios u obras publicas, el mejor contacto directo es el superintendente Scott Whitman en scott.whitman@townofwiley.gov."
+"Para asuntos de calles, servicios u obras publicas, el mejor contacto directo es el superintendente Scott Whitman en clerk@townofwiley.gov."
 
 ### Records Fallback
 
 English:
-"For records, meeting packets, permit guidance, or clerk help, the best direct contact is Deb Dillon at deb.dillon@townofwiley.gov."
+"For records, meeting packets, permit guidance, or clerk help, the best direct contact is Deb Dillon at clerk@townofwiley.gov."
 
 Spanish:
-"Para registros, paquetes de reuniones, orientacion sobre permisos o ayuda de secretaria, el mejor contacto directo es Deb Dillon en deb.dillon@townofwiley.gov."
+"Para registros, paquetes de reuniones, orientacion sobre permisos o ayuda de secretaria, el mejor contacto directo es Deb Dillon en clerk@townofwiley.gov."
 
 ## Approved FAQ Pairs
 
@@ -477,7 +477,7 @@ Spanish:
 
 Question: How do I contact Town Hall?
 
-Answer: You can contact Town Hall at (719) 829-4974. The Town Hall address is 304 Main Street, Wiley, Colorado. If you need clerk help or want time on a meeting agenda, you can also email Deb Dillon at deb.dillon@townofwiley.gov.
+Answer: You can contact Town Hall at (719) 829-4974. The Town Hall address is 304 Main Street, Wiley, Colorado. If you need clerk help or want time on a meeting agenda, you can also email Deb Dillon at clerk@townofwiley.gov.
 
 ### FAQ 2
 
@@ -489,25 +489,25 @@ Answer: The City Council Regular Meeting is every second Monday of the month at 
 
 Question: How do I get on the meeting agenda?
 
-Answer: Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at deb.dillon@townofwiley.gov if they want time on the agenda.
+Answer: Residents should call Town Hall at (719) 829-4974 or email Deb Dillon at clerk@townofwiley.gov if they want time on the agenda.
 
 ### FAQ 4
 
 Question: How do I pay my utility bill?
 
-Answer: Wiley currently routes billing help through a guided payment-help path. If you need the current payment instructions or account help, use the billing help workflow or contact Deb Dillon at deb.dillon@townofwiley.gov.
+Answer: Wiley currently routes billing help through a guided payment-help path. If you need the current payment instructions or account help, use the billing help workflow or contact Deb Dillon at clerk@townofwiley.gov.
 
 ### FAQ 5
 
 Question: How do I report a pothole or street problem?
 
-Answer: Use the town issue-reporting path for street, utility, drainage, streetlight, signage, or nuisance concerns. The best direct operations contact is Scott Whitman at scott.whitman@townofwiley.gov.
+Answer: Use the town issue-reporting path for street, utility, drainage, streetlight, signage, or nuisance concerns. The best direct operations contact is Scott Whitman at clerk@townofwiley.gov.
 
 ### FAQ 6
 
 Question: How do I request public records?
 
-Answer: The site provides a records request path for public records and FOIA-type requests. For direct help, contact Deb Dillon at deb.dillon@townofwiley.gov.
+Answer: The site provides a records request path for public records and FOIA-type requests. For direct help, contact Deb Dillon at clerk@townofwiley.gov.
 
 ### FAQ 7
 
@@ -519,13 +519,13 @@ Answer: Yes. Residents in ZIP code 81092 can request confirmation-based SMS or e
 
 Question: Who is the mayor?
 
-Answer: The mayor is Steve McKitrick. Official mayoral correspondence can be sent to stephen.mckitrick@townofwiley.gov.
+Answer: The mayor is Steve McKitrick. Official mayoral correspondence can be sent to clerk@townofwiley.gov.
 
 ### FAQ 9
 
 Question: Who is the City Clerk?
 
-Answer: The City Clerk is Deb Dillon. Her public email is deb.dillon@townofwiley.gov.
+Answer: The City Clerk is Deb Dillon. Her public email is clerk@townofwiley.gov.
 
 ### FAQ 10
 
@@ -539,7 +539,7 @@ Answer: Scott Whitman is the Town Superintendent and the best direct public cont
 
 Pregunta: Como contacto al ayuntamiento?
 
-Respuesta: Puede contactar al ayuntamiento al (719) 829-4974. La direccion es 304 Main Street, Wiley, Colorado. Si necesita ayuda de secretaria o desea tiempo en la agenda de una reunion, tambien puede escribir a Deb Dillon a deb.dillon@townofwiley.gov.
+Respuesta: Puede contactar al ayuntamiento al (719) 829-4974. La direccion es 304 Main Street, Wiley, Colorado. Si necesita ayuda de secretaria o desea tiempo en la agenda de una reunion, tambien puede escribir a Deb Dillon a clerk@townofwiley.gov.
 
 ### Pregunta frecuente 2
 
@@ -551,25 +551,25 @@ Respuesta: La reunion ordinaria del concejo municipal es cada segundo lunes del 
 
 Pregunta: Como solicito aparecer en la agenda?
 
-Respuesta: Los residentes deben llamar al ayuntamiento al (719) 829-4974 o escribir a Deb Dillon a deb.dillon@townofwiley.gov si desean tiempo en la agenda.
+Respuesta: Los residentes deben llamar al ayuntamiento al (719) 829-4974 o escribir a Deb Dillon a clerk@townofwiley.gov si desean tiempo en la agenda.
 
 ### Pregunta frecuente 4
 
 Pregunta: Como pago mi recibo de servicios?
 
-Respuesta: Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada. Si necesita las instrucciones actuales de pago o ayuda con su cuenta, use el flujo de ayuda de facturacion o contacte a Deb Dillon en deb.dillon@townofwiley.gov.
+Respuesta: Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada. Si necesita las instrucciones actuales de pago o ayuda con su cuenta, use el flujo de ayuda de facturacion o contacte a Deb Dillon en clerk@townofwiley.gov.
 
 ### Pregunta frecuente 5
 
 Pregunta: Como reporto un bache o un problema de calle?
 
-Respuesta: Use la ruta de reporte del pueblo para problemas de calles, servicios, drenaje, alumbrado, senalizacion o molestias. El mejor contacto directo para operaciones es Scott Whitman en scott.whitman@townofwiley.gov.
+Respuesta: Use la ruta de reporte del pueblo para problemas de calles, servicios, drenaje, alumbrado, senalizacion o molestias. El mejor contacto directo para operaciones es Scott Whitman en clerk@townofwiley.gov.
 
 ### Pregunta frecuente 6
 
 Pregunta: Como solicito registros publicos?
 
-Respuesta: El sitio ofrece una ruta de solicitud para registros publicos y solicitudes tipo FOIA. Para ayuda directa, contacte a Deb Dillon en deb.dillon@townofwiley.gov.
+Respuesta: El sitio ofrece una ruta de solicitud para registros publicos y solicitudes tipo FOIA. Para ayuda directa, contacte a Deb Dillon en clerk@townofwiley.gov.
 
 ### Pregunta frecuente 7
 
@@ -581,7 +581,7 @@ Respuesta: Si. Los residentes del codigo postal 81092 pueden solicitar alertas d
 
 Pregunta: Quien es el alcalde?
 
-Respuesta: El alcalde es Steve McKitrick. La correspondencia oficial puede enviarse a stephen.mckitrick@townofwiley.gov.
+Respuesta: El alcalde es Steve McKitrick. La correspondencia oficial puede enviarse a clerk@townofwiley.gov.
 
 ## Do Not Say
 
@@ -614,8 +614,8 @@ When in doubt, the bot should do one of three things:
 The most important fallback for unresolved questions is:
 
 - Town Hall: (719) 829-4974
-- City Clerk: deb.dillon@townofwiley.gov
-- Town Superintendent: scott.whitman@townofwiley.gov
+- City Clerk: clerk@townofwiley.gov
+- Town Superintendent: clerk@townofwiley.gov
 
 ## Expanded Knowledge Addendum
 
@@ -660,10 +660,10 @@ For most resident questions, use this three-part structure:
 3. best contact if follow-up is needed
 
 Example pattern in English:
-"The City Council Regular Meeting is every second Monday at 6:00 PM at Wiley Town Hall, 304 Main Street. If you want time on the agenda, contact Deb Dillon at deb.dillon@townofwiley.gov or call Town Hall at (719) 829-4974."
+"The City Council Regular Meeting is every second Monday at 6:00 PM at Wiley Town Hall, 304 Main Street. If you want time on the agenda, contact Deb Dillon at clerk@townofwiley.gov or call Town Hall at (719) 829-4974."
 
 Example pattern in Spanish:
-"La reunion ordinaria del concejo municipal es cada segundo lunes a las 6:00 PM en el Ayuntamiento de Wiley, 304 Main Street. Si desea tiempo en la agenda, contacte a Deb Dillon en deb.dillon@townofwiley.gov o llame al ayuntamiento al (719) 829-4974."
+"La reunion ordinaria del concejo municipal es cada segundo lunes a las 6:00 PM en el Ayuntamiento de Wiley, 304 Main Street. Si desea tiempo en la agenda, contacte a Deb Dillon en clerk@townofwiley.gov o llame al ayuntamiento al (719) 829-4974."
 
 ## Resident Intent Playbooks
 
@@ -707,7 +707,7 @@ Answer guidance:
 
 Canonical answer:
 
-- Deb Dillon, City Clerk, deb.dillon@townofwiley.gov
+- Deb Dillon, City Clerk, clerk@townofwiley.gov
 
 ### Intent: Operations Or Public Works
 
@@ -729,7 +729,7 @@ Answer guidance:
 
 Canonical answer:
 
-- Scott Whitman, Town Superintendent, scott.whitman@townofwiley.gov
+- Scott Whitman, Town Superintendent, clerk@townofwiley.gov
 
 ### Intent: Mayor Or Town Leadership
 
@@ -750,7 +750,7 @@ Answer guidance:
 Canonical answer:
 
 - Mayor: Steve McKitrick
-- Official mayoral email: stephen.mckitrick@townofwiley.gov
+- Official mayoral email: clerk@townofwiley.gov
 
 ### Intent: Meeting And Agenda Access
 
@@ -942,7 +942,7 @@ Use short direct phrasing.
 Good:
 
 - "The City Council Regular Meeting is every second Monday at 6:00 PM at Wiley Town Hall, 304 Main Street."
-- "For records, permit guidance, or clerk help, contact Deb Dillon at deb.dillon@townofwiley.gov."
+- "For records, permit guidance, or clerk help, contact Deb Dillon at clerk@townofwiley.gov."
 
 Avoid:
 
@@ -955,7 +955,7 @@ Use a transparent limit plus a useful next step.
 
 Good:
 
-- "I do not have that exact fee information in my current public knowledge. For the fastest answer, contact Deb Dillon at deb.dillon@townofwiley.gov or call Town Hall at (719) 829-4974."
+- "I do not have that exact fee information in my current public knowledge. For the fastest answer, contact Deb Dillon at clerk@townofwiley.gov or call Town Hall at (719) 829-4974."
 
 Avoid:
 
@@ -968,7 +968,7 @@ Use calm and direct service language.
 
 Good:
 
-- "I can help route this quickly. For utility or street issues, the best direct contact is Scott Whitman at scott.whitman@townofwiley.gov. If the issue is urgent, call Town Hall at (719) 829-4974."
+- "I can help route this quickly. For utility or street issues, the best direct contact is Scott Whitman at clerk@townofwiley.gov. If the issue is urgent, call Town Hall at (719) 829-4974."
 
 Avoid:
 
@@ -1054,34 +1054,34 @@ Use these synonym groups to catch more resident phrasing.
 ### Template: Contact
 
 English:
-"You can reach Town Hall at (719) 829-4974. If you need clerk help, contact Deb Dillon at deb.dillon@townofwiley.gov."
+"You can reach Town Hall at (719) 829-4974. If you need clerk help, contact Deb Dillon at clerk@townofwiley.gov."
 
 Spanish:
-"Puede comunicarse con el ayuntamiento al (719) 829-4974. Si necesita ayuda de secretaria, contacte a Deb Dillon en deb.dillon@townofwiley.gov."
+"Puede comunicarse con el ayuntamiento al (719) 829-4974. Si necesita ayuda de secretaria, contacte a Deb Dillon en clerk@townofwiley.gov."
 
 ### Template: Payment Help
 
 English:
-"Wiley currently routes billing help through a guided payment-help path. For the current payment instructions or account help, use the payment-help workflow or contact Deb Dillon at deb.dillon@townofwiley.gov."
+"Wiley currently routes billing help through a guided payment-help path. For the current payment instructions or account help, use the payment-help workflow or contact Deb Dillon at clerk@townofwiley.gov."
 
 Spanish:
-"Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada. Para obtener las instrucciones actuales de pago o ayuda con su cuenta, use el flujo de ayuda de facturacion o contacte a Deb Dillon en deb.dillon@townofwiley.gov."
+"Wiley actualmente dirige la ayuda de facturacion mediante una ruta guiada. Para obtener las instrucciones actuales de pago o ayuda con su cuenta, use el flujo de ayuda de facturacion o contacte a Deb Dillon en clerk@townofwiley.gov."
 
 ### Template: Issue Report
 
 English:
-"For street, utility, drainage, signage, or nuisance concerns, use the issue-report path or contact Scott Whitman at scott.whitman@townofwiley.gov."
+"For street, utility, drainage, signage, or nuisance concerns, use the issue-report path or contact Scott Whitman at clerk@townofwiley.gov."
 
 Spanish:
-"Para asuntos de calles, servicios, drenaje, senalizacion o molestias, use la ruta de reporte o contacte a Scott Whitman en scott.whitman@townofwiley.gov."
+"Para asuntos de calles, servicios, drenaje, senalizacion o molestias, use la ruta de reporte o contacte a Scott Whitman en clerk@townofwiley.gov."
 
 ### Template: Records Or Permit Help
 
 English:
-"For public records, meeting packets, permit guidance, or clerk help, the best direct contact is Deb Dillon at deb.dillon@townofwiley.gov."
+"For public records, meeting packets, permit guidance, or clerk help, the best direct contact is Deb Dillon at clerk@townofwiley.gov."
 
 Spanish:
-"Para registros publicos, paquetes de reuniones, orientacion sobre permisos o ayuda de secretaria, el mejor contacto directo es Deb Dillon en deb.dillon@townofwiley.gov."
+"Para registros publicos, paquetes de reuniones, orientacion sobre permisos o ayuda de secretaria, el mejor contacto directo es Deb Dillon en clerk@townofwiley.gov."
 
 ### Template: Weather Alerts
 
@@ -1109,13 +1109,13 @@ Answer: The main Town Hall phone number is (719) 829-4974.
 
 Question: Who do I contact for records or meeting packets?
 
-Answer: For records, meeting packets, or clerk assistance, contact Deb Dillon at deb.dillon@townofwiley.gov.
+Answer: For records, meeting packets, or clerk assistance, contact Deb Dillon at clerk@townofwiley.gov.
 
 ### FAQ 14
 
 Question: Who do I contact for utility or street issues?
 
-Answer: For utility, public works, street, drainage, signage, or nuisance issues, the best direct contact is Scott Whitman at scott.whitman@townofwiley.gov.
+Answer: For utility, public works, street, drainage, signage, or nuisance issues, the best direct contact is Scott Whitman at clerk@townofwiley.gov.
 
 ### FAQ 15
 
@@ -1171,13 +1171,13 @@ Respuesta: El numero principal del ayuntamiento es (719) 829-4974.
 
 Pregunta: Con quien hablo sobre registros o paquetes de reuniones?
 
-Respuesta: Para registros, paquetes de reuniones o ayuda de secretaria, contacte a Deb Dillon en deb.dillon@townofwiley.gov.
+Respuesta: Para registros, paquetes de reuniones o ayuda de secretaria, contacte a Deb Dillon en clerk@townofwiley.gov.
 
 ### Pregunta frecuente 12
 
 Pregunta: Con quien hablo sobre problemas de servicios o calles?
 
-Respuesta: Para problemas de servicios, obras publicas, calles, drenaje, senalizacion o molestias, el mejor contacto directo es Scott Whitman en scott.whitman@townofwiley.gov.
+Respuesta: Para problemas de servicios, obras publicas, calles, drenaje, senalizacion o molestias, el mejor contacto directo es Scott Whitman en clerk@townofwiley.gov.
 
 ### Pregunta frecuente 13
 
@@ -1262,7 +1262,7 @@ These are compact truths the model should retain strongly.
 - Town Hall is the main fallback for unresolved public questions.
 - Deb Dillon is the primary public contact for clerk, records, permits, agenda support, and meeting packets.
 - Scott Whitman is the primary public contact for town operations and public works issues.
-- The mayor is Steve McKitrick, and the official mayoral correspondence email is stephen.mckitrick@townofwiley.gov.
+- The mayor is Steve McKitrick, and the official mayoral correspondence email is clerk@townofwiley.gov.
 - The City Council Regular Meeting is every second Monday at 6:00 PM at Wiley Town Hall.
 - Severe weather alert signup is available for ZIP code 81092 by SMS or email with confirmation required.
 - The site uses National Weather Service forecast and alert data.

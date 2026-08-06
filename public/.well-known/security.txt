@@ -1,4 +1,4 @@
-Contact: mailto:steve.mckitrick@townofwiley.gov
+Contact: mailto:clerk@townofwiley.gov
 Expires: 2026-12-31T23:59:00.000Z
 Preferred-Languages: en, es
 Canonical: https://townofwiley.gov/.well-known/security.txt

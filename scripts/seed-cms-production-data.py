@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Seed production Gen1 CMS rows: OfficialContact stable IDs and SiteCopy keys."""
+
 from __future__ import annotations
 
 import json
@@ -64,9 +65,37 @@ def seed_official_contacts(ts: str) -> None:
             "detail": {
                 "S": "Clerk services, meeting packets, records coordination, and agenda planning support."
             },
-            "href": {"S": "mailto:deb.dillon@townofwiley.gov"},
-            "linkLabel": {"S": "deb.dillon@townofwiley.gov"},
+            "href": {"S": "mailto:clerk@townofwiley.gov"},
+            "linkLabel": {"S": "clerk@townofwiley.gov"},
             "displayOrder": {"N": "2"},
+            "__typename": {"S": "OfficialContact"},
+            "createdAt": {"S": ts},
+            "updatedAt": {"S": ts},
+        },
+        {
+            "id": {"S": "town-superintendent"},
+            "label": {"S": "Town Superintendent"},
+            "value": {"S": "Scott Whitman"},
+            "detail": {
+                "S": "Town operations, public works coordination, and service follow-up."
+            },
+            "href": {"S": "mailto:clerk@townofwiley.gov"},
+            "linkLabel": {"S": "clerk@townofwiley.gov"},
+            "displayOrder": {"N": "3"},
+            "__typename": {"S": "OfficialContact"},
+            "createdAt": {"S": ts},
+            "updatedAt": {"S": ts},
+        },
+        {
+            "id": {"S": "mayor"},
+            "label": {"S": "Mayor"},
+            "value": {"S": "Stephen McKitrick"},
+            "detail": {
+                "S": "Contact the Mayor by email for official town business or council-related questions."
+            },
+            "href": {"S": "mailto:clerk@townofwiley.gov"},
+            "linkLabel": {"S": "clerk@townofwiley.gov"},
+            "displayOrder": {"N": "1"},
             "__typename": {"S": "OfficialContact"},
             "createdAt": {"S": ts},
             "updatedAt": {"S": ts},

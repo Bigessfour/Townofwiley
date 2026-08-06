@@ -100,8 +100,8 @@ test.describe('accessibility and focus behavior', () => {
     await expect(homePage.accessibilityReportDetails).toBeVisible();
     await expect(homePage.accessibilityReportCard).toContainText('Open accessibility report email');
     await expect(
-      homePage.page.getByRole('link', { name: 'Email the Clerk · deb.dillon@townofwiley.gov' }),
-    ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');
+      homePage.page.getByRole('link', { name: 'Email the Clerk · clerk@townofwiley.gov' }),
+    ).toHaveAttribute('href', 'mailto:clerk@townofwiley.gov');
   });
 
   test('keyboard activates language, task picker, and alert signup controls', async ({

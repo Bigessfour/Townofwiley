@@ -2,11 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom, retry, throwError, timeout, timer } from 'rxjs';
 import { CmsPreviewModeService } from './cms-admin/cms-preview-mode.service';
-import {
-  DEFAULT_HERO_IMAGE_PATH,
-  resolvePublicHeroImageUrl,
-} from './cms-public-asset-url';
 import { isNoticeDateStillVisible } from './cms-notice-visibility';
+import { DEFAULT_HERO_IMAGE_PATH, resolvePublicHeroImageUrl } from './cms-public-asset-url';
 import { LEADERSHIP_ROSTER_GROUP_IDS } from './leadership-roster-group-ids';
 import { LoggingService } from './logging.service';
 import {
@@ -221,24 +218,24 @@ const DEFAULT_CMS_CONTACTS: CmsContact[] = [
     label: 'Mayor',
     value: 'Stephen McKitrick',
     detail: 'Contact the Mayor by email for official town business or council-related questions.',
-    href: 'mailto:stephen.mckitrick@townofwiley.gov',
-    linkLabel: 'stephen.mckitrick@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
   {
     id: 'city-clerk',
     label: 'City Clerk',
     value: 'Deb Dillon',
     detail: 'Clerk services, meeting packets, records coordination, and agenda planning support.',
-    href: 'mailto:deb.dillon@townofwiley.gov',
-    linkLabel: 'deb.dillon@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
   {
     id: 'town-superintendent',
     label: 'Town Superintendent',
     value: 'Scott Whitman',
     detail: 'Town operations, public works coordination, and service follow-up.',
-    href: 'mailto:scott.whitman@townofwiley.gov',
-    linkLabel: 'scott.whitman@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
 ];
 
@@ -257,8 +254,8 @@ const DEFAULT_CMS_CONTACTS_ES: CmsContact[] = [
     value: 'Stephen McKitrick',
     detail:
       'Comuniquese con el alcalde por correo electronico para asuntos oficiales del pueblo o preguntas del concejo.',
-    href: 'mailto:stephen.mckitrick@townofwiley.gov',
-    linkLabel: 'stephen.mckitrick@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
   {
     id: 'city-clerk',
@@ -266,16 +263,16 @@ const DEFAULT_CMS_CONTACTS_ES: CmsContact[] = [
     value: 'Deb Dillon',
     detail:
       'Servicios de secretaria, paquetes de reuniones, coordinacion de registros y apoyo para planeacion de agendas.',
-    href: 'mailto:deb.dillon@townofwiley.gov',
-    linkLabel: 'deb.dillon@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
   {
     id: 'town-superintendent',
     label: 'Superintendente del pueblo',
     value: 'Scott Whitman',
     detail: 'Operaciones del pueblo, coordinacion de obras publicas y seguimiento de servicios.',
-    href: 'mailto:scott.whitman@townofwiley.gov',
-    linkLabel: 'scott.whitman@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
+    linkLabel: 'clerk@townofwiley.gov',
   },
 ];
 

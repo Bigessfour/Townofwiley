@@ -7,7 +7,6 @@ import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 
-
 export type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 
 export type IssueFormGroup = FormGroup<{
@@ -54,8 +53,8 @@ export class ResidentIssuePanel {
   readonly issueSubmitting = input.required<boolean>();
   readonly townHallPhoneHref = input<string | null>(null);
   readonly townHallPhoneLabel = input<string>('');
-  readonly superintendentEmailHref = input<string | null>(null);
-  readonly superintendentEmailLabel = input<string>('');
+  readonly clerkEmailHref = input<string | null>(null);
+  readonly clerkEmailLabel = input<string>('');
   readonly validationMessage =
     input.required<(control: AbstractControl, fieldLabel: string) => string | null>();
 

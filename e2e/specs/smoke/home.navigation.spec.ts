@@ -130,7 +130,7 @@ test.describe('homepage navigation', () => {
     await homePage.searchFor('clerk dillon');
     const clerkResult = homePage.page
       .locator(
-        'a.search-result[href="mailto:deb.dillon@townofwiley.gov"], a.search-result[href="/contact"]',
+        'a.search-result[href="mailto:clerk@townofwiley.gov"], a.search-result[href="/contact"]',
       )
       .filter({ hasText: /Clerk|Dillon/i });
     await expect(clerkResult.first()).toBeVisible({ timeout: 15_000 });

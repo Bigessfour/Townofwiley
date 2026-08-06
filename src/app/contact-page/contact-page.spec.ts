@@ -135,16 +135,16 @@ describe('ContactPage', () => {
           label: 'City Clerk',
           value: 'Deb Dillon',
           detail: 'Clerk services and records coordination.',
-          href: 'mailto:deb.dillon@townofwiley.gov',
-          linkLabel: 'deb.dillon@townofwiley.gov',
+          href: 'mailto:clerk@townofwiley.gov',
+          linkLabel: 'clerk@townofwiley.gov',
         },
         {
           id: 'town-superintendent',
           label: 'Town Superintendent',
           value: 'Scott Whitman',
           detail: 'Town operations and public works.',
-          href: 'mailto:scott.whitman@townofwiley.gov',
-          linkLabel: 'scott.whitman@townofwiley.gov',
+          href: 'mailto:clerk@townofwiley.gov',
+          linkLabel: 'clerk@townofwiley.gov',
         },
       ]),
       isLoading: signal(false),
@@ -159,8 +159,8 @@ describe('ContactPage', () => {
       (link) => link.getAttribute('href'),
     );
     expect(mailtoLinks).toEqual([
-      'mailto:deb.dillon@townofwiley.gov',
-      'mailto:scott.whitman@townofwiley.gov',
+      'mailto:clerk@townofwiley.gov',
+      'mailto:clerk@townofwiley.gov',
     ]);
   });
 
@@ -226,8 +226,8 @@ describe('ContactPage', () => {
           label: 'City Clerk',
           value: 'Deb Dillon',
           detail: 'Clerk services and records coordination.',
-          href: 'mailto:deb.dillon@townofwiley.gov',
-          linkLabel: 'deb.dillon@townofwiley.gov',
+          href: 'mailto:clerk@townofwiley.gov',
+          linkLabel: 'clerk@townofwiley.gov',
         },
       ]),
       isLoading: signal(false),

@@ -31,5 +31,5 @@ Infrastructure source may remain under `infrastructure/contact-update-lambda/` a
 
 ## Clerk workflow after decommission
 
-- **Pay bill:** `/pay-bill` → instruction steps → Paystar portal button; phone `(719) 829-4974`, email `deb.dillon@townofwiley.gov`.
+- **Pay bill:** `/pay-bill` → instruction steps → Paystar portal button; phone `(719) 829-4974`, email `clerk@townofwiley.gov`.
 - **CMS content:** unchanged — `/admin` task hub only (no resident message inbox).

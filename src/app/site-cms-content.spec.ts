@@ -188,13 +188,13 @@ describe('LocalizedCmsContentStore', () => {
     await waitForCmsInitialization();
 
     expect(store.contacts().find((contact) => contact.id === 'city-clerk')?.href).toBe(
-      'mailto:deb.dillon@townofwiley.gov',
+      'mailto:clerk@townofwiley.gov',
     );
     expect(store.contacts().find((contact) => contact.id === 'town-information')?.href).toBe(
       'tel:+17198294974',
     );
     expect(store.contacts().find((contact) => contact.id === 'town-superintendent')?.href).toBe(
-      'mailto:scott.whitman@townofwiley.gov',
+      'mailto:clerk@townofwiley.gov',
     );
 
     httpTesting.verify();
@@ -356,8 +356,8 @@ describe('LocalizedCmsContentStore', () => {
               label: 'City Clerk',
               value: 'Deb Dillon',
               detail: 'Clerk services and meeting packets.',
-              href: 'mailto:deb.dillon@townofwiley.gov',
-              linkLabel: 'deb.dillon@townofwiley.gov',
+              href: 'mailto:clerk@townofwiley.gov',
+              linkLabel: 'clerk@townofwiley.gov',
               displayOrder: 2,
             },
             {

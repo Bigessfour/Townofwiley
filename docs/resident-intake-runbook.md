@@ -23,7 +23,7 @@ Billing submissions include: account number (optional), preferred contact method
 3. Staff review: **`CONTACT_UPDATE_REVIEW_API_URL`** (JWT API) or legacy review proxy URL.
 4. Redeploy `main` or run `npm run amplify:sync-hosting` so `runtime-config.js` includes `contactUpdate.apiEndpoint`.
 
-Without `CONTACT_UPDATE_API_ENDPOINT`, billing assistance falls back to **mailto** (`deb.dillon@townofwiley.gov`).
+Without `CONTACT_UPDATE_API_ENDPOINT`, billing assistance falls back to **mailto** (`clerk@townofwiley.gov`).
 
 ## Clerk CMS
 
