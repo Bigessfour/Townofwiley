@@ -54,6 +54,7 @@ async function mockCommunityCalendarApi(
   });
 }
 
+// Exercises CommunityCalendarPanel + CommunityCalendarRedirect on the public site.
 test.describe('community calendar on meetings', () => {
   test('redirects /community-calendar to /meetings#community', async ({ homePage }) => {
     await homePage.page.goto('/community-calendar', { waitUntil: 'domcontentloaded' });

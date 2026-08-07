@@ -1,0 +1,18 @@
+{
+  "stack": "typescript",
+  "scan_roots": [
+    "src",
+    "infrastructure/community-calendar",
+    "scripts/lib"
+  ],
+  "exclude_dirs": [
+    "node_modules",
+    "mcp",
+    "rag",
+    ".rag",
+    "dist",
+    ".angular",
+    "coverage",
+    "amplify"
+  ]
+}

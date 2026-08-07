@@ -76,6 +76,7 @@ jobs:
       site_monitor_changed: ${{ steps.classify.outputs.site_monitor_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
       email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
+      community_calendar_changed: ${{ steps.classify.outputs.community_calendar_changed }}
       infra_manifest_changed: ${{ steps.classify.outputs.infra_manifest_changed }}
       custom_http_changed: ${{ steps.classify.outputs.custom_http_changed }}
       terraform_changed: ${{ steps.classify.outputs.terraform_changed }}
@@ -95,6 +96,10 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             git fetch origin "${{ github.base_ref }}" --depth=1
             mapfile -t FILES < <(git diff --name-only "origin/${{ github.base_ref }}...${{ github.sha }}")
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual runs have no push before/after range; compare to main so path filters work.
+            git fetch origin main --depth=1
+            mapfile -t FILES < <(git diff --name-only "origin/main...${{ github.sha }}")
           elif [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
             mapfile -t FILES < <(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")
           else
@@ -107,6 +112,7 @@ jobs:
           SITE_MONITOR_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
           EMAIL_ALIAS_CHANGED=false
+          COMMUNITY_CALENDAR_CHANGED=false
           INFRA_MANIFEST_CHANGED=false
           CUSTOM_HTTP_CHANGED=false
           TERRAFORM_CHANGED=false
@@ -145,6 +151,10 @@ jobs:
                 EMAIL_ALIAS_CHANGED=true
                 DOCS_ONLY=false
                 ;;
+              infrastructure/community-calendar/*|scripts/deploy-community-calendar-backend.py)
+                COMMUNITY_CALENDAR_CHANGED=true
+                DOCS_ONLY=false
+                ;;
               infrastructure/aws-infrastructure.manifest.json|infrastructure/amplify-branch-env.manifest.json|infrastructure/iam/**|scripts/verify-aws-infrastructure.mjs|docs/AWS_INFRASTRUCTURE_SOT.md|docs/contact-intake-decommission.md)
                 INFRA_MANIFEST_CHANGED=true
                 DOCS_ONLY=false
@@ -168,6 +178,7 @@ jobs:
             echo "site_monitor_changed=$SITE_MONITOR_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
             echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
+            echo "community_calendar_changed=$COMMUNITY_CALENDAR_CHANGED"
             echo "infra_manifest_changed=$INFRA_MANIFEST_CHANGED"
             echo "custom_http_changed=$CUSTOM_HTTP_CHANGED"
             echo "terraform_changed=$TERRAFORM_CHANGED"
@@ -476,7 +487,8 @@ jobs:
     needs: detect-changes
     if: |
       needs.detect-changes.outputs.weather_alerts_changed == 'true' ||
-      needs.detect-changes.outputs.email_alias_changed == 'true'
+      needs.detect-changes.outputs.email_alias_changed == 'true' ||
+      needs.detect-changes.outputs.community_calendar_changed == 'true'
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6

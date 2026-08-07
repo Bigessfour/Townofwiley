@@ -60,6 +60,7 @@ import {
   LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
   LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
 } from './leadership-roster-group-ids';
+import { GoogleAnalyticsService } from './google-analytics.service';
 import { LoggingService } from './logging.service';
 import { localizeCmsPublicDocument } from './meeting-documents/localize-public-document';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
@@ -1526,6 +1527,8 @@ export class App {
   private readonly platformId = inject(PLATFORM_ID);
   /** Global offline/online toasts (side effect only). */
   private readonly offlineConnectivityNotifier = inject(OfflineConnectivityNotifier);
+  /** GA4 SPA page_view on NavigationEnd (side effect only). */
+  private readonly googleAnalytics = inject(GoogleAnalyticsService);
   private readonly initialPath =
     typeof window !== 'undefined'
       ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)

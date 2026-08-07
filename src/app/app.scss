@@ -3340,6 +3340,44 @@ button:not(:disabled):active,
   background: transparent;
   color: var(--wiley-header-nav-text);
 
+  /*
+   * Root bar sits on forest-900 with white labels. PrimeNG MegaMenu item tokens default to
+   * light surface.50/100 focus/active backgrounds (Aura navigation.item.*) which wash out
+   * white text. Scope dark-header-compatible --p-megamenu-item-* vars to the root list only;
+   * the overlay panel restores dark ink + soft forest hover below.
+   * @see https://primeng.org/megamenu (design tokens: item.focus.background / item.active.background)
+   */
+  .p-megamenu-root-list {
+    --p-megamenu-item-color: var(--wiley-header-nav-text);
+    --p-megamenu-item-focus-color: var(--wiley-header-nav-text-hover);
+    --p-megamenu-item-active-color: var(--wiley-header-nav-text-hover);
+    --p-megamenu-item-focus-background: var(--wiley-header-nav-hover-bg);
+    --p-megamenu-item-active-background: var(--wiley-header-nav-active-bg);
+    --p-megamenu-item-icon-color: var(--wiley-header-nav-text);
+    --p-megamenu-item-icon-focus-color: var(--wiley-header-nav-text-hover);
+    --p-megamenu-item-icon-active-color: var(--wiley-header-nav-text-hover);
+  }
+
+  .p-megamenu-overlay,
+  .p-megamenu-panel {
+    --p-megamenu-item-color: var(--wiley-forest-900);
+    --p-megamenu-item-focus-color: var(--wiley-forest-950);
+    --p-megamenu-item-active-color: var(--wiley-forest-950);
+    --p-megamenu-item-focus-background: color-mix(
+      in srgb,
+      var(--wiley-forest-900) 8%,
+      var(--surface-card)
+    );
+    --p-megamenu-item-active-background: color-mix(
+      in srgb,
+      var(--wiley-forest-900) 12%,
+      var(--surface-card)
+    );
+    --p-megamenu-item-icon-color: var(--wiley-forest-800);
+    --p-megamenu-item-icon-focus-color: var(--wiley-forest-950);
+    --p-megamenu-item-icon-active-color: var(--wiley-forest-950);
+  }
+
   .p-menuitem-link {
     display: flex;
     align-items: center;
@@ -3356,6 +3394,7 @@ button:not(:disabled):active,
   .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link {
     background: transparent;
     border: 1px solid transparent;
+    color: var(--wiley-header-nav-text);
   }
 
   .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link,
@@ -3374,9 +3413,15 @@ button:not(:disabled):active,
 
   .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:hover,
   .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:focus-visible,
-  .p-megamenu-root-list > .p-megamenu-item.p-focus > .p-menuitem-link {
+  .p-megamenu-root-list > .p-megamenu-item.p-focus > .p-menuitem-link,
+  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link {
     color: var(--wiley-header-nav-text-hover);
-    background: color-mix(in srgb, var(--wiley-inverse) 14%, transparent);
+    background: var(--wiley-header-nav-hover-bg);
+  }
+
+  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link,
+  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link:hover {
+    background: var(--wiley-header-nav-active-bg);
   }
 
   .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:hover .mega-menu-root-link,
@@ -3385,6 +3430,15 @@ button:not(:disabled):active,
   .p-megamenu-root-list
     > .p-megamenu-item
     > .p-menuitem-link:focus-visible
+    .mega-menu-root-link
+    span,
+  .p-megamenu-root-list
+    > .p-megamenu-item.p-megamenu-item-active
+    > .p-menuitem-link
+    .mega-menu-root-link,
+  .p-megamenu-root-list
+    > .p-megamenu-item.p-megamenu-item-active
+    > .p-menuitem-link
     .mega-menu-root-link
     span {
     color: var(--wiley-header-nav-text-hover);
@@ -3410,6 +3464,7 @@ button:not(:disabled):active,
   .p-megamenu-panel .mega-menu-sub-link {
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
+    color: var(--wiley-forest-900);
     transition:
       background-color 140ms ease,
       border-color 140ms ease,
@@ -3417,9 +3472,11 @@ button:not(:disabled):active,
       color 140ms ease;
   }
 
-  .p-megamenu-panel .mega-menu-sub-link:hover {
-    background: color-mix(in srgb, var(--wiley-forest-900) 5%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
+  .p-megamenu-panel .mega-menu-sub-link:hover,
+  .p-megamenu-panel .mega-menu-sub-link:focus-visible {
+    color: var(--wiley-forest-950);
+    background: color-mix(in srgb, var(--wiley-forest-900) 8%, var(--surface-card));
+    border-color: color-mix(in srgb, var(--wiley-forest-900) 14%, transparent);
     box-shadow: var(--shadow-subtle);
   }
 
@@ -3564,6 +3621,28 @@ button:not(:disabled):active,
   border-radius: 9999px;
   background: transparent;
   color: var(--wiley-header-nav-text);
+}
+
+:host
+  ::ng-deep
+  .p-megamenu.mega-menu-civic
+  .p-megamenu-root-list
+  > li
+  > .p-menuitem-link:hover,
+:host
+  ::ng-deep
+  .p-megamenu.mega-menu-civic
+  .p-megamenu-root-list
+  > li.p-focus
+  > .p-menuitem-link,
+:host
+  ::ng-deep
+  .p-megamenu.mega-menu-civic
+  .p-megamenu-root-list
+  > li.p-megamenu-item-active
+  > .p-menuitem-link {
+  color: var(--wiley-header-nav-text-hover);
+  background: var(--wiley-header-nav-hover-bg);
 }
 
 .floating-chat-button {

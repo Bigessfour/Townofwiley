@@ -69,6 +69,9 @@
   /* Nav labels on forest bar — full white for WCAG contrast (avoid Prime surface-muted greens). */
   --wiley-header-nav-text: #ffffff;
   --wiley-header-nav-text-hover: #ffffff;
+  /* Hover/active chip on forest bar — light translucent wash that keeps white labels WCAG AA. */
+  --wiley-header-nav-hover-bg: color-mix(in srgb, var(--wiley-inverse) 18%, transparent);
+  --wiley-header-nav-active-bg: color-mix(in srgb, var(--wiley-inverse) 26%, transparent);
   --wiley-header-text-muted: color-mix(in srgb, var(--wiley-inverse) 94%, transparent);
   --wiley-header-border: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
   --wiley-header-nav-active-indicator: var(--wiley-gold-400);
