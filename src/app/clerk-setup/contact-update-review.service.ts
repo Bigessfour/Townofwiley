@@ -35,10 +35,10 @@ export class ContactUpdateReviewService {
 
   async getAllUpdates(): Promise<ContactUpdatesLoadResult> {
     const reviewConfig = getContactUpdateReviewRuntimeConfig();
-    const reviewApiEndpoint = reviewConfig.reviewApiEndpoint;
-    const requiresStaffJwt = isContactReviewEndpointConfigured(reviewApiEndpoint);
-
-    if (reviewApiEndpoint && !requiresStaffJwt) {
+    const reviewEndpoint = this.resolveReviewEndpoint(reviewConfig);
+    // Validate the endpoint we will actually fetch (API URL, proxy URL, or default path).
+    // Placeholder markers may appear on reviewProxyEndpoint when reviewApiEndpoint is empty.
+    if (this.isUnusableHttpsReviewEndpoint(reviewEndpoint)) {
       return {
         ok: false,
         error:
@@ -46,7 +46,7 @@ export class ContactUpdateReviewService {
       };
     }
 
-    const reviewEndpoint = this.resolveReviewEndpoint(reviewConfig);
+    const requiresStaffJwt = isContactReviewEndpointConfigured(reviewConfig.reviewApiEndpoint);
 
     try {
       if (requiresStaffJwt) {
@@ -151,6 +151,15 @@ export class ContactUpdateReviewService {
       return config.reviewProxyEndpoint;
     }
     return '/api/contact-updates-review';
+  }
+
+  /** True for https:// URLs that are build placeholders or otherwise not a real review API. */
+  private isUnusableHttpsReviewEndpoint(endpoint: string): boolean {
+    const trimmed = endpoint.trim();
+    if (!trimmed.toLowerCase().startsWith('https://')) {
+      return false;
+    }
+    return !isContactReviewEndpointConfigured(trimmed);
   }
 
   private describeHttpError(err: unknown, requiresStaffJwt: boolean): string {

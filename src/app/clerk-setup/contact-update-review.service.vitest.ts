@@ -126,6 +126,42 @@ describe('ContactUpdateReviewService', () => {
     }
   });
 
+  it('returns IT message when only reviewProxyEndpoint is a build placeholder', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: '',
+        reviewProxyEndpoint:
+          'https://contact-review-not-deployed.townofwiley.local/contact-updates-proxy',
+      },
+    };
+
+    const result = await service.getAllUpdates();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toContain('CONTACT_UPDATE_REVIEW_API_URL');
+    }
+    httpTesting.expectNone(
+      'https://contact-review-not-deployed.townofwiley.local/contact-updates-proxy',
+    );
+  });
+
+  it('uses reviewProxyEndpoint without Bearer when API URL is empty', async () => {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+      contactUpdate: {
+        reviewApiEndpoint: '',
+        reviewProxyEndpoint: 'https://proxy.example/contact-updates-review',
+      },
+    };
+
+    const promise = service.getAllUpdates();
+    const req = httpTesting.expectOne('https://proxy.example/contact-updates-review');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush([]);
+    const result = await promise;
+    expect(result.ok).toBe(true);
+    expect(staffAuth.refreshSession).not.toHaveBeenCalled();
+  });
+
   it('returns sign-in message when review API is configured but user has no token', async () => {
     (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
       contactUpdate: {
