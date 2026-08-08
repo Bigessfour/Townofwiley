@@ -1,52 +1,41 @@
 # Town of Wiley — Function Tree
 
-**Auto-generated raw data:** [function-inventory.generated.md](./function-inventory.generated.md)
+**Auto-generated surfaces:** [function-inventory.generated.md](./function-inventory.generated.md)
 **Status overlay:** [action-items.md](./action-items.md)
+**Per-surface passes:** [correctness-surface-passes.md](./correctness-surface-passes.md)
+**Allowlist:** [`.function-inventory.json`](../.function-inventory.json) (`tracking_mode: surfaces`)
 
 ```mermaid
 flowchart TB
   Resident((Resident))
   Clerk((Town Clerk))
 
-  subgraph Public["Public site"]
-    Meetings["/meetings\nMeetingsPage + CommunityCalendarPanel"]
-    Home["/\nThisWeekInWiley"]
+  subgraph Public["Public site P1"]
+    Meetings["/meetings + CommunityCalendar"]
     Pay["/pay-bill"]
-    Contact["/contact"]
+    CmsRead["LocalizedCmsContentStore"]
   end
 
   subgraph Calendar["Community calendar"]
-    Runtime["runtime-config.js\ncommunityCalendar.apiEndpoint"]
     Svc["CommunityCalendarService"]
     AdminSvc["CommunityCalendarAdminService"]
-    Lambda["TownOfWileyCommunityCalendar\nFunction URL"]
-    DDB["TownOfWileyCommunityEvents"]
+    Lambda["app.py Function URL"]
   end
 
-  subgraph Staff["/admin"]
+  subgraph Staff["/admin P1 write path"]
+    Login["AdminLogin + StaffAuth"]
     Hub["CmsClerkTaskHub"]
-    CalAdmin["CmsCommunityCalendarAdmin"]
+    Editor["CmsClerkRecordEditor"]
+    Generic["CmsGenericModelAdminService"]
+    Upload["MeetingDocumentUpload"]
   end
 
-  Resident --> Meetings
-  Resident --> Home
-  Meetings --> Svc
-  Home --> Svc
-  Svc --> Runtime --> Lambda
-  Lambda --> DDB
-  Clerk --> Hub --> CalAdmin --> AdminSvc --> Lambda
-```
-
-## Community calendar proof map
-
-```mermaid
-flowchart LR
-  Unit[Vitest suites] --> Svc[CommunityCalendarService]
-  Unit --> Admin[AdminService]
-  Unit --> Links[calendar links]
-  E2E[e2e smoke community-calendar] --> Panel[CommunityCalendarPanel]
-  Ops[Live curl /health + form] --> Lambda[Function URL]
-  Backend[test_app.py] --> Lambda
+  Resident --> Meetings --> Svc --> Lambda
+  Resident --> Pay
+  Resident --> CmsRead
+  Clerk --> Login --> Hub --> Editor --> Generic
+  Hub --> Upload
+  Hub --> AdminSvc --> Lambda
 ```
 
 ## How to refresh
@@ -55,4 +44,4 @@ flowchart LR
 npm run inventory
 ```
 
-See [action-items.md](./action-items.md) for verification evidence and backlog.
+See [action-items.md](./action-items.md) for P1 verification evidence.

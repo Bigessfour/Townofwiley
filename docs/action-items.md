@@ -1,110 +1,85 @@
 # Town of Wiley — Function Inventory Action Items
 
 **Generated inventory:** [function-inventory.generated.md](./function-inventory.generated.md)
+**Surface passes:** [correctness-surface-passes.md](./correctness-surface-passes.md)
 **Visual tree:** [function-tree.md](./function-tree.md)
 **Config:** [`.function-inventory.json`](../.function-inventory.json)
 **Scan command:** `npm run inventory`
 
-**Update rule:** After adding or changing public services, routes, calendar/CMS helpers, or Lambda handlers:
-1. Run `npm run inventory`.
-2. Review **Summary** + **Functions without proof**.
-3. Add proof (vitest / e2e / ops check) for anything on a key resident or clerk path.
-4. Record verification evidence here. Never hand-edit the `.generated` file.
+**Waves (3 PRs):**
+1. Setup + verify already-proven (this file + pass register + auth foundation)
+2. Clerk write completeness (record-editor save + meeting upload publish)
+3. P2/P3 behavior upgrades
 
 ---
 
-## Priorities (this pass — 2026-08-06)
+## Wave tracker
 
-- [x] Fix inventory scanner recognition of `*.vitest.ts` / `*.test.mjs` (global skill script).
-- [x] Scope scan roots to product surface (`src`, `infrastructure/community-calendar`, `scripts/lib`).
-- [x] Community calendar public + admin services: unit proof + live ops proof.
-- [x] Calendar link helpers + runtime-config community endpoint wiring.
-- [ ] Wave 2: Karma/component or clerk e2e for remaining CMS admin UI shells (see backlog).
-
-**Inventory snapshot:** 283 tracked | 236 with proof | 47 deferred (mostly clerk UI shells + deploy helpers).
+- [x] **Wave 1** — Setup register; restore auth/contact-update foundation; verify + check off proven surfaces
+- [ ] **Wave 2** — Record-editor save + meeting upload publish (mocked backends)
+- [ ] **Wave 3** — P2/P3 symbol → behavior upgrades
 
 ---
 
-## Community calendar — Status & Verification
+## All 20 surfaces (checkbox = Wave bar met)
 
-| Function / surface | Proof | Minimal? | Ops evidence |
-| --- | --- | --- | --- |
-| `CommunityCalendarService` | `community-calendar.service.vitest.ts` | yes | Live `GET {endpoint}/events` → `{"events":[]}`; form visible on `/meetings#community` |
-| `CommunityCalendarAdminService` | `community-calendar-admin.service.vitest.ts` | yes | Backend suite `infrastructure/community-calendar/tests/test_app.py` (python3.11) |
-| `readCommunityCalendarRuntimeConfig` | `community-calendar-runtime-config.vitest.ts` | yes | Production `runtime-config.js` has Function URL |
-| `mergeCommunityEventsWithBundled` | `community-calendar-seed.vitest.ts` | yes | Bundled yard-sale seed shown on live page |
-| `community-calendar-links.*` | `community-calendar-links.vitest.ts` | yes | — |
-| `calendar-public-links.*` | `calendar-public-links.vitest.ts` | yes | — |
-| `CommunityCalendarRedirect` | `community-calendar-redirect.vitest.ts` + e2e | yes | `/community-calendar` → `/meetings#community` |
-| `CommunityCalendarPanel` | `community-calendar.page.vitest.ts` + `e2e/specs/smoke/community-calendar.spec.ts` | yes | Live submit form (“Submit for Clerk review”) present 2026-08-06 |
-| `CmsCommunityCalendarAdminComponent` | symbol smoke vitest + admin service + backend tests | yes | Staff path depends on Cognito bearer |
-| Lambda `/health`, `/events` | `test_app.py` + live curl | yes | Health returns categories; CORS allows `townofwiley.gov` |
+Legend: **W1** = docs cited + green unit + meaningful e2e/ops (may still need deeper write e2e in Wave 2).  
+**W2 gap** = UI opens / symbol only until save/publish e2e lands.
 
-**Operational proof commands (re-run anytime):**
+### P1
+- [x] `StaffAuthService` — W1: API restored; vitest green
+- [x] `AdminLoginComponent` — W1: returnUrl sanitize; login e2e
+- [x] `CmsGenericModelAdminService` — W1: vitest green (save path proved deeper in Wave 2)
+- [ ] `CmsClerkRecordEditorComponent` — W2: save with mocked AppSync (open-editor e2e only today)
+- [ ] `CmsMeetingDocumentUploadComponent` — W2: publish with mocked presign (panel e2e only today)
+- [x] `CmsPublicDocumentAdminService` — W1: related specs (deeper with Wave 2 fixtures)
+- [x] `CommunityCalendarService` — W1: vitest + calendar e2e
+- [x] `CommunityCalendarAdminService` — W1: vitest
+- [x] Calendar `app.py` — W1: `test_app.py`
+- [x] `LocalizedCmsContentStore` — W1: spec + public smoke
+- [x] `CmsCommunityCalendarAdminComponent` — W1: symbol + service/backend proof
+- [x] `DocumentUploadService` — W1: specs (deeper with Wave 2)
+- [x] `PayBillPageComponent` — W1: spec + payments smoke
 
-```bash
-# Runtime wiring
-curl -sS https://townofwiley.gov/runtime-config.js | python3 -c 'import sys,re,json; t=sys.stdin.read(); m=re.search(r"window\.__TOW_RUNTIME_CONFIG__\s*=\s*(\{.*?\});",t,re.S); print(json.loads(m.group(1))["communityCalendar"])'
+### P2
+- [x] `CmsAdmin` — W1: vitest + admin hub e2e
+- [x] `CmsClerkTaskHubComponent` — W1: vitest + hub e2e (Wave 3 may add behavior asserts)
 
-# Backend health + public list
-ENDPOINT=$(node -e "const u=process.env.E||'';")  # or paste Function URL from runtime-config
-curl -sS "$ENDPOINT/health"
-curl -sS -H 'Origin: https://townofwiley.gov' "$ENDPOINT/events"
-
-# Automated
-npx vitest run src/app/community-calendar src/app/calendar-public-links.vitest.ts
-/opt/homebrew/bin/python3.11 -m unittest discover -s infrastructure/community-calendar/tests -v
-npm run test:e2e:smoke -- e2e/specs/smoke/community-calendar.spec.ts
-```
-
-**Root cause fixed 2026-08-06:** empty `communityCalendar.apiEndpoint` in live `runtime-config.js` despite deployed Lambda. Wired Function URL + refreshed `COMMUNITY_CALENDAR_ENDPOINT` GitHub secret; mirrored in `public/runtime-config.js`.
-
----
-
-## GA4 SPA page views
-
-| Function | Proof | Ops note |
-| --- | --- | --- |
-| `GoogleAnalyticsService` | `google-analytics.service.vitest.ts` | Deploy with site release; verify GA4 DebugView on SPA navigations |
-
----
-
-## Runtime config builders
-
-| Function | Proof |
-| --- | --- |
-| `buildRuntimeConfigValues`, `buildPublicRuntimeConfigObject`, `collectRequiredEnvErrors`, strict helpers | `scripts/generate-runtime-config.strict.test.mjs` (`npm run test:runtime-config-strict`) |
-
----
-
-## Pages & components — backlog (no co-located proof yet)
-
-These are mostly clerk shells or thin presentational components. Prefer Karma (`*.spec.ts`) or clerk e2e over Vitest `createComponent` (templateUrl resolution).
-
-- [ ] `AdminLoginComponent`, `CmsAdmin`, clerk task hub/editor/upload panels
-- [ ] `MeetingDocumentsArchiveComponent`, `ThisWeekInWileyComponent`, `WeatherAlertBannerComponent`
-- [ ] Legacy create-only CMS admin services (`CmsAnnouncementAdminService`, etc.) — superseded by generic admin; prove or retire
-- [ ] `OfflineConnectivityNotifier` — needs browser event harness
-- [ ] Deploy helpers under `scripts/lib/gen1-cms-ssot.mjs`, `runtime-secret-mappings.mjs`, `ollama-api.mjs`
+### P3
+- [x] `MeetingDocumentsArchiveComponent` — W1: symbol + feature/docs e2e (Wave 3 behavior upgrade)
+- [x] `ThisWeekInWileyComponent` — W1: symbol + calendar e2e (Wave 3 behavior upgrade)
+- [x] `WeatherAlertBannerComponent` — W1: symbol + weather e2e (Wave 3 behavior upgrade)
+- [x] `GoogleAnalyticsService` — W1: vitest
+- [x] `amplify-config` — W1: runtime-config vitest (endpoint expectation aligned to current AppSync)
 
 ---
 
 ## Key workflows
 
-- [x] Resident submits community event → clerk email / pending store (unit + backend + live form configured)
-- [x] Resident lists community events (API merge + bundled seed)
-- [x] Legacy `/community-calendar` redirect
-- [ ] Clerk approves event in `/admin` (backend proven; UI e2e still open)
-- [x] Public calendar Google/ICS links
+- [x] Staff opens `/admin/login` (fields + forgot password)
+- [x] Staff opens task hub
+- [x] Staff opens in-app record editor via Edit content
+- [x] Staff sees meeting upload panel on `#documents`
+- [ ] Clerk completes **save** in record editor (mocked GraphQL) — Wave 2
+- [ ] Clerk **publishes** meeting PDF (mocked presign) — Wave 2
+- [x] Community calendar resident path
+
+---
+
+## Verification commands
+
+```bash
+npx vitest run src/app/auth src/app/cms-generic-model-admin.service.vitest.ts \
+  src/app/community-calendar src/app/pay-bill src/app/google-analytics.service.vitest.ts \
+  src/app/runtime-config.vitest.ts src/app/clerk-setup/contact-update-review.service.vitest.ts
+/opt/homebrew/bin/python3.11 -m unittest discover -s infrastructure/community-calendar/tests -v
+npm run test:e2e:smoke -- e2e/specs/smoke/admin.cms.spec.ts
+npm run inventory
+```
 
 ---
 
 ## Meta
 
-- Re-run `npm run inventory` after structural changes.
-- Inventory count alone is not a ship gate — use smoke/acceptance checklists.
-- Suggest `/code-review` after the next PR that packages these tests + inventory docs.
-
----
-
-*Keep this overlay honest. The generated file is the raw detector.*
+- Prefer 3 PRs (waves), not 14. Pause after each wave.
+- Suggest `/code-review` after Wave 1 (auth) and Wave 2 (writes).

@@ -1,12 +1,6 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
 
-/** Current editor link pattern for task card "Edit content" buttons.
- * Points to Gen 2 AppSync console (Queries) for the live backend. Legacy d331 Amplify URLs are gone.
- */
-const CONSOLE_MODEL_HREF =
-  /us-east-2\.console\.aws\.amazon\.com\/appsync\/home.*x7poehudqvamneqni5s6e2cjxy.*queries/;
-
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
   await page.goto(path, { waitUntil: 'load' });
@@ -47,13 +41,30 @@ test.describe('cms admin', () => {
     await expect(
       homePage.page.getByRole('heading', { name: /What do you want to update\?/i }),
     ).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-task-post-notice')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-task-edit-post-notice')).toHaveAttribute(
-      'href',
-      CONSOLE_MODEL_HREF,
-    );
+    await expect(homePage.page.getByTestId('cms-task-edit-post-notice')).toBeVisible();
     await expect(homePage.page.getByText('AppSync', { exact: false })).not.toBeVisible();
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
+  });
+
+  test('Edit content opens the in-app record editor for post a notice', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-post-notice').click();
+    await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible({ timeout: 20_000 });
+    await expect(homePage.page.getByTestId('cms-save-record')).toBeVisible();
+  });
+
+  test('document publishing shows meeting agenda upload panel', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin#documents');
+
+    await expect(homePage.page.getByTestId('cms-meeting-document-upload')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(homePage.page.getByTestId('cms-meeting-upload-event')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-meeting-upload-file')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-meeting-upload-submit')).toBeVisible();
   });
 
   test('content inventory is under Advanced (IT)', async ({ homePage }) => {
