@@ -1,20 +1,10 @@
 <main id="main-content" class="admin-login" tabindex="-1">
   <section class="admin-login__panel panel wiley-panel" aria-labelledby="admin-login-heading">
-    @if (!isNewStaffGuideRoute()) {
-      <p class="admin-login__new-user">
-        {{ copy.newUserPrompt }}
-        <a class="admin-login__new-user-link" href="/admin/new-staff">{{ copy.newUserLink }}</a>
-      </p>
-    }
     <p class="admin-login__kicker">{{ copy.kicker }}</p>
     <h1 id="admin-login-heading" class="admin-login__title">{{ copy.title }}</h1>
     <p class="admin-login__body">{{ copy.body }}</p>
 
-    <section
-      id="new-staff"
-      class="admin-login__instructions"
-      aria-labelledby="admin-login-steps-heading"
-    >
+    <section class="admin-login__instructions" aria-labelledby="admin-login-steps-heading">
       <h2 id="admin-login-steps-heading" class="admin-login__instructions-title">
         {{ copy.howToHeading }}
       </h2>
@@ -26,51 +16,273 @@
       <p class="admin-login__help">{{ copy.helpText }}</p>
     </section>
 
-    @if (statusMessage()) {
-      <p
-        class="admin-login__status"
-        data-testid="admin-login-status"
-        role="status"
-        aria-live="polite"
-      >
-        {{ statusMessage() }}
-      </p>
+    @if (successMessage()) {
+      <p-message severity="success" [text]="successMessage()!" styleClass="admin-login__banner" />
     }
-
-    @if (showManualSignIn()) {
-      <p class="admin-login__manual-sign-in">
-        <button
-          pButton
-          type="button"
-          severity="primary"
-          data-testid="admin-login-manual-sign-in"
-          (click)="startHostedSignIn()"
-        >
-          {{ copy.manualSignInCta }}
-        </button>
-      </p>
-    }
-
     @if (loadError()) {
       <p-message severity="error" [text]="loadError()!" styleClass="admin-login__banner" />
-      @if (showRetrySignIn()) {
-        <p class="admin-login__secondary-action">
+    }
+
+    @switch (step()) {
+      @case ('signIn') {
+        <form
+          class="admin-login__form"
+          data-testid="admin-login-form"
+          [formGroup]="signInForm"
+          (ngSubmit)="submitSignIn()"
+          [attr.aria-label]="copy.signInFormLabel"
+        >
+          <label class="admin-login__field" for="admin-login-email">
+            <span>{{ copy.emailLabel }}</span>
+            <input
+              pInputText
+              id="admin-login-email"
+              type="email"
+              autocomplete="username"
+              formControlName="email"
+              data-testid="admin-login-email"
+              class="admin-login__input"
+              [attr.aria-invalid]="
+                signInForm.controls.email.invalid && signInForm.controls.email.touched
+              "
+            />
+          </label>
+          <label class="admin-login__field" for="admin-login-password">
+            <span>{{ copy.passwordLabel }}</span>
+            <input
+              pInputText
+              id="admin-login-password"
+              type="password"
+              autocomplete="current-password"
+              formControlName="password"
+              data-testid="admin-login-password"
+              class="admin-login__input"
+              [attr.aria-invalid]="
+                signInForm.controls.password.invalid && signInForm.controls.password.touched
+              "
+            />
+          </label>
+          <p class="admin-login__secondary-action">
+            <button
+              type="button"
+              class="admin-login__text-button"
+              data-testid="admin-login-forgot-password"
+              (click)="showForgotPassword()"
+            >
+              {{ copy.forgotPasswordLink }}
+            </button>
+          </p>
           <button
-            pButton
-            type="button"
-            severity="secondary"
-            [text]="true"
-            class="admin-login__text-button"
-            (click)="retrySignIn()"
+            type="submit"
+            class="button-cta button-cta--solid admin-login__submit"
+            data-testid="admin-login-submit"
+            [disabled]="signInForm.invalid || submitting()"
           >
-            {{ copy.retrySignIn }}
+            @if (submitting()) {
+              {{ copy.signingInLabel }}
+            } @else {
+              {{ copy.signInLabel }}
+            }
           </button>
-        </p>
+
+          <!-- Hosted UI redirect option (OAuth code grant back to this page).
+               The live Cognito client (townofwiley-staff-web) has matching CallbackURLs
+               for https://townofwiley.gov/admin/login (and www + localhost).
+               Direct password form above remains the primary branded experience. -->
+          <div class="admin-login__or"><span>or</span></div>
+          <button
+            type="button"
+            class="button-cta admin-login__hosted"
+            data-testid="admin-login-hosted"
+            (click)="signInViaHosted()"
+            [disabled]="submitting()"
+          >
+            Sign in via Cognito hosted page
+          </button>
+        </form>
+      }
+      @case ('newPassword') {
+        <form
+          class="admin-login__form"
+          data-testid="admin-login-new-password-form"
+          [formGroup]="newPasswordForm"
+          (ngSubmit)="submitNewPassword()"
+          [attr.aria-label]="copy.newPasswordFormLabel"
+        >
+          <p class="admin-login__hint">{{ copy.newPasswordHint }}</p>
+          <label class="admin-login__field" for="admin-login-new-password">
+            <span>{{ copy.newPasswordLabel }}</span>
+            <input
+              pInputText
+              id="admin-login-new-password"
+              type="password"
+              autocomplete="new-password"
+              formControlName="newPassword"
+              class="admin-login__input"
+            />
+          </label>
+          <label class="admin-login__field" for="admin-login-confirm-password">
+            <span>{{ copy.confirmPasswordLabel }}</span>
+            <input
+              pInputText
+              id="admin-login-confirm-password"
+              type="password"
+              autocomplete="new-password"
+              formControlName="confirmPassword"
+              class="admin-login__input"
+            />
+          </label>
+          @if (newPasswordForm.hasError('passwordMismatch') && newPasswordForm.touched) {
+            <p-message
+              severity="warn"
+              [text]="copy.passwordMismatch"
+              styleClass="admin-login__banner"
+            />
+          }
+          <button
+            type="submit"
+            class="button-cta button-cta--solid admin-login__submit"
+            data-testid="admin-login-submit"
+            [disabled]="newPasswordForm.invalid || submitting()"
+          >
+            @if (submitting()) {
+              {{ copy.signingInLabel }}
+            } @else {
+              {{ copy.setPasswordLabel }}
+            }
+          </button>
+        </form>
+      }
+      @case ('forgotPassword') {
+        <section aria-labelledby="admin-login-forgot-heading">
+          <h2 id="admin-login-forgot-heading" class="admin-login__subheading">
+            {{ copy.forgotPasswordTitle }}
+          </h2>
+          <p class="admin-login__hint">{{ copy.forgotPasswordBody }}</p>
+          <form
+            class="admin-login__form"
+            data-testid="admin-login-forgot-form"
+            [formGroup]="forgotPasswordForm"
+            (ngSubmit)="submitForgotPassword()"
+            [attr.aria-label]="copy.forgotPasswordFormLabel"
+          >
+            <label class="admin-login__field" for="admin-login-forgot-email">
+              <span>{{ copy.emailLabel }}</span>
+              <input
+                pInputText
+                id="admin-login-forgot-email"
+                type="email"
+                autocomplete="username"
+                formControlName="email"
+                data-testid="admin-login-forgot-email"
+                class="admin-login__input"
+              />
+            </label>
+            <p class="admin-login__secondary-action">
+              <button type="button" class="admin-login__text-button" (click)="showSignIn()">
+                {{ copy.backToSignIn }}
+              </button>
+            </p>
+            <button
+              type="submit"
+              class="button-cta button-cta--solid admin-login__submit"
+              data-testid="admin-login-forgot-submit"
+              [disabled]="forgotPasswordForm.invalid || submitting()"
+            >
+              @if (submitting()) {
+                {{ copy.sendingResetCodeLabel }}
+              } @else {
+                {{ copy.sendResetCodeLabel }}
+              }
+            </button>
+          </form>
+        </section>
+      }
+      @case ('confirmReset') {
+        <section aria-labelledby="admin-login-reset-heading">
+          <h2 id="admin-login-reset-heading" class="admin-login__subheading">
+            {{ copy.confirmResetTitle }}
+          </h2>
+          <p class="admin-login__hint">{{ copy.confirmResetBody }}</p>
+          <p class="admin-login__hint">
+            <strong>{{ copy.emailLabel }}:</strong> {{ resetEmail() }}
+          </p>
+          <form
+            class="admin-login__form"
+            data-testid="admin-login-reset-confirm-form"
+            [formGroup]="confirmResetForm"
+            (ngSubmit)="submitConfirmReset()"
+            [attr.aria-label]="copy.confirmResetFormLabel"
+          >
+            <label class="admin-login__field" for="admin-login-reset-code">
+              <span>{{ copy.resetCodeLabel }}</span>
+              <input
+                pInputText
+                id="admin-login-reset-code"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                formControlName="code"
+                data-testid="admin-login-reset-code"
+                class="admin-login__input"
+              />
+            </label>
+            <label class="admin-login__field" for="admin-login-reset-new-password">
+              <span>{{ copy.newPasswordLabel }}</span>
+              <input
+                pInputText
+                id="admin-login-reset-new-password"
+                type="password"
+                autocomplete="new-password"
+                formControlName="newPassword"
+                data-testid="admin-login-reset-new-password"
+                class="admin-login__input"
+              />
+            </label>
+            <label class="admin-login__field" for="admin-login-reset-confirm-password">
+              <span>{{ copy.confirmPasswordLabel }}</span>
+              <input
+                pInputText
+                id="admin-login-reset-confirm-password"
+                type="password"
+                autocomplete="new-password"
+                formControlName="confirmPassword"
+                class="admin-login__input"
+              />
+            </label>
+            @if (confirmResetForm.hasError('passwordMismatch') && confirmResetForm.touched) {
+              <p-message
+                severity="warn"
+                [text]="copy.passwordMismatch"
+                styleClass="admin-login__banner"
+              />
+            }
+            <p class="admin-login__secondary-action">
+              <button type="button" class="admin-login__text-button" (click)="showSignIn()">
+                {{ copy.backToSignIn }}
+              </button>
+            </p>
+            <button
+              type="submit"
+              class="button-cta button-cta--solid admin-login__submit"
+              data-testid="admin-login-reset-submit"
+              [disabled]="confirmResetForm.invalid || submitting()"
+            >
+              @if (submitting()) {
+                {{ copy.savingPasswordLabel }}
+              } @else {
+                {{ copy.saveNewPasswordLabel }}
+              }
+            </button>
+          </form>
+        </section>
       }
     }
 
     <p class="admin-login__footer">
       <a routerLink="/">{{ copy.returnHome }}</a>
+      ·
+      <a routerLink="/admin">{{ copy.adminHubLabel }}</a>
     </p>
   </section>
 </main>
