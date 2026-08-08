@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import type { CalendarOptions, EventInput } from '@fullcalendar/core';
+import type { CalendarOptions, EventClickArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -45,6 +45,18 @@ import {
 
 export type MeetingsSourceFilter = 'all' | 'official' | 'community';
 
+interface SelectedCalendarEvent {
+  id: string;
+  source: 'official' | 'community';
+  title: string;
+  whenLabel: string;
+  detail: string;
+  location: string;
+  agendaNote?: string;
+  officialItem?: CalendarItem;
+  communityItem?: CommunityEvent;
+}
+
 @Component({
   selector: 'app-meetings-page',
   imports: [
@@ -76,6 +88,7 @@ export class MeetingsPage implements AfterViewInit {
   protected readonly resolvedAgendaUrls = signal<Record<string, string>>({});
   protected readonly sourceFilter = signal<MeetingsSourceFilter>('all');
   protected readonly communityEvents = signal<CommunityEvent[]>([]);
+  protected readonly selectedCalendarEvent = signal<SelectedCalendarEvent | null>(null);
 
   protected readonly copy = computed(
     () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
@@ -141,32 +154,50 @@ export class MeetingsPage implements AfterViewInit {
 
   protected readonly calendarOptions = computed<CalendarOptions>(() => {
     const filter = this.sourceFilter();
+    const selectedId = this.selectedCalendarEvent()?.id ?? null;
     const events: EventInput[] = [];
 
     if (filter === 'all' || filter === 'official') {
       for (const item of this.calendarItems()) {
+        const id = `official-${item.id}`;
         events.push({
-          id: `official-${item.id}`,
+          id,
           title: item.title,
           start: item.startDate,
           end: item.endDate,
           allDay: false,
-          classNames: ['fc-event--official'],
-          extendedProps: { source: 'official' },
+          // Solid hex for FullCalendar inline styles (vars/color-mix are unreliable there).
+          display: 'block',
+          backgroundColor: '#e0e6e9',
+          borderColor: '#1f4e5f',
+          textColor: '#12313c',
+          classNames: [
+            'fc-event--official',
+            ...(selectedId === id ? ['fc-event--selected'] : []),
+          ],
+          extendedProps: { source: 'official', officialItemId: item.id },
         });
       }
     }
 
     if (filter === 'all' || filter === 'community') {
       for (const item of this.communityEvents()) {
+        const id = `community-${item.eventId}`;
         events.push({
-          id: `community-${item.eventId}`,
+          id,
           title: item.title,
           start: item.startDateTime,
           end: item.endDateTime,
           allDay: false,
-          classNames: ['fc-event--community'],
-          extendedProps: { source: 'community' },
+          display: 'block',
+          backgroundColor: '#f0e5c2',
+          borderColor: '#a8841a',
+          textColor: '#1f2a2e',
+          classNames: [
+            'fc-event--community',
+            ...(selectedId === id ? ['fc-event--selected'] : []),
+          ],
+          extendedProps: { source: 'community', communityEventId: item.eventId },
         });
       }
     }
@@ -176,7 +207,10 @@ export class MeetingsPage implements AfterViewInit {
       initialView: 'dayGridMonth',
       buttonIcons: false as const,
       height: 'auto',
+      // Prefer solid month chips over list-item/dot style (dot + dark title washout).
+      eventDisplay: 'block',
       events,
+      eventClick: (info) => this.onCalendarEventClick(info),
     };
   });
 
@@ -201,11 +235,74 @@ export class MeetingsPage implements AfterViewInit {
 
   protected onCommunityEvents(events: CommunityEvent[]): void {
     this.communityEvents.set(events);
+    const selected = this.selectedCalendarEvent();
+    if (selected?.source === 'community') {
+      const stillPresent = events.some((event) => event.eventId === selected.communityItem?.eventId);
+      if (!stillPresent) {
+        this.selectedCalendarEvent.set(null);
+      }
+    }
   }
 
   protected onSourceFilter(value: MeetingsSourceFilter | null): void {
     if (value) {
       this.sourceFilter.set(value);
+      this.selectedCalendarEvent.set(null);
+    }
+  }
+
+  protected clearCalendarSelection(): void {
+    this.selectedCalendarEvent.set(null);
+  }
+
+  protected onCalendarEventClick(info: EventClickArg): void {
+    info.jsEvent.preventDefault();
+    const source = info.event.extendedProps['source'];
+    if (source === 'official') {
+      const officialId = String(info.event.extendedProps['officialItemId'] || '');
+      const item = this.calendarItems().find((row) => row.id === officialId);
+      if (!item) {
+        return;
+      }
+      this.selectedCalendarEvent.set({
+        id: `official-${item.id}`,
+        source: 'official',
+        title: item.title,
+        whenLabel: item.date,
+        detail: item.detail,
+        location: item.location,
+        agendaNote: item.agendaNote,
+        officialItem: item,
+      });
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (source === 'community') {
+      const communityId = String(info.event.extendedProps['communityEventId'] || '');
+      const item = this.communityEvents().find((row) => row.eventId === communityId);
+      if (!item) {
+        return;
+      }
+      const locale = this.siteLanguageService.currentLanguage() === 'es' ? 'es-US' : 'en-US';
+      const start = new Date(item.startDateTime);
+      const end = item.endDateTime ? new Date(item.endDateTime) : null;
+      const whenLabel = end
+        ? `${start.toLocaleString(locale)} – ${end.toLocaleTimeString(locale, {
+            hour: 'numeric',
+            minute: '2-digit',
+          })}`
+        : start.toLocaleString(locale);
+      this.selectedCalendarEvent.set({
+        id: `community-${item.eventId}`,
+        source: 'community',
+        title: item.title,
+        whenLabel,
+        detail: item.description,
+        location: item.location,
+        communityItem: item,
+      });
+      this.cdr.markForCheck();
     }
   }
 

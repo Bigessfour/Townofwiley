@@ -687,14 +687,22 @@ test.describe('subcomponent aria contracts', () => {
   test('contact administration aria structure', async ({ homePage }) => {
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.getByTestId('contact-administration')).toMatchAriaSnapshot(`
+    const administration = homePage.page.getByTestId('contact-administration');
+    await expect(administration).toMatchAriaSnapshot(`
       - heading /Town Administration/ [level=2]
       - heading /Town Information/ [level=3]
       - paragraph
       - term /City Clerk/
       - definition:
-        - link /deb.dillon@townofwiley.gov/
+        - link /clerk@townofwiley.gov/
     `);
+    await expect(administration.getByRole('term', { name: /Town Superintendent/i })).toBeVisible();
+    await expect(administration.getByRole('link', { name: /clerk@townofwiley\.gov/i }).first()).toHaveAttribute(
+      'href',
+      'mailto:clerk@townofwiley.gov',
+    );
+    await expect(administration).not.toContainText('deb.dillon@');
+    await expect(administration).not.toContainText('scott.whitman@');
   });
 
   test('meetings document archive aria structure', async ({ homePage }) => {

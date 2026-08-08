@@ -10,6 +10,9 @@ export interface CommunityCalendarCopy {
   sourceFilterCommunity: string;
   officialBadge: string;
   communityBadge: string;
+  calendarClickHint: string;
+  calendarSelectionHeading: string;
+  calendarSelectionClose: string;
   listHeading: string;
   monthHeading: string;
   emptyState: string;
@@ -63,6 +66,9 @@ export const COMMUNITY_CALENDAR_COPY: Record<'en' | 'es', CommunityCalendarCopy>
     sourceFilterCommunity: 'Community',
     officialBadge: 'Official',
     communityBadge: 'Community',
+    calendarClickHint: 'Select an event on the calendar to see details.',
+    calendarSelectionHeading: 'Selected event',
+    calendarSelectionClose: 'Clear selection',
     listHeading: 'Upcoming community events',
     monthHeading: 'Month view',
     emptyState:
@@ -127,6 +133,9 @@ export const COMMUNITY_CALENDAR_COPY: Record<'en' | 'es', CommunityCalendarCopy>
     sourceFilterCommunity: 'Comunidad',
     officialBadge: 'Oficial',
     communityBadge: 'Comunidad',
+    calendarClickHint: 'Seleccione un evento en el calendario para ver los detalles.',
+    calendarSelectionHeading: 'Evento seleccionado',
+    calendarSelectionClose: 'Borrar selección',
     listHeading: 'Eventos comunitarios próximos',
     monthHeading: 'Vista mensual',
     emptyState: 'Todavía no hay eventos comunitarios próximos. Vuelva pronto o envíe uno abajo.',

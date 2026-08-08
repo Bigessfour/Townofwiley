@@ -63,7 +63,7 @@ function createHarness(): AccessibilitySupportHarness {
     linkLabel: 'Town Hall',
   });
   component.clerkContact = () => ({
-    href: 'mailto:deb.dillon@townofwiley.gov',
+    href: 'mailto:clerk@townofwiley.gov',
     value: 'Town Clerk',
     linkLabel: 'Email the Clerk',
   });
@@ -88,7 +88,7 @@ describe('AccessibilitySupport', () => {
 
     const href = component['buildAccessibilityMailtoHref']();
 
-    expect(href).toContain('mailto:deb.dillon@townofwiley.gov');
+    expect(href).toContain('mailto:clerk@townofwiley.gov');
     expect(href).toContain('subject=Accessibility+barrier+report');
     expect(href).toContain('Your+name%3A+Jordan+Resident');
     expect(href).toContain('Best+phone+or+email+for+follow-up%3A+jordan%40example.com');
@@ -116,7 +116,7 @@ describe('AccessibilitySupport', () => {
     const event = { preventDefault: vi.fn() } as unknown as Event;
 
     component.accessibilityMailtoHref = () =>
-      'mailto:deb.dillon@townofwiley.gov?subject=Accessibility+barrier+report';
+      'mailto:clerk@townofwiley.gov?subject=Accessibility+barrier+report';
 
     component.openAccessibilityMailto(event);
 

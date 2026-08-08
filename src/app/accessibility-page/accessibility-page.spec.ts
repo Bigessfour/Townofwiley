@@ -22,10 +22,10 @@ function configure(language: 'en' | 'es' = 'en') {
       {
         id: 'city-clerk',
         label: 'City Clerk',
-        value: 'deb.dillon@townofwiley.gov',
+        value: 'clerk@townofwiley.gov',
         detail: 'Records and meetings',
-        href: 'mailto:deb.dillon@townofwiley.gov',
-        linkLabel: 'deb.dillon@townofwiley.gov',
+        href: 'mailto:clerk@townofwiley.gov',
+        linkLabel: 'clerk@townofwiley.gov',
       },
     ]),
     isLoading: signal(false),

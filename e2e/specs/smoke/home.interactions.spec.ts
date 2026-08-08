@@ -46,8 +46,8 @@ test.describe('homepage high-value interactions', () => {
 
     await expect(homePage.residentServiceIssueActionButton).toContainText('Send report');
     await expect(
-      homePage.page.getByRole('link', { name: /Email contact · scott\.whitman@townofwiley\.gov/i }),
-    ).toHaveAttribute('href', 'mailto:scott.whitman@townofwiley.gov');
+      homePage.page.getByRole('link', { name: /Email contact · clerk@townofwiley\.gov/i }),
+    ).toHaveAttribute('href', 'mailto:clerk@townofwiley.gov');
   });
 
   test('prepares the accessibility barrier report email from the public accessibility page', async ({
@@ -68,8 +68,8 @@ test.describe('homepage high-value interactions', () => {
       'Open accessibility report email',
     );
     await expect(
-      homePage.page.getByRole('link', { name: 'Email the Clerk · deb.dillon@townofwiley.gov' }),
-    ).toHaveAttribute('href', 'mailto:deb.dillon@townofwiley.gov');
+      homePage.page.getByRole('link', { name: 'Email the Clerk · clerk@townofwiley.gov' }),
+    ).toHaveAttribute('href', 'mailto:clerk@townofwiley.gov');
   });
 
   test('keeps the business directory search and contact actions usable', async ({ homePage }) => {

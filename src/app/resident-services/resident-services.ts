@@ -321,31 +321,18 @@ export class ResidentServices {
   protected readonly clerkContact = computed(() =>
     this.findContact(OFFICIAL_CONTACT_ID_CITY_CLERK),
   );
-  protected readonly superintendentContact = computed(() =>
-    this.findContact('town-superintendent'),
-  );
   protected readonly townHallPhoneHref = computed(() =>
     this.getContactHref(this.townInfoContact(), 'tel:'),
   );
   protected readonly townHallPhoneLabel = computed(
     () => this.townInfoContact()?.value ?? 'Town Hall',
   );
-  protected readonly clerkEmailHref = computed(() =>
-    this.getContactHref(this.clerkContact(), 'mailto:'),
+  protected readonly clerkEmailHref = computed(
+    () => this.getContactHref(this.clerkContact(), 'mailto:') ?? 'mailto:clerk@townofwiley.gov',
   );
   protected readonly clerkEmailLabel = computed(
-    () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'Town Clerk',
+    () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'clerk@townofwiley.gov',
   );
-  protected readonly superintendentEmailHref = computed(() =>
-    this.getContactHref(this.superintendentContact(), 'mailto:'),
-  );
-  protected readonly superintendentEmailLabel = computed(
-    () =>
-      this.superintendentContact()?.linkLabel ??
-      this.superintendentContact()?.value ??
-      'Town Operations',
-  );
-
   protected readonly issueMailtoHref = computed(() => this.buildIssueMailtoHref());
 
   /** Stable reference for child panels that need a callable input. */
@@ -442,8 +429,9 @@ export class ResidentServices {
       this.copy().issueCategories.find((category) => category.value === values.category)?.label ??
       values.category;
     const recipient =
-      this.getEmailAddress(this.superintendentContact()) ||
-      this.getEmailAddress(this.townInfoContact());
+      this.getEmailAddress(this.clerkContact()) ||
+      this.getEmailAddress(this.townInfoContact()) ||
+      'clerk@townofwiley.gov';
 
     return this.buildMailtoHref(recipient, `${this.copy().issueSubject} | ${categoryLabel}`, [
       `${this.copy().issueCategoryLabel}: ${categoryLabel}`,

@@ -11,9 +11,9 @@
           {{ copy().phoneFallbackLabel }} · {{ townHallPhoneLabel() }}
         </a>
       }
-      @if (superintendentEmailHref()) {
-        <a class="resident-contact-link" [attr.href]="superintendentEmailHref()">
-          {{ copy().emailFallbackLabel }} · {{ superintendentEmailLabel() }}
+      @if (clerkEmailHref()) {
+        <a class="resident-contact-link" [attr.href]="clerkEmailHref()">
+          {{ copy().emailFallbackLabel }} · {{ clerkEmailLabel() }}
         </a>
       }
     </div>

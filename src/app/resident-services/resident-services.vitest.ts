@@ -57,13 +57,20 @@ function createHarness(): ResidentServicesHarness {
   component.validationMessage = (ResidentServices.prototype as any).validationMessage;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component.buildIssueMailtoHref = (ResidentServices.prototype as any).buildIssueMailtoHref;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component.getContactHref = (ResidentServices.prototype as any).getContactHref;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component.getEmailAddress = (ResidentServices.prototype as any).getEmailAddress;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component.buildMailtoHref = (ResidentServices.prototype as any).buildMailtoHref;
 
   component.issueFormValue = () => component.issueForm.getRawValue();
-  component.superintendentContact = () => ({
-    href: 'mailto:scott.whitman@townofwiley.gov',
-    value: 'Scott Whitman',
-    linkLabel: 'Town Superintendent',
+  component.clerkContact = () => ({
+    href: 'mailto:clerk@townofwiley.gov',
+    value: 'Deb Dillon',
+    linkLabel: 'clerk@townofwiley.gov',
   });
+  component.townInfoContact = () => null;
   component.siteLanguageService = {
     currentLanguage: () => 'en',
   };
@@ -91,7 +98,7 @@ describe('ResidentServices mailto flows', () => {
 
     const issueHref = component.buildIssueMailtoHref();
 
-    expect(issueHref).toContain('mailto:scott.whitman@townofwiley.gov');
+    expect(issueHref).toContain('mailto:clerk@townofwiley.gov');
     expect(issueHref).toContain('subject=Town+issue+report+%7C+Streetlight+or+signage');
     expect(issueHref).toContain('Issue+type%3A+Streetlight+or+signage');
     expect(issueHref).toContain('Location%3A+210+Main+Street');

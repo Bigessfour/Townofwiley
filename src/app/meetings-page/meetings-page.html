@@ -129,6 +129,121 @@
     } @else {
       @if (isBrowser()) {
         <full-calendar [options]="calendarOptions()"></full-calendar>
+        @if (selectedCalendarEvent(); as selected) {
+          <aside
+            class="calendar-selection"
+            aria-live="polite"
+            [attr.aria-label]="communityCopy().calendarSelectionHeading"
+          >
+            <div class="calendar-selection__header">
+              <div>
+                <p class="calendar-selection__kicker">{{ communityCopy().calendarSelectionHeading }}</p>
+                <h3 class="calendar-selection__title">{{ selected.title }}</h3>
+                <span
+                  class="calendar-selection__badge"
+                  [class.calendar-selection__badge--official]="selected.source === 'official'"
+                  [class.calendar-selection__badge--community]="selected.source === 'community'"
+                >
+                  {{
+                    selected.source === 'official'
+                      ? communityCopy().officialBadge
+                      : communityCopy().communityBadge
+                  }}
+                </span>
+              </div>
+              <p-button
+                [outlined]="true"
+                [label]="communityCopy().calendarSelectionClose"
+                (onClick)="clearCalendarSelection()"
+              />
+            </div>
+            <p class="calendar-selection__meta">{{ selected.whenLabel }}</p>
+            @if (selected.location) {
+              <p class="calendar-selection__meta">{{ selected.location }}</p>
+            }
+            @if (selected.detail) {
+              <p class="calendar-selection__detail">{{ selected.detail }}</p>
+            }
+            @if (selected.agendaNote) {
+              <p class="meeting-agenda-note">{{ selected.agendaNote }}</p>
+            }
+            @if (selected.officialItem; as item) {
+              @if (item.actions.length > 0) {
+                <div
+                  class="calendar-action-buttons"
+                  [attr.aria-label]="copy().calendarActionsAriaLabel"
+                >
+                  @for (action of item.actions; track calendarActionTrackKey(action, $index)) {
+                    @if (action.isAgendaAction) {
+                      <p-button
+                        styleClass="meetings-agenda-btn calendar-agenda-btn"
+                        [outlined]="true"
+                        icon="pi pi-file-pdf"
+                        [label]="action.label"
+                        (onClick)="openCalendarAgenda(item)"
+                      />
+                    } @else if (action.href.startsWith('tel:')) {
+                      <a
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-text calendar-inline-action"
+                        [attr.href]="action.href"
+                      >
+                        {{ action.label }}
+                      </a>
+                    } @else if (action.href.startsWith('mailto:')) {
+                      <a
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-text calendar-inline-action"
+                        [attr.href]="action.href"
+                      >
+                        {{ action.label }}
+                      </a>
+                    } @else if (action.downloadFileName) {
+                      <a
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-outlined calendar-inline-action"
+                        [attr.href]="action.href"
+                        [attr.download]="action.downloadFileName"
+                      >
+                        {{ action.label }}
+                      </a>
+                    } @else if (action.external) {
+                      <a
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-outlined calendar-inline-action"
+                        [attr.href]="action.href"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        {{ action.label }}
+                      </a>
+                    } @else {
+                      <a
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-outlined calendar-inline-action"
+                        [attr.href]="action.href"
+                      >
+                        {{ action.label }}
+                      </a>
+                    }
+                  }
+                </div>
+              }
+            }
+          </aside>
+        } @else {
+          <p class="calendar-selection-hint">{{ communityCopy().calendarClickHint }}</p>
+        }
       }
       @if (showOfficial()) {
         <section class="stack-list calendar-event-stack">

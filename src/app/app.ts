@@ -873,8 +873,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Each month, find agendas, minutes, livestream links, and accessible meeting materials for Wiley Town Council. Updates include cancellations, room changes, and how to take part.',
         location: 'Wiley Town Hall, 304 Main Street',
         recurrence: 'Recurring monthly',
-        agendaNote:
-          'Agenda requests: (719) 829-4974 or deb.dillon@townofwiley.gov before the meeting.',
+        agendaNote: 'Agenda requests: (719) 829-4974 or clerk@townofwiley.gov before the meeting.',
         startLocal: '20260511T180000',
         endLocal: '20260511T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
@@ -885,7 +884,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           },
           {
             label: 'Email the Clerk',
-            href: 'mailto:deb.dillon@townofwiley.gov',
+            href: 'mailto:clerk@townofwiley.gov',
           },
         ],
         slug: 'city-council-regular-meeting',
@@ -1305,7 +1304,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         location: 'Ayuntamiento de Wiley, 304 Main Street',
         recurrence: 'Recurrente cada mes',
         agendaNote:
-          'Solicitudes de agenda: (719) 829-4974 o deb.dillon@townofwiley.gov antes de la reunion.',
+          'Solicitudes de agenda: (719) 829-4974 o clerk@townofwiley.gov antes de la reunion.',
         startLocal: '20260511T180000',
         endLocal: '20260511T190000',
         recurrenceRule: 'FREQ=MONTHLY;BYDAY=2MO',
@@ -1316,7 +1315,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           },
           {
             label: 'Enviar correo al secretario',
-            href: 'mailto:deb.dillon@townofwiley.gov',
+            href: 'mailto:clerk@townofwiley.gov',
           },
         ],
         slug: 'city-council-regular-meeting',

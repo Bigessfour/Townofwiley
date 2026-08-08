@@ -1,11 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { publicRequiredFieldMessage } from '../forms/public-field-validation';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
 import { startWith } from 'rxjs';
+import { publicRequiredFieldMessage } from '../forms/public-field-validation';
 import {
   CmsContact,
   OFFICIAL_CONTACT_ID_CITY_CLERK,
@@ -152,11 +158,11 @@ export class AccessibilitySupport {
   protected readonly townHallPhoneLabel = computed(
     () => this.townInfoContact()?.value ?? 'Town Hall',
   );
-  protected readonly clerkEmailHref = computed(() =>
-    this.getContactHref(this.clerkContact(), 'mailto:'),
+  protected readonly clerkEmailHref = computed(
+    () => this.getContactHref(this.clerkContact(), 'mailto:') ?? 'mailto:clerk@townofwiley.gov',
   );
   protected readonly clerkEmailLabel = computed(
-    () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'Town Clerk',
+    () => this.clerkContact()?.linkLabel ?? this.clerkContact()?.value ?? 'clerk@townofwiley.gov',
   );
   protected readonly accessibilityMailtoHref = computed(() => this.buildAccessibilityMailtoHref());
 
@@ -211,7 +217,7 @@ export class AccessibilitySupport {
     const recipient =
       this.getEmailAddress(this.clerkContact()) ||
       this.getEmailAddress(this.townInfoContact()) ||
-      'deb.dillon@townofwiley.gov';
+      'clerk@townofwiley.gov';
 
     if (!recipient) {
       return null;
