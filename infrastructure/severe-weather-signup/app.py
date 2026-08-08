@@ -29,6 +29,23 @@ DEFAULT_NOTIFICATION_NAME = "Town of Wiley Alerts"
 DEFAULT_SMS_ORIGINATION_IDENTITY = "+18666509844"
 DEFAULT_SMS_CONFIGURATION_SET = "Alert"
 SUPPORTED_ALERT_LANGUAGES = {LANGUAGE_EN, LANGUAGE_ES}
+# Same NWS product series (e.g. Heat Advisory CON updates) may only re-notify after this window.
+ALERT_RESEND_COOLDOWN_SECONDS = 6 * 60 * 60
+# VTEC actions that should notify even inside the cooldown (new issue, extension, upgrade, cancel).
+FORCE_SEND_VTEC_ACTIONS = frozenset(
+    {"NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "EXP", "COR"}
+)
+SEVERITY_RANK = {
+    "Unknown": 0,
+    "Minor": 1,
+    "Moderate": 2,
+    "Severe": 3,
+    "Extreme": 4,
+}
+VTEC_PATTERN = re.compile(
+    r"/(?P<product>[A-Z])\.(?P<action>[A-Z]{3})\.(?P<office>[A-Z]{4})\."
+    r"(?P<phenomena>[A-Z]{2})\.(?P<significance>[A-Z])\.(?P<etn>\d{4})\."
+)
 # Reflect Origin when allowlisted; otherwise a single safe default (never '*') so Lambda Function URL
 # CORS in AWS cannot merge a second ACAO value. See infrastructure/nws-weather-proxy/index.mjs.
 ALLOWED_ORIGINS = frozenset(
@@ -90,8 +107,18 @@ class SubscriptionStore(Protocol):
 class DeliveryStore(Protocol):
     def has_delivery(self, delivery_id: str) -> bool: ...
 
+    def get_delivery(self, delivery_id: str) -> dict[str, Any] | None: ...
+
     def mark_delivered(
-        self, delivery_id: str, subscription_id: str, alert_id: str
+        self,
+        delivery_id: str,
+        subscription_id: str,
+        alert_id: str,
+        *,
+        series_key: str = "",
+        severity: str = "",
+        message_type: str = "",
+        vtec_action: str = "",
     ) -> None: ...
 
 
@@ -176,15 +203,36 @@ class MemorySubscriptionStore:
 
 class MemoryDeliveryStore:
     def __init__(self) -> None:
-        self._delivery_ids: set[str] = set()
+        self._deliveries: dict[str, dict[str, Any]] = {}
 
     def has_delivery(self, delivery_id: str) -> bool:
-        return delivery_id in self._delivery_ids
+        return delivery_id in self._deliveries
+
+    def get_delivery(self, delivery_id: str) -> dict[str, Any] | None:
+        item = self._deliveries.get(delivery_id)
+        return dict(item) if item else None
 
     def mark_delivered(
-        self, delivery_id: str, subscription_id: str, alert_id: str
+        self,
+        delivery_id: str,
+        subscription_id: str,
+        alert_id: str,
+        *,
+        series_key: str = "",
+        severity: str = "",
+        message_type: str = "",
+        vtec_action: str = "",
     ) -> None:
-        self._delivery_ids.add(delivery_id)
+        self._deliveries[delivery_id] = {
+            "deliveryId": delivery_id,
+            "subscriptionId": subscription_id,
+            "alertId": alert_id,
+            "seriesKey": series_key,
+            "severity": severity,
+            "messageType": message_type,
+            "vtecAction": vtec_action,
+            "sentAt": utc_now_iso(),
+        }
 
 
 class MemoryNotificationGateway:
@@ -335,17 +383,33 @@ class DynamoDeliveryStore:
         self._table = table
 
     def has_delivery(self, delivery_id: str) -> bool:
+        return self.get_delivery(delivery_id) is not None
+
+    def get_delivery(self, delivery_id: str) -> dict[str, Any] | None:
         response = self._table.get_item(Key={"deliveryId": delivery_id})
-        return "Item" in response
+        item = response.get("Item")
+        return dict(item) if item else None
 
     def mark_delivered(
-        self, delivery_id: str, subscription_id: str, alert_id: str
+        self,
+        delivery_id: str,
+        subscription_id: str,
+        alert_id: str,
+        *,
+        series_key: str = "",
+        severity: str = "",
+        message_type: str = "",
+        vtec_action: str = "",
     ) -> None:
         self._table.put_item(
             Item={
                 "deliveryId": delivery_id,
                 "subscriptionId": subscription_id,
                 "alertId": alert_id,
+                "seriesKey": series_key,
+                "severity": severity,
+                "messageType": message_type,
+                "vtecAction": vtec_action,
                 "sentAt": utc_now_iso(),
                 "expiresAtEpoch": int(time.time()) + 60 * 60 * 24 * 30,
             },
@@ -497,15 +561,21 @@ class WeatherGovNwsClient:
 
         for feature in payload.get("features", []):
             properties = feature.get("properties", {})
+            parameters = properties.get("parameters") or {}
+            vtec_raw = first_parameter_value(parameters, "VTEC")
+            vtec_action, series_key = parse_vtec_identity(vtec_raw)
+            event_name = properties.get("event") or "Severe weather alert"
+            alert_id = feature.get("id") or str(uuid.uuid4())
+            if not series_key:
+                series_key = build_event_series_key(event_name, alert_id)
             alerts.append(
                 {
-                    "id": feature.get("id") or str(uuid.uuid4()),
-                    "event": properties.get("event") or "Severe weather alert",
+                    "id": alert_id,
+                    "event": event_name,
                     "headline": normalize_whitespace(
                         properties.get("headline")
                         or first_nonempty_line(properties.get("description", ""))
-                        or properties.get("event")
-                        or "Severe weather alert"
+                        or event_name
                     ),
                     "severity": properties.get("severity") or "Unknown severity",
                     "urgency": properties.get("urgency") or "Unknown urgency",
@@ -514,6 +584,10 @@ class WeatherGovNwsClient:
                         properties.get("instruction") or ""
                     ),
                     "areaDesc": normalize_whitespace(properties.get("areaDesc") or ""),
+                    "messageType": properties.get("messageType") or "",
+                    "vtec": vtec_raw,
+                    "vtecAction": vtec_action,
+                    "seriesKey": series_key,
                 },
             )
 
@@ -1083,12 +1157,16 @@ class SevereWeatherBackend:
         )
         sent_count = 0
         failed_count = 0
+        skipped_count = 0
 
         for subscription in subscriptions:
             for alert in alerts:
-                delivery_id = f"{subscription['subscriptionId']}#{alert['id']}"
+                series_key = resolve_alert_series_key(alert)
+                delivery_id = f"{subscription['subscriptionId']}#{series_key}"
+                prior = self._delivery_store.get_delivery(delivery_id)
 
-                if self._delivery_store.has_delivery(delivery_id):
+                if not should_deliver_alert(prior, alert):
+                    skipped_count += 1
                     continue
 
                 try:
@@ -1110,7 +1188,13 @@ class SevereWeatherBackend:
                     continue
 
                 self._delivery_store.mark_delivered(
-                    delivery_id, subscription["subscriptionId"], alert["id"]
+                    delivery_id,
+                    subscription["subscriptionId"],
+                    alert["id"],
+                    series_key=series_key,
+                    severity=str(alert.get("severity") or ""),
+                    message_type=str(alert.get("messageType") or ""),
+                    vtec_action=str(alert.get("vtecAction") or ""),
                 )
                 sent_count += 1
 
@@ -1128,6 +1212,7 @@ class SevereWeatherBackend:
                     "activeAlerts": len(alerts),
                     "messagesSent": sent_count,
                     "messagesFailed": failed_count,
+                    "messagesSkippedCooldown": skipped_count,
                 },
             ),
         }
@@ -1579,6 +1664,110 @@ def first_nonempty_line(value: str) -> str:
         if line.strip():
             return line.strip()
     return ""
+
+
+def first_parameter_value(parameters: dict[str, Any], key: str) -> str:
+    values = parameters.get(key)
+    if isinstance(values, list) and values:
+        return str(values[0]).strip()
+    if isinstance(values, str):
+        return values.strip()
+    return ""
+
+
+def parse_vtec_identity(vtec_raw: str) -> tuple[str, str]:
+    """Return (action, series_key) from an NWS VTEC string, or blanks if unparsable."""
+    match = VTEC_PATTERN.search(vtec_raw or "")
+    if not match:
+        return "", ""
+    action = match.group("action")
+    series_key = (
+        f"{match.group('office')}."
+        f"{match.group('phenomena')}."
+        f"{match.group('significance')}."
+        f"{match.group('etn')}"
+    )
+    return action, series_key
+
+
+def build_event_series_key(event_name: str, alert_id: str) -> str:
+    normalized = normalize_whitespace(event_name).lower()
+    if normalized:
+        return f"event:{normalized}"
+    return f"id:{alert_id}"
+
+
+def resolve_alert_series_key(alert: dict[str, Any]) -> str:
+    existing = str(alert.get("seriesKey") or "").strip()
+    if existing:
+        return existing
+    vtec_action, series_key = parse_vtec_identity(str(alert.get("vtec") or ""))
+    if series_key:
+        if not alert.get("vtecAction"):
+            alert["vtecAction"] = vtec_action
+        return series_key
+    return build_event_series_key(str(alert.get("event") or ""), str(alert.get("id") or ""))
+
+
+def severity_rank(value: str | None) -> int:
+    if not value:
+        return SEVERITY_RANK["Unknown"]
+    # NWS may use "Unknown severity" as a display string.
+    key = value.strip()
+    if key in SEVERITY_RANK:
+        return SEVERITY_RANK[key]
+    first = key.split()[0] if key else "Unknown"
+    return SEVERITY_RANK.get(first, SEVERITY_RANK["Unknown"])
+
+
+def parse_sent_at(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    text = value.strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def should_deliver_alert(
+    prior: dict[str, Any] | None,
+    alert: dict[str, Any],
+    *,
+    now: datetime | None = None,
+    cooldown_seconds: int = ALERT_RESEND_COOLDOWN_SECONDS,
+) -> bool:
+    """Decide whether a resident should receive this poll's alert notification."""
+    if prior is None:
+        return True
+
+    alert_id = str(alert.get("id") or "")
+    if alert_id and prior.get("alertId") == alert_id:
+        return False
+
+    message_type = str(alert.get("messageType") or "").strip().lower()
+    vtec_action = str(alert.get("vtecAction") or "").strip().upper()
+
+    # Brand-new products / extensions / upgrades / cancels should notify immediately.
+    if message_type == "alert" or vtec_action in FORCE_SEND_VTEC_ACTIONS:
+        return True
+
+    if severity_rank(str(alert.get("severity") or "")) > severity_rank(
+        str(prior.get("severity") or "")
+    ):
+        return True
+
+    sent_at = parse_sent_at(str(prior.get("sentAt") or ""))
+    if sent_at is None:
+        return True
+
+    current = now or datetime.now(UTC)
+    return (current - sent_at).total_seconds() >= cooldown_seconds
 
 
 def utc_now_iso() -> str:
