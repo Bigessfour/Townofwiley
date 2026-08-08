@@ -101,7 +101,8 @@ export class StaffAuthService {
 
     try {
       const session = await fetchAuthSession({
-        forceRefresh: options?.forceRefresh ?? false,
+        // Default true so Staff group claims refresh after Cognito console / Hosted UI changes.
+        forceRefresh: options?.forceRefresh ?? true,
       });
       const accessToken = session.tokens?.accessToken?.toString() ?? null;
       const idToken = session.tokens?.idToken?.toString() ?? null;

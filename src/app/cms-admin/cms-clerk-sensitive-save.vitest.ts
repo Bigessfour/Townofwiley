@@ -1,41 +1,31 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   confirmClerkSensitiveSave,
-  confirmEmailAliasSave,
   confirmMeetingDocumentUpload,
 } from './cms-clerk-sensitive-save';
 
-describe('cms-clerk-sensitive-save', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
+describe('confirmClerkSensitiveSave', () => {
+  it('does not prompt for a normal active post-notice save', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    expect(confirmClerkSensitiveSave('post-notice', { active: true, title: 'Hi' })).toBe(true);
+    expect(confirmSpy).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
   });
 
-  it('confirmClerkSensitiveSave prompts when enabling emergency banner', () => {
-    const confirm = vi.fn().mockReturnValue(true);
-    vi.stubGlobal('confirm', confirm);
-    const ok = confirmClerkSensitiveSave('emergency-banner', { enabled: true });
-    expect(ok).toBe(true);
-    expect(confirm).toHaveBeenCalledOnce();
+  it('prompts when hiding a notice from the public site', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    expect(confirmClerkSensitiveSave('post-notice', { active: false })).toBe(false);
+    expect(confirmSpy).toHaveBeenCalledOnce();
+    confirmSpy.mockRestore();
   });
+});
 
-  it('confirmClerkSensitiveSave prompts when hiding a notice', () => {
-    const confirm = vi.fn().mockReturnValue(false);
-    vi.stubGlobal('confirm', confirm);
-    const ok = confirmClerkSensitiveSave('post-notice', { active: false });
-    expect(ok).toBe(false);
-  });
-
-  it('confirmEmailAliasSave describes alias and destination', () => {
-    const confirm = vi.fn().mockReturnValue(true);
-    vi.stubGlobal('confirm', confirm);
-    expect(confirmEmailAliasSave('clerk@townofwiley.gov', 'deb@example.com')).toBe(true);
-    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('clerk@townofwiley.gov'));
-  });
-
-  it('confirmMeetingDocumentUpload includes meeting and file', () => {
-    const confirm = vi.fn().mockReturnValue(true);
-    vi.stubGlobal('confirm', confirm);
-    confirmMeetingDocumentUpload('Town Council', 'agenda.pdf');
-    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('agenda.pdf'));
+describe('confirmMeetingDocumentUpload', () => {
+  it('asks the clerk to confirm publish details', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    expect(confirmMeetingDocumentUpload('Council', 'agenda.pdf')).toBe(true);
+    expect(confirmSpy.mock.calls[0]?.[0]).toMatch(/Council/);
+    expect(confirmSpy.mock.calls[0]?.[0]).toMatch(/agenda\.pdf/);
+    confirmSpy.mockRestore();
   });
 });

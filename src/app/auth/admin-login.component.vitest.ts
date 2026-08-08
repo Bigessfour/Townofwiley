@@ -18,6 +18,10 @@ describe('sanitizeStaffReturnUrl', () => {
     expect(sanitizeStaffReturnUrl('//evil.example/phish')).toBe('/admin');
     expect(sanitizeStaffReturnUrl('/\\evil.example')).toBe('/admin');
   });
+
+  it('rejects encoded protocol-relative URLs', () => {
+    expect(sanitizeStaffReturnUrl('/%2F%2Fevil.example/phish')).toBe('/admin');
+  });
 });
 
 describe('AdminLoginComponent', () => {

@@ -2,7 +2,7 @@
 <!-- Do NOT edit manually. Lightweight correctness-surface tracker. -->
 
 # Function Inventory — townofwiley-app
-Generated: 2026-08-08T12:01:27.486046+00:00
+Generated: 2026-08-08T12:06:27.782862+00:00
 **Stack:** TypeScript/Angular
 **Tracking mode:** `surfaces`
 **Scan roots:** `src`, `infrastructure/community-calendar`, `scripts/lib`

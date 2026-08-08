@@ -1,5 +1,6 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import { disableE2eStaffAuth, enableE2eStaffAuth } from '../../support/admin-staff-auth';
+import { installClerkWriteMocks } from '../../support/clerk-write-mocks';
 
 async function gotoAdminHub(page: import('@playwright/test').Page, path: string): Promise<void> {
   await enableE2eStaffAuth(page);
@@ -56,6 +57,27 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-save-record')).toBeVisible();
   });
 
+  test('clerk can save a new notice via mocked AppSync create', async ({ homePage }) => {
+    await installClerkWriteMocks(homePage.page);
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-post-notice').click();
+    await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible({ timeout: 20_000 });
+
+    await homePage.page
+      .getByLabel(/Notice headline/i)
+      .fill('E2E Wave 2 water notice');
+    await homePage.page
+      .getByLabel(/Notice message/i)
+      .fill('Main Street hydrant work — Wave 2 completeness proof.');
+
+    await homePage.page.getByTestId('cms-save-record').click();
+
+    await expect(homePage.page.getByText(/Announcement saved \(ID e2e-notice-1\)/i)).toBeVisible({
+      timeout: 20_000,
+    });
+  });
+
   test('document publishing shows meeting agenda upload panel', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin#documents');
 
@@ -65,6 +87,34 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByTestId('cms-meeting-upload-event')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-meeting-upload-file')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-meeting-upload-submit')).toBeVisible();
+  });
+
+  test('clerk can publish a meeting PDF via mocked presign + AppSync', async ({ homePage }) => {
+    await installClerkWriteMocks(homePage.page);
+    homePage.page.on('dialog', async (dialog) => {
+      await dialog.accept();
+    });
+
+    await gotoAdminHub(homePage.page, '/admin#documents');
+    await expect(homePage.page.getByTestId('cms-meeting-document-upload')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await homePage.page.getByTestId('cms-meeting-upload-event').selectOption('e2e-meeting-1');
+    await homePage.page
+      .getByTestId('cms-meeting-upload-file')
+      .setInputFiles({
+        name: 'e2e-agenda.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.4 e2e wave2'),
+      });
+
+    await expect(homePage.page.getByTestId('cms-meeting-upload-preview')).toBeVisible();
+    await homePage.page.getByTestId('cms-meeting-upload-submit').click();
+
+    await expect(homePage.page.getByText(/Published E2E Town Council/i)).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test('content inventory is under Advanced (IT)', async ({ homePage }) => {
