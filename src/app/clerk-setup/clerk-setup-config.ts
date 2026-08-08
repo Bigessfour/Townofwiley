@@ -1,3 +1,5 @@
+import { buildAppSyncQueriesConsoleUrl } from './appsync-console-url';
+
 interface RuntimeClerkSetupConfig {
   clerkName: string;
   awsAccountId: string;
@@ -5,6 +7,8 @@ interface RuntimeClerkSetupConfig {
   awsRegion: string;
   awsConsoleUrl: string;
   studioUrl: string;
+  cfDistributionId: string;
+  s3Bucket: string;
 }
 
 interface RuntimeConfigShape {
@@ -15,9 +19,10 @@ const DEFAULT_CLERK_NAME = 'Deb Dillon';
 const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 const DEFAULT_AWS_REGION = 'us-east-2';
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
-/** Current Gen 2 AppSync for CMS editing (replaces legacy Amplify Studio/Data Manager for d331voxr1fhoir). */
-const CURRENT_APPSYNC_API_ID = 'x7poehudqvamneqni5s6e2cjxy';
-const CURRENT_APPSYNC_CONSOLE_BASE = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/appsync/home?region=${DEFAULT_AWS_REGION}#/${CURRENT_APPSYNC_API_ID}/v1`;
+/** Production Gen 1 AppSync Queries console (IT Advanced). */
+const DEFAULT_STUDIO_URL = buildAppSyncQueriesConsoleUrl(DEFAULT_AWS_REGION);
+const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
+const DEFAULT_S3_BUCKET = 'townofwiley-static-site';
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
 
 type ClerkSetupRuntimeWindow = Window & {
@@ -45,10 +50,9 @@ export function buildAmplifyConsoleDataManagerUrl(
   }
 
   // Legacy Amplify Hosting app (d331voxr1fhoir) was deleted June 2026 after S3+CloudFront migration.
-  // CMS content (Events, Announcements, SiteSettings, etc.) is now managed via the current
-  // Gen 2 AppSync console (Queries tab or schema). The old /amplify/apps/.../data URLs 404.
+  // CMS content is managed via Gen 1 AppSync Queries (IT). The old /amplify/apps/.../data URLs 404.
   if (appId === 'd331voxr1fhoir') {
-    return `${CURRENT_APPSYNC_CONSOLE_BASE}/queries`;
+    return buildAppSyncQueriesConsoleUrl(region);
   }
 
   const branch = branchName.trim() || 'main';
@@ -110,6 +114,9 @@ export function getClerkSetupRuntimeConfig(): RuntimeClerkSetupConfig {
     awsConsoleUrl,
     studioUrl:
       trimOrEmpty(clerkSetupConfig.studioUrl) ||
-      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', awsConsoleUrl),
+      buildAmplifyConsoleDataManagerUrl(awsRegion, amplifyAppId, 'main', DEFAULT_STUDIO_URL),
+    cfDistributionId:
+      trimOrEmpty(clerkSetupConfig.cfDistributionId) || DEFAULT_CF_DISTRIBUTION_ID,
+    s3Bucket: trimOrEmpty(clerkSetupConfig.s3Bucket) || DEFAULT_S3_BUCKET,
   };
 }

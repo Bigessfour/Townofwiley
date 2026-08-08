@@ -1981,25 +1981,20 @@ export class LocalizedCmsContentStore {
       contacts,
       OFFICIAL_CONTACT_ID_CITY_CLERK,
       fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
-      (contact, fallback) =>
+      (contact) =>
         contact.id.includes('clerk') ||
         contact.label.toLowerCase().includes('clerk') ||
-        contact.label.toLowerCase().includes('secretaria') ||
-        contact.href === fallback.href ||
-        contact.linkLabel === fallback.linkLabel ||
-        contact.value === fallback.value,
+        contact.label.toLowerCase().includes('secretaria'),
     );
     this.mergeRequiredOfficialContact(
       contactById,
       contacts,
       OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT,
       fallbackContacts.find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_SUPERINTENDENT),
-      (contact, fallback) =>
+      (contact) =>
         contact.id.includes('superintendent') ||
         contact.label.toLowerCase().includes('superintendent') ||
-        contact.label.toLowerCase().includes('superintendente') ||
-        contact.href === fallback.href ||
-        contact.linkLabel === fallback.linkLabel,
+        contact.label.toLowerCase().includes('superintendente'),
     );
 
     return [...contactById.values()].sort((left, right) => {

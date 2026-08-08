@@ -130,17 +130,16 @@ export class CmsAdmin {
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
   protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;
   protected readonly awsConsoleUrl = this.clerkSetupConfig.awsConsoleUrl;
-  // Hardcode the current good editor (Gen 2 AppSync Queries) so that all "Edit content" buttons,
-  // the snapshot "Open content editor", upload panels, and the displayed "Content editor URL"
-  // in Advanced/IT always work. The legacy d331voxr1fhoir Amplify hosting app is deleted and
-  // its /amplify/.../data links 404 with "App d331voxr1fhoir not found".
+  // Prefer runtime studioUrl (Gen 1 AppSync Queries). Fall back to the production Queries URL so
+  // Advanced (IT) never links at the deleted Amplify Hosting app (d331voxr1fhoir).
   protected readonly dataManagerUrl =
-    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/x7poehudqvamneqni5s6e2cjxy/v1/queries';
+    this.clerkSetupConfig.studioUrl ||
+    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {
       key: 'data-manager',
-      label: 'Content editor URL (Gen 2 AppSync — current backend)',
+      label: 'Content editor URL (AppSync Queries — IT)',
       value: this.dataManagerUrl,
       copyValue: this.dataManagerUrl,
     },
@@ -155,6 +154,18 @@ export class CmsAdmin {
       label: 'Amplify app id (legacy hosting d331 deleted; for reference)',
       value: this.amplifyAppId,
       copyValue: this.amplifyAppId,
+    },
+    {
+      key: 'cloudfront',
+      label: 'CloudFront distribution id',
+      value: this.clerkSetupConfig.cfDistributionId,
+      copyValue: this.clerkSetupConfig.cfDistributionId,
+    },
+    {
+      key: 's3-bucket',
+      label: 'Static site bucket',
+      value: this.clerkSetupConfig.s3Bucket,
+      copyValue: this.clerkSetupConfig.s3Bucket,
     },
   ]);
 
