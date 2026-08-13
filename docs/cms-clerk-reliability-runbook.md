@@ -86,7 +86,7 @@ Public visitors immediately fall back to `/hero-wiley.webp` when the stored URL 
 
 | Task | Model | Public effect | Prove with |
 |------|--------|---------------|------------|
-| post-notice | Announcement | `/notices` or `/news` | Save + deep link |
+| post-notice | Announcement | `/news` | Save + deep link |
 | add-meeting | Event | `/meetings` | Save + deep link |
 | homepage | SiteSettings | `/` hero + welcome | Durable hero URL + text |
 | update-contacts | OfficialContact | `/contact` | Stable ids preferred |

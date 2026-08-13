@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
+import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(libDir, '..', '..');
@@ -47,11 +48,6 @@ export function loadAmplifyBranchEnvManifest(path = manifestPath) {
 }
 
 /**
- * @param {import('node:process').env} env
- * @param {Array<{ name: string; runtimePath?: string }>} requiredList
- * @returns {Array<{ name: string; runtimePath: string }>}
- */
-/**
  * Env vars satisfied by amplify_outputs.json (Gen 2 Hosting backend phase).
  * @param {Record<string, unknown> | null} outputs
  */
@@ -76,9 +72,17 @@ export function envFromAmplifyOutputs(outputs) {
   return out;
 }
 
-export function collectRequiredEnvErrors(requiredList, env) {
+/**
+ * @param {Array<{ name: string; runtimePath?: string }>} requiredList
+ * @param {import('node:process').env} env
+ * @param {Record<string, unknown>} [localSecrets]
+ */
+export function collectRequiredEnvErrors(requiredList, env, localSecrets = {}) {
   const outputsEnv = envFromAmplifyOutputs(loadAmplifyOutputsFromRepo());
-  const effectiveEnv = { ...outputsEnv, ...env };
+  const secretsEnv = envFromLocalSecrets(
+    typeof localSecrets === 'object' && localSecrets !== null ? localSecrets : {},
+  );
+  const effectiveEnv = { ...outputsEnv, ...secretsEnv, ...env };
   const missing = [];
   for (const entry of requiredList) {
     const value = effectiveEnv[entry.name];
@@ -105,6 +109,20 @@ export function shouldUseStrictMode(argv, env) {
     return true;
   }
   return Boolean(env.AWS_APP_ID?.trim());
+}
+
+/**
+ * Strict production generate used by `npm run build:ci`.
+ * `STRICT_RUNTIME_CONFIG=0` always wins (Dependabot / secretless PR CI).
+ *
+ * @param {import('node:process').env} env
+ */
+export function shouldRunStrictProductionBuild(env) {
+  const flag = env.STRICT_RUNTIME_CONFIG?.trim().toLowerCase();
+  if (flag === '0' || flag === 'false' || flag === 'no') {
+    return false;
+  }
+  return shouldUseStrictMode([], env);
 }
 
 /**
@@ -276,6 +294,21 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     '';
   const guestbookApiEndpoint =
     env.GUESTBOOK_API_ENDPOINT?.trim() || localSecrets.guestbook?.apiEndpoint?.trim() || '';
+  const communityCalendarApiEndpoint =
+    env.COMMUNITY_CALENDAR_ENDPOINT?.trim() ||
+    localSecrets.communityCalendar?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCommunityCalendar') : '') ||
+    '';
+  const cmsMediaUploadEndpoint =
+    env.CMS_MEDIA_UPLOAD_API_ENDPOINT?.trim() ||
+    localSecrets.cms?.mediaUpload?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCmsMediaUpload') : '') ||
+    '';
+  const cmsAuditLogEndpoint =
+    env.CMS_AUDIT_LOG_API_ENDPOINT?.trim() ||
+    localSecrets.cms?.auditLog?.apiEndpoint?.trim() ||
+    (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCmsChangeNotifier') : '') ||
+    '';
   const paystarMode =
     explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
       ? explicitPaystarMode
@@ -310,6 +343,9 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     contactUpdateReviewApiEndpoint,
     contactUpdateReviewProxyEndpoint,
     guestbookApiEndpoint,
+    communityCalendarApiEndpoint,
+    cmsMediaUploadEndpoint,
+    cmsAuditLogEndpoint,
     paystarMode,
     mode,
     cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
@@ -321,10 +357,50 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
 }
 
 /**
+ * Staff-only runtime settings (loaded on /admin, not on the public homepage).
+ * @param {ReturnType<typeof buildRuntimeConfigValues>} values
+ */
+export function buildAdminRuntimeConfigObject(values) {
+  const cms = {
+    ...(values.cmsMediaUploadEndpoint
+      ? {
+          mediaUpload: {
+            apiEndpoint: values.cmsMediaUploadEndpoint,
+          },
+        }
+      : {}),
+    ...(values.cmsAuditLogEndpoint
+      ? {
+          auditLog: {
+            apiEndpoint: values.cmsAuditLogEndpoint,
+          },
+        }
+      : {}),
+  };
+  return {
+    clerkSetup: {
+      clerkName: values.clerkSetupClerkName,
+      awsAccountId: values.clerkSetupAwsAccountId,
+      amplifyAppId: values.clerkSetupAmplifyAppId,
+      awsRegion: values.clerkSetupAwsRegion,
+      awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
+      studioUrl: values.clerkSetupStudioUrl,
+      dataManagerUrl: values.clerkSetupStudioUrl,
+    },
+    contactUpdate: {
+      reviewApiEndpoint: values.contactUpdateReviewApiEndpoint.replace(/\/$/, ''),
+      reviewProxyEndpoint: values.contactUpdateReviewProxyEndpoint,
+    },
+    ...(Object.keys(cms).length > 0 ? { cms } : {}),
+  };
+}
+
+/**
+ * Public visitor payload written to `runtime-config.js`.
  * @param {ReturnType<typeof buildRuntimeConfigValues>} values
  * @param {{ timestamp: string; gitSha: string }} buildMeta
  */
-export function buildRuntimeConfigObject(values, buildMeta) {
+export function buildPublicRuntimeConfigObject(values, buildMeta) {
   return {
     chatbot: {
       provider: 'easyPeasy',
@@ -379,25 +455,39 @@ export function buildRuntimeConfigObject(values, buildMeta) {
           },
         }
       : undefined,
-    clerkSetup: {
-      clerkName: values.clerkSetupClerkName,
-      awsAccountId: values.clerkSetupAwsAccountId,
-      amplifyAppId: values.clerkSetupAmplifyAppId,
-      awsRegion: values.clerkSetupAwsRegion,
-      awsConsoleUrl: values.clerkSetupAwsConsoleUrl,
-      studioUrl: values.clerkSetupStudioUrl,
-      dataManagerUrl: values.clerkSetupStudioUrl,
-    },
     logging: {
       endpoint: values.logEndpoint || undefined,
     },
     contactUpdate: {
       apiEndpoint: values.contactUpdateApiEndpoint,
-      reviewApiEndpoint: values.contactUpdateReviewApiEndpoint.replace(/\/$/, ''),
-      reviewProxyEndpoint: values.contactUpdateReviewProxyEndpoint,
     },
     guestbook: {
       apiEndpoint: values.guestbookApiEndpoint.replace(/\/$/, ''),
+    },
+    communityCalendar: {
+      apiEndpoint: values.communityCalendarApiEndpoint.replace(/\/$/, ''),
+    },
+  };
+}
+
+/**
+ * Full merged config (tests and local overrides only).
+ * @param {ReturnType<typeof buildRuntimeConfigValues>} values
+ * @param {{ timestamp: string; gitSha: string }} buildMeta
+ */
+export function buildRuntimeConfigObject(values, buildMeta) {
+  const admin = buildAdminRuntimeConfigObject(values);
+  const publicConfig = buildPublicRuntimeConfigObject(values, buildMeta);
+  return {
+    ...publicConfig,
+    clerkSetup: admin.clerkSetup,
+    cms: {
+      ...publicConfig.cms,
+      ...admin.cms,
+    },
+    contactUpdate: {
+      ...publicConfig.contactUpdate,
+      ...admin.contactUpdate,
     },
   };
 }

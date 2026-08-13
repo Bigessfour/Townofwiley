@@ -13,7 +13,7 @@ Component list from templates under `src/app/`. Expectations reference [PrimeNG]
 | Route | Template | PrimeNG components | Forms |
 |-------|----------|-------------------|--------|
 | `/` | `app.html` | (shell) | Site search `FormGroup` |
-| `/notices` | `notices-page.html` | Card, Skeleton | — |
+| `/notices` | redirect → `/news` | — | Legacy path only |
 | `/meetings` | `meetings-page.html`, `meeting-documents-archive` | Card, Table, Button, Skeleton | — |
 | `/weather` | `localized-weather-panel.html`, `weather-alert-banner` | Card, Panel, Tag, Accordion, Select, Message, Button, InputText, Skeleton | Alert signup: reactive `alertSignupForm` + `p-message` |
 | `/services` | `resident-services.html`, `panels/*` | Toast, Card, Select, Message, Button, InputText, Textarea | Issue report: reactive `issueForm` |

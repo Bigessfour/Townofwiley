@@ -1,3 +1,32 @@
+@if (compact()) {
+  <section class="weather-compact" [attr.aria-label]="copy().atGlanceAriaLabel">
+    @if (isLoading()) {
+      <p-skeleton width="100%" height="4.5rem" borderRadius="16px" />
+    } @else if (currentPeriod(); as period) {
+      <div class="weather-compact__row">
+        @if (period.iconUrl) {
+          <img class="weather-compact__icon" [src]="period.iconUrl" [alt]="period.iconAlt" />
+        }
+        <div class="weather-compact__copy">
+          <p class="meta-label">{{ period.name }}</p>
+          <p class="weather-compact__temp">{{ period.temperatureLabel }}</p>
+          <p class="weather-compact__forecast">{{ period.shortForecast }}</p>
+        </div>
+        @if (hasAlerts()) {
+          <p class="weather-compact__alert" role="status">{{ weatherAlerts()[0].event }}</p>
+        }
+      </div>
+      <a class="text-link weather-compact__link" routerLink="/weather">{{
+        copy().compactFullForecast
+      }}</a>
+    } @else {
+      <p class="weather-compact__error" role="status">{{ loadError() || copy().fallbackError }}</p>
+      <a class="text-link weather-compact__link" routerLink="/weather">{{
+        copy().compactFullForecast
+      }}</a>
+    }
+  </section>
+} @else {
 <section
   class="weather-panel panel wiley-panel grid gap-6 rounded-wiley-xl border border-wiley-cream-100 p-6 shadow-wiley-card md:p-8"
   aria-labelledby="weather-heading"
@@ -75,7 +104,7 @@
     }
 
     @if (!(loadError() && !hasForecastPayload())) {
-      <section class="weather-atglance flex flex-wrap gap-3" aria-label="Weather at a glance">
+      <section class="weather-atglance flex flex-wrap gap-3" [attr.aria-label]="copy().atGlanceAriaLabel">
         @if (solarTimes(); as solar) {
           <div class="atglance-card">
             <span class="meta-label">{{ copy().sunriseLabel }}</span>
@@ -552,3 +581,4 @@
     </section>
   }
 </section>
+}

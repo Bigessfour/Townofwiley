@@ -1,6 +1,7 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { PayBillPageComponent } from './pay-bill-page.component';
 
@@ -29,10 +30,21 @@ describe('PayBillPageComponent', () => {
     clearRuntimePaystarOverride();
   });
 
-  function setup() {
+  function setup(contacts: { id: string; href?: string; linkLabel?: string }[] = []) {
     TestBed.configureTestingModule({
       imports: [PayBillPageComponent],
-      providers: [provideAnimations(), provideZonelessChangeDetection(), SiteLanguageService],
+      providers: [
+        provideAnimations(),
+        provideZonelessChangeDetection(),
+        SiteLanguageService,
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            getSiteCopy: () => undefined,
+            contacts: signal(contacts),
+          },
+        },
+      ],
     });
 
     const fixture = TestBed.createComponent(PayBillPageComponent);
@@ -113,5 +125,28 @@ describe('PayBillPageComponent', () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="pay-bill-portal-placeholder"]'),
     ).not.toBeNull();
+  });
+
+  it('shows the default clerk email when CMS has no city-clerk row', () => {
+    const { fixture, component } = setup();
+    fixture.detectChanges();
+
+    expect(component['clerkEmailLabel']()).toBe('clerk@townofwiley.gov');
+    expect(component['clerkEmailHref']()).toBe('mailto:clerk@townofwiley.gov');
+    expect(fixture.nativeElement.textContent).toContain('clerk@townofwiley.gov');
+  });
+
+  it('uses the CMS mailto address when city-clerk has no linkLabel', () => {
+    const { fixture, component } = setup([
+      {
+        id: 'city-clerk',
+        href: 'mailto:deb@townofwiley.gov',
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(component['clerkEmailLabel']()).toBe('deb@townofwiley.gov');
+    expect(component['clerkEmailHref']()).toBe('mailto:deb@townofwiley.gov');
+    expect(fixture.nativeElement.textContent).toContain('deb@townofwiley.gov');
   });
 });

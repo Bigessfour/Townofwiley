@@ -40,7 +40,8 @@ describe('collectRequiredEnvErrors', () => {
       APPSYNC_CMS_ENDPOINT: '   ',
       APPSYNC_CMS_API_KEY: '',
     });
-    assert.equal(missing.length, 2);
+    assert.equal(missing.length, 3);
+    assert.ok(missing.some((entry) => entry.name === 'APPSYNC_CMS_ENDPOINT'));
     assert.ok(missing.some((entry) => entry.name === 'APPSYNC_CMS_API_KEY'));
     assert.ok(missing.some((entry) => entry.name === 'NWS_PROXY_ENDPOINT'));
   });
@@ -116,20 +117,22 @@ describe('buildRuntimeConfigValues manifest fallbacks', () => {
     assert.equal(values.severeWeatherSignupEnabled, false);
   });
 
-  it('defaults CMS endpoint to Gen 1 bindings when env and secrets are empty', () => {
+  it('does not invent a CMS endpoint without env, secrets, or amplify_outputs', () => {
     const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: true });
-    assert.match(values.cmsApiEndpoint, /327diwc6cvdqjocdudvrdv7wwu\.appsync-api\.us-east-2\.amazonaws\.com/);
-    assert.equal(values.cognitoUserPoolId, 'us-east-2_DmY7BCBIp');
+    assert.equal(values.cmsApiEndpoint, '');
+    assert.match(values.communityCalendarApiEndpoint, /lambda-url\.us-east-2\.on\.aws/);
   });
 });
 
 describe('public vs admin runtime config split', () => {
-  it('keeps clerk setup and staff CMS endpoints off the public payload', () => {
+  it('keeps clerk setup, staff CMS, and contact-review URLs off the public payload', () => {
     const values = buildRuntimeConfigValues(
       {},
       {
         CMS_MEDIA_UPLOAD_API_ENDPOINT: 'https://upload.example/',
         CMS_AUDIT_LOG_API_ENDPOINT: 'https://audit.example/',
+        CONTACT_UPDATE_REVIEW_API_URL: 'https://review.example/contact-updates/',
+        CONTACT_UPDATE_REVIEW_PROXY_URL: 'https://proxy.example/review',
       },
       { allowManifestFallbacks: true },
     );
@@ -142,9 +145,23 @@ describe('public vs admin runtime config split', () => {
     assert.equal(publicConfig.clerkSetup, undefined);
     assert.equal(publicConfig.cms?.mediaUpload, undefined);
     assert.equal(publicConfig.cms?.auditLog, undefined);
+    assert.equal(publicConfig.contactUpdate?.reviewApiEndpoint, undefined);
+    assert.equal(publicConfig.contactUpdate?.reviewProxyEndpoint, undefined);
     assert.ok(adminConfig.clerkSetup?.awsAccountId);
     assert.equal(adminConfig.cms?.mediaUpload?.apiEndpoint, 'https://upload.example/');
     assert.equal(adminConfig.cms?.auditLog?.apiEndpoint, 'https://audit.example/');
+    assert.equal(adminConfig.contactUpdate?.reviewApiEndpoint, 'https://review.example/contact-updates');
+    assert.equal(adminConfig.contactUpdate?.reviewProxyEndpoint, 'https://proxy.example/review');
+    assert.ok(typeof publicConfig.communityCalendar?.apiEndpoint === 'string');
+  });
+});
+
+describe('runtime-config CLI surface', () => {
+  it('exports the builders generate-runtime-config.mjs imports', async () => {
+    const env = await import('./lib/runtime-config-env.mjs');
+    assert.equal(typeof env.buildPublicRuntimeConfigObject, 'function');
+    assert.equal(typeof env.buildAdminRuntimeConfigObject, 'function');
+    assert.equal(typeof env.shouldRunStrictProductionBuild, 'function');
   });
 });
 

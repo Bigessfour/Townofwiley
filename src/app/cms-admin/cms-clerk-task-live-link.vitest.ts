@@ -6,19 +6,19 @@ import {
 } from './cms-clerk-task-live-link';
 
 describe('buildClerkTaskLiveLink — URL wiring only (not save→public E2E)', () => {
-  it('post-notice: short notice → /notices#notice-{sanitized id}', () => {
+  it('post-notice: short notice → /news#notice-{sanitized id}', () => {
     expect(
       buildClerkTaskLiveLink({
         taskId: 'post-notice',
         savedId: 'abc 123!',
         formValues: { announcementKind: 'notice' },
       }),
-    ).toBe('https://townofwiley.gov/notices#notice-abc-123');
+    ).toBe('https://townofwiley.gov/news#notice-abc-123');
   });
 
-  it('post-notice: short notice with no kind → /notices#notice-{sanitized id}', () => {
+  it('post-notice: short notice with no kind → /news#notice-{sanitized id}', () => {
     expect(buildClerkTaskLiveLink({ taskId: 'post-notice', savedId: 'short-1' })).toBe(
-      'https://townofwiley.gov/notices#notice-short-1',
+      'https://townofwiley.gov/news#notice-short-1',
     );
   });
 

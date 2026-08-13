@@ -107,8 +107,20 @@ test.describe('live hosting readiness', () => {
       ).toBe('string');
     }
     expect(cfg.clerkSetup, 'public runtime-config must not expose clerkSetup').toBeUndefined();
-    expect(cms?.mediaUpload, 'public runtime-config must not expose cms.mediaUpload').toBeUndefined();
+    expect(
+      cms?.mediaUpload,
+      'public runtime-config must not expose cms.mediaUpload',
+    ).toBeUndefined();
     expect(cms?.auditLog, 'public runtime-config must not expose cms.auditLog').toBeUndefined();
+    const contactUpdate = cfg.contactUpdate as Record<string, unknown> | undefined;
+    expect(
+      contactUpdate?.reviewApiEndpoint,
+      'public runtime-config must not expose contact-review API',
+    ).toBeUndefined();
+    expect(
+      contactUpdate?.reviewProxyEndpoint,
+      'public runtime-config must not expose contact-review proxy',
+    ).toBeUndefined();
   });
 
   test('runtime-config-admin.js hosts staff-only clerk setup block', async ({ request }) => {

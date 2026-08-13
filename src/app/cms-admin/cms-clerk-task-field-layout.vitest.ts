@@ -7,7 +7,7 @@ describe('cms-clerk-task-field-layout', () => {
     const fields = clerkTaskFormFields('post-notice');
     const title = fields.find((field) => field.name === 'title');
     expect(title?.group).toBe('Notice text');
-    expect(title?.previewHint).toMatch(/notices/);
+    expect(title?.previewHint).toMatch(/\/news/);
   });
 
   it('resolves SiteCopy appears-on hints from the key field', () => {

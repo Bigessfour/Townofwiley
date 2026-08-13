@@ -9,7 +9,11 @@ export async function expectWeatherPageHeading(page: Page): Promise<void> {
 }
 
 export async function expectNoticesPageCards(homePage: HomePage): Promise<void> {
-  await expect(homePage.noticeCards).toHaveCount(siteContent.homepageCounts.noticeCards);
+  await expect(homePage.page).toHaveURL(/\/news/);
+  await expect(
+    homePage.page.getByRole('heading', { level: 1, name: 'Town News and Announcements' }),
+  ).toBeVisible();
+  await expect(homePage.noticeCards.first()).toBeVisible();
 }
 
 export async function expectMeetingsCalendar(page: Page): Promise<void> {
@@ -17,8 +21,8 @@ export async function expectMeetingsCalendar(page: Page): Promise<void> {
 }
 
 export async function expectServicesPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.serviceCards).toHaveCount(siteContent.homepageCounts.serviceCards);
   await expect(homePage.page.locator('#resident-services')).toBeVisible();
+  await expect(homePage.residentServiceToggles).toHaveCount(3);
 }
 
 export async function expectRecordsPage(page: Page): Promise<void> {

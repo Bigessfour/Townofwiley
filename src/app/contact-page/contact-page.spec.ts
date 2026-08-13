@@ -77,7 +77,8 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Phone, email, and next steps');
     expect(
-      el.querySelector('.contact-town-hall-card .contact-section-card-title')?.textContent,
+      el.querySelector('[data-testid="contact-town-hall"] .contact-section-card-title')
+        ?.textContent,
     ).toContain('Wiley Town Hall');
     expect(el.querySelector('.contact-town-hall-phone')?.getAttribute('href')).toBe(
       'tel:+17198294974',
@@ -92,7 +93,8 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Telefono, correo');
     expect(
-      el.querySelector('.contact-town-hall-card .contact-section-card-title')?.textContent,
+      el.querySelector('[data-testid="contact-town-hall"] .contact-section-card-title')
+        ?.textContent,
     ).toContain('Ayuntamiento de Wiley');
     expect(el.querySelector('.section-kicker')?.textContent).toContain('Contacto');
   });
@@ -151,11 +153,11 @@ describe('ContactPage', () => {
       leadershipRosterEntriesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.contact-administration-card .contact-roster-empty')).toBeNull();
+    expect(el.querySelector('#contact-administration .contact-roster-empty')).toBeNull();
     expect(el.querySelector('.contact-town-information-detail')?.textContent).toContain(
       'Call ahead for clerk assistance.',
     );
-    const mailtoLinks = [...el.querySelectorAll('.contact-administration-card .contact-link')].map(
+    const mailtoLinks = [...el.querySelectorAll('#contact-administration .contact-link')].map(
       (link) => link.getAttribute('href'),
     );
     expect(mailtoLinks).toEqual([
@@ -203,7 +205,7 @@ describe('ContactPage', () => {
       leadershipRosterEntriesByGroup: signal(rosterMap),
     });
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.contact-administration-card .contact-roster-name')?.textContent).toBe(
+    expect(el.querySelector('#contact-administration .contact-roster-name')?.textContent).toBe(
       'From CMS',
     );
   });

@@ -20,27 +20,40 @@ concurrency:
 
 jobs:
   ollama-pr-review:
-    if: github.event.pull_request.draft == false
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Ollama
-        uses: ./.github/actions/setup-ollama
-        with:
-          # Prefer coder model when var set; default stays small for free GH runners.
-          model: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
-          # vars.* only valid in workflow YAML (not nested composite expressions).
-          version: ${{ vars.OLLAMA_VERSION || '' }}
-
-      - name: Post advisory PR review comment
+      - name: Classify whether a model review is worth running
+        id: gate
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          OLLAMA_MODEL: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'llama3.2:3b' }}
+        run: node scripts/ollama-pr-review.mjs --gate-only
+
+      - name: Setup Ollama
+        if: steps.gate.outputs.skip != 'true'
+        uses: ./.github/actions/setup-ollama
+        with:
+          # Coder model follows the review template more reliably than llama3.2:3b.
+          model: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'qwen2.5-coder:3b' }}
+          # vars.* only valid in workflow YAML (not nested composite expressions).
+          version: ${{ vars.OLLAMA_VERSION || '' }}
+
+      - name: Post advisory PR review comment
+        if: steps.gate.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OLLAMA_MODEL: ${{ vars.OLLAMA_PR_REVIEW_MODEL || 'qwen2.5-coder:3b' }}
+          OLLAMA_NUM_CTX: '16384'
         run: node scripts/ollama-pr-review.mjs
 
       - name: Upload review artifacts

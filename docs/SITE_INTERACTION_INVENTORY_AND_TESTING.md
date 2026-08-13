@@ -6,7 +6,7 @@ The public site is hosted on **S3 + CloudFront** (`townofwiley.gov`), with serve
 ## Public Facing Pages (from `app.routes.ts`)
 
 1. `/` (Homepage)
-2. `/notices`
+2. `/news` (legacy `/notices` redirects here)
 3. `/meetings` (includes meeting agendas/minutes archive)
 4. `/weather`
 5. `/services` (Resident Services)
@@ -26,7 +26,7 @@ The public site is hosted on **S3 + CloudFront** (`townofwiley.gov`), with serve
 
 ## Page-by-Page Interaction Inventory (Top → Bottom)
 
-**All pages share**: Header (logo, PrimeNG megamenu, language switcher, Wiley Search on homepage, mobile drawer, alerts, chatbot toggle) + Footer links.
+**All pages share**: Header (logo, PrimeNG megamenu, language switcher, Wiley Search, mobile drawer, alerts, chatbot toggle) + Footer links.
 
 **Status summary**: Navigation is covered by Playwright smoke, inventory, and megamenu specs. Records/document hub pages were removed June 2026; redirects and clerk/meetings destinations replace them.
 

@@ -94,10 +94,52 @@ describe('News', () => {
     expect(externalCta?.querySelector('.visually-hidden')?.textContent).toContain(
       'opens in new tab',
     );
-    const featuredLink = compiled.querySelector(
-      'a.featured-news-card-link',
-    ) as HTMLAnchorElement | null;
-    expect(featuredLink?.getAttribute('href')).toBe('/notices#notice-first-notice');
+    expect(compiled.querySelector('#notice-first-notice')).toBeTruthy();
+    expect(compiled.querySelector('a.featured-news-card-link')).toBeNull();
+    expect(compiled.querySelector('#notice-second-notice')).toBeTruthy();
+    expect(compiled.querySelector('a.news-card-link')).toBeNull();
+    expect(compiled.querySelector('#recent-town-notices-heading')?.textContent).toContain(
+      'Current Wiley Updates',
+    );
+  });
+
+  it('keeps the clerk hub heading when only one bulletin is featured', () => {
+    const notices = signal<CmsNotice[]>([
+      {
+        id: 'only-notice',
+        title: 'Hydrant flushing',
+        date: 'May 3, 2026',
+        detail: 'Short notice text.',
+        type: 'notice',
+      },
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [News],
+      providers: [
+        SiteLanguageService,
+        provideRouter([]),
+        { provide: DocumentUploadService, useValue: createDocumentUploadStub() },
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            notices,
+            externalNewsLinks: signal([]),
+            isLoading: signal(false),
+          } as unknown as LocalizedCmsContentStore,
+        },
+      ],
+    });
+
+    TestBed.inject(SiteLanguageService).setLanguage('en');
+    const fixture = TestBed.createComponent(News);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('#recent-town-notices-heading')?.textContent).toContain(
+      'Current Wiley Updates',
+    );
+    expect(el.querySelector('.featured-news-card h2')?.textContent).toContain('Hydrant flushing');
   });
 
   it('falls back to paragraph rendering when the latest newsletter has no attachmentKey', () => {
@@ -419,5 +461,51 @@ describe('News', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('#town-newsletter-heading')).toBeNull();
     expect(el.querySelector('.featured-news-card h2')?.textContent).toContain('Sole bulletin');
+  });
+
+  it('opens a featured StoryMap notice in a new tab instead of using the story URL as an image', () => {
+    const storyUrl = 'https://storymaps.arcgis.com/stories/3e402c3303a84dcfb0d9ee6c60995349';
+    const notices = signal<CmsNotice[]>([
+      {
+        id: '2c607cdc-f367-4655-85b0-91b2544e74a9',
+        title: '2026 SECRHA Housing Needs Assessment',
+        date: 'August 1, 2026',
+        detail: 'Interactive Story Map',
+        type: 'notice',
+        imageUrl: storyUrl,
+      },
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [News],
+      providers: [
+        SiteLanguageService,
+        provideRouter([]),
+        { provide: DocumentUploadService, useValue: createDocumentUploadStub() },
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            notices,
+            externalNewsLinks: signal([]),
+            isLoading: signal(false),
+          } as unknown as LocalizedCmsContentStore,
+        },
+      ],
+    });
+
+    TestBed.inject(SiteLanguageService).setLanguage('en');
+    const fixture = TestBed.createComponent(News);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const featuredLink = el.querySelector('a.featured-news-card-link') as HTMLAnchorElement | null;
+    expect(featuredLink?.getAttribute('href')).toBe(storyUrl);
+    expect(featuredLink?.getAttribute('target')).toBe('_blank');
+    expect(featuredLink?.getAttribute('rel')).toContain('noopener');
+    expect(featuredLink?.textContent).toContain('Open interactive Story Map');
+    const images = [...el.querySelectorAll('img')];
+    expect(
+      images.some((img) => (img.getAttribute('src') ?? '').includes('storymaps.arcgis.com')),
+    ).toBe(false);
   });
 });

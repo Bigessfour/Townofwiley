@@ -22,6 +22,12 @@
   cursor: pointer;
 }
 
+.featured-news-card-article,
+.news-card-article {
+  display: block;
+  color: inherit;
+}
+
 .featured-news-card-link:focus-visible,
 .news-card-link:focus-visible {
   outline: 2px solid var(--wiley-teal-600);
@@ -163,4 +169,13 @@
 
 .featured-news-link {
   width: fit-content;
+}
+
+.news-card-detail,
+.notice-card-detail,
+.public-card-copy.news-card-detail {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

@@ -60,10 +60,7 @@ const TASK_LIVE_LINK_MAP: Readonly<Record<ClerkCmsTaskId, TaskLiveLinkEntry>> = 
       }
       return cmsNoticeFragmentId(savedId);
     },
-    buildRecordPath: (_savedId, formValues) => {
-      const kind = readString(formValues, 'announcementKind');
-      return kind === 'newsletter' ? '/news' : '/notices';
-    },
+    buildRecordPath: () => '/news',
   },
   'add-meeting': {
     hubFragment: 'calendar',

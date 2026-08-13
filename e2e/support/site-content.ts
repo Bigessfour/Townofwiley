@@ -27,8 +27,7 @@ export const siteContent = {
   /** Mega menu end slot + search field (matches `APP_COPY.en` in `app.ts`). */
   megaMenuChromeEn: {
     contactCta: 'Contact Town Hall',
-    searchInputAccessibleName:
-      'Find taxes, meetings, utilities, and issue reporting in one place.',
+    searchInputAccessibleName: 'Find taxes, meetings, utilities, and issue reporting in one place.',
   },
   /**
    * Mobile drawer anchors (`mobile-menu-nav` + pay CTA in `app.html`), EN locale.
@@ -40,7 +39,7 @@ export const siteContent = {
     { label: 'I Want To...', urlRegex: /\/#top-tasks$/ },
     { label: 'Government & Meetings', urlRegex: /\/meetings$/ },
     { label: 'Services', urlRegex: /\/services$/ },
-    { label: 'News, Notices & Alerts', urlRegex: /\/notices$/ },
+    { label: 'News, Notices & Alerts', urlRegex: /\/news$/ },
     { label: 'Weather', urlRegex: /\/weather$/ },
     { label: 'Businesses & Community', urlRegex: /\/businesses$/ },
     { label: 'Contact & Town Hall', urlRegex: /\/contact$/ },
@@ -66,7 +65,6 @@ export const siteContent = {
     accessibilityStatement: 'Accessibility statement',
     leadership: 'Leadership',
     residentServices: 'Resident services',
-    townNotices: 'Town notices',
     townNews: 'Town news',
     signUpAlerts: 'Sign up for text or email alerts',
   },
@@ -82,6 +80,8 @@ export const siteContent = {
     /** Matches active `noticeRecords` in `public/cms-snapshot.json` (newsletter-only snapshot as of 2026-06). */
     noticeCards: 1,
     meetingCards: 2,
+    /** Official table rows after the next-up card (CMS snapshot has 2 events). */
+    meetingTableRows: 1,
     serviceCards: 6,
     headerShortcuts: 3,
   },

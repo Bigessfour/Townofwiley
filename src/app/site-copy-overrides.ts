@@ -33,8 +33,8 @@ export const SITE_COPY_KEY_CATALOG: readonly SiteCopyKeyCatalogEntry[] = [
     plainLabel: 'Town Hall hours line',
     appearsOn: '/contact (Town Hall card)',
   },
-  { key: 'noticesKicker', plainLabel: 'Notices page kicker', appearsOn: '/notices' },
-  { key: 'noticesHeading', plainLabel: 'Notices page heading', appearsOn: '/notices' },
+  { key: 'noticesKicker', plainLabel: 'Homepage notices kicker', appearsOn: '/ (notices panel)' },
+  { key: 'noticesHeading', plainLabel: 'Homepage notices heading', appearsOn: '/ (notices panel)' },
   { key: 'menuQuickTasksLabel', plainLabel: 'Mega menu: I Want To…', appearsOn: 'Site header menu' },
   {
     key: 'menuGovernmentLabel',

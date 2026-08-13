@@ -15,9 +15,8 @@ test.describe('homepage responsive coverage', () => {
 
     expect(overflowPixels).toBeLessThanOrEqual(1);
     await expect(homePage.topTaskCards).toHaveCount(5);
-    await expect(homePage.featureCards).toHaveCount(6);
-    await expect(homePage.page.locator('.feature-card[href="/weather"]')).toBeVisible();
-    await expect(homePage.page.locator('.feature-card[href="/services"]')).toBeVisible();
+    await expect(homePage.page.getByRole('link', { name: /Explore resident services/i })).toBeVisible();
+    await expect(homePage.page.getByRole('link', { name: 'View meetings' })).toBeVisible();
     await expect(
       homePage.page.getByRole('link', { name: 'Accessibility statement' }),
     ).toBeVisible();

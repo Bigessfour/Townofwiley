@@ -391,12 +391,52 @@
 .header-search-form {
   display: grid;
   gap: var(--space-xs);
+  position: relative;
 }
 
 .header-search-row {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+}
+
+.header-search-results {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: min(24rem, 70vh);
+  overflow: auto;
+  padding: var(--space-sm);
+  border: 1px solid var(--wiley-cream-100, #e8e4d9);
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--wiley-cream-0, #fff);
+}
+
+.header-search-results--stacked {
+  position: static;
+  top: auto;
+  max-height: min(20rem, 50vh);
+}
+
+.search-suggestion {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--wiley-teal-600, #0f6b6b);
+  border-radius: var(--radius-full, 999px);
+  background: var(--wiley-cream-0, #fff);
+  color: var(--wiley-navy-900, #1f2a2e);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.search-suggestion:hover,
+.search-suggestion:focus-visible {
+  background: color-mix(in srgb, var(--wiley-teal-600, #0f6b6b) 12%, #fff);
 }
 
 .header-right,
@@ -1690,6 +1730,12 @@ h6 {
   margin: 0;
   line-height: var(--line-height-body);
   color: var(--ink-700);
+}
+
+.notice-card-cta {
+  margin: 0;
+  font-weight: 600;
+  color: var(--wiley-teal-700);
 }
 
 .stack-list {
@@ -3333,6 +3379,7 @@ button:not(:disabled):active,
 :host ::ng-deep .p-megamenu.mega-menu-civic {
   border: none;
   box-shadow: none;
+  overflow: visible;
   position: relative;
   z-index: 1200;
   width: 100%;
@@ -3593,6 +3640,7 @@ button:not(:disabled):active,
   gap: var(--space-md);
   min-width: 0;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .search-group {
@@ -3623,18 +3671,8 @@ button:not(:disabled):active,
   color: var(--wiley-header-nav-text);
 }
 
-:host
-  ::ng-deep
-  .p-megamenu.mega-menu-civic
-  .p-megamenu-root-list
-  > li
-  > .p-menuitem-link:hover,
-:host
-  ::ng-deep
-  .p-megamenu.mega-menu-civic
-  .p-megamenu-root-list
-  > li.p-focus
-  > .p-menuitem-link,
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li > .p-menuitem-link:hover,
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li.p-focus > .p-menuitem-link,
 :host
   ::ng-deep
   .p-megamenu.mega-menu-civic

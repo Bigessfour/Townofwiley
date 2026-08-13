@@ -21,6 +21,10 @@ export interface AdminRuntimeConfigShape {
     mediaUpload?: { apiEndpoint?: string };
     auditLog?: { apiEndpoint?: string };
   };
+  contactUpdate?: {
+    reviewApiEndpoint?: string;
+    reviewProxyEndpoint?: string;
+  };
 }
 
 type AdminRuntimeWindow = Window & {
@@ -61,6 +65,10 @@ export function readAdminRuntimeConfig(): AdminRuntimeConfigShape | undefined {
         ...(override?.cms?.auditLog ?? {}),
       },
     },
+    contactUpdate: {
+      ...(base?.contactUpdate ?? {}),
+      ...(override?.contactUpdate ?? {}),
+    },
   };
 }
 
@@ -76,9 +84,13 @@ function injectAdminRuntimeScript(): Promise<void> {
     );
     if (existing) {
       existing.addEventListener('load', () => resolve(), { once: true });
-      existing.addEventListener('error', () => reject(new Error('Admin runtime config failed to load.')), {
-        once: true,
-      });
+      existing.addEventListener(
+        'error',
+        () => reject(new Error('Admin runtime config failed to load.')),
+        {
+          once: true,
+        },
+      );
       return;
     }
 

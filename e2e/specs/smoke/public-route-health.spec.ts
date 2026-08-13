@@ -47,6 +47,9 @@ test.describe('public route health', () => {
       });
 
       await homePage.page.goto(routeContract.path, { waitUntil: 'domcontentloaded' });
+      if (routeContract.path === '/notices') {
+        await homePage.page.waitForURL(/\/news/);
+      }
 
       const heading = homePage.page.getByRole('heading', { name: routeContract.heading }).first();
       await expect(heading).toBeVisible({ timeout: 20000 });
@@ -61,9 +64,10 @@ test.describe('public route health', () => {
 
       if (routeContract.primaryAction) {
         await expect(routeContract.primaryAction(homePage.page)).toBeVisible({
-          timeout: routeContract.path === '/documents' || routeContract.path === '/accessibility'
-            ? 20_000
-            : 10_000,
+          timeout:
+            routeContract.path === '/documents' || routeContract.path === '/accessibility'
+              ? 20_000
+              : 10_000,
         });
       }
 

@@ -20,7 +20,7 @@ export const DOCUMENT_SECTIONS: CmsAdminDocumentSection[] = [
 ];
 
 export const DOCUMENT_PUBLISHING_CHECKS: string[] = [
-  'If the AppSync editor says access denied or not authorized, ask IT to fix your staff login or permissions first.',
+  'If the content editor says access denied or not authorized, ask IT to fix your staff login or permissions first.',
   'Public records, budgets, and code documents are not published on the website — residents email clerk@townofwiley.gov.',
   'Use Add meeting or event for calendar dates on the Meetings page.',
 ];

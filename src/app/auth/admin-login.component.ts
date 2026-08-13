@@ -17,6 +17,7 @@ import { MessageModule } from 'primeng/message';
 import { ADMIN_LOGIN_COPY } from './admin-login-copy';
 import { readStaffAuthErrorMessage, readStaffPasswordResetErrorMessage } from './staff-auth-error';
 import { StaffAuthService } from './staff-auth.service';
+import { sanitizeStaffReturnUrl } from './staff-return-url';
 
 type LoginStep = 'signIn' | 'newPassword' | 'forgotPassword' | 'confirmReset';
 
@@ -106,7 +107,7 @@ export class AdminLoginComponent {
     this.submitting.set(true);
     this.cdr.markForCheck();
     try {
-      await this.auth.signInWithCognitoHosted();
+      await this.auth.beginStaffHostedSignIn();
       // Browser will redirect; on return the session should be established.
     } catch (error) {
       this.loadError.set(readStaffAuthErrorMessage(error, this.copy.authError));
@@ -218,8 +219,9 @@ export class AdminLoginComponent {
   }
 
   private async navigateAfterSignIn(): Promise<void> {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/admin';
-    await this.router.navigateByUrl(returnUrl);
+    await this.router.navigateByUrl(
+      sanitizeStaffReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')),
+    );
   }
 
   private async redirectIfAlreadyStaff(): Promise<void> {

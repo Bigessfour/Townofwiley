@@ -58,7 +58,7 @@
           <p class="public-page-copy">{{ copy().newsletterCopy }}</p>
         </div>
 
-        <p-card class="newsletter-item-card public-card panel wiley-panel" [pt]="newsCardPt">
+        <p-card class="newsletter-item-card public-card panel wiley-panel notice-card" [pt]="newsCardPt">
           <ng-template pTemplate="header">
             <p class="meta-label">{{ newsletter.date }}</p>
             <h3>{{ newsletter.title }}</h3>
@@ -108,105 +108,167 @@
     }
 
     @if (featuredNotice(); as featuredNotice) {
-      @let featuredLink = cmsNoticeRouteLink(featuredNotice);
-      <a
-        class="featured-news-card-link block no-underline text-inherit"
-        [routerLink]="featuredLink.path"
-        [fragment]="featuredLink.fragment"
-        [attr.aria-label]="cmsNoticeLinkAriaLabel(featuredNotice)"
-      >
-        <p-card class="featured-news-card panel wiley-panel" [pt]="newsCardPt">
-          <ng-template pTemplate="header">
-            <p class="meta-label">{{ copy().featuredKicker }}</p>
-            <h2>{{ featuredNotice.title }}</h2>
-            <p class="featured-news-date">{{ featuredNotice.date }}</p>
-          </ng-template>
-          <ng-template pTemplate="content">
-            @if (featuredNotice.imageUrl) {
-              <img
-                class="news-card__image"
-                [ngSrc]="featuredNotice.imageUrl"
-                width="560"
-                height="315"
-                sizes="(max-width: 640px) 100vw, 560px"
-                [alt]="featuredNotice.title"
-              />
-            }
-            <p>{{ featuredNotice.detail }}</p>
-          </ng-template>
-          <ng-template pTemplate="footer">
-            <span
-              pButton
-              severity="secondary"
-              [outlined]="true"
-              [rounded]="true"
-              class="featured-news-link pointer-events-none"
-              aria-hidden="true"
-            >
-              {{ copy().readArticleLabel }}
-            </span>
-          </ng-template>
-        </p-card>
-      </a>
+      @let featuredLink = cmsNoticeCardLink(featuredNotice);
+      @let featuredMedia = classifyNoticeImage(featuredNotice.imageUrl);
+      @if (featuredLink.isExternal) {
+        <a
+          class="featured-news-card-link block no-underline text-inherit"
+          [href]="featuredLink.href"
+          target="_blank"
+          rel="noreferrer noopener"
+          [attr.id]="cmsNoticeFragmentId(featuredNotice.id)"
+          [attr.aria-label]="cmsNoticeLinkAriaLabel(featuredNotice)"
+        >
+          <p-card class="featured-news-card panel wiley-panel notice-card" [pt]="newsCardPt">
+            <ng-template pTemplate="header">
+              <p class="meta-label">{{ copy().featuredKicker }}</p>
+              <h2>{{ featuredNotice.title }}</h2>
+              <p class="featured-news-date">{{ featuredNotice.date }}</p>
+            </ng-template>
+            <ng-template pTemplate="content">
+              @if (featuredMedia.thumbnailUrl) {
+                <img
+                  class="news-card__image"
+                  [src]="featuredMedia.thumbnailUrl"
+                  width="560"
+                  height="315"
+                  [alt]="featuredNotice.title"
+                  (error)="hideBrokenThumbnail($event)"
+                />
+              }
+              <p>{{ featuredNotice.detail }}</p>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <span
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                [rounded]="true"
+                class="featured-news-link pointer-events-none"
+                aria-hidden="true"
+              >
+                {{ noticeExternalCta(featuredLink.kind) }}
+              </span>
+            </ng-template>
+          </p-card>
+        </a>
+      } @else {
+        <article
+          class="featured-news-card-article"
+          [attr.id]="cmsNoticeFragmentId(featuredNotice.id)"
+        >
+          <p-card class="featured-news-card panel wiley-panel notice-card" [pt]="newsCardPt">
+            <ng-template pTemplate="header">
+              <p class="meta-label">{{ copy().featuredKicker }}</p>
+              <h2>{{ featuredNotice.title }}</h2>
+              <p class="featured-news-date">{{ featuredNotice.date }}</p>
+            </ng-template>
+            <ng-template pTemplate="content">
+              @if (featuredMedia.photoUrl) {
+                <img
+                  class="news-card__image"
+                  [ngSrc]="featuredMedia.photoUrl"
+                  width="560"
+                  height="315"
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  [alt]="featuredNotice.title"
+                />
+              }
+              <p>{{ featuredNotice.detail }}</p>
+            </ng-template>
+          </p-card>
+        </article>
+      }
     }
 
-    @if (remainingNotices().length) {
-      <section
-        class="news-section news-section-local grid gap-6"
-        aria-labelledby="recent-town-notices-heading"
-      >
-        <div class="news-section-header grid gap-1">
-          <p class="section-kicker">{{ copy().officialKicker }}</p>
-          <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
-          <p class="public-page-copy">{{ copy().officialCopy }}</p>
-        </div>
+    <section
+      class="news-section news-section-local grid gap-6"
+      aria-labelledby="recent-town-notices-heading"
+    >
+      <div class="news-section-header grid gap-1">
+        <p class="section-kicker">{{ copy().officialKicker }}</p>
+        <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
+        <p class="public-page-copy">{{ copy().officialCopy }}</p>
+      </div>
 
+      @if (remainingNotices().length) {
         <div class="public-card-grid news-card-grid">
           @for (item of remainingNotices(); track item.id) {
-            @let itemLink = cmsNoticeRouteLink(item);
-            <a
-              class="news-card-link block h-full no-underline text-inherit"
-              [routerLink]="itemLink.path"
-              [fragment]="itemLink.fragment"
-              [attr.aria-label]="cmsNoticeLinkAriaLabel(item)"
-            >
-              <p-card class="public-card panel wiley-panel news-card h-full" [pt]="newsCardPt">
-                <ng-template pTemplate="header">
-                  <p class="meta-label">{{ item.date }}</p>
-                  <h3>{{ item.title }}</h3>
-                </ng-template>
-                <ng-template pTemplate="content">
-                  @if (item.imageUrl) {
-                    <img
-                      class="news-card__image"
-                      [ngSrc]="item.imageUrl"
-                      width="400"
-                      height="225"
-                      sizes="(max-width: 480px) 100vw, 400px"
-                      [alt]="item.title"
-                    />
-                  }
-                  <p class="public-card-copy">{{ item.detail }}</p>
-                </ng-template>
-              </p-card>
-            </a>
+            @let itemLink = cmsNoticeCardLink(item);
+            @let itemMedia = classifyNoticeImage(item.imageUrl);
+            @if (itemLink.isExternal) {
+              <a
+                class="news-card-link block h-full no-underline text-inherit"
+                [href]="itemLink.href"
+                target="_blank"
+                rel="noreferrer noopener"
+                [attr.id]="cmsNoticeFragmentId(item.id)"
+                [attr.aria-label]="cmsNoticeLinkAriaLabel(item)"
+              >
+                <p-card class="public-card panel wiley-panel news-card notice-card h-full" [pt]="newsCardPt">
+                  <ng-template pTemplate="header">
+                    <p class="meta-label">{{ item.date }}</p>
+                    <h3>{{ item.title }}</h3>
+                  </ng-template>
+                  <ng-template pTemplate="content">
+                    @if (itemMedia.thumbnailUrl) {
+                      <img
+                        class="news-card__image"
+                        [src]="itemMedia.thumbnailUrl"
+                        width="400"
+                        height="225"
+                        [alt]="item.title"
+                        (error)="hideBrokenThumbnail($event)"
+                      />
+                    }
+                    <p class="public-card-copy news-card-detail">{{ item.detail }}</p>
+                  </ng-template>
+                  <ng-template pTemplate="footer">
+                    <span
+                      pButton
+                      severity="secondary"
+                      [outlined]="true"
+                      [rounded]="true"
+                      class="pointer-events-none"
+                      aria-hidden="true"
+                    >
+                      {{ noticeExternalCta(itemLink.kind) }}
+                    </span>
+                  </ng-template>
+                </p-card>
+              </a>
+            } @else {
+              <article
+                class="news-card-article block h-full"
+                [attr.id]="cmsNoticeFragmentId(item.id)"
+              >
+                <p-card class="public-card panel wiley-panel news-card notice-card h-full" [pt]="newsCardPt">
+                  <ng-template pTemplate="header">
+                    <p class="meta-label">{{ item.date }}</p>
+                    <h3>{{ item.title }}</h3>
+                  </ng-template>
+                  <ng-template pTemplate="content">
+                    @if (itemMedia.photoUrl) {
+                      <img
+                        class="news-card__image"
+                        [ngSrc]="itemMedia.photoUrl"
+                        width="400"
+                        height="225"
+                        sizes="(max-width: 480px) 100vw, 33vw"
+                        [alt]="item.title"
+                      />
+                    }
+                    <p class="public-card-copy news-card-detail">{{ item.detail }}</p>
+                  </ng-template>
+                </p-card>
+              </article>
+            }
           }
         </div>
-      </section>
-    } @else if (!featuredNotice()) {
-      <section
-        class="news-section news-section-local grid gap-6"
-        aria-labelledby="recent-town-notices-empty-heading"
-      >
-        <div class="news-section-header grid gap-1">
-          <p class="section-kicker">{{ copy().officialKicker }}</p>
-          <h2 id="recent-town-notices-empty-heading">{{ copy().officialHeading }}</h2>
-          <p class="public-page-copy">{{ copy().officialCopy }}</p>
-        </div>
-
+      } @else if (!featuredNotice()) {
         <p class="public-empty-state">{{ officialEmptyMessage() }}</p>
-      </section>
-    }
+      }
+    </section>
   }
 
   <section

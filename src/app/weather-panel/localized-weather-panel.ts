@@ -6,6 +6,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  input,
   isDevMode,
   output,
   signal,
@@ -257,6 +258,8 @@ interface WeatherCopy {
   solarUnavailable: string;
   aqiUnavailable: string;
   hourlyUnavailable: string;
+  compactFullForecast: string;
+  atGlanceAriaLabel: string;
 }
 
 const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
@@ -352,6 +355,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiUnavailable: 'Air quality data is temporarily unavailable from EPA AirNow.',
     hourlyUnavailable:
       'Hourly forecast data is temporarily unavailable. The seven-day forecast below is still current.',
+    compactFullForecast: 'Open full forecast',
+    atGlanceAriaLabel: 'Weather at a glance',
   },
   es: {
     sectionKicker: 'Clima local',
@@ -447,6 +452,8 @@ const WEATHER_COPY: Record<SiteLanguage, WeatherCopy> = {
     aqiUnavailable: 'Los datos de calidad del aire de EPA AirNow no estan disponibles.',
     hourlyUnavailable:
       'El pronostico por hora no esta disponible. El pronostico de 7 dias mas abajo sigue actualizado.',
+    compactFullForecast: 'Abrir el pronóstico completo',
+    atGlanceAriaLabel: 'Clima de un vistazo',
   },
 };
 
@@ -494,6 +501,7 @@ export class LocalizedWeatherPanel {
   protected readonly forecastMapsUrl = NWS_FORECAST_MAPS_URL;
   /** Official WRH page for the KPUX radar site when embedded GIFs fail. */
   protected readonly nwsKpuxRadarViewerUrl = 'https://www.weather.gov/wrh/timeseries?site=KPUX';
+  readonly compact = input(false);
   readonly activeAlertChange = output<HomepageWeatherAlert | null>();
   protected readonly copy = computed(
     () => WEATHER_COPY[this.siteLanguageService.currentLanguage() || 'en'],

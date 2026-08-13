@@ -164,7 +164,7 @@
             >
             <strong
               class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
-              >Town of Wiley</strong
+              >{{ pageTitle() }}</strong
             >
           </a>
         </div>
@@ -218,7 +218,7 @@
             <a
               class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
               routerLink="/"
-              aria-label="Return to homepage"
+              [attr.aria-label]="appCopy().townLogoAriaLabel"
             >
               <span
                 class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
@@ -226,7 +226,7 @@
               >
               <strong
                 class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
-                >Town of Wiley</strong
+                >{{ pageTitle() }}</strong
               >
             </a>
           </ng-template>
@@ -321,8 +321,7 @@
           </ng-template>
           <ng-template pTemplate="end">
             <div class="header-end-controls flex flex-wrap items-center gap-3">
-              @if (!isFeaturePageMode() && !isNotFoundMode()) {
-                <form
+              <form
                   class="header-search-form w-full max-w-2xl"
                   role="search"
                   [formGroup]="siteSearchForm"
@@ -344,8 +343,12 @@
                       autocomplete="off"
                     />
                   </div>
+                  @if (hasSearchQuery() && !isSearchPending()) {
+                    <div class="header-search-results search-results grid gap-2" aria-live="polite">
+                      <ng-container *ngTemplateOutlet="siteSearchHits" />
+                    </div>
+                  }
                 </form>
-              }
               <a
                 routerLink="/pay-bill"
                 class="header-pay-bill-btn"
@@ -425,6 +428,14 @@
               autocomplete="off"
             />
           </div>
+          @if (hasSearchQuery() && !isSearchPending()) {
+            <div
+              class="header-search-results header-search-results--stacked search-results grid gap-2"
+              aria-live="polite"
+            >
+              <ng-container *ngTemplateOutlet="siteSearchHits" />
+            </div>
+          }
         </form>
 
         <nav
@@ -468,7 +479,7 @@
           >
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
-            routerLink="/notices"
+            routerLink="/news"
             (click)="closeMobileMenu()"
             >{{ appCopy().menuNewsNoticesLabel }}</a
           >
@@ -584,386 +595,225 @@
         </section>
       </section>
     } @else if (isFeaturePageMode()) {
-      @if (currentFeaturePage(); as featurePage) {
-        <section class="feature-page-shell grid w-full gap-6 md:gap-8">
-          <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
-
-          @if (isWeatherMode()) {
-            <section class="feature-detail-stack" id="weather">
-              <router-outlet />
-            </section>
-          } @else if (isNoticesMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isMeetingsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isServicesMode()) {
-            <section class="feature-detail-stack">
-              <p-card
-                class="panel service-panel wiley-panel rounded-wiley-xl border border-wiley-cream-100 shadow-wiley-card"
-                id="services"
-              >
-                <ng-template pTemplate="header">
-                  <p-tag
-                    class="section-kicker-tag"
-                    [value]="appCopy().servicesKicker"
-                    severity="secondary"
-                    [rounded]="true"
-                  />
-                  <h1>{{ appCopy().servicesHeading }}</h1>
-                </ng-template>
-                <section class="service-grid grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                  @for (service of serviceCards(); track service.title) {
-                    <article
-                      class="service-card group flex h-full flex-col rounded-wiley-xl border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/25 bg-wiley-sage-50 p-6 shadow-wiley-card transition-all hover:-translate-y-0.5 hover:shadow-wiley-lift md:p-8"
-                    >
-                      <p
-                        class="home-meta-label mb-2 inline-flex items-center gap-1 rounded-wiley-full border border-wiley-gold-400/30 bg-wiley-gold-400/10 px-2 py-0.5 text-[0.65rem] font-bold tracking-[0.06em] text-wiley-earth-700"
-                      >
-                        {{ service.availability }}
-                      </p>
-                      <h2 class="mb-3 font-semibold text-wiley-navy-900">{{ service.title }}</h2>
-                      <p class="flex-1 leading-relaxed text-wiley-ink-700 mb-4">
-                        {{ service.description }}
-                      </p>
-                      @if (resolveAppLink(service.href); as serviceLink) {
-                        @if (serviceLink.isInternal) {
-                          <a
-                            class="text-link service-link mt-auto inline-flex items-center gap-1 text-sm font-medium text-wiley-teal-700 hover:text-wiley-teal-800"
-                            [routerLink]="serviceLink.path"
-                            [fragment]="serviceLink.fragment"
-                          >
-                            <span>{{ service.cta }}</span>
-                          </a>
-                        } @else {
-                          <a
-                            class="text-link service-link mt-auto inline-flex items-center gap-1 text-sm font-medium text-wiley-teal-700 hover:text-wiley-teal-800"
-                            [attr.href]="serviceLink.href"
-                          >
-                            <span>{{ service.cta }}</span>
-                          </a>
-                        }
-                      }
-                    </article>
-                  }
-                </section>
-              </p-card>
-
-              <router-outlet />
-            </section>
-          } @else if (isContactMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isAccessibilityMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isPrivacyMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isTermsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isContactMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isBusinessesMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isPaymentsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isNewsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          }
-        </section>
-      }
-    } @else {
-      <div class="homepage-priority-stack grid w-full gap-4 md:gap-5">
-      <app-this-week-in-wiley class="this-week-homepage" />
-      <section
-        class="landing-shortcuts panel mx-auto grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-5 shadow-wiley-card md:p-6"
-        id="top-tasks"
-        aria-labelledby="top-tasks-heading"
-      >
-        <header
-          class="section-header landing-section-header grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
-        >
-          <div class="grid gap-1.5">
-            <p-tag
-              class="section-kicker-tag w-fit"
-              [value]="topTasksKicker()"
-              severity="secondary"
-              [rounded]="true"
-            />
-            <h2
-              id="top-tasks-heading"
-              class="m-0 font-display text-2xl font-bold text-wiley-navy-900 md:text-3xl"
-            >
-              {{ topTasksHeading() }}
-            </h2>
-          </div>
-          @if (appCopy().topTasksBody) {
-            <p class="feature-hub-copy m-0 text-wiley-ink-700">{{ appCopy().topTasksBody }}</p>
-          }
-        </header>
-
-        <p-divider styleClass="section-divider" />
-
-        <section
-          class="task-grid landing-task-grid mt-0 grid gap-4 sm:gap-5 sm:grid-cols-2"
-          aria-label="Resident shortcuts"
-        >
-          @for (task of topTasks(); track task.href; let taskIndex = $index) {
-            @if (resolveAppLink(task.href); as taskLink) {
-              @if (taskLink.isInternal) {
-                <a
-                  class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                  [routerLink]="taskLink.path"
-                  [fragment]="taskLink.fragment"
-                >
-                  <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
-                    <ng-template pTemplate="content">
-                      <div class="task-card-inner">
-                        <span class="task-card-icon" aria-hidden="true">
-                          @switch (taskIndex) {
-                            @case (0) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M4 7.5h16" />
-                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                                <path
-                                  d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9"
-                                />
-                                <path d="M9 12h6" />
-                              </svg>
-                            }
-                            @case (1) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M12 20v-7" />
-                                <path d="M8 17l4 3 4-3" />
-                                <path
-                                  d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z"
-                                />
-                              </svg>
-                            }
-                            @case (2) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <rect x="4" y="5" width="16" height="15" rx="2" />
-                                <path d="M8 3v4" />
-                                <path d="M16 3v4" />
-                                <path d="M4 10h16" />
-                                <path d="M8 14h3" />
-                              </svg>
-                            }
-                            @default {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M7 4h8l4 4v12H7z" />
-                                <path d="M15 4v4h4" />
-                                <path d="M10 13h6" />
-                                <path d="M10 17h4" />
-                              </svg>
-                            }
-                          }
-                        </span>
-
-                        <div class="task-card-copy">
-                          <strong [attr.id]="'top-task-title-' + taskIndex">{{
-                            task.title
-                          }}</strong>
-                          <span class="leading-relaxed">{{ task.description }}</span>
-                          <small class="mt-1">{{ task.note }}</small>
-                        </div>
-                      </div>
-                    </ng-template>
-                  </p-card>
-                </a>
-              } @else {
-                <a
-                  class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                  [attr.href]="taskLink.href"
-                >
-                  <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
-                    <ng-template pTemplate="content">
-                      <div class="task-card-inner">
-                        <span class="task-card-icon" aria-hidden="true">
-                          @switch (taskIndex) {
-                            @case (0) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M4 7.5h16" />
-                                <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
-                                <path
-                                  d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9"
-                                />
-                                <path d="M9 12h6" />
-                              </svg>
-                            }
-                            @case (1) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M12 20v-7" />
-                                <path d="M8 17l4 3 4-3" />
-                                <path
-                                  d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z"
-                                />
-                              </svg>
-                            }
-                            @case (2) {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <rect x="4" y="5" width="16" height="15" rx="2" />
-                                <path d="M8 3v4" />
-                                <path d="M16 3v4" />
-                                <path d="M4 10h16" />
-                                <path d="M8 14h3" />
-                              </svg>
-                            }
-                            @default {
-                              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                <path d="M7 4h8l4 4v12H7z" />
-                                <path d="M15 4v4h4" />
-                                <path d="M10 13h6" />
-                                <path d="M10 17h4" />
-                              </svg>
-                            }
-                          }
-                        </span>
-
-                        <div class="task-card-copy">
-                          <strong [attr.id]="'top-task-title-' + taskIndex">{{
-                            task.title
-                          }}</strong>
-                          <span class="leading-relaxed">{{ task.description }}</span>
-                          <small class="mt-1">{{ task.note }}</small>
-                        </div>
-                      </div>
-                    </ng-template>
-                  </p-card>
-                </a>
-              }
-            }
-          }
+      <section class="feature-page-shell grid w-full gap-6 md:gap-8">
+        <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
+        <section class="feature-detail-stack" [attr.id]="isWeatherMode() ? 'weather' : null">
+          <router-outlet />
         </section>
       </section>
-
-      <section
-        class="search-panel panel grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-gradient-to-br from-wiley-sage-100/70 via-wiley-sage-50 to-wiley-cream-0 p-5 shadow-wiley-lift md:p-6"
-        id="search-panel"
-        aria-labelledby="search-panel-heading"
-      >
-        <header
-          class="section-header search-panel-header grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
+    } @else {
+      <div class="homepage-priority-stack grid w-full gap-4 md:gap-5">
+        <app-this-week-in-wiley class="this-week-homepage" />
+        <section
+          class="landing-shortcuts panel mx-auto grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-5 shadow-wiley-card md:p-6"
+          id="top-tasks"
+          aria-labelledby="top-tasks-heading"
         >
-          <div class="grid gap-1.5">
-            <p-tag
-              class="section-kicker-tag w-fit"
-              [value]="appCopy().searchKicker"
-              severity="secondary"
-              [rounded]="true"
-            />
-            <h2
-              id="search-panel-heading"
-              class="m-0 font-display text-2xl font-bold text-wiley-navy-900 md:text-3xl"
-            >
-              {{ appCopy().searchHeading }}
-            </h2>
-          </div>
-          <p class="search-panel-copy m-0 text-wiley-ink-700">{{ appCopy().searchLabel }}</p>
-        </header>
-
-        <form
-          class="wiley-search-form w-full"
-          role="search"
-          [formGroup]="siteSearchForm"
-          (ngSubmit)="performSearch($event)"
-        >
-          <label class="sr-only" for="landing-site-search">{{ appCopy().searchLabel }}</label>
-          <div
-            class="flex min-h-14 items-stretch overflow-hidden rounded-wiley-xl border-2 border-wiley-teal-600/30 bg-wiley-cream-0 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-4 focus-within:ring-wiley-teal-600/20"
+          <header
+            class="section-header landing-section-header grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
           >
-            <span class="flex items-center px-4 text-wiley-teal-700" aria-hidden="true">
-              <i class="pi pi-search text-xl"></i>
-            </span>
-            <input
-              pInputText
-              id="landing-site-search"
-              class="min-h-14 flex-1 border-0 bg-transparent px-0 text-base shadow-none"
-              type="search"
-              formControlName="query"
-              [placeholder]="appCopy().searchPlaceholder"
-              autocomplete="off"
-            />
-            <button
-              pButton
-              type="submit"
-              class="search-form-submit m-1.5 shrink-0"
-              severity="primary"
-              [rounded]="true"
-            >
-              {{ appCopy().searchActionLabel }}
-            </button>
-          </div>
-        </form>
-
-        <p class="search-note m-0 text-sm text-wiley-ink-500">{{ appCopy().searchNote }}</p>
-
-        @if (isSearchPending()) {
-          <div class="search-results search-results--loading" aria-live="polite" aria-busy="true">
-            @for (_ of [0, 1, 2]; track $index) {
-              <article class="search-result-skeleton shimmer" aria-hidden="true">
-                <p-skeleton
-                  class="shimmer shimmer--line shimmer--title"
-                  width="12rem"
-                  height="1rem"
-                />
-                <p-skeleton class="shimmer shimmer--line" width="100%" height="1rem" />
-                <p-skeleton
-                  class="shimmer shimmer--line shimmer--meta"
-                  width="8rem"
-                  height="0.9rem"
-                />
-              </article>
+            <div class="grid gap-1.5">
+              <p-tag
+                class="section-kicker-tag w-fit"
+                [value]="topTasksKicker()"
+                severity="secondary"
+                [rounded]="true"
+              />
+              <h2
+                id="top-tasks-heading"
+                class="m-0 font-display text-2xl font-bold text-wiley-navy-900 md:text-3xl"
+              >
+                {{ topTasksHeading() }}
+              </h2>
+            </div>
+            @if (appCopy().topTasksBody) {
+              <p class="feature-hub-copy m-0 text-wiley-ink-700">{{ appCopy().topTasksBody }}</p>
             }
-          </div>
-        } @else if (searchResults().length) {
-          <div class="search-results grid gap-2.5" aria-live="polite">
-            @for (result of searchResults(); track result.href) {
-              @if (resolveAppLink(result.href); as resultLink) {
-                @if (resultLink.isInternal) {
+          </header>
+
+          <p-divider styleClass="section-divider" />
+
+          <section
+            class="task-grid landing-task-grid mt-0 grid gap-4 sm:gap-5 sm:grid-cols-2"
+            [attr.aria-label]="appCopy().residentShortcutsAriaLabel"
+          >
+            @for (task of topTasks(); track task.href; let taskIndex = $index) {
+              @if (resolveAppLink(task.href); as taskLink) {
+                @if (taskLink.isInternal) {
                   <a
-                    class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/20 bg-wiley-sage-50/90 p-4 shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift"
-                    [routerLink]="resultLink.path"
-                    [fragment]="resultLink.fragment"
+                    class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
+                    [routerLink]="taskLink.path"
+                    [fragment]="taskLink.fragment"
                   >
-                    <strong>{{ result.title }}</strong>
-                    <span class="leading-relaxed">{{ result.summary }}</span>
-                    <small class="text-wiley-ink-600">{{ result.category }}</small>
+                    <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
+                      <ng-template pTemplate="content">
+                        <div class="task-card-inner">
+                          <span class="task-card-icon" aria-hidden="true">
+                            @switch (taskIndex) {
+                              @case (0) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M4 7.5h16" />
+                                  <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                  <path
+                                    d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9"
+                                  />
+                                  <path d="M9 12h6" />
+                                </svg>
+                              }
+                              @case (1) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M12 20v-7" />
+                                  <path d="M8 17l4 3 4-3" />
+                                  <path
+                                    d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z"
+                                  />
+                                </svg>
+                              }
+                              @case (2) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <rect x="4" y="5" width="16" height="15" rx="2" />
+                                  <path d="M8 3v4" />
+                                  <path d="M16 3v4" />
+                                  <path d="M4 10h16" />
+                                  <path d="M8 14h3" />
+                                </svg>
+                              }
+                              @default {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M7 4h8l4 4v12H7z" />
+                                  <path d="M15 4v4h4" />
+                                  <path d="M10 13h6" />
+                                  <path d="M10 17h4" />
+                                </svg>
+                              }
+                            }
+                          </span>
+
+                          <div class="task-card-copy">
+                            <strong [attr.id]="'top-task-title-' + taskIndex">{{
+                              task.title
+                            }}</strong>
+                            <span class="leading-relaxed">{{ task.description }}</span>
+                            <small class="mt-1">{{ task.note }}</small>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </p-card>
                   </a>
                 } @else {
                   <a
-                    class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/20 bg-wiley-sage-50/90 p-4 shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift"
-                    [attr.href]="resultLink.href"
+                    class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
+                    [attr.href]="taskLink.href"
                   >
-                    <strong>{{ result.title }}</strong>
-                    <span class="leading-relaxed">{{ result.summary }}</span>
-                    <small class="text-wiley-ink-600">{{ result.category }}</small>
+                    <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
+                      <ng-template pTemplate="content">
+                        <div class="task-card-inner">
+                          <span class="task-card-icon" aria-hidden="true">
+                            @switch (taskIndex) {
+                              @case (0) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M4 7.5h16" />
+                                  <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
+                                  <path
+                                    d="M5 7.5v9A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-9"
+                                  />
+                                  <path d="M9 12h6" />
+                                </svg>
+                              }
+                              @case (1) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M12 20v-7" />
+                                  <path d="M8 17l4 3 4-3" />
+                                  <path
+                                    d="M7 11a5 5 0 1 1 10 0c0 2.2-1.3 3.6-5 8-3.7-4.4-5-5.8-5-8Z"
+                                  />
+                                </svg>
+                              }
+                              @case (2) {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <rect x="4" y="5" width="16" height="15" rx="2" />
+                                  <path d="M8 3v4" />
+                                  <path d="M16 3v4" />
+                                  <path d="M4 10h16" />
+                                  <path d="M8 14h3" />
+                                </svg>
+                              }
+                              @default {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M7 4h8l4 4v12H7z" />
+                                  <path d="M15 4v4h4" />
+                                  <path d="M10 13h6" />
+                                  <path d="M10 17h4" />
+                                </svg>
+                              }
+                            }
+                          </span>
+
+                          <div class="task-card-copy">
+                            <strong [attr.id]="'top-task-title-' + taskIndex">{{
+                              task.title
+                            }}</strong>
+                            <span class="leading-relaxed">{{ task.description }}</span>
+                            <small class="mt-1">{{ task.note }}</small>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </p-card>
+                  </a>
+                }
+              }
+            }
+          </section>
+        </section>
+
+        <section
+          class="search-panel panel grid w-full gap-4 rounded-wiley-xl border border-wiley-cream-100 bg-gradient-to-br from-wiley-sage-100/70 via-wiley-sage-50 to-wiley-cream-0 p-5 shadow-wiley-lift md:p-6"
+          id="search-panel"
+          aria-labelledby="search-panel-heading"
+        >
+          <header
+            class="section-header search-panel-header grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end"
+          >
+            <div class="grid gap-1.5">
+              <p-tag
+                class="section-kicker-tag w-fit"
+                [value]="appCopy().searchKicker"
+                severity="secondary"
+                [rounded]="true"
+              />
+              <h2
+                id="search-panel-heading"
+                class="m-0 font-display text-2xl font-bold text-wiley-navy-900 md:text-3xl"
+              >
+                {{ appCopy().searchHeading }}
+              </h2>
+            </div>
+            <p class="search-panel-copy m-0 text-wiley-ink-700">{{ appCopy().searchLabel }}</p>
+          </header>
+
+          <p class="search-note m-0 text-sm text-wiley-ink-500">{{ appCopy().searchNote }}</p>
+
+          <div class="search-suggestion-row flex flex-wrap gap-2" role="list">
+            @for (task of topTasks(); track task.href) {
+              @if (resolveAppLink(task.href); as taskLink) {
+                @if (taskLink.isInternal) {
+                  <a
+                    class="search-suggestion"
+                    role="listitem"
+                    [routerLink]="taskLink.path"
+                    [fragment]="taskLink.fragment"
+                  >
+                    {{ task.title }}
+                  </a>
+                } @else {
+                  <a class="search-suggestion" role="listitem" [attr.href]="taskLink.href">
+                    {{ task.title }}
                   </a>
                 }
               }
             }
           </div>
-        } @else {
-          <p class="empty-state" aria-live="polite">{{ appCopy().searchEmptyState }}</p>
-        }
-      </section>
+        </section>
       </div>
 
       <section class="content-grid landing-civic-grid grid gap-6 lg:grid-cols-2">
@@ -1058,9 +908,7 @@
                 />
                 <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
               </div>
-              @if (showBrowseNoticesLink()) {
-                <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
-              }
+              <a class="text-link" routerLink="/news">{{ appCopy().viewAllNoticesLabel }}</a>
             </header>
           </ng-template>
 
@@ -1081,16 +929,32 @@
               </ng-template>
 
               <ng-template #content let-notice>
-                @let noticeLink = cmsNoticeRouteLink(notice);
-                <a
-                  class="notice-card notice-card--timeline notice-card--link"
-                  [routerLink]="noticeLink.path"
-                  [fragment]="noticeLink.fragment"
-                  [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
-                >
-                  <p class="notice-card-title">{{ notice.title }}</p>
-                  <p class="notice-card-detail">{{ notice.detail }}</p>
-                </a>
+                @let noticeLink = cmsNoticeCardLink(notice);
+                @if (noticeLink.isExternal) {
+                  <a
+                    class="notice-card notice-card--timeline notice-card--link"
+                    [href]="noticeLink.href"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
+                  >
+                    <p class="notice-card-title">{{ notice.title }}</p>
+                    <p class="notice-card-detail">{{ notice.detail }}</p>
+                    <p class="notice-card-cta" aria-hidden="true">
+                      {{ noticeExternalCta(noticeLink.kind) }}
+                    </p>
+                  </a>
+                } @else {
+                  <a
+                    class="notice-card notice-card--timeline notice-card--link"
+                    [routerLink]="noticeLink.path"
+                    [fragment]="noticeLink.fragment"
+                    [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
+                  >
+                    <p class="notice-card-title">{{ notice.title }}</p>
+                    <p class="notice-card-detail">{{ notice.detail }}</p>
+                  </a>
+                }
               </ng-template>
             </p-timeline>
           }
@@ -1120,7 +984,11 @@
               <a class="text-link" routerLink="/weather">{{ appCopy().featureTitles.weather }}</a>
             </div>
           </header>
-          <app-weather-panel class="block w-full" data-testid="homepage-weather-panel" />
+          <app-weather-panel
+            class="block w-full"
+            data-testid="homepage-weather-panel"
+            [compact]="true"
+          />
         </section>
       } @placeholder (minimum 200ms) {
         <div
@@ -1129,134 +997,6 @@
         >
           <p-skeleton width="100%" height="12rem" borderRadius="24px" />
         </div>
-      }
-
-      @defer (on viewport) {
-        <section
-          class="feature-hub panel grid w-full gap-6 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-6 shadow-wiley-card md:p-8"
-          aria-labelledby="feature-hub-heading"
-        >
-          <header
-            class="section-header feature-hub-header grid lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end"
-          >
-            <div>
-              <p-tag
-                class="section-kicker-tag"
-                [value]="appCopy().featureHubKicker"
-                severity="secondary"
-                [rounded]="true"
-              />
-              <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
-            </div>
-            <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
-          </header>
-
-          <p-divider styleClass="section-divider" />
-
-          <section
-            class="feature-grid grid gap-6 sm:gap-8 sm:grid-cols-2 xl:grid-cols-3"
-            [attr.aria-label]="appCopy().featureHubHeading"
-          >
-            @for (feature of homepageFeaturePages(); track feature.id) {
-              @if (resolveAppLink(feature.href); as featureLink) {
-                @if (featureLink.isInternal) {
-                  <a
-                    class="feature-card flex h-full min-h-[11rem] flex-col gap-3 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/80 p-6 no-underline shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                    [routerLink]="featureLink.path"
-                    [fragment]="featureLink.fragment"
-                  >
-                    <p class="home-meta-label mb-1">{{ feature.kicker }}</p>
-                    <strong class="mb-1">{{ feature.title }}</strong>
-                    <span class="leading-relaxed">{{ feature.summary }}</span>
-                  </a>
-                } @else {
-                  <a
-                    class="feature-card flex h-full min-h-[11rem] flex-col gap-3 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/80 p-6 no-underline shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                    [attr.href]="featureLink.href"
-                  >
-                    <p class="home-meta-label mb-1">{{ feature.kicker }}</p>
-                    <strong class="mb-1">{{ feature.title }}</strong>
-                    <span class="leading-relaxed">{{ feature.summary }}</span>
-                  </a>
-                }
-              }
-            }
-          </section>
-        </section>
-      } @placeholder (minimum 200ms) {
-        <div
-          class="homepage-defer-placeholder homepage-defer-placeholder--feature-hub"
-          aria-hidden="true"
-        ></div>
-      }
-
-      @defer (on viewport) {
-        <section class="support-strip grid gap-8">
-          <p-card
-            class="hero-card stay-informed-card"
-            [pt]="supportCardPt"
-            aria-labelledby="stay-informed-heading"
-          >
-            <ng-template pTemplate="header">
-              <p-tag
-                class="section-kicker-tag"
-                [value]="appCopy().stayInformedKicker"
-                severity="secondary"
-                [rounded]="true"
-              />
-              <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
-            </ng-template>
-            <p class="feature-hub-copy">
-              {{ appCopy().stayInformedBody }}
-            </p>
-
-            <section
-              class="support-link-grid grid gap-4 md:grid-cols-2"
-              [attr.aria-label]="topTasksHeading()"
-            >
-              @if (cmsContentLoading()) {
-                <div class="support-link-skeleton" aria-live="polite" aria-busy="true">
-                  <p-skeleton height="5.5rem" width="100%" borderRadius="18px" />
-                </div>
-              } @else if (primaryContact(); as primaryContact) {
-                @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
-                  @if (supportContactLink.isInternal) {
-                    <a
-                      class="feature-card support-link-card"
-                      [routerLink]="supportContactLink.path"
-                      [fragment]="supportContactLink.fragment"
-                    >
-                      <p class="home-meta-label">{{ primaryContact.label }}</p>
-                      <strong>{{ primaryContact.value }}</strong>
-                      <span>{{ appCopy().contactHeading }}</span>
-                    </a>
-                  } @else {
-                    <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
-                      <p class="home-meta-label">{{ primaryContact.label }}</p>
-                      <strong>{{ primaryContact.value }}</strong>
-                      <span>{{ appCopy().contactHeading }}</span>
-                    </a>
-                  }
-                }
-              }
-
-              <a
-                class="feature-card support-link-card"
-                routerLink="/weather"
-                data-testid="support-weather"
-              >
-                <p class="home-meta-label">{{ appCopy().nwsAlertLabel }}</p>
-                <strong>{{ appCopy().alertActionLabel }}</strong>
-                <span>{{ appCopy().weatherSupportDescription }}</span>
-              </a>
-            </section>
-          </p-card>
-        </section>
-      } @placeholder (minimum 200ms) {
-        <div
-          class="homepage-defer-placeholder homepage-defer-placeholder--support"
-          aria-hidden="true"
-        ></div>
       }
     }
 
@@ -1298,7 +1038,7 @@
           </p>
         </div>
 
-        <nav class="footer-links-nav site-footer__nav" aria-label="Footer links">
+        <nav class="footer-links-nav site-footer__nav" [attr.aria-label]="appCopy().footerLinksAriaLabel">
           <ul class="footer-links">
             @for (link of appCopy().footerLinks; track link.label) {
               @if (resolveAppLink(link.href); as footerLink) {
@@ -1339,3 +1079,34 @@
     </footer>
   </main>
 }
+
+<ng-template #siteSearchHits>
+  @if (searchResults().length) {
+    @for (result of searchResults(); track result.href) {
+      @if (resolveAppLink(result.href); as resultLink) {
+        @if (resultLink.isInternal) {
+          <a
+            class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+            [routerLink]="resultLink.path"
+            [fragment]="resultLink.fragment"
+            (click)="closeMobileMenu()"
+          >
+            <strong>{{ result.title }}</strong>
+            <span>{{ result.summary }}</span>
+          </a>
+        } @else {
+          <a
+            class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+            [attr.href]="resultLink.href"
+            (click)="closeMobileMenu()"
+          >
+            <strong>{{ result.title }}</strong>
+            <span>{{ result.summary }}</span>
+          </a>
+        }
+      }
+    }
+  } @else {
+    <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
+  }
+</ng-template>

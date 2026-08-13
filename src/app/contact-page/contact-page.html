@@ -1,46 +1,39 @@
 <section class="feature-detail-stack">
-  <p-card class="panel wiley-panel contact-panel" id="contact">
-    <ng-template pTemplate="header">
-      <div class="wiley-page-header feature-page-panel-header">
-        @if (cmsLoading()) {
-          <div class="grid gap-2" aria-live="polite" aria-busy="true">
-            <p-skeleton width="9rem" height="0.75rem" />
-            <p-skeleton width="90%" height="1.85rem" borderRadius="8px" />
-          </div>
-        } @else {
-          <p class="section-kicker">{{ copy().contactKicker }}</p>
-          <h1>{{ copy().contactHeading }}</h1>
-        }
-      </div>
-    </ng-template>
-
-    <p-card
-      styleClass="contact-section-card contact-town-hall-card"
-      data-testid="contact-town-hall"
-    >
-      <ng-template pTemplate="header">
-        <div class="contact-section-card-header">
-          <h2 class="contact-section-card-title">{{ copy().contactTownHallTitle }}</h2>
+  <section class="contact-directory wiley-page-shell" id="contact">
+    <header class="wiley-page-header feature-page-panel-header">
+      @if (cmsLoading()) {
+        <div class="grid gap-2" aria-live="polite" aria-busy="true">
+          <p-skeleton width="9rem" height="0.75rem" />
+          <p-skeleton width="90%" height="1.85rem" borderRadius="8px" />
         </div>
-      </ng-template>
+      } @else {
+        <p class="section-kicker">{{ copy().contactKicker }}</p>
+        <h1>{{ copy().contactHeading }}</h1>
+      }
+    </header>
+
+    <section
+      class="contact-block"
+      data-testid="contact-town-hall"
+      [attr.aria-labelledby]="'contact-town-hall-heading'"
+    >
+      <h2 id="contact-town-hall-heading" class="contact-section-card-title">
+        {{ copy().contactTownHallTitle }}
+      </h2>
       <address class="contact-town-hall-address">{{ townHallAddress() }}</address>
       <p class="contact-town-hall-hours">{{ copy().contactTownHallHours }}</p>
       <a class="contact-town-hall-phone" [href]="townHallPhoneHref()">{{ townHallPhone() }}</a>
-    </p-card>
+    </section>
 
-    <p-card
-      styleClass="contact-section-card contact-administration-card"
+    <section
+      class="contact-block"
       data-testid="contact-administration"
       id="contact-administration"
     >
-      <ng-template pTemplate="header">
-        <div class="contact-section-card-header">
-          @if (administrationGroup(); as adminGroup) {
-            <h2 class="contact-section-card-title">{{ adminGroup.title }}</h2>
-            <p class="contact-section-card-detail">{{ adminGroup.detail }}</p>
-          }
-        </div>
-      </ng-template>
+      @if (administrationGroup(); as adminGroup) {
+        <h2 class="contact-section-card-title">{{ adminGroup.title }}</h2>
+        <p class="contact-section-card-detail">{{ adminGroup.detail }}</p>
+      }
 
       @if (cmsLoading()) {
         <div class="contact-administration-skeleton" aria-live="polite" aria-busy="true">
@@ -59,7 +52,10 @@
         }
 
         @if (administrationMembers().length > 0) {
-          <dl class="contact-roster-list" aria-label="Town administration contacts">
+          <dl
+            class="contact-roster-list"
+            [attr.aria-label]="copy().contactAdministrationAriaLabel"
+          >
             @for (member of administrationMembers(); track member.rosterId ?? member.raw) {
               <div
                 class="contact-roster-item"
@@ -91,42 +87,36 @@
           </p>
         }
       }
-    </p-card>
+    </section>
 
     @if (electedOfficialsGroup(); as electedGroup) {
       <section
         id="leadership"
-        class="contact-elected-section"
+        class="contact-block"
         [attr.aria-label]="electedGroup.title"
       >
-        <p-panel styleClass="contact-elected-panel">
-          <ng-template pTemplate="header">
-            <div class="contact-elected-panel-header">
-              <h2 class="contact-section-card-title">{{ electedGroup.title }}</h2>
-              <p class="contact-section-card-detail">{{ electedGroup.detail }}</p>
-            </div>
-          </ng-template>
-          <dl class="contact-roster-list contact-elected-list">
-            @if (electedOfficialLines().length > 0) {
-              @for (official of electedOfficialLines(); track official.rosterId ?? official.raw) {
-                <div
-                  class="contact-roster-item"
-                  [attr.id]="
-                    official.rosterId ? 'leadership-row-mayor-council-' + official.rosterId : null
-                  "
-                >
-                  <dt class="contact-roster-role">{{ official.role }}</dt>
-                  <dd class="contact-roster-name">{{ official.name }}</dd>
-                </div>
-              }
-            } @else {
-              <p class="public-empty-state contact-roster-empty" role="status">
-                {{ copy().contactRosterEmptyState }}
-              </p>
+        <h2 class="contact-section-card-title">{{ electedGroup.title }}</h2>
+        <p class="contact-section-card-detail">{{ electedGroup.detail }}</p>
+        <dl class="contact-roster-list contact-elected-list">
+          @if (electedOfficialLines().length > 0) {
+            @for (official of electedOfficialLines(); track official.rosterId ?? official.raw) {
+              <div
+                class="contact-roster-item"
+                [attr.id]="
+                  official.rosterId ? 'leadership-row-mayor-council-' + official.rosterId : null
+                "
+              >
+                <dt class="contact-roster-role">{{ official.role }}</dt>
+                <dd class="contact-roster-name">{{ official.name }}</dd>
+              </div>
             }
-          </dl>
-        </p-panel>
+          } @else {
+            <p class="public-empty-state contact-roster-empty" role="status">
+              {{ copy().contactRosterEmptyState }}
+            </p>
+          }
+        </dl>
       </section>
     }
-  </p-card>
+  </section>
 </section>

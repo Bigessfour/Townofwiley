@@ -81,7 +81,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'Kind',
         technicalName: 'announcementKind',
-        help: 'Short notice for bulletins on /news and /notices. Newsletter (PDF) for the embedded town newsletter on /news.',
+        help: 'Short notice for bulletins on /news. Newsletter (PDF) for the embedded town newsletter on /news.',
       },
       {
         plainLabel: 'Newsletter PDF',
@@ -92,6 +92,11 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         plainLabel: 'Priority',
         technicalName: 'priority',
         help: 'Lower numbers show first among short notices (1 is highest priority).',
+      },
+      {
+        plainLabel: 'Photo or web page',
+        technicalName: 'imageUrl',
+        help: 'Optional. A photo (.png, .jpg, .webp) shows on the card. An ArcGIS StoryMap or other webpage opens in a new tab and is not shown as a picture.',
       },
     ],
   },
@@ -495,7 +500,9 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'Key (stable ID)',
         technicalName: 'key',
-        help: `Use one of the wired keys, for example: ${SITE_COPY_KEY_CATALOG.slice(0, 4).map((e) => e.key).join(', ')}, … (see full list below).`,
+        help: `Use one of the wired keys, for example: ${SITE_COPY_KEY_CATALOG.slice(0, 4)
+          .map((e) => e.key)
+          .join(', ')}, … (see full list below).`,
       },
       {
         plainLabel: 'English text',

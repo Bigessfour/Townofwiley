@@ -2,8 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ensureAdminRuntimeConfigLoaded, readAdminRuntimeConfig } from './admin-runtime-config';
 
 const adminWindow = window as Window & {
-  __TOW_RUNTIME_CONFIG_ADMIN__?: { clerkSetup?: { clerkName?: string } };
-  __TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__?: { clerkSetup?: { clerkName?: string } };
+  __TOW_RUNTIME_CONFIG_ADMIN__?: {
+    clerkSetup?: { clerkName?: string; awsRegion?: string };
+    contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
+  };
+  __TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__?: {
+    clerkSetup?: { clerkName?: string };
+    contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
+  };
 };
 
 beforeEach(() => {
@@ -29,6 +35,20 @@ describe('readAdminRuntimeConfig', () => {
     expect(readAdminRuntimeConfig()?.clerkSetup).toEqual({
       clerkName: 'Override',
       awsRegion: 'us-east-2',
+    });
+  });
+
+  it('merges staff contact-review URLs from admin override', () => {
+    adminWindow.__TOW_RUNTIME_CONFIG_ADMIN__ = {
+      contactUpdate: { reviewApiEndpoint: 'https://api.example/review' },
+    };
+    adminWindow.__TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__ = {
+      contactUpdate: { reviewProxyEndpoint: '/api/contact-updates-review' },
+    };
+
+    expect(readAdminRuntimeConfig()?.contactUpdate).toEqual({
+      reviewApiEndpoint: 'https://api.example/review',
+      reviewProxyEndpoint: '/api/contact-updates-review',
     });
   });
 });

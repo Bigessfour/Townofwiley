@@ -15,11 +15,13 @@ Town of Wiley uses **local Ollama models on GitHub-hosted runners** for advisory
 | Use | Default | Repo variable | Notes |
 | --- | ------- | ------------- | ----- |
 | CI triage | `llama3.2:3b` | `OLLAMA_CI_MODEL` | Fits ~7 GB free RAM; multi-pass or **fast path** |
-| PR review | `llama3.2:3b` | `OLLAMA_PR_REVIEW_MODEL` | Trial: `qwen2.5-coder:3b` for better code review |
+| PR review | `qwen2.5-coder:3b` | `OLLAMA_PR_REVIEW_MODEL` | Default for structured code review on hosted runners |
 | Self-hosted / larger runners | — | same vars | Prefer `qwen2.5-coder:7b` when RAM ≥ ~16 GB |
 | Install pin (optional) | install script latest | `OLLAMA_VERSION` | Passed into `setup-ollama` |
 
 Avoid bare `qwen2.5:7b` / 14B models on free GitHub-hosted runners (OOM risk).
+
+Dependabot and docs-only PRs skip **before** Ollama install (`--gate-only` uses `gh pr diff --name-only`). The review prompt drops generated inventory/lockfile hunks, caps the diff (~16k chars), and puts the required `SUMMARY` / `MUST_FIX` / `RISK_LEVEL` labels **after** the diff so 3B models still follow the template. Unstructured output (missing labels or `RISK_LEVEL` not `low|medium|high`) is labeled **Quality: low** and is not presented as a real review. If `OLLAMA_PR_REVIEW_MODEL` is set on the repo, it overrides the workflow default.
 
 ## Composite actions
 
@@ -68,7 +70,7 @@ Implementation: [`scripts/lib/ollama-sticky-comment.mjs`](../scripts/lib/ollama-
 # With ollama serve + model pulled:
 export GITHUB_REPOSITORY=Bigessfour/Townofwiley
 export PR_NUMBER=108
-export OLLAMA_MODEL=llama3.2:3b
+export OLLAMA_MODEL=qwen2.5-coder:3b
 npm run ci:ollama-pr-review:local
 
 # Diagnosis against a failed run id (needs gh auth + ollama for full path):

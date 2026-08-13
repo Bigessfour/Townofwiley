@@ -293,30 +293,21 @@ test.describe('homepage section visual coverage', () => {
     });
   });
 
-  test('keeps feature-hub cards visually stable', async ({ homePage }) => {
+  test('keeps compact homepage weather visually stable', async ({ homePage }) => {
     test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.goto();
     await waitForFonts(homePage.page);
+    await homePage.page.locator('#homepage-weather').scrollIntoViewIfNeeded();
 
-    await expect(homePage.page.locator('.feature-hub')).toHaveScreenshot('feature-hub.png', {
-      animations: 'disabled',
-      caret: 'hide',
-      maxDiffPixelRatio: 0.03,
-    });
-  });
-
-  test('keeps support strip visually stable', async ({ homePage }) => {
-    test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
-
-    await homePage.goto();
-    await waitForFonts(homePage.page);
-
-    await expect(homePage.page.locator('.support-strip')).toHaveScreenshot('support-strip.png', {
-      animations: 'disabled',
-      caret: 'hide',
-      maxDiffPixelRatio: 0.02,
-    });
+    await expect(homePage.page.locator('#homepage-weather')).toHaveScreenshot(
+      'homepage-weather.png',
+      {
+        animations: 'disabled',
+        caret: 'hide',
+        maxDiffPixelRatio: 0.03,
+      },
+    );
   });
 
   test('keeps calendar panel visually stable', async ({ homePage }) => {
@@ -347,10 +338,10 @@ test.describe('feature panel visual coverage', () => {
     test.skip(!useVisualSnapshots, 'Visual screenshot baselines are opt-in outside win32.');
 
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
-    await homePage.page.goto('/notices', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('#alerts')).toHaveScreenshot('notices-panel.png', {
+    await expect(homePage.page.locator('.news-page-shell')).toHaveScreenshot('notices-panel.png', {
       animations: 'disabled',
       caret: 'hide',
       maxDiffPixelRatio: 0.05,
@@ -362,24 +353,14 @@ test.describe('feature panel visual coverage', () => {
     await homePage.page.clock.setFixedTime(new Date('2026-04-12T12:00:00-06:00'));
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
 
-    await expect(homePage.page.locator('[aria-labelledby="meetings-heading"]'))
-      .toMatchAriaSnapshot(`
-      - paragraph: Town calendar
-      - heading "Council meetings & schedules" [level=1]
-      - article:
-        - strong: Town council meeting
-        - text: Second Monday each month · 6:00 PM
-        - paragraph: Wiley Town Hall, 304 Main Street
-        - text: In person at Wiley Town Hall. Agendas post before each meeting.
-        - paragraph: Agenda requests: (719) 829-4974 or the town clerk before the meeting.
-      - article:
-        - strong: Town notices & deadlines
-        - text: Posted year-round
-        - paragraph: Town-wide
-        - text: Utility work, road closures, seasonal deadlines, and severe weather updates.
-        - link "Browse notices":
-          - /url: /notices
-    `);
+    const meetingsPanel = homePage.page.locator('[aria-labelledby="meetings-heading"]');
+    await expect(meetingsPanel).toContainText('Council meetings & schedules');
+    await expect(homePage.page.locator('#meetings-next')).toBeVisible();
+    await expect(homePage.page.locator('.meetings-table tbody tr').first()).toBeVisible();
+    await expect(meetingsPanel.getByRole('link', { name: 'Browse notices' })).toHaveAttribute(
+      'href',
+      /\/news$/,
+    );
   });
 
   test('services panel snapshot', async ({ homePage }) => {
@@ -591,10 +572,10 @@ test.describe('standalone public route pixel baselines', () => {
       'Set PLAYWRIGHT_VISUAL_SNAPSHOTS=1 to update or verify screenshot baselines.',
     );
 
-    await homePage.page.goto('/notices', { waitUntil: 'domcontentloaded' });
+    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
     await waitForFonts(homePage.page);
 
-    await expect(homePage.page.locator('app-notices-page')).toHaveScreenshot(
+    await expect(homePage.page.locator('app-news')).toHaveScreenshot(
       'notices-page-shell.png',
       {
         animations: 'disabled',

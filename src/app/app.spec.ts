@@ -13,8 +13,8 @@ import { App, APP_COPY } from './app';
 import { routes } from './app.routes';
 import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import { flushBuildCmsSnapshotNotFound, flushCmsSnapshotAndWait } from './cms-test-support';
-import { clearCmsCache } from './site-cms-content';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
+import { clearCmsCache } from './site-cms-content';
 import {
   LocalizedWeatherPanel,
   type HomepageWeatherAlert,
@@ -192,12 +192,10 @@ describe('App', () => {
     expect(primaryNav).not.toBeNull();
     const component = fixture.componentInstance as App & { menuItems: () => MegaMenuItem[] };
     expect(component.menuItems().length).toBeGreaterThanOrEqual(7);
-    expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
-      'Local weather',
-    );
+    expect(compiled.textContent).toContain('View all news');
     expect(compiled.textContent).toContain('Meetings and calendar');
-    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
-      'Contact Town Hall',
+    expect(compiled.querySelector('a.task-card[href="/contact"]')?.textContent).toContain(
+      'Contact the Town Clerk',
     );
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
       'resident services, weather alerts, meetings, notices, and Town Hall contacts',
@@ -210,6 +208,8 @@ describe('App', () => {
     expect(compiled.querySelector('#search-panel h2')?.textContent).toContain(
       'Search Wiley services',
     );
+    const clerkChip = compiled.querySelector('#search-panel a.search-suggestion[href="/contact"]');
+    expect(clerkChip?.textContent?.trim()).toBe('Contact the Town Clerk');
     expect(compiled.querySelector('.footer-links a[href="/accessibility"]')?.textContent).toContain(
       'Accessibility statement',
     );
@@ -273,14 +273,21 @@ describe('App', () => {
 
   it('should keep non-core public routes lazy-loaded or redirected', () => {
     const lazyLeafRoutes = routes.filter(
-      (route) => route.path !== '' && route.redirectTo == null && route.path !== '**',
+      (route) =>
+        route.path !== '' &&
+        route.redirectTo == null &&
+        route.path !== '**' &&
+        route.path !== 'notices',
     );
     expect(lazyLeafRoutes.every((route) => Boolean(route.loadComponent))).toBe(true);
 
     const recordsRoute = routes.find((route) => route.path === 'records');
     const documentsRoute = routes.find((route) => route.path === 'documents');
+    const noticesRoute = routes.find((route) => route.path === 'notices');
     expect(recordsRoute?.redirectTo).toBe('/contact');
     expect(documentsRoute?.redirectTo).toBe('/meetings');
+    expect(noticesRoute?.canActivate?.length).toBeGreaterThan(0);
+    expect(noticesRoute?.loadComponent).toBeUndefined();
   });
 
   it('should invoke the MegaMenu command exactly once and suppress the default anchor behavior', async () => {
@@ -393,8 +400,7 @@ describe('App', () => {
     const springCleanupEvent = {
       id: 'spring-cleanup-day',
       title: 'Spring Cleanup Day',
-      description:
-        'Bring brush, yard debris, and approved bulk items to the collection site.',
+      description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
       location: 'Wiley Community Park',
       start: '2026-12-15T10:00:00-07:00',
       end: '2026-12-15T13:00:00-07:00',
@@ -402,9 +408,7 @@ describe('App', () => {
     };
 
     for (let attempt = 0; attempt < 4; attempt += 1) {
-      for (const request of httpTesting.match((req) =>
-        req.url.includes('/cms-snapshot.json'),
-      )) {
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-snapshot.json'))) {
         request.flush({
           version: 1,
           savedAt: '2026-07-27T12:00:00.000Z',
@@ -420,9 +424,7 @@ describe('App', () => {
           siteCopyRecords: [],
         });
       }
-      for (const request of httpTesting.match((req) =>
-        req.url.includes('/cms-revision.json'),
-      )) {
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-revision.json'))) {
         request.flush({
           version: 1,
           revision: 'test-spring-cleanup',
@@ -457,8 +459,7 @@ describe('App', () => {
     const springCleanupEvent = {
       id: 'spring-cleanup-day',
       title: 'Spring Cleanup Day',
-      description:
-        'Bring brush, yard debris, and approved bulk items to the collection site.',
+      description: 'Bring brush, yard debris, and approved bulk items to the collection site.',
       location: 'Wiley Community Park',
       start: '2026-12-15T10:00:00-07:00',
       end: '2026-12-15T13:00:00-07:00',
@@ -466,9 +467,7 @@ describe('App', () => {
     };
 
     for (let attempt = 0; attempt < 4; attempt += 1) {
-      for (const request of httpTesting.match((req) =>
-        req.url.includes('/cms-snapshot.json'),
-      )) {
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-snapshot.json'))) {
         request.flush({
           version: 1,
           savedAt: '2026-07-27T12:00:00.000Z',
@@ -484,9 +483,7 @@ describe('App', () => {
           siteCopyRecords: [],
         });
       }
-      for (const request of httpTesting.match((req) =>
-        req.url.includes('/cms-revision.json'),
-      )) {
+      for (const request of httpTesting.match((req) => req.url.includes('/cms-revision.json'))) {
         request.flush({
           version: 1,
           revision: 'test-spring-cleanup',
@@ -501,12 +498,12 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const meetingTitle = compiled.querySelector(
-      '.meetings-table tbody tr .meetings-cell-title strong',
+    const nextUp = compiled.querySelector('#meetings-next');
+    expect(nextUp?.textContent ?? '').toContain('Spring Cleanup Day');
+    expect(nextUp?.querySelector('.meeting-location')?.textContent ?? '').toContain(
+      'Wiley Community Park',
     );
-    expect(meetingTitle?.textContent ?? '').toContain('Spring Cleanup Day');
-    const meetingLocation = compiled.querySelector('.meetings-table tbody tr .meeting-location');
-    expect(meetingLocation?.textContent ?? '').toContain('Wiley Community Park');
+    expect(compiled.querySelector('.meetings-table')).toBeNull();
     expect(compiled.querySelector('#calendar')).not.toBeNull();
   });
 

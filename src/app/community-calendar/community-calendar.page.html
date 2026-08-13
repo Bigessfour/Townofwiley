@@ -51,9 +51,9 @@
             </div>
             <h4>{{ event.title }}</h4>
             <p class="community-calendar__when">
-              {{ event.startDateTime | date: 'medium' }}
+              {{ formatEventWhen(event.startDateTime) }}
               @if (event.endDateTime) {
-                <span> – {{ event.endDateTime | date: 'shortTime' }}</span>
+                <span> – {{ formatEventWhen(event.endDateTime, 'shortTime') }}</span>
               }
             </p>
             <p class="community-calendar__location">{{ event.location }}</p>

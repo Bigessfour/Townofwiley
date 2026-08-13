@@ -10,6 +10,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import type { CalendarOptions, EventClickArg, EventInput } from '@fullcalendar/core';
@@ -17,14 +18,13 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { FormsModule } from '@angular/forms';
 import { Ripple } from 'primeng/ripple';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { APP_COPY } from '../app';
-import { CommunityCalendarPanel } from '../community-calendar/community-calendar.page';
 import { COMMUNITY_CALENDAR_COPY } from '../community-calendar/community-calendar.copy';
+import { CommunityCalendarPanel } from '../community-calendar/community-calendar.page';
 import type { CommunityEvent } from '../community-calendar/community-calendar.types';
 import { DocumentUploadService } from '../document-upload.service';
 import {
@@ -152,6 +152,9 @@ export class MeetingsPage implements AfterViewInit {
     );
   });
 
+  protected readonly nextMeeting = computed(() => this.meetings()[0] ?? null);
+  protected readonly laterMeetings = computed(() => this.meetings().slice(1));
+
   protected readonly calendarOptions = computed<CalendarOptions>(() => {
     const filter = this.sourceFilter();
     const selectedId = this.selectedCalendarEvent()?.id ?? null;
@@ -171,10 +174,7 @@ export class MeetingsPage implements AfterViewInit {
           backgroundColor: '#e0e6e9',
           borderColor: '#1f4e5f',
           textColor: '#12313c',
-          classNames: [
-            'fc-event--official',
-            ...(selectedId === id ? ['fc-event--selected'] : []),
-          ],
+          classNames: ['fc-event--official', ...(selectedId === id ? ['fc-event--selected'] : [])],
           extendedProps: { source: 'official', officialItemId: item.id },
         });
       }
@@ -193,10 +193,7 @@ export class MeetingsPage implements AfterViewInit {
           backgroundColor: '#f0e5c2',
           borderColor: '#a8841a',
           textColor: '#1f2a2e',
-          classNames: [
-            'fc-event--community',
-            ...(selectedId === id ? ['fc-event--selected'] : []),
-          ],
+          classNames: ['fc-event--community', ...(selectedId === id ? ['fc-event--selected'] : [])],
           extendedProps: { source: 'community', communityEventId: item.eventId },
         });
       }
@@ -228,7 +225,9 @@ export class MeetingsPage implements AfterViewInit {
     const hash = window.location.hash.replace(/^#/, '');
     if (hash === 'community') {
       queueMicrotask(() => {
-        document.getElementById('community')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document
+          .getElementById('community')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
   }
@@ -237,7 +236,9 @@ export class MeetingsPage implements AfterViewInit {
     this.communityEvents.set(events);
     const selected = this.selectedCalendarEvent();
     if (selected?.source === 'community') {
-      const stillPresent = events.some((event) => event.eventId === selected.communityItem?.eventId);
+      const stillPresent = events.some(
+        (event) => event.eventId === selected.communityItem?.eventId,
+      );
       if (!stillPresent) {
         this.selectedCalendarEvent.set(null);
       }

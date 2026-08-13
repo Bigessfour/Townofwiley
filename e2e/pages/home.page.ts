@@ -90,7 +90,7 @@ export class HomePage {
       '[data-testid="homepage-section-nav"] .primary-nav-link, [data-testid="homepage-section-nav"] .mega-menu-root-link',
     );
     this.sectionNav = page.getByTestId('homepage-section-nav');
-    this.searchInput = page.locator('#mega-site-search, #landing-site-search').first();
+    this.searchInput = page.locator('#mega-site-search, #mobile-site-search').first();
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');
@@ -412,10 +412,14 @@ export class HomePage {
   }
 
   async searchBusinessDirectory(query: string): Promise<void> {
+    await expect(this.businessDirectoryHeading).toBeVisible({ timeout: 20_000 });
     await expect(this.businessDirectorySearchInput).toBeVisible();
+    await expect(this.page.getByText(/Loading the Wiley business directory/i)).toHaveCount(0);
     await this.businessDirectorySearchInput.click();
     await this.businessDirectorySearchInput.fill('');
-    await this.businessDirectorySearchInput.fill(query);
+    // pressSequentially keeps PrimeNG + OnPush FormControl in sync; fill() alone
+    // can update the DOM and then get reset on the next change-detection pass.
+    await this.businessDirectorySearchInput.pressSequentially(query, { delay: 15 });
     await expect(this.businessDirectorySearchInput).toHaveValue(query);
   }
 

@@ -2,8 +2,14 @@
   display: block;
 }
 
-.contact-section-card {
-  margin-top: var(--space-lg);
+.contact-directory {
+  display: grid;
+  gap: var(--space-xl, 1.75rem);
+}
+
+.contact-block {
+  display: grid;
+  gap: var(--space-sm, 0.75rem);
 }
 
 .contact-section-card-header {

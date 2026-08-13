@@ -28,7 +28,7 @@ export const CLERK_COVERAGE_ROWS: readonly ClerkCoverageRow[] = [
   },
   {
     whatResidentsSee: 'Short public notices',
-    whereOnSite: '/notices',
+    whereOnSite: '/news',
     method: 'admin-task',
     taskId: 'post-notice',
     adminHint: 'Kind = short notice (not Newsletter)',
@@ -91,7 +91,7 @@ export const CLERK_COVERAGE_ROWS: readonly ClerkCoverageRow[] = [
   },
   {
     whatResidentsSee: 'Menu labels, page headings, Town Hall card text',
-    whereOnSite: 'Header nav, /contact, /notices, homepage headings',
+    whereOnSite: 'Header nav, /contact, /news, homepage headings',
     method: 'site-copy-task',
     taskId: 'edit-site-copy',
     adminHint: 'Use stable keys from the key list in the task help (English + Spanish)',

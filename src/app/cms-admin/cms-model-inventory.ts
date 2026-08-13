@@ -67,7 +67,7 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
   {
     model: 'Announcement',
     publicApiKeyRead: true,
-    routes: '/, /notices, /news',
+    routes: '/, /news',
     keyFields: 'title, detail, date, active, priority, announcementKind, attachmentKey, imageUrl',
   },
   {

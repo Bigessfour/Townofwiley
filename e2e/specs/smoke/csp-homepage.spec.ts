@@ -76,18 +76,21 @@ test.describe('homepage CSP', () => {
     await homePage.page.waitForFunction(
       () => {
         document
-          .querySelector('.homepage-defer-placeholder--feature-hub')
+          .querySelector('.homepage-defer-placeholder--weather')
           ?.scrollIntoView({ block: 'end', inline: 'nearest' });
-        if (!document.querySelector('.feature-hub')) {
+        if (!document.querySelector('#homepage-weather')) {
           window.scrollBy({ top: Math.max(320, innerHeight * 0.85), behavior: 'instant' });
         }
-        return Boolean(document.querySelector('.feature-hub'));
+        return Boolean(document.querySelector('#homepage-weather'));
       },
       undefined,
       { timeout: 35_000, polling: 220 },
     );
 
-    await homePage.page.locator('.feature-grid .feature-card[href="/weather"]').click();
+    await homePage.page
+      .locator('#homepage-weather')
+      .getByRole('link', { name: 'Local weather' })
+      .click();
     await expect(homePage.page).toHaveURL(/\/weather$/);
     await expect(homePage.weatherPanel).toBeVisible({ timeout: 20_000 });
     await expect(homePage.weatherHeading).toBeVisible();
