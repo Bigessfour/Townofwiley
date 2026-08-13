@@ -231,6 +231,8 @@ test.describe('cms admin', () => {
         name: /show step-by-step/i,
       })
       .click();
-    await expect(homePage.page.getByText(/Spanish text residents see/i)).toBeVisible();
+    const taskGuide = homePage.page.getByTestId('cms-task-guide');
+    await expect(taskGuide).toBeVisible();
+    await expect(taskGuide.getByText(/Fill English \(required\) and Spanish/i)).toBeVisible();
   });
 });
