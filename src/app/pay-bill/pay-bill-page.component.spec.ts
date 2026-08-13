@@ -30,7 +30,7 @@ describe('PayBillPageComponent', () => {
     clearRuntimePaystarOverride();
   });
 
-  function setup(contacts: Array<{ id: string; href?: string; linkLabel?: string }> = []) {
+  function setup(contacts: { id: string; href?: string; linkLabel?: string }[] = []) {
     TestBed.configureTestingModule({
       imports: [PayBillPageComponent],
       providers: [
