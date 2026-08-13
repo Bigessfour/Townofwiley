@@ -231,6 +231,6 @@ test.describe('cms admin', () => {
         name: /show step-by-step/i,
       })
       .click();
-    await expect(homePage.page.getByText(/Spanish text/i)).toBeVisible();
+    await expect(homePage.page.getByText(/Spanish text residents see/i)).toBeVisible();
   });
 });
