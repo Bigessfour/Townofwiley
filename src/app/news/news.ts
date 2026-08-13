@@ -13,7 +13,13 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
-import { getCmsNoticeLinkAriaLabel, getCmsNoticeRouteLink } from '../cms-notice-link';
+import {
+  getCmsNoticeCardLink,
+  getCmsNoticeExternalCtaLabel,
+  getCmsNoticeLinkAriaLabel,
+  type CmsNoticeExternalKind,
+} from '../cms-notice-link';
+import { classifyCmsNoticeImageUrl, hideBrokenNoticeThumbnail } from '../cms-notice-media';
 import { DocumentUploadService } from '../document-upload.service';
 import { CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
@@ -184,9 +190,16 @@ export class News {
     content: { class: 'news-card-content' },
     footer: { class: 'news-card-footer' },
   };
-  protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;
+  protected readonly cmsNoticeCardLink = getCmsNoticeCardLink;
+  protected readonly classifyNoticeImage = classifyCmsNoticeImageUrl;
+  protected readonly hideBrokenThumbnail = hideBrokenNoticeThumbnail;
+
   protected cmsNoticeLinkAriaLabel(notice: CmsNotice): string {
     return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
+  }
+
+  protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
+    return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
   }
 
   protected readonly resolvedNewsletterHref = signal<string | null>(null);

@@ -32,6 +32,12 @@ describe('cms-clerk-tasks', () => {
     expect(roster?.fieldGlossary.some((f) => f.technicalName === 'lineEs')).toBe(true);
   });
 
+  it('documents post-notice imageUrl as a photo or webpage', () => {
+    const task = clerkTaskById('post-notice');
+    const imageField = task?.fieldGlossary.find((f) => f.technicalName === 'imageUrl');
+    expect(imageField?.help).toMatch(/StoryMap/i);
+  });
+
   it('provides verify steps for clerks', () => {
     expect(CLERK_VERIFY_STEPS.length).toBeGreaterThanOrEqual(3);
     expect(CLERK_VERIFY_STEPS.join(' ')).toMatch(/hard-refresh/i);

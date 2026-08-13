@@ -1692,6 +1692,12 @@ h6 {
   color: var(--ink-700);
 }
 
+.notice-card-cta {
+  margin: 0;
+  font-weight: 600;
+  color: var(--wiley-teal-700);
+}
+
 .stack-list {
   display: grid;
   gap: var(--space-md);
@@ -3623,18 +3629,8 @@ button:not(:disabled):active,
   color: var(--wiley-header-nav-text);
 }
 
-:host
-  ::ng-deep
-  .p-megamenu.mega-menu-civic
-  .p-megamenu-root-list
-  > li
-  > .p-menuitem-link:hover,
-:host
-  ::ng-deep
-  .p-megamenu.mega-menu-civic
-  .p-megamenu-root-list
-  > li.p-focus
-  > .p-menuitem-link,
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li > .p-menuitem-link:hover,
+:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li.p-focus > .p-menuitem-link,
 :host
   ::ng-deep
   .p-megamenu.mega-menu-civic

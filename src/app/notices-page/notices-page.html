@@ -21,28 +21,57 @@
     } @else {
       <section class="notice-grid">
         @for (notice of notices(); track notice.id) {
-          @let noticeLink = cmsNoticeRouteLink(notice);
-          <a
-            class="notice-card notice-card--link"
-            [routerLink]="noticeLink.path"
-            [fragment]="noticeLink.fragment"
-            [attr.id]="notice.type === 'newsletter' ? null : cmsNoticeFragmentId(notice.id)"
-            [attr.aria-label]="noticeLinkAriaLabel(notice)"
-          >
-            @if (notice.imageUrl) {
-              <img
-                class="notice-card__image"
-                [ngSrc]="notice.imageUrl"
-                width="400"
-                height="225"
-                sizes="(max-width: 480px) 100vw, 400px"
-                [alt]="notice.title"
-              />
-            }
-            <p class="meta-label">{{ notice.date }}</p>
-            <p class="notice-card-title">{{ notice.title }}</p>
-            <p class="notice-card-detail">{{ notice.detail }}</p>
-          </a>
+          @let noticeLink = cmsNoticeCardLink(notice);
+          @let media = classifyNoticeImage(notice.imageUrl);
+          @if (noticeLink.isExternal) {
+            <a
+              class="notice-card notice-card--link"
+              [href]="noticeLink.href"
+              target="_blank"
+              rel="noreferrer noopener"
+              [attr.id]="notice.type === 'newsletter' ? null : cmsNoticeFragmentId(notice.id)"
+              [attr.aria-label]="noticeLinkAriaLabel(notice)"
+            >
+              @if (media.thumbnailUrl) {
+                <img
+                  class="notice-card__image"
+                  [src]="media.thumbnailUrl"
+                  width="400"
+                  height="225"
+                  [alt]="notice.title"
+                  (error)="hideBrokenThumbnail($event)"
+                />
+              }
+              <p class="meta-label">{{ notice.date }}</p>
+              <p class="notice-card-title">{{ notice.title }}</p>
+              <p class="notice-card-detail">{{ notice.detail }}</p>
+              <p class="notice-card-cta" aria-hidden="true">
+                {{ noticeExternalCta(noticeLink.kind) }}
+              </p>
+            </a>
+          } @else {
+            <a
+              class="notice-card notice-card--link"
+              [routerLink]="noticeLink.path"
+              [fragment]="noticeLink.fragment"
+              [attr.id]="notice.type === 'newsletter' ? null : cmsNoticeFragmentId(notice.id)"
+              [attr.aria-label]="noticeLinkAriaLabel(notice)"
+            >
+              @if (media.photoUrl) {
+                <img
+                  class="notice-card__image"
+                  [ngSrc]="media.photoUrl"
+                  width="400"
+                  height="225"
+                  sizes="(max-width: 480px) 100vw, 33vw"
+                  [alt]="notice.title"
+                />
+              }
+              <p class="meta-label">{{ notice.date }}</p>
+              <p class="notice-card-title">{{ notice.title }}</p>
+              <p class="notice-card-detail">{{ notice.detail }}</p>
+            </a>
+          }
         }
       </section>
     }

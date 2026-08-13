@@ -6,12 +6,15 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { APP_COPY, type AppCopy } from '../app';
 import {
   cmsNoticeFragmentId,
+  getCmsNoticeCardLink,
+  getCmsNoticeExternalCtaLabel,
   getCmsNoticeLinkAriaLabel,
-  getCmsNoticeRouteLink,
+  type CmsNoticeExternalKind,
 } from '../cms-notice-link';
+import { classifyCmsNoticeImageUrl, hideBrokenNoticeThumbnail } from '../cms-notice-media';
 import { CmsNotice, LocalizedCmsContentStore } from '../site-cms-content';
-import { SiteLanguageService } from '../site-language';
 import { applyAppCopySiteCopyOverrides } from '../site-copy-overrides';
+import { SiteLanguageService } from '../site-language';
 
 @Component({
   selector: 'app-notices-page',
@@ -30,9 +33,16 @@ export class NoticesPage {
   });
   protected readonly cmsLoading = this.cmsStore.isLoading;
   protected readonly notices = this.cmsStore.notices;
-  protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;
+  protected readonly cmsNoticeCardLink = getCmsNoticeCardLink;
+  protected readonly classifyNoticeImage = classifyCmsNoticeImageUrl;
+  protected readonly hideBrokenThumbnail = hideBrokenNoticeThumbnail;
   protected readonly cmsNoticeFragmentId = cmsNoticeFragmentId;
+
   protected noticeLinkAriaLabel(notice: CmsNotice): string {
     return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
+  }
+
+  protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
+    return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
   }
 }

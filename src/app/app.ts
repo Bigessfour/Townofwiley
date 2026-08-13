@@ -51,16 +51,17 @@ import {
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
 import {
-  cmsNoticeFragmentId,
+  getCmsNoticeCardLink,
+  getCmsNoticeExternalCtaLabel,
   getCmsNoticeLinkAriaLabel,
-  getCmsNoticeRouteLink,
+  type CmsNoticeExternalKind,
 } from './cms-notice-link';
+import { GoogleAnalyticsService } from './google-analytics.service';
 import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
 import {
   LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
   LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
 } from './leadership-roster-group-ids';
-import { GoogleAnalyticsService } from './google-analytics.service';
 import { LoggingService } from './logging.service';
 import { localizeCmsPublicDocument } from './meeting-documents/localize-public-document';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
@@ -2253,10 +2254,12 @@ export class App {
   protected readonly homepageNotices = computed(() =>
     this.notices().slice(0, App.HOMEPAGE_NOTICES_PREVIEW),
   );
-  protected readonly cmsNoticeRouteLink = getCmsNoticeRouteLink;
-  protected readonly cmsNoticeFragmentId = cmsNoticeFragmentId;
+  protected readonly cmsNoticeCardLink = getCmsNoticeCardLink;
   protected cmsNoticeLinkAriaLabel(notice: CmsNotice): string {
     return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
+  }
+  protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
+    return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
   }
   protected readonly showBrowseNoticesLink = computed(
     () => this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW,

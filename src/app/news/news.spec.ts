@@ -420,4 +420,50 @@ describe('News', () => {
     expect(el.querySelector('#town-newsletter-heading')).toBeNull();
     expect(el.querySelector('.featured-news-card h2')?.textContent).toContain('Sole bulletin');
   });
+
+  it('opens a featured StoryMap notice in a new tab instead of using the story URL as an image', () => {
+    const storyUrl = 'https://storymaps.arcgis.com/stories/3e402c3303a84dcfb0d9ee6c60995349';
+    const notices = signal<CmsNotice[]>([
+      {
+        id: '2c607cdc-f367-4655-85b0-91b2544e74a9',
+        title: '2026 SECRHA Housing Needs Assessment',
+        date: 'August 1, 2026',
+        detail: 'Interactive Story Map',
+        type: 'notice',
+        imageUrl: storyUrl,
+      },
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [News],
+      providers: [
+        SiteLanguageService,
+        provideRouter([]),
+        { provide: DocumentUploadService, useValue: createDocumentUploadStub() },
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            notices,
+            externalNewsLinks: signal([]),
+            isLoading: signal(false),
+          } as unknown as LocalizedCmsContentStore,
+        },
+      ],
+    });
+
+    TestBed.inject(SiteLanguageService).setLanguage('en');
+    const fixture = TestBed.createComponent(News);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const featuredLink = el.querySelector('a.featured-news-card-link') as HTMLAnchorElement | null;
+    expect(featuredLink?.getAttribute('href')).toBe(storyUrl);
+    expect(featuredLink?.getAttribute('target')).toBe('_blank');
+    expect(featuredLink?.getAttribute('rel')).toContain('noopener');
+    expect(featuredLink?.textContent).toContain('Open interactive Story Map');
+    const images = [...el.querySelectorAll('img')];
+    expect(
+      images.some((img) => (img.getAttribute('src') ?? '').includes('storymaps.arcgis.com')),
+    ).toBe(false);
+  });
 });

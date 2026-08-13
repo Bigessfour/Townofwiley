@@ -30,6 +30,29 @@ function buildNewsInteractionsCmsSnapshotBody(): string {
   });
 }
 
+const E2E_STORYMAP_URL = 'https://storymaps.arcgis.com/stories/3e402c3303a84dcfb0d9ee6c60995349';
+
+function buildStoryMapNoticeCmsSnapshotBody(): string {
+  const snapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
+  const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as Record<string, unknown>;
+
+  return JSON.stringify({
+    ...snapshot,
+    externalNewsLinkRecords: [],
+    noticeRecords: [
+      {
+        id: 'e2e-storymap-notice',
+        title: '2026 SECRHA Housing Needs Assessment',
+        date: '2026-12-31',
+        detail: '2026 SECRHA Housing Needs Assessment – Interactive Story Map',
+        priority: 1,
+        imageUrl: E2E_STORYMAP_URL,
+        active: true,
+      },
+    ],
+  });
+}
+
 function buildNewsletterPdfCmsSnapshotBody(): string {
   const snapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
   const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as Record<string, unknown>;
@@ -95,6 +118,26 @@ test.describe('news page interactions', () => {
       'target',
       '_blank',
     );
+  });
+
+  test('opens a StoryMap notice as an external link instead of an image', async ({ homePage }) => {
+    await homePage.page.unroute('**/cms-snapshot.json');
+    await homePage.page.route('**/cms-snapshot.json', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: buildStoryMapNoticeCmsSnapshotBody(),
+      });
+    });
+
+    await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+
+    const featuredCardLink = homePage.page.locator('a.featured-news-card-link');
+    await expect(featuredCardLink).toBeVisible();
+    await expect(featuredCardLink).toHaveAttribute('href', E2E_STORYMAP_URL);
+    await expect(featuredCardLink).toHaveAttribute('target', '_blank');
+    await expect(featuredCardLink).toContainText('Open interactive Story Map');
+    await expect(homePage.page.locator(`img[src="${E2E_STORYMAP_URL}"]`)).toHaveCount(0);
   });
 
   test('renders newsletter PDF iframe with thumbnail-hiding viewer params', async ({

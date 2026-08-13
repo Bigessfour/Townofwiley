@@ -113,6 +113,15 @@ describe('cms-clerk-task-form-fields', () => {
     expect(pdfField?.uploadSectionId).toBe('newsletter');
   });
 
+  it('describes post-notice imageUrl as a photo or webpage, including StoryMaps', () => {
+    const imageField = clerkTaskFormFields('post-notice').find(
+      (field) => field.name === 'imageUrl',
+    );
+    expect(imageField?.label).toMatch(/photo or web page/i);
+    expect(imageField?.help).toMatch(/StoryMap/i);
+    expect(imageField?.help).toMatch(/new tab/i);
+  });
+
   it('prefills post-notice date on create and auto-sets newsletter kind when PDF is attached', () => {
     const values = defaultDynamicFormValues(clerkTaskFormFields('post-notice'), {
       taskId: 'post-notice',

@@ -121,4 +121,59 @@ describe('NoticesPage', () => {
     const link = el.querySelector('a.notice-card');
     expect(link?.getAttribute('href')).toBe('/news#town-newsletter-heading');
   });
+
+  it('opens a StoryMap imageUrl in a new tab instead of rendering it as an image', () => {
+    const storyUrl = 'https://storymaps.arcgis.com/stories/3e402c3303a84dcfb0d9ee6c60995349';
+    const fixture = configure({
+      notices: signal<CmsNotice[]>([
+        {
+          id: '2c607cdc-f367-4655-85b0-91b2544e74a9',
+          title: '2026 SECRHA Housing Needs Assessment',
+          date: 'August 1, 2026',
+          detail: '2026 SECRHA Housing Needs Assessment – Interactive Story Map',
+          type: 'notice',
+          imageUrl: storyUrl,
+        },
+      ]),
+      isLoading: signal(false),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const link = el.querySelector('a.notice-card');
+    expect(link?.getAttribute('href')).toBe(storyUrl);
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.getAttribute('rel')).toContain('noopener');
+    expect(link?.textContent).toContain('Open interactive Story Map');
+    const images = [...el.querySelectorAll('img')];
+    expect(
+      images.some((img) => (img.getAttribute('src') ?? '').includes('storymaps.arcgis.com')),
+    ).toBe(false);
+    expect(
+      images.some((img) => (img.getAttribute('ng-src') ?? '').includes('storymaps.arcgis.com')),
+    ).toBe(false);
+  });
+
+  it('still renders a real photo imageUrl and keeps the in-page notice link', () => {
+    const photoUrl = 'https://cdn.example.com/hydrant.webp';
+    const fixture = configure({
+      notices: signal<CmsNotice[]>([
+        {
+          id: 'hydrant',
+          title: 'Hydrant flushing',
+          date: 'May 1, 2026',
+          detail: 'Flushing this week.',
+          type: 'notice',
+          imageUrl: photoUrl,
+        },
+      ]),
+      isLoading: signal(false),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const link = el.querySelector('a.notice-card');
+    expect(link?.getAttribute('href')).toBe('/notices#notice-hydrant');
+    expect(link?.getAttribute('target')).toBeNull();
+    const img = el.querySelector('img.notice-card__image');
+    expect(img).toBeTruthy();
+    const src = `${img?.getAttribute('ng-src') ?? ''} ${img?.getAttribute('src') ?? ''}`;
+    expect(src).toContain(photoUrl);
+  });
 });
