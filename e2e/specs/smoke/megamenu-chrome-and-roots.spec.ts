@@ -90,6 +90,30 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await expect(panel.getByRole('link', { name: L.onlinePayments, exact: true })).toBeVisible();
   });
 
+  test('open mega panel paints over the EN/ES toggle', async ({ homePage }) => {
+    await homePage.goto();
+    const nav = homePage.page.getByTestId('homepage-section-nav');
+    const panel = await openMegaMenuPanel(homePage.page, roots[0]);
+    await expect(panel).toBeVisible();
+    const toggle = siteLanguageButton(nav, 'en');
+    const toggleBox = await toggle.boundingBox();
+    expect(toggleBox, 'language toggle should have a box').toBeTruthy();
+    const x = toggleBox!.x + toggleBox!.width / 2;
+    const y = toggleBox!.y + toggleBox!.height / 2;
+    const hit = await homePage.page.evaluate(
+      ({ x, y }) => {
+        const el = document.elementFromPoint(x, y);
+        return {
+          throughOverlay: Boolean(el?.closest('.p-megamenu-overlay')),
+          throughToggle: Boolean(el?.closest('.site-language-switcher')),
+        };
+      },
+      { x, y },
+    );
+    expect(hit.throughOverlay, 'mega overlay should receive hits over EN/ES chrome').toBe(true);
+    expect(hit.throughToggle).toBe(false);
+  });
+
   test('panel for Government & Meetings includes Meetings and calendar', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
