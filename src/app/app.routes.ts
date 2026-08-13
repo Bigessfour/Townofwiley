@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'notices',
     canActivate: [noticesToNewsGuard],
-    loadComponent: () => import('./news/news').then((m) => m.News),
+    component: HomeRouteShell,
   },
   {
     path: 'meetings',

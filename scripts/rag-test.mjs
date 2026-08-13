@@ -3,11 +3,12 @@
  * Lightweight unit tests for JS RAG (no full index required).
  */
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
+import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { globToRegExp, pathMatchesGlob, shouldIndexFile, findRepoRoot } from '../rag/js/config.mjs';
 import { chunkFile } from '../rag/js/chunking.mjs';
+import { findRepoRoot, globToRegExp, pathMatchesGlob, shouldIndexFile } from '../rag/js/config.mjs';
 import { discoverIndexFiles } from '../rag/js/discover.mjs';
 import { formatHitsMarkdown, searchCodebase } from '../rag/js/search.mjs';
 
@@ -67,4 +68,69 @@ test('globToRegExp anchors correctly', () => {
   const re = globToRegExp('src/**/*.ts');
   assert.ok(re.test('src/app/auth/staff-auth.guard.ts'));
   assert.ok(!re.test('e2e/src/app/foo.ts'));
+});
+
+test('MCP handshake replies with NDJSON and lists tools', async () => {
+  const child = spawn(process.execPath, [path.join(repoRoot, 'scripts/rag-mcp.mjs')], {
+    cwd: repoRoot,
+    env: { ...process.env, TOW_RAG_ROOT: repoRoot },
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  const chunks = [];
+  child.stdout.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
+
+  const write = (message) => {
+    child.stdin.write(`${JSON.stringify(message)}\n`);
+  };
+  write({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'initialize',
+    params: {
+      protocolVersion: '2024-11-05',
+      capabilities: {},
+      clientInfo: { name: 'rag-test', version: '0' },
+    },
+  });
+  write({ jsonrpc: '2.0', method: 'notifications/initialized' });
+  write({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} });
+
+  const text = await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`MCP handshake timed out: ${Buffer.concat(chunks).toString('utf8')}`));
+    }, 8_000);
+    const check = () => {
+      const out = Buffer.concat(chunks).toString('utf8');
+      if (out.includes('search_codebase') && out.includes('rag_status')) {
+        clearTimeout(timer);
+        resolve(out);
+      }
+    };
+    child.stdout.on('data', check);
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on('exit', (code) => {
+      if (code && code !== 0) {
+        clearTimeout(timer);
+        reject(new Error(`MCP server exited ${code}`));
+      }
+    });
+  });
+
+  child.kill();
+  assert.ok(!text.includes('Content-Length:'), 'Cursor requires NDJSON, not LSP Content-Length');
+  const lines = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const init = JSON.parse(lines[0]);
+  assert.equal(init.result.serverInfo.name, 'townofwiley-rag');
+  const listed = JSON.parse(lines[1]);
+  const names = listed.result.tools.map((tool) => tool.name);
+  assert.deepEqual(names, ['search_codebase', 'rag_status']);
 });

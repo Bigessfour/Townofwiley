@@ -67,7 +67,7 @@ test.describe('feature page coverage', () => {
     await expect(meetingsPanel).toContainText('Council meetings & schedules');
     await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
     const meetingRows = homePage.page.locator('.meetings-table tbody tr');
-    await expect(meetingRows).toHaveCount(siteContent.homepageCounts.meetingCards, {
+    await expect(meetingRows).toHaveCount(siteContent.homepageCounts.meetingTableRows, {
       timeout: 20000,
     });
   });
@@ -93,7 +93,9 @@ test.describe('feature page coverage', () => {
     expect(hydrationSignals).toEqual([]);
   });
 
-  test('calendar agenda button shows unavailable toast when no linked PDF', async ({ homePage }) => {
+  test('calendar agenda button shows unavailable toast when no linked PDF', async ({
+    homePage,
+  }) => {
     await homePage.page.goto('/meetings', { waitUntil: 'domcontentloaded' });
 
     const calendarRegion = homePage.page.locator('#calendar');

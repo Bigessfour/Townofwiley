@@ -11,9 +11,31 @@ describe('noticesToNewsGuard', () => {
 
     const router = TestBed.inject(Router);
     const tree = TestBed.runInInjectionContext(() =>
-      noticesToNewsGuard({ fragment: 'notice-hydrant' } as ActivatedRouteSnapshot, {} as never),
+      noticesToNewsGuard(
+        { fragment: 'notice-hydrant', queryParams: {} } as ActivatedRouteSnapshot,
+        {} as never,
+      ),
     ) as UrlTree;
 
     expect(router.serializeUrl(tree)).toBe('/news#notice-hydrant');
+  });
+
+  it('keeps staff preview and other query params', () => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([])],
+    });
+
+    const router = TestBed.inject(Router);
+    const tree = TestBed.runInInjectionContext(() =>
+      noticesToNewsGuard(
+        {
+          fragment: 'notice-hydrant',
+          queryParams: { preview: '1' },
+        } as unknown as ActivatedRouteSnapshot,
+        {} as never,
+      ),
+    ) as UrlTree;
+
+    expect(router.serializeUrl(tree)).toBe('/news?preview=1#notice-hydrant');
   });
 });

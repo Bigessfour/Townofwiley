@@ -90,7 +90,7 @@ High-signal paths: `src/`, `docs/`, `e2e/`, `scripts/`, `infrastructure/` (inclu
 | Issue | Fix |
 | ----- | --- |
 | MCP server not listed | Reload window; confirm `scripts/rag-mcp.sh` exists |
-| Stuck on “loading tools” | Cursor MCP often has no Homebrew `node` on PATH. Project config must use `bash scripts/rag-mcp.sh` + Node 24 on `PATH` (see `.cursor/mcp.json`). Then **MCP: Restart Servers** or reload the window. |
+| Stuck on “loading tools” / “failed during live tool discovery” | MCP stdio is **NDJSON**, not LSP `Content-Length`. `rag/js/mcp-server.mjs` must reply with one JSON object per line. Then **MCP: Restart Servers** or reload the window. If Node is missing from Cursor’s PATH, project config must use `bash scripts/rag-mcp.sh` + Node 24 on `PATH`. |
 | Empty / weak results | `npm run rag:index`; try a more specific query or `path_prefix` |
 | Stale after large commits | `npm run rag:index` |
 | Global MCP fails | Point `TOW_RAG_ROOT` / `~/.cursor/scripts/townofwiley-rag-mcp.sh` at this repo’s absolute path (not the old iCloud path) |

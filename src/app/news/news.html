@@ -153,12 +153,9 @@
           </p-card>
         </a>
       } @else {
-        <a
-          class="featured-news-card-link block no-underline text-inherit"
-          [routerLink]="featuredLink.path"
-          [fragment]="featuredLink.fragment"
+        <article
+          class="featured-news-card-article"
           [attr.id]="cmsNoticeFragmentId(featuredNotice.id)"
-          [attr.aria-label]="cmsNoticeLinkAriaLabel(featuredNotice)"
         >
           <p-card class="featured-news-card panel wiley-panel notice-card" [pt]="newsCardPt">
             <ng-template pTemplate="header">
@@ -179,34 +176,22 @@
               }
               <p>{{ featuredNotice.detail }}</p>
             </ng-template>
-            <ng-template pTemplate="footer">
-              <span
-                pButton
-                severity="secondary"
-                [outlined]="true"
-                [rounded]="true"
-                class="featured-news-link pointer-events-none"
-                aria-hidden="true"
-              >
-                {{ copy().readArticleLabel }}
-              </span>
-            </ng-template>
           </p-card>
-        </a>
+        </article>
       }
     }
 
-    @if (remainingNotices().length) {
-      <section
-        class="news-section news-section-local grid gap-6"
-        aria-labelledby="recent-town-notices-heading"
-      >
-        <div class="news-section-header grid gap-1">
-          <p class="section-kicker">{{ copy().officialKicker }}</p>
-          <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
-          <p class="public-page-copy">{{ copy().officialCopy }}</p>
-        </div>
+    <section
+      class="news-section news-section-local grid gap-6"
+      aria-labelledby="recent-town-notices-heading"
+    >
+      <div class="news-section-header grid gap-1">
+        <p class="section-kicker">{{ copy().officialKicker }}</p>
+        <h2 id="recent-town-notices-heading">{{ copy().officialHeading }}</h2>
+        <p class="public-page-copy">{{ copy().officialCopy }}</p>
+      </div>
 
+      @if (remainingNotices().length) {
         <div class="public-card-grid news-card-grid">
           @for (item of remainingNotices(); track item.id) {
             @let itemLink = cmsNoticeCardLink(item);
@@ -253,12 +238,9 @@
                 </p-card>
               </a>
             } @else {
-              <a
-                class="news-card-link block h-full no-underline text-inherit"
-                [routerLink]="itemLink.path"
-                [fragment]="itemLink.fragment"
+              <article
+                class="news-card-article block h-full"
                 [attr.id]="cmsNoticeFragmentId(item.id)"
-                [attr.aria-label]="cmsNoticeLinkAriaLabel(item)"
               >
                 <p-card class="public-card panel wiley-panel news-card notice-card h-full" [pt]="newsCardPt">
                   <ng-template pTemplate="header">
@@ -279,25 +261,14 @@
                     <p class="public-card-copy news-card-detail">{{ item.detail }}</p>
                   </ng-template>
                 </p-card>
-              </a>
+              </article>
             }
           }
         </div>
-      </section>
-    } @else if (!featuredNotice()) {
-      <section
-        class="news-section news-section-local grid gap-6"
-        aria-labelledby="recent-town-notices-empty-heading"
-      >
-        <div class="news-section-header grid gap-1">
-          <p class="section-kicker">{{ copy().officialKicker }}</p>
-          <h2 id="recent-town-notices-empty-heading">{{ copy().officialHeading }}</h2>
-          <p class="public-page-copy">{{ copy().officialCopy }}</p>
-        </div>
-
+      } @else if (!featuredNotice()) {
         <p class="public-empty-state">{{ officialEmptyMessage() }}</p>
-      </section>
-    }
+      }
+    </section>
   }
 
   <section

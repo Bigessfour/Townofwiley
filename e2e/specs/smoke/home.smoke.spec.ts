@@ -455,12 +455,6 @@ test.describe('homepage smoke', () => {
       .locator('.search-suggestion')
       .filter({ hasText: 'Contact the Town Clerk' })
       .click();
-    const clerkHit = homePage.page
-      .locator('a.search-result')
-      .filter({ hasText: /Contact the Town Clerk/i })
-      .first();
-    await expect(clerkHit).toBeVisible({ timeout: 5_000 });
-    await clerkHit.click();
 
     await expect(homePage.page).toHaveURL(/\/contact$/);
     await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();

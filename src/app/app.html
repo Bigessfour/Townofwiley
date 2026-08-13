@@ -345,32 +345,7 @@
                   </div>
                   @if (hasSearchQuery() && !isSearchPending()) {
                     <div class="header-search-results search-results grid gap-2" aria-live="polite">
-                      @if (searchResults().length) {
-                        @for (result of searchResults(); track result.href) {
-                          @if (resolveAppLink(result.href); as resultLink) {
-                            @if (resultLink.isInternal) {
-                              <a
-                                class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
-                                [routerLink]="resultLink.path"
-                                [fragment]="resultLink.fragment"
-                              >
-                                <strong>{{ result.title }}</strong>
-                                <span>{{ result.summary }}</span>
-                              </a>
-                            } @else {
-                              <a
-                                class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
-                                [attr.href]="resultLink.href"
-                              >
-                                <strong>{{ result.title }}</strong>
-                                <span>{{ result.summary }}</span>
-                              </a>
-                            }
-                          }
-                        }
-                      } @else {
-                        <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
-                      }
+                      <ng-container *ngTemplateOutlet="siteSearchHits" />
                     </div>
                   }
                 </form>
@@ -453,6 +428,14 @@
               autocomplete="off"
             />
           </div>
+          @if (hasSearchQuery() && !isSearchPending()) {
+            <div
+              class="header-search-results header-search-results--stacked search-results grid gap-2"
+              aria-live="polite"
+            >
+              <ng-container *ngTemplateOutlet="siteSearchHits" />
+            </div>
+          }
         </form>
 
         <nav
@@ -812,14 +795,22 @@
 
           <div class="search-suggestion-row flex flex-wrap gap-2" role="list">
             @for (task of topTasks(); track task.href) {
-              <button
-                type="button"
-                class="search-suggestion"
-                role="listitem"
-                (click)="applySuggestedSearch(task.title)"
-              >
-                {{ task.title }}
-              </button>
+              @if (resolveAppLink(task.href); as taskLink) {
+                @if (taskLink.isInternal) {
+                  <a
+                    class="search-suggestion"
+                    role="listitem"
+                    [routerLink]="taskLink.path"
+                    [fragment]="taskLink.fragment"
+                  >
+                    {{ task.title }}
+                  </a>
+                } @else {
+                  <a class="search-suggestion" role="listitem" [attr.href]="taskLink.href">
+                    {{ task.title }}
+                  </a>
+                }
+              }
             }
           </div>
         </section>
@@ -1088,3 +1079,34 @@
     </footer>
   </main>
 }
+
+<ng-template #siteSearchHits>
+  @if (searchResults().length) {
+    @for (result of searchResults(); track result.href) {
+      @if (resolveAppLink(result.href); as resultLink) {
+        @if (resultLink.isInternal) {
+          <a
+            class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+            [routerLink]="resultLink.path"
+            [fragment]="resultLink.fragment"
+            (click)="closeMobileMenu()"
+          >
+            <strong>{{ result.title }}</strong>
+            <span>{{ result.summary }}</span>
+          </a>
+        } @else {
+          <a
+            class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+            [attr.href]="resultLink.href"
+            (click)="closeMobileMenu()"
+          >
+            <strong>{{ result.title }}</strong>
+            <span>{{ result.summary }}</span>
+          </a>
+        }
+      }
+    }
+  } @else {
+    <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
+  }
+</ng-template>

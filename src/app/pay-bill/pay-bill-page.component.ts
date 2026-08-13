@@ -11,12 +11,9 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
 import { resolveQuickPayHref } from '../payments/paystar-quick-pay';
-import {
-  LocalizedCmsContentStore,
-  OFFICIAL_CONTACT_ID_CITY_CLERK,
-} from '../site-cms-content';
-import { SiteLanguageService } from '../site-language';
+import { LocalizedCmsContentStore, OFFICIAL_CONTACT_ID_CITY_CLERK } from '../site-cms-content';
 import { resolveSiteCopyLabel, siteCopyTelHref } from '../site-copy-overrides';
+import { SiteLanguageService } from '../site-language';
 import { PayInstructionsComponent } from './pay-instructions.component';
 
 const DEFAULT_TOWN_HALL_PHONE = '(719) 829-4974';
@@ -91,12 +88,21 @@ export class PayBillPageComponent {
     this.cmsStore.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
   );
 
-  protected readonly clerkEmailLabel = computed(
-    () => this.clerkContact()?.linkLabel ?? DEFAULT_CLERK_EMAIL,
-  );
+  protected readonly clerkEmailLabel = computed(() => {
+    const contact = this.clerkContact();
+    const labeled = contact?.linkLabel?.trim();
+    if (labeled) {
+      return labeled;
+    }
+    const href = contact?.href?.trim() ?? '';
+    if (href.toLowerCase().startsWith('mailto:')) {
+      return href.slice('mailto:'.length).trim() || DEFAULT_CLERK_EMAIL;
+    }
+    return DEFAULT_CLERK_EMAIL;
+  });
 
   protected readonly clerkEmailHref = computed(
-    () => this.clerkContact()?.href ?? `mailto:${DEFAULT_CLERK_EMAIL}`,
+    () => this.clerkContact()?.href?.trim() || `mailto:${DEFAULT_CLERK_EMAIL}`,
   );
 
   constructor() {

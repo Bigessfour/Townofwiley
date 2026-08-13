@@ -30,7 +30,7 @@ describe('PayBillPageComponent', () => {
     clearRuntimePaystarOverride();
   });
 
-  function setup() {
+  function setup(contacts: Array<{ id: string; href?: string; linkLabel?: string }> = []) {
     TestBed.configureTestingModule({
       imports: [PayBillPageComponent],
       providers: [
@@ -41,7 +41,7 @@ describe('PayBillPageComponent', () => {
           provide: LocalizedCmsContentStore,
           useValue: {
             getSiteCopy: () => undefined,
-            contacts: signal([]),
+            contacts: signal(contacts),
           },
         },
       ],
@@ -125,5 +125,28 @@ describe('PayBillPageComponent', () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="pay-bill-portal-placeholder"]'),
     ).not.toBeNull();
+  });
+
+  it('shows the default clerk email when CMS has no city-clerk row', () => {
+    const { fixture, component } = setup();
+    fixture.detectChanges();
+
+    expect(component['clerkEmailLabel']()).toBe('clerk@townofwiley.gov');
+    expect(component['clerkEmailHref']()).toBe('mailto:clerk@townofwiley.gov');
+    expect(fixture.nativeElement.textContent).toContain('clerk@townofwiley.gov');
+  });
+
+  it('uses the CMS mailto address when city-clerk has no linkLabel', () => {
+    const { fixture, component } = setup([
+      {
+        id: 'city-clerk',
+        href: 'mailto:deb@townofwiley.gov',
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(component['clerkEmailLabel']()).toBe('deb@townofwiley.gov');
+    expect(component['clerkEmailHref']()).toBe('mailto:deb@townofwiley.gov');
+    expect(fixture.nativeElement.textContent).toContain('deb@townofwiley.gov');
   });
 });

@@ -414,7 +414,15 @@
   background: var(--wiley-cream-0, #fff);
 }
 
+.header-search-results--stacked {
+  position: static;
+  top: auto;
+  max-height: min(20rem, 50vh);
+}
+
 .search-suggestion {
+  display: inline-flex;
+  align-items: center;
   min-height: 2.75rem;
   padding: 0.4rem 0.9rem;
   border: 1px solid var(--wiley-teal-600, #0f6b6b);
@@ -422,6 +430,7 @@
   background: var(--wiley-cream-0, #fff);
   color: var(--wiley-navy-900, #1f2a2e);
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -3370,6 +3379,7 @@ button:not(:disabled):active,
 :host ::ng-deep .p-megamenu.mega-menu-civic {
   border: none;
   box-shadow: none;
+  overflow: visible;
   position: relative;
   z-index: 1200;
   width: 100%;
@@ -3630,6 +3640,7 @@ button:not(:disabled):active,
   gap: var(--space-md);
   min-width: 0;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .search-group {

@@ -43,8 +43,12 @@ test.describe('forms and empty states', () => {
     await expect(homePage.emptySearchState).toContainText('No direct match yet');
 
     await homePage.page.goto('/businesses', { waitUntil: 'domcontentloaded' });
-    await homePage.searchBusinessDirectory('zzzz no wiley business');
+    await expect(homePage.businessDirectoryCards.first()).toBeVisible({ timeout: 20_000 });
+    await homePage.searchBusinessDirectory('zzzzxyzzy-nomatch-9f3k');
 
+    await expect(homePage.page.getByText(/No businesses match your search/i)).toBeVisible({
+      timeout: 20_000,
+    });
     await expect(homePage.businessDirectoryCards).toHaveCount(0);
     await expect(homePage.businessDirectoryEmptyState).toBeVisible();
   });

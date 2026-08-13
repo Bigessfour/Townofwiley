@@ -94,10 +94,52 @@ describe('News', () => {
     expect(externalCta?.querySelector('.visually-hidden')?.textContent).toContain(
       'opens in new tab',
     );
-    const featuredLink = compiled.querySelector(
-      'a.featured-news-card-link',
-    ) as HTMLAnchorElement | null;
-    expect(featuredLink?.getAttribute('href')).toBe('/news#notice-first-notice');
+    expect(compiled.querySelector('#notice-first-notice')).toBeTruthy();
+    expect(compiled.querySelector('a.featured-news-card-link')).toBeNull();
+    expect(compiled.querySelector('#notice-second-notice')).toBeTruthy();
+    expect(compiled.querySelector('a.news-card-link')).toBeNull();
+    expect(compiled.querySelector('#recent-town-notices-heading')?.textContent).toContain(
+      'Current Wiley Updates',
+    );
+  });
+
+  it('keeps the clerk hub heading when only one bulletin is featured', () => {
+    const notices = signal<CmsNotice[]>([
+      {
+        id: 'only-notice',
+        title: 'Hydrant flushing',
+        date: 'May 3, 2026',
+        detail: 'Short notice text.',
+        type: 'notice',
+      },
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [News],
+      providers: [
+        SiteLanguageService,
+        provideRouter([]),
+        { provide: DocumentUploadService, useValue: createDocumentUploadStub() },
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            notices,
+            externalNewsLinks: signal([]),
+            isLoading: signal(false),
+          } as unknown as LocalizedCmsContentStore,
+        },
+      ],
+    });
+
+    TestBed.inject(SiteLanguageService).setLanguage('en');
+    const fixture = TestBed.createComponent(News);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('#recent-town-notices-heading')?.textContent).toContain(
+      'Current Wiley Updates',
+    );
+    expect(el.querySelector('.featured-news-card h2')?.textContent).toContain('Hydrant flushing');
   });
 
   it('falls back to paragraph rendering when the latest newsletter has no attachmentKey', () => {

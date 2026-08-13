@@ -2,8 +2,8 @@ import { expect } from '@playwright/test';
 
 import { test } from '../../fixtures/town-pages.fixture';
 import { inventoryStep } from '../../support/inventory-step';
-import { siteContent } from '../../support/site-content';
 import { expectMeetingsCalendar } from '../../support/route-assertions';
+import { siteContent } from '../../support/site-content';
 
 test.describe('meetings page inventory controls', () => {
   test('[meetings.calendar-visible] FullCalendar panel is visible', async ({ meetingsPage }) => {
@@ -18,9 +18,12 @@ test.describe('meetings page inventory controls', () => {
     await meetingsPage.goto();
 
     await inventoryStep('Verify meeting rows', async () => {
-      await expect(meetingsPage.meetingRows).toHaveCount(siteContent.homepageCounts.meetingCards, {
-        timeout: 20_000,
-      });
+      await expect(meetingsPage.meetingRows).toHaveCount(
+        siteContent.homepageCounts.meetingTableRows,
+        {
+          timeout: 20_000,
+        },
+      );
     });
   });
 });

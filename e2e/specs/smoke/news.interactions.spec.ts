@@ -112,13 +112,8 @@ test.describe('news page interactions', () => {
     await expect(featuredNewsCard).toContainText('Featured town notice');
     await expect(featuredNewsCard).toContainText('Hydrant flushing');
 
-    const featuredCardLink = homePage.page.locator('a.featured-news-card-link');
-    await expect(featuredCardLink).toBeVisible();
-    await expect(featuredCardLink).toHaveAttribute(
-      'href',
-      `/news#notice-${E2E_FEATURED_NOTICE_ID}`,
-    );
-    await expect(featuredCardLink).toContainText('Read article');
+    await expect(homePage.page.locator(`#notice-${E2E_FEATURED_NOTICE_ID}`)).toBeVisible();
+    await expect(homePage.page.locator('a.featured-news-card-link')).toHaveCount(0);
 
     const externalNewsCard = homePage.page.locator('.news-card--external').first();
     await expect(externalNewsCard).toContainText('Lamar Ledger');

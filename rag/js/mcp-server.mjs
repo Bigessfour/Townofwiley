@@ -2,34 +2,32 @@
 /**
  * Minimal stdio MCP server for townofwiley-rag (no external MCP SDK required).
  * Tools: search_codebase, rag_status
+ *
+ * MCP stdio is newline-delimited JSON-RPC (one object per line). LSP
+ * Content-Length framing is accepted inbound for older clients, but Cursor
+ * and the official SDK speak NDJSON — Content-Length replies break tool discovery.
  */
-import { createInterface } from 'node:readline';
 import { findRepoRoot } from './config.mjs';
 import { statusReport } from './index-store.mjs';
 import { formatHitsMarkdown, searchCodebase } from './search.mjs';
 
 const SERVER_NAME = 'townofwiley-rag';
-const SERVER_VERSION = '2.0.0';
+const SERVER_VERSION = '2.0.1';
 const PROTOCOL_VERSION = '2024-11-05';
 
-/** @type {import('node:readline').Interface | null} */
-let rl = null;
+/** @type {'ndjson' | 'framed'} */
+let replyMode = 'ndjson';
 
 /**
  * @param {unknown} message
  */
 function send(message) {
   const body = JSON.stringify(message);
-  process.stdout.write(`Content-Length: ${Buffer.byteLength(body, 'utf8')}\r\n\r\n${body}`);
-}
-
-/**
- * Also support newline-delimited JSON (some clients).
- * @param {unknown} message
- */
-function sendFlexible(message) {
-  // Prefer Content-Length framing (MCP standard); also works if client uses NDJSON readers.
-  send(message);
+  if (replyMode === 'framed') {
+    process.stdout.write(`Content-Length: ${Buffer.byteLength(body, 'utf8')}\r\n\r\n${body}`);
+    return;
+  }
+  process.stdout.write(`${body}\n`);
 }
 
 /**
@@ -37,7 +35,7 @@ function sendFlexible(message) {
  * @param {unknown} result
  */
 function respond(id, result) {
-  sendFlexible({ jsonrpc: '2.0', id, result });
+  send({ jsonrpc: '2.0', id, result });
 }
 
 /**
@@ -46,7 +44,7 @@ function respond(id, result) {
  * @param {string} message
  */
 function respondError(id, code, message) {
-  sendFlexible({
+  send({
     jsonrpc: '2.0',
     id,
     error: { code, message },
@@ -129,6 +127,17 @@ function handleMessage(msg) {
     return;
   }
 
+  // Cursor probes these during discovery even when capabilities omit them.
+  if (method === 'resources/list') {
+    respond(/** @type {string} */ (id), { resources: [] });
+    return;
+  }
+
+  if (method === 'prompts/list') {
+    respond(/** @type {string} */ (id), { prompts: [] });
+    return;
+  }
+
   if (method === 'tools/call') {
     try {
       const name = String(params.name || '');
@@ -180,15 +189,18 @@ function main() {
     // Detect framing
     if (mode === 'unknown') {
       const head = buffer.subarray(0, Math.min(buffer.length, 64)).toString('utf8');
-      if (/^Content-Length:/i.test(head) || head.includes('\r\n')) {
+      if (/^Content-Length:/i.test(head)) {
         mode = 'framed';
+        replyMode = 'framed';
       } else if (head.trimStart().startsWith('{')) {
         mode = 'ndjson';
+        replyMode = 'ndjson';
       }
     }
 
     if (mode === 'framed' || (mode === 'unknown' && buffer.includes(Buffer.from('\r\n\r\n')))) {
       mode = 'framed';
+      replyMode = 'framed';
       while (true) {
         const headerEnd = buffer.indexOf('\r\n\r\n');
         if (headerEnd === -1) break;
@@ -214,6 +226,7 @@ function main() {
 
     // NDJSON: process complete lines
     mode = 'ndjson';
+    replyMode = 'ndjson';
     const text = buffer.toString('utf8');
     const lines = text.split('\n');
     buffer = Buffer.from(lines.pop() || '', 'utf8');

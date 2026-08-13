@@ -94,6 +94,40 @@ describe('MeetingsPage', () => {
     expect(el.querySelector('.public-empty-state')).toBeNull();
   });
 
+  it('leads with the next meeting and keeps later meetings in the table only', () => {
+    const fixture = configure({
+      events: signal<CmsCalendarEvent[]>([
+        {
+          id: 'next-1',
+          title: 'Next council meeting',
+          description: 'Agenda posts before the meeting.',
+          location: 'Wiley Town Hall',
+          start: '2026-09-14T18:00:00',
+          end: '2026-09-14T19:00:00',
+        },
+        {
+          id: 'later-2',
+          title: 'Later work session',
+          description: 'Follow-up session.',
+          location: 'Wiley Town Hall',
+          start: '2026-10-12T18:00:00',
+          end: '2026-10-12T19:00:00',
+        },
+      ]),
+      isLoading: signal(false),
+      publicDocuments: signal([]),
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('#meetings-next')?.textContent).toContain('Next council meeting');
+    expect(el.querySelector('#event-next-1')?.textContent).toContain('Next council meeting');
+    const rowTitles = Array.from(el.querySelectorAll('.meetings-table tbody tr')).map(
+      (row) => row.textContent ?? '',
+    );
+    expect(rowTitles).toHaveLength(1);
+    expect(rowTitles[0]).toContain('Later work session');
+    expect(rowTitles[0]).not.toContain('Next council meeting');
+  });
+
   it('renders fallback meetings table when CMS returns no events', () => {
     const fixture = configure({
       events: signal<CmsCalendarEvent[]>([]),

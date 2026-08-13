@@ -6,7 +6,7 @@
  * - Analytics/monitoring hooks reviewed; SSL and redirects correct for the live domain.
  * - PDFs and static assets published under `public/documents` (and archive links) match clerk uploads.
  */
-import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
+import { NgOptimizedImage, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -1508,6 +1508,7 @@ function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuIte
   selector: 'app-root',
   imports: [
     NgOptimizedImage,
+    NgTemplateOutlet,
     RouterLink,
     RouterLinkActive,
     DrawerModule,
@@ -1707,7 +1708,6 @@ export class App {
   protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
   protected readonly isDocumentHubMode = computed(() => false);
   protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');
-  protected readonly isNoticesMode = computed(() => this.currentPath() === '/notices');
   protected readonly isMeetingsMode = computed(() => this.currentPath() === '/meetings');
   protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
   protected readonly isRecordsMode = computed(() => false);
@@ -1716,7 +1716,11 @@ export class App {
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
-  protected readonly isNewsMode = computed(() => this.currentPath() === '/news');
+  /** `/notices` is a redirect; treat the first paint as the news hub so chrome does not flash home. */
+  protected readonly isNewsMode = computed(() => {
+    const path = this.currentPath();
+    return path === '/news' || path === '/notices';
+  });
   protected readonly isPaymentsMode = computed(
     () => this.currentPath() === '/pay-bill' || this.currentPath() === '/payments',
   );
@@ -1730,7 +1734,6 @@ export class App {
   protected readonly isFeaturePageMode = computed(
     () =>
       this.isWeatherMode() ||
-      this.isNoticesMode() ||
       this.isMeetingsMode() ||
       this.isServicesMode() ||
       this.isContactMode() ||
@@ -2628,11 +2631,6 @@ export class App {
     }, App.SEARCH_DEBOUNCE_MS);
   }
 
-  protected applySuggestedSearch(query: string): void {
-    this.siteSearchForm.controls.query.setValue(query);
-    this.searchQuery.set(query);
-  }
-
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {
     return getAppRouteLink(href, defaultPath);
   }
@@ -2666,19 +2664,26 @@ export class App {
     this.searchQuery.set(query);
 
     if (!query) {
-      this.scrollToFragment('#search-panel');
+      this.revealHomepageSearchHelp();
       return;
     }
 
     const firstResult = this.searchResults()[0];
 
     if (!firstResult) {
-      this.scrollToFragment('#search-panel');
       return;
     }
 
     const [path, fragment] = firstResult.href.split('#');
     this.router.navigate([path], { fragment: fragment || undefined });
+  }
+
+  /** Empty submit on the homepage can offer chips; feature pages have no `#search-panel`. */
+  private revealHomepageSearchHelp(): void {
+    if (this.isFeaturePageMode() || this.isNotFoundMode()) {
+      return;
+    }
+    this.scrollToFragment('#search-panel');
   }
 
   private scoreSearchItem(item: SearchItem, terms: string[], normalizedQuery: string): number {

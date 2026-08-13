@@ -27,8 +27,7 @@ export const siteContent = {
   /** Mega menu end slot + search field (matches `APP_COPY.en` in `app.ts`). */
   megaMenuChromeEn: {
     contactCta: 'Contact Town Hall',
-    searchInputAccessibleName:
-      'Find taxes, meetings, utilities, and issue reporting in one place.',
+    searchInputAccessibleName: 'Find taxes, meetings, utilities, and issue reporting in one place.',
   },
   /**
    * Mobile drawer anchors (`mobile-menu-nav` + pay CTA in `app.html`), EN locale.
@@ -81,6 +80,8 @@ export const siteContent = {
     /** Matches active `noticeRecords` in `public/cms-snapshot.json` (newsletter-only snapshot as of 2026-06). */
     noticeCards: 1,
     meetingCards: 2,
+    /** Official table rows after the next-up card (CMS snapshot has 2 events). */
+    meetingTableRows: 1,
     serviceCards: 6,
     headerShortcuts: 3,
   },
