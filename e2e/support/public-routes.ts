@@ -24,7 +24,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/notices',
     label: 'notices page',
-    heading: /News & Announcements/i,
+    heading: /Town News and Announcements/i,
     primaryAction: (page) => page.locator('.notice-card').first(),
   },
   {

@@ -1,5 +1,6 @@
 import { expect, test } from '../../fixtures/town.fixture';
 import type { HomePage } from '../../pages/home.page';
+import { revealHomepageDeferredBlocks } from '../../support/homepage-defer';
 import { siteContent } from '../../support/site-content';
 
 interface NavigationGateway {
@@ -11,7 +12,7 @@ interface NavigationGateway {
 
 interface FeaturePageGateway {
   name: string;
-  href: string;
+  click: (homePage: HomePage) => Promise<void>;
   expectedUrl: RegExp;
   assertDestination: (homePage: HomePage) => Promise<void>;
 }
@@ -21,57 +22,11 @@ async function expectGatewayFromHomepage(
   gateway: NavigationGateway,
 ): Promise<void> {
   await homePage.goto();
-  await triggerHomepageViewportDefers(homePage);
+  await revealHomepageDeferredBlocks(homePage);
 
   await gateway.click(homePage);
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);
   await gateway.assertDestination(homePage);
-}
-
-/**
- * Ensures Angular `@defer (on viewport)` blocks see their placeholders intersect
- * the viewport, then waits for hydrated content (feature-hub, support-strip).
- * Uses `waitForFunction` polling so narrow viewports / slow SSR still get steady
- * `scrollIntoView` + incremental `scrollBy` retries without racing DOM swaps.
- */
-async function triggerHomepageViewportDefers(homePage: HomePage): Promise<void> {
-  const deferTimeoutMs = 35_000;
-
-  await homePage.page.waitForFunction(
-    () => {
-      document
-        .querySelector('.homepage-defer-placeholder--feature-hub')
-        ?.scrollIntoView({ block: 'end', inline: 'nearest' });
-      const hub = Boolean(document.querySelector('.feature-hub'));
-      if (!hub) {
-        window.scrollBy({ top: Math.max(320, innerHeight * 0.85), behavior: 'instant' });
-      }
-      return Boolean(document.querySelector('.feature-hub'));
-    },
-    { timeout: deferTimeoutMs, polling: 220 },
-  );
-  await expect(homePage.page.locator('.feature-hub')).toBeVisible({ timeout: 5_000 });
-
-  await homePage.page.waitForFunction(
-    () => {
-      const ph = document.querySelector('.homepage-defer-placeholder--support');
-      const strip = document.querySelector('.support-strip');
-      if (strip) {
-        strip.scrollIntoView({ block: 'end', inline: 'nearest' });
-      } else {
-        ph?.scrollIntoView({ block: 'end', inline: 'nearest' });
-      }
-      const ready = Boolean(document.querySelector('.support-strip'));
-      if (!ready) {
-        window.scrollBy({ top: Math.max(240, innerHeight * 0.85), behavior: 'instant' });
-      }
-      return Boolean(document.querySelector('.support-strip'));
-    },
-    { timeout: deferTimeoutMs, polling: 220 },
-  );
-  await expect(homePage.page.locator('.support-strip')).toBeVisible({ timeout: 5_000 });
-
-  await homePage.page.evaluate(() => window.scrollTo(0, 0));
 }
 
 async function expectWeatherPage(homePage: HomePage): Promise<void> {
@@ -79,7 +34,10 @@ async function expectWeatherPage(homePage: HomePage): Promise<void> {
 }
 
 async function expectNoticesPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.noticeCards).toHaveCount(siteContent.homepageCounts.noticeCards);
+  await expect(
+    homePage.page.getByRole('heading', { level: 1, name: 'Town News and Announcements' }),
+  ).toBeVisible();
+  await expect(homePage.noticeCards.first()).toBeVisible();
 }
 
 async function expectMeetingsPage(homePage: HomePage): Promise<void> {
@@ -91,8 +49,8 @@ async function expectMeetingsCalendar(homePage: HomePage): Promise<void> {
 }
 
 async function expectServicesPage(homePage: HomePage): Promise<void> {
-  await expect(homePage.serviceCards).toHaveCount(siteContent.homepageCounts.serviceCards);
   await expect(homePage.page.locator('#resident-services')).toBeVisible();
+  await expect(homePage.residentServiceToggles).toHaveCount(3);
 }
 
 async function expectRecordsPage(homePage: HomePage): Promise<void> {
@@ -139,14 +97,9 @@ async function expectFeaturePageFromHomepage(
   gateway: FeaturePageGateway,
 ): Promise<void> {
   await homePage.goto();
-  await triggerHomepageViewportDefers(homePage);
+  await revealHomepageDeferredBlocks(homePage);
 
-  const featureGrid = homePage.page.locator('.feature-grid');
-  const featureCard = featureGrid.locator(`a.feature-card[href="${gateway.href}"]`);
-
-  await expect(featureCard, gateway.name).toBeVisible({ timeout: 25_000 });
-  await featureCard.scrollIntoViewIfNeeded();
-  await featureCard.click();
+  await gateway.click(homePage);
 
   await expect(homePage.page, gateway.name).toHaveURL(gateway.expectedUrl);
   await gateway.assertDestination(homePage);
@@ -218,40 +171,29 @@ const homepageGatewayTests: NavigationGateway[] = [
     assertDestination: expectServiceRecordsRequest,
   },
   {
-    name: 'Feature card weather',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/weather"]').click(),
+    name: 'Compact weather forecast link',
+    click: (page) =>
+      page.page.locator('#homepage-weather').getByRole('link', { name: 'Local weather' }).click(),
     expectedUrl: /\/weather$/,
     assertDestination: expectWeatherPage,
   },
   {
-    name: 'Feature card notices',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/notices"]').click(),
-    expectedUrl: /\/notices$/,
+    name: 'View all news link',
+    click: (page) => page.page.getByRole('link', { name: 'View all news', exact: true }).click(),
+    expectedUrl: /\/news$/,
     assertDestination: expectNoticesPage,
   },
   {
-    name: 'Feature card meetings',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/meetings"]').click(),
+    name: 'Hero view meetings link',
+    click: (page) => page.page.getByRole('link', { name: 'View meetings', exact: true }).click(),
     expectedUrl: /\/meetings$/,
     assertDestination: expectMeetingsPage,
   },
   {
-    name: 'Feature card services',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/services"]').click(),
+    name: 'Hero explore services link',
+    click: (page) => page.page.getByRole('link', { name: /Explore resident services/i }).click(),
     expectedUrl: /\/services$/,
     assertDestination: expectServicesPage,
-  },
-  {
-    name: 'Feature card contact',
-    click: (page) => page.page.locator('.feature-grid .feature-card[href="/contact"]').click(),
-    expectedUrl: /\/contact$/,
-    assertDestination: expectContactPage,
-  },
-  {
-    name: 'Support strip weather card',
-    click: (page) => page.page.locator('.support-link-card[href="/weather"]').click(),
-    expectedUrl: /\/weather$/,
-    assertDestination: expectWeatherPage,
   },
   {
     name: 'Footer accessibility link',
@@ -286,39 +228,39 @@ const homepageGatewayTests: NavigationGateway[] = [
 
 const featurePageGateways: FeaturePageGateway[] = [
   {
-    name: 'notices feature page',
-    href: '/notices',
-    expectedUrl: /\/notices$/,
+    name: 'news hub',
+    click: (page) => page.page.getByRole('link', { name: 'View all news', exact: true }).click(),
+    expectedUrl: /\/news$/,
     assertDestination: async (homePage) => {
       await expect(homePage.noticeCards.first()).toBeVisible();
     },
   },
   {
     name: 'meetings feature page',
-    href: '/meetings',
+    click: (page) => page.page.locator('a.task-card[href="/meetings"]').click(),
     expectedUrl: /\/meetings$/,
     assertDestination: async (homePage) => {
       await expect(homePage.page.locator('#calendar')).toBeVisible({ timeout: 20000 });
       await expect(homePage.page.locator('.meetings-table tbody tr').first()).toBeVisible({
         timeout: 20000,
       });
-      await expect(homePage.page.locator('.calendar-card').first()).toBeVisible({
+      await expect(homePage.page.locator('#meetings-next')).toBeVisible({
         timeout: 20000,
       });
     },
   },
   {
     name: 'services feature page',
-    href: '/services',
+    click: (page) => page.page.getByRole('link', { name: /Explore resident services/i }).click(),
     expectedUrl: /\/services$/,
     assertDestination: async (homePage) => {
-      await expect(homePage.serviceCards).toHaveCount(siteContent.homepageCounts.serviceCards);
       await expect(homePage.page.locator('#resident-services')).toBeVisible();
+      await expect(homePage.residentServiceToggles).toHaveCount(3);
     },
   },
   {
     name: 'contact feature page',
-    href: '/contact',
+    click: (page) => page.page.locator('a.task-card[href="/contact"]').click(),
     expectedUrl: /\/contact$/,
     assertDestination: async (homePage) => {
       await expect(homePage.page.locator('#contact')).toContainText('Deb Dillon');
@@ -353,24 +295,20 @@ test.describe('homepage smoke', () => {
     await expect(homePage.heroHeading).toBeVisible();
   });
 
-  test('renders the deferred feature-hub and support-strip after the homepage scrolls into view', async ({
+  test('renders the deferred compact weather panel after the homepage scrolls into view', async ({
     homePage,
   }) => {
     await homePage.goto();
 
-    await triggerHomepageViewportDefers(homePage);
+    await revealHomepageDeferredBlocks(homePage);
 
-    const featureHub = homePage.page.locator('.feature-hub');
-    await expect(featureHub).toBeVisible();
-    await expect(homePage.page.locator('#feature-hub-heading')).toBeVisible();
-    await expect(homePage.featureCards.first()).toBeVisible();
+    const weatherSection = homePage.page.locator('#homepage-weather');
+    await expect(weatherSection).toBeVisible();
+    await expect(homePage.page.locator('#homepage-weather-heading')).toBeVisible();
+    await expect(homePage.page.locator('.weather-compact')).toBeVisible();
+    await expect(homePage.page.getByRole('link', { name: 'Open full forecast' })).toBeVisible();
 
-    const supportStrip = homePage.page.locator('.support-strip');
-    await expect(supportStrip).toBeVisible({ timeout: 15_000 });
-    await expect(homePage.page.locator('#stay-informed-heading')).toBeVisible();
-    await expect(homePage.page.locator('.support-link-card[href="/weather"]')).toBeVisible();
-
-    await expect(homePage.page.locator('.homepage-defer-placeholder--feature-hub')).toHaveCount(0);
+    await expect(homePage.page.locator('.homepage-defer-placeholder--weather')).toHaveCount(0);
   });
 
   test('renders the Wiley landing page scaffold', async ({ homePage }, testInfo) => {
@@ -384,16 +322,11 @@ test.describe('homepage smoke', () => {
     } else {
       await expect(homePage.searchInput).toBeVisible();
     }
-    await triggerHomepageViewportDefers(homePage);
-    await expect(homePage.featureCards).toHaveCount(5);
+    await revealHomepageDeferredBlocks(homePage);
     await expect(homePage.topTaskCards).toHaveCount(5);
-    await expect(
-      homePage.page.locator('.feature-grid .feature-card[href="/weather"]'),
-    ).toContainText('Local weather');
-    await expect(
-      homePage.page.locator('.feature-grid .feature-card[href="/meetings"]'),
-    ).toContainText('Meetings and calendar');
-    await expect(homePage.page.locator('.support-strip')).toBeVisible();
+    await expect(homePage.page.locator('#homepage-weather')).toBeVisible();
+    await expect(homePage.page.locator('.weather-compact')).toBeVisible();
+    await expect(homePage.page.getByRole('link', { name: 'View all news' })).toBeVisible();
     await expect(homePage.page.locator('#accessibility')).toHaveCount(0);
   });
 
@@ -482,8 +415,11 @@ test.describe('homepage smoke', () => {
     await homePage.enableAlertSignup('/mock-alert-signup');
     await homePage.goto();
 
-    await triggerHomepageViewportDefers(homePage);
-    await homePage.page.locator('.feature-grid .feature-card[href="/weather"]').click();
+    await revealHomepageDeferredBlocks(homePage);
+    await homePage.page
+      .locator('#homepage-weather')
+      .getByRole('link', { name: 'Local weather' })
+      .click();
 
     await expect(homePage.page).toHaveURL(/\/weather$/);
     await expect(homePage.weatherHeading).toContainText('National Weather Service forecast');
@@ -493,8 +429,8 @@ test.describe('homepage smoke', () => {
   test('opens the meetings archive from the meetings feature page', async ({ homePage }) => {
     await homePage.goto();
 
-    await triggerHomepageViewportDefers(homePage);
-    await homePage.page.locator('.feature-grid .feature-card[href="/meetings"]').click();
+    await revealHomepageDeferredBlocks(homePage);
+    await homePage.page.locator('.task-card[href="/meetings"]').click();
 
     await expect(homePage.page).toHaveURL(/\/meetings$/);
     await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
@@ -515,7 +451,10 @@ test.describe('homepage smoke', () => {
   test('routes search results into clerk contact for document requests', async ({ homePage }) => {
     await homePage.goto();
 
-    await homePage.searchFor('Contact the Town Clerk');
+    await homePage.page
+      .locator('.search-suggestion')
+      .filter({ hasText: 'Contact the Town Clerk' })
+      .click();
     const clerkHit = homePage.page
       .locator('a.search-result')
       .filter({ hasText: /Contact the Town Clerk/i })

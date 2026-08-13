@@ -1,6 +1,7 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
 import { PayBillPageComponent } from './pay-bill-page.component';
 
@@ -32,7 +33,18 @@ describe('PayBillPageComponent', () => {
   function setup() {
     TestBed.configureTestingModule({
       imports: [PayBillPageComponent],
-      providers: [provideAnimations(), provideZonelessChangeDetection(), SiteLanguageService],
+      providers: [
+        provideAnimations(),
+        provideZonelessChangeDetection(),
+        SiteLanguageService,
+        {
+          provide: LocalizedCmsContentStore,
+          useValue: {
+            getSiteCopy: () => undefined,
+            contacts: signal([]),
+          },
+        },
+      ],
     });
 
     const fixture = TestBed.createComponent(PayBillPageComponent);

@@ -1,6 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { PanelModule } from 'primeng/panel';
 import { SkeletonModule } from 'primeng/skeleton';
 import { APP_COPY, type AppCopy, type LeadershipGroup } from '../app';
 import {
@@ -96,7 +94,7 @@ function enrichAdminRosterLine(
 
 @Component({
   selector: 'app-contact-page',
-  imports: [CardModule, PanelModule, SkeletonModule],
+  imports: [SkeletonModule],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

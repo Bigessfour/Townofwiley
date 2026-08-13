@@ -104,10 +104,10 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await expect(panel.getByRole('link', { name: L.onlinePayments, exact: true })).toBeVisible();
   });
 
-  test('panel for News, Notices & Alerts includes Town notices', async ({ homePage }) => {
+  test('panel for News, Notices & Alerts includes Town news', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[3]);
-    await expect(panel.getByRole('link', { name: L.townNotices, exact: true })).toBeVisible();
+    await expect(panel.getByRole('link', { name: L.townNews, exact: true })).toBeVisible();
   });
 
   test('end slot: header search form and navigate on submit', async ({ homePage }) => {
@@ -155,13 +155,11 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await expect(homePage.page).toHaveURL(/\/contact$/);
   });
 
-  test('feature page hides header search but keeps language and mega roots', async ({
-    homePage,
-  }) => {
+  test('feature page keeps header search, language, and mega roots', async ({ homePage }) => {
     await homePage.page.goto('/weather');
     const nav = homePage.page.getByTestId('homepage-section-nav');
-    await expect(nav.locator('#mega-site-search')).toHaveCount(0);
-    await expect(nav.locator('form.header-search-form')).toHaveCount(0);
+    await expect(nav.locator('#mega-site-search')).toBeVisible();
+    await expect(nav.locator('form.header-search-form')).toBeVisible();
     await expect(siteLanguageButton(nav, 'en')).toBeVisible();
     await expect(homePage.sectionNavLinks.filter({ hasText: roots[4] })).toBeVisible();
     const panel = await openMegaMenuPanel(homePage.page, roots[0]);
@@ -204,13 +202,6 @@ test.describe('mega menu sub-link icons (desktop)', () => {
     const panel = await openMegaMenuPanel(homePage.page, roots[1]);
     const row = panel.getByRole('link', { name: L.meetingsAndDocuments, exact: true });
     await expect(row.locator('i.pi-folder')).toBeVisible();
-  });
-
-  test('Town notices row shows bell icon', async ({ homePage }) => {
-    await homePage.goto();
-    const panel = await openMegaMenuPanel(homePage.page, roots[3]);
-    const row = panel.getByRole('link', { name: L.townNotices, exact: true });
-    await expect(row.locator('i.pi-bell')).toBeVisible();
   });
 
   test('Town news row shows newspaper icon', async ({ homePage }) => {

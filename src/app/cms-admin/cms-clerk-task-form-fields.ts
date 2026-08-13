@@ -50,7 +50,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   'post-notice': [
     {
       name: 'title',
-      label: 'Notice headline (shown on /notices and /news)',
+      label: 'Notice headline (shown on /news)',
       required: true,
     },
     {
@@ -73,7 +73,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
         { value: '', label: 'Short notice (bulletin)' },
         { value: 'newsletter', label: 'Newsletter (PDF on /news)' },
       ],
-      help: 'Newsletter publishes the PDF on /news; short notices appear on /notices and /news lists.',
+      help: 'Newsletter publishes the PDF on /news; short notices appear in the /news bulletin list.',
     },
     {
       name: 'attachmentKey',

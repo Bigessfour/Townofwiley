@@ -64,9 +64,7 @@ test.describe('cms admin', () => {
     await homePage.page.getByTestId('cms-task-edit-post-notice').click();
     await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible({ timeout: 20_000 });
 
-    await homePage.page
-      .getByLabel(/Notice headline/i)
-      .fill('E2E Wave 2 water notice');
+    await homePage.page.getByLabel(/Notice headline/i).fill('E2E Wave 2 water notice');
     await homePage.page
       .getByLabel(/Notice message/i)
       .fill('Main Street hydrant work — Wave 2 completeness proof.');
@@ -101,13 +99,11 @@ test.describe('cms admin', () => {
     });
 
     await homePage.page.getByTestId('cms-meeting-upload-event').selectOption('e2e-meeting-1');
-    await homePage.page
-      .getByTestId('cms-meeting-upload-file')
-      .setInputFiles({
-        name: 'e2e-agenda.pdf',
-        mimeType: 'application/pdf',
-        buffer: Buffer.from('%PDF-1.4 e2e wave2'),
-      });
+    await homePage.page.getByTestId('cms-meeting-upload-file').setInputFiles({
+      name: 'e2e-agenda.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF-1.4 e2e wave2'),
+    });
 
     await expect(homePage.page.getByTestId('cms-meeting-upload-preview')).toBeVisible();
     await homePage.page.getByTestId('cms-meeting-upload-submit').click();
@@ -191,14 +187,14 @@ test.describe('cms admin', () => {
   test('shows contact updates error banner when review proxy returns 403', async ({ homePage }) => {
     await homePage.page.addInitScript(() => {
       const runtimeWindow = window as Window & {
-        __TOW_RUNTIME_CONFIG_OVERRIDE__?: {
+        __TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__?: {
           contactUpdate?: { reviewApiEndpoint?: string; reviewProxyEndpoint?: string };
         };
       };
-      runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ = {
-        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__ ?? {}),
+      runtimeWindow.__TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__ = {
+        ...(runtimeWindow.__TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__ ?? {}),
         contactUpdate: {
-          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__?.contactUpdate ?? {}),
+          ...(runtimeWindow.__TOW_RUNTIME_CONFIG_ADMIN_OVERRIDE__?.contactUpdate ?? {}),
           reviewApiEndpoint: '',
           reviewProxyEndpoint: '/api/contact-updates-review',
         },

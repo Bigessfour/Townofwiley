@@ -89,7 +89,7 @@ test.describe('feature page coverage', () => {
     await expect(noticesBridge).toBeVisible();
     await noticesBridge.click();
 
-    await expect(homePage.page).toHaveURL(/\/notices$/);
+    await expect(homePage.page).toHaveURL(/\/news$/);
     expect(hydrationSignals).toEqual([]);
   });
 

@@ -81,7 +81,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'Kind',
         technicalName: 'announcementKind',
-        help: 'Short notice for bulletins on /news and /notices. Newsletter (PDF) for the embedded town newsletter on /news.',
+        help: 'Short notice for bulletins on /news. Newsletter (PDF) for the embedded town newsletter on /news.',
       },
       {
         plainLabel: 'Newsletter PDF',

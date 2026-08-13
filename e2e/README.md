@@ -97,7 +97,7 @@ Tasks use **`npm`** scripts so they work on Windows and macOS (integrated termin
 
 | Tier                      | Command                                                       | Scope                                                                                                             |
 | ------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **PR smoke** (CI default) | `npm run test:e2e:smoke`                                      | [`smoke-critical`](../e2e/smoke-critical.manifest.mjs) — homepage, CSP, routes, payments, admin, documents, forms |
+| **PR smoke** (CI default) | `npm run test:e2e:smoke`                                      | [`smoke-critical`](../e2e/smoke-critical.manifest.mjs) — homepage, CSP, routes, payments, admin, documents, forms, calendar, news interactions |
 | **Full smoke**            | `npm run test:e2e:smoke:full`                                 | All of `e2e/specs/smoke/` (~32 files)                                                                             |
 | **Live hosting**          | `npm run test:e2e:live:production` or `test:e2e:live:staging` | Requires `E2E_BASE_URL` (set by script or env)                                                                    |
 | **Regression**            | `npm run test:e2e:regression`                                 | Full smoke + `accessibility/` + `responsive/` + `typography/`                                                     |

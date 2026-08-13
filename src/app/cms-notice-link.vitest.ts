@@ -20,11 +20,11 @@ describe('cms-notice-link', () => {
     });
   });
 
-  it('routes standard notices to /notices with a stable fragment', () => {
+  it('routes standard notices to /news with a stable fragment', () => {
     expect(getCmsNoticeRouteLink({ id: 'water-main-2026', type: 'notice' })).toEqual({
-      href: '/notices#notice-water-main-2026',
+      href: '/news#notice-water-main-2026',
       isInternal: true,
-      path: '/notices',
+      path: '/news',
       fragment: 'notice-water-main-2026',
     });
   });
@@ -38,7 +38,7 @@ describe('cms-notice-link', () => {
       'Read newsletter: June Newsletter',
     );
     expect(getCmsNoticeLinkAriaLabel({ title: 'Boletin de junio', type: 'newsletter' }, 'es')).toBe(
-      'Leer el boletin: Boletin de junio',
+      'Leer el boletín: Boletin de junio',
     );
   });
 
@@ -91,7 +91,7 @@ describe('cms-notice-link', () => {
       }),
     ).toMatchObject({
       isExternal: false,
-      path: '/notices',
+      path: '/news',
       fragment: 'notice-water-main-2026',
     });
   });

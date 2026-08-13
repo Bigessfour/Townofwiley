@@ -42,7 +42,7 @@ export class ContactUpdateReviewService {
       return {
         ok: false,
         error:
-          'Contact updates are not configured on this site yet. Ask IT to set CONTACT_UPDATE_REVIEW_API_URL and redeploy runtime-config.js.',
+          'Contact updates are not configured on this site yet. Ask IT to set CONTACT_UPDATE_REVIEW_API_URL and redeploy runtime-config-admin.js.',
       };
     }
 
@@ -171,7 +171,7 @@ export class ContactUpdateReviewService {
       }
       if (err.status === 0) {
         return requiresStaffJwt
-          ? 'Could not reach the contact updates service. Ask IT to verify CONTACT_UPDATE_REVIEW_API_URL in runtime-config.js, then try again.'
+          ? 'Could not reach the contact updates service. Ask IT to verify CONTACT_UPDATE_REVIEW_API_URL in runtime-config-admin.js, then try again.'
           : 'Could not reach the contact updates service. Ask IT to deploy the review API proxy or set CONTACT_UPDATE_REVIEW_API_URL.';
       }
       if (err.status === 200) {

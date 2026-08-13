@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -40,7 +39,6 @@ import {
   selector: 'app-community-calendar-panel',
   imports: [
     ButtonModule,
-    DatePipe,
     FormsModule,
     InputTextModule,
     ReactiveFormsModule,
@@ -132,6 +130,21 @@ export class CommunityCalendarPanel implements OnInit {
     accessibilityNotes: new FormControl('', { nonNullable: true }),
     website: new FormControl('', { nonNullable: true }),
   });
+
+  protected formatEventWhen(iso: string, style: 'medium' | 'shortTime' = 'medium'): string {
+    const locale = this.siteLanguage.currentLanguage() === 'es' ? 'es-US' : 'en-US';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+      return iso;
+    }
+    if (style === 'shortTime') {
+      return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
+    }
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date);
+  }
 
   ngOnInit(): void {
     this.reloadEvents();

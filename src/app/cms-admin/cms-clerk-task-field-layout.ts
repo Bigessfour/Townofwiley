@@ -8,7 +8,7 @@ const CLERK_TASK_FIELD_LAYOUT: Partial<
   Record<ClerkCmsTaskId, Partial<Record<string, FieldLayoutPatch>>>
 > = {
   'post-notice': {
-    title: { group: 'Notice text', previewHint: 'Headline on /notices and /news' },
+    title: { group: 'Notice text', previewHint: 'Headline on /news' },
     detail: { group: 'Notice text' },
     date: { group: 'Notice text' },
     announcementKind: { group: 'Type & attachments' },

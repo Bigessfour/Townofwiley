@@ -51,6 +51,7 @@ import {
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
 import {
+  cmsNoticeFragmentId,
   getCmsNoticeCardLink,
   getCmsNoticeExternalCtaLabel,
   getCmsNoticeLinkAriaLabel,
@@ -323,6 +324,14 @@ export interface AppCopy {
   stayInformedHeading: string;
   stayInformedBody: string;
   viewAllNoticesLabel: string;
+  footerLinksAriaLabel: string;
+  residentShortcutsAriaLabel: string;
+  returnHomeAriaLabel: string;
+  meetingsNextHeading: string;
+  contactAdministrationAriaLabel: string;
+  calendarLegendAriaLabel: string;
+  businessesFeatureSummary: string;
+  newsFeatureSummary: string;
   weatherSupportDescription: string;
   siteMetaDescription: string;
   searchKicker: string;
@@ -638,7 +647,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipAriaLabel: 'Town leadership roster',
     heroAlt: 'Road entering Wiley, Colorado, with the Wiley city-limit sign beside the roadway.',
     heroPrimaryActionLabel: 'Explore resident services',
-    heroSecondaryActionLabel: 'View meetings and notices',
+    heroSecondaryActionLabel: 'View meetings',
     topTasksKicker: 'Quick Tasks',
     topTasksHeading: 'How do I...',
     topTasksBody: '',
@@ -651,7 +660,16 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     stayInformedHeading: 'Alerts and direct town contact',
     stayInformedBody:
       'Get weather alerts, meeting information, and direct Town Hall contact in one place.',
-    viewAllNoticesLabel: 'View all notices',
+    viewAllNoticesLabel: 'View all news',
+    footerLinksAriaLabel: 'Footer links',
+    residentShortcutsAriaLabel: 'Resident shortcuts',
+    returnHomeAriaLabel: 'Return to homepage',
+    meetingsNextHeading: 'Next meeting',
+    contactAdministrationAriaLabel: 'Town administration contacts',
+    calendarLegendAriaLabel: 'Calendar event types',
+    businessesFeatureSummary:
+      'Discover and support local businesses in Wiley with contact info and websites.',
+    newsFeatureSummary: 'Town newsletter, official notices, and regional coverage in one place.',
     weatherSupportDescription: 'Open forecast details and sign up for weather-sensitive updates.',
     siteMetaDescription:
       'Official Town of Wiley website for resident services, weather alerts, meetings, notices, and Town Hall contacts.',
@@ -660,7 +678,8 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     searchLabel: 'Find taxes, meetings, utilities, and issue reporting in one place.',
     searchPlaceholder: 'Search Wiley services… taxes, meetings, utilities',
     searchActionLabel: 'Search',
-    searchNote: 'Results update as you type; use the shortcuts below for common tasks.',
+    searchNote:
+      'Results update as you type. Try a common search below, or use the header from any page.',
     searchEmptyState:
       'No direct match yet. Try taxes, meetings, utilities, weather, or road issues.',
     mobileOnlinePaymentsLabel: 'Online Payments',
@@ -794,7 +813,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     navLinks: [
       { label: 'Top Tasks', href: '#top-tasks', icon: 'pi pi-list' },
       { label: 'Weather', href: '/weather', icon: 'pi pi-cloud' },
-      { label: 'Notices', href: '/notices', icon: 'pi pi-bell' },
+      { label: 'Notices', href: '/news', icon: 'pi pi-bell' },
       { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Services', href: '/services', icon: 'pi pi-briefcase' },
       { label: 'Meetings', href: '/meetings', icon: 'pi pi-calendar' },
@@ -862,7 +881,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
         format: 'Utility work, road closures, seasonal deadlines, and severe weather updates.',
         location: 'Town-wide',
         cta: 'Browse notices',
-        href: '/notices',
+        href: '/news',
       },
     ],
     calendarSeeds: [
@@ -1064,7 +1083,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     heroAlt:
       'Carretera de entrada a Wiley, Colorado, con el letrero de limites del pueblo junto a la via.',
     heroPrimaryActionLabel: 'Explorar servicios para residentes',
-    heroSecondaryActionLabel: 'Ver reuniones y avisos',
+    heroSecondaryActionLabel: 'Ver reuniones',
     topTasksKicker: 'Tareas rapidas',
     topTasksHeading: 'Como puedo...',
     topTasksBody: '',
@@ -1075,7 +1094,17 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     stayInformedHeading: 'Alertas y contacto directo con el ayuntamiento',
     stayInformedBody:
       'Obtenga alertas meteorológicas, información de reuniones y contacto directo con el Ayuntamiento en un solo lugar.',
-    viewAllNoticesLabel: 'Ver todos los avisos',
+    viewAllNoticesLabel: 'Ver todas las noticias',
+    footerLinksAriaLabel: 'Enlaces del pie de página',
+    residentShortcutsAriaLabel: 'Accesos directos para residentes',
+    returnHomeAriaLabel: 'Volver a la página principal',
+    meetingsNextHeading: 'Próxima reunión',
+    contactAdministrationAriaLabel: 'Contactos de la administración del pueblo',
+    calendarLegendAriaLabel: 'Tipos de eventos del calendario',
+    businessesFeatureSummary:
+      'Descubra y apoye negocios locales de Wiley con teléfonos, direcciones y sitios web.',
+    newsFeatureSummary:
+      'Boletín del pueblo, avisos oficiales y cobertura regional en un solo lugar.',
     weatherSupportDescription:
       'Abra los detalles del pronóstico y regístrese para actualizaciones sensibles al clima.',
     siteMetaDescription:
@@ -1086,7 +1115,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     searchPlaceholder: 'Busque servicios de Wiley… impuestos, reuniones, servicios',
     searchActionLabel: 'Buscar',
     searchNote:
-      'Los resultados se actualizan al escribir; use los accesos directos abajo para tareas comunes.',
+      'Los resultados se actualizan al escribir. Pruebe una búsqueda común abajo, o use el encabezado en cualquier página.',
     searchEmptyState:
       'Todavia no hay coincidencia directa. Pruebe impuestos, reuniones, servicios, clima o calles.',
     mobileOnlinePaymentsLabel: 'Pagos en linea',
@@ -1222,7 +1251,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     navLinks: [
       { label: 'Tareas clave', href: '#top-tasks', icon: 'pi pi-list' },
       { label: 'Clima', href: '/weather', icon: 'pi pi-cloud' },
-      { label: 'Avisos', href: '/notices', icon: 'pi pi-bell' },
+      { label: 'Avisos', href: '/news', icon: 'pi pi-bell' },
       { label: 'Reuniones', href: '/meetings', icon: 'pi pi-calendar' },
       { label: 'Servicios', href: '/services', icon: 'pi pi-briefcase' },
       { label: 'Reuniones', href: '/meetings', icon: 'pi pi-calendar' },
@@ -1292,7 +1321,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
           'Trabajos en servicios, cierres de calles, fechas limite estacionales y alertas meteorologicas.',
         location: 'Todo el pueblo',
         cta: 'Ver avisos',
-        href: '/notices',
+        href: '/news',
       },
     ],
     calendarSeeds: [
@@ -1899,7 +1928,6 @@ export class App {
         icon: 'pi pi-bell',
         items: [
           megaMenuColumn([
-            { label: copy.featureTitles.notices, routerLink: '/notices', icon: 'pi pi-bell' },
             { label: copy.featureTitles.news, routerLink: '/news', icon: 'pi pi-newspaper' },
           ]),
           megaMenuColumn([
@@ -2091,7 +2119,6 @@ export class App {
 
   protected readonly featurePages = computed<FeaturePage[]>(() => {
     const copy = this.appCopy();
-    const alertBanner = this.alertBanner();
     const weatherAlert = this.homepageWeatherAlert();
     const latestNotice = this.notices()[0];
     const nextCalendarItem = this.calendarItems()[0];
@@ -2104,7 +2131,7 @@ export class App {
         kicker: weatherAlert ? copy.nwsAlertLabel : copy.featureTitles.weather,
         title: copy.featureTitles.weather,
         summary: weatherAlert
-          ? [alertBanner.title, alertBanner.detail].filter(Boolean).join(' ')
+          ? [weatherAlert.event, weatherAlert.headline].filter(Boolean).join('. ')
           : copy.alertHeadline,
         href: '/weather',
         showOnHomepage: true,
@@ -2116,7 +2143,7 @@ export class App {
         summary: latestNotice
           ? `${latestNotice.title}. ${latestNotice.detail}`
           : copy.noticesHeading,
-        href: '/notices',
+        href: '/news',
         showOnHomepage: true,
       },
       {
@@ -2185,17 +2212,17 @@ export class App {
       },
       {
         id: 'businesses',
-        kicker: 'Business Directory',
-        title: 'Wiley Community Business Directory',
-        summary: 'Discover and support local businesses in Wiley with contact info and websites.',
+        kicker: copy.featureTitles.businesses,
+        title: copy.featureTitles.businesses,
+        summary: copy.businessesFeatureSummary,
         href: '/businesses',
         showOnHomepage: false,
       },
       {
         id: 'news',
-        kicker: 'News',
-        title: 'Town News and Announcements',
-        summary: 'Latest announcements, notices, and external news about Wiley.',
+        kicker: copy.featureTitles.news,
+        title: copy.featureTitles.news,
+        summary: copy.newsFeatureSummary,
         href: '/news',
         showOnHomepage: false,
       },
@@ -2213,7 +2240,11 @@ export class App {
     this.featurePages().filter((page) => page.showOnHomepage),
   );
   protected readonly currentFeaturePage = computed<FeaturePage | null>(() => {
-    return this.featurePages().find((page) => page.href === this.currentPath()) ?? null;
+    const path = this.currentPath();
+    if (path === '/notices') {
+      return this.featurePages().find((page) => page.href === '/news') ?? null;
+    }
+    return this.featurePages().find((page) => page.href === path) ?? null;
   });
   private readonly pageViewLoggingEffect = effect(() => {
     const path = this.currentPath();
@@ -2261,9 +2292,6 @@ export class App {
   protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
     return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
   }
-  protected readonly showBrowseNoticesLink = computed(
-    () => this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW,
-  );
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();
     const linkedAgendaByEventId = this.cmsStore.linkedAgendaDocumentByEventId();
@@ -2279,9 +2307,9 @@ export class App {
       const copy = this.appCopy();
       const agendaPdfHref = m.agendaPdfHref ?? '/meetings';
       const agendaButtonLabel =
-        m.href === '/notices' ? copy.meetingsDocumentsHubButtonLabel : undefined;
+        m.href === '/news' ? copy.meetingsDocumentsHubButtonLabel : undefined;
 
-      if (m.href === '/notices' && !extraNotices) {
+      if (m.href === '/news' && !extraNotices) {
         return {
           title: m.title,
           schedule: m.schedule,
@@ -2487,7 +2515,7 @@ export class App {
       title: notice.title,
       summary: notice.detail,
       category: copy.noticesKicker,
-      href: '/notices',
+      href: `/news#${cmsNoticeFragmentId(notice.id)}`,
       keywords: this.buildSearchKeywords(notice.date),
     }));
   });
@@ -2538,6 +2566,7 @@ export class App {
     ]);
   });
   private readonly normalizedSearchQuery = computed(() => this.searchQuery().trim().toLowerCase());
+  protected readonly hasSearchQuery = computed(() => this.normalizedSearchQuery().length > 0);
   protected readonly isSearchPending = computed(
     () => this.searchDraftQuery().trim().toLowerCase() !== this.normalizedSearchQuery(),
   );
@@ -2565,7 +2594,7 @@ export class App {
     const searchIndex = this.searchIndex();
 
     if (!query) {
-      return searchIndex.slice(0, 5);
+      return [];
     }
 
     const terms = this.searchTerms();
@@ -2597,6 +2626,11 @@ export class App {
       this.searchQuery.set(query);
       this.searchDebounceHandle = null;
     }, App.SEARCH_DEBOUNCE_MS);
+  }
+
+  protected applySuggestedSearch(query: string): void {
+    this.siteSearchForm.controls.query.setValue(query);
+    this.searchQuery.set(query);
   }
 
   protected resolveAppLink(href: string | null | undefined, defaultPath = '/'): AppRouteLink {

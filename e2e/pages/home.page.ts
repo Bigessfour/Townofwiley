@@ -90,7 +90,7 @@ export class HomePage {
       '[data-testid="homepage-section-nav"] .primary-nav-link, [data-testid="homepage-section-nav"] .mega-menu-root-link',
     );
     this.sectionNav = page.getByTestId('homepage-section-nav');
-    this.searchInput = page.locator('#mega-site-search, #landing-site-search').first();
+    this.searchInput = page.locator('#mega-site-search, #mobile-site-search').first();
     this.searchResults = page.locator('.search-result');
     this.weatherPanel = page.locator('#weather');
     this.weatherHeading = page.locator('#weather-heading');

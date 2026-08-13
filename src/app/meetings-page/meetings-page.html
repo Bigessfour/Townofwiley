@@ -33,6 +33,36 @@
       } @else if (meetings().length === 0) {
         <p class="public-empty-state" role="status">{{ copy().meetingsEmptyState }}</p>
       } @else {
+        @if (nextMeeting(); as next) {
+          <article class="meetings-next-card meeting-card" id="meetings-next">
+            <p class="section-kicker">{{ copy().meetingsNextHeading }}</p>
+            <h2 class="meetings-next-title">{{ next.title }}</h2>
+            <p class="meeting-schedule">{{ next.schedule }}</p>
+            @if (next.location) {
+              <p class="meeting-location">{{ next.location }}</p>
+            }
+            <small class="meeting-format">{{ next.format }}</small>
+            @if (next.agendaNote) {
+              <p class="meeting-agenda-note">{{ next.agendaNote }}</p>
+            }
+            <div class="meetings-actions-cell">
+              @if (next.eventId || next.agendaPdfHref) {
+                <p-button
+                  styleClass="meetings-agenda-btn"
+                  [outlined]="true"
+                  icon="pi pi-file-pdf"
+                  [label]="next.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
+                  (onClick)="openMeetingAgenda(next)"
+                />
+              }
+              @if (next.cta && next.href) {
+                <a class="text-link meetings-secondary-cta" [attr.href]="next.href">{{
+                  next.cta
+                }}</a>
+              }
+            </div>
+          </article>
+        }
         <p-table
           class="meetings-table"
           [value]="meetings()"
@@ -106,10 +136,10 @@
         <header class="calendar-header">
           <section class="calendar-header-copy">
             <h2 id="calendar-heading">{{ copy().calendarHeading }}</h2>
-            <a class="text-link" routerLink="/notices">{{ copy().calendarBridgeLabel }}</a>
+            <a class="text-link" routerLink="/news">{{ copy().calendarBridgeLabel }}</a>
           </section>
         </header>
-        <div class="calendar-legend" aria-hidden="true">
+        <div class="calendar-legend" [attr.aria-label]="copy().calendarLegendAriaLabel">
           <span class="calendar-legend__item calendar-legend__item--official">{{
             communityCopy().officialBadge
           }}</span>
@@ -244,92 +274,6 @@
         } @else {
           <p class="calendar-selection-hint">{{ communityCopy().calendarClickHint }}</p>
         }
-      }
-      @if (showOfficial()) {
-        <section class="stack-list calendar-event-stack">
-          @for (item of calendarItems(); track item.id) {
-            <article class="info-row calendar-card">
-              <strong>{{ item.title }}</strong>
-              <span>{{ item.date }}</span>
-              <p>{{ item.detail }}</p>
-              <small>{{ item.location }} · {{ item.recurrence }}</small>
-              @if (item.agendaNote) {
-                <p class="meeting-agenda-note">{{ item.agendaNote }}</p>
-              }
-              @if (item.actions.length > 0) {
-                <div
-                  class="calendar-action-buttons"
-                  [attr.aria-label]="copy().calendarActionsAriaLabel"
-                >
-                  @for (action of item.actions; track calendarActionTrackKey(action, $index)) {
-                    @if (action.isAgendaAction) {
-                      <p-button
-                        styleClass="meetings-agenda-btn calendar-agenda-btn"
-                        [outlined]="true"
-                        icon="pi pi-file-pdf"
-                        [label]="action.label"
-                        (onClick)="openCalendarAgenda(item)"
-                      />
-                    } @else if (action.href.startsWith('tel:')) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-text calendar-inline-action"
-                        [attr.href]="action.href"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.href.startsWith('mailto:')) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-text calendar-inline-action"
-                        [attr.href]="action.href"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.downloadFileName) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
-                        [attr.href]="action.href"
-                        [attr.download]="action.downloadFileName"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.external) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
-                        [attr.href]="action.href"
-                        target="_blank"
-                        rel="noreferrer noopener"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
-                        [attr.href]="action.href"
-                      >
-                        {{ action.label }}
-                      </a>
-                    }
-                  }
-                </div>
-              }
-            </article>
-          }
-        </section>
       }
     }
   </p-card>

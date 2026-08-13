@@ -848,3 +848,46 @@
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+.weather-compact {
+  display: grid;
+  gap: var(--space-sm, 0.75rem);
+}
+
+.weather-compact__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md, 1rem);
+}
+
+.weather-compact__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+}
+
+.weather-compact__temp {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.weather-compact__forecast,
+.weather-compact__error {
+  margin: 0;
+}
+
+.weather-compact__alert {
+  margin: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 999px);
+  background: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 18%, #fff);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.weather-compact__link {
+  justify-self: start;
+}

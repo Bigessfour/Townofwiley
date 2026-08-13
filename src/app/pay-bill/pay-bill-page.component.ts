@@ -11,8 +11,16 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { getPaystarRuntimeConfig } from '../payments/paystar-config';
 import { resolveQuickPayHref } from '../payments/paystar-quick-pay';
+import {
+  LocalizedCmsContentStore,
+  OFFICIAL_CONTACT_ID_CITY_CLERK,
+} from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
+import { resolveSiteCopyLabel, siteCopyTelHref } from '../site-copy-overrides';
 import { PayInstructionsComponent } from './pay-instructions.component';
+
+const DEFAULT_TOWN_HALL_PHONE = '(719) 829-4974';
+const DEFAULT_CLERK_EMAIL = 'clerk@townofwiley.gov';
 
 @Component({
   selector: 'app-pay-bill-page',
@@ -24,6 +32,7 @@ import { PayInstructionsComponent } from './pay-instructions.component';
 })
 export class PayBillPageComponent {
   private readonly siteLanguage = inject(SiteLanguageService);
+  private readonly cmsStore = inject(LocalizedCmsContentStore);
 
   protected readonly lang = signal<'en' | 'es'>(this.siteLanguage.currentLanguage());
 
@@ -63,6 +72,32 @@ export class PayBillPageComponent {
   protected readonly quickPayIsPlaceholder = computed(() => this.quickPayState().isPlaceholder);
 
   protected readonly quickPayDisabled = computed(() => this.quickPayState().disabled);
+
+  protected readonly townHallPhone = computed(() => {
+    const lang = this.lang();
+    return resolveSiteCopyLabel(
+      (key) => this.cmsStore.getSiteCopy(key),
+      lang,
+      'contactTownHallPhone',
+      DEFAULT_TOWN_HALL_PHONE,
+    );
+  });
+
+  protected readonly townHallPhoneHref = computed(() =>
+    siteCopyTelHref(this.townHallPhone(), DEFAULT_TOWN_HALL_PHONE),
+  );
+
+  protected readonly clerkContact = computed(() =>
+    this.cmsStore.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_CITY_CLERK),
+  );
+
+  protected readonly clerkEmailLabel = computed(
+    () => this.clerkContact()?.linkLabel ?? DEFAULT_CLERK_EMAIL,
+  );
+
+  protected readonly clerkEmailHref = computed(
+    () => this.clerkContact()?.href ?? `mailto:${DEFAULT_CLERK_EMAIL}`,
+  );
 
   constructor() {
     effect(() => {

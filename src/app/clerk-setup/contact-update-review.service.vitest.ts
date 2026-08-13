@@ -6,7 +6,7 @@ import { StaffAuthService } from '../auth/staff-auth.service';
 import { ContactUpdateReviewService } from './contact-update-review.service';
 
 type RuntimeWindow = Window & {
-  __TOW_RUNTIME_CONFIG__?: {
+  __TOW_RUNTIME_CONFIG_ADMIN__?: {
     contactUpdate?: {
       reviewApiEndpoint?: string;
       reviewProxyEndpoint?: string;
@@ -23,8 +23,7 @@ describe('ContactUpdateReviewService', () => {
   };
 
   beforeEach(() => {
-    delete (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__;
-    delete (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_OVERRIDE__;
+    delete (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__;
 
     staffAuth = {
       refreshSession: vi.fn().mockResolvedValue(undefined),
@@ -75,7 +74,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('uses reviewApiEndpoint with Bearer token when configured', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: 'https://api.example/contact-updates',
       },
@@ -94,7 +93,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('returns ok false when review API returns a non-array body', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: 'https://api.example/contact-updates',
       },
@@ -113,7 +112,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('returns IT message when review API is a build placeholder', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: 'https://contact-review-not-deployed.townofwiley.local/contact-updates',
       },
@@ -127,7 +126,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('returns IT message when only reviewProxyEndpoint is a build placeholder', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: '',
         reviewProxyEndpoint:
@@ -146,7 +145,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('uses reviewProxyEndpoint without Bearer when API URL is empty', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: '',
         reviewProxyEndpoint: 'https://proxy.example/contact-updates-review',
@@ -163,7 +162,7 @@ describe('ContactUpdateReviewService', () => {
   });
 
   it('returns sign-in message when review API is configured but user has no token', async () => {
-    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG__ = {
+    (window as RuntimeWindow).__TOW_RUNTIME_CONFIG_ADMIN__ = {
       contactUpdate: {
         reviewApiEndpoint: 'https://api.example/contact-updates',
       },

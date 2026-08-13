@@ -10,11 +10,18 @@ const E2E_FEATURED_NOTICE_ID = 'e2e-featured-notice';
 function buildNewsInteractionsCmsSnapshotBody(): string {
   const snapshotPath = resolve(process.cwd(), 'public/cms-snapshot.json');
   const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as Record<string, unknown>;
-  const snapshotNotices = Array.isArray(snapshot.noticeRecords) ? snapshot.noticeRecords : [];
 
   return JSON.stringify({
     ...snapshot,
-    externalNewsLinkRecords: [],
+    externalNewsLinkRecords: [
+      {
+        id: 'e2e-lamar-ledger',
+        title: 'Lamar Ledger — Wiley and Prowers County Coverage',
+        url: 'https://www.lamarledger.com/',
+        source: 'Lamar Ledger',
+        active: true,
+      },
+    ],
     noticeRecords: [
       {
         id: E2E_FEATURED_NOTICE_ID,
@@ -25,7 +32,6 @@ function buildNewsInteractionsCmsSnapshotBody(): string {
         imageUrl: null,
         active: true,
       },
-      ...snapshotNotices,
     ],
   });
 }
@@ -90,13 +96,19 @@ test.describe('news page interactions', () => {
       });
     });
 
+    const snapshotLoaded = homePage.page.waitForResponse(
+      (response) => response.url().includes('cms-snapshot.json') && response.ok(),
+    );
     await homePage.page.goto('/news', { waitUntil: 'domcontentloaded' });
+    await snapshotLoaded;
 
     await expect(
       homePage.page.getByRole('heading', { level: 1, name: 'Town News and Announcements' }),
     ).toBeVisible();
 
-    const featuredNewsCard = homePage.page.locator('.featured-news-card');
+    const featuredNewsCard = homePage.page
+      .locator('.featured-news-card')
+      .filter({ hasText: 'Hydrant flushing' });
     await expect(featuredNewsCard).toContainText('Featured town notice');
     await expect(featuredNewsCard).toContainText('Hydrant flushing');
 
@@ -104,7 +116,7 @@ test.describe('news page interactions', () => {
     await expect(featuredCardLink).toBeVisible();
     await expect(featuredCardLink).toHaveAttribute(
       'href',
-      `/notices#notice-${E2E_FEATURED_NOTICE_ID}`,
+      `/news#notice-${E2E_FEATURED_NOTICE_ID}`,
     );
     await expect(featuredCardLink).toContainText('Read article');
 

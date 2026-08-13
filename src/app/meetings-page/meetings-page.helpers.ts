@@ -102,7 +102,9 @@ export function buildMeetingItems(
   return fallbackMeetings.map((row) => {
     const agendaPdfHref = row.agendaPdfHref ?? DEFAULT_AGENDA_HREF;
     const agendaButtonLabel =
-      row.href === '/notices' ? copy.documentsHubButtonLabel : copy.agendaPdfButtonLabel;
+      row.href === '/news' || row.href === '/notices'
+        ? copy.documentsHubButtonLabel
+        : copy.agendaPdfButtonLabel;
 
     return {
       ...row,

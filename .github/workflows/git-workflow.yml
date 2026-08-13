@@ -32,23 +32,24 @@ jobs:
         run: npm run test:csp-inline-style-policy
 
   # Advisory check only. @playwright/mcp is IDE-only (npx @latest per .cursor/mcp.json + docs).
-  # It is never a project dependency; the old require() would always fail after npm ci.
+  # It is never a project dependency — grep package.json; do not npm ci for this echo.
   verify-playwright-mcp-package:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24.16.0
-          cache: npm
-
-      - name: Install dependencies (no scripts)
-        run: npm ci --ignore-scripts --no-fund
-
-      - name: Confirm @playwright/mcp is IDE-only (advisory; never a project dep)
-        run: npm run verify:playwright-mcp
+      - name: Confirm @playwright/mcp is not a project dependency
+        run: |
+          node -e "
+          const pkg = require('./package.json');
+          const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+          if (deps['@playwright/mcp']) {
+            console.error('::error::@playwright/mcp must not be a project dependency');
+            process.exit(1);
+          }
+          console.log('@playwright/mcp is IDE-only (npx @playwright/mcp@latest). Not in package.json dependencies.');
+          "
 
   csp-angular-sync-check:
     runs-on: ubuntu-latest
@@ -127,7 +128,7 @@ jobs:
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|.github/workflows/ollama-ci-diagnosis.yml|.github/workflows/ollama-pr-review.yml|.github/workflows/copilot-setup-steps.yml|.github/actions/**|scripts/ollama_ci_diagnosis.sh|scripts/ollama-pr-review.mjs|scripts/ollama-run-prompt.mjs|scripts/extract-ci-failure-facts.mjs|scripts/ci-collect-ollama-improvements.mjs|scripts/lib/ollama-*.mjs|scripts/lib/ci-failure-facts.mjs|scripts/lib/ollama-ci-system-prompt.txt|docs/ci-ollama-review.md|docs/third-party-csp-registry.md)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/ci-production-build.mjs|scripts/lib/runtime-config-env.mjs|scripts/lib/runtime-secret-mappings.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|.github/workflows/ollama-ci-diagnosis.yml|.github/workflows/ollama-pr-review.yml|.github/workflows/copilot-setup-steps.yml|.github/actions/**|scripts/ollama_ci_diagnosis.sh|scripts/ollama-pr-review.mjs|scripts/ollama-run-prompt.mjs|scripts/extract-ci-failure-facts.mjs|scripts/ci-collect-ollama-improvements.mjs|scripts/lib/ollama-*.mjs|scripts/lib/ci-failure-facts.mjs|scripts/lib/ollama-ci-system-prompt.txt|docs/ci-ollama-review.md|docs/third-party-csp-registry.md)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -362,7 +363,7 @@ jobs:
           if-no-files-found: ignore
 
   frontend-smoke:
-    name: Test Browsers + Full E2E Regression
+    name: Playwright smoke-critical (local ng serve)
     needs: detect-changes
     if: needs.detect-changes.outputs.app_changed == 'true' || needs.detect-changes.outputs.e2e_changed == 'true'
     runs-on: ubuntu-latest
@@ -420,21 +421,10 @@ jobs:
   site-monitor-tests:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: |
-      needs.detect-changes.outputs.app_changed == 'true' ||
-      needs.detect-changes.outputs.e2e_changed == 'true' ||
-      needs.detect-changes.outputs.site_monitor_changed == 'true'
+    if: needs.detect-changes.outputs.site_monitor_changed == 'true'
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24.16.0
-          cache: npm
-
-      - name: Verify Node version
-        run: node --version | grep -qE '^v24\.' || (echo "::error::Expected Node 24.x, got $(node --version)" && exit 1)
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -443,8 +433,11 @@ jobs:
           cache: pip
           cache-dependency-path: scripts/requirements-ci.txt
 
+      - name: Install Python CI test dependencies
+        run: python -m pip install --quiet -r scripts/requirements-ci.txt
+
       - name: Run site monitor tests
-        run: npm run test:infra:monitor
+        run: python3 -m unittest discover infrastructure/site-monitor/tests
 
   site-runtime-proxy-tests:
     runs-on: ubuntu-latest

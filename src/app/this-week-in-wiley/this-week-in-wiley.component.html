@@ -23,7 +23,7 @@
               {{ event.source === 'community' ? copy().communityBadge : copy().officialBadge }}
             </span>
             <span class="this-week__title">{{ event.title }}</span>
-            <span class="this-week__when">{{ event.startDateTime | date: 'EEE, MMM d · shortTime' }}</span>
+            <span class="this-week__when">{{ formatWhen(event.startDateTime) }}</span>
             @if (event.location) {
               <span class="this-week__where">{{ event.location }}</span>
             }

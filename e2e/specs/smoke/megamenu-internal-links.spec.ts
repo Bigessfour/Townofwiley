@@ -189,14 +189,6 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page.getByTestId('meeting-documents-archive')).toBeVisible();
   });
 
-  test('News & alerts: Town notices → /notices', async ({ homePage }) => {
-    await homePage.goto();
-    const panel = await openMegaMenuPanel(homePage.page, roots[3]);
-    await panel.getByRole('link', { name: L.townNotices, exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/notices$/);
-    await expect(homePage.noticeCards).toHaveCount(siteContent.homepageCounts.noticeCards);
-  });
-
   test('News & alerts: Town news → /news', async ({ homePage }) => {
     await homePage.goto();
     const panel = await openMegaMenuPanel(homePage.page, roots[3]);

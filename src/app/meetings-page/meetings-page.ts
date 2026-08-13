@@ -152,6 +152,8 @@ export class MeetingsPage implements AfterViewInit {
     );
   });
 
+  protected readonly nextMeeting = computed(() => this.meetings()[0] ?? null);
+
   protected readonly calendarOptions = computed<CalendarOptions>(() => {
     const filter = this.sourceFilter();
     const selectedId = this.selectedCalendarEvent()?.id ?? null;

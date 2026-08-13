@@ -275,6 +275,22 @@
   color: color-mix(in srgb, var(--text-color) 55%, transparent);
 }
 
+.meetings-next-card {
+  display: grid;
+  gap: var(--space-xs, 0.35rem);
+  margin-bottom: var(--space-lg, 1.25rem);
+  padding: var(--space-md, 1rem);
+  border: 1px solid var(--wiley-cream-100, #e8e4d9);
+  border-left: 4px solid var(--wiley-teal-600, #0f6b6b);
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--wiley-sage-50, #f4f7f4);
+}
+
+.meetings-next-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
 @media (max-width: 767px) {
   :host ::ng-deep .meetings-table.p-datatable .p-datatable-wrapper {
     border-radius: var(--radius-md, 0.5rem);

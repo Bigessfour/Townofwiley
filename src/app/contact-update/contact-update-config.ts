@@ -1,3 +1,5 @@
+import { readAdminRuntimeConfig } from '../admin-runtime-config';
+
 interface RuntimeContactUpdateConfig {
   apiEndpoint: string;
 }
@@ -9,11 +11,9 @@ export interface RuntimeContactUpdateReviewConfig {
   reviewProxyEndpoint: string;
 }
 
-interface RuntimeConfigShape {
+interface PublicRuntimeConfigShape {
   contactUpdate?: {
     apiEndpoint?: string;
-    reviewApiEndpoint?: string;
-    reviewProxyEndpoint?: string;
   };
 }
 
@@ -22,8 +22,8 @@ export function getContactUpdateRuntimeConfig(): RuntimeContactUpdateConfig {
     typeof window === 'undefined'
       ? undefined
       : (window as Window & {
-          __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape;
-          __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeConfigShape;
+          __TOW_RUNTIME_CONFIG__?: PublicRuntimeConfigShape;
+          __TOW_RUNTIME_CONFIG_OVERRIDE__?: PublicRuntimeConfigShape;
         });
   const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
   const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
@@ -38,28 +38,12 @@ export function getContactUpdateRuntimeConfig(): RuntimeContactUpdateConfig {
   };
 }
 
+/** Staff review URLs come from `/runtime-config-admin.js`, not the public bundle. */
 export function getContactUpdateReviewRuntimeConfig(): RuntimeContactUpdateReviewConfig {
-  const runtimeWindow =
-    typeof window === 'undefined'
-      ? undefined
-      : (window as Window & {
-          __TOW_RUNTIME_CONFIG__?: RuntimeConfigShape;
-          __TOW_RUNTIME_CONFIG_OVERRIDE__?: RuntimeConfigShape;
-        });
-  const runtimeConfig = runtimeWindow?.__TOW_RUNTIME_CONFIG__;
-  const runtimeConfigOverride = runtimeWindow?.__TOW_RUNTIME_CONFIG_OVERRIDE__;
-
-  const pick = (key: 'reviewApiEndpoint' | 'reviewProxyEndpoint'): string => {
-    const overrideValue = runtimeConfigOverride?.contactUpdate?.[key];
-    if (overrideValue !== undefined) {
-      return overrideValue.trim();
-    }
-    return runtimeConfig?.contactUpdate?.[key]?.trim() ?? '';
-  };
-
+  const admin = readAdminRuntimeConfig()?.contactUpdate;
   return {
-    reviewApiEndpoint: pick('reviewApiEndpoint'),
-    reviewProxyEndpoint: pick('reviewProxyEndpoint'),
+    reviewApiEndpoint: admin?.reviewApiEndpoint?.trim() ?? '',
+    reviewProxyEndpoint: admin?.reviewProxyEndpoint?.trim() ?? '',
   };
 }
 

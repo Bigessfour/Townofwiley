@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { staffAuthGuard } from './auth/staff-auth.guard';
 import { HomeRouteShell } from './home-route-shell';
+import { noticesToNewsGuard } from './notices-page/notices-to-news.guard';
 
 export const routes: Routes = [
   {
@@ -29,7 +30,8 @@ export const routes: Routes = [
   },
   {
     path: 'notices',
-    loadComponent: () => import('./notices-page/notices-page').then((m) => m.NoticesPage),
+    canActivate: [noticesToNewsGuard],
+    loadComponent: () => import('./news/news').then((m) => m.News),
   },
   {
     path: 'meetings',

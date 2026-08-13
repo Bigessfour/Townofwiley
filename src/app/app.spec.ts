@@ -192,12 +192,10 @@ describe('App', () => {
     expect(primaryNav).not.toBeNull();
     const component = fixture.componentInstance as App & { menuItems: () => MegaMenuItem[] };
     expect(component.menuItems().length).toBeGreaterThanOrEqual(7);
-    expect(compiled.querySelector('.feature-card[href="/weather"]')?.textContent).toContain(
-      'Local weather',
-    );
+    expect(compiled.textContent).toContain('View all news');
     expect(compiled.textContent).toContain('Meetings and calendar');
-    expect(compiled.querySelector('.feature-card[href="/contact"]')?.textContent).toContain(
-      'Contact Town Hall',
+    expect(compiled.querySelector('a.task-card[href="/contact"]')?.textContent).toContain(
+      'Contact the Town Clerk',
     );
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
       'resident services, weather alerts, meetings, notices, and Town Hall contacts',

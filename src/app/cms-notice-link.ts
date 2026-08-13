@@ -22,7 +22,7 @@ export type CmsNoticeCardLink =
       kind: CmsNoticeExternalKind;
     };
 
-/** Stable in-page anchor for a CMS notice row on `/notices`. */
+/** Stable in-page anchor for a CMS notice row on `/news`. */
 export function cmsNoticeFragmentId(noticeId: string): string {
   const sanitized = noticeId
     .trim()
@@ -32,7 +32,7 @@ export function cmsNoticeFragmentId(noticeId: string): string {
   return sanitized ? `${CMS_NOTICE_FRAGMENT_PREFIX}-${sanitized}` : CMS_NOTICE_FRAGMENT_PREFIX;
 }
 
-/** Internal route for a CMS notice or newsletter card (homepage, /notices, /news lists). */
+/** Internal route for a CMS notice or newsletter card (homepage and /news lists). */
 export function getCmsNoticeRouteLink(
   notice: Pick<CmsNotice, 'type'> & Partial<Pick<CmsNotice, 'id'>>,
 ): AppRouteLink {
@@ -48,9 +48,9 @@ export function getCmsNoticeRouteLink(
   const fragment = cmsNoticeFragmentId(notice.id ?? '');
 
   return {
-    href: `/notices#${fragment}`,
+    href: `/news#${fragment}`,
     isInternal: true,
-    path: '/notices',
+    path: '/news',
     fragment,
   };
 }
@@ -63,7 +63,7 @@ export function getCmsNoticeCardLink(
   notice: Pick<CmsNotice, 'type'> & Partial<Pick<CmsNotice, 'id' | 'imageUrl'>>,
 ): CmsNoticeCardLink {
   const internal = getCmsNoticeRouteLink(notice);
-  const path = internal.path ?? (notice.type === 'newsletter' ? '/news' : '/notices');
+  const path = internal.path ?? '/news';
   const fragment =
     internal.fragment ??
     (notice.type === 'newsletter'
@@ -99,7 +99,7 @@ export function getCmsNoticeExternalCtaLabel(
 }
 
 export function getCmsNoticeExternalLinkSuffix(language: SiteLanguage): string {
-  return language === 'es' ? 'se abre en una pestana nueva' : 'opens in new tab';
+  return language === 'es' ? 'se abre en una pestaña nueva' : 'opens in new tab';
 }
 
 export function getCmsNoticeLinkAriaLabel(
@@ -116,7 +116,7 @@ export function getCmsNoticeLinkAriaLabel(
   }
 
   if (notice.type === 'newsletter') {
-    return language === 'es' ? `Leer el boletin: ${title}` : `Read newsletter: ${title}`;
+    return language === 'es' ? `Leer el boletín: ${title}` : `Read newsletter: ${title}`;
   }
 
   return language === 'es' ? `Leer el aviso: ${title}` : `Read notice: ${title}`;

@@ -2,7 +2,6 @@ import { expect } from '@playwright/test';
 
 import { test } from '../../fixtures/town-pages.fixture';
 import { inventoryStep } from '../../support/inventory-step';
-import { siteContent } from '../../support/site-content';
 
 test.describe('services page inventory controls', () => {
   test('[services.payment-panel-toggle] payment help panel toggles on', async ({
@@ -71,14 +70,12 @@ test.describe('news page inventory controls', () => {
 });
 
 test.describe('notices page inventory controls', () => {
-  test('[notices.cards-visible] notice cards render on notices page', async ({ noticesPage }) => {
+  test('[notices.cards-visible] notice cards render on the news hub', async ({ noticesPage }) => {
     await noticesPage.goto();
 
-    await inventoryStep('Verify notice cards', async () => {
+    await inventoryStep('Verify notice cards after /notices → /news redirect', async () => {
+      await expect(noticesPage.page).toHaveURL(/\/news/);
       await expect(noticesPage.noticeCards.first()).toBeVisible({ timeout: 20_000 });
-      await expect(noticesPage.noticeCards).toHaveCount(siteContent.homepageCounts.noticeCards, {
-        timeout: 20_000,
-      });
     });
   });
 });

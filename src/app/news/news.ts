@@ -14,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import {
+  cmsNoticeFragmentId,
   getCmsNoticeCardLink,
   getCmsNoticeExternalCtaLabel,
   getCmsNoticeLinkAriaLabel,
@@ -91,29 +92,29 @@ const NEWS_COPY: Record<SiteLanguage, NewsCopy> = {
     pageKicker: 'Noticias y avisos',
     pageTitle: 'Noticias y anuncios del pueblo',
     pageCopy:
-      'Lea primero el boletin del pueblo y los avisos oficiales del despacho del secretario, luego explore enlaces a noticias externas que mencionan a Wiley, CO o el condado de Prowers.',
-    newsletterKicker: 'Boletin del pueblo',
-    newsletterHeading: 'Boletin del Ayuntamiento',
+      'Lea primero el boletín del pueblo y los avisos oficiales del despacho del secretario, luego explore enlaces a noticias externas que mencionan a Wiley, CO o el condado de Prowers.',
+    newsletterKicker: 'Boletín del pueblo',
+    newsletterHeading: 'Boletín del Ayuntamiento',
     newsletterCopy:
       'Actualizaciones extensas preparadas por la Secretaria municipal para residentes de Wiley.',
-    newsletterIframeTitle: 'Boletin del pueblo en PDF',
-    openPdfLabel: 'Abrir el boletin en PDF en una pestana nueva',
+    newsletterIframeTitle: 'Boletín del pueblo en PDF',
+    openPdfLabel: 'Abrir el boletín en PDF en una pestaña nueva',
     pdfFallbackCopy:
-      'Aun no se ha adjuntado una version PDF de este boletin. Lea el resumen arriba o regrese pronto.',
+      'Aún no se ha adjuntado una versión PDF de este boletín. Lea el resumen arriba o regrese pronto.',
     featuredKicker: 'Aviso destacado del pueblo',
     officialKicker: 'Avisos oficiales del pueblo',
     officialHeading: 'Actualizaciones actuales de Wiley',
     officialCopy:
-      'Boletines breves y recordatorios del secretario y el personal (aparte del boletin largo).',
+      'Boletines breves y recordatorios del secretario y el personal (aparte del boletín largo).',
     officialEmptyState: 'No hay avisos en este momento. Vuelva pronto.',
     officialEmptyWithNewsletterOnly:
-      'No hay avisos breves en este momento. Consulte el boletin del pueblo arriba.',
+      'No hay avisos breves en este momento. Consulte el boletín del pueblo arriba.',
     regionalKicker: 'Cobertura en la web',
     regionalHeading: 'Relatos que mencionan Wiley o Prowers',
     regionalCopy:
       'Enlaces a articulos en la web publica que mencionan a Wiley, el Pueblo de Wiley o el condado de Prowers. El personal agrega y revisa estos enlaces.',
-    readArticleLabel: 'Leer articulo',
-    externalLinkSuffixLabel: 'se abre en una pestana nueva',
+    readArticleLabel: 'Leer artículo',
+    externalLinkSuffixLabel: 'se abre en una pestaña nueva',
   },
 };
 
@@ -191,6 +192,7 @@ export class News {
     footer: { class: 'news-card-footer' },
   };
   protected readonly cmsNoticeCardLink = getCmsNoticeCardLink;
+  protected readonly cmsNoticeFragmentId = cmsNoticeFragmentId;
   protected readonly classifyNoticeImage = classifyCmsNoticeImageUrl;
   protected readonly hideBrokenThumbnail = hideBrokenNoticeThumbnail;
 

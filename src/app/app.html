@@ -164,7 +164,7 @@
             >
             <strong
               class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
-              >Town of Wiley</strong
+              >{{ pageTitle() }}</strong
             >
           </a>
         </div>
@@ -218,7 +218,7 @@
             <a
               class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
               routerLink="/"
-              aria-label="Return to homepage"
+              [attr.aria-label]="appCopy().townLogoAriaLabel"
             >
               <span
                 class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
@@ -226,7 +226,7 @@
               >
               <strong
                 class="font-display text-lg font-bold uppercase leading-tight tracking-wide text-wiley-inverse sm:text-xl"
-                >Town of Wiley</strong
+                >{{ pageTitle() }}</strong
               >
             </a>
           </ng-template>
@@ -321,8 +321,7 @@
           </ng-template>
           <ng-template pTemplate="end">
             <div class="header-end-controls flex flex-wrap items-center gap-3">
-              @if (!isFeaturePageMode() && !isNotFoundMode()) {
-                <form
+              <form
                   class="header-search-form w-full max-w-2xl"
                   role="search"
                   [formGroup]="siteSearchForm"
@@ -344,8 +343,37 @@
                       autocomplete="off"
                     />
                   </div>
+                  @if (hasSearchQuery() && !isSearchPending()) {
+                    <div class="header-search-results search-results grid gap-2" aria-live="polite">
+                      @if (searchResults().length) {
+                        @for (result of searchResults(); track result.href) {
+                          @if (resolveAppLink(result.href); as resultLink) {
+                            @if (resultLink.isInternal) {
+                              <a
+                                class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+                                [routerLink]="resultLink.path"
+                                [fragment]="resultLink.fragment"
+                              >
+                                <strong>{{ result.title }}</strong>
+                                <span>{{ result.summary }}</span>
+                              </a>
+                            } @else {
+                              <a
+                                class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 bg-wiley-cream-0 p-3 no-underline"
+                                [attr.href]="resultLink.href"
+                              >
+                                <strong>{{ result.title }}</strong>
+                                <span>{{ result.summary }}</span>
+                              </a>
+                            }
+                          }
+                        }
+                      } @else {
+                        <p class="empty-state">{{ appCopy().searchEmptyState }}</p>
+                      }
+                    </div>
+                  }
                 </form>
-              }
               <a
                 routerLink="/pay-bill"
                 class="header-pay-bill-btn"
@@ -468,7 +496,7 @@
           >
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
-            routerLink="/notices"
+            routerLink="/news"
             (click)="closeMobileMenu()"
             >{{ appCopy().menuNewsNoticesLabel }}</a
           >
@@ -584,111 +612,12 @@
         </section>
       </section>
     } @else if (isFeaturePageMode()) {
-      @if (currentFeaturePage(); as featurePage) {
-        <section class="feature-page-shell grid w-full gap-6 md:gap-8">
-          <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
-
-          @if (isWeatherMode()) {
-            <section class="feature-detail-stack" id="weather">
-              <router-outlet />
-            </section>
-          } @else if (isNoticesMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isMeetingsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isServicesMode()) {
-            <section class="feature-detail-stack">
-              <p-card
-                class="panel service-panel wiley-panel rounded-wiley-xl border border-wiley-cream-100 shadow-wiley-card"
-                id="services"
-              >
-                <ng-template pTemplate="header">
-                  <p-tag
-                    class="section-kicker-tag"
-                    [value]="appCopy().servicesKicker"
-                    severity="secondary"
-                    [rounded]="true"
-                  />
-                  <h1>{{ appCopy().servicesHeading }}</h1>
-                </ng-template>
-                <section class="service-grid grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                  @for (service of serviceCards(); track service.title) {
-                    <article
-                      class="service-card group flex h-full flex-col rounded-wiley-xl border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/25 bg-wiley-sage-50 p-6 shadow-wiley-card transition-all hover:-translate-y-0.5 hover:shadow-wiley-lift md:p-8"
-                    >
-                      <p
-                        class="home-meta-label mb-2 inline-flex items-center gap-1 rounded-wiley-full border border-wiley-gold-400/30 bg-wiley-gold-400/10 px-2 py-0.5 text-[0.65rem] font-bold tracking-[0.06em] text-wiley-earth-700"
-                      >
-                        {{ service.availability }}
-                      </p>
-                      <h2 class="mb-3 font-semibold text-wiley-navy-900">{{ service.title }}</h2>
-                      <p class="flex-1 leading-relaxed text-wiley-ink-700 mb-4">
-                        {{ service.description }}
-                      </p>
-                      @if (resolveAppLink(service.href); as serviceLink) {
-                        @if (serviceLink.isInternal) {
-                          <a
-                            class="text-link service-link mt-auto inline-flex items-center gap-1 text-sm font-medium text-wiley-teal-700 hover:text-wiley-teal-800"
-                            [routerLink]="serviceLink.path"
-                            [fragment]="serviceLink.fragment"
-                          >
-                            <span>{{ service.cta }}</span>
-                          </a>
-                        } @else {
-                          <a
-                            class="text-link service-link mt-auto inline-flex items-center gap-1 text-sm font-medium text-wiley-teal-700 hover:text-wiley-teal-800"
-                            [attr.href]="serviceLink.href"
-                          >
-                            <span>{{ service.cta }}</span>
-                          </a>
-                        }
-                      }
-                    </article>
-                  }
-                </section>
-              </p-card>
-
-              <router-outlet />
-            </section>
-          } @else if (isContactMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isAccessibilityMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isPrivacyMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isTermsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isContactMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isBusinessesMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isPaymentsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          } @else if (isNewsMode()) {
-            <section class="feature-detail-stack">
-              <router-outlet />
-            </section>
-          }
+      <section class="feature-page-shell grid w-full gap-6 md:gap-8">
+        <a class="detail-back-link" routerLink="/">{{ appCopy().backHomeLabel }}</a>
+        <section class="feature-detail-stack" [attr.id]="isWeatherMode() ? 'weather' : null">
+          <router-outlet />
         </section>
-      }
+      </section>
     } @else {
       <div class="homepage-priority-stack grid w-full gap-4 md:gap-5">
         <app-this-week-in-wiley class="this-week-homepage" />
@@ -723,7 +652,7 @@
 
           <section
             class="task-grid landing-task-grid mt-0 grid gap-4 sm:gap-5 sm:grid-cols-2"
-            aria-label="Resident shortcuts"
+            [attr.aria-label]="appCopy().residentShortcutsAriaLabel"
           >
             @for (task of topTasks(); track task.href; let taskIndex = $index) {
               @if (resolveAppLink(task.href); as taskLink) {
@@ -879,90 +808,20 @@
             <p class="search-panel-copy m-0 text-wiley-ink-700">{{ appCopy().searchLabel }}</p>
           </header>
 
-          <form
-            class="wiley-search-form w-full"
-            role="search"
-            [formGroup]="siteSearchForm"
-            (ngSubmit)="performSearch($event)"
-          >
-            <label class="sr-only" for="landing-site-search">{{ appCopy().searchLabel }}</label>
-            <div
-              class="flex min-h-14 items-stretch overflow-hidden rounded-wiley-xl border-2 border-wiley-teal-600/30 bg-wiley-cream-0 shadow-wiley-card focus-within:border-wiley-teal-600 focus-within:ring-4 focus-within:ring-wiley-teal-600/20"
-            >
-              <span class="flex items-center px-4 text-wiley-teal-700" aria-hidden="true">
-                <i class="pi pi-search text-xl"></i>
-              </span>
-              <input
-                pInputText
-                id="landing-site-search"
-                class="min-h-14 flex-1 border-0 bg-transparent px-0 text-base shadow-none"
-                type="search"
-                formControlName="query"
-                [placeholder]="appCopy().searchPlaceholder"
-                autocomplete="off"
-              />
-              <button
-                pButton
-                type="submit"
-                class="search-form-submit m-1.5 shrink-0"
-                severity="primary"
-                [rounded]="true"
-              >
-                {{ appCopy().searchActionLabel }}
-              </button>
-            </div>
-          </form>
-
           <p class="search-note m-0 text-sm text-wiley-ink-500">{{ appCopy().searchNote }}</p>
 
-          @if (isSearchPending()) {
-            <div class="search-results search-results--loading" aria-live="polite" aria-busy="true">
-              @for (_ of [0, 1, 2]; track $index) {
-                <article class="search-result-skeleton shimmer" aria-hidden="true">
-                  <p-skeleton
-                    class="shimmer shimmer--line shimmer--title"
-                    width="12rem"
-                    height="1rem"
-                  />
-                  <p-skeleton class="shimmer shimmer--line" width="100%" height="1rem" />
-                  <p-skeleton
-                    class="shimmer shimmer--line shimmer--meta"
-                    width="8rem"
-                    height="0.9rem"
-                  />
-                </article>
-              }
-            </div>
-          } @else if (searchResults().length) {
-            <div class="search-results grid gap-2.5" aria-live="polite">
-              @for (result of searchResults(); track result.href) {
-                @if (resolveAppLink(result.href); as resultLink) {
-                  @if (resultLink.isInternal) {
-                    <a
-                      class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/20 bg-wiley-sage-50/90 p-4 shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift"
-                      [routerLink]="resultLink.path"
-                      [fragment]="resultLink.fragment"
-                    >
-                      <strong>{{ result.title }}</strong>
-                      <span class="leading-relaxed">{{ result.summary }}</span>
-                      <small class="text-wiley-ink-600">{{ result.category }}</small>
-                    </a>
-                  } @else {
-                    <a
-                      class="search-result flex flex-col gap-1 rounded-wiley-lg border border-wiley-cream-100 border-l-4 border-l-wiley-teal-600/20 bg-wiley-sage-50/90 p-4 shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift"
-                      [attr.href]="resultLink.href"
-                    >
-                      <strong>{{ result.title }}</strong>
-                      <span class="leading-relaxed">{{ result.summary }}</span>
-                      <small class="text-wiley-ink-600">{{ result.category }}</small>
-                    </a>
-                  }
-                }
-              }
-            </div>
-          } @else {
-            <p class="empty-state" aria-live="polite">{{ appCopy().searchEmptyState }}</p>
-          }
+          <div class="search-suggestion-row flex flex-wrap gap-2" role="list">
+            @for (task of topTasks(); track task.href) {
+              <button
+                type="button"
+                class="search-suggestion"
+                role="listitem"
+                (click)="applySuggestedSearch(task.title)"
+              >
+                {{ task.title }}
+              </button>
+            }
+          </div>
         </section>
       </div>
 
@@ -1058,9 +917,7 @@
                 />
                 <h2 id="homepage-notices-heading">{{ appCopy().noticesHeading }}</h2>
               </div>
-              @if (showBrowseNoticesLink()) {
-                <a class="text-link" routerLink="/notices">{{ appCopy().viewAllNoticesLabel }}</a>
-              }
+              <a class="text-link" routerLink="/news">{{ appCopy().viewAllNoticesLabel }}</a>
             </header>
           </ng-template>
 
@@ -1136,7 +993,11 @@
               <a class="text-link" routerLink="/weather">{{ appCopy().featureTitles.weather }}</a>
             </div>
           </header>
-          <app-weather-panel class="block w-full" data-testid="homepage-weather-panel" />
+          <app-weather-panel
+            class="block w-full"
+            data-testid="homepage-weather-panel"
+            [compact]="true"
+          />
         </section>
       } @placeholder (minimum 200ms) {
         <div
@@ -1145,134 +1006,6 @@
         >
           <p-skeleton width="100%" height="12rem" borderRadius="24px" />
         </div>
-      }
-
-      @defer (on viewport) {
-        <section
-          class="feature-hub panel grid w-full gap-6 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/60 p-6 shadow-wiley-card md:p-8"
-          aria-labelledby="feature-hub-heading"
-        >
-          <header
-            class="section-header feature-hub-header grid lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-end"
-          >
-            <div>
-              <p-tag
-                class="section-kicker-tag"
-                [value]="appCopy().featureHubKicker"
-                severity="secondary"
-                [rounded]="true"
-              />
-              <h2 id="feature-hub-heading">{{ appCopy().featureHubHeading }}</h2>
-            </div>
-            <p class="feature-hub-copy">{{ appCopy().featureHubBody }}</p>
-          </header>
-
-          <p-divider styleClass="section-divider" />
-
-          <section
-            class="feature-grid grid gap-6 sm:gap-8 sm:grid-cols-2 xl:grid-cols-3"
-            [attr.aria-label]="appCopy().featureHubHeading"
-          >
-            @for (feature of homepageFeaturePages(); track feature.id) {
-              @if (resolveAppLink(feature.href); as featureLink) {
-                @if (featureLink.isInternal) {
-                  <a
-                    class="feature-card flex h-full min-h-[11rem] flex-col gap-3 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/80 p-6 no-underline shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                    [routerLink]="featureLink.path"
-                    [fragment]="featureLink.fragment"
-                  >
-                    <p class="home-meta-label mb-1">{{ feature.kicker }}</p>
-                    <strong class="mb-1">{{ feature.title }}</strong>
-                    <span class="leading-relaxed">{{ feature.summary }}</span>
-                  </a>
-                } @else {
-                  <a
-                    class="feature-card flex h-full min-h-[11rem] flex-col gap-3 rounded-wiley-xl border border-wiley-cream-100 bg-wiley-sage-50/80 p-6 no-underline shadow-wiley-card transition hover:-translate-y-0.5 hover:shadow-wiley-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
-                    [attr.href]="featureLink.href"
-                  >
-                    <p class="home-meta-label mb-1">{{ feature.kicker }}</p>
-                    <strong class="mb-1">{{ feature.title }}</strong>
-                    <span class="leading-relaxed">{{ feature.summary }}</span>
-                  </a>
-                }
-              }
-            }
-          </section>
-        </section>
-      } @placeholder (minimum 200ms) {
-        <div
-          class="homepage-defer-placeholder homepage-defer-placeholder--feature-hub"
-          aria-hidden="true"
-        ></div>
-      }
-
-      @defer (on viewport) {
-        <section class="support-strip grid gap-8">
-          <p-card
-            class="hero-card stay-informed-card"
-            [pt]="supportCardPt"
-            aria-labelledby="stay-informed-heading"
-          >
-            <ng-template pTemplate="header">
-              <p-tag
-                class="section-kicker-tag"
-                [value]="appCopy().stayInformedKicker"
-                severity="secondary"
-                [rounded]="true"
-              />
-              <h2 id="stay-informed-heading">{{ appCopy().stayInformedHeading }}</h2>
-            </ng-template>
-            <p class="feature-hub-copy">
-              {{ appCopy().stayInformedBody }}
-            </p>
-
-            <section
-              class="support-link-grid grid gap-4 md:grid-cols-2"
-              [attr.aria-label]="topTasksHeading()"
-            >
-              @if (cmsContentLoading()) {
-                <div class="support-link-skeleton" aria-live="polite" aria-busy="true">
-                  <p-skeleton height="5.5rem" width="100%" borderRadius="18px" />
-                </div>
-              } @else if (primaryContact(); as primaryContact) {
-                @if (resolveAppLink(primaryContact.href ?? '/contact'); as supportContactLink) {
-                  @if (supportContactLink.isInternal) {
-                    <a
-                      class="feature-card support-link-card"
-                      [routerLink]="supportContactLink.path"
-                      [fragment]="supportContactLink.fragment"
-                    >
-                      <p class="home-meta-label">{{ primaryContact.label }}</p>
-                      <strong>{{ primaryContact.value }}</strong>
-                      <span>{{ appCopy().contactHeading }}</span>
-                    </a>
-                  } @else {
-                    <a class="feature-card support-link-card" [attr.href]="supportContactLink.href">
-                      <p class="home-meta-label">{{ primaryContact.label }}</p>
-                      <strong>{{ primaryContact.value }}</strong>
-                      <span>{{ appCopy().contactHeading }}</span>
-                    </a>
-                  }
-                }
-              }
-
-              <a
-                class="feature-card support-link-card"
-                routerLink="/weather"
-                data-testid="support-weather"
-              >
-                <p class="home-meta-label">{{ appCopy().nwsAlertLabel }}</p>
-                <strong>{{ appCopy().alertActionLabel }}</strong>
-                <span>{{ appCopy().weatherSupportDescription }}</span>
-              </a>
-            </section>
-          </p-card>
-        </section>
-      } @placeholder (minimum 200ms) {
-        <div
-          class="homepage-defer-placeholder homepage-defer-placeholder--support"
-          aria-hidden="true"
-        ></div>
       }
     }
 
@@ -1314,7 +1047,7 @@
           </p>
         </div>
 
-        <nav class="footer-links-nav site-footer__nav" aria-label="Footer links">
+        <nav class="footer-links-nav site-footer__nav" [attr.aria-label]="appCopy().footerLinksAriaLabel">
           <ul class="footer-links">
             @for (link of appCopy().footerLinks; track link.label) {
               @if (resolveAppLink(link.href); as footerLink) {

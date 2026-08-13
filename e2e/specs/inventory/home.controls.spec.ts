@@ -62,31 +62,36 @@ test.describe('homepage inventory controls', () => {
     await expectServicesPage(homePage);
   });
 
-  test('[home.feature-card-weather] feature card navigates to weather', async ({ homePage }) => {
+  test('[home.feature-card-weather] compact weather opens the forecast page', async ({
+    homePage,
+  }) => {
     await homePage.goto();
     await revealHomepageDeferredBlocks(homePage);
 
-    await inventoryStep('Click weather feature card', async () => {
-      await homePage.page.locator('.feature-grid .feature-card[href="/weather"]').click();
+    await inventoryStep('Click homepage weather forecast link', async () => {
+      await homePage.page
+        .locator('#homepage-weather')
+        .getByRole('link', { name: 'Local weather' })
+        .click();
     });
 
     await expect(homePage.page).toHaveURL(/\/weather/);
     await expectWeatherPageHeading(homePage.page);
   });
 
-  test('[home.feature-card-notices] feature card navigates to notices', async ({ homePage }) => {
+  test('[home.feature-card-notices] view all news opens the news hub', async ({ homePage }) => {
     await homePage.goto();
     await revealHomepageDeferredBlocks(homePage);
 
-    await inventoryStep('Click notices feature card', async () => {
-      await homePage.page.locator('.feature-grid .feature-card[href="/notices"]').click();
+    await inventoryStep('Click view all news link', async () => {
+      await homePage.page.getByRole('link', { name: 'View all news' }).click();
     });
 
-    await expect(homePage.page).toHaveURL(/\/notices/);
+    await expect(homePage.page).toHaveURL(/\/news/);
     await expectNoticesPageCards(homePage);
   });
 
-  test('[home.notice-card-navigate] view-all-notices link opens notices page', async ({
+  test('[home.notice-card-navigate] view-all-news link opens the news hub', async ({
     homePage,
   }) => {
     await mockCmsSnapshotWithExtraNotices(homePage.page);
@@ -98,15 +103,15 @@ test.describe('homepage inventory controls', () => {
     await revealHomepageDeferredBlocks(homePage);
     await homePage.page.locator('#homepage-notices-heading').scrollIntoViewIfNeeded();
 
-    const viewAllNotices = homePage.page.getByRole('link', { name: 'View all notices' });
-    await expect(viewAllNotices).toBeVisible({ timeout: 25_000 });
-    await viewAllNotices.scrollIntoViewIfNeeded();
+    const viewAllNews = homePage.page.getByRole('link', { name: 'View all news' });
+    await expect(viewAllNews).toBeVisible({ timeout: 25_000 });
+    await viewAllNews.scrollIntoViewIfNeeded();
 
-    await inventoryStep('Click view all notices link', async () => {
-      await viewAllNotices.click();
+    await inventoryStep('Click view all news link', async () => {
+      await viewAllNews.click();
     });
 
-    await expect(homePage.page).toHaveURL(/\/notices/);
+    await expect(homePage.page).toHaveURL(/\/news/);
   });
 
   test('[home.notice-card-link] homepage notice card navigates to newsletter on /news', async ({
