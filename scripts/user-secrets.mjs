@@ -68,8 +68,8 @@ const templateSecrets = {
   },
   payments: {
     paystar: {
-      mode: 'none',
-      portalUrl: '',
+      mode: 'hosted',
+      portalUrl: 'https://secure.paystar.io/pay/town-of-wiley-utilitybill',
       apiEndpoint: '',
     },
   },
