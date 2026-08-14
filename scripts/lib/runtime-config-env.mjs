@@ -29,6 +29,9 @@ export const DEFAULT_CLERK_NAME = 'Deb Dillon';
 export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
 export const DEFAULT_AWS_REGION = 'us-east-2';
 export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
+/** Live Town Paystar hosted portal (public URL; not a secret). */
+export const DEFAULT_PAYSTAR_PORTAL_URL =
+  'https://secure.paystar.io/pay/town-of-wiley-utilitybill';
 
 export function readLocalSecrets(secretsPath = localSecretsPath) {
   if (!existsSync(secretsPath)) {
@@ -185,14 +188,17 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.weather?.alertSignup?.apiEndpoint?.trim() ||
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileySevereWeatherBackend') : '') ||
     '';
-  const paystarPortalUrl =
+  const envPaystarMode = env.PAYSTAR_MODE?.trim().toLowerCase() || '';
+  const secretsPaystarMode = localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() || '';
+  const configuredPaystarPortalUrl =
     env.PAYSTAR_PORTAL_URL?.trim() || localSecrets.payments?.paystar?.portalUrl?.trim() || '';
+  const paystarPortalUrl =
+    envPaystarMode === 'none'
+      ? configuredPaystarPortalUrl
+      : configuredPaystarPortalUrl || DEFAULT_PAYSTAR_PORTAL_URL;
   const paystarApiEndpoint =
     env.PAYSTAR_API_ENDPOINT?.trim() || localSecrets.payments?.paystar?.apiEndpoint?.trim() || '';
-  const explicitPaystarMode =
-    env.PAYSTAR_MODE?.trim().toLowerCase() ||
-    localSecrets.payments?.paystar?.mode?.trim()?.toLowerCase() ||
-    '';
+  const explicitPaystarMode = envPaystarMode || secretsPaystarMode;
   const cmsApiEndpoint =
     outputsData?.url?.trim() ||
     env.APPSYNC_CMS_ENDPOINT?.trim() ||
@@ -310,13 +316,15 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCmsChangeNotifier') : '') ||
     '';
   const paystarMode =
-    explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
-      ? explicitPaystarMode
-      : paystarApiEndpoint
-        ? 'api'
-        : paystarPortalUrl
-          ? 'hosted'
-          : 'none';
+    envPaystarMode === 'none'
+      ? 'none'
+      : explicitPaystarMode === 'api' || explicitPaystarMode === 'hosted'
+        ? explicitPaystarMode
+        : paystarApiEndpoint
+          ? 'api'
+          : paystarPortalUrl
+            ? 'hosted'
+            : 'none';
   const mode = apiEndpoint ? 'api' : chatUrl ? 'embed' : 'none';
 
   return {

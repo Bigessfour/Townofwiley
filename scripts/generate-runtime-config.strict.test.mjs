@@ -5,6 +5,7 @@ import {
     buildPublicRuntimeConfigObject,
     buildRuntimeConfigValues,
     collectRequiredEnvErrors,
+    DEFAULT_PAYSTAR_PORTAL_URL,
     formatStrictEnvErrors,
     shouldAllowManifestFallbacks,
     shouldRunStrictProductionBuild,
@@ -121,6 +122,44 @@ describe('buildRuntimeConfigValues manifest fallbacks', () => {
     const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: true });
     assert.equal(values.cmsApiEndpoint, '');
     assert.match(values.communityCalendarApiEndpoint, /lambda-url\.us-east-2\.on\.aws/);
+  });
+});
+
+describe('Paystar hosted portal defaults', () => {
+  it('uses the live Town Paystar URL when env and secrets omit it', () => {
+    const values = buildRuntimeConfigValues({}, {}, { allowManifestFallbacks: false });
+    assert.equal(values.paystarPortalUrl, DEFAULT_PAYSTAR_PORTAL_URL);
+    assert.equal(values.paystarMode, 'hosted');
+  });
+
+  it('keeps an explicit PAYSTAR_PORTAL_URL override', () => {
+    const values = buildRuntimeConfigValues(
+      {},
+      { PAYSTAR_PORTAL_URL: 'https://secure.paystar.io/pay/custom-tenant' },
+      { allowManifestFallbacks: false },
+    );
+    assert.equal(values.paystarPortalUrl, 'https://secure.paystar.io/pay/custom-tenant');
+    assert.equal(values.paystarMode, 'hosted');
+  });
+
+  it('treats PAYSTAR_MODE=none as a kill switch even with the default URL available', () => {
+    const values = buildRuntimeConfigValues(
+      {},
+      { PAYSTAR_MODE: 'none' },
+      { allowManifestFallbacks: false },
+    );
+    assert.equal(values.paystarMode, 'none');
+    assert.equal(values.paystarPortalUrl, '');
+  });
+
+  it('does not treat unconfigured local secrets mode none as a kill switch', () => {
+    const values = buildRuntimeConfigValues(
+      { payments: { paystar: { mode: 'none', portalUrl: '' } } },
+      {},
+      { allowManifestFallbacks: false },
+    );
+    assert.equal(values.paystarPortalUrl, DEFAULT_PAYSTAR_PORTAL_URL);
+    assert.equal(values.paystarMode, 'hosted');
   });
 });
 
