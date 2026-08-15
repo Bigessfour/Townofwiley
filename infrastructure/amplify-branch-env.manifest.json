@@ -36,7 +36,7 @@
     {
       "name": "PAYSTAR_PORTAL_URL",
       "runtimePath": "payments.paystar.portalUrl",
-      "notes": "Hosted Paystar portal URL only"
+      "notes": "Optional override of the live Town Paystar portal (defaults to https://secure.paystar.io/pay/town-of-wiley-utilitybill). Set PAYSTAR_MODE=none to disable the CTA."
     },
     {
       "name": "NWS_ALLOW_BROWSER_FALLBACK",

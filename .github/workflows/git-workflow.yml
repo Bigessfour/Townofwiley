@@ -321,6 +321,7 @@ jobs:
           EASYPEASY_API_ENDPOINT: ${{ secrets.EASYPEASY_API_ENDPOINT }}
           EASYPEASY_CHAT_URL: ${{ secrets.EASYPEASY_CHAT_URL }}
           CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
+          PAYSTAR_PORTAL_URL: ${{ secrets.PAYSTAR_PORTAL_URL || 'https://secure.paystar.io/pay/town-of-wiley-utilitybill' }}
           COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
           COGNITO_USER_POOL_CLIENT_ID: ${{ secrets.COGNITO_USER_POOL_CLIENT_ID }}
           COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
