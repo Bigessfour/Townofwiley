@@ -3448,8 +3448,16 @@ button:not(:disabled):active,
     --p-megamenu-item-icon-active-color: var(--wiley-header-nav-text-hover);
   }
 
+  /* End-slot chrome (search / pay / EN–ES) must stay under the flyout. PrimeNG
+   * overlays default to z-index 1; .site-language-switcher is z-index 2. */
+  .p-megamenu-end {
+    position: relative;
+    z-index: 0;
+  }
+
   .p-megamenu-overlay,
   .p-megamenu-panel {
+    z-index: 20;
     --p-megamenu-item-color: var(--wiley-forest-900);
     --p-megamenu-item-focus-color: var(--wiley-forest-950);
     --p-megamenu-item-active-color: var(--wiley-forest-950);
@@ -3616,7 +3624,6 @@ button:not(:disabled):active,
     box-shadow: 0 20px 42px rgba(17, 36, 61, 0.12);
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid rgba(13, 44, 84, 0.1);
-    z-index: 1300;
   }
 
   /* Synthetic column groups use `{ items: [...] }` without a label; hide empty presentation rows. */
@@ -3679,11 +3686,14 @@ button:not(:disabled):active,
 
 .header-end-controls {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-md);
   min-width: 0;
   flex-shrink: 0;
   overflow: visible;
+  position: relative;
+  z-index: 0;
 }
 
 .search-group {

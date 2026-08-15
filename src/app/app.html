@@ -320,9 +320,9 @@
             }
           </ng-template>
           <ng-template pTemplate="end">
-            <div class="header-end-controls flex flex-wrap items-center gap-3">
+            <div class="header-end-controls flex flex-nowrap items-center gap-3">
               <form
-                  class="header-search-form w-full max-w-2xl"
+                  class="header-search-form max-w-xs"
                   role="search"
                   [formGroup]="siteSearchForm"
                   (ngSubmit)="performSearch($event)"
