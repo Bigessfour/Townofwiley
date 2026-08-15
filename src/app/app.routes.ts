@@ -65,6 +65,10 @@ export const routes: Routes = [
       import('./business-directory/business-directory').then((m) => m.BusinessDirectory),
   },
   {
+    path: 'history',
+    loadComponent: () => import('./history-page/history-page').then((m) => m.HistoryPage),
+  },
+  {
     path: 'pay-bill',
     loadComponent: () =>
       import('./pay-bill/pay-bill-page.component').then((m) => m.PayBillPageComponent),

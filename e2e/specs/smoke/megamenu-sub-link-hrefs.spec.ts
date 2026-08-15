@@ -12,12 +12,16 @@ import type { Page } from '@playwright/test';
 import { siteContent } from '../../support/site-content';
 
 const roots = siteContent.megaMenuRootLabelsEn;
+/** Dropdown roots only (flat Weather / Contact roots are omitted). */
+const dropdownRoots = [roots[0], roots[1], roots[2], roots[3], roots[5]];
 
 async function openMegaMenuPanel(page: Page, rootLabel: string) {
   const nav = page.getByTestId('homepage-section-nav');
-  await nav.getByRole('menuitem', { name: rootLabel }).click();
+  const root = nav.getByRole('menuitem', { name: rootLabel });
+  await expect(root).toBeVisible();
+  await root.click();
   const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
-  await expect(panel).toBeVisible({ timeout: 10_000 });
+  await expect(panel, `expected overlay for "${rootLabel}"`).toBeVisible({ timeout: 10_000 });
   return panel;
 }
 
@@ -29,10 +33,8 @@ test.describe('mega menu panel sub-link href integrity', () => {
     );
   });
 
-  test('each dropdown root exposes panel anchors with usable href attributes', async ({
-    homePage,
-  }) => {
-    for (const rootLabel of roots.slice(0, 4)) {
+  for (const rootLabel of dropdownRoots) {
+    test(`${rootLabel}: panel sub-links have usable href attributes`, async ({ homePage }) => {
       await homePage.goto();
       const panel = await openMegaMenuPanel(homePage.page, rootLabel);
       const anchors = panel.locator('a.mega-menu-sub-link');
@@ -49,6 +51,6 @@ test.describe('mega menu panel sub-link href integrity', () => {
           `${rootLabel} sub-link ${i} href should be a real router URL`,
         ).toBeGreaterThan(2);
       }
-    }
-  });
+    });
+  }
 });

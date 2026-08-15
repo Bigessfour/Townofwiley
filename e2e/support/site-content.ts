@@ -42,6 +42,7 @@ export const siteContent = {
     { label: 'News, Notices & Alerts', urlRegex: /\/news$/ },
     { label: 'Weather', urlRegex: /\/weather$/ },
     { label: 'Businesses & Community', urlRegex: /\/businesses$/ },
+    { label: 'History & Stories', urlRegex: /\/history$/ },
     { label: 'Contact & Town Hall', urlRegex: /\/contact$/ },
   ],
   /**
@@ -67,6 +68,8 @@ export const siteContent = {
     residentServices: 'Resident services',
     townNews: 'Town news',
     signUpAlerts: 'Sign up for text or email alerts',
+    businessDirectory: 'Business directory',
+    historyStories: 'History & Stories',
   },
   serviceLabels: [
     'Online payments',

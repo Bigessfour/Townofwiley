@@ -5,6 +5,7 @@
 /services
 /records
 /businesses
+/history
 /news
 /contact
 /accessibility

@@ -20,6 +20,7 @@ const APP_ROUTE_PATHS = new Set([
   '/payments',
   '/pay-bill',
   '/businesses',
+  '/history',
   '/news',
   '/contact',
 
