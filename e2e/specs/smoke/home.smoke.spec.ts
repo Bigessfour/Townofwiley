@@ -107,14 +107,33 @@ async function expectFeaturePageFromHomepage(
 
 const sectionNavigationGateways: NavigationGateway[] = [
   {
-    name: 'Businesses mega menu root',
-    click: (page) =>
-      page.sectionNavLinks
-        .filter({ hasText: 'Businesses & Community' })
-        .first()
-        .click({ position: { x: 5, y: 5 } }),
+    name: 'Businesses mega menu → Business directory',
+    click: async (page) => {
+      const nav = page.page.getByTestId('homepage-section-nav');
+      await nav.getByRole('menuitem', { name: 'Businesses & Community' }).click();
+      const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
+      await expect(panel).toBeVisible({ timeout: 10_000 });
+      await panel.getByRole('link', { name: 'Business directory', exact: true }).click();
+    },
     expectedUrl: /\/businesses$/,
     assertDestination: expectBusinessesPage,
+  },
+  {
+    name: 'Businesses mega menu → History & Stories',
+    click: async (page) => {
+      const nav = page.page.getByTestId('homepage-section-nav');
+      await nav.getByRole('menuitem', { name: 'Businesses & Community' }).click();
+      const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
+      await expect(panel).toBeVisible({ timeout: 10_000 });
+      await panel.getByRole('link', { name: 'History & Stories', exact: true }).click();
+    },
+    expectedUrl: /\/history$/,
+    assertDestination: async (homePage) => {
+      await expect(
+        homePage.page.getByRole('heading', { level: 1, name: 'History & Stories' }),
+      ).toBeVisible();
+      await expect(homePage.page.getByTestId('history-document-image')).toBeVisible();
+    },
   },
   {
     name: 'Contact mega menu root',

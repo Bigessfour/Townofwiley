@@ -1,0 +1,32 @@
+<section class="feature-detail-stack history-page" data-testid="history-page" id="history">
+  <p-card class="panel wiley-panel history-document-card">
+    <ng-template pTemplate="header">
+      <div class="wiley-page-header">
+        <p class="section-kicker">{{ copy().historyKicker }}</p>
+        <h1>{{ copy().historyHeading }}</h1>
+      </div>
+    </ng-template>
+
+    <figure class="history-document">
+      <img
+        class="history-document__image"
+        data-testid="history-document-image"
+        [ngSrc]="documentImageSrc"
+        width="1530"
+        height="1980"
+        priority
+        [alt]="copy().historyDocumentAlt"
+      />
+      <figcaption class="history-document__actions">
+        <a
+          class="button-cta history-document__pdf-link"
+          data-testid="history-pdf-download"
+          [attr.href]="pdfHref"
+          target="_blank"
+          rel="noopener noreferrer"
+          >{{ copy().historyOpenPdfLabel }}</a
+        >
+      </figcaption>
+    </figure>
+  </p-card>
+</section>

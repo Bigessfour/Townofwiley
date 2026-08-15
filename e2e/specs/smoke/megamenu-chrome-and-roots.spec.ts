@@ -49,25 +49,20 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
     const chevrons = nav.locator('.mega-menu-root-link .pi-angle-down');
-    await expect(chevrons).toHaveCount(4);
+    await expect(chevrons).toHaveCount(5);
     const weather = nav.getByRole('link', { name: roots[4], exact: true });
-    const businesses = nav.getByRole('link', { name: roots[5], exact: true });
     const contactRoot = nav.getByRole('link', { name: roots[6], exact: true });
     await expect(weather.locator('.pi-angle-down')).toHaveCount(0);
-    await expect(businesses.locator('.pi-angle-down')).toHaveCount(0);
     await expect(contactRoot.locator('.pi-angle-down')).toHaveCount(0);
+    await expect(nav.getByRole('menuitem', { name: roots[5], exact: true })).toBeVisible();
   });
 
-  test('Weather, Businesses, and Contact roots navigate by href', async ({ homePage }) => {
+  test('Weather and Contact roots navigate by href', async ({ homePage }) => {
     await homePage.goto();
     const nav = homePage.page.getByTestId('homepage-section-nav');
     await expect(nav.getByRole('link', { name: roots[4], exact: true })).toHaveAttribute(
       'href',
       /\/weather$/,
-    );
-    await expect(nav.getByRole('link', { name: roots[5], exact: true })).toHaveAttribute(
-      'href',
-      /\/businesses$/,
     );
     await expect(nav.getByRole('link', { name: roots[6], exact: true })).toHaveAttribute(
       'href',
@@ -77,11 +72,17 @@ test.describe('mega menu chrome and roots (desktop)', () => {
     await nav.getByRole('link', { name: roots[4], exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/weather$/);
     await homePage.goto();
-    await nav.getByRole('link', { name: roots[5], exact: true }).click();
-    await expect(homePage.page).toHaveURL(/\/businesses$/);
-    await homePage.goto();
     await nav.getByRole('link', { name: roots[6], exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/contact$/);
+  });
+
+  test('Businesses & Community panel includes Business directory and History', async ({
+    homePage,
+  }) => {
+    await homePage.goto();
+    const panel = await openMegaMenuPanel(homePage.page, roots[5]);
+    await expect(panel.getByRole('link', { name: L.businessDirectory, exact: true })).toBeVisible();
+    await expect(panel.getByRole('link', { name: L.historyStories, exact: true })).toBeVisible();
   });
 
   test('panel for I Want To… includes Online Payments', async ({ homePage }) => {

@@ -1,0 +1,31 @@
+.history-document-card {
+  overflow: hidden;
+}
+
+.history-document {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+}
+
+.history-document__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 8%));
+}
+
+.history-document__actions {
+  margin: 0;
+}
+
+.history-document__pdf-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target-min);
+  text-decoration: none;
+}

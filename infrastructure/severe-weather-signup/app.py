@@ -29,12 +29,10 @@ DEFAULT_NOTIFICATION_NAME = "Town of Wiley Alerts"
 DEFAULT_SMS_ORIGINATION_IDENTITY = "+18666509844"
 DEFAULT_SMS_CONFIGURATION_SET = "Alert"
 SUPPORTED_ALERT_LANGUAGES = {LANGUAGE_EN, LANGUAGE_ES}
-# Same NWS product series (e.g. Heat Advisory CON updates) may only re-notify after this window.
-ALERT_RESEND_COOLDOWN_SECONDS = 6 * 60 * 60
-# VTEC actions that should notify even inside the cooldown (new issue, extension, upgrade, cancel).
-FORCE_SEND_VTEC_ACTIONS = frozenset(
-    {"NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "EXP", "COR"}
-)
+# Same NWS event type (e.g. Flood Watch) may only re-notify after this window.
+# Default 12 hours — short SMS only names the event, so COR/CON/EXT updates add no value.
+ALERT_RESEND_COOLDOWN_SECONDS = 12 * 60 * 60
+# Severity upgrades still notify inside the cooldown (Tornado Warning after a watch, etc.).
 SEVERITY_RANK = {
     "Unknown": 0,
     "Minor": 1,
@@ -84,6 +82,7 @@ class AppConfig:
     cloudwatch_namespace: str = "TownOfWiley/SevereWeather"
     sms_origination_identity: str = DEFAULT_SMS_ORIGINATION_IDENTITY
     sms_configuration_set: str = DEFAULT_SMS_CONFIGURATION_SET
+    alert_resend_cooldown_seconds: int = ALERT_RESEND_COOLDOWN_SECONDS
 
 
 class SubscriptionStore(Protocol):
@@ -1162,10 +1161,21 @@ class SevereWeatherBackend:
         for subscription in subscriptions:
             for alert in alerts:
                 series_key = resolve_alert_series_key(alert)
-                delivery_id = f"{subscription['subscriptionId']}#{series_key}"
+                cooldown_key = resolve_alert_cooldown_key(alert)
+                delivery_id = f"{subscription['subscriptionId']}#{cooldown_key}"
                 prior = self._delivery_store.get_delivery(delivery_id)
+                # Honor older VTEC-series delivery rows so redeploy does not re-SMS
+                # an event already texted under the previous key scheme.
+                if prior is None and series_key and series_key != cooldown_key:
+                    prior = self._delivery_store.get_delivery(
+                        f"{subscription['subscriptionId']}#{series_key}"
+                    )
 
-                if not should_deliver_alert(prior, alert):
+                if not should_deliver_alert(
+                    prior,
+                    alert,
+                    cooldown_seconds=self._config.alert_resend_cooldown_seconds,
+                ):
                     skipped_count += 1
                     continue
 
@@ -1283,32 +1293,24 @@ class SevereWeatherBackend:
     def _build_alert_message(
         self, subscription: dict[str, Any], alert: dict[str, Any]
     ) -> str:
-        expires_label = format_expiration(alert.get("expires", ""))
+        """Short resident SMS/email body: greeting, NWS event for Wiley, unsubscribe.
+
+        Intentionally omits headline, severity, urgency, expires, areaDesc, and
+        instructions — NWS zone text is often multi-county and too long for SMS.
+        """
         greeting = format_resident_greeting(str(subscription.get("fullName", "") or ""))
+        event_name = normalize_whitespace(
+            str(alert.get("event") or "severe weather alert")
+        )
         lines: list[str] = []
 
         if greeting:
             lines.extend([greeting, ""])
 
-        lines.extend(
-            [
-                f"Town of Wiley severe weather alert for ZIP {subscription['zipCode']}",
-                "",
-                f"Event: {alert['event']}",
-                f"Headline: {alert['headline']}",
-                f"Severity: {alert['severity']}",
-                f"Urgency: {alert['urgency']}",
-            ]
+        lines.append(
+            f"The National Weather Service has issued a {event_name} for Wiley. "
+            "Please tune to official weather sources for more information."
         )
-
-        if expires_label:
-            lines.append(f"Expires: {expires_label}")
-
-        if alert.get("areaDesc"):
-            lines.append(f"Area: {alert['areaDesc']}")
-
-        if alert.get("instruction"):
-            lines.extend(["", f"Instructions: {alert['instruction']}"])
 
         if self._config.public_api_base_url:
             unsubscribe_url = build_token_url(
@@ -1706,7 +1708,22 @@ def resolve_alert_series_key(alert: dict[str, Any]) -> str:
         if not alert.get("vtecAction"):
             alert["vtecAction"] = vtec_action
         return series_key
-    return build_event_series_key(str(alert.get("event") or ""), str(alert.get("id") or ""))
+    return build_event_series_key(
+        str(alert.get("event") or ""), str(alert.get("id") or "")
+    )
+
+
+def resolve_alert_cooldown_key(alert: dict[str, Any]) -> str:
+    """Stable per-subscriber cooldown key.
+
+    Prefer the event name (Flood Watch, Tornado Warning) so NWS COR/CON/EXT
+    updates and new ETNs for the same product do not re-text residents. Fall
+    back to VTEC series when the event label is missing.
+    """
+    event_name = normalize_whitespace(str(alert.get("event") or "")).lower()
+    if event_name:
+        return f"event:{event_name}"
+    return resolve_alert_series_key(alert)
 
 
 def severity_rank(value: str | None) -> int:
@@ -1742,20 +1759,18 @@ def should_deliver_alert(
     now: datetime | None = None,
     cooldown_seconds: int = ALERT_RESEND_COOLDOWN_SECONDS,
 ) -> bool:
-    """Decide whether a resident should receive this poll's alert notification."""
+    """Decide whether a resident should receive this poll's alert notification.
+
+    Cooldown is the default gate for the same event type. Only a higher NWS
+    severity rank re-notifies inside the window. messageType Alert and VTEC
+    COR/EXT/NEW must not bypass cooldown — those caused back-to-back SMS spam.
+    """
     if prior is None:
         return True
 
     alert_id = str(alert.get("id") or "")
     if alert_id and prior.get("alertId") == alert_id:
         return False
-
-    message_type = str(alert.get("messageType") or "").strip().lower()
-    vtec_action = str(alert.get("vtecAction") or "").strip().upper()
-
-    # Brand-new products / extensions / upgrades / cancels should notify immediately.
-    if message_type == "alert" or vtec_action in FORCE_SEND_VTEC_ACTIONS:
-        return True
 
     if severity_rank(str(alert.get("severity") or "")) > severity_rank(
         str(prior.get("severity") or "")
@@ -1904,7 +1919,20 @@ def read_config() -> AppConfig:
         sms_configuration_set=os.environ.get(
             "SMS_CONFIGURATION_SET", DEFAULT_SMS_CONFIGURATION_SET
         ).strip(),
+        alert_resend_cooldown_seconds=read_cooldown_seconds(),
     )
+
+
+def read_cooldown_seconds() -> int:
+    raw = os.environ.get("ALERT_RESEND_COOLDOWN_SECONDS", "").strip()
+    if not raw:
+        return ALERT_RESEND_COOLDOWN_SECONDS
+    try:
+        value = int(raw)
+    except ValueError:
+        return ALERT_RESEND_COOLDOWN_SECONDS
+    # Keep a sane floor so a misconfigured "0" cannot SMS on every 5-minute poll.
+    return max(value, 60 * 60)
 
 
 def build_runtime_backend() -> SevereWeatherBackend:

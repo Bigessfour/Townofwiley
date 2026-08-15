@@ -664,7 +664,7 @@ Service contract:
   - `GET /unsubscribe`
   - `GET /health`
 - Scheduled route source: EventBridge `rate(5 minutes)` by default
-- Delivery dedupe: same NWS VTEC series (e.g. Heat Advisory CON updates) is suppressed for **6 hours**; new series, `NEW`/`EXT`/`UPG`/`CAN`, severity upgrades, and `messageType: Alert` still notify immediately
+- Delivery dedupe: same NWS **event type** (e.g. Flood Watch) is suppressed for **12 hours** per subscriber; only a higher severity rank re-notifies inside that window. NWS `COR`/`CON`/`EXT` updates and `messageType: Alert` no longer bypass cooldown.
 
 Required AWS resources created by the deploy script:
 

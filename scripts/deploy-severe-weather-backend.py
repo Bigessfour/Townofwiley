@@ -969,6 +969,7 @@ def main() -> int:
         "CLOUDWATCH_NAMESPACE": cloudwatch_namespace,
         "SMS_ORIGINATION_IDENTITY": sms_origination_identity,
         "SMS_CONFIGURATION_SET": sms_configuration_set,
+        "ALERT_RESEND_COOLDOWN_SECONDS": str(12 * 60 * 60),
     }
     function_arn = ensure_lambda_function(
         args.function_name, role_arn, args.runtime, archive_path, environment

@@ -2763,10 +2763,13 @@ button:not(:disabled):active,
   }
 
   .hero-grid,
+  .content-grid,
   .records-grid,
   .contact-grid,
   .calendar-grid,
   .leadership-grid,
+  .task-grid,
+  .feature-grid,
   .transparency-actions,
   .community-strip,
   .notice-grid {
@@ -2885,12 +2888,17 @@ button:not(:disabled):active,
   }
 
   .hero-card,
-  .panel {
-    padding-top: var(--panel-padding-compact);
+  .panel,
+  .landing-shortcuts,
+  .feature-hub,
+  .support-strip,
+  .search-panel {
+    padding: var(--panel-padding-compact);
   }
 
-  h1 {
-    font-size: var(--font-size-h1);
+  /* Mobile display size — base --font-size-h1 (2.5rem) is desktop-oriented. */
+  h1:not(.town-title) {
+    font-size: clamp(1.75rem, 6vw, 2.125rem);
   }
 }
 
@@ -3001,11 +3009,16 @@ button:not(:disabled):active,
   }
 }
 
-/* Full-width gold CTA at top of mobile drawer (label always visible). */
+/* Full-width gold CTA at top of mobile drawer — compact height (do not flex-grow).
+ * flex: 1 1 100% inside a column nav made this a giant vertical pill filling the drawer. */
 .mobile-menu-nav .header-pay-bill-btn.mobile-drawer-pay-bill {
-  flex: 1 1 100%;
+  flex: 0 0 auto;
+  flex-grow: 0;
+  align-self: stretch;
   width: 100%;
+  height: auto;
   min-height: 3rem;
+  max-height: 3.25rem;
   justify-content: center;
   gap: 0.45rem;
   padding: 0.7rem 1rem;
@@ -3178,7 +3191,7 @@ button:not(:disabled):active,
   }
 
   .town-logo strong {
-    font-size: clamp(1.65rem, 7vw, 2rem);
+    font-size: clamp(1.35rem, 5.5vw, 1.65rem);
     line-height: var(--line-height-tight);
   }
 
@@ -3267,8 +3280,29 @@ button:not(:disabled):active,
     width: 100%;
   }
 
+  .town-title {
+    font-size: clamp(1.85rem, 9vw, 2.35rem);
+  }
+
   .feature-page-shell h1 {
-    font-size: clamp(2rem, 8vw, 2.35rem);
+    font-size: clamp(1.75rem, 7vw, 2.1rem);
+  }
+
+  .landing-shortcuts,
+  .feature-hub,
+  .support-strip,
+  .panel {
+    padding: var(--space-md);
+  }
+
+  :host ::ng-deep .task-card-surface .p-card-content {
+    padding: var(--space-sm);
+  }
+
+  .task-card strong,
+  .feature-card strong,
+  .notice-card-title {
+    font-size: var(--font-size-h4);
   }
 }
 
@@ -3303,8 +3337,12 @@ button:not(:disabled):active,
 }
 
 .mobile-menu-drawer-content {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
   gap: 1rem;
+  width: 100%;
+  min-height: 0;
 }
 
 .mobile-menu-drawer-content a,
@@ -3323,16 +3361,20 @@ button:not(:disabled):active,
 
 .mobile-menu-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
   gap: 0.65rem;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
 }
 
 .mobile-menu-nav a,
 .mobile-menu-group > span {
   display: flex;
   align-items: center;
-  flex: 1 1 calc(50% - 0.65rem);
+  flex: 0 0 auto;
+  width: 100%;
   min-height: var(--header-touch);
   padding: 0.8rem 0.9rem;
   border-radius: 1rem;
@@ -3363,7 +3405,8 @@ button:not(:disabled):active,
 }
 
 .mobile-menu-group a {
-  flex: 1 1 calc(50% - 0.5rem);
+  flex: 0 0 auto;
+  width: 100%;
   padding-left: 1.1rem;
   background: color-mix(in srgb, var(--surface-card) 88%, transparent);
 }
@@ -3372,7 +3415,7 @@ button:not(:disabled):active,
   .mobile-menu-nav a,
   .mobile-menu-group > span,
   .mobile-menu-group a {
-    flex-basis: 100%;
+    width: 100%;
   }
 }
 
@@ -3779,9 +3822,8 @@ button:not(:disabled):active,
   margin-top: 0 !important;
 }
 
-.panel {
-  padding: var(--panel-padding) !important;
-}
+/* Do not force --panel-padding with !important here — it blocks mobile compact padding
+   on shared .panel surfaces (e.g. homepage .landing-shortcuts.panel). */
 
 .calendar-tools {
   margin: 0.8rem 0 1rem !important;

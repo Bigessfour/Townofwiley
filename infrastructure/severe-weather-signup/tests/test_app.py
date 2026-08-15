@@ -413,7 +413,9 @@ class SevereWeatherBackendTests(unittest.TestCase):
         self.assertEqual(json.loads(second["body"])["messagesSent"], 0)
         self.assertEqual(len(backend._notification_gateway.alert_messages), 1)
 
-    def test_scheduled_event_suppresses_same_series_update_within_cooldown(self) -> None:
+    def test_scheduled_event_suppresses_same_series_update_within_cooldown(
+        self,
+    ) -> None:
         backend = build_backend(
             alerts=[
                 {
@@ -592,7 +594,9 @@ class SevereWeatherBackendTests(unittest.TestCase):
             "vtecAction": "CON",
         }
         self.assertFalse(
-            APP.should_deliver_alert(prior, continued, now=now, cooldown_seconds=6 * 3600)
+            APP.should_deliver_alert(
+                prior, continued, now=now, cooldown_seconds=6 * 3600
+            )
         )
         upgraded = {
             "id": "severe-id",
@@ -601,16 +605,32 @@ class SevereWeatherBackendTests(unittest.TestCase):
             "vtecAction": "CON",
         }
         self.assertTrue(
-            APP.should_deliver_alert(prior, upgraded, now=now, cooldown_seconds=6 * 3600)
+            APP.should_deliver_alert(
+                prior, upgraded, now=now, cooldown_seconds=6 * 3600
+            )
         )
+        # COR / EXT / messageType Alert must not bypass cooldown (SMS spam source).
         extended = {
             "id": "ext-id",
             "severity": "Moderate",
             "messageType": "Update",
             "vtecAction": "EXT",
         }
-        self.assertTrue(
-            APP.should_deliver_alert(prior, extended, now=now, cooldown_seconds=6 * 3600)
+        self.assertFalse(
+            APP.should_deliver_alert(
+                prior, extended, now=now, cooldown_seconds=6 * 3600
+            )
+        )
+        corrected = {
+            "id": "cor-id",
+            "severity": "Moderate",
+            "messageType": "Alert",
+            "vtecAction": "COR",
+        }
+        self.assertFalse(
+            APP.should_deliver_alert(
+                prior, corrected, now=now, cooldown_seconds=6 * 3600
+            )
         )
         after_cooldown = datetime(2026, 8, 3, 19, 0, tzinfo=UTC)
         self.assertTrue(
@@ -619,10 +639,14 @@ class SevereWeatherBackendTests(unittest.TestCase):
             )
         )
         self.assertEqual(
-            APP.parse_vtec_identity(
-                "/O.CON.KPUB.HT.Y.0007.000000T0000Z-260804T0200Z/"
-            ),
+            APP.parse_vtec_identity("/O.CON.KPUB.HT.Y.0007.000000T0000Z-260804T0200Z/"),
             ("CON", "KPUB.HT.Y.0007"),
+        )
+        self.assertEqual(
+            APP.resolve_alert_cooldown_key(
+                {"event": "Flood Watch", "seriesKey": "KPUB.FA.A.0005"}
+            ),
+            "event:flood watch",
         )
 
     def test_scheduled_event_continues_when_one_delivery_fails(self) -> None:
@@ -1217,7 +1241,14 @@ class SevereWeatherBackendTests(unittest.TestCase):
         )
         self.assertTrue(
             any(
-                "Headline: This message should go only to Steve" in message["message"]
+                "The National Weather Service has issued a Town of Wiley developer alert test for Wiley."
+                in message["message"]
+                for message in gateway.alert_messages
+            ),
+        )
+        self.assertTrue(
+            all(
+                "Headline:" not in message["message"]
                 for message in gateway.alert_messages
             ),
         )
@@ -1375,8 +1406,20 @@ class SevereWeatherBackendTests(unittest.TestCase):
         self.assertEqual(scheduled["statusCode"], 200)
         alert_message = backend._notification_gateway.alert_messages[0]["message"]
         self.assertTrue(alert_message.startswith("Hi Heather,"))
-        self.assertIn("Tornado Warning", alert_message)
+        self.assertIn(
+            "The National Weather Service has issued a Tornado Warning for Wiley.",
+            alert_message,
+        )
+        self.assertIn(
+            "Please tune to official weather sources for more information.",
+            alert_message,
+        )
+        self.assertIn("Unsubscribe:", alert_message)
         self.assertNotIn("McKit", alert_message)
+        self.assertNotIn("Headline:", alert_message)
+        self.assertNotIn("Severity:", alert_message)
+        self.assertNotIn("Area:", alert_message)
+        self.assertNotIn("Instructions:", alert_message)
 
     def test_alert_message_omits_name_when_not_provided(self) -> None:
         backend = build_backend(
@@ -1430,9 +1473,19 @@ class SevereWeatherBackendTests(unittest.TestCase):
         self.assertEqual(scheduled["statusCode"], 200)
         alert_message = backend._notification_gateway.alert_messages[0]["message"]
         self.assertTrue(
-            alert_message.startswith("Town of Wiley severe weather alert for ZIP 81092")
+            alert_message.startswith(
+                "The National Weather Service has issued a Winter Weather Advisory for Wiley."
+            )
         )
+        self.assertIn(
+            "Please tune to official weather sources for more information.",
+            alert_message,
+        )
+        self.assertIn("Unsubscribe:", alert_message)
         self.assertNotIn("Hi ", alert_message)
+        self.assertNotIn("ZIP 81092", alert_message)
+        self.assertNotIn("Headline:", alert_message)
+        self.assertNotIn("Area:", alert_message)
 
 
 class FormatResidentGreetingTests(unittest.TestCase):
