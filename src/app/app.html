@@ -497,6 +497,12 @@
           >
           <a
             class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
+            routerLink="/history"
+            (click)="closeMobileMenu()"
+            >{{ appCopy().featureTitles.history }}</a
+          >
+          <a
+            class="min-h-11 rounded-wiley-lg px-3 py-2 font-semibold text-wiley-navy-900 no-underline hover:bg-wiley-sage-50"
             routerLink="/contact"
             (click)="closeMobileMenu()"
             >{{ appCopy().menuContactHallLabel }}</a

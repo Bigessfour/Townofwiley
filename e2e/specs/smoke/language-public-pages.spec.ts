@@ -66,6 +66,11 @@ test.describe('public language coverage', () => {
       homePage.page.getByRole('heading', { name: 'Aviso de privacidad para alertas del clima' }),
     ).toBeVisible();
 
+    await homePage.page.goto('/history', { waitUntil: 'domcontentloaded' });
+    await expect(
+      homePage.page.getByRole('heading', { level: 1, name: 'Historia y Relatos' }),
+    ).toBeVisible();
+
     await homePage.page.goto('/terms', { waitUntil: 'domcontentloaded' });
     await expect(
       homePage.page.getByRole('heading', { name: 'Terminos de SMS para alertas del clima' }),

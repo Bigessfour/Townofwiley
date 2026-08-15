@@ -216,4 +216,29 @@ test.describe('mega menu internal panel links', () => {
     await expect(homePage.page).toHaveURL(/\/weather#weather-alert-signup$/);
     await expect(homePage.page.locator('#weather-signup-heading')).toBeVisible();
   });
+
+  test('Businesses & Community: Business directory → /businesses', async ({ homePage }) => {
+    await homePage.goto();
+    const panel = await openMegaMenuPanel(homePage.page, roots[5]);
+    await panel.getByRole('link', { name: L.businessDirectory, exact: true }).click();
+    await expect(homePage.page).toHaveURL(/\/businesses$/);
+    await expect(
+      homePage.page.getByRole('heading', { name: siteContent.cmsHeadings.businesses }),
+    ).toBeVisible();
+  });
+
+  test('Businesses & Community: History & Stories → /history', async ({ homePage }) => {
+    await homePage.goto();
+    const panel = await openMegaMenuPanel(homePage.page, roots[5]);
+    await panel.getByRole('link', { name: L.historyStories, exact: true }).click();
+    await expect(homePage.page).toHaveURL(/\/history$/);
+    await expect(
+      homePage.page.getByRole('heading', { level: 1, name: 'History & Stories' }),
+    ).toBeVisible();
+    await expect(homePage.page.getByTestId('history-document-image')).toBeVisible();
+    await expect(homePage.page.getByTestId('history-pdf-download')).toHaveAttribute(
+      'href',
+      '/media/wiley-history-one-page.pdf',
+    );
+  });
 });

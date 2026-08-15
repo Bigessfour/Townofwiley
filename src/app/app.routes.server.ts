@@ -8,6 +8,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'community-calendar', renderMode: RenderMode.Client },
   { path: 'services', renderMode: RenderMode.Prerender },
   { path: 'businesses', renderMode: RenderMode.Prerender },
+  { path: 'history', renderMode: RenderMode.Prerender },
   { path: 'pay-bill', renderMode: RenderMode.Prerender },
   { path: 'news', renderMode: RenderMode.Prerender },
   { path: 'contact', renderMode: RenderMode.Prerender },

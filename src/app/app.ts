@@ -253,6 +253,7 @@ type FeaturePageId =
   | 'privacy'
   | 'terms'
   | 'businesses'
+  | 'history'
   | 'news'
   | 'payments'
   | 'documents';
@@ -431,6 +432,11 @@ export interface AppCopy {
   /** Kicker + summary for /documents SEO (`featurePages`). */
   documentsHubKicker: string;
   documentsFeatureSummary: string;
+  historyKicker: string;
+  historyHeading: string;
+  historyDocumentAlt: string;
+  historyOpenPdfLabel: string;
+  historyFeatureSummary: string;
   featureTitles: FeatureTitles;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];
@@ -450,6 +456,8 @@ export interface AppCopy {
   menuNewsNoticesLabel: string;
   menuWeatherLabel: string;
   menuBusinessCommunityLabel: string;
+  /** Mega menu leaf under Businesses & Community. */
+  menuBusinessDirectoryLabel: string;
   menuContactHallLabel: string;
   menuLeadershipLabel: string;
   /** Column heading in the mega menu under menuQuickTasksLabel (services/tasks side). */
@@ -780,6 +788,12 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'Hosted Paystar Quick Pay when available, plus a billing assistance form and Town Hall support.',
     documentsHubKicker: 'Meeting documents',
     documentsFeatureSummary: 'Meeting agendas and approved minutes published by the Town of Wiley.',
+    historyKicker: 'Community',
+    historyHeading: 'History & Stories',
+    historyDocumentAlt:
+      'One-page brief history of Wiley, Colorado, with restored historic photographs',
+    historyOpenPdfLabel: 'Open printable PDF',
+    historyFeatureSummary: 'A brief history of Wiley with restored photographs on a one-page PDF.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
@@ -791,6 +805,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       privacy: 'Weather alert privacy notice',
       terms: 'Weather alert SMS terms',
       businesses: 'Business directory',
+      history: 'History & Stories',
       news: 'Town news',
       payments: 'Utility bill payment',
       documents: 'Public documents hub',
@@ -799,6 +814,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Accessibility statement', href: '/accessibility' },
       { label: 'Weather alert privacy', href: '/privacy' },
       { label: 'Weather alert SMS terms', href: '/terms' },
+      { label: 'History & Stories', href: '/history' },
       { label: 'Contact the Town Clerk', href: '/contact' },
       { label: 'Meeting notices', href: '/meetings' },
       { label: 'Contact Town Hall', href: '/contact' },
@@ -828,6 +844,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuNewsNoticesLabel: 'News, Notices & Alerts',
     menuWeatherLabel: 'Weather',
     menuBusinessCommunityLabel: 'Businesses & Community',
+    menuBusinessDirectoryLabel: 'Business directory',
     menuContactHallLabel: 'Contact & Town Hall',
     menuLeadershipLabel: 'Leadership',
     menuQuickTasksServicesColumnLabel: 'Popular shortcuts',
@@ -1218,6 +1235,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     documentsHubKicker: 'Documentos de reuniones',
     documentsFeatureSummary:
       'Agendas de reuniones y minutas aprobadas publicadas por el Pueblo de Wiley.',
+    historyKicker: 'Comunidad',
+    historyHeading: 'Historia y Relatos',
+    historyDocumentAlt:
+      'Historia breve de una pagina de Wiley, Colorado, con fotografias historicas restauradas',
+    historyOpenPdfLabel: 'Abrir PDF para imprimir',
+    historyFeatureSummary:
+      'Una breve historia de Wiley con fotografias restauradas en un PDF de una pagina.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
@@ -1229,6 +1253,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       privacy: 'Aviso de privacidad para alertas del clima',
       terms: 'Terminos de SMS para alertas del clima',
       businesses: 'Directorio de negocios',
+      history: 'Historia y Relatos',
       news: 'Noticias del pueblo',
       payments: 'Pago de factura de servicios',
       documents: 'Documentos publicos',
@@ -1237,6 +1262,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Declaracion de accesibilidad', href: '/accessibility' },
       { label: 'Privacidad de alertas del clima', href: '/privacy' },
       { label: 'Terminos SMS de alertas del clima', href: '/terms' },
+      { label: 'Historia y Relatos', href: '/history' },
       { label: 'Contactar a la secretaria', href: '/contact' },
       { label: 'Avisos de reuniones', href: '/meetings' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
@@ -1265,6 +1291,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuNewsNoticesLabel: 'Noticias, Avisos y Alertas',
     menuWeatherLabel: 'Clima',
     menuBusinessCommunityLabel: 'Negocios y Comunidad',
+    menuBusinessDirectoryLabel: 'Directorio de negocios',
     menuContactHallLabel: 'Contacto y Ayuntamiento',
     menuLeadershipLabel: 'Liderazgo',
     menuQuickTasksServicesColumnLabel: 'Atajos populares',
@@ -1716,6 +1743,7 @@ export class App {
   protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
   protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
   protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
+  protected readonly isHistoryMode = computed(() => this.currentPath() === '/history');
   /** `/notices` is a redirect; treat the first paint as the news hub so chrome does not flash home. */
   protected readonly isNewsMode = computed(() => {
     const path = this.currentPath();
@@ -1741,6 +1769,7 @@ export class App {
       this.isPrivacyMode() ||
       this.isTermsMode() ||
       this.isBusinessesMode() ||
+      this.isHistoryMode() ||
       this.isNewsMode() ||
       this.isPaymentsMode(),
   );
@@ -1953,7 +1982,20 @@ export class App {
         root: true,
         label: copy.menuBusinessCommunityLabel,
         icon: 'pi pi-users',
-        routerLink: '/businesses',
+        items: [
+          megaMenuColumn([
+            {
+              label: copy.menuBusinessDirectoryLabel,
+              routerLink: '/businesses',
+              icon: 'pi pi-building',
+            },
+            {
+              label: copy.featureTitles.history,
+              routerLink: '/history',
+              icon: 'pi pi-book',
+            },
+          ]),
+        ],
       },
       {
         root: true,
@@ -2219,6 +2261,14 @@ export class App {
         title: copy.featureTitles.businesses,
         summary: copy.businessesFeatureSummary,
         href: '/businesses',
+        showOnHomepage: false,
+      },
+      {
+        id: 'history',
+        kicker: copy.historyKicker,
+        title: copy.featureTitles.history,
+        summary: copy.historyFeatureSummary,
+        href: '/history',
         showOnHomepage: false,
       },
       {

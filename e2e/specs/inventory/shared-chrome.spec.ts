@@ -82,7 +82,7 @@ for (const route of inventoryRoutesWithSiteChrome) {
       });
     });
 
-    test('[shared.megamenu-root-navigate-businesses] mega menu Businesses root navigates', async ({
+    test('[shared.megamenu-root-navigate-businesses] mega menu Businesses opens directory leaf', async ({
       siteChrome,
       homePage,
     }, testInfo) => {
@@ -97,8 +97,15 @@ for (const route of inventoryRoutesWithSiteChrome) {
         await siteChrome.page.goto(route.path, { waitUntil: 'commit', timeout: 30_000 });
       }
 
-      await inventoryStep('Click Businesses & Community mega menu root', async () => {
-        await siteChrome.clickMegaMenuRoot('Businesses & Community');
+      await inventoryStep('Open Businesses & Community panel and click Business directory', async () => {
+        const nav = siteChrome.page.getByTestId('homepage-section-nav');
+        await nav.getByRole('menuitem', { name: 'Businesses & Community' }).click();
+        const panel = nav
+          .locator('li.p-megamenu-item-active')
+          .locator('.p-megamenu-overlay')
+          .first();
+        await expect(panel).toBeVisible({ timeout: 10_000 });
+        await panel.getByRole('link', { name: 'Business directory', exact: true }).click();
       });
 
       await expect(siteChrome.page).toHaveURL(/\/businesses/);

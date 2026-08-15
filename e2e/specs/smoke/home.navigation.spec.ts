@@ -18,9 +18,6 @@ test.describe('homepage navigation', () => {
     await expect(homePage.sectionNavLinks).toHaveText(siteContent.megaMenuRootLabelsEn);
 
     await expect(
-      homePage.sectionNavLinks.filter({ hasText: siteContent.megaMenuRootLabelsEn[5] }).first(),
-    ).toHaveAttribute('href', /businesses/);
-    await expect(
       homePage.sectionNavLinks.filter({ hasText: siteContent.megaMenuRootLabelsEn[6] }).first(),
     ).toHaveAttribute('href', /contact/);
 
@@ -40,10 +37,11 @@ test.describe('homepage navigation', () => {
     test.setTimeout(90000);
 
     await homePage.goto();
-    await homePage.sectionNavLinks
-      .filter({ hasText: 'Businesses & Community' })
-      .first()
-      .click({ position: { x: 5, y: 5 } });
+    const nav = homePage.page.getByTestId('homepage-section-nav');
+    await nav.getByRole('menuitem', { name: 'Businesses & Community' }).click();
+    const panel = nav.locator('li.p-megamenu-item-active').locator('.p-megamenu-overlay').first();
+    await expect(panel).toBeVisible({ timeout: 10_000 });
+    await panel.getByRole('link', { name: 'Business directory', exact: true }).click();
     await expect(homePage.page).toHaveURL(/\/businesses/);
 
     await homePage.goto();
