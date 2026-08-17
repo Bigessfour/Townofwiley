@@ -32,22 +32,21 @@ const cmsAppSyncConfig = runtimeConfig?.cms?.appSync;
 const runtimeAuth = runtimeConfig?.auth?.cognito;
 const runtimeStorage = runtimeConfig?.storage?.s3;
 
-/** Gen 2 production Cognito (fallback when runtime-config.js is absent — e.g. local ng serve).
- *  Client updated 2026-06-06 after backend redeploy (new "townofwiley-staff-web" client with
- *  correct OAuth callbacks for the S3+CloudFront custom domain + /admin/login).
- *  Hosted UI domain prefix: townofwiley-staff (https://townofwiley-staff.auth.us-east-2.amazoncognito.com)
+/** Gen 1 production Cognito (fallback when runtime-config.js omits auth — e.g. local ng serve).
+ *  SSOT: infrastructure/gen1-production-bindings.json
+ *  Hosted UI: https://townofwiley-staff.auth.us-east-2.amazoncognito.com
  */
-const GEN2_COGNITO_FALLBACK = {
-  userPoolId: 'us-east-2_pkewJMUJF',
-  userPoolClientId: '2av73ehrkera414otok5i67dk3',
-  identityPoolId: 'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56', // recent testAuth/main from discovery; verify against current amplify outputs or stack
+const GEN1_COGNITO_FALLBACK = {
+  userPoolId: 'us-east-2_DmY7BCBIp',
+  userPoolClientId: '2m6vp91m9938jpbg2efivr2p8k',
+  identityPoolId: 'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
 } as const;
 
 /** Cognito identifiers for staff admin (see docs/admin-auth-runbook.md). */
 export const cognitoConfig = {
-  userPoolId: runtimeAuth?.userPoolId ?? GEN2_COGNITO_FALLBACK.userPoolId,
-  userPoolClientId: runtimeAuth?.userPoolClientId ?? GEN2_COGNITO_FALLBACK.userPoolClientId,
-  identityPoolId: runtimeAuth?.identityPoolId ?? GEN2_COGNITO_FALLBACK.identityPoolId,
+  userPoolId: runtimeAuth?.userPoolId ?? GEN1_COGNITO_FALLBACK.userPoolId,
+  userPoolClientId: runtimeAuth?.userPoolClientId ?? GEN1_COGNITO_FALLBACK.userPoolClientId,
+  identityPoolId: runtimeAuth?.identityPoolId ?? GEN1_COGNITO_FALLBACK.identityPoolId,
   staffGroup: 'Staff',
 } as const;
 
@@ -59,9 +58,8 @@ Amplify.configure({
       identityPoolId: cognitoConfig.identityPoolId,
       allowGuestAccess: true,
       // Hosted UI / OAuth support for "redirect to Cognito sign in".
-      // Client (2av73e...) has matching CallbackURLs for /admin/login and the
-      // Cognito domain prefix "townofwiley-staff".
-      // Both direct signIn (current custom form) and signInWithRedirect are supported.
+      // Client has CallbackURLs for /admin/login; domain prefix townofwiley-staff.
+      // Both direct signIn (custom form) and signInWithRedirect are supported.
       loginWith: {
         oauth: {
           domain: 'townofwiley-staff.auth.us-east-2.amazoncognito.com',
@@ -85,15 +83,14 @@ Amplify.configure({
     GraphQL: {
       endpoint:
         cmsAppSyncConfig?.apiEndpoint ??
-        'https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql',
+        'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
       defaultAuthMode: 'apiKey',
       apiKey: cmsAppSyncConfig?.apiKey ?? '',
     },
   },
   Storage: {
     S3: {
-      bucket:
-        runtimeStorage?.bucket ?? 'amplify-d331voxr1fhoir-mai-documentsbucket3df3f730-tp554yhsasnp',
+      bucket: runtimeStorage?.bucket ?? 'townofwiley-documents-storage-main',
       region: runtimeStorage?.region ?? cmsAppSyncConfig?.region ?? 'us-east-2',
     },
   },

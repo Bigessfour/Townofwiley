@@ -59,12 +59,10 @@ describe('runtime config helpers', () => {
       'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
     );
     expect(configureArg.API.GraphQL.endpoint).toBe(
-      'https://fpm2ifkbfnb7hphqsck6dj66wq.appsync-api.us-east-2.amazonaws.com/graphql',
+      'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
     );
     expect(configureArg.API.GraphQL.apiKey).toBe('');
-    expect(configureArg.Storage.S3.bucket).toBe(
-      'amplify-d331voxr1fhoir-mai-documentsbucket3df3f730-tp554yhsasnp',
-    );
+    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage-main');
     expect(configureArg.Storage.S3.region).toBe('us-east-2');
   });
 

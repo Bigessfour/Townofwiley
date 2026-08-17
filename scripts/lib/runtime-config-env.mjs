@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readDeployedFunctionUrl } from './deployed-function-urls.mjs';
+import { loadProductionBindings } from './gen1-cms-ssot.mjs';
 import { envFromLocalSecrets } from './runtime-secret-mappings.mjs';
 
 const libDir = dirname(fileURLToPath(import.meta.url));
@@ -171,6 +172,13 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     amplifyOutputs && typeof amplifyOutputs === 'object' && 'storage' in amplifyOutputs
       ? /** @type {{ bucket_name?: string; aws_region?: string }} */ (amplifyOutputs.storage)
       : null;
+  const gen1Bindings = allowManifestFallbacks ? loadProductionBindings() : null;
+  const gen1Cognito =
+    /** @type {{ userPoolId?: string; userPoolClientId?: string; identityPoolId?: string }} */ (
+      gen1Bindings?.cognito ?? {}
+    );
+  const gen1Storage =
+    /** @type {{ bucket?: string; region?: string }} */ (gen1Bindings?.storage ?? {});
 
   const chatUrl =
     env.EASYPEASY_CHAT_URL?.trim() || localSecrets.chatbot?.easyPeasy?.chatUrl?.trim() || '';
@@ -356,11 +364,36 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     cmsAuditLogEndpoint,
     paystarMode,
     mode,
-    cognitoUserPoolId: outputsAuth?.user_pool_id?.trim() || '',
-    cognitoUserPoolClientId: outputsAuth?.user_pool_client_id?.trim() || '',
-    cognitoIdentityPoolId: outputsAuth?.identity_pool_id?.trim() || '',
-    storageBucketName: outputsStorage?.bucket_name?.trim() || '',
-    storageRegion: outputsStorage?.aws_region?.trim() || '',
+    cognitoUserPoolId:
+      outputsAuth?.user_pool_id?.trim() ||
+      env.COGNITO_USER_POOL_ID?.trim() ||
+      localSecrets.auth?.cognito?.userPoolId?.trim() ||
+      (allowManifestFallbacks ? gen1Cognito.userPoolId?.trim() || '' : '') ||
+      '',
+    cognitoUserPoolClientId:
+      outputsAuth?.user_pool_client_id?.trim() ||
+      env.COGNITO_USER_POOL_CLIENT_ID?.trim() ||
+      localSecrets.auth?.cognito?.userPoolClientId?.trim() ||
+      (allowManifestFallbacks ? gen1Cognito.userPoolClientId?.trim() || '' : '') ||
+      '',
+    cognitoIdentityPoolId:
+      outputsAuth?.identity_pool_id?.trim() ||
+      env.COGNITO_IDENTITY_POOL_ID?.trim() ||
+      localSecrets.auth?.cognito?.identityPoolId?.trim() ||
+      (allowManifestFallbacks ? gen1Cognito.identityPoolId?.trim() || '' : '') ||
+      '',
+    storageBucketName:
+      outputsStorage?.bucket_name?.trim() ||
+      env.STORAGE_BUCKET_NAME?.trim() ||
+      localSecrets.storage?.s3?.bucket?.trim() ||
+      (allowManifestFallbacks ? gen1Storage.bucket?.trim() || '' : '') ||
+      '',
+    storageRegion:
+      outputsStorage?.aws_region?.trim() ||
+      env.STORAGE_REGION?.trim() ||
+      localSecrets.storage?.s3?.region?.trim() ||
+      (allowManifestFallbacks ? gen1Storage.region?.trim() || '' : '') ||
+      '',
   };
 }
 
