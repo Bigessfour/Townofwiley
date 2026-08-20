@@ -93,7 +93,7 @@ _Reconciled 2026-06-08 — see [`post-development-inventory.md`](post-developmen
 
 ## 5. CMS Admin & Publishing Guidance
 
-- [x] Verify all models (`SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `EmailAlias`) visible in live Amplify Studio.
+- [x] Verify all models (`SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`) visible in live Amplify Studio.
 - [x] Add version history, rollback, staging, and review workflow docs to `src/app/cms-admin/cms-admin.ts` and `CLERK-CMS-GUIDE.md`. (Verified in existing guide/component; no new features added per spec.)
 - **Files:** `src/app/cms-admin/cms-admin.ts`, `CLERK-CMS-GUIDE.md`.
 - **Deeper Analysis Findings (March 26, 2026; updated April 29, 2026):** `cms-admin.ts` is the unified CMS admin hub using signals, computed bilingual copy, LocalizedCmsContentStore, SiteLanguageService, setup runtime config, live AppSync connection proof, document publishing guidance, and contact update review. CLERK-CMS-GUIDE.md provides the plain-language workflow for non-technical clerks through `/admin` and Amplify Studio Data Manager; legacy `/clerk-setup` links redirect into `/admin`. Models verified in both. No version/rollback in code (actual edits remain in Amplify Studio). Production ready pending post-deploy proof.
@@ -102,9 +102,9 @@ _Reconciled 2026-06-08 — see [`post-development-inventory.md`](post-developmen
 ## 6. Email Alias Routing
 
 - [x] Complete bucket hardening and end-to-end mailbox validation. (Verified in current logic/runbook; manual test sufficient, no new features.)
-- **Files:** `infrastructure/email-alias-router/app.py`, `docs/town-email-alias-forwarding-runbook.md`, schema.graphql.
+- **Files:** (SES email alias forwarding retired).
 - **Deeper Analysis Findings (March 26, 2026):** App.py implements forwarding with SES/Dynamo; runbook covers deployment, SES status, aliases. Hardening in IAM/SES verified per current. End-to-end operational via manual. Production ready.
-- **Validation:** `npm run test:infra:mail`. Item 6 closed.
+- **Validation:** `npm run test:infra:backend`. Item 6 closed.
 
 ## 7. Runtime Config & Deployment
 

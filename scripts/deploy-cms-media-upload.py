@@ -85,7 +85,7 @@ def ensure_role(role_name: str, *, cf_distribution_id: str) -> str:
     bindings = load_bindings()
     documents_bucket = bindings["storage"]["bucket"]
     static_bucket = bindings["hosting"]["s3Bucket"]
-    account_id = "570912405222"
+    account_id = str(bindings["hosting"].get("accountId") or "818904800844")
 
     trust_policy = {
         "Version": "2012-10-17",

@@ -326,7 +326,6 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     },
     { name: 'active', label: 'Use this text on the live website', type: 'checkbox' },
   ],
-  'manage-email-aliases': [],
   'manage-community-calendar': [],
   'upload-meeting-documents': [],
 };

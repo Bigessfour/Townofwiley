@@ -1,8 +1,10 @@
 # AWS infrastructure — single source of truth (SOT)
 
-Canonical reference for **custom AWS resources** in account **`570912405222`** (Town of Wiley).
+Canonical reference for Town of Wiley AWS resources.
 
-**Current frontend hosting (June 2026+):** S3 `townofwiley-static-site` (us-east-2) + CloudFront `E1NZ3XCY5CYR1J` (`d34qrz3qxoppc5.cloudfront.net`) with SPA Function, OAC `E1UXALBLRIDL2E` (migrated from OAI 2026-06-20), custom Response Headers Policy (ID 22d4bac1... with CSP + security headers), managed CachingOptimized, access logging to townofwiley-cf-logs, ACM cert (us-east-1), Route 53 A aliases. Legacy Amplify Hosting app `d331voxr1fhoir` deleted. See [README.md](../README.md) "Deployment Record" (updated deploy with cache controls) and historical notes in [AMPLIFY_HOSTING_SOT.md](./AMPLIFY_HOSTING_SOT.md). Manifest has latest IDs.
+**Accounts:** Official Town **`818904800844`** (profile **`tow`**) hosts static site + SES domain as of 2026-08-20. Steve personal **`570912405222`** (profiles **`steve`** / legacy **`townofwiley`**) still holds Gen 1 AppSync/Cognito/docs storage and most Lambdas until backend migration. See [infrastructure/migration/tow-account-818904800844/CUTOVER-STATUS.md](../infrastructure/migration/tow-account-818904800844/CUTOVER-STATUS.md).
+
+**Current frontend hosting:** S3 `townofwiley-static-site-818904800844` + CloudFront `E19PUUL2H76CZA` (`d1bhtly4h27ucg.cloudfront.net`) with SPA Function, ACM cert (us-east-1 in `818…`), aliases `townofwiley.gov` / `www` / `staging`. Legacy personal distribution `E1NZ3XCY5CYR1J` aliases cleared.
 
 When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update the manifests and this doc in the same PR.
 
@@ -54,7 +56,6 @@ Execute in order after code changes; skip steps that do not apply to your PR.
 2. **Hosting SSOT (historical)** — `npm run amplify:sync-hosting` (now no-op for prod S3+CF; CSP/cache rules live in CloudFront Response Headers Policy + object metadata on deploy; see README deploy steps and manifest). `customHttp.yml` remains SSOT for dev parity (`ng serve`) and reference.
 3. **NWS weather proxy** — `python scripts/deploy-nws-weather-proxy.py` (handler-only Function URL CORS; sets `NWS_PROXY_ENDPOINT` on Amplify `main`)
 4. **Severe weather** — `python scripts/deploy-severe-weather-backend.py`
-5. **Email alias** — `python scripts/deploy-email-alias-router.py`
 6. **Contact write** — `python scripts/deploy-contact-update-backend.py` (DynamoDB + write Lambda, public Function URL `NONE`)
 7. **Contact review** — `python scripts/deploy-contact-updates-review.py` (Function URL **`AWS_IAM`** only)
 8. **Contact review proxy** — `python scripts/deploy-contact-updates-review-proxy.py --review-function-url <IAM_URL>` → set **`CONTACT_UPDATE_REVIEW_PROXY_URL`** on Amplify `main` (maps to `contactUpdate.reviewProxyEndpoint` in `runtime-config.js`)

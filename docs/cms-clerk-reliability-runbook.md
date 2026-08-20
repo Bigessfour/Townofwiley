@@ -95,7 +95,6 @@ Public visitors immediately fall back to `/hero-wiley.webp` when the stored URL 
 | external-news | ExternalNewsLink | `/news` | Active links |
 | emergency-banner | AlertBanner | `/` banner | Enabled row |
 | edit-site-copy | SiteCopy | Partial (top tasks) | Known partial wiring |
-| manage-email-aliases | EmailAlias | Staff-only | Test email |
 
 Full deep-link contracts: [cms-edit-mode-verify-matrix.md](./cms-edit-mode-verify-matrix.md).  
 Model → route SSOT: [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md).

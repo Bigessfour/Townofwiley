@@ -244,7 +244,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
    * URL the "See on live site (public view refreshed)" button opens.
    * - When a record has just been saved, links straight to the per-record DOM id on the live site.
    * - When no save has happened yet, falls back to the section-level URL so the button still works.
-   * - Returns `null` for tasks with `showPublicPreview: false` (e.g. `manage-email-aliases`).
+   * - Returns `null` for tasks with `showPublicPreview: false`.
    */
   protected readonly liveSiteUrl = computed<string | null>(() => {
     const taskId = this.taskId();

@@ -47,7 +47,7 @@ Axes:
 | 7 | `external-news` | `ExternalNewsLink` | Y | Y | Y | 4 / 3 | 3 externalNewsLinks | **Working** | Two records titled "Sally Jacobs Obituary" - possible duplicate, both active. "GOCO Grant" inactive. |
 | 8 | `emergency-banner` | `AlertBanner` | Y | Y | Y | 0 / 0 | 0 alertBannerRecords | **Working (no content)** | No banner records exist. Clerk must create the first row before this task does anything on the public site. |
 | 9 | `edit-site-copy` | `SiteCopy` | Y | Partial | Partial | 2 / 2 | 0 siteCopyRecords | **Save-only (known gap)** | Only `topTasksKicker` + `topTasksHeading` are wired to a public anchor (`/#top-tasks-heading`). `valueEs` (Spanish) and other keys would persist but never render. Snapshot publisher does not include SiteCopy in `siteCopyRecords` even though 2 rows exist - see [`cms-edit-mode-verify-matrix.md`](cms-edit-mode-verify-matrix.md). |
-| 10 | `manage-email-aliases` | `EmailAlias` | Y | n/a | n/a (`showPublicPreview: false`) | not probed (staff-only) | n/a | **Working (out-of-band)** | Dedicated [`cms-email-alias-admin.component.html`](../src/app/cms-admin/cms-email-alias-admin.component.html). No public preview by design - validate via test email. |
+| 10 | `manage-email-aliases` | EmailAlias | n/a | n/a | n/a | n/a | n/a | **Retired** | SES alias forwarding removed; Synology MX handles town mail. |
 
 **Counts:** 7 Working, 2 Save-only, 1 Working-but-empty. 0 Broken.
 

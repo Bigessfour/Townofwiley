@@ -25,7 +25,6 @@ Use this with [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md) and [gen2
 - [ ] **EventBridge reminder** deployed: `python scripts/deploy-appsync-key-rotation-reminder.py --sns-email <ops@email>`.
 - [ ] **Presigned CMS uploads** on `/admin` (hero images → `https://townofwiley.gov/media/cms/hero/…`; PDFs → storage key). Lambda: `TownOfWileyCmsMediaUpload` — `npm run deploy:cms-media-upload`.
 - [ ] **Monday key deletion** after rotation bake-in: `npm run verify:appsync-key-deletion-schedule` (expect one active key after schedule fires).
-- [ ] **EmailAlias** is staff-only (no public API key read).
 
 ## Verification after changes
 

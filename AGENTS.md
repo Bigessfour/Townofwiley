@@ -21,7 +21,7 @@ Headless CMS: **AWS AppSync (GraphQL)** on Gen 1 production API `j7b2x3sh7rcezek
 | **`/admin` clerk hub**           | In-app list/create/update via Amplify `generateClient().graphql()`                         | Same               | **Cognito `userPool`** when signed in; falls back to **`iam`** ([`cms-generic-model-admin.service.ts`](src/app/cms-generic-model-admin.service.ts))           |
 | **Amplify Console Data manager** | AWS Console (deprecated June 2026)                                                         | CRUD on models     | **AWS IAM** — use AppSync Queries console or `/admin` in-app forms instead                                                                                    |
 
-**Public-query models (10):** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`. **`EmailAlias` is staff-only** — must not appear in `PUBLIC_CMS_*` queries ([`docs/CMS-MODEL-ROUTE-MATRIX.md`](docs/CMS-MODEL-ROUTE-MATRIX.md), [`public/cms-inventory.json`](public/cms-inventory.json)).
+**Public-query models (10):** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`.
 
 **PublicDocument scope (2026 simplification):** The public site reads only `sectionId: meeting-documents` rows (agendas and approved minutes on `/meetings`). Other section IDs remain in AppSync but are ignored client-side; residents email **clerk@townofwiley.gov** via `/contact` for other document requests. `/records` redirects to `/contact`; `/documents` redirects to `/meetings`.
 
@@ -59,7 +59,7 @@ Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`, `town-superi
 ### Clerk admin code (current state)
 
 - **Shell:** [`cms-admin.ts`](src/app/cms-admin/cms-admin.ts) at route `/admin`
-- **Task hub:** [`cms-clerk-task-hub.component.ts`](src/app/cms-admin/cms-clerk-task-hub.component.ts) — 10 tasks from [`cms-clerk-tasks.ts`](src/app/cms-admin/cms-clerk-tasks.ts) (`post-notice`, `add-meeting`, `homepage`, `update-contacts`, `update-leadership`, `business-directory`, `external-news`, `emergency-banner`, `edit-site-copy`, `manage-email-aliases`)
+- **Task hub:** [`cms-clerk-task-hub.component.ts`](src/app/cms-admin/cms-clerk-task-hub.component.ts) — 10 tasks from [`cms-clerk-tasks.ts`](src/app/cms-admin/cms-clerk-tasks.ts) (`post-notice`, `add-meeting`, `homepage`, `update-contacts`, `update-leadership`, `business-directory`, `external-news`, `emergency-banner`, `edit-site-copy`)
 - **Record editor:** [`cms-clerk-record-editor.component.ts`](src/app/cms-admin/cms-clerk-record-editor.component.ts) — dynamic forms from [`cms-clerk-task-form-fields.ts`](src/app/cms-admin/cms-clerk-task-form-fields.ts)
 - **Generic CRUD:** [`CmsGenericModelAdminService`](src/app/cms-generic-model-admin.service.ts) — `listRecords`, `createModel`, `updateModel` for all 10 public models via [`cms-model-admin-fields.ts`](src/app/cms-admin/cms-model-admin-fields.ts); list failures return `[]` (warn), mutations throw
 - **Exceptions:** `CmsSiteSettingsAdminService` for `SiteSettings`; `CmsPublicDocumentAdminService` for document upload flows; legacy per-model admin services (`cms-announcement-admin`, etc.) are create-only and largely superseded
@@ -68,7 +68,6 @@ Stable IDs: `OfficialContact` ids `town-information`, `city-clerk`, `town-superi
 ### Amplify Gen1 compatibility
 
 - **Do not** add Gen2-only breaking schema changes without a migration plan.
-- **Do not** add `EmailAlias` (or any staff-only model) to public queries.
 - Gen1 CloudFormation stack still exists until decommission — see [`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md).
 - Full clerk + IT runbooks: [`docs/CLERK-CMS-GUIDE.md`](docs/CLERK-CMS-GUIDE.md), [`docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md`](docs/CMS-STUDIO-OPERATIONS-CHECKLIST.md), [`docs/CMS-VERIFY-STUDIO.md`](docs/CMS-VERIFY-STUDIO.md).
 

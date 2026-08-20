@@ -1,0 +1,227 @@
+type SiteSettings
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  townName: String!
+  officeHours: String
+  address: String
+  phone: AWSPhone
+  email: AWSEmail
+  pageTitle: String
+  heroEyebrow: String
+  heroStatus: String
+  heroTitle: String
+  heroMessage: String
+  heroSubtext: String
+  heroImageUrl: AWSURL
+  welcomeLabel: String
+  welcomeHeading: String
+  welcomeBody: String
+  welcomeCaption: String
+}
+
+type AlertBanner
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  enabled: Boolean!
+  label: String!
+  title: String!
+  detail: String!
+  linkLabel: String
+  linkHref: AWSURL
+}
+
+type Announcement
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  date: AWSDate
+  detail: String!
+  """
+  Set to `newsletter` to show under Town newsletter on /news; omit or use `notice` for bulletin-style notices.
+  """
+  announcementKind: String
+  """
+  Optional Amplify storage key (e.g. `documents/newsletter/2026-05-newsletter.pdf`)
+  of the newsletter PDF to display inline on /news. Only used when
+  announcementKind is `newsletter`. The latest active record (highest date) wins.
+  """
+  attachmentKey: String
+  priority: Int
+  imageUrl: AWSURL
+  active: Boolean!
+}
+
+type Event
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  description: String
+  location: String
+  start: AWSDateTime!
+  end: AWSDateTime
+  active: Boolean!
+}
+
+type OfficialContact
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  label: String!
+  value: String!
+  detail: String!
+  href: String
+  linkLabel: String
+  displayOrder: Int
+}
+
+type LeadershipRosterEntry
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  """
+  Section key for /contact roster bullets. Use `mayor-council` or `town-administration`
+  (see `leadership-roster-group-ids.ts` in the web app).
+  """
+  groupId: String!
+  displayOrder: Int
+  lineEn: String!
+  lineEs: String!
+  active: Boolean!
+}
+
+type EmailAlias
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  aliasAddress: AWSEmail!
+  destinationAddress: AWSEmail!
+  displayName: String
+  roleLabel: String
+  active: Boolean!
+  notes: String
+}
+
+type Business
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  phone: String!
+  address: String!
+  website: AWSURL
+  description: String
+  imageUrl: AWSURL
+  active: Boolean!
+  displayOrder: Int
+}
+
+type PublicDocument
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  titleEs: String
+  summary: String!
+  summaryEs: String
+  sectionId: String!
+  status: String!
+  statusEs: String
+  format: String!
+  href: String!
+  downloadFileName: String
+  keywords: [String]
+  active: Boolean!
+  displayOrder: Int
+}
+
+type ExternalNewsLink
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  url: AWSURL!
+  source: String!
+  active: Boolean!
+  displayOrder: Int
+}
+
+type SiteCopy
+  @model
+  @auth(
+    rules: [
+      { allow: public, provider: apiKey, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read, create, update, delete] }
+      { allow: private, provider: userPools, operations: [read, create, update, delete] }
+    ]
+  ) {
+  id: ID!
+  key: String!
+  valueEn: String!
+  valueEs: String
+  description: String
+  displayOrder: Int
+  active: Boolean!
+}

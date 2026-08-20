@@ -6,7 +6,7 @@
 
 | Cognito group | Purpose |
 | ------------- | ------- |
-| `Staff` | Full clerk CRUD on all public CMS models + `EmailAlias` |
+| `Staff` | Full clerk CRUD on all public CMS models |
 | `Council` | Read/update leadership roster only |
 
 ## In-app matrix (`cms-clerk-tasks.ts`)
@@ -26,7 +26,6 @@ After verifying `npm run verify:public-cms-query`, apply schema rules in Amplify
 - **Public reads:** keep `apiKey` read on all 10 public models (no regression).
 - **Staff writes:** `userPools` groups `Staff` — create/update/delete on public models.
 - **Council:** `userPools` group `Council` — create/update/delete on `LeadershipRosterEntry` only.
-- **EmailAlias:** `userPools` group `Staff` only (never add to public queries).
 
 Rollback: restore prior `@auth` from last known good schema export; re-run verify scripts.
 

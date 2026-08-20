@@ -1,41 +1,38 @@
 {
-  "description": "Gen 1 production bindings (live CMS backend). SSOT for runtime-config fallbacks, Cognito staff auth, and operator scripts. Frontend hosting is S3+CloudFront (not Amplify Hosting).",
-  "cloudFormationStack": "amplify-townofwiley-main-d1245",
+  "description": "Production CMS bindings in Town AWS account 818904800844 (profile tow). Cognito + AppSync via CDK AmplifyGraphqlApi (not Amplify Hosting). Frontend hosting is S3+CloudFront.",
+  "cloudFormationStack": "TowCms",
   "appSync": {
-    "apiName": "townofwiley-main",
-    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
-    "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
-    "dynamoDbSuffix": "j7b2x3sh7rcezekekkxxiak7hi-main"
+    "apiName": "townofwiley-cms",
+    "apiId": "okoh3v23ord33kuggsg3p5n4sm",
+    "graphqlEndpoint": "https://g6p4g3eyqjhmpctbbvtduj3h7m.appsync-api.us-east-2.amazonaws.com/graphql",
+    "dynamoDbSuffix": "okoh3v23ord33kuggsg3p5n4sm-NONE"
   },
   "cognito": {
-    "userPoolId": "us-east-2_DmY7BCBIp",
-    "userPoolClientId": "2m6vp91m9938jpbg2efivr2p8k",
-    "identityPoolId": "us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56",
-    "hostedUiDomain": "townofwiley-staff.auth.us-east-2.amazoncognito.com",
-    "authenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-authRole",
-    "unauthenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-unauthRole",
+    "userPoolId": "us-east-2_bHk9UcenK",
+    "userPoolClientId": "258binbcvsms0rfqj5g20qakki",
+    "identityPoolId": "us-east-2:86cc6af6-6075-4dd4-a689-1f8b6e760156",
+    "hostedUiDomain": "tow-gov-staff.auth.us-east-2.amazoncognito.com",
+    "authenticatedRoleArn": "arn:aws:iam::818904800844:role/tow-cms-auth-role-818904800844",
+    "unauthenticatedRoleArn": "arn:aws:iam::818904800844:role/tow-cms-unauth-role-818904800844",
     "staffGroup": "Staff"
   },
   "storage": {
-    "bucket": "townofwiley-documents-storage-main",
+    "bucket": "townofwiley-documents-storage-818904800844",
     "region": "us-east-2"
-  },
-  "emailAliasRouter": {
-    "functionName": "TownOfWileyEmailAliasRouter",
-    "region": "us-east-1",
-    "emailAliasTable": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
-    "emailAliasTableRegion": "us-east-2",
-    "ingressBucket": "townofwiley-email-alias-570912405222-us-east-1",
-    "receiptRuleSetName": "TownOfWileyAliasForwarding",
-    "receiptRuleName": "StoreTownMailInS3",
-    "receiptRecipients": "townofwiley.gov",
-    "forwarderFrom": "clerk@townofwiley.gov",
-    "fallbackAliasAddress": "clerk@townofwiley.gov",
-    "sendRegion": "us-east-2"
   },
   "hosting": {
-    "s3Bucket": "townofwiley-static-site",
-    "cloudFrontDistributionId": "E1NZ3XCY5CYR1J",
-    "region": "us-east-2"
+    "s3Bucket": "townofwiley-static-site-818904800844",
+    "cloudFrontDistributionId": "E19PUUL2H76CZA",
+    "cloudFrontDomain": "d1bhtly4h27ucg.cloudfront.net",
+    "accountId": "818904800844",
+    "region": "us-east-2",
+    "note": "Static hosting + CMS backend both on official Town account (profile tow) as of 2026-08-20 CMS cutover."
+  },
+  "legacyPersonal": {
+    "note": "Pre-cutover Gen 1 Amplify stack on Steve personal 570912405222 — retain until bake-in then decommission.",
+    "cloudFormationStack": "amplify-townofwiley-main-d1245",
+    "appSyncApiId": "j7b2x3sh7rcezekekkxxiak7hi",
+    "userPoolId": "us-east-2_DmY7BCBIp",
+    "documentsBucket": "townofwiley-documents-storage-main"
   }
 }

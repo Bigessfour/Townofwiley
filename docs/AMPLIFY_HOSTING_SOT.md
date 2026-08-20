@@ -194,7 +194,7 @@ Override mechanism for E2E and dev: tests can set `window.__TOW_RUNTIME_CONFIG_O
 
 ## 5. Backend dependencies (out of scope, but linked here)
 
-- **AppSync GraphQL CMS**: schema at [`amplify/backend/api/townofwiley/schema.graphql`](../amplify/backend/api/townofwiley/schema.graphql). Models read by `LocalizedCmsContentStore` (SiteSettings, AlertBanner, Announcement, Event, OfficialContact, Business, PublicDocument, ExternalNewsLink, EmailAlias).
+- **AppSync GraphQL CMS**: schema at [`amplify/backend/api/townofwiley/schema.graphql`](../amplify/backend/api/townofwiley/schema.graphql). Models read by `LocalizedCmsContentStore` (SiteSettings, AlertBanner, Announcement, Event, OfficialContact, Business, PublicDocument, ExternalNewsLink).
 - **S3 documents bucket**: `townofwiley-documents-storage` in `us-east-2`. Resolved at runtime by `DocumentUploadService.resolveDocumentHref`.
 - **Lambda function URLs**: weather proxy and alert signup, both behind `https://*.lambda-url.us-east-2.on.aws` (allowed in the connect-src CSP origin).
 

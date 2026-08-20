@@ -56,13 +56,13 @@ describe('runtime config helpers', () => {
 
     expect(configureArg.Auth.Cognito.allowGuestAccess).toBe(true);
     expect(configureArg.Auth.Cognito.identityPoolId).toBe(
-      'us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56',
+      'us-east-2:86cc6af6-6075-4dd4-a689-1f8b6e760156',
     );
     expect(configureArg.API.GraphQL.endpoint).toBe(
-      'https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql',
+      'https://g6p4g3eyqjhmpctbbvtduj3h7m.appsync-api.us-east-2.amazonaws.com/graphql',
     );
     expect(configureArg.API.GraphQL.apiKey).toBe('');
-    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage-main');
+    expect(configureArg.Storage.S3.bucket).toBe('townofwiley-documents-storage-818904800844');
     expect(configureArg.Storage.S3.region).toBe('us-east-2');
   });
 

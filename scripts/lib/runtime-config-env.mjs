@@ -174,7 +174,7 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       : null;
   const gen1Bindings = allowManifestFallbacks ? loadProductionBindings() : null;
   const gen1Cognito =
-    /** @type {{ userPoolId?: string; userPoolClientId?: string; identityPoolId?: string }} */ (
+    /** @type {{ userPoolId?: string; userPoolClientId?: string; identityPoolId?: string; hostedUiDomain?: string }} */ (
       gen1Bindings?.cognito ?? {}
     );
   const gen1Storage =
@@ -382,6 +382,11 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
       localSecrets.auth?.cognito?.identityPoolId?.trim() ||
       (allowManifestFallbacks ? gen1Cognito.identityPoolId?.trim() || '' : '') ||
       '',
+    cognitoOauthDomain:
+      env.COGNITO_OAUTH_DOMAIN?.trim() ||
+      localSecrets.auth?.cognito?.oauthDomain?.trim() ||
+      (allowManifestFallbacks ? gen1Cognito.hostedUiDomain?.trim() || '' : '') ||
+      '',
     storageBucketName:
       outputsStorage?.bucket_name?.trim() ||
       env.STORAGE_BUCKET_NAME?.trim() ||
@@ -485,6 +490,9 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
             userPoolId: values.cognitoUserPoolId,
             userPoolClientId: values.cognitoUserPoolClientId,
             identityPoolId: values.cognitoIdentityPoolId,
+            ...(values.cognitoOauthDomain
+              ? { oauthDomain: values.cognitoOauthDomain }
+              : {}),
           },
         }
       : undefined,

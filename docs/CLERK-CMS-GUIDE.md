@@ -124,7 +124,6 @@ Every piece of content on the website lives in one of these CMS models. On `/adm
 | Meeting agendas and approved minutes (PDF on `/meetings`)        | `PublicDocument` — **Upload a meeting agenda or packet** / document publishing section                                              |
 | External news links shown on the /news page                      | `ExternalNewsLink` — **Add outside news link**                                                                                      |
 | Navigation labels, headings, Quick Tasks text                    | `SiteCopy` — **Edit navigation labels, headings, and Quick Tasks text**                                                             |
-| Town email forwarding rules (staff-only; not on the public site) | `EmailAlias` — **Manage email forwarding** (see [Managing Email Aliases / Proxy Settings](#managing-email-aliases--proxy-settings)) |
 
 ### Important: stable `OfficialContact` record IDs
 
@@ -417,41 +416,6 @@ Models with **display order** (leadership roster, businesses, documents, news li
 - Try another task (e.g. **Post news or notice**). If that works but SiteCopy does not, call IT — production AppSync may need the **SiteCopy** model deployed (see [`sitecopy-staff-appsync-auth.md`](./sitecopy-staff-appsync-auth.md)).
 - IT can read the real error in the browser **Network** tab on the `listSiteCopies` GraphQL request.
 
-### Managing Email Aliases / Proxy Settings
-
-This controls **email proxy / forwarding**: where mail sent to a public Town address (like `clerk@townofwiley.gov`) actually lands. **Residents never see this** on the website — it is behind-the-scenes mail routing only.
-
-**Important:** `EmailAlias` is a **staff-authenticated** model. It is **not** loaded on the public site (see [CMS-MODEL-ROUTE-MATRIX.md](./CMS-MODEL-ROUTE-MATRIX.md)). You must be signed in at `/admin/login` to view or change forwarding rules.
-
-#### Add or change a forwarding rule (recommended — on `/admin`)
-
-1. Open **https://townofwiley.gov/admin** and sign in with your **Town staff** account (Cognito Hosted UI).
-2. On the task hub, find **Manage email forwarding** and click **Edit content**.
-3. The **Email forwarding rules** panel opens on the same page (there is no **See on website** link for this task — that is normal).
-4. To add a rule, click **Add forwarding rule**.
-5. Fill in:
-   - **Town email address** (`aliasAddress`) — the public address residents email, e.g. `clerk@townofwiley.gov`.
-   - **Staff inbox** (`destinationAddress`) — the private inbox where mail should be delivered.
-   - **Active** — leave on to forward mail; turn off to stop forwarding without deleting the rule.
-   - **Display name**, **Role label**, **Notes** — optional labels for clerks and IT.
-6. Click **Save**. You should see a success message. The admin page also **refreshes its CMS snapshot** automatically after save.
-7. Send a **test email** to the Town address and confirm it arrives in the correct inbox (allow a few minutes for mail systems to pick up changes).
-
-#### Edit or remove an existing rule
-
-1. In the forwarding table, click **Edit** on the row you need, change fields, and **Save**.
-2. To stop forwarding temporarily, edit the rule and turn **Active** off, then save.
-3. To delete a rule, click **Delete**, read the warning, and confirm. Deleting stops forwarding until a new rule is added.
-
-#### If the in-app editor will not save
-
-- Confirm you are signed in (the page should say **Signed in — you can save changes below**).
-- If you see **Sign in at /admin/login**, open that link and sign in again, then return to **Manage email forwarding**.
-- If errors continue, call Town Hall at **(719) 829-4974** so IT can check your staff login or the AppSync **EmailAlias** table.
-
-#### IT fallback (AppSync Console)
-
-If IT asks you to use the AWS console instead: open **EmailAlias** in **Gen 1 AppSync Queries** (`j7b2x3sh…`; link under **Advanced (IT)** on `/admin`) and use the same field names: `aliasAddress`, `destinationAddress`, `active`. See [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md) for infrastructure details.
 
 ---
 
@@ -490,7 +454,6 @@ This only affects **your** browser on **this computer**.
 | What you are doing                                                   | Where to work                                                                     |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | Notices, events, homepage text, contacts, documents, most task cards | **`/admin`** → **Edit content** (in-app forms)                                    |
-| **Email forwarding / proxy** (`EmailAlias`)                          | **`/admin` only** → **Manage email forwarding** (staff sign-in required)          |
 | Deep IT troubleshooting, raw GraphQL, inventory counts               | **Advanced (IT)** on `/admin` → **Open content editor** (AppSync Queries console) |
 | Legacy AWS console access without `/admin`                           | Ask IT — do not edit production CMS without guidance                              |
 
@@ -500,7 +463,6 @@ Ask IT if:
 
 - **Force Refresh** fails or the status tag stays on “backup” / error wording
 - The in-app form says **not authorized** or **access denied**
-- Email forwarding saves in `/admin` but test mail still goes to the wrong inbox (the mail router may need a sync — see [town-email-alias-forwarding-runbook.md](./town-email-alias-forwarding-runbook.md))
 
 **For IT (not day-to-day clerk work):** engineers run `npm run verify:public-cms-query` and `npm run verify:staff-cms-editor-models` in the repo to confirm public queries and clerk editor models (including **SiteCopy**) stay aligned with inventory and Staff auth metadata. Clerks do not need to run these commands.
 
@@ -577,7 +539,6 @@ Example:
 | Cannot log in to `/admin/login`                                     | Use **Forgot password?** on Cognito; if still blocked, call Town Hall **(719) 829-4974**                                                                 |
 | AppSync Queries console shows "Access denied" (IT only)             | Your AWS console permissions need updating — ask IT                                                                                                      |
 | Saved a record but nothing changed after 30 seconds                 | See [Troubleshooting Content Not Updating](#troubleshooting-content-not-updating) — hard-refresh, then **Force Refresh Live CMS Content** on `/admin`    |
-| You updated email forwarding but mail still goes to the wrong place | Confirm the rule is **Active** in **Manage email forwarding** on `/admin`; send a new test email; if still wrong, the mail router may need IT to re-sync |
 | Not sure which model to open                                        | Check the table in Part 3 of this guide                                                                                                                  |
 | Hero photo does not appear after saving the URL                     | Make sure the URL starts with `https://` and opens without any login                                                                                     |
 
@@ -603,7 +564,6 @@ TASK → MODEL (on /admin):
   Meeting PDFs on /meetings     ->  PublicDocument
   External news links           ->  ExternalNewsLink
   Nav labels & Quick Tasks      ->  SiteCopy
-  Email forwarding (staff-only) ->  /admin -> Manage email forwarding
 
 EVERY TIME:
   /admin -> Edit content -> Save -> Force Refresh if needed -> See on website -> Hard-refresh public site

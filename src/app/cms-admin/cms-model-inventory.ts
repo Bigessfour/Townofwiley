@@ -149,12 +149,6 @@ export const CMS_MODEL_DEFINITIONS: CmsModelDefinition[] = [
       prefixField: 'key',
     },
   },
-  {
-    model: 'EmailAlias',
-    publicApiKeyRead: false,
-    routes: '(mail routing only)',
-    keyFields: 'aliasAddress, destinationAddress, active',
-  },
 ];
 
 export function cmsOrderedEditorConfig(model: string): CmsOrderedEditorConfig | undefined {

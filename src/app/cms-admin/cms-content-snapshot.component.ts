@@ -56,7 +56,7 @@ export class CmsContentSnapshotComponent {
     return CMS_MODEL_DEFINITIONS.map((def) => {
       const awsCount = awsByModel.get(def.model) ?? null;
       const liveCount = liveCountForModel(def.model, live) ?? 0;
-      const effectiveLive = def.model === 'EmailAlias' ? (awsCount ?? 0) : liveCount;
+      const effectiveLive = liveCount;
 
       let status: CmsModelInventoryRow['status'] = 'ok';
       if (!def.publicApiKeyRead) {

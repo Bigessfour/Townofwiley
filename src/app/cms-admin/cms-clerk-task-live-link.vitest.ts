@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   buildClerkTaskHubLiveLink,
   buildClerkTaskLiveLink,
-  TASKS_WITHOUT_LIVE_LINK,
 } from './cms-clerk-task-live-link';
 
 describe('buildClerkTaskLiveLink — URL wiring only (not save→public E2E)', () => {
@@ -110,13 +109,6 @@ describe('buildClerkTaskLiveLink — URL wiring only (not save→public E2E)', (
     );
   });
 
-  it('manage-email-aliases → null (showPublicPreview=false)', () => {
-    expect(
-      buildClerkTaskLiveLink({ taskId: 'manage-email-aliases', savedId: 'alias-1' }),
-    ).toBeNull();
-    expect(TASKS_WITHOUT_LIVE_LINK.has('manage-email-aliases')).toBe(true);
-  });
-
   it('falls back to section URL when savedId is empty for a per-record task', () => {
     expect(buildClerkTaskLiveLink({ taskId: 'add-meeting', savedId: '   ' })).toBe(
       'https://townofwiley.gov/meetings#calendar',
@@ -140,9 +132,5 @@ describe('buildClerkTaskHubLiveLink (task-hub section URLs)', () => {
     ['edit-site-copy', 'https://townofwiley.gov/#top-tasks-heading'],
   ] as const)('%s → %s', (taskId, expected) => {
     expect(buildClerkTaskHubLiveLink(taskId)).toBe(expected);
-  });
-
-  it('manage-email-aliases → null (showPublicPreview=false)', () => {
-    expect(buildClerkTaskHubLiveLink('manage-email-aliases')).toBeNull();
   });
 });

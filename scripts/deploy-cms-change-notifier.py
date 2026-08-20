@@ -148,7 +148,7 @@ def cms_source_tables() -> list[str]:
     return [
         model["tableName"]
         for model in inventory.get("models", [])
-        if model.get("clerkEditorModel") and model.get("model") != "EmailAlias"
+        if model.get("clerkEditorModel")
     ]
 
 
@@ -452,7 +452,7 @@ def main() -> int:
         "COGNITO_CLIENT_ID": bindings["cognito"]["userPoolClientId"],
         "STAFF_GROUP": bindings["cognito"].get("staffGroup", "Staff"),
         "CMS_TABLE_SUFFIX": f"-{bindings['appSync']['apiId']}-main",
-        "CMS_AUDIT_IGNORED_MODELS": "EmailAlias",
+        "CMS_AUDIT_IGNORED_MODELS": "",
         "CMS_SNAPSHOT_BUCKET": snapshot_bucket,
         "CMS_SNAPSHOT_PUBLISH_ENABLED": "true",
         "APPSYNC_CMS_ENDPOINT": appsync_endpoint,

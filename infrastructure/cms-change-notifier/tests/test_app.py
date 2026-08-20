@@ -34,7 +34,7 @@ class CmsChangeStreamMapperTests(unittest.TestCase):
         self.mapper = CmsChangeStreamMapper(
             StreamMapperConfig(
                 table_suffix="-j7b2x3sh7rcezekekkxxiak7hi-main",
-                ignored_models=frozenset({"EmailAlias"}),
+                ignored_models=frozenset({"InternalOnlyModel"}),
             ),
         )
 
@@ -74,10 +74,10 @@ class CmsChangeStreamMapperTests(unittest.TestCase):
         self.assertEqual(mapped.operation, "MODIFY")
         self.assertIn("title", mapped.changed_fields)
 
-    def test_ignores_email_alias(self) -> None:
+    def test_ignores_configured_models(self) -> None:
         event = {
             "eventName": "INSERT",
-            "eventSourceARN": "arn:aws:dynamodb:us-east-2:570912405222:table/EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main/stream/2026-06-20",
+            "eventSourceARN": "arn:aws:dynamodb:us-east-2:570912405222:table/InternalOnlyModel-j7b2x3sh7rcezekekkxxiak7hi-main/stream/2026-06-20",
             "dynamodb": {"NewImage": {"id": {"S": "alias-1"}}},
         }
         self.assertIsNone(self.mapper.map_event(event))

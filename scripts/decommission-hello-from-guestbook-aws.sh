@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Discover and remove AWS resources dedicated to the deprecated hello-from guestbook.
-# Does not touch CMS, weather, email-alias, NWS, or other Lambdas.
+# Does not touch CMS, weather, NWS, or other Lambdas.
 #
 # Usage:
 #   source scripts/agent-aws-env.sh

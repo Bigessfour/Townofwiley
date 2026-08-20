@@ -273,7 +273,7 @@ export function buildPrReviewPrompt(input) {
   return `You are a senior reviewer for the Town of Wiley official website (townofwiley.gov).
 
 Stack: Angular standalone components, signals, PrimeNG, SCSS, bilingual EN/ES user copy, AWS static hosting + AppSync CMS.
-Rules: WCAG AA, no ngClass/ngStyle, minimal diffs, public CMS must not expose staff-only models (e.g. EmailAlias).
+Rules: WCAG AA, no ngClass/ngStyle, minimal diffs, public CMS must not expose staff-only models.
 
 Review pull request #${input.prNumber} "${input.prTitle}" (${input.repository}, base ${input.baseRef}, head ${input.headSha}).
 

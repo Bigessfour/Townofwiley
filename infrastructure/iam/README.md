@@ -61,7 +61,7 @@ npm run aws:iam:documents-storage
 The `copilot` IAM user needs log read actions to run `aws logs tail` / `FilterLogEvents` without `AccessDeniedException`.
 
 **Policy file:** [copilot-cloudwatch-logs-read-policy.json](./copilot-cloudwatch-logs-read-policy.json)
-Scoped to Town Lambda log groups (`TownOfWiley*`, `townofwiley*`, `amplify-townofwiley*`) in **us-east-2**, AppSync API logs (`/aws/appsync/apis/*`), and **us-east-1** email-alias Lambda logs.
+Scoped to Town Lambda log groups (`TownOfWiley*`, `townofwiley*`, `amplify-townofwiley*`) in **us-east-2**, AppSync API logs (`/aws/appsync/apis/*`),.
 
 **Optional — Lambda read for `npm run verify:nws-proxy-aws`:** [copilot-lambda-read-verify-policy.json](./copilot-lambda-read-verify-policy.json)
 Lets the same IAM user call `lambda:ListFunctions` and read configuration / function URLs for `arn:aws:lambda:us-east-2:570912405222:function:TownOfWiley*`. Use **`aws lambda list-functions --region us-east-2`** so discovery stays in the primary region. Apply with a **different** policy name so it does not replace the logs policy.

@@ -63,15 +63,6 @@ export const CMS_MODEL_LIST_FIELDS: Record<string, readonly string[]> = {
   ],
   ExternalNewsLink: ['id', 'title', 'url', 'source', 'displayOrder', 'active'],
   SiteCopy: ['id', 'key', 'valueEn', 'valueEs', 'description', 'displayOrder', 'active'],
-  EmailAlias: [
-    'id',
-    'aliasAddress',
-    'destinationAddress',
-    'active',
-    'displayName',
-    'roleLabel',
-    'notes',
-  ],
 };
 
 /** Models with at most one live row — editor loads it automatically instead of a pick list. */
@@ -88,7 +79,6 @@ const LIST_QUERY_FIELD: Record<string, string> = {
   Business: 'listBusinesses',
   ExternalNewsLink: 'listExternalNewsLinks',
   SiteCopy: 'listSiteCopies',
-  EmailAlias: 'listEmailAliases',
 };
 
 const CREATE_MUTATION_FIELD: Record<string, string> = {
@@ -102,7 +92,6 @@ const CREATE_MUTATION_FIELD: Record<string, string> = {
   Business: 'createBusiness',
   ExternalNewsLink: 'createExternalNewsLink',
   SiteCopy: 'createSiteCopy',
-  EmailAlias: 'createEmailAlias',
 };
 
 const UPDATE_MUTATION_FIELD: Record<string, string> = {
@@ -116,7 +105,6 @@ const UPDATE_MUTATION_FIELD: Record<string, string> = {
   Business: 'updateBusiness',
   ExternalNewsLink: 'updateExternalNewsLink',
   SiteCopy: 'updateSiteCopy',
-  EmailAlias: 'updateEmailAlias',
 };
 
 const DELETE_MUTATION_FIELD: Record<string, string> = {
@@ -130,7 +118,6 @@ const DELETE_MUTATION_FIELD: Record<string, string> = {
   Business: 'deleteBusiness',
   ExternalNewsLink: 'deleteExternalNewsLink',
   SiteCopy: 'deleteSiteCopy',
-  EmailAlias: 'deleteEmailAlias',
 };
 
 export function cmsListQueryField(model: string): string {
@@ -196,8 +183,6 @@ export function cmsRecordSummaryLabel(model: string, record: Record<string, unkn
       return String(record['key'] ?? record['id'] ?? 'Copy key');
     case 'SiteSettings':
       return String(record['townName'] ?? 'Site settings');
-    case 'EmailAlias':
-      return String(record['aliasAddress'] ?? record['id'] ?? 'Alias');
     default:
       return String(record['id'] ?? 'Record');
   }

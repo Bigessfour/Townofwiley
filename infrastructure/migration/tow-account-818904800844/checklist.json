@@ -1,0 +1,31 @@
+{
+  "sourceAccount": "570912405222",
+  "targetAccount": "818904800844",
+  "sourceProfile": "townofwiley",
+  "targetProfile": "tow",
+  "route53RecordCount": 17,
+  "recordTypes": [
+    "A",
+    "CNAME",
+    "MX",
+    "NS",
+    "SOA",
+    "TXT"
+  ],
+  "mailMustPreserve": {
+    "MX": "10 mail.townofwiley.gov.",
+    "mailA": "208.117.67.118"
+  },
+  "hosting": {
+    "cloudFrontId": "E1NZ3XCY5CYR1J",
+    "s3Bucket": "townofwiley-static-site",
+    "acmCertId": "a7d4c19b-070a-478b-9f3a-7203e53fcf90"
+  },
+  "cms": {
+    "appSyncId": "j7b2x3sh7rcezekekkxxiak7hi",
+    "cognitoPool": "us-east-2_DmY7BCBIp",
+    "docsBucket": "townofwiley-documents-storage-main"
+  },
+  "dynamoTableCount": 12,
+  "lambdaCount": 10
+}

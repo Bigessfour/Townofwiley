@@ -1,5 +1,7 @@
 # Manual production deploy: build → S3 sync → CloudFront invalidation.
-# Requires repository secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (townofwiley account).
+# Requires repository secrets for Town account 818904800844 (profile tow):
+#   AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (or OIDC role)
+# Bucket/distribution IDs come from infrastructure/aws-infrastructure.manifest.json hosting.
 name: Deploy static site (S3 + CloudFront)
 
 on:

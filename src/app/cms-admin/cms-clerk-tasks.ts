@@ -12,7 +12,6 @@ export type ClerkCmsTaskId =
   | 'external-news'
   | 'emergency-banner'
   | 'edit-site-copy' // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
-  | 'manage-email-aliases'
   | 'manage-community-calendar';
 
 export type ClerkCmsEditorMode = 'generic' | 'dedicated' | 'documents';
@@ -527,59 +526,6 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     ],
     emptyStateMessage:
       'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
-  },
-  {
-    id: 'manage-email-aliases',
-    title: 'Manage email forwarding',
-    shortDescription:
-      'Control where mail sent to Town addresses (like clerk@townofwiley.gov) is delivered. Residents do not see this.',
-    model: 'EmailAlias',
-    previewPath: '/contact',
-    icon: 'pi-envelope',
-    editorMode: 'dedicated',
-    showPublicPreview: false,
-    requiredGroups: ['Staff'],
-    steps: [
-      'Click Edit content to open the email forwarding editor (sign in at /admin/login first).',
-      'Click Add forwarding rule (or Edit an existing row).',
-      'Town email address: e.g. steve.mckitrick@townofwiley.gov (you can type only steve.mckitrick).',
-      'Staff inbox: the real mailbox where mail lands, e.g. example@example.com — not another @townofwiley.gov address.',
-      'Leave Active on and Save. AWS picks up the rule on the next message; send a test to confirm.',
-      'If residents should see the address on the site, also update Update contacts.',
-    ],
-    fieldGlossary: [
-      {
-        plainLabel: 'Town email address',
-        technicalName: 'aliasAddress',
-        help: 'The public address residents send mail to, e.g. clerk@townofwiley.gov.',
-      },
-      {
-        plainLabel: 'Staff inbox',
-        technicalName: 'destinationAddress',
-        help: 'The private email where forwarded mail is delivered.',
-      },
-      {
-        plainLabel: 'Active',
-        technicalName: 'active',
-        help: 'Turn on to forward mail; turn off to stop forwarding for this address.',
-      },
-      {
-        plainLabel: 'Display name',
-        technicalName: 'displayName',
-        help: 'Optional label for clerks, e.g. "City Clerk mailbox".',
-      },
-      {
-        plainLabel: 'Role label',
-        technicalName: 'roleLabel',
-        help: 'Optional role note for IT, e.g. "Clerk".',
-      },
-      {
-        plainLabel: 'Notes',
-        technicalName: 'notes',
-        help: 'Optional internal notes about this forwarding rule.',
-      },
-    ],
-    emptyStateMessage: 'No forwarding rules saved yet. Ask IT to add the first rule.',
   },
   {
     id: 'manage-community-calendar',

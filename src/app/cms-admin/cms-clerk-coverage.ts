@@ -104,13 +104,6 @@ export const CLERK_COVERAGE_ROWS: readonly ClerkCoverageRow[] = [
     adminHint: 'Approve pending submissions or add/edit community events',
   },
   {
-    whatResidentsSee: 'Staff email forwarding (not on website)',
-    whereOnSite: 'Email only',
-    method: 'admin-task',
-    taskId: 'manage-email-aliases',
-    adminHint: 'Town address → staff inbox',
-  },
-  {
     whatResidentsSee: 'Pay utility bill links',
     whereOnSite: '/pay-bill',
     method: 'it-only',
@@ -145,7 +138,6 @@ export function clerkTaskTitleForModel(modelName: string | undefined): string | 
     Business: 'Update business directory',
     ExternalNewsLink: 'External news links',
     SiteCopy: 'Homepage & menu labels (SiteCopy)',
-    EmailAlias: 'Manage email forwarding',
   };
   return map[modelName] ?? null;
 }

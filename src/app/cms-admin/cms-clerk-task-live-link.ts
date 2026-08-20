@@ -15,7 +15,7 @@ import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
  * Each task contributes a `previewPath` (from {@link ClerkCmsTask}) and an optional
  * `hubFragment` + `buildRecordFragment` from {@link TASK_LIVE_LINK_MAP}. Composed they form
  * `https://townofwiley.gov{previewPath}#{fragment}`. Tasks with `showPublicPreview: false`
- * (currently `manage-email-aliases`) return `null` from both helpers so the UI hides the link.
+ * Tasks that opt out of a public live-site link return `null` from both helpers so the UI hides the link.
  *
  * Public DOM ids the fragments target are listed in
  * [`docs/cms-edit-mode-verify-matrix.md`](../../../docs/cms-edit-mode-verify-matrix.md).
@@ -98,14 +98,13 @@ const TASK_LIVE_LINK_MAP: Readonly<Record<ClerkCmsTaskId, TaskLiveLinkEntry>> = 
   'edit-site-copy': {
     hubFragment: 'top-tasks-heading',
   },
-  'manage-email-aliases': {},
   'manage-community-calendar': {
     hubFragment: 'community',
   },
 };
 
 /**
- * Tasks that intentionally do not surface a live-site link (e.g. internal email forwarding).
+ * Tasks that intentionally do not surface a live-site link.
  * Used by the test suite to enforce that any new task is either opted out or has a link entry.
  */
 export const TASKS_WITHOUT_LIVE_LINK: ReadonlySet<ClerkCmsTaskId> = new Set(

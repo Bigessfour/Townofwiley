@@ -41,7 +41,7 @@ async function runOllama(prompt) {
     prompt,
     system: `You review Town of Wiley pull requests (Angular, PrimeNG, bilingual EN/ES, AWS CMS).
 Plain text only. Follow the labeled output sections exactly. Never approve merge.
-Flag CMS staff-only model exposure (e.g. EmailAlias) and a11y / i18n regressions.`,
+Flag CMS staff-only model exposure and a11y / i18n regressions.`,
     temperature: 0.1,
     numPredict: 1600,
     numCtx: Number(process.env.OLLAMA_NUM_CTX ?? 16384),

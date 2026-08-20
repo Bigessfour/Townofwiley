@@ -204,3 +204,8 @@ scripts/_list-ds.py
 **/override.tf.json
 **/*_override.tf
 **/*_override.tf.json
+
+# Account migration live exports (may contain emails / ARNs)
+/infrastructure/migration/tow-account-*/exports/
+/infrastructure/cdk/cdk.out/
+/infrastructure/cdk/node_modules/

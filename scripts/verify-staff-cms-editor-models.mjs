@@ -15,7 +15,7 @@ const CLERK_TASKS_PATH = join(repoRoot, 'src/app/cms-admin/cms-clerk-tasks.ts');
 const MODEL_FIELDS_PATH = join(repoRoot, 'src/app/cms-admin/cms-model-admin-fields.ts');
 
 /** Models edited via dedicated admin components (still require staff userPool CRUD). */
-const DEDICATED_EDITOR_MODELS = new Set(['EmailAlias']);
+const DEDICATED_EDITOR_MODELS = new Set();
 
 /**
  * Clerk task `model` labels that are not AppSync / cms-inventory models
