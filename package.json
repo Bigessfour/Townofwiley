@@ -206,7 +206,7 @@
     "@angular/compiler-cli": "22.1.0",
     "@angular/platform-browser-dynamic": "22.1.0",
     "@applitools/eyes-playwright": "^1.47.1",
-    "@axe-core/cli": "^4.11.3",
+    "@axe-core/cli": "^4.13.0",
     "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",
     "@lhci/cli": "^0.15.1",
