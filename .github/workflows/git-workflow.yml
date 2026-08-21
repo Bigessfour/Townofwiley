@@ -598,7 +598,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           # Prefer dedicated ops role when present; fall back to static-site deploy role.
-          role-to-assume: ${{ secrets.TOW_OPS_AWS_ROLE_ARN != '' && secrets.TOW_OPS_AWS_ROLE_ARN || 'arn:aws:iam::570912405222:role/GitHubActions-TownOfWiley-StaticSiteDeploy' }}
+          role-to-assume: ${{ secrets.TOW_OPS_AWS_ROLE_ARN != '' && secrets.TOW_OPS_AWS_ROLE_ARN || 'arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy' }}
           aws-region: us-east-2
 
       - name: Download failure / Ollama artifacts when present
@@ -649,7 +649,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::570912405222:role/GitHubActions-TownOfWiley-StaticSiteDeploy
+          role-to-assume: arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy
           aws-region: us-east-2
 
       - name: Deploy static site to S3 + CloudFront
