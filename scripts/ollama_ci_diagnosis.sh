@@ -444,7 +444,6 @@ write_summary() {
     echo ""
     echo "## Recommended models on GitHub-hosted runners"
     echo "- **CI triage default:** \`llama3.2:3b\` (\`OLLAMA_CI_MODEL\`)"
-    echo "- **PR review default:** \`llama3.2:3b\` or trial \`qwen2.5-coder:3b\` (\`OLLAMA_PR_REVIEW_MODEL\`)"
     echo "- **Self-hosted / larger runners:** \`qwen2.5-coder:7b\`"
   } >"$summary_file"
 }

@@ -1,12 +1,11 @@
-# Ollama advisory review & CI diagnosis
+# Ollama CI failure diagnosis
 
-Town of Wiley uses **local Ollama models on GitHub-hosted runners** for advisory PR review and CI failure triage. These jobs **never gate merge**. The required check remains **`site-ci / CI gate (merge required)`**.
+Town of Wiley uses **local Ollama models on GitHub-hosted runners** for advisory CI failure triage. These jobs **never gate merge**. The required check remains **`site-ci / CI gate (merge required)`**.
 
 ## Workflows
 
 | Workflow / job | Trigger | Role |
 | -------------- | ------- | ---- |
-| [`.github/workflows/ollama-pr-review.yml`](../.github/workflows/ollama-pr-review.yml) | PR opened / synchronize / reopened → `main` | Sticky advisory diff review |
 | Site CI → `ollama-ci-diagnosis` in [`git-workflow.yml`](../.github/workflows/git-workflow.yml) | After CI gate **failure** | Failure triage + actionable artifacts |
 | [`.github/workflows/ollama-ci-diagnosis.yml`](../.github/workflows/ollama-ci-diagnosis.yml) | Manual `workflow_dispatch` with run id | Re-run triage for a past failed run |
 
@@ -15,13 +14,10 @@ Town of Wiley uses **local Ollama models on GitHub-hosted runners** for advisory
 | Use | Default | Repo variable | Notes |
 | --- | ------- | ------------- | ----- |
 | CI triage | `llama3.2:3b` | `OLLAMA_CI_MODEL` | Fits ~7 GB free RAM; multi-pass or **fast path** |
-| PR review | `qwen2.5-coder:3b` | `OLLAMA_PR_REVIEW_MODEL` | Default for structured code review on hosted runners |
-| Self-hosted / larger runners | — | same vars | Prefer `qwen2.5-coder:7b` when RAM ≥ ~16 GB |
+| Self-hosted / larger runners | — | same vars | Prefer larger models when RAM ≥ ~16 GB |
 | Install pin (optional) | install script latest | `OLLAMA_VERSION` | Passed into `setup-ollama` |
 
 Avoid bare `qwen2.5:7b` / 14B models on free GitHub-hosted runners (OOM risk).
-
-Dependabot and docs-only PRs skip **before** Ollama install (`--gate-only` uses `gh pr diff --name-only`). The review prompt drops generated inventory/lockfile hunks, caps the diff (~16k chars), and puts the required `SUMMARY` / `MUST_FIX` / `RISK_LEVEL` labels **after** the diff so 3B models still follow the template. Unstructured output (missing labels or `RISK_LEVEL` not `low|medium|high`) is labeled **Quality: low** and is not presented as a real review. If `OLLAMA_PR_REVIEW_MODEL` is set on the repo, it overrides the workflow default.
 
 ## Composite actions
 
@@ -60,19 +56,12 @@ Writes `outputs/ci-improvements/<run-id>/ci-improvement-suggestions.json`.
 Comments are upserted (not spammed) using HTML markers:
 
 - `<!-- tow-sticky:ollama-ci-diagnosis -->`
-- `<!-- tow-sticky:ollama-pr-review -->`
 
 Implementation: [`scripts/lib/ollama-sticky-comment.mjs`](../scripts/lib/ollama-sticky-comment.mjs).
 
 ## Local dry-run helpers
 
 ```bash
-# With ollama serve + model pulled:
-export GITHUB_REPOSITORY=Bigessfour/Townofwiley
-export PR_NUMBER=108
-export OLLAMA_MODEL=qwen2.5-coder:3b
-npm run ci:ollama-pr-review:local
-
 # Diagnosis against a failed run id (needs gh auth + ollama for full path):
 scripts/ollama_ci_diagnosis.sh <run-id>
 ```
