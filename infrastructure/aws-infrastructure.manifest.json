@@ -13,6 +13,7 @@
     "region": "us-east-2",
     "cloudFrontDistributionId": "E19PUUL2H76CZA",
     "cloudFrontDomain": "d1bhtly4h27ucg.cloudfront.net",
+    "responseHeadersPolicyId": "f8bbcef4-5b22-4f74-a2b4-aa542d09aa43",
     "spaRedirectFunction": "townofwiley-spa-redirect",
     "aliases": [
       "townofwiley.gov",
