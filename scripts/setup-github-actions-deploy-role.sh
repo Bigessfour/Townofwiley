@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 # One-time setup: GitHub Actions OIDC role for production static site deploy.
-# Requires IAM admin on Town of Wiley account 570912405222.
+# Requires IAM admin on Town of Wiley account 818904800844 (profile tow).
 #
 # Usage:
-#   source scripts/agent-aws-env.sh
+#   export AWS_PROFILE=tow
 #   bash scripts/setup-github-actions-deploy-role.sh
 #
 set -euo pipefail
@@ -14,7 +14,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
 
 ROLE_NAME="${TOW_GITHUB_DEPLOY_ROLE_NAME:-GitHubActions-TownOfWiley-StaticSiteDeploy}"
-ACCOUNT_ID="570912405222"
+ACCOUNT_ID="818904800844"
 OIDC_PROVIDER_ARN="arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
 TRUST_FILE="${REPO_ROOT}/infrastructure/iam/github-actions-static-site-deploy-trust.json"
 POLICY_FILE="${REPO_ROOT}/infrastructure/iam/github-actions-static-site-deploy-policy.json"
