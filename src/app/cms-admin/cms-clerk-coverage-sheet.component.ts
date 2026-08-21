@@ -21,13 +21,11 @@ export class CmsClerkCoverageSheetComponent {
   protected methodLabel(method: ClerkCoverageMethod): string {
     switch (method) {
       case 'admin-task':
-        return 'Admin task';
+        return 'This page';
       case 'documents-section':
-        return 'Upload section';
-      case 'site-copy-task':
-        return 'SiteCopy labels';
-      case 'it-only':
-        return 'Town IT only';
+        return 'Upload below';
+      case 'labels':
+        return 'Menu labels';
     }
   }
 
@@ -39,15 +37,13 @@ export class CmsClerkCoverageSheetComponent {
         return 'success';
       case 'documents-section':
         return 'info';
-      case 'site-copy-task':
+      case 'labels':
         return 'secondary';
-      case 'it-only':
-        return 'warn';
     }
   }
 
   protected onOpenRow(row: (typeof CLERK_COVERAGE_ROWS)[number]): void {
-    if (row.method === 'it-only' || !row.taskId) {
+    if (!row.taskId) {
       return;
     }
     if (row.method === 'documents-section') {
@@ -58,6 +54,6 @@ export class CmsClerkCoverageSheetComponent {
   }
 
   protected canOpenRow(row: (typeof CLERK_COVERAGE_ROWS)[number]): boolean {
-    return row.method !== 'it-only' && Boolean(row.taskId);
+    return Boolean(row.taskId);
   }
 }

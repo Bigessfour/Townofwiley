@@ -23,8 +23,14 @@ describe('cms-clerk-task-form-fields', () => {
     }
   });
 
-  it('includes SiteCopy fields for edit-site-copy', () => {
+  it('uses a select list of menu and heading labels for edit-site-copy', () => {
     const fields = clerkTaskFormFields('edit-site-copy');
+    const keyField = fields.find((field) => field.name === 'key');
+    expect(keyField?.type).toBe('select');
+    expect(keyField?.options?.some((option) => option.value === 'menuQuickTasksLabel')).toBe(true);
+    expect(keyField?.options?.some((option) => option.value === 'contactTownHallAddress')).toBe(
+      false,
+    );
     expect(fields.map((field) => field.name)).toEqual(
       expect.arrayContaining(['key', 'valueEn', 'valueEs', 'description', 'active']),
     );

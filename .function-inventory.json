@@ -14,6 +14,7 @@
     "src/app/site-cms-content.ts",
     "src/app/cms-admin/cms-admin.ts",
     "src/app/cms-admin/cms-clerk-task-hub.component.ts",
+    "src/app/cms-admin/cms-contact-page-chooser.component.ts",
     "src/app/cms-admin/cms-community-calendar-admin.component.ts",
     "src/app/document-upload.service.ts",
     "src/app/pay-bill/pay-bill-page.component.ts",

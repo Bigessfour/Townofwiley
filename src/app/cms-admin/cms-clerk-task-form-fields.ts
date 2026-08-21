@@ -1,6 +1,7 @@
 import { isEphemeralCmsAssetUrl } from '../cms-public-asset-url';
 import { LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL } from '../leadership-roster-group-ids';
 import { LEADERSHIP_GROUP_FORM_OPTIONS } from '../leadership-roster-seed';
+import { siteCopyKeySelectOptions } from '../site-copy-overrides';
 import {
   datetimeLocalToIso,
   isoToDateInput,
@@ -177,7 +178,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     {
       name: 'address',
       label: 'Address line on homepage (optional)',
-      help: 'For the main Town Hall card on /contact, use SiteCopy keys instead.',
+      help: 'Town Hall address on /contact is changed from Update the Contact page, not here.',
     },
     { name: 'phone', label: 'Phone line on homepage (optional)' },
     { name: 'email', label: 'Email line on homepage (optional)' },
@@ -218,10 +219,10 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   'update-contacts': [
     {
       name: 'id',
-      label: 'New card id (only when adding a card)',
+      label: 'New row id (only when adding)',
       required: true,
       placeholder: 'city-clerk',
-      help: 'Allowed values: town-information, city-clerk, or town-superintendent. When you edit an existing card, this field is hidden — the site already knows which card you are updating.',
+      help: 'Leave this alone when editing. Prefer Edit on an existing Clerk or Superintendent row.',
     },
     {
       name: 'label',
@@ -242,13 +243,13 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     },
     {
       name: 'href',
-      label: 'Clickable link (tel:, mailto:, or https://)',
-      help: 'Example: mailto:clerk@townofwiley.gov or tel:+17198294974',
+      label: 'Email or phone link (mailto: or tel:)',
+      help: 'Example: mailto:clerk@townofwiley.gov',
     },
     {
       name: 'linkLabel',
-      label: 'Clickable link text',
-      help: 'What residents click, e.g. an email address.',
+      label: 'Clickable text residents see',
+      help: 'Usually the email address itself.',
     },
     {
       name: 'displayOrder',
@@ -295,13 +296,15 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     { name: 'displayOrder', label: 'Sort order (number)', type: 'number' },
     { name: 'active', label: 'Show on website', type: 'checkbox' },
   ],
+  'update-contact-page': [],
   'edit-site-copy': [
     {
       name: 'key',
-      label: 'Which site area this text controls (key)',
+      label: 'Which text to change',
       required: true,
-      placeholder: 'e.g. contactTownHallAddress or menuQuickTasksLabel',
-      help: 'Must match a key from the list in task help — wrong keys save but do not change the site.',
+      type: 'select',
+      options: siteCopyKeySelectOptions(),
+      help: 'Pick the menu name or heading. Town Hall address, phone, and hours are on Update the Contact page.',
     },
     {
       name: 'valueEn',
@@ -317,7 +320,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
       name: 'description',
       label: 'Note for clerks (not shown on website)',
       type: 'textarea',
-      help: 'Example: “Town Hall card phone on /contact”.',
+      help: 'Example: “Mega menu label for Services”.',
     },
     {
       name: 'displayOrder',
@@ -354,7 +357,7 @@ export function todayDateInputValue(): string {
 
 export function defaultDynamicFormValues(
   fields: ClerkFormFieldDefinition[],
-  options?: { taskId?: ClerkCmsTaskId },
+  options?: { taskId?: ClerkCmsTaskId; lockedGroupId?: string },
 ): Record<string, string | boolean> {
   const values: Record<string, string | boolean> = {};
   for (const field of fields) {
@@ -370,8 +373,10 @@ export function defaultDynamicFormValues(
       values[field.name] = todayDateInputValue();
       continue;
     }
-    if (options?.taskId === 'update-leadership' && field.name === 'groupId') {
-      values[field.name] = LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL;
+    if (field.name === 'groupId') {
+      values[field.name] =
+        options?.lockedGroupId?.trim() ||
+        (options?.taskId === 'update-leadership' ? LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL : '');
       continue;
     }
     values[field.name] = '';

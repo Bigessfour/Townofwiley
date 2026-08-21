@@ -1,0 +1,42 @@
+<div class="cms-contact-chooser" data-testid="cms-contact-page-chooser">
+  @if (selected(); as section) {
+    <button
+      type="button"
+      class="cms-contact-chooser__back"
+      data-testid="cms-contact-chooser-back"
+      (click)="backToParts()"
+    >
+      Back to Contact page parts
+    </button>
+    <p class="cms-contact-chooser__section-help">{{ section.help }}</p>
+    <app-cms-clerk-record-editor
+      [taskId]="section.editorTaskId"
+      [editorOptions]="section.editorOptions"
+    />
+  } @else {
+    <p class="cms-contact-chooser__lead">
+      The Contact page has five parts. Pick the part that matches what you want to change.
+    </p>
+    <p class="cms-contact-chooser__preview">
+      <a href="https://townofwiley.gov/contact" target="_blank" rel="noreferrer noopener"
+        >Open the Contact page</a
+      >
+      to compare, then come back here.
+    </p>
+    <ul class="cms-contact-chooser__list">
+      @for (section of sections; track section.id) {
+        <li>
+          <button
+            type="button"
+            class="cms-contact-chooser__card"
+            [attr.data-testid]="'cms-contact-section-' + section.id"
+            (click)="selectSection(section)"
+          >
+            <span class="cms-contact-chooser__card-title">{{ section.title }}</span>
+            <span class="cms-contact-chooser__card-body">{{ section.description }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

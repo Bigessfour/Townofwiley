@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsCommunityCalendarAdminComponent } from './cms-community-calendar-admin.component';
+import { CmsContactPageChooserComponent } from './cms-contact-page-chooser.component';
 import { CmsClerkRecordEditorComponent } from './cms-clerk-record-editor.component';
 import { clerkTaskHasForm } from './cms-clerk-task-form-fields';
 import {
@@ -10,7 +11,7 @@ import {
   clerkTaskUsesDocumentsWorkflow,
   type ClerkCmsTaskId,
 } from './cms-clerk-tasks';
-import { SITE_COPY_KEY_CATALOG } from '../site-copy-overrides';
+import { SITE_COPY_KEY_CATALOG, isTownHallSiteCopyKey } from '../site-copy-overrides';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
@@ -20,6 +21,7 @@ import { MessageModule } from 'primeng/message';
     ButtonModule,
     CmsClerkRecordEditorComponent,
     CmsCommunityCalendarAdminComponent,
+    CmsContactPageChooserComponent,
     MessageModule,
   ],
   templateUrl: './cms-clerk-task-guide.component.html',
@@ -53,7 +55,9 @@ export class CmsClerkTaskGuideComponent implements OnInit {
   protected readonly verifySteps = CLERK_VERIFY_STEPS;
   protected readonly usesDedicatedEditor = clerkTaskUsesDedicatedEditor;
   protected readonly usesDocumentsWorkflow = clerkTaskUsesDocumentsWorkflow;
-  protected readonly siteCopyKeys = SITE_COPY_KEY_CATALOG;
+  protected readonly siteCopyKeys = SITE_COPY_KEY_CATALOG.filter(
+    (entry) => !isTownHallSiteCopyKey(entry.key),
+  );
 
   ngOnInit(): void {
     void this.staffAuth.refreshSession();

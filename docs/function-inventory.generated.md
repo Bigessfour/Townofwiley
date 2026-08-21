@@ -2,13 +2,13 @@
 <!-- Do NOT edit manually. Lightweight correctness-surface tracker. -->
 
 # Function Inventory — townofwiley-app
-Generated: 2026-08-08T12:06:27.782862+00:00
+Generated: 2026-08-21T01:57:23.918178+00:00
 **Stack:** TypeScript/Angular
 **Tracking mode:** `surfaces`
 **Scan roots:** `src`, `infrastructure/community-calendar`, `scripts/lib`
-**Configured surfaces:** 20 (from `.function-inventory.json` `surfaces` allowlist)
+**Configured surfaces:** 21 (from `.function-inventory.json` `surfaces` allowlist)
 
-**Summary:** 20 correctness surfaces | 20 with proof | 0 without proof
+**Summary:** 21 correctness surfaces | 21 with proof | 0 without proof
 This list is the **correctness queue** — resident/clerk-critical pages, services, and handlers only. Tiny helpers, Angular route paths, and demoted UI shells are omitted.
 
 Ship gate remains project acceptance / smoke checklists — inventory count alone is not “done.”
@@ -42,20 +42,21 @@ Ship gate remains project acceptance / smoke checklists — inventory count alon
 | P1 | Core Service | StaffAuthService.StaffAuthService | src/app/auth/staff-auth.service.ts:38 | src/app/auth/staff-auth.service.vitest.ts, src/app/cms-gener... | has logic |
 | P1 | Angular Page / Component | AdminLoginComponent.AdminLoginComponent | src/app/auth/admin-login.component.ts:32 | src/app/auth/admin-login.component.vitest.ts, e2e/specs/smok... | has logic |
 | P1 | Core Service | CmsGenericModelAdminService.CmsGenericModelAdminService | src/app/cms-generic-model-admin.service.ts:39 | src/app/cms-generic-model-admin.service.vitest.ts, src/app/c... | has logic |
-| P1 | Angular Page / Component | CmsClerkRecordEditorComponent.CmsClerkRecordEditorComponent | src/app/cms-admin/cms-clerk-record-editor.component.ts:69 | src/app/cms-admin/cms-clerk-record-editor.component.vitest.t... | has logic |
+| P1 | Angular Page / Component | CmsClerkRecordEditorComponent.CmsClerkRecordEditorComponent | src/app/cms-admin/cms-clerk-record-editor.component.ts:71 | src/app/cms-admin/cms-clerk-record-editor.component.vitest.t... | has logic |
 | P1 | Angular Page / Component | CmsMeetingDocumentUploadComponent.CmsMeetingDocumentUploadComponent | src/app/cms-admin/cms-meeting-document-upload.component.ts:71 | src/app/cms-admin/cms-meeting-document-upload.component.vite... | has logic |
 | P1 | Core Service | CmsPublicDocumentAdminService.CmsPublicDocumentAdminService | src/app/cms-public-document-admin.service.ts:40 | src/app/document-upload/document-upload.component.spec.ts | has logic |
 | P1 | Core Service | CommunityCalendarService.CommunityCalendarService | src/app/community-calendar/community-calendar.service.ts:23 | src/app/community-calendar/community-calendar.service.vitest... | has logic |
 | P1 | Core Service | CommunityCalendarAdminService.CommunityCalendarAdminService | src/app/community-calendar/community-calendar-admin.service.ts:29 | src/app/community-calendar/community-calendar-admin.service.... | has logic |
 | P1 | API Endpoint | handler.handler | infrastructure/community-calendar/app.py:1 | infrastructure/community-calendar/tests/test_app.py | has logic |
-| P1 | Other Public | LocalizedCmsContentStore.LocalizedCmsContentStore | src/app/site-cms-content.ts:883 | src/app/site-cms-content.spec.ts, src/app/app.spec.ts | has logic |
+| P1 | Other Public | LocalizedCmsContentStore.LocalizedCmsContentStore | src/app/site-cms-content.ts:883 | src/app/site-cms-content.spec.ts | has logic |
 | P1 | Angular Page / Component | CmsCommunityCalendarAdminComponent.CmsCommunityCalendarAdminComponent | src/app/cms-admin/cms-community-calendar-admin.component.ts:29 | src/app/cms-admin/cms-community-calendar-admin.component.vit... | has logic |
 | P1 | Core Service | DocumentUploadService.DocumentUploadService | src/app/document-upload.service.ts:22 | src/app/document-upload/document-upload.component.spec.ts, s... | has logic |
-| P1 | Angular Page / Component | PayBillPageComponent.PayBillPageComponent | src/app/pay-bill/pay-bill-page.component.ts:17 | src/app/pay-bill/pay-bill-page.component.spec.ts, e2e/specs/... | has logic |
-| P2 | Other Public | CmsAdmin.CmsAdmin | src/app/cms-admin/cms-admin.ts:50 | src/app/cms-admin/cms-admin.vitest.ts | has logic |
-| P2 | Angular Page / Component | CmsClerkTaskHubComponent.CmsClerkTaskHubComponent | src/app/cms-admin/cms-clerk-task-hub.component.ts:32 | src/app/cms-admin/cms-clerk-task-hub.component.vitest.ts | has logic |
+| P1 | Angular Page / Component | PayBillPageComponent.PayBillPageComponent | src/app/pay-bill/pay-bill-page.component.ts:22 | src/app/pay-bill/pay-bill-page.component.spec.ts, e2e/specs/... | has logic |
+| P2 | Other Public | CmsAdmin.CmsAdmin | src/app/cms-admin/cms-admin.ts:49 | src/app/cms-admin/cms-admin.vitest.ts | has logic |
+| P2 | Angular Page / Component | CmsClerkTaskHubComponent.CmsClerkTaskHubComponent | src/app/cms-admin/cms-clerk-task-hub.component.ts:33 | src/app/cms-admin/cms-clerk-task-hub.component.vitest.ts | has logic |
+| P2 | Angular Page / Component | CmsContactPageChooserComponent.CmsContactPageChooserComponent | src/app/cms-admin/cms-contact-page-chooser.component.ts:9 | e2e/specs/smoke/admin.cms.spec.ts | has logic |
 | P3 | Angular Page / Component | MeetingDocumentsArchiveComponent.MeetingDocumentsArchiveComponent | src/app/meetings-page/meeting-documents-archive.component.ts:63 | src/app/meetings-page/meeting-documents-archive.component.vi... | has logic |
-| P3 | Angular Page / Component | ThisWeekInWileyComponent.ThisWeekInWileyComponent | src/app/this-week-in-wiley/this-week-in-wiley.component.ts:41 | src/app/this-week-in-wiley/this-week-in-wiley.component.vite... | has logic |
+| P3 | Angular Page / Component | ThisWeekInWileyComponent.ThisWeekInWileyComponent | src/app/this-week-in-wiley/this-week-in-wiley.component.ts:40 | src/app/this-week-in-wiley/this-week-in-wiley.component.vite... | has logic |
 | P3 | Angular Page / Component | WeatherAlertBannerComponent.WeatherAlertBannerComponent | src/app/weather-alert-banner/weather-alert-banner.component.ts:15 | src/app/weather-alert-banner/weather-alert-banner.component.... | has logic |
 | P3 | Core Service | GoogleAnalyticsService.GoogleAnalyticsService | src/app/google-analytics.service.ts:27 | src/app/google-analytics.service.vitest.ts, e2e/specs/smoke/... | has logic |
 | P3 | Other Public | amplify-config.amplify-config | src/app/amplify-config.ts:1 | src/app/runtime-config.vitest.ts | has logic |

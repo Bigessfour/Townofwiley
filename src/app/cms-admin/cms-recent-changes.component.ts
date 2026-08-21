@@ -128,7 +128,7 @@ export class CmsRecentChangesComponent {
       }
     } catch {
       this.error.set(
-        'Could not load recent changes. Try Refresh below, or use Advanced (IT) → Refresh from database.',
+        'Could not load recent changes. Try Refresh list, or Technical details → Refresh from database.',
       );
       this.entries.set([]);
     } finally {

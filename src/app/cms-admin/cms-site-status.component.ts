@@ -42,7 +42,7 @@ export class CmsSiteStatusComponent {
       case 'loading':
         return 'Checking whether the website is reading your latest saved content…';
       case 'error':
-        return 'The website may be showing older backup text. New saves in the editor might not appear until IT fixes the connection. Call Town Hall at (719) 829-4974.';
+        return 'The website may be showing older backup text. New saves might not appear yet. Call Town Hall at (719) 829-4974.';
       case 'ok':
         return 'The website is connected to your saved content. After you save in the editor, refresh the public page to verify.';
       default:

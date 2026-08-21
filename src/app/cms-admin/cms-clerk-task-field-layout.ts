@@ -53,8 +53,9 @@ const CLERK_TASK_FIELD_LAYOUT: Partial<
   },
   'update-contacts': {
     id: {
-      group: 'New card only (IT)',
-      previewHint: 'Usually leave this alone — Edit an existing card instead',
+      group: 'New row',
+      optional: true,
+      previewHint: 'Usually leave this alone — Edit an existing row instead',
     },
     label: { group: 'What residents see' },
     value: { group: 'What residents see' },
@@ -115,7 +116,7 @@ export function applyClerkTaskFieldLayout(
     }
     let previewHint = patch.previewHint;
     if (taskId === 'edit-site-copy' && field.name === 'key') {
-      previewHint = 'Pick a key — appears-on hint updates after you type it';
+      previewHint = 'Pick the line — the hint updates to show where residents see it';
     }
     return { ...field, ...patch, previewHint: previewHint ?? patch.previewHint };
   });

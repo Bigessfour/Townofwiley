@@ -28,8 +28,8 @@
     <p class="cms-recent-changes__status" role="status">Loading recent changes…</p>
   } @else if (auditUnavailable()) {
     <p class="cms-recent-changes__status" role="status">
-      Sign in at /admin/login to see change history. If you are signed in and this stays empty, ask
-      Town IT to verify the audit log is configured.
+      Sign in at /admin/login to see change history. If you are signed in and this stays empty, try
+      Refresh list.
     </p>
   } @else if (error(); as message) {
     <p class="cms-recent-changes__status cms-recent-changes__status--error" role="alert">
@@ -56,9 +56,8 @@
             </p>
           }
           <p class="cms-recent-changes__detail">
-            {{ entry.staffEmail ?? 'unknown' }}
-            @if (entry.recordId) {
-              · ID {{ entry.recordId }}
+            @if (entry.staffEmail) {
+              {{ entry.staffEmail }}
             }
           </p>
         </li>

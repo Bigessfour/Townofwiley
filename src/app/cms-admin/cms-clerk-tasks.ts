@@ -1,11 +1,11 @@
 import { buildAmplifyConsoleDataManagerModelUrl } from '../clerk-setup/clerk-setup-config';
-import { SITE_COPY_KEY_CATALOG } from '../site-copy-overrides';
 
 export type ClerkCmsTaskId =
   | 'post-notice'
   | 'add-meeting'
   | 'upload-meeting-documents'
   | 'homepage'
+  | 'update-contact-page'
   | 'update-contacts'
   | 'update-leadership'
   | 'business-directory'
@@ -44,6 +44,8 @@ export interface ClerkCmsTask {
   showPublicPreview?: boolean;
   /** Cognito groups that may open this task. Defaults to Staff-only when omitted. */
   requiredGroups?: string[];
+  /** When false, keep the task for inner editors but hide it on the hub. Default true. */
+  hubVisible?: boolean;
 }
 
 const PUBLIC_SITE_ORIGIN = 'https://townofwiley.gov';
@@ -246,20 +248,64 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'Homepage text may be using default setup until SiteSettings is saved via Edit content.',
+      'Homepage text may be using default setup until the homepage form is saved.',
+  },
+  {
+    id: 'update-contact-page',
+    title: 'Update the Contact page',
+    shortDescription:
+      'Change Town Hall visit info, staff names, staff emails, the note under the staff table, or Mayor and Trustees — pick the part that matches the live page.',
+    model: 'ContactPage',
+    previewPath: '/contact',
+    editorMode: 'dedicated',
+    primaryActionLabel: 'Choose what to change',
+    icon: 'pi pi-users',
+    requiredGroups: ['Staff', 'Council'],
+    steps: [
+      'Click Choose what to change.',
+      'Pick the part of the Contact page you want to edit (Town Hall, staff names, staff emails, the note, or Mayor and Trustees).',
+      'Change only that part, click Save, then See on website.',
+    ],
+    fieldGlossary: [
+      {
+        plainLabel: 'Town Hall address, phone, and hours',
+        technicalName: 'town-hall',
+        help: 'The visit card at the top of /contact.',
+      },
+      {
+        plainLabel: 'Town Administration names',
+        technicalName: 'admin-names',
+        help: 'Clerk, Deputy Clerk, and Superintendent names in the staff table.',
+      },
+      {
+        plainLabel: 'Staff emails',
+        technicalName: 'staff-emails',
+        help: 'The email column next to Clerk and Superintendent.',
+      },
+      {
+        plainLabel: 'Note under Town Administration',
+        technicalName: 'agenda-note',
+        help: 'The extra paragraph under the staff table.',
+      },
+      {
+        plainLabel: 'Mayor and Trustees',
+        technicalName: 'elected',
+        help: 'Names under Elected Officials.',
+      },
+    ],
   },
   {
     id: 'update-contacts',
-    title: 'Update Town Administration contact cards',
+    title: 'Staff emails and Contact page note',
     shortDescription:
-      'Edits the intro text and email/phone links used on /contact. Names (Clerk, Deputy Clerk, Superintendent) are edited in “Update elected officials & town administration lists”. On the public page: emails appear in the Town staff table; the town-information detail appears once under “Need time on the agenda?”.',
+      'Used from Update the Contact page. Edits Clerk/Superintendent emails and the note under the staff table.',
     model: 'OfficialContact',
     previewPath: '/contact',
+    hubVisible: false,
     steps: [
-      'Click Edit content (sign in at /admin/login first).',
-      'Pick an existing card from “Saved on the website” (Town Information, City Clerk, or Town Superintendent). Prefer Edit over Add new.',
-      'Change only the heading, phone/email line, detail sentence, and optional mailto/tel link. The system card id is locked while editing.',
-      'Save, click See on website, and hard-refresh /contact — check the Town Administration card.',
+      'Open Update the Contact page and pick Staff emails or Note under Town Administration.',
+      'Edit the existing row. Do not add a new one unless the list is empty.',
+      'Save, then See on website.',
     ],
     fieldGlossary: [
       {
@@ -298,16 +344,16 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         help: 'Optional sort number (lower appears first).',
       },
     ],
-    emptyStateMessage:
-      'If Town Information or Clerk cards look wrong, ask IT to restore ids town-information and city-clerk.',
+    emptyStateMessage: 'Edit the existing Clerk or Superintendent row. Do not add a new one.',
   },
   {
     id: 'update-leadership',
-    title: 'Update elected officials & town administration lists',
+    title: 'Staff and elected names',
     shortDescription:
-      'Edits the name lines residents see: Mayor/Trustees under Mayor & Council, and City Clerk / Deputy Clerk / Superintendent under Town staff. To replace “To Be Announced”, choose Town Administration, click Edit on that row, change the name line, and Save — do not create a second row.',
+      'Used from Update the Contact page. Edits Town Administration names or Mayor and Trustees.',
     model: 'LeadershipRosterEntry',
     previewPath: '/contact',
+    hubVisible: false,
     requiredGroups: ['Staff', 'Council'],
     steps: [
       'Click Edit content (sign in at /admin/login first).',
@@ -320,7 +366,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'List to update',
         technicalName: 'groupId',
-        help: 'Elected Officials → /contact#leadership. Town Administration → name lines in the Town Administration card.',
+        help: 'Elected Officials appear under Mayor and Trustees. Town Administration names appear in the staff table.',
       },
       {
         plainLabel: 'English line',
@@ -478,30 +524,26 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
         help: 'Full web address (https://...) the button links to. Example: https://example.com/page',
       },
     ],
-    emptyStateMessage:
-      'No emergency banner is active until you create AlertBanner with Enabled on.',
+    emptyStateMessage: 'No emergency banner is showing until you turn Enabled on and save.',
   },
   {
     id: 'edit-site-copy',
-    title: 'Homepage & menu labels (SiteCopy)',
+    title: 'Change menu labels and page headings',
     shortDescription:
-      'Change menu text, page headings, and Town Hall card address/phone/hours without a code deploy.',
+      'Change menu names and section headings. Town Hall address, phone, and hours are on Update the Contact page.',
     model: 'SiteCopy',
     previewPath: '/',
     steps: [
       'Click Edit content to open the form (sign in at /admin/login first).',
-      'Create or edit a row with a stable key from the key list in this help section (e.g. contactTownHallAddress, menuQuickTasksLabel).',
+      'Pick which text to change from the list (menu name or heading).',
       'Fill English (required) and Spanish when residents use Spanish.',
-      'Set Active on. Use description to note where the text appears.',
-      'Save and hard-refresh the page where the text appears.',
+      'Turn “Use this text on the live website” on, then Save.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Key (stable ID)',
+        plainLabel: 'Which text to change',
         technicalName: 'key',
-        help: `Use one of the wired keys, for example: ${SITE_COPY_KEY_CATALOG.slice(0, 4)
-          .map((e) => e.key)
-          .join(', ')}, … (see full list below).`,
+        help: 'Pick the menu name or heading from the list. Town Hall address lives under Update the Contact page.',
       },
       {
         plainLabel: 'English text',
@@ -525,7 +567,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
+      'Labels are using the built-in defaults. Add a row here to change a menu name or heading.',
   },
   {
     id: 'manage-community-calendar',
@@ -587,6 +629,10 @@ export function clerkTaskUsesDocumentsWorkflow(id: ClerkCmsTaskId): boolean {
 
 export function clerkTaskById(id: ClerkCmsTaskId): ClerkCmsTask | undefined {
   return CLERK_CMS_TASKS.find((task) => task.id === id);
+}
+
+export function clerkTaskVisibleOnHub(task: ClerkCmsTask): boolean {
+  return task.hubVisible !== false;
 }
 
 export const CLERK_VERIFY_STEPS = [

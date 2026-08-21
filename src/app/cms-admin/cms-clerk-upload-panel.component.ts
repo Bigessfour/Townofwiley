@@ -81,7 +81,7 @@ export class CmsClerkUploadPanelComponent implements OnInit {
         const displayUrl = (doc.publicUrl ?? '').trim();
         if (!displayUrl.startsWith('https://') || /X-Amz-/i.test(displayUrl)) {
           throw new Error(
-            'Upload did not return a durable townofwiley.gov photo address. Contact IT.',
+            'Upload did not return a townofwiley.gov photo address. Try again after signing in.',
           );
         }
         this.httpsUrl.set(displayUrl);
@@ -93,14 +93,14 @@ export class CmsClerkUploadPanelComponent implements OnInit {
         const doc = await this.uploads.uploadDocument(file, 'newsletter');
         this.copyValue.set(doc.id);
         this.resultMessage.set(
-          'Uploaded via secure presigned URL. Copy the file code below into File code from IT on your newsletter notice form (click Go to post notice task).',
+          'Uploaded. Copy the file code below into Newsletter PDF on the Post news or notice form.',
         );
       }
     } catch (error: unknown) {
       this.error.set(
         error instanceof Error && error.message.trim()
           ? error.message.trim()
-          : 'Upload failed. Ask IT for help or try again after signing in.',
+          : 'Upload failed. Sign in and try again, or call Town Hall at (719) 829-4974.',
       );
     } finally {
       this.uploading.set(false);

@@ -13,7 +13,7 @@ export const STAFF_SIGN_IN_MESSAGE =
   'Sign in at /admin/login with a Town staff account before changing website content.';
 
 const STAFF_SCHEMA_MESSAGE =
-  'Staff access to this content type is not configured on the server. Contact IT to enable Staff group permissions for this model in AppSync.';
+  'This content type is not available yet. Call Town Hall at (719) 829-4974.';
 
 export class CmsAdminAuthError extends Error {
   constructor(message: string) {

@@ -43,10 +43,24 @@ test.describe('cms admin', () => {
       homePage.page.getByRole('heading', { name: /What do you want to update\?/i }),
     ).toBeVisible();
     await expect(homePage.page.getByTestId('cms-task-hub')).toBeVisible();
-    await expect(homePage.page.getByTestId('cms-task-post-notice')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-update-contact-page')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-task-update-contacts')).toHaveCount(0);
+    await expect(homePage.page.getByTestId('cms-task-update-leadership')).toHaveCount(0);
     await expect(homePage.page.getByTestId('cms-task-edit-post-notice')).toBeVisible();
     await expect(homePage.page.getByTestId('cms-task-hub').getByText('AppSync')).toHaveCount(0);
     await expect(homePage.page.getByTestId('cms-site-status')).toBeVisible();
+  });
+
+  test('Contact page task opens a section chooser', async ({ homePage }) => {
+    await gotoAdminHub(homePage.page, '/admin');
+
+    await homePage.page.getByTestId('cms-task-edit-update-contact-page').click();
+    await expect(homePage.page.getByTestId('cms-contact-page-chooser')).toBeVisible({
+      timeout: 20_000,
+    });
+    await homePage.page.getByTestId('cms-contact-section-town-hall').click();
+    await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
+    await expect(homePage.page.getByText(/Town Hall visit/i)).toBeVisible();
   });
 
   test('Edit content opens the in-app record editor for post a notice', async ({ homePage }) => {
@@ -71,7 +85,7 @@ test.describe('cms admin', () => {
 
     await homePage.page.getByTestId('cms-save-record').click();
 
-    await expect(homePage.page.getByText(/Announcement saved \(ID e2e-notice-1\)/i)).toBeVisible({
+    await expect(homePage.page.getByText(/Saved\./i)).toBeVisible({
       timeout: 20_000,
     });
   });
@@ -112,7 +126,7 @@ test.describe('cms admin', () => {
     });
   });
 
-  test('content inventory is under Advanced (IT)', async ({ homePage }) => {
+  test('content inventory is under Technical details', async ({ homePage }) => {
     await gotoAdminHub(homePage.page, '/admin#advanced');
 
     await homePage.page.locator('#advanced').evaluate((el) => {
@@ -136,7 +150,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByRole('heading', { name: /Document publishing/i })).toBeVisible({
       timeout: 20_000,
     });
-    await expect(homePage.page.getByText('meeting-documents')).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-meeting-document-upload')).toBeVisible();
   });
 
   test('preserves the legacy /clerk-setup#setup deep link to admin start section', async ({
@@ -223,7 +237,7 @@ test.describe('cms admin', () => {
     await expect(homePage.page.getByRole('heading', { name: /Document publishing/i })).toBeVisible({
       timeout: 20_000,
     });
-    await expect(homePage.page.getByText('meeting-documents', { exact: false })).toBeVisible();
+    await expect(homePage.page.getByTestId('cms-meeting-document-upload')).toBeVisible();
 
     await homePage.page
       .getByTestId('cms-task-edit-site-copy')

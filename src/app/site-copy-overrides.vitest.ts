@@ -4,6 +4,7 @@ import {
   applyAppCopySiteCopyOverrides,
   resolveSiteCopyLabel,
   siteCopyKeyForNavHref,
+  siteCopyKeySelectOptions,
   siteCopyTelHref,
 } from './site-copy-overrides';
 
@@ -13,6 +14,15 @@ describe('site-copy-overrides', () => {
       key === 'contactKicker' ? { en: 'Contact', es: 'Contacto CMS' } : undefined;
     expect(resolveSiteCopyLabel(lookup, 'es', 'contactKicker', 'Fallback')).toBe('Contacto CMS');
     expect(resolveSiteCopyLabel(lookup, 'en', 'contactKicker', 'Fallback')).toBe('Contact');
+  });
+
+  it('excludes Town Hall keys from the menu-label picker', () => {
+    const options = siteCopyKeySelectOptions();
+    expect(options.some((option) => option.value === 'menuQuickTasksLabel')).toBe(true);
+    expect(options.some((option) => option.value === 'contactTownHallAddress')).toBe(false);
+    expect(
+      siteCopyKeySelectOptions(['contactTownHallPhone']).map((option) => option.value),
+    ).toEqual(['contactTownHallPhone']);
   });
 
   it('maps nav hrefs to stable keys', () => {

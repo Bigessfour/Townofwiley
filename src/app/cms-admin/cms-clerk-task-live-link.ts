@@ -72,6 +72,10 @@ const TASK_LIVE_LINK_MAP: Readonly<Record<ClerkCmsTaskId, TaskLiveLinkEntry>> = 
   homepage: {
     hubFragment: 'site-hero-title',
   },
+  'update-contact-page': {
+    hubFragment: 'contact',
+    hubPath: '/contact',
+  },
   'update-contacts': {
     hubFragment: 'contact-administration',
     buildRecordFragment: (savedId) => `contact-${savedId}`,

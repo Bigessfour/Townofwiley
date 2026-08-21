@@ -74,6 +74,36 @@ export const SITE_COPY_KEY_CATALOG: readonly SiteCopyKeyCatalogEntry[] = [
   { key: 'nav.contact', plainLabel: 'Nav link: Contact', appearsOn: 'Header nav' },
 ] as const;
 
+/** Town Hall visit-card keys on /contact — edited from the Contact page chooser, not menu labels. */
+export const TOWN_HALL_SITE_COPY_KEYS = [
+  'contactTownHallTitle',
+  'contactTownHallAddress',
+  'contactTownHallPhone',
+  'contactTownHallHours',
+] as const;
+
+export type TownHallSiteCopyKey = (typeof TOWN_HALL_SITE_COPY_KEYS)[number];
+
+export function isTownHallSiteCopyKey(key: string): boolean {
+  return (TOWN_HALL_SITE_COPY_KEYS as readonly string[]).includes(key);
+}
+
+export function siteCopyPlainLabel(key: string): string | null {
+  return SITE_COPY_KEY_CATALOG.find((entry) => entry.key === key)?.plainLabel ?? null;
+}
+
+export function siteCopyKeySelectOptions(
+  keys?: readonly string[],
+): { value: string; label: string }[] {
+  const allow = keys?.length ? new Set(keys) : null;
+  return SITE_COPY_KEY_CATALOG.filter((entry) => {
+    if (allow) {
+      return allow.has(entry.key);
+    }
+    return !isTownHallSiteCopyKey(entry.key);
+  }).map((entry) => ({ value: entry.key, label: entry.plainLabel }));
+}
+
 export type SiteCopyLookup = (key: string) => { en: string; es?: string } | undefined;
 
 export function siteCopyAppearsOn(key: string): string | null {

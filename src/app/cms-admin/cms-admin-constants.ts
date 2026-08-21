@@ -5,9 +5,9 @@ export interface CmsAdminDocumentSection {
 }
 
 export const DOCUMENT_PUBLISHING_STEPS: string[] = [
-  'Use Upload a meeting agenda or packet below for council agendas and approved minutes.',
-  'For newsletter PDFs, use Post a notice with Kind = Newsletter (not PublicDocument).',
-  'Save, open /meetings on the live site, and hard-refresh to confirm.',
+  'Use the upload form below for council agendas and approved minutes.',
+  'For newsletter PDFs, use Post a notice and choose Newsletter.',
+  'Save, then open the Meetings page on the live site to confirm.',
 ];
 
 export const DOCUMENT_SECTIONS: CmsAdminDocumentSection[] = [
@@ -20,7 +20,7 @@ export const DOCUMENT_SECTIONS: CmsAdminDocumentSection[] = [
 ];
 
 export const DOCUMENT_PUBLISHING_CHECKS: string[] = [
-  'If the content editor says access denied or not authorized, ask IT to fix your staff login or permissions first.',
+  'If upload says you are not signed in, use Staff sign in at the top of this page.',
   'Public records, budgets, and code documents are not published on the website — residents email clerk@townofwiley.gov.',
   'Use Add meeting or event for calendar dates on the Meetings page.',
 ];
