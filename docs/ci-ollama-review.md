@@ -7,7 +7,6 @@ Town of Wiley uses **local Ollama models on GitHub-hosted runners** for advisory
 | Workflow / job | Trigger | Role |
 | -------------- | ------- | ---- |
 | Site CI → `ollama-ci-diagnosis` in [`git-workflow.yml`](../.github/workflows/git-workflow.yml) | After CI gate **failure** | Failure triage + actionable artifacts |
-| [`.github/workflows/ollama-ci-diagnosis.yml`](../.github/workflows/ollama-ci-diagnosis.yml) | Manual `workflow_dispatch` with run id | Re-run triage for a past failed run |
 
 ## Models (GitHub-hosted `ubuntu-latest`)
 

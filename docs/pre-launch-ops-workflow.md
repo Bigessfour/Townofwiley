@@ -38,7 +38,7 @@ npm run test:e2e:smoke
 
 **Pass criteria:** Amplify `main` build succeeded; live CSP matches repo; `runtime-config.js` keys match [`amplify-branch-env.manifest.json`](../infrastructure/amplify-branch-env.manifest.json); clerks hard-refresh browsers after env changes ([CLERK-CMS-GUIDE.md](./CLERK-CMS-GUIDE.md)); PR smoke tier green locally (same as CI `frontend-smoke`).
 
-**Live hosting E2E (after deploy, optional):** GitHub Actions [e2e-live-hosting.yml](../.github/workflows/e2e-live-hosting.yml) (`workflow_dispatch`) — staging (Amplify `main` URL via repo variable `E2E_AMPLIFY_MAIN_URL`) or production (`https://www.townofwiley.gov/`). Locally:
+**Live hosting E2E (after deploy, optional):** run locally against production (or CloudFront):
 
 ```bash
 E2E_BASE_URL=https://www.townofwiley.gov/ npm run test:e2e:live:production
@@ -74,8 +74,8 @@ npm run verify:aws-infra
 | Tier            | When                                       | Command                                                                                                                | Pass criteria                                                       |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | PR smoke        | Every app/e2e change (CI `frontend-smoke`) | `npm run test:e2e:smoke`                                                                                               | Critical tier green; no new console errors in `public-route-health` |
-| Live hosting    | After deploy / weekly                      | [e2e-live-hosting.yml](../.github/workflows/e2e-live-hosting.yml) or `test:e2e:live:production`                        | `live-hosting` + `live-hosting-headers` specs green                 |
-| Full regression | Pre-marketing / monthly                    | `npm run test:e2e:regression` or nightly [e2e-regression-nightly.yml](../.github/workflows/e2e-regression-nightly.yml) | All smoke + accessibility + responsive + typography green           |
+| Live hosting    | After deploy / weekly                      | `npm run test:e2e:live:production`                                                                                     | `live-hosting` + `live-hosting-headers` specs green                 |
+| Full regression | Pre-marketing / monthly                    | `npm run test:e2e:regression`                                                                                          | All smoke + accessibility + responsive + typography green           |
 
 | Check              | Action                                                                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
