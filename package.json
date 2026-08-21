@@ -218,7 +218,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.3.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "playwright": "^1.61.1",
     "postcss": "^8.5.25",
     "sharp": "^0.34.5",
