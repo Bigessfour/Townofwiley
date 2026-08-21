@@ -62,11 +62,11 @@ export const CLERK_COVERAGE_ROWS: readonly ClerkCoverageRow[] = [
     adminHint: 'Pick the meeting, choose PDF, upload — after the event exists',
   },
   {
-    whatResidentsSee: 'Town Administration contacts and intro',
+    whatResidentsSee: 'Town staff table + agenda note on /contact',
     whereOnSite: '/contact (administration card)',
     method: 'admin-task',
     taskId: 'update-contacts',
-    adminHint: 'Rows town-information, city-clerk, town-superintendent — do not change id',
+    adminHint: 'Edit existing Town Information / City Clerk / Town Superintendent cards — system id is locked while editing',
   },
   {
     whatResidentsSee: 'Town Hall address, phone, and hours (main card)',

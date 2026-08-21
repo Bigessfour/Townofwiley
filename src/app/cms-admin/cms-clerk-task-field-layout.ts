@@ -52,7 +52,10 @@ const CLERK_TASK_FIELD_LAYOUT: Partial<
     enabled: { group: 'Publish on website' },
   },
   'update-contacts': {
-    id: { group: 'Which contact row', previewHint: '/contact Town Administration area' },
+    id: {
+      group: 'New card only (IT)',
+      previewHint: 'Usually leave this alone — Edit an existing card instead',
+    },
     label: { group: 'What residents see' },
     value: { group: 'What residents see' },
     detail: { group: 'What residents see' },
@@ -61,7 +64,10 @@ const CLERK_TASK_FIELD_LAYOUT: Partial<
     displayOrder: { group: 'Advanced', optional: true },
   },
   'update-leadership': {
-    groupId: { group: 'Which list', previewHint: '/contact elected or administration lists' },
+    groupId: {
+      group: 'Which list',
+      previewHint: '/contact elected list or Town Administration names',
+    },
     lineEn: { group: 'Name on the website' },
     lineEs: { group: 'Name on the website', optional: true },
     active: { group: 'Publish on website' },

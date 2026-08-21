@@ -132,8 +132,16 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
   protected readonly fields = computed(() => {
     const id = this.taskId();
-    return id ? clerkTaskFormFields(id) : [];
+    const all = id ? clerkTaskFormFields(id) : [];
+    // OfficialContact `id` is a stable lookup key. Hide it while editing so clerks are not
+    // told the field is both required and "do not change".
+    if (id === 'update-contacts' && this.editingId()) {
+      return all.filter((field) => field.name !== 'id');
+    }
+    return all;
   });
+
+  protected readonly formPurpose = computed(() => this.task()?.shortDescription ?? '');
 
   protected readonly formSections = computed(() => clerkFormSections(this.fields()));
 
@@ -228,7 +236,41 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     if (this.isSingleton()) {
       return 'Edit the saved settings';
     }
+    if (active.id === 'update-contacts') {
+      return this.editingId()
+        ? 'Edit Town Administration contact card'
+        : 'Add a Town Administration contact card (IT only)';
+    }
+    if (active.id === 'update-leadership') {
+      return this.editingId()
+        ? 'Edit this name on the website'
+        : 'Add a new name to the list';
+    }
     return this.editingId() ? 'Edit this saved entry' : 'Add a new entry';
+  });
+
+  protected readonly formLead = computed(() => {
+    const active = this.task();
+    if (!active) {
+      return '';
+    }
+    if (this.isSingleton()) {
+      return 'Changes save directly to the live website through Town content storage (AWS AppSync).';
+    }
+    if (active.id === 'update-contacts') {
+      return this.editingId()
+        ? 'You are editing an existing contact card. Update the heading, phone/email, and detail text residents see. The card’s system id stays locked.'
+        : 'Only add a new card if IT asks you to. Prefer Edit on Town Information, City Clerk, or Town Superintendent from the list above.';
+    }
+    if (active.id === 'update-leadership') {
+      return this.editingId()
+        ? 'Change the name line below, then Save. That updates the same row on /contact (for example replacing “To Be Announced” with a real name).'
+        : 'Choose the list first. Prefer Edit on an existing row when updating a name. Use Add only when the person is not already listed.';
+    }
+    if (this.editingId()) {
+      return `You are editing an existing ${active.model} row. Save updates the live site immediately.`;
+    }
+    return `Fill in the fields below to add a new ${active.model} row on the live site.`;
   });
 
   protected readonly showRecordPicker = computed(() => {

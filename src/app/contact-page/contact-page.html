@@ -12,21 +12,33 @@
       }
     </header>
 
+    <nav class="contact-jump" [attr.aria-label]="copy().contactKicker">
+      <a class="contact-jump__link" href="#contact-town-hall">{{
+        copy().contactJumpVisitLabel
+      }}</a>
+      <a class="contact-jump__link" href="#contact-administration">{{
+        copy().contactJumpStaffLabel
+      }}</a>
+      <a class="contact-jump__link" href="#leadership">{{ copy().contactJumpElectedLabel }}</a>
+    </nav>
+
     <section
-      class="contact-block"
+      class="contact-block contact-block--visit"
       data-testid="contact-town-hall"
+      id="contact-town-hall"
       [attr.aria-labelledby]="'contact-town-hall-heading'"
     >
       <h2 id="contact-town-hall-heading" class="contact-section-card-title">
         {{ copy().contactTownHallTitle }}
       </h2>
+      <p class="contact-town-hall-place">{{ copy().contactTownHallPlaceName }}</p>
       <address class="contact-town-hall-address">{{ townHallAddress() }}</address>
       <p class="contact-town-hall-hours">{{ copy().contactTownHallHours }}</p>
       <a class="contact-town-hall-phone" [href]="townHallPhoneHref()">{{ townHallPhone() }}</a>
     </section>
 
     <section
-      class="contact-block"
+      class="contact-block contact-block--staff"
       data-testid="contact-administration"
       id="contact-administration"
     >
@@ -41,81 +53,115 @@
           <p-skeleton width="92%" height="0.85rem" styleClass="mb-2" />
           <p-skeleton width="88%" height="0.85rem" />
         </div>
-      } @else {
-        @if (townInformationContact(); as townInfo) {
-          <div class="contact-town-information-summary" [attr.id]="'contact-' + townInfo.id">
-            <h3 class="contact-subheading">{{ townInfo.label }}</h3>
-            <p class="contact-town-information-detail">{{ townInfo.detail }}</p>
+      } @else if (administrationMembers().length > 0) {
+        <div
+          class="contact-staff-table"
+          role="table"
+          [attr.aria-label]="copy().contactAdministrationAriaLabel"
+        >
+          <div class="contact-staff-table__head" role="row">
+            <span
+              class="contact-staff-table__cell contact-staff-table__cell--role"
+              role="columnheader"
+              >{{ copy().contactStaffRoleColumnLabel }}</span
+            >
+            <span
+              class="contact-staff-table__cell contact-staff-table__cell--name"
+              role="columnheader"
+              >{{ copy().contactStaffNameColumnLabel }}</span
+            >
+            <span
+              class="contact-staff-table__cell contact-staff-table__cell--email"
+              role="columnheader"
+              >{{ copy().contactStaffEmailColumnLabel }}</span
+            >
           </div>
-        } @else if (contacts().length === 0) {
-          <p class="public-empty-state" role="status">{{ copy().contactEmptyState }}</p>
-        }
+          @for (member of administrationMembers(); track member.rosterId ?? member.raw) {
+            <div
+              class="contact-staff-table__row"
+              role="row"
+              [attr.id]="
+                member.rosterId ? 'leadership-row-town-administration-' + member.rosterId : null
+              "
+            >
+              <span class="contact-staff-table__cell contact-staff-table__cell--role" role="cell">
+                <span class="contact-roster-role">{{ member.role }}</span>
+              </span>
+              <span class="contact-staff-table__cell contact-staff-table__cell--name" role="cell">
+                @if (member.name) {
+                  <span class="contact-roster-name">{{ member.name }}</span>
+                } @else {
+                  <span class="contact-roster-name">{{ member.raw }}</span>
+                }
+              </span>
+              <span
+                class="contact-staff-table__cell contact-staff-table__cell--email"
+                role="cell"
+                [attr.id]="member.contactId ? 'contact-' + member.contactId : null"
+              >
+                @if (member.href && member.linkLabel) {
+                  <a class="contact-link" [attr.href]="member.href">{{ member.linkLabel }}</a>
+                } @else {
+                  <span class="contact-staff-table__empty">—</span>
+                }
+              </span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="public-empty-state contact-roster-empty" role="status">
+          {{ copy().contactRosterEmptyState }}
+        </p>
+      }
+    </section>
 
-        @if (administrationMembers().length > 0) {
-          <dl
-            class="contact-roster-list"
-            [attr.aria-label]="copy().contactAdministrationAriaLabel"
-          >
-            @for (member of administrationMembers(); track member.rosterId ?? member.raw) {
-              <div
-                class="contact-roster-item"
+    @if (agendaNoteDetail(); as agendaDetail) {
+      <section
+        class="contact-block contact-block--agenda"
+        data-testid="contact-agenda-note"
+        id="contact-town-information"
+        [attr.aria-labelledby]="'contact-agenda-heading'"
+      >
+        <h2 id="contact-agenda-heading" class="contact-section-card-title">
+          {{ copy().contactAgendaNoteTitle }}
+        </h2>
+        <p class="contact-agenda-detail">{{ agendaDetail }}</p>
+      </section>
+    } @else if (!cmsLoading() && contacts().length === 0 && administrationMembers().length === 0) {
+      <p class="public-empty-state" role="status">{{ copy().contactEmptyState }}</p>
+    }
+
+    @if (electedOfficialsGroup(); as electedGroup) {
+      <section
+        id="leadership"
+        class="contact-block contact-block--elected"
+        data-testid="contact-elected"
+        [attr.aria-label]="electedGroup.title"
+      >
+        <h2 class="contact-section-card-title">{{ electedGroup.title }}</h2>
+        <p class="contact-section-card-detail">{{ electedGroup.detail }}</p>
+        @if (electedOfficialLines().length > 0) {
+          <ul class="contact-elected-list">
+            @for (official of electedOfficialLines(); track official.rosterId ?? official.raw) {
+              <li
+                class="contact-elected-item"
                 [attr.id]="
-                  member.rosterId ? 'leadership-row-town-administration-' + member.rosterId : null
+                  official.rosterId ? 'leadership-row-mayor-council-' + official.rosterId : null
                 "
               >
-                <dt class="contact-roster-role">{{ member.role }}</dt>
-                <dd
-                  class="contact-roster-value"
-                  [attr.id]="member.contactId ? 'contact-' + member.contactId : null"
-                >
-                  @if (member.name) {
-                    <span class="contact-roster-name">{{ member.name }}</span>
-                  }
-                  @if (member.href && member.linkLabel) {
-                    <a class="contact-link" [attr.href]="member.href">{{ member.linkLabel }}</a>
-                  }
-                  @if (member.detail) {
-                    <span class="contact-roster-detail">{{ member.detail }}</span>
-                  }
-                </dd>
-              </div>
+                <span class="contact-roster-role">{{ official.role }}</span>
+                <span class="contact-roster-name">{{ official.name || official.raw }}</span>
+              </li>
             }
-          </dl>
+          </ul>
         } @else {
           <p class="public-empty-state contact-roster-empty" role="status">
             {{ copy().contactRosterEmptyState }}
           </p>
         }
-      }
-    </section>
-
-    @if (electedOfficialsGroup(); as electedGroup) {
-      <section
-        id="leadership"
-        class="contact-block"
-        [attr.aria-label]="electedGroup.title"
-      >
-        <h2 class="contact-section-card-title">{{ electedGroup.title }}</h2>
-        <p class="contact-section-card-detail">{{ electedGroup.detail }}</p>
-        <dl class="contact-roster-list contact-elected-list">
-          @if (electedOfficialLines().length > 0) {
-            @for (official of electedOfficialLines(); track official.rosterId ?? official.raw) {
-              <div
-                class="contact-roster-item"
-                [attr.id]="
-                  official.rosterId ? 'leadership-row-mayor-council-' + official.rosterId : null
-                "
-              >
-                <dt class="contact-roster-role">{{ official.role }}</dt>
-                <dd class="contact-roster-name">{{ official.name }}</dd>
-              </div>
-            }
-          } @else {
-            <p class="public-empty-state contact-roster-empty" role="status">
-              {{ copy().contactRosterEmptyState }}
-            </p>
-          }
-        </dl>
+        <a class="contact-meetings-link" routerLink="/meetings">{{
+          copy().contactMeetingsLinkLabel
+        }}</a>
       </section>
     }
   </section>

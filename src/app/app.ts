@@ -420,6 +420,24 @@ export interface AppCopy {
   contactRosterEmptyState: string;
   contactTownHallTitle: string;
   contactTownHallHours: string;
+  /** Place name under Visit & call (e.g. Wiley Town Hall). */
+  contactTownHallPlaceName: string;
+  /** Staff table column: role. */
+  contactStaffRoleColumnLabel: string;
+  /** Staff table column: name. */
+  contactStaffNameColumnLabel: string;
+  /** Staff table column: email. */
+  contactStaffEmailColumnLabel: string;
+  /** In-page jump link: Visit & call section. */
+  contactJumpVisitLabel: string;
+  /** In-page jump link: Town staff section. */
+  contactJumpStaffLabel: string;
+  /** In-page jump link: Mayor & Council section. */
+  contactJumpElectedLabel: string;
+  /** Heading for the single agenda / clerk-help note (OfficialContact town-information detail). */
+  contactAgendaNoteTitle: string;
+  /** Link from contact page to meeting notices. */
+  contactMeetingsLinkLabel: string;
   backHomeLabel: string;
   /** Document title segment when no route matches (404). */
   notFoundBrowserTitle: string;
@@ -673,7 +691,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     residentShortcutsAriaLabel: 'Resident shortcuts',
     returnHomeAriaLabel: 'Return to homepage',
     meetingsNextHeading: 'Next meeting',
-    contactAdministrationAriaLabel: 'Town administration contacts',
+    contactAdministrationAriaLabel: 'Town staff contacts',
     calendarLegendAriaLabel: 'Calendar event types',
     businessesFeatureSummary:
       'Discover and support local businesses in Wiley with contact info and websites.',
@@ -770,12 +788,21 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityLastReviewedLabel: 'Last reviewed',
     accessibilityLastReviewedDate: 'May 6, 2026',
     contactKicker: 'Contact',
-    contactHeading: 'Phone, email, and next steps',
+    contactHeading: 'Contact Town Hall',
     contactEmptyState:
       'Town Hall directory is loading. If contacts do not appear, call (719) 829-4974 or email the Town Clerk for help.',
     contactRosterEmptyState: 'No officials listed yet.',
-    contactTownHallTitle: 'Wiley Town Hall',
+    contactTownHallTitle: 'Visit & call',
     contactTownHallHours: 'Monday – Friday · 8:00 AM – 4:00 PM',
+    contactTownHallPlaceName: 'Wiley Town Hall',
+    contactStaffRoleColumnLabel: 'Role',
+    contactStaffNameColumnLabel: 'Name',
+    contactStaffEmailColumnLabel: 'Email',
+    contactJumpVisitLabel: 'Call Town Hall',
+    contactJumpStaffLabel: 'Town staff',
+    contactJumpElectedLabel: 'Mayor & Council',
+    contactAgendaNoteTitle: 'Need time on the agenda?',
+    contactMeetingsLinkLabel: 'Meeting notices & packets',
     backHomeLabel: 'Return to homepage',
     notFoundBrowserTitle: 'Page not found',
     notFoundMetaDescription:
@@ -1043,13 +1070,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipGroups: [
       {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-        title: 'Elected Officials (Mayor & Council)',
-        detail: 'Elected officials and meeting contact paths are listed below.',
+        title: 'Mayor & Council',
+        detail: 'Elected officials for the Town of Wiley.',
       },
       {
         groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
-        title: 'Town Administration',
-        detail: 'Clerk and superintendent contacts for day-to-day town services.',
+        title: 'Town staff',
+        detail: 'Day-to-day Town Hall contacts for clerk and operations services.',
       },
     ],
   },
@@ -1116,7 +1143,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     residentShortcutsAriaLabel: 'Accesos directos para residentes',
     returnHomeAriaLabel: 'Volver a la página principal',
     meetingsNextHeading: 'Próxima reunión',
-    contactAdministrationAriaLabel: 'Contactos de la administración del pueblo',
+    contactAdministrationAriaLabel: 'Contactos del personal del pueblo',
     calendarLegendAriaLabel: 'Tipos de eventos del calendario',
     businessesFeatureSummary:
       'Descubra y apoye negocios locales de Wiley con teléfonos, direcciones y sitios web.',
@@ -1216,12 +1243,21 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityLastReviewedLabel: 'Ultima revision',
     accessibilityLastReviewedDate: '6 de mayo de 2026',
     contactKicker: 'Contacto',
-    contactHeading: 'Telefono, correo y siguientes pasos',
+    contactHeading: 'Contactar al Ayuntamiento',
     contactEmptyState:
       'El directorio del Ayuntamiento esta cargando. Si los contactos no aparecen, llame al (719) 829-4974 o escriba a la Secretaria del Pueblo.',
     contactRosterEmptyState: 'Aun no hay funcionarios en esta lista.',
-    contactTownHallTitle: 'Ayuntamiento de Wiley',
+    contactTownHallTitle: 'Visitar y llamar',
     contactTownHallHours: 'Lunes a viernes · 8:00 a. m. – 4:00 p. m.',
+    contactTownHallPlaceName: 'Ayuntamiento de Wiley',
+    contactStaffRoleColumnLabel: 'Cargo',
+    contactStaffNameColumnLabel: 'Nombre',
+    contactStaffEmailColumnLabel: 'Correo',
+    contactJumpVisitLabel: 'Llamar al Ayuntamiento',
+    contactJumpStaffLabel: 'Personal del pueblo',
+    contactJumpElectedLabel: 'Alcalde y Concejo',
+    contactAgendaNoteTitle: '¿Necesita tiempo en la agenda?',
+    contactMeetingsLinkLabel: 'Avisos y paquetes de reuniones',
     backHomeLabel: 'Volver a la página principal',
     notFoundBrowserTitle: 'Página no encontrada',
     notFoundMetaDescription:
@@ -1493,13 +1529,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     leadershipGroups: [
       {
         groupId: LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
-        title: 'Funcionarios electos (Alcalde y Concejo)',
-        detail: 'Funcionarios electos y rutas de contacto para reuniones.',
+        title: 'Alcalde y Concejo',
+        detail: 'Funcionarios electos del Pueblo de Wiley.',
       },
       {
         groupId: LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,
-        title: 'Administracion del pueblo',
-        detail: 'Contactos de la secretaria y del superintendente para servicios cotidianos.',
+        title: 'Personal del pueblo',
+        detail: 'Contactos cotidianos de la secretaria y operaciones del Ayuntamiento.',
       },
     ],
   },

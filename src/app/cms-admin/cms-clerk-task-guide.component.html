@@ -5,6 +5,7 @@
     data-testid="cms-task-guide"
   >
     <h2 id="cms-task-guide-heading" class="cms-task-guide__title">Edit: {{ active.title }}</h2>
+    <p class="cms-task-guide__purpose">{{ active.shortDescription }}</p>
 
     @if (showStaffSignInNote()) {
       <p class="cms-task-guide__note" role="note">
