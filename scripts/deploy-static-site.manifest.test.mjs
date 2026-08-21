@@ -8,9 +8,9 @@ import {
 describe('readHostingManifest', () => {
   it('loads S3 bucket and CloudFront id from aws-infrastructure.manifest.json', () => {
     const { accountId, hosting } = readHostingManifest();
-    assert.equal(accountId, '570912405222');
-    assert.equal(hosting.s3Bucket, 'townofwiley-static-site');
-    assert.equal(hosting.cloudFrontDistributionId, 'E1NZ3XCY5CYR1J');
+    assert.equal(accountId, '818904800844');
+    assert.equal(hosting.s3Bucket, 'townofwiley-static-site-818904800844');
+    assert.equal(hosting.cloudFrontDistributionId, 'E19PUUL2H76CZA');
     assert.equal(hosting.region, 'us-east-2');
   });
 });
