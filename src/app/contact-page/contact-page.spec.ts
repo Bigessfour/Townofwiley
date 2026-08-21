@@ -148,7 +148,7 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     const empty = el.querySelector('.public-empty-state');
     expect(empty).toBeTruthy();
-    expect(empty?.textContent).toContain('Town Hall directory');
+    expect(empty?.textContent).toContain('No officials listed yet.');
   });
 
   it('renders staff table with mailto links and agenda note without repeating clerk detail', () => {
