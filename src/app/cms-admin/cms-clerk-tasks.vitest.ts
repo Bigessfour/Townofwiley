@@ -43,14 +43,6 @@ describe('cms-clerk-tasks', () => {
     expect(CLERK_VERIFY_STEPS.join(' ')).toMatch(/hard-refresh/i);
   });
 
-  it('defines manage-email-aliases as a dedicated editor task', () => {
-    const task = clerkTaskById('manage-email-aliases');
-    expect(task?.model).toBe('EmailAlias');
-    expect(task?.icon).toBe('pi-envelope');
-    expect(task?.showPublicPreview).toBe(false);
-    expect(clerkTaskUsesDedicatedEditor('manage-email-aliases')).toBe(true);
-  });
-
   it('defines manage-community-calendar as a dedicated editor task', () => {
     const task = clerkTaskById('manage-community-calendar');
     expect(task?.model).toBe('CommunityEvent');

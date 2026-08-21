@@ -320,7 +320,7 @@ Current scope:
 
 - **Staff publishing:** `/admin` in-app forms → AppSync GraphQL (Cognito)
 - **Public read path:** AppSync GraphQL API with a runtime-injected read key
-- **Models in use:** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`, plus staff-only `EmailAlias`
+- **Models in use:** `SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `LeadershipRosterEntry`, `Business`, `PublicDocument`, `ExternalNewsLink`, `SiteCopy`, and related public CMS models
 - **`/admin` route:** unified operations hub with task cards, CMS connection proof, contact updates, and IT AppSync Queries link
 
 Runtime configuration sources for the public CMS read path:
@@ -393,106 +393,14 @@ Operational note:
 
 - Mapping inside `mapUpstreamJsonToTownLaunchResponse` and `buildUpstreamLaunchBody` are **scaffolds**; update them to match Paystar’s tenant OpenAPI when credentials are available.
 
-## Town Email Aliases
+## Town email
 
-The Town mail-routing path should use AWS-managed forwarding rather than personal mailbox rules so `townofwiley.gov` addresses stay under Town control even when the staff member's current inbox changes.
+Inbound mail for `@townofwiley.gov` is handled by the Town mail server on Synology (`mail.townofwiley.gov`). Route 53 publishes `MX 10 mail.townofwiley.gov`.
 
-Selected AWS method:
+Amazon SES in `us-east-2` remains available for authenticated outbound sending (Easy DKIM verified). The former SES inbound alias-forwarding stack (Lambda, S3 ingress, `EmailAlias` CMS task) is retired — do not redeploy it.
 
-- Receive inbound town mail through Amazon SES.
-- Store the raw inbound message in S3.
-- Trigger a Lambda forwarder from the S3 object-created event.
-- Look up the destination inbox from a private **`EmailAlias`** record (staff-only CMS model).
-- Forward the message to the staff member's current inbox by SES using a verified Town sender.
+Public contact addresses shown on the website (for example `clerk@townofwiley.gov`) are ordinary mailbox addresses on that Synology mail system, not AWS forwarding rules.
 
-Why this is the best fit here:
-
-- It supports alias-style forwarding such as `steve.mckitrick@townofwiley.gov -> bigessfour@gmail.com` without moving staff into a new mailbox system first.
-- The routing data is managed on **`/admin`** → **Manage email forwarding** (or AppSync Queries for IT).
-- Public contact cards can stay in `OfficialContact`, while forwarding destinations remain private and are never exposed through the public API key.
-- The Lambda forwarder keeps the logic in AWS, so the Town can later swap destination inboxes without editing Route 53 records or personal Gmail rules.
-
-Important scope note:
-
-- This scaffold is for inbound forwarding first.
-- If the Town later wants staff to send mail as `townofwiley.gov` from Gmail or another client, that should be handled separately with SES SMTP or Amazon WorkMail after forwarding is stable.
-- SES inbound receiving may need to live in an AWS region that supports email receiving even if the rest of the site stays in `us-east-2`.
-
-Current live SES status in Ohio:
-
-- The `townofwiley.gov` domain identity is verified in Amazon SES `us-east-2`.
-- Easy DKIM is active and the Route 53 hosted zone now carries the SES DKIM CNAME records for the domain.
-- The SES account in `us-east-2` is no longer sandbox-limited.
-- Current Ohio SES sending quotas are `50,000` messages per 24 hours and `14` messages per second.
-- The current SES account details in `us-east-2` report `MailType=TRANSACTIONAL` and `WebsiteURL=http://townofwiley.gov`.
-
-What this means now:
-
-- Outbound Town mail through SES in `us-east-2` is available.
-- The live alias router is now configured to forward mail using `steve.mckitrick@townofwiley.gov` as the sender.
-- The remaining mail work is now primarily bucket hardening, rollout of the rest of the alias records, and live end-to-end mail validation.
-- The `EmailAlias` model uses DynamoDB table `EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main` on the Gen 1 AppSync API. See [gen1-production-bindings.json](./infrastructure/gen1-production-bindings.json) and [gen2-decommissioned.md](./docs/gen2-decommissioned.md).
-- The alias router now supports split-region operation so inbound processing can run in an SES-receiving region such as `us-east-1` while forwarded outbound mail continues through the verified `us-east-2` SES sender.
-- The first-pass alias router infrastructure is now deployed with Lambda `TownOfWileyEmailAliasRouter`, IAM role `TownOfWileyEmailAliasRouterRole`, S3 bucket `townofwiley-email-alias-570912405222-us-east-1`, and active SES receipt rule set `TownOfWileyAliasForwarding` in `us-east-1`.
-- Route 53 now publishes `townofwiley.gov MX 10 inbound-smtp.us-east-1.amazonaws.com` and the change is fully in sync.
-- The first live `EmailAlias` record is active for `steve.mckitrick@townofwiley.gov -> bigessfour@gmail.com`.
-- The current AWS principal could not apply `s3:PutBucketPublicAccessBlock`, so that bucket-hardening step still needs to be completed by a principal with that permission.
-
-CMS model split:
-
-- `OfficialContact`: public role, label, detail, and public alias email shown on the website
-- `EmailAlias`: private alias-to-destination mapping used only by the forwarding worker
-
-`EmailAlias` model fields:
-
-- `aliasAddress`
-- `destinationAddress`
-- `displayName`
-- `roleLabel`
-- `active`
-- `notes`
-
-Traceability:
-
-- `amplify/backend/api/townofwiley/schema.graphql`
-- `src/app/cms-admin/cms-admin.ts`
-- `src/app/cms-admin/cms-admin.html`
-- `infrastructure/email-alias-router/app.py`
-- `infrastructure/email-alias-router/tests/test_app.py`
-- `scripts/deploy-email-alias-router.py`
-- `docs/town-email-alias-forwarding-runbook.md`
-- `docs/incomplete-items-reference.md`
-
-Recommended deployment shape:
-
-1. Apply S3 public-access-block settings on `townofwiley-email-alias-570912405222-us-east-1` with a principal that has `s3:PutBucketPublicAccessBlock`.
-2. Add the remaining `EmailAlias` records on **`/admin`** → **Manage email forwarding** for each Town mailbox alias.
-3. Send live test mail to each alias before staff relies on it.
-
-Repo-backed deployment path:
-
-- Fill in the `mail.aliasForwarding` section in `secrets/local/user-secrets.json`.
-- Run `npm run deploy:email-alias-router`.
-- Follow the operator steps in [docs/town-email-alias-forwarding-runbook.md](docs/town-email-alias-forwarding-runbook.md).
-
-Required Lambda environment variables:
-
-- `EMAIL_ALIAS_TABLE`
-- Optional `EMAIL_ALIAS_TABLE_REGION` when the EmailAlias table lives outside the Lambda region
-- Optional `EMAIL_ALIAS_INDEX_NAME` with default `byAliasAddress`
-- `FORWARDER_FROM`
-- Optional `ALIAS_DOMAIN` with default `townofwiley.gov`
-
-Current first live alias:
-
-- Public alias: `steve.mckitrick@townofwiley.gov`
-- Current destination inbox: `bigessfour@gmail.com`
-
-Validation command:
-
-```bash
-npm run test:infra:mail
-```
 
 ## NWS Weather Proxy
 

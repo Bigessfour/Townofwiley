@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } f
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsCommunityCalendarAdminComponent } from './cms-community-calendar-admin.component';
 import { CmsClerkRecordEditorComponent } from './cms-clerk-record-editor.component';
-import { CmsEmailAliasAdminComponent } from './cms-email-alias-admin.component';
 import { clerkTaskHasForm } from './cms-clerk-task-form-fields';
 import {
   CLERK_VERIFY_STEPS,
@@ -21,7 +20,6 @@ import { MessageModule } from 'primeng/message';
     ButtonModule,
     CmsClerkRecordEditorComponent,
     CmsCommunityCalendarAdminComponent,
-    CmsEmailAliasAdminComponent,
     MessageModule,
   ],
   templateUrl: './cms-clerk-task-guide.component.html',

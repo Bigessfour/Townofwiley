@@ -1,15 +1,10 @@
 @if (task(); as active) {
   <div class="cms-record-editor" data-testid="cms-record-editor">
     <h3 class="cms-record-editor__title">{{ formTitle() }}</h3>
-    <p class="cms-record-editor__lead">
-      @if (isSingleton()) {
-        Changes save directly to the live website through Town content storage (AWS AppSync).
-      } @else if (editingId()) {
-        You are editing an existing {{ active.model }} row. Save updates the live site immediately.
-      } @else {
-        Fill in the fields below to add a new {{ active.model }} row on the live site.
-      }
-    </p>
+    @if (formPurpose()) {
+      <p class="cms-record-editor__purpose">{{ formPurpose() }}</p>
+    }
+    <p class="cms-record-editor__lead">{{ formLead() }}</p>
 
     @if (recordsLoading()) {
       <p class="cms-record-editor__status" role="status">Loading saved records…</p>

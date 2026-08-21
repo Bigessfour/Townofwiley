@@ -76,7 +76,6 @@ jobs:
       site_proxy_changed: ${{ steps.classify.outputs.site_proxy_changed }}
       site_monitor_changed: ${{ steps.classify.outputs.site_monitor_changed }}
       weather_alerts_changed: ${{ steps.classify.outputs.weather_alerts_changed }}
-      email_alias_changed: ${{ steps.classify.outputs.email_alias_changed }}
       community_calendar_changed: ${{ steps.classify.outputs.community_calendar_changed }}
       infra_manifest_changed: ${{ steps.classify.outputs.infra_manifest_changed }}
       custom_http_changed: ${{ steps.classify.outputs.custom_http_changed }}
@@ -112,7 +111,6 @@ jobs:
           SITE_PROXY_CHANGED=false
           SITE_MONITOR_CHANGED=false
           WEATHER_ALERTS_CHANGED=false
-          EMAIL_ALIAS_CHANGED=false
           COMMUNITY_CALENDAR_CHANGED=false
           INFRA_MANIFEST_CHANGED=false
           CUSTOM_HTTP_CHANGED=false
@@ -128,7 +126,7 @@ jobs:
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
-              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/ci-production-build.mjs|scripts/lib/runtime-config-env.mjs|scripts/lib/runtime-secret-mappings.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|.github/workflows/ollama-ci-diagnosis.yml|.github/workflows/ollama-pr-review.yml|.github/workflows/copilot-setup-steps.yml|.github/actions/**|scripts/ollama_ci_diagnosis.sh|scripts/ollama-pr-review.mjs|scripts/ollama-run-prompt.mjs|scripts/extract-ci-failure-facts.mjs|scripts/ci-collect-ollama-improvements.mjs|scripts/lib/ollama-*.mjs|scripts/lib/ci-failure-facts.mjs|scripts/lib/ollama-ci-system-prompt.txt|docs/ci-ollama-review.md|docs/third-party-csp-registry.md)
+              src/*|public/*|package.json|package-lock.json|.nvmrc|.node-version|.tool-versions|mise.toml|angular.json|amplify/*|amplify.yml|playwright.config.ts|tsconfig*.json|eslint.config.js|scripts/deploy-static-site.sh|scripts/deploy-static-site.manifest.test.mjs|scripts/lib/read-hosting-manifest.mjs|scripts/generate-runtime-config.mjs|scripts/ci-production-build.mjs|scripts/lib/runtime-config-env.mjs|scripts/lib/runtime-secret-mappings.mjs|scripts/generate-static-route-entrypoints.mjs|scripts/convert-hero.mjs|scripts/verify-custom-http-yaml.mjs|scripts/verify-csp-inline-style-policy.mjs|scripts/verify-csp-inline-style-policy.test.mjs|scripts/verify-public-cms-query.mjs|scripts/sync-angular-serve-csp.mjs|scripts/lib/custom-http-csp.mjs|scripts/lib/csp-inline-style-policy.mjs|scripts/sync-amplify-custom-headers.sh|scripts/sync-amplify-spa-rules.sh|scripts/amplify-spa-rewrite-rules.json|static-routes.txt|.github/workflows/ci.yml|.github/workflows/git-workflow.yml|.github/workflows/deploy-production.yml|.github/workflows/hosting-headers-drift-watch.yml|.github/workflows/copilot-setup-steps.yml|.github/actions/**|scripts/ollama_ci_diagnosis.sh|scripts/ollama-run-prompt.mjs|scripts/extract-ci-failure-facts.mjs|scripts/ci-collect-ollama-improvements.mjs|scripts/lib/ollama-*.mjs|scripts/lib/ci-failure-facts.mjs|scripts/lib/ollama-ci-system-prompt.txt|docs/ci-ollama-review.md|docs/third-party-csp-registry.md)
                 APP_CHANGED=true
                 DOCS_ONLY=false
                 ;;
@@ -146,10 +144,6 @@ jobs:
                 ;;
               infrastructure/severe-weather-signup/*)
                 WEATHER_ALERTS_CHANGED=true
-                DOCS_ONLY=false
-                ;;
-              infrastructure/email-alias-router/*|scripts/deploy-email-alias-router.py)
-                EMAIL_ALIAS_CHANGED=true
                 DOCS_ONLY=false
                 ;;
               infrastructure/community-calendar/*|scripts/deploy-community-calendar-backend.py)
@@ -178,7 +172,6 @@ jobs:
             echo "site_proxy_changed=$SITE_PROXY_CHANGED"
             echo "site_monitor_changed=$SITE_MONITOR_CHANGED"
             echo "weather_alerts_changed=$WEATHER_ALERTS_CHANGED"
-            echo "email_alias_changed=$EMAIL_ALIAS_CHANGED"
             echo "community_calendar_changed=$COMMUNITY_CALENDAR_CHANGED"
             echo "infra_manifest_changed=$INFRA_MANIFEST_CHANGED"
             echo "custom_http_changed=$CUSTOM_HTTP_CHANGED"
@@ -200,7 +193,6 @@ jobs:
           - Website runtime proxy code changed: ${{ steps.classify.outputs.site_proxy_changed }}
           - Site monitor code changed: ${{ steps.classify.outputs.site_monitor_changed }}
           - Severe weather signup backend changed: ${{ steps.classify.outputs.weather_alerts_changed }}
-          - Email alias router changed: ${{ steps.classify.outputs.email_alias_changed }}
           - Infrastructure manifest / SSOT changed: ${{ steps.classify.outputs.infra_manifest_changed }}
           - customHttp.yml changed: ${{ steps.classify.outputs.custom_http_changed }}
           - Terraform IaC changed: ${{ steps.classify.outputs.terraform_changed }}
@@ -481,7 +473,6 @@ jobs:
     needs: detect-changes
     if: |
       needs.detect-changes.outputs.weather_alerts_changed == 'true' ||
-      needs.detect-changes.outputs.email_alias_changed == 'true' ||
       needs.detect-changes.outputs.community_calendar_changed == 'true'
     timeout-minutes: 15
     steps:
@@ -505,11 +496,6 @@ jobs:
       - name: Run Python backend tests
         run: npm run test:infra:backend
 
-      - name: Verify email alias MIME passthrough guards
-        if: needs.detect-changes.outputs.email_alias_changed == 'true'
-        run: |
-          npm run verify:email-alias-mime
-          npm run test:infra:mail
 
   maintainer-only-summary:
     runs-on: ubuntu-latest

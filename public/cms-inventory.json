@@ -6,7 +6,10 @@
     "name": "townofwiley-main",
     "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
     "authenticationType": "API_KEY",
-    "additionalAuth": ["AMAZON_COGNITO_USER_POOLS", "AWS_IAM"]
+    "additionalAuth": [
+      "AMAZON_COGNITO_USER_POOLS",
+      "AWS_IAM"
+    ]
   },
   "cognito": {
     "userPoolId": "us-east-2_DmY7BCBIp",
@@ -70,14 +73,6 @@
       "staffUserPoolCrud": true
     },
     {
-      "model": "EmailAlias",
-      "tableName": "EmailAlias-j7b2x3sh7rcezekekkxxiak7hi-main",
-      "itemCount": null,
-      "publicApiKeyRead": false,
-      "clerkEditorModel": true,
-      "staffUserPoolCrud": true
-    },
-    {
       "model": "Business",
       "tableName": "Business-j7b2x3sh7rcezekekkxxiak7hi-main",
       "itemCount": null,
@@ -124,7 +119,7 @@
       "ExternalNewsLink",
       "SiteCopy"
     ],
-    "staffOnlyModels": ["EmailAlias"],
+    "staffOnlyModels": [],
     "heroFields": [
       "heroEyebrow",
       "heroStatus",

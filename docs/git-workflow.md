@@ -169,7 +169,6 @@ The workflow also runs targeted checks when website-facing backend code changes:
 
 - `npm run test:infra` for `infrastructure/nws-weather-proxy/**` and `infrastructure/cms-media-upload/**`
 - `npm run test:infra:alerts` for `infrastructure/severe-weather-signup/**` (Python **3.13**)
-- `npm run test:infra:mail` for `infrastructure/email-alias-router/**` (Python **3.13**)
 - `npm run test:infra:contact` for contact Lambdas and deploy scripts (see below)
 - `node scripts/verify-aws-infrastructure.mjs --offline` when the SSOT manifest or contact infra changes
 

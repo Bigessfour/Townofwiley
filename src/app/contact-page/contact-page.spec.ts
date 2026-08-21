@@ -1,8 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { type CmsContact, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';
-import { ContactPage, parseRosterLine } from './contact-page';
+import { ContactPage, enrichAdminRosterLine, parseRosterLine } from './contact-page';
 
 interface RosterEntry {
   id: string;
@@ -46,6 +47,7 @@ function configure(
   TestBed.configureTestingModule({
     imports: [ContactPage],
     providers: [
+      provideRouter([]),
       SiteLanguageService,
       {
         provide: LocalizedCmsContentStore,
@@ -66,20 +68,50 @@ describe('parseRosterLine', () => {
       name: 'Steve McKitrick',
     });
   });
+
+  it('splits role and name on hyphen separators used in live CMS rows', () => {
+    expect(parseRosterLine('Deputy City Clerk - Paige Lindo')).toEqual({
+      role: 'Deputy City Clerk',
+      name: 'Paige Lindo',
+    });
+  });
+});
+
+describe('enrichAdminRosterLine', () => {
+  it('attaches mailto without copying OfficialContact detail onto the roster row', () => {
+    const enriched = enrichAdminRosterLine(
+      { id: 'roster-1', line: 'City Clerk: Deb Dillon' },
+      [
+        {
+          id: 'city-clerk',
+          label: 'City Clerk',
+          value: 'Deb Dillon',
+          detail: 'Clerk services and records coordination.',
+          href: 'mailto:clerk@townofwiley.gov',
+          linkLabel: 'clerk@townofwiley.gov',
+        },
+      ],
+    );
+    expect(enriched.href).toBe('mailto:clerk@townofwiley.gov');
+    expect(enriched.linkLabel).toBe('clerk@townofwiley.gov');
+    expect(enriched).not.toHaveProperty('detail');
+  });
 });
 
 describe('ContactPage', () => {
-  it('renders the page heading and Town Hall card (English)', () => {
+  it('renders the page heading, jump links, and Visit & call section (English)', () => {
     const fixture = configure({
       contacts: signal<CmsContact[]>([]),
       isLoading: signal(false),
     });
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('h1')?.textContent).toContain('Phone, email, and next steps');
+    expect(el.querySelector('h1')?.textContent).toContain('Contact Town Hall');
+    expect(el.querySelector('.contact-jump')).toBeTruthy();
     expect(
       el.querySelector('[data-testid="contact-town-hall"] .contact-section-card-title')
         ?.textContent,
-    ).toContain('Wiley Town Hall');
+    ).toContain('Visit & call');
+    expect(el.querySelector('.contact-town-hall-place')?.textContent).toContain('Wiley Town Hall');
     expect(el.querySelector('.contact-town-hall-phone')?.getAttribute('href')).toBe(
       'tel:+17198294974',
     );
@@ -91,11 +123,11 @@ describe('ContactPage', () => {
       'es',
     );
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('h1')?.textContent).toContain('Telefono, correo');
+    expect(el.querySelector('h1')?.textContent).toContain('Contactar al Ayuntamiento');
     expect(
       el.querySelector('[data-testid="contact-town-hall"] .contact-section-card-title')
         ?.textContent,
-    ).toContain('Ayuntamiento de Wiley');
+    ).toContain('Visitar y llamar');
     expect(el.querySelector('.section-kicker')?.textContent).toContain('Contacto');
   });
 
@@ -116,10 +148,10 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     const empty = el.querySelector('.public-empty-state');
     expect(empty).toBeTruthy();
-    expect(empty?.textContent).toContain('Town Hall directory');
+    expect(empty?.textContent).toContain('No officials listed yet.');
   });
 
-  it('renders administration roster with separate mailto links when contacts exist', () => {
+  it('renders staff table with mailto links and agenda note without repeating clerk detail', () => {
     const rosterMap = rosterMapFromLines([
       ['town-administration', ['City Clerk: Deb Dillon', 'Town Superintendent: Scott Whitman']],
     ]);
@@ -154,9 +186,10 @@ describe('ContactPage', () => {
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('#contact-administration .contact-roster-empty')).toBeNull();
-    expect(el.querySelector('.contact-town-information-detail')?.textContent).toContain(
+    expect(el.querySelector('[data-testid="contact-agenda-note"]')?.textContent).toContain(
       'Call ahead for clerk assistance.',
     );
+    expect(el.textContent).not.toContain('Clerk services and records coordination.');
     const mailtoLinks = [...el.querySelectorAll('#contact-administration .contact-link')].map(
       (link) => link.getAttribute('href'),
     );
@@ -178,13 +211,14 @@ describe('ContactPage', () => {
     const el = fixture.nativeElement as HTMLElement;
     const leadership = el.querySelector('#leadership');
     expect(leadership).toBeTruthy();
-    expect(leadership?.querySelector('h2')?.textContent).toContain(
-      'Elected Officials (Mayor & Council)',
-    );
+    expect(leadership?.querySelector('h2')?.textContent).toContain('Mayor & Council');
     const electedNames = [...(leadership?.querySelectorAll('.contact-roster-name') ?? [])].map(
       (node) => node.textContent?.trim(),
     );
     expect(electedNames).toEqual(['From CMS', 'From CMS']);
+    expect(leadership?.querySelector('.contact-meetings-link')?.getAttribute('href')).toBe(
+      '/meetings',
+    );
   });
 
   it('shows roster empty state when CMS has no lines for a group', () => {

@@ -102,7 +102,7 @@ Tasks use **`npm`** scripts so they work on Windows and macOS (integrated termin
 | **Live hosting**          | `npm run test:e2e:live:production` or `test:e2e:live:staging` | Requires `E2E_BASE_URL` (set by script or env)                                                                    |
 | **Regression**            | `npm run test:e2e:regression`                                 | Full smoke + `accessibility/` + `responsive/` + `typography/`                                                     |
 
-CI: [`frontend-smoke`](../.github/workflows/git-workflow.yml) runs PR smoke against local `ng serve`. Live checks: [`e2e-live-hosting.yml`](../.github/workflows/e2e-live-hosting.yml). Nightly: [`e2e-regression-nightly.yml`](../.github/workflows/e2e-regression-nightly.yml).
+CI: [`frontend-smoke`](../.github/workflows/git-workflow.yml) runs PR smoke against local `ng serve`. Live and full regression are local/ops (`npm run test:e2e:live:production`, `npm run test:e2e:regression`).
 
 ## Commands
 

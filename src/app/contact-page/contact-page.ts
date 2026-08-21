@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SkeletonModule } from 'primeng/skeleton';
 import { APP_COPY, type AppCopy, type LeadershipGroup } from '../app';
 import {
@@ -36,23 +37,35 @@ export interface ParsedRosterLine {
   name: string;
   href?: string;
   linkLabel?: string;
-  detail?: string;
   /** AppSync record id of the underlying `LeadershipRosterEntry` row when known. */
   rosterId?: string;
   /** AppSync record id of the matching `OfficialContact` (e.g. `city-clerk`) when known. */
   contactId?: string;
 }
 
+/**
+ * Split "Role: Name" or "Role - Name" into parts. Colon wins when both appear.
+ * Live CMS rows often use an en dash / hyphen separator.
+ */
 export function parseRosterLine(line: string): { role: string; name: string } {
-  const colonIndex = line.indexOf(':');
-  if (colonIndex === -1) {
-    return { role: line.trim(), name: '' };
+  const trimmed = line.trim();
+  const colonIndex = trimmed.indexOf(':');
+  if (colonIndex !== -1) {
+    return {
+      role: trimmed.slice(0, colonIndex).trim(),
+      name: trimmed.slice(colonIndex + 1).trim(),
+    };
   }
 
-  return {
-    role: line.slice(0, colonIndex).trim(),
-    name: line.slice(colonIndex + 1).trim(),
-  };
+  const hyphenMatch = trimmed.match(/^(.+?)\s+[–—-]\s+(.+)$/);
+  if (hyphenMatch) {
+    return {
+      role: hyphenMatch[1].trim(),
+      name: hyphenMatch[2].trim(),
+    };
+  }
+
+  return { role: trimmed, name: '' };
 }
 
 function contactForAdminRole(
@@ -71,7 +84,8 @@ function contactForAdminRole(
   return undefined;
 }
 
-function enrichAdminRosterLine(
+/** Attach mailto only — do not copy OfficialContact.detail onto every roster row. */
+export function enrichAdminRosterLine(
   member: ContactLeadershipMember,
   contacts: readonly CmsContact[],
 ): ParsedRosterLine {
@@ -86,7 +100,6 @@ function enrichAdminRosterLine(
     linkLabel:
       contact?.linkLabel ??
       (contact?.href?.startsWith('mailto:') ? contact.href.replace('mailto:', '') : undefined),
-    detail: contact?.detail,
     rosterId: member.id,
     contactId: contact?.id,
   };
@@ -94,7 +107,7 @@ function enrichAdminRosterLine(
 
 @Component({
   selector: 'app-contact-page',
-  imports: [SkeletonModule],
+  imports: [RouterLink, SkeletonModule],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -152,6 +165,11 @@ export class ContactPage {
   protected readonly townInformationContact = computed(() =>
     this.contacts().find((contact) => contact.id === OFFICIAL_CONTACT_ID_TOWN_INFORMATION),
   );
+
+  protected readonly agendaNoteDetail = computed(() => {
+    const detail = this.townInformationContact()?.detail?.trim();
+    return detail || null;
+  });
 
   protected readonly administrationGroup = computed(
     () =>

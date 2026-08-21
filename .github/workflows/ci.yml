@@ -20,7 +20,7 @@ permissions:
   pull-requests: write # Ollama CI triage comments on PRs
 
 # E2E smoke-critical (`npm run test:e2e:smoke`) runs in git-workflow.yml → frontend-smoke.
-# Full Playwright inventory runs nightly (`e2e-regression-nightly.yml`), not on every PR.
+# Full Playwright regression is local/ops (`npm run test:e2e:regression`), not on every PR.
 jobs:
   site-ci:
     uses: ./.github/workflows/git-workflow.yml

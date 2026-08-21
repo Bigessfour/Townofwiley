@@ -73,23 +73,6 @@ const templateSecrets = {
       apiEndpoint: '',
     },
   },
-  mail: {
-    aliasForwarding: {
-      ingressRegion: 'us-east-1',
-      aliasTableName: '',
-      aliasTableRegion: 'us-east-2',
-      forwarderFrom: '',
-      sendRegion: 'us-east-2',
-      aliasDomain: 'townofwiley.gov',
-      ingressBucketName: '',
-      functionName: 'TownOfWileyEmailAliasRouter',
-      roleName: 'TownOfWileyEmailAliasRouterRole',
-      receiptRuleSetName: 'TownOfWileyAliasForwarding',
-      receiptRuleName: 'StoreTownMailInS3',
-      receiptRecipients: 'townofwiley.gov',
-      receiptPrefix: 'incoming/',
-    },
-  },
   cms: {
     appSync: {
       region: 'us-east-2',

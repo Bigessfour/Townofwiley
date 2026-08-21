@@ -939,15 +939,23 @@ def main() -> int:
     secret_arn = ensure_secrets_manager_secret(
         developer_test_secret_name, developer_test_token
     )
-    sms_origination_identity = (
-        args.sms_origination_identity.strip() or DEFAULT_SMS_ORIGINATION_IDENTITY
-    )
     sms_configuration_set = args.sms_configuration_set.strip()
-    sms_phone_number_id = (
-        args.sms_phone_number_id.strip() or DEFAULT_SMS_PHONE_NUMBER_ID
-    )
-    sms_phone_number_arn = resolve_sms_phone_number_arn(sms_phone_number_id)
-    two_way_status = ensure_toll_free_two_way(sms_phone_number_id)
+    # Empty --sms-phone-number-id skips End User Messaging wiring (email-only deploy).
+    # Used when migrating to a new account before the toll-free number is moved.
+    sms_phone_number_id = args.sms_phone_number_id.strip()
+    if sms_phone_number_id.lower() in {"", "none", "skip"}:
+        sms_phone_number_id = ""
+        sms_origination_identity = ""
+        sms_phone_number_arn = ""
+        two_way_status = {"skipped": True}
+    else:
+        if not sms_phone_number_id:
+            sms_phone_number_id = DEFAULT_SMS_PHONE_NUMBER_ID
+        sms_origination_identity = (
+            args.sms_origination_identity.strip() or DEFAULT_SMS_ORIGINATION_IDENTITY
+        )
+        sms_phone_number_arn = resolve_sms_phone_number_arn(sms_phone_number_id)
+        two_way_status = ensure_toll_free_two_way(sms_phone_number_id)
     role_arn = ensure_role(
         args.role_name,
         subscriptions_arn,
@@ -968,7 +976,7 @@ def main() -> int:
         "DEVELOPER_TEST_TOKEN_SECRET_NAME": developer_test_secret_name,
         "CLOUDWATCH_NAMESPACE": cloudwatch_namespace,
         "SMS_ORIGINATION_IDENTITY": sms_origination_identity,
-        "SMS_CONFIGURATION_SET": sms_configuration_set,
+        "SMS_CONFIGURATION_SET": sms_configuration_set if sms_phone_number_id else "",
         "ALERT_RESEND_COOLDOWN_SECONDS": str(12 * 60 * 60),
     }
     function_arn = ensure_lambda_function(

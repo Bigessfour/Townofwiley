@@ -49,7 +49,7 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/records',
     label: 'records redirect',
-    heading: /Phone, email, and next steps/i,
+    heading: /Contact Town Hall/i,
     primaryAction: (page) => page.getByTestId('contact-town-hall'),
   },
   {
@@ -87,8 +87,8 @@ export const publicRouteContracts: PublicRouteContract[] = [
   {
     path: '/contact',
     label: 'contact page',
-    heading: /Phone, email, and next steps/i,
-    primaryAction: (page) => page.locator('.contact-link[href^="mailto:"]').first(),
+    heading: /Contact Town Hall/i,
+    primaryAction: (page) => page.getByTestId('contact-town-hall'),
   },
   {
     path: '/accessibility',

@@ -34,7 +34,6 @@ Component list from templates under `src/app/`. Expectations reference [PrimeNG]
 | `/admin` hub | `cms-admin.html` | Button, Toast | — |
 | Task hub | `cms-clerk-task-hub` | Tag, Button | — |
 | Record editor | `cms-clerk-record-editor` | Button, Select, InputText, Textarea, InputNumber, Checkbox, Message, OrderList, Dialog | Dynamic fields via `ngModel` (metadata-driven); **accepted** for generic CRUD |
-| Email aliases | `cms-email-alias-admin` | Table, Button, Message, InputText | Reactive `aliasForm` |
 | Meeting doc upload | `cms-meeting-document-upload` | Message, FileUpload patterns | Upload flow |
 | Clerk upload panel | `cms-clerk-upload-panel` | Message, Button | — |
 | Site status / snapshot | `cms-site-status`, `cms-content-snapshot` | Button, Message, Card | — |

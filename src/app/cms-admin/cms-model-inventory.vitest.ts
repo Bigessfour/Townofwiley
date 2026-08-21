@@ -18,13 +18,7 @@ describe('cms-model-inventory', () => {
       'PublicDocument',
       'ExternalNewsLink',
       'SiteCopy',
-      'EmailAlias',
     ]);
-  });
-
-  it('marks EmailAlias as not public API key read', () => {
-    const emailAlias = CMS_MODEL_DEFINITIONS.find((d) => d.model === 'EmailAlias');
-    expect(emailAlias?.publicApiKeyRead).toBe(false);
   });
 
   it('flags displayOrder-driven clerk models for ordered editor UI', () => {
@@ -75,6 +69,6 @@ describe('cms-model-inventory', () => {
     };
     expect(liveCountForModel('Business', counts)).toBe(11);
     expect(liveCountForModel('SiteCopy', counts)).toBe(3);
-    expect(liveCountForModel('EmailAlias', counts)).toBeUndefined();
+    expect(liveCountForModel('Announcement', counts)).toBe(2);
   });
 });

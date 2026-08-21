@@ -214,7 +214,7 @@ def load_stream_config_from_env(
     suffix = env.get("CMS_TABLE_SUFFIX", "-j7b2x3sh7rcezekekkxxiak7hi-main").strip()
     ignored = frozenset(
         item.strip()
-        for item in env.get("CMS_AUDIT_IGNORED_MODELS", "EmailAlias").split(",")
+        for item in env.get("CMS_AUDIT_IGNORED_MODELS", "").split(",")
         if item.strip()
     )
     return StreamMapperConfig(table_suffix=suffix, ignored_models=ignored)

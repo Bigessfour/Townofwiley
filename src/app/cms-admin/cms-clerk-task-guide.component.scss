@@ -7,8 +7,15 @@
 }
 
 .cms-task-guide__title {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.5rem;
   font-size: 1.125rem;
+}
+
+.cms-task-guide__purpose {
+  margin: 0 0 0.85rem;
+  line-height: 1.45;
+  color: var(--text-muted, #475569);
+  font-size: 0.95rem;
 }
 
 .cms-task-guide__subtitle {

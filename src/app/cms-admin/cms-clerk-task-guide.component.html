@@ -5,6 +5,7 @@
     data-testid="cms-task-guide"
   >
     <h2 id="cms-task-guide-heading" class="cms-task-guide__title">Edit: {{ active.title }}</h2>
+    <p class="cms-task-guide__purpose">{{ active.shortDescription }}</p>
 
     @if (showStaffSignInNote()) {
       <p class="cms-task-guide__note" role="note">
@@ -19,11 +20,7 @@
     @if (taskId(); as id) {
       @if (usesDedicatedEditor(id)) {
         <div id="cms-task-form" class="cms-task-guide__form-panel" data-testid="cms-task-form">
-          @if (id === 'manage-email-aliases') {
-            <div data-testid="cms-email-alias-editor-slot">
-              <app-cms-email-alias-admin />
-            </div>
-          } @else if (id === 'manage-community-calendar') {
+          @if (id === 'manage-community-calendar') {
             <div data-testid="cms-community-calendar-editor-slot">
               <app-cms-community-calendar-admin />
             </div>

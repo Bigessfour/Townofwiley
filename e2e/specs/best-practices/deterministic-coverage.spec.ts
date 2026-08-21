@@ -669,21 +669,18 @@ test.describe('subcomponent aria contracts', () => {
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
 
     const administration = homePage.page.getByTestId('contact-administration');
-    await expect(administration).toMatchAriaSnapshot(`
-      - heading /Town Administration/ [level=2]
-      - heading /Town Information/ [level=3]
-      - paragraph
-      - term /City Clerk/
-      - definition:
-        - link /clerk@townofwiley.gov/
-    `);
-    await expect(administration.getByRole('term', { name: /Town Superintendent/i })).toBeVisible();
+    await expect(administration.getByRole('heading', { level: 2, name: /Town staff/i })).toBeVisible();
+    await expect(administration.getByRole('table', { name: /Town staff contacts/i })).toBeVisible();
+    await expect(administration.getByRole('columnheader', { name: /^Role$/i })).toBeVisible();
+    await expect(administration.getByRole('cell', { name: /City Clerk/i }).first()).toBeVisible();
+    await expect(administration.getByRole('cell', { name: /Town Superintendent/i })).toBeVisible();
     await expect(administration.getByRole('link', { name: /clerk@townofwiley\.gov/i }).first()).toHaveAttribute(
       'href',
       'mailto:clerk@townofwiley.gov',
     );
     await expect(administration).not.toContainText('deb.dillon@');
     await expect(administration).not.toContainText('scott.whitman@');
+    await expect(administration).not.toContainText('Clerk services and records coordination');
   });
 
   test('meetings document archive aria structure', async ({ homePage }) => {

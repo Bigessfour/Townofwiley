@@ -12,7 +12,6 @@ export type ClerkCmsTaskId =
   | 'external-news'
   | 'emergency-banner'
   | 'edit-site-copy' // lightweight UI labels, nav, headings, top tasks (SiteCopy model)
-  | 'manage-email-aliases'
   | 'manage-community-calendar';
 
 export type ClerkCmsEditorMode = 'generic' | 'dedicated' | 'documents';
@@ -251,27 +250,27 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
   },
   {
     id: 'update-contacts',
-    title: 'Update administration contacts (not Town Hall card)',
+    title: 'Update Town Administration contact cards',
     shortDescription:
-      'Change clerk/superintendent mailto lines and Town Administration intro on /contact. For the main Town Hall address and phone card, use Homepage & menu labels.',
+      'Edits the intro text and email/phone links used on /contact. Names (Clerk, Deputy Clerk, Superintendent) are edited in “Update elected officials & town administration lists”. On the public page: emails appear in the Town staff table; the town-information detail appears once under “Need time on the agenda?”.',
     model: 'OfficialContact',
     previewPath: '/contact',
     steps: [
-      'Click Edit content to open the form and fill in the fields (sign in at /admin/login first).',
-      'Find the row for Town Information (id town-information), City Clerk (id city-clerk), or Town Superintendent (id town-superintendent). Do not change those id values unless IT helps.',
-      'Update label, value, detail, and mailto link fields in the form below.',
+      'Click Edit content (sign in at /admin/login first).',
+      'Pick an existing card from “Saved on the website” (Town Information, City Clerk, or Town Superintendent). Prefer Edit over Add new.',
+      'Change only the heading, phone/email line, detail sentence, and optional mailto/tel link. The system card id is locked while editing.',
       'Save, click See on website, and hard-refresh /contact — check the Town Administration card.',
     ],
     fieldGlossary: [
       {
-        plainLabel: 'Record id',
+        plainLabel: 'Card id (system)',
         technicalName: 'id',
-        help: 'Keep town-information and city-clerk exactly — the website looks up these cards by id.',
+        help: 'Only when adding a brand-new card. Use town-information, city-clerk, or town-superintendent. Existing cards lock this field so you cannot break the site by accident.',
       },
       {
         plainLabel: 'Label (display name)',
         technicalName: 'label',
-        help: 'What residents see as the heading, e.g. "Town Hall" or "City Clerk".',
+        help: 'What residents see as the heading, e.g. "Town Information" or "City Clerk".',
       },
       {
         plainLabel: 'Value (main info)',
@@ -281,52 +280,52 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       {
         plainLabel: 'Detail (extra info)',
         technicalName: 'detail',
-        help: 'Optional extra text below the value, e.g. "304 Main Street" or office hours.',
+        help: 'Extra text below the value, e.g. office description or street address.',
       },
       {
         plainLabel: 'Link URL (web address)',
         technicalName: 'href',
-        help: 'Full web link starting with https:// that opens when clicked. Example: https://townofwiley.gov/contact. Leave blank if no clickable link.',
+        help: 'mailto:, tel:, or https:// link. Example: mailto:clerk@townofwiley.gov.',
       },
       {
         plainLabel: 'Link text',
         technicalName: 'linkLabel',
-        help: 'The clickable text for the link, e.g. "Email us" or "Visit website". Only needed if you set a Link URL above.',
+        help: 'Clickable text for the link, e.g. the email address.',
       },
       {
         plainLabel: 'Display order',
         technicalName: 'displayOrder',
-        help: 'Optional number to control sorting order (lower numbers appear first).',
+        help: 'Optional sort number (lower appears first).',
       },
     ],
     emptyStateMessage:
-      'If Town Hall or Clerk cards look wrong, ask IT to restore ids town-information and city-clerk.',
+      'If Town Information or Clerk cards look wrong, ask IT to restore ids town-information and city-clerk.',
   },
   {
     id: 'update-leadership',
     title: 'Update elected officials & town administration lists',
     shortDescription:
-      'Manage mayor/council names at /contact#leadership and town administration roster lines in the Town Administration card.',
+      'Edits the name lines residents see: Mayor/Trustees under Mayor & Council, and City Clerk / Deputy Clerk / Superintendent under Town staff. To replace “To Be Announced”, choose Town Administration, click Edit on that row, change the name line, and Save — do not create a second row.',
     model: 'LeadershipRosterEntry',
     previewPath: '/contact',
     requiredGroups: ['Staff', 'Council'],
     steps: [
-      'Click Edit content to open the form (sign in at /admin/login first).',
+      'Click Edit content (sign in at /admin/login first).',
       'Choose Elected Officials (Mayor & Council) or Town Administration from the list dropdown.',
-      'Review the current names shown below the dropdown — drag to reorder, or click Edit on a row to change or hide it.',
-      'To add someone new, pick where they should appear, enter the English name line (role and name, e.g. Councilman: Ken Mooney), and optional Spanish.',
-      'Save, click See on website, and hard-refresh /contact to verify both sections.',
+      'Look at “Current order on the website”. To change an existing name (including Deputy Clerk), click Edit on that row — do not Add new unless the person is missing entirely.',
+      'Update the English name line (role and name, e.g. Deputy City Clerk - Paige Lindo). Spanish is optional.',
+      'Save, click See on website, and hard-refresh /contact to verify.',
     ],
     fieldGlossary: [
       {
         plainLabel: 'List to update',
         technicalName: 'groupId',
-        help: 'mayor-council (Elected Officials) or town-administration (Town Administration card).',
+        help: 'Elected Officials → /contact#leadership. Town Administration → name lines in the Town Administration card.',
       },
       {
         plainLabel: 'English line',
         technicalName: 'lineEn',
-        help: 'One bullet line in English, e.g. "Councilman: Ken Mooney" or "City Clerk: Deb Dillon".',
+        help: 'One line residents see, e.g. "Deputy City Clerk - Paige Lindo" or "City Clerk - Deb Dillon".',
       },
       {
         plainLabel: 'Spanish line',
@@ -340,7 +339,7 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
       },
     ],
     emptyStateMessage:
-      'No roster rows yet — run the CMS seed script or add names below. Both Elected Officials and Town Administration lists are managed here.',
+      'No roster rows yet — add names below after choosing Elected Officials or Town Administration.',
   },
   {
     id: 'business-directory',
@@ -527,59 +526,6 @@ export const CLERK_CMS_TASKS: ClerkCmsTask[] = [
     ],
     emptyStateMessage:
       'All labels are currently using built-in defaults. Add SiteCopy rows to let the clerk edit them directly.',
-  },
-  {
-    id: 'manage-email-aliases',
-    title: 'Manage email forwarding',
-    shortDescription:
-      'Control where mail sent to Town addresses (like clerk@townofwiley.gov) is delivered. Residents do not see this.',
-    model: 'EmailAlias',
-    previewPath: '/contact',
-    icon: 'pi-envelope',
-    editorMode: 'dedicated',
-    showPublicPreview: false,
-    requiredGroups: ['Staff'],
-    steps: [
-      'Click Edit content to open the email forwarding editor (sign in at /admin/login first).',
-      'Click Add forwarding rule (or Edit an existing row).',
-      'Town email address: e.g. steve.mckitrick@townofwiley.gov (you can type only steve.mckitrick).',
-      'Staff inbox: the real mailbox where mail lands, e.g. example@example.com — not another @townofwiley.gov address.',
-      'Leave Active on and Save. AWS picks up the rule on the next message; send a test to confirm.',
-      'If residents should see the address on the site, also update Update contacts.',
-    ],
-    fieldGlossary: [
-      {
-        plainLabel: 'Town email address',
-        technicalName: 'aliasAddress',
-        help: 'The public address residents send mail to, e.g. clerk@townofwiley.gov.',
-      },
-      {
-        plainLabel: 'Staff inbox',
-        technicalName: 'destinationAddress',
-        help: 'The private email where forwarded mail is delivered.',
-      },
-      {
-        plainLabel: 'Active',
-        technicalName: 'active',
-        help: 'Turn on to forward mail; turn off to stop forwarding for this address.',
-      },
-      {
-        plainLabel: 'Display name',
-        technicalName: 'displayName',
-        help: 'Optional label for clerks, e.g. "City Clerk mailbox".',
-      },
-      {
-        plainLabel: 'Role label',
-        technicalName: 'roleLabel',
-        help: 'Optional role note for IT, e.g. "Clerk".',
-      },
-      {
-        plainLabel: 'Notes',
-        technicalName: 'notes',
-        help: 'Optional internal notes about this forwarding rule.',
-      },
-    ],
-    emptyStateMessage: 'No forwarding rules saved yet. Ask IT to add the first rule.',
   },
   {
     id: 'manage-community-calendar',

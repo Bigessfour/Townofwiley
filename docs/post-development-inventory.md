@@ -92,7 +92,6 @@ Cross-checked against [AWS documentation](https://docs.aws.amazon.com/) (Lambda 
 | **HTTP headers / CSP**     | CloudFront + `customHttp.yml` origins                                                                           | **Current** — CSP includes document bucket + external services                                                         | `npm run sync:angular-serve-csp` for local; CloudFront config for prod (historical Amplify sync scripts obsolete)                                 |
 | **AppSync CMS**            | `townofwiley-main`                                                                                              | Default auth **API_KEY**; key expires **2026-06-22**                                                                   | [appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md) + EventBridge reminder — **AP-19**                                   |
 | **S3 documents**           | `townofwiley-documents-storage-main`                                                                            | **Block Public Access** — all four settings **on**                                                                     | CSP + Amplify Storage; **AP-17** AV/metadata policy still open                                                                                    |
-| **S3 email alias**         | `townofwiley-email-alias-570912405222-us-east-1`                                                                | **Block Public Access** — all four settings **on**                                                                     | `scripts/deploy-email-alias-router.py`                                                                                                            |
 | **Lambda (public `NONE`)** | `TownOfWileyNWSWeatherProxy`, `TownOfWileySevereWeatherBackend`, `townofwiley-easy-peasy-chat-proxy`            | Function URLs **NONE** + CORS to `townofwiley.gov` / Amplify host                                                      | Acceptable for public proxies per [Lambda URL auth](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html); add **WAF rate limits — AP-16** |
 | **Lambda (contact)**       | `TownOfWileyContactUpdate`, `TownOfWileyContactUpdatesReview`, `TownOfWileyContactUpdatesReviewProxy`           | **Deployed** 2026-05-23 — review URL **AWS_IAM**; proxy + write **NONE**; Amplify env + prod `runtime-config.js` wired | **AP-16** WAF on public URLs; manual clerk smoke on `/admin#updates`                                                                              |
 | **Lambda (Paystar)**       | `TownOfWileyPaystarProxy` (expected)                                                                            | **Not present** in `us-east-2` function list                                                                           | Hosted Paystar via env URL — **AP-10**                                                                                                            |
@@ -129,7 +128,7 @@ Cross-checked against [AWS documentation](https://docs.aws.amazon.com/) (Lambda 
 
 ### CMS (GraphQL models)
 
-`SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `EmailAlias` (staff auth), `Business`, `PublicDocument`, `ExternalNewsLink` — see `amplify/backend/api/townofwiley/schema.graphql`.
+`SiteSettings`, `AlertBanner`, `Announcement`, `Event`, `OfficialContact`, `Business`, `PublicDocument`, `ExternalNewsLink` — see `amplify/backend/api/townofwiley/schema.graphql`.
 
 ### Documents & records
 
@@ -321,7 +320,7 @@ npm run lint
 npm run test:vitest
 npm run test:infra
 npm run test:infra:alerts
-npm run test:infra:mail
+npm run test:infra:backend
 npm run test:e2e:smoke
 npm run build
 ```
@@ -350,7 +349,7 @@ Full local gate: `npm run audit:done:local`
 | **Vitest (unit/integration-style)** | `npm run test:vitest`                                                | `src/**/*.vitest.ts` only                                                                                 | Yes, when `src/` changes        |
 | **Angular `*.spec.ts`**             | `npm run test:unit:browser` (Karma + Chromium)                       | `src/**/*.spec.ts`                                                                                        | Yes, when `src/` changes        |
 | **Node infra**                      | `npm run test:infra`                                                 | `infrastructure/nws-weather-proxy/index.test.mjs`, `infrastructure/paystar-proxy/index.test.mjs`          | When proxy paths change         |
-| **Python infra**                    | `npm run test:infra:alerts`, `test:infra:mail`, `test:infra:backend` | `infrastructure/severe-weather-signup/tests/`, `email-alias-router/tests/`, `site-monitor/tests/`         | Path-dependent                  |
+| **Python infra**                    | `npm run test:infra:alerts`, `test:infra:backend` | `infrastructure/severe-weather-signup/tests/`, `site-monitor/tests/`         | Path-dependent                  |
 | **Playwright smoke**                | `npm run test:e2e:smoke`                                             | `e2e/specs/smoke/*.spec.ts` (~27 files)                                                                   | When app/e2e changes            |
 | **Playwright extended**             | Manual / optional                                                    | `e2e/specs/responsive/`, `accessibility/`, `applitools/`, `best-practices/deterministic-coverage.spec.ts` | **Not** default smoke gate      |
 | **Opt-in E2E**                      | `TOW_E2E_CHATBOT_EMBED=1`                                            | `e2e/specs/smoke/cow-embed-loader.spec.ts`                                                                | Off in CI                       |
@@ -408,7 +407,7 @@ Full local gate: `npm run audit:done:local`
 | `*.spec.ts` | `src/app/site-cms-content.spec.ts` (4 cases)                                   | Fallback when no runtime config; AppSync POST with `x-api-key` and query fragments; Spanish notice mapping; retired notice filtering; `testCmsConnection()` success/failure |
 | E2E         | `admin.cms.spec.ts`, `news.interactions.spec.ts`, `business-directory.spec.ts` | Admin hub copy/models; news UI with stubbed PDF                                                                                                                             |
 
-**Gaps:** No test for `refreshContent()` race/error recovery at scale; no test against **real** AppSync; `EmailAlias` model not covered in store tests; **in-app CMS editing** not tested (Studio-only).
+**Gaps:** No test for `refreshContent()` race/error recovery at scale; no test against **real** AppSync; **in-app CMS editing** not tested (Studio-only).
 
 ---
 
@@ -615,7 +614,6 @@ Use this table to connect CI proof to the methods named in Phase 1. “—” me
 | `paystar-proxy` `handler`                     | `index.test.mjs`                 | Hosted launch, GET status, receipt 501, CORS          |
 | `paystar-proxy` `tryUpstreamLaunch`           | —                                | **Gap**                                               |
 | `severe-weather-signup` `handler` / scheduler | `tests/test_app.py`              | Subscriptions, delivery, i18n, unsubscribe, dev route |
-| `email-alias-router` `handler`                | `tests/test_app.py`              | Forwarding, alias match, health                       |
 | `site-monitor` `app.py`                       | `site-monitor/tests/test_app.py` | Basic health (run via `test:infra:monitor`)           |
 | `contact-update-lambda` `handler`             | —                                | **Gap**                                               |
 | `contact-updates-review` `handler`            | —                                | **Gap**                                               |
@@ -663,7 +661,7 @@ npm run test:vitest
 npm run test:unit:browser
 npm run test:infra
 npm run test:infra:alerts
-npm run test:infra:mail
+npm run test:infra:backend
 npm run test:e2e:smoke
 npm run test:coverage   # Vitest coverage report (src/**/*.vitest.ts only)
 ```

@@ -1,29 +1,30 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "Single source of truth for Town of Wiley custom AWS resources (account 570912405222). Frontend: S3 townofwiley-static-site + CloudFront E1NZ3XCY5CYR1J (Amplify Hosting d331voxr1fhoir deleted June 2026). Backend: Gen 1 AppSync j7b2x3sh7rcezekekkxxiak7hi + DynamoDB + Cognito us-east-2_DmY7BCBIp + S3 townofwiley-documents-storage-main. Integrations: NWS weather proxy, SES email alias router (us-east-1). Paystar: hosted portal URL only (no proxy Lambda). Resident billing/contact intake stack decommissioned June 2026 \u2014 see docs/contact-intake-decommission.md. CloudWatch: 1-day log retention + error alarms (no WAF). stephenmckitrick.com (CF E1VI8ZZ8L1HW1F) migrates to another account separately.",
-  "accountId": "570912405222",
+  "description": "SSOT for Town of Wiley custom AWS resources. Static hosting (S3+CloudFront) lives in official Town account 818904800844 (profile tow) as of 2026-08-20. Gen 1 AppSync/Cognito/docs storage and most Lambdas still in Steve personal 570912405222 until backend migration. Frontend: S3 townofwiley-static-site-818904800844 + CloudFront E19PUUL2H76CZA (d1bhtly4h27ucg.cloudfront.net). Legacy personal CF E1NZ3XCY5CYR1J aliases cleared.",
+  "accountId": "818904800844",
+  "legacyPersonalAccountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
   "hosting": {
     "type": "s3-cloudfront",
-    "s3Bucket": "townofwiley-static-site",
+    "accountId": "818904800844",
+    "s3Bucket": "townofwiley-static-site-818904800844",
     "region": "us-east-2",
-    "cloudFrontDistributionId": "E1NZ3XCY5CYR1J",
-    "cloudFrontDomain": "d34qrz3qxoppc5.cloudfront.net",
+    "cloudFrontDistributionId": "E19PUUL2H76CZA",
+    "cloudFrontDomain": "d1bhtly4h27ucg.cloudfront.net",
     "spaRedirectFunction": "townofwiley-spa-redirect",
     "aliases": [
       "townofwiley.gov",
-      "www.townofwiley.gov"
+      "www.townofwiley.gov",
+      "staging.townofwiley.gov"
     ],
-    "acmCertArn": "arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90",
-    "responseHeadersPolicyId": "22d4bac1-d4fc-4e81-bb48-ab7df3a37c59",
-    "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
-    "loggingBucket": "townofwiley-cf-logs",
+    "acmCertArn": "arn:aws:acm:us-east-1:818904800844:certificate/1ca102fe-d903-47f6-8f0f-15282c340ff5",
+    "loggingBucket": "townofwiley-cf-logs-818904800844",
     "loggingPrefix": "cf-access/",
-    "oacId": "E1UXALBLRIDL2E",
-    "note": "OAC active (E1UXALBLRIDL2E). Migrated from OAI on 2026-06-20 via scripts/migrate-cloudfront-oac.py.",
-    "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' && aws cloudfront create-invalidation --distribution-id E1NZ3XCY5CYR1J --paths \"/*\""
+    "legacyPersonalDistributionId": "E1NZ3XCY5CYR1J",
+    "note": "Cut over 2026-08-20. Public DNS (still hosted in 570 zone until NS move) A/AAAA aliases point at E19PUUL2H76CZA. Deploy with AWS_PROFILE=tow.",
+    "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site-818904800844 --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' --profile tow && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site-818904800844 --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' --profile tow && aws cloudfront create-invalidation --distribution-id E19PUUL2H76CZA --paths \"/*\" --profile tow"
   },
   "amplify": {
     "note": "Amplify Hosting app d331voxr1fhoir DELETED June 2026. Gen 1 backend (amplify-townofwiley-main-d1245) remains production CMS. Gen 2/ampx path removed from repo June 2026.",
@@ -59,12 +60,6 @@
       "requireBlockPublicAccess": true
     },
     {
-      "name": "townofwiley-email-alias-570912405222-us-east-1",
-      "region": "us-east-1",
-      "purpose": "SES inbound email alias storage",
-      "requireBlockPublicAccess": true
-    },
-    {
       "name": "townofwiley-cf-logs",
       "region": "us-east-2",
       "purpose": "CloudFront access logs for townofwiley.gov (lifecycle: expire after 30 days)",
@@ -82,10 +77,11 @@
         "authType": "NONE",
         "required": true
       },
-      "functionUrlEndpoint": "https://a5wbyzz6iiawupk3xwpozdy5ji0awggh.lambda-url.us-east-2.on.aws/",
+      "functionUrlEndpoint": "https://kenktfiim6365gv7qacp6y2zpe0ifllh.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-nws-weather-proxy.py",
       "required": true,
-      "notes": "Handler-only CORS on Function URL (empty AllowOrigins); deploy script enforces"
+      "accountId": "818904800844",
+      "notes": "Handler-only CORS on Function URL (empty AllowOrigins); deploy script enforces. Migrated to tow 2026-08-20."
     },
     {
       "functionName": "TownOfWileySevereWeatherBackend",
@@ -96,19 +92,11 @@
         "authType": "NONE",
         "required": true
       },
-      "functionUrlEndpoint": "https://gldmik4rmy6clmuysb4slzvzda0whlfh.lambda-url.us-east-2.on.aws/",
+      "functionUrlEndpoint": "https://4dbmleno2tqsxpnkbwuu45cvkm0bnqzo.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-severe-weather-backend.py",
       "required": true,
-      "notes": "Resident severe weather alert signup (email + SMS)"
-    },
-    {
-      "functionName": "TownOfWileyEmailAliasRouter",
-      "region": "us-east-1",
-      "runtime": "python",
-      "codePath": "infrastructure/email-alias-router",
-      "deployScript": "scripts/deploy-email-alias-router.py",
-      "required": true,
-      "notes": "SES-triggered; no Function URL; required for town email alias forwarding"
+      "accountId": "818904800844",
+      "notes": "Migrated to tow 2026-08-20 (email via SES alerts@townofwiley.gov). SMS deferred until toll-free number moves. SES production access PENDING."
     },
     {
       "functionName": "TownOfWileyAppSyncKeyReminder",
@@ -128,7 +116,7 @@
         "authType": "NONE",
         "required": false
       },
-      "functionUrlEndpoint": "https://ueboqbjxsizcg2fsendl6uyztm0nlnlo.lambda-url.us-east-2.on.aws/",
+      "functionUrlEndpoint": "https://r6ev4nn2vy3zl4w4bc6sm27s3u0baaud.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-media-upload.py",
       "required": false,
       "notes": "Staff presigned S3 upload for CMS PDFs/images + CloudFront invalidation; Cognito Staff JWT"
@@ -243,14 +231,6 @@
     },
     {
       "step": 4,
-      "name": "Email alias router",
-      "action": "python scripts/deploy-email-alias-router.py",
-      "paths": [
-        "infrastructure/email-alias-router/"
-      ]
-    },
-    {
-      "step": 5,
       "name": "Runtime config + static deploy",
       "action": "Set GitHub secrets per infrastructure/gen1-production-bindings.json; deploy runtime-config.js + S3/CloudFront",
       "paths": [
@@ -259,7 +239,7 @@
       ]
     },
     {
-      "step": 6,
+      "step": 5,
       "name": "CloudWatch logging + alarms",
       "action": "python scripts/configure-townofwiley-cloudwatch-logging.py",
       "paths": [
@@ -267,7 +247,7 @@
       ]
     },
     {
-      "step": 7,
+      "step": 6,
       "name": "Verify live vs manifest",
       "action": "npm run verify:aws-infra",
       "paths": [

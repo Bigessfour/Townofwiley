@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-07-13T16:09:52.134Z",
-  "buildSha": "809df6b822f44589651c7fff7f535f3f01bc310c",
+  "savedAt": "2026-08-21T01:22:32Z",
+  "buildSha": null,
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -19,13 +19,35 @@
   "alertBannerRecords": [],
   "noticeRecords": [
     {
+      "id": "2c607cdc-f367-4655-85b0-91b2544e74a9",
+      "title": "2026 SECRHA Housing Needs Assessment",
+      "date": "2026-08-13",
+      "detail": "2026 SECRHA Housing Needs Assessment \u2013 Interactive Story Map",
+      "announcementKind": null,
+      "attachmentKey": null,
+      "priority": null,
+      "imageUrl": "https://storymaps.arcgis.com/stories/3e402c3303a84dcfb0d9ee6c60995349",
+      "active": true
+    },
+    {
       "id": "2791a33e-78a2-4815-993f-1c88c5271e96",
-      "title": "June Newsletter",
-      "date": "2026-06-09",
-      "detail": "June town newsletter",
+      "title": "July Newsletter",
+      "date": "2026-07-17",
+      "detail": "July town newsletter",
       "announcementKind": "newsletter",
-      "attachmentKey": "documents/newsletter/2026-06-09-town-of-wiley-newsletter.pdf",
+      "attachmentKey": "documents/newsletter/1784318096482-7-july-2026-newsletter-pdf.pdf",
       "priority": 1,
+      "imageUrl": null,
+      "active": true
+    },
+    {
+      "id": "abdf5753-7568-4970-8b4b-1af5dec34c7c",
+      "title": "September Newsletter",
+      "date": "2026-08-17",
+      "detail": "September 2026 Newsletter",
+      "announcementKind": "newsletter",
+      "attachmentKey": "documents/newsletter/1786993747567-newsletter.pdf",
+      "priority": null,
       "imageUrl": null,
       "active": true
     },
@@ -99,6 +121,15 @@
   ],
   "contactRecords": [
     {
+      "id": "mayor",
+      "label": "Mayor",
+      "value": "Stephen McKitrick",
+      "detail": "Contact the Mayor by email for official town business or council-related questions.",
+      "href": "mailto:clerk@townofwiley.gov",
+      "linkLabel": "clerk@townofwiley.gov",
+      "displayOrder": 1
+    },
+    {
       "id": "94d5fe8f-6e50-429f-9bde-0993e0ead939",
       "label": "Town Clerk",
       "value": "Debbie Dillon",
@@ -106,15 +137,6 @@
       "href": "mailto:clerk@townofwiley.gov",
       "linkLabel": "clerk@townofwiley.gov",
       "displayOrder": 1
-    },
-    {
-      "id": "city-clerk",
-      "label": "City Clerk",
-      "value": "Deb Dillon",
-      "detail": "Clerk services, meeting packets, records coordination, and agenda planning support.",
-      "href": "mailto:clerk@townofwiley.gov",
-      "linkLabel": "clerk@townofwiley.gov",
-      "displayOrder": 0
     },
     {
       "id": "town-superintendent",
@@ -126,13 +148,13 @@
       "displayOrder": 3
     },
     {
-      "id": "mayor",
-      "label": "Mayor",
-      "value": "Stephen McKitrick",
-      "detail": "Contact the Mayor by email for official town business or council-related questions.",
+      "id": "city-clerk",
+      "label": "City Clerk",
+      "value": "Deb Dillon",
+      "detail": "Clerk services, meeting packets, records coordination, and agenda planning support.",
       "href": "mailto:clerk@townofwiley.gov",
       "linkLabel": "clerk@townofwiley.gov",
-      "displayOrder": 1
+      "displayOrder": 0
     },
     {
       "id": "town-information",
@@ -249,12 +271,9 @@
     {
       "id": "dca3340f-f4ab-4963-a0ee-98b3f18f0304",
       "title": "City Council Meeting - July \u2014 Agenda (July 13, 2026)",
-      "titleEs": null,
       "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
-      "summaryEs": null,
       "sectionId": "meeting-documents",
       "status": "Published",
-      "statusEs": null,
       "format": "PDF",
       "href": "storage:documents/meeting-documents/1783802700448-town_of_wiley_minutes_2026-06-08_text.pdf",
       "downloadFileName": "Town_of_Wiley_Minutes_2026-06-08_TEXT.pdf",
@@ -280,12 +299,9 @@
     {
       "id": "07770a7b-ce61-4429-ab06-ae4188e173de",
       "title": "City Council Meeting \u2014 Agenda (June 8, 2026)",
-      "titleEs": null,
       "summary": "Agenda packet for City Council Meeting on June 8, 2026.",
-      "summaryEs": null,
       "sectionId": "meeting-documents",
       "status": "Published",
-      "statusEs": null,
       "format": "PDF",
       "href": "storage:documents/meeting-documents/1780960044236-06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
       "downloadFileName": "06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
@@ -309,6 +325,30 @@
       ],
       "active": true,
       "displayOrder": 1780963200
+    },
+    {
+      "id": "a05b1e36-1656-4e9a-ac4b-6dcb4e065800",
+      "title": "City Council Meeting - July \u2014 Agenda (July 13, 2026)",
+      "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
+      "sectionId": "meeting-documents",
+      "status": "Published",
+      "format": "PDF",
+      "href": "storage:documents/meeting-documents/1783986194770-scan-07_13_2026.pdf",
+      "downloadFileName": "Scan [07_13_2026].pdf",
+      "keywords": [
+        "meeting-documents",
+        "uploaded",
+        "cms",
+        "scan",
+        "[07",
+        "13",
+        "2026]",
+        "agenda",
+        "event:2c8690af-eebd-4b2b-bb1b-1521cb0d6f91",
+        "2026-07-14"
+      ],
+      "active": true,
+      "displayOrder": 1783987200
     }
   ],
   "externalNewsLinkRecords": [
@@ -390,8 +430,8 @@
       "id": "07c03fe4-41a3-4b81-b68f-b8e956851152",
       "groupId": "town-administration",
       "displayOrder": null,
-      "lineEn": "Deputy City Clerk - To Be Announced",
-      "lineEs": "Deputy City Clerk - To Be Announced",
+      "lineEn": "Deputy City Clerk - Paige Lindo",
+      "lineEs": "Subsecretaria municipal - Paige Lindo",
       "active": true
     },
     {
@@ -419,5 +459,22 @@
       "active": true
     }
   ],
-  "siteCopyRecords": []
+  "siteCopyRecords": [
+    {
+      "id": "topTasksKicker",
+      "key": "topTasksKicker",
+      "valueEn": "Quick Tasks",
+      "valueEs": "Tareas rapidas",
+      "description": null,
+      "active": true
+    },
+    {
+      "id": "topTasksHeading",
+      "key": "topTasksHeading",
+      "valueEn": "How do I...",
+      "valueEs": "Como puedo...",
+      "description": null,
+      "active": true
+    }
+  ]
 }

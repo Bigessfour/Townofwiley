@@ -24,15 +24,6 @@ export function confirmClerkSensitiveSave(
   return true;
 }
 
-export function confirmEmailAliasSave(aliasAddress: string, destinationAddress: string): boolean {
-  if (typeof window === 'undefined') {
-    return true;
-  }
-  return window.confirm(
-    `Save this forwarding rule?\n\nMail to ${aliasAddress}\n→ forwards to ${destinationAddress}\n\nResidents never see the staff inbox.`,
-  );
-}
-
 export function confirmMeetingDocumentUpload(meetingLabel: string, fileName: string): boolean {
   if (typeof window === 'undefined') {
     return true;

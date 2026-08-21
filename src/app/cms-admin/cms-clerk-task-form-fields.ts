@@ -218,10 +218,10 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
   'update-contacts': [
     {
       name: 'id',
-      label: 'System id (do not change unless IT helps)',
+      label: 'New card id (only when adding a card)',
       required: true,
-      placeholder: 'town-information or city-clerk',
-      help: 'town-information, city-clerk, or town-superintendent — the site looks up these exact ids.',
+      placeholder: 'city-clerk',
+      help: 'Allowed values: town-information, city-clerk, or town-superintendent. When you edit an existing card, this field is hidden — the site already knows which card you are updating.',
     },
     {
       name: 'label',
@@ -269,7 +269,7 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
       name: 'lineEn',
       label: 'Name line (English)',
       required: true,
-      help: 'Include role and name, e.g. Councilman: Ken Mooney or City Clerk: Deb Dillon.',
+      help: 'Include role and name, e.g. Deputy City Clerk - Paige Lindo or City Clerk - Deb Dillon. To replace “To Be Announced”, Edit that existing row instead of adding a new one.',
     },
     {
       name: 'lineEs',
@@ -326,7 +326,6 @@ export const CLERK_TASK_FORM_FIELDS: Record<ClerkCmsTaskId, ClerkFormFieldDefini
     },
     { name: 'active', label: 'Use this text on the live website', type: 'checkbox' },
   ],
-  'manage-email-aliases': [],
   'manage-community-calendar': [],
   'upload-meeting-documents': [],
 };
