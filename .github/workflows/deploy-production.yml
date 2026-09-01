@@ -64,7 +64,7 @@ jobs:
           CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
           PAYSTAR_PORTAL_URL: ${{ secrets.PAYSTAR_PORTAL_URL || 'https://secure.paystar.io/pay/town-of-wiley-utilitybill' }}
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy
           aws-region: us-east-2
