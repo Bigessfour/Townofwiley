@@ -60,7 +60,9 @@ test.describe('cms admin', () => {
     });
     await homePage.page.getByTestId('cms-contact-section-town-hall').click();
     await expect(homePage.page.getByTestId('cms-record-editor')).toBeVisible();
-    await expect(homePage.page.getByText(/Town Hall visit/i)).toBeVisible();
+    await expect(
+      homePage.page.getByRole('heading', { name: /Edit Town Hall visit/i }),
+    ).toBeVisible();
   });
 
   test('Edit content opens the in-app record editor for post a notice', async ({ homePage }) => {
