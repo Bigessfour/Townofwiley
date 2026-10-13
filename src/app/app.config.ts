@@ -72,7 +72,6 @@ export const appConfig: ApplicationConfig = {
         },
       },
       ripple: true,
-      inputStyle: 'outlined',
       inputVariant: 'outlined',
       zIndex: {
         modal: 1100,

@@ -1,5 +1,5 @@
 <section class="cms-site-status" aria-live="polite" data-testid="cms-site-status">
-  <p-message [severity]="severity()" [text]="message()" styleClass="cms-site-status__banner" />
+  <p-message [severity]="severity()" class="cms-site-status__banner">{{ message() }}</p-message>
 
   <div class="cms-site-status__actions">
     <button

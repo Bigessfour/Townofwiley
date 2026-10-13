@@ -46,7 +46,7 @@ import { MeetingDocumentSectionId } from '../meeting-documents/document-archive'
         </p>
       }
 
-      <p-fileUpload
+      <p-fileupload
         #fileUpload
         name="documents"
         [multiple]="true"
@@ -58,7 +58,7 @@ import { MeetingDocumentSectionId } from '../meeting-documents/document-archive'
         (onSelect)="onFileSelect($event)"
         (onRemove)="onFileRemove($event)"
       >
-        <ng-template pTemplate="toolbar">
+        <ng-template #toolbar>
           <div class="flex gap-2">
             <p-button
               label="Upload Selected Files"
@@ -78,7 +78,7 @@ import { MeetingDocumentSectionId } from '../meeting-documents/document-archive'
           </div>
         </ng-template>
 
-        <ng-template pTemplate="content">
+        <ng-template #content>
           @if (selectedFiles.length === 0) {
             <div class="empty-state">
               <i
@@ -108,12 +108,12 @@ import { MeetingDocumentSectionId } from '../meeting-documents/document-archive'
             </div>
           }
         </ng-template>
-      </p-fileUpload>
+      </p-fileupload>
 
       @if (isUploading()) {
         <div class="upload-progress mt-3">
           <p>Uploading {{ currentUploadIndex() + 1 }} of {{ selectedFiles.length }} files...</p>
-          <p-progressBar [value]="uploadProgress()"></p-progressBar>
+          <p-progressbar [value]="uploadProgress()"></p-progressbar>
         </div>
       }
 
@@ -339,8 +339,8 @@ export class DocumentUploadComponent implements OnInit {
     this.loadUploadedDocuments();
   }
 
-  onFileSelect(event: { files: File[] }) {
-    this.selectedFiles = [...this.selectedFiles, ...event.files];
+  onFileSelect(event: { files: File[] | FileList }) {
+    this.selectedFiles = [...this.selectedFiles, ...Array.from(event.files)];
   }
 
   onFileRemove(event: { file: File }) {
