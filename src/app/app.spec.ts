@@ -892,7 +892,8 @@ describe('App', () => {
     expect(compiled.textContent).toContain('What do you want to update?');
     expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
     expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // Gen 1 AppSync Queries (IT Advanced)
-    expect(compiled.textContent).toContain('Advanced and IT troubleshooting');
+    expect(compiled.textContent).toContain('Technical details');
+    expect(compiled.textContent).toContain('Setup values (IT)');
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
@@ -917,8 +918,8 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(TestBed.inject(Router).url).toBe('/admin#documents');
     expect(compiled.textContent).toContain('Document publishing');
-    expect(compiled.textContent).toContain('Meeting Documents');
-    expect(compiled.textContent).toContain('meeting-documents');
+    expect(compiled.querySelector('[data-testid="cms-meeting-document-upload"]')).toBeTruthy();
+    expect(compiled.textContent).toContain('Upload a meeting agenda or packet');
     expect(compiled.textContent).not.toContain('Add a form or PDF');
   });
 
