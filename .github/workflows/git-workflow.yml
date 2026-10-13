@@ -595,7 +595,7 @@ jobs:
 
       - name: Configure AWS credentials (optional OIDC)
         continue-on-error: true
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           # Prefer dedicated ops role when present; fall back to static-site deploy role.
           role-to-assume: ${{ secrets.TOW_OPS_AWS_ROLE_ARN != '' && secrets.TOW_OPS_AWS_ROLE_ARN || 'arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy' }}
@@ -647,7 +647,7 @@ jobs:
           path: dist/townofwiley-app/browser
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy
           aws-region: us-east-2
