@@ -1,4 +1,4 @@
-<p-card id="weather-alerts" styleClass="resident-service-stage-card">
+<p-card id="weather-alerts" class="resident-service-stage-card">
   <div class="resident-service-stage-inner grid gap-4">
     <p class="meta-label">{{ copy().weatherMeta }}</p>
     <i [class]="'pi ' + copy().weatherIcon" aria-hidden="true"></i>
@@ -10,10 +10,11 @@
         pRipple
         routerLink="/weather"
         class="p-button-sm"
-        icon="pi pi-cloud"
-        [label]="copy().weatherCta"
         [attr.aria-label]="copy().weatherCta"
-      ></a>
+      >
+        <i class="pi pi-cloud" aria-hidden="true"></i>
+        {{ copy().weatherCta }}
+      </a>
     </div>
   </div>
 </p-card>

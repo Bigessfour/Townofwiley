@@ -1,9 +1,8 @@
 <section class="cms-community-calendar-admin" data-testid="cms-community-calendar-admin">
   @if (!isSignedIn()) {
-    <p-message
-      severity="warn"
-      text="Sign in at /admin/login before managing community calendar events."
-    />
+    <p-message severity="warn">
+      Sign in at /admin/login before managing community calendar events.
+    </p-message>
   } @else {
     <div class="cms-community-calendar-admin__toolbar">
       <p-select
@@ -27,7 +26,7 @@
     </div>
 
     @if (loadError()) {
-      <p-message severity="error" [text]="loadError()!" />
+      <p-message severity="error">{{ loadError()! }}</p-message>
     }
 
     <p-table
@@ -37,7 +36,7 @@
       [tableStyle]="{ 'min-width': '48rem' }"
       ariaLabel="Community calendar events"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th scope="col">Title</th>
           <th scope="col">When</th>
@@ -46,7 +45,7 @@
           <th scope="col">Actions</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-row>
+      <ng-template #body let-row>
         <tr>
           <td>
             <strong>{{ row.title }}</strong>
@@ -95,7 +94,7 @@
           </td>
         </tr>
       </ng-template>
-      <ng-template pTemplate="emptymessage">
+      <ng-template #emptymessage>
         <tr>
           <td colspan="5">No community events match this filter.</td>
         </tr>

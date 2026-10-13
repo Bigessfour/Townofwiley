@@ -89,7 +89,7 @@
         @for (section of documentSections; track section.sectionId) {
           <li>
             <strong>{{ section.label }}:</strong>
-            <p-tag [value]="section.sectionId" severity="secondary" styleClass="ml-1" />
+            <p-tag [value]="section.sectionId" severity="secondary" class="ml-1" />
             <p class="cms-muted">{{ section.detail }}</p>
           </li>
         }
