@@ -22,6 +22,14 @@
         } @else {
           <p class="cms-record-editor__ordered-label">Current order on the website</p>
         }
+        @if (electedRosterMissingMayorWarning()) {
+          <p-message
+            severity="warn"
+            styleClass="cms-record-editor__message"
+            data-testid="cms-mayor-missing-warning"
+            text="No Mayor line in Elected Officials yet. Add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on the Contact page."
+          />
+        }
         @if (!orderedGroupFilterActive()) {
           <p class="cms-record-editor__ordered-empty">
             Choose a list above to preview active names for that section on /contact.
@@ -71,7 +79,7 @@
     @if (showRecordPicker()) {
       <div class="cms-record-editor__picker">
         <p class="cms-record-editor__picker-label">Saved on the website</p>
-        <p-table [value]="records()" styleClass="cms-record-table" dataKey="id">
+        <p-table [value]="visibleRecords()" styleClass="cms-record-table" dataKey="id">
           <ng-template #header>
             <tr>
               <th scope="col">Item</th>
@@ -95,15 +103,17 @@
             </tr>
           </ng-template>
         </p-table>
-        <button
-          pButton
-          type="button"
-          class="p-button-text cms-record-editor__new"
-          data-testid="cms-new-record"
-          (click)="startNewRecord()"
-        >
-          + Add new instead
-        </button>
+        @if (!hideAddNew()) {
+          <button
+            pButton
+            type="button"
+            class="p-button-text cms-record-editor__new"
+            data-testid="cms-new-record"
+            (click)="startNewRecord()"
+          >
+            + Add new instead
+          </button>
+        }
       </div>
     }
 
@@ -253,7 +263,7 @@
                 severity="warn"
                 styleClass="cms-record-editor__message"
                 data-testid="cms-mayor-missing-warning"
-                text="No Mayor line in Elected Officials yet. Adding trustees replaces the default list entirely — add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on /contact#leadership."
+                text="No Mayor line in Elected Officials yet. Adding trustees replaces the default list entirely — add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on the Contact page."
               />
             }
             <div class="cms-record-editor__ordered" data-testid="cms-ordered-panel">

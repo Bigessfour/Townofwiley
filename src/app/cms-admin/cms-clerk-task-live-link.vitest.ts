@@ -124,6 +124,7 @@ describe('buildClerkTaskHubLiveLink (task-hub section URLs)', () => {
     ['post-notice', 'https://townofwiley.gov/news#recent-town-notices-heading'],
     ['add-meeting', 'https://townofwiley.gov/meetings#calendar'],
     ['homepage', 'https://townofwiley.gov/#site-hero-title'],
+    ['update-contact-page', 'https://townofwiley.gov/contact#contact'],
     ['update-contacts', 'https://townofwiley.gov/contact#contact-administration'],
     ['update-leadership', 'https://townofwiley.gov/contact#leadership'],
     ['business-directory', 'https://townofwiley.gov/businesses#business-directory-heading'],

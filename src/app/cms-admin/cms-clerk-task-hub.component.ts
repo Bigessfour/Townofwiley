@@ -6,6 +6,7 @@ import { buildClerkTaskHubLiveLink } from './cms-clerk-task-live-link';
 import {
   CLERK_CMS_TASKS,
   clerkTaskPreviewUrl,
+  clerkTaskVisibleOnHub,
   type ClerkCmsTask,
   type ClerkCmsTaskId,
 } from './cms-clerk-tasks';
@@ -47,7 +48,9 @@ export class CmsClerkTaskHubComponent {
 
   protected readonly tasks = computed(() => {
     const groups = this.staffAuth.staffGroups();
-    return CLERK_CMS_TASKS.filter((task) => taskVisibleForGroups(task, groups));
+    return CLERK_CMS_TASKS.filter(
+      (task) => clerkTaskVisibleOnHub(task) && taskVisibleForGroups(task, groups),
+    );
   });
 
   protected previewUrl(task: ClerkCmsTask): string {

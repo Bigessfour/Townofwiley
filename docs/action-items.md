@@ -37,6 +37,7 @@
 
 ### P2 / P3
 - [x] `CmsAdmin` / task hub (W1 bar)
+- [x] `CmsContactPageChooserComponent` (Contact page section chooser; e2e `admin.cms.spec.ts`)
 - [x] Meeting archive / This week / Weather banner / GA / amplify-config (W1 bar; Wave 3 for deeper behavior)
 
 ---

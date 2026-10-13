@@ -8,17 +8,11 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
-import { TagModule } from 'primeng/tag';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
-import {
-  DOCUMENT_PUBLISHING_CHECKS,
-  DOCUMENT_PUBLISHING_STEPS,
-  DOCUMENT_SECTIONS,
-} from './cms-admin-constants';
+import { DOCUMENT_PUBLISHING_CHECKS, DOCUMENT_PUBLISHING_STEPS } from './cms-admin-constants';
 import { IT_ADMIN_COPY } from './cms-admin-it-copy';
 import { CmsClerkCoverageSheetComponent } from './cms-clerk-coverage-sheet.component';
 import { CmsClerkTaskGuideComponent } from './cms-clerk-task-guide.component';
@@ -62,8 +56,6 @@ interface CmsAdminSetupDetail {
   },
   imports: [
     ButtonModule,
-    CardModule,
-    TagModule,
     MessageModule,
     CmsSiteStatusComponent,
     CmsClerkTaskHubComponent,
@@ -83,7 +75,6 @@ export class CmsAdmin {
 
   protected readonly it = IT_ADMIN_COPY;
   protected readonly documentPublishingSteps = DOCUMENT_PUBLISHING_STEPS;
-  protected readonly documentSections = DOCUMENT_SECTIONS;
   protected readonly documentPublishingChecks = DOCUMENT_PUBLISHING_CHECKS;
 
   private readonly appSyncRuntimeConfig = (() => {
@@ -114,12 +105,6 @@ export class CmsAdmin {
   protected readonly cacheClearMessage = signal<string | null>(null);
   protected readonly forceRefreshLoading = signal(false);
   protected readonly copiedSetupKey = signal<string | null>(null);
-  protected readonly setupCardPt = {
-    body: { class: 'setup-card-body' },
-    title: { class: 'setup-card-title' },
-    subtitle: { class: 'setup-card-subtitle' },
-    footer: { class: 'setup-card-footer' },
-  };
 
   protected readonly modelCounts = this.cmsStore.modelCounts;
   protected readonly isStaffSignedIn = this.staffAuth.isStaff;
