@@ -103,7 +103,9 @@ test.describe('community calendar on meetings', () => {
 });
 
 test.describe('this week in Wiley on homepage', () => {
-  test('shows Coming up / This week card with an upcoming town event', async ({ homePage }) => {
+  test('shows the homepage calendar card after the bundled yard sale has ended', async ({
+    homePage,
+  }) => {
     await homePage.goto();
     const section = homePage.page.getByTestId('this-week-in-wiley');
     await expect(section).toBeVisible();
@@ -113,9 +115,8 @@ test.describe('this week in Wiley on homepage', () => {
         name: /This week in Wiley|Coming up in Wiley/i,
       }),
     ).toBeVisible();
-    await expect(section.getByText(/City Council Meeting/i).first()).toBeVisible({
-      timeout: 10_000,
-    });
+    // Smoke serves the snapshot with official events removed, and the Sept 2026 yard sale seed is over.
+    await expect(section.getByText(/No upcoming events are posted yet/i)).toBeVisible();
     await expect(section.getByRole('link', { name: /Open the calendar/i })).toBeVisible();
   });
 });
