@@ -288,7 +288,7 @@
                   class="mega-menu-sub-link"
                   [routerLink]="item.routerLink"
                   [fragment]="item.fragment"
-                  (click)="item.command ? item.command($event) : null"
+                  (click)="onMegaMenuLeafClick(item, $event)"
                 >
                   @if (item.icon) {
                     <i [class]="item.icon" aria-hidden="true"></i>
@@ -1064,7 +1064,7 @@
 
         <section class="site-footer__attestation" aria-labelledby="site-footer-attestation-heading">
           <p-avatar
-            image="mayor-steve-mckitrick.png"
+            image="mayor-steve-mckitrick.jpg"
             shape="circle"
             size="xlarge"
             [attr.aria-label]="appCopy().footerAttestationPhotoAlt"

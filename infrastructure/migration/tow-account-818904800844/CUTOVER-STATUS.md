@@ -16,12 +16,12 @@
 
 ## Live `runtime-config` wiring
 
-| Feature                                    | Account                                                         |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| NWS proxy                                  | `tow`                                                           |
-| Community calendar                         | `tow`                                                           |
-| Severe weather alerts                      | **personal** (production SES + SMS) until tow SES exits sandbox |
-| CMS `/admin` (Cognito + AppSync + docs S3) | **tow** (`TowCms`)                                              |
+| Feature                                    | Account                                                    |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| NWS proxy                                  | `tow`                                                      |
+| Community calendar                         | `tow`                                                      |
+| Severe weather alerts                      | **tow** Lambda + SES; SMS via RAM-shared TFN from personal |
+| CMS `/admin` (Cognito + AppSync + docs S3) | **tow** (`TowCms`)                                         |
 
 ## CMS cutover details (`TowCms`)
 
@@ -42,11 +42,26 @@ Staff users recreated (`clerk@`, `bigessfour@`, `wileytown@`) in **FORCE_CHANGE_
 
 ### 1. SES production access on `tow` (case `178724574800797`)
 
-After SES production is **approved**, say so and we will flip severe weather `runtime-config` to the tow Lambda.
+**Granted.** Domain `townofwiley.gov` verified; severe weather signup points at tow Lambda.
 
-### 2. SMS toll-free number
+### 2. SMS toll-free number (`+18666509844`)
 
-Still in personal End User Messaging. Move only after severe weather is fully on `tow`.
+**Do not release** the number (AWS: release is permanent; same TFN cannot be reclaimed).
+
+Shared into Town via AWS RAM (self-service ownership transfer is not available):
+
+| Piece                                 | Value                                                                                          |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Owner account                         | `570912405222` (personal)                                                                      |
+| Consumer account                      | `818904800844` (`tow`)                                                                         |
+| RAM share                             | `TownOfWiley-SMS-TollFree`                                                                     |
+| Phone ARN (use in tow sends)          | `arn:aws:sms-voice:us-east-2:570912405222:phone-number/phone-3f96352013184d59946f771dd31fd7d0` |
+| TFN registration                      | `COMPLETE` on personal                                                                         |
+| tow Lambda `SMS_ORIGINATION_IDENTITY` | full shared ARN above                                                                          |
+| Two-way STOP/HELP                     | personal SNS → `TownOfWileySmsInboundForwarder` → tow Lambda                                   |
+| tow SMS tier                          | still **SANDBOX** (`$1` limit; verified destinations only)                                     |
+
+**Still needed (console click in `tow`):** Service Quotas → AWS End User Messaging SMS → **SMS Production Access** for `us-east-2` ([sandbox exit guide](https://docs.aws.amazon.com/sms-voice/latest/userguide/sandbox.html)).
 
 ### 3. Bake-in then decommission personal CMS
 
