@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-08-21T01:22:32Z",
-  "buildSha": null,
+  "savedAt": "2026-10-13T21:39:02.292Z",
+  "buildSha": "dcd9c3a455b98147e2b385df49d4cd2be42e6dbf",
   "siteSettings": {
     "townName": "Town of Wiley",
     "pageTitle": null,
@@ -22,7 +22,7 @@
       "id": "2c607cdc-f367-4655-85b0-91b2544e74a9",
       "title": "2026 SECRHA Housing Needs Assessment",
       "date": "2026-08-13",
-      "detail": "2026 SECRHA Housing Needs Assessment \u2013 Interactive Story Map",
+      "detail": "2026 SECRHA Housing Needs Assessment – Interactive Story Map",
       "announcementKind": null,
       "attachmentKey": null,
       "priority": null,
@@ -92,6 +92,15 @@
       "active": true
     },
     {
+      "id": "3ff04358-a3f4-416e-9ac9-3dbb252393ff",
+      "title": "City Council Meeting - November",
+      "description": null,
+      "location": null,
+      "start": "2026-11-10T01:00:00.000Z",
+      "end": null,
+      "active": true
+    },
+    {
       "id": "1ba73b5e-f8b5-4bdb-93f9-981f1cf7478e",
       "title": "City Council Meeting - June",
       "description": null,
@@ -155,6 +164,15 @@
       "href": "mailto:clerk@townofwiley.gov",
       "linkLabel": "clerk@townofwiley.gov",
       "displayOrder": 0
+    },
+    {
+      "id": "ab8e3edf-e10d-4fab-810d-d50efa279634",
+      "label": "Deputy Clerk",
+      "value": "Paige Lindo",
+      "detail": "Welcome Paige to the Town of Wiley, we look forward to your new ideas and your dedication to helping people of the Town of Wiley",
+      "href": null,
+      "linkLabel": null,
+      "displayOrder": null
     },
     {
       "id": "town-information",
@@ -270,10 +288,13 @@
   "publicDocumentRecords": [
     {
       "id": "dca3340f-f4ab-4963-a0ee-98b3f18f0304",
-      "title": "City Council Meeting - July \u2014 Agenda (July 13, 2026)",
+      "title": "City Council Meeting - July — Agenda (July 13, 2026)",
+      "titleEs": null,
       "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
+      "summaryEs": null,
       "sectionId": "meeting-documents",
       "status": "Published",
+      "statusEs": null,
       "format": "PDF",
       "href": "storage:documents/meeting-documents/1783802700448-town_of_wiley_minutes_2026-06-08_text.pdf",
       "downloadFileName": "Town_of_Wiley_Minutes_2026-06-08_TEXT.pdf",
@@ -298,10 +319,13 @@
     },
     {
       "id": "07770a7b-ce61-4429-ab06-ae4188e173de",
-      "title": "City Council Meeting \u2014 Agenda (June 8, 2026)",
+      "title": "City Council Meeting — Agenda (June 8, 2026)",
+      "titleEs": null,
       "summary": "Agenda packet for City Council Meeting on June 8, 2026.",
+      "summaryEs": null,
       "sectionId": "meeting-documents",
       "status": "Published",
+      "statusEs": null,
       "format": "PDF",
       "href": "storage:documents/meeting-documents/1780960044236-06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
       "downloadFileName": "06082026_MINUTES OF THE TOWN OF WILEY FOR MAY 11, 2026.pdf",
@@ -328,10 +352,13 @@
     },
     {
       "id": "a05b1e36-1656-4e9a-ac4b-6dcb4e065800",
-      "title": "City Council Meeting - July \u2014 Agenda (July 13, 2026)",
+      "title": "City Council Meeting - July — Agenda (July 13, 2026)",
+      "titleEs": null,
       "summary": "Agenda packet for City Council Meeting - July on July 13, 2026.",
+      "summaryEs": null,
       "sectionId": "meeting-documents",
       "status": "Published",
+      "statusEs": null,
       "format": "PDF",
       "href": "storage:documents/meeting-documents/1783986194770-scan-07_13_2026.pdf",
       "downloadFileName": "Scan [07_13_2026].pdf",
@@ -466,7 +493,8 @@
       "valueEn": "Quick Tasks",
       "valueEs": "Tareas rapidas",
       "description": null,
-      "active": true
+      "active": true,
+      "displayOrder": 1
     },
     {
       "id": "topTasksHeading",
@@ -474,7 +502,8 @@
       "valueEn": "How do I...",
       "valueEs": "Como puedo...",
       "description": null,
-      "active": true
+      "active": true,
+      "displayOrder": 2
     }
   ]
 }

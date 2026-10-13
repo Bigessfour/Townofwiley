@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { firstValueFrom, of, throwError } from 'rxjs';
+import { mergeCommunityEventsWithBundled } from './community-calendar-seed';
 import { CommunityCalendarService } from './community-calendar.service';
 import type { CommunityEvent, CommunityEventSubmission } from './community-calendar.types';
 
@@ -84,7 +85,7 @@ describe('CommunityCalendarService', () => {
     const service = TestBed.inject(CommunityCalendarService);
     const events = await firstValueFrom(service.listEvents());
     expect(http.get).not.toHaveBeenCalled();
-    expect(events.some((e) => e.eventId.startsWith('tow-community-'))).toBe(true);
+    expect(events).toEqual(mergeCommunityEventsWithBundled([]));
   });
 
   it('merges API events with bundled seeds when configured', async () => {
@@ -132,7 +133,7 @@ describe('CommunityCalendarService', () => {
     });
     const service = TestBed.inject(CommunityCalendarService);
     const events = await firstValueFrom(service.listEvents());
-    expect(events.some((e) => e.eventId.startsWith('tow-community-'))).toBe(true);
+    expect(events).toEqual(mergeCommunityEventsWithBundled([]));
   });
 
   it('posts submissions to /events when configured', async () => {

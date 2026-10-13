@@ -24,6 +24,7 @@
           <span>{{ copy().issueCategoryLabel }}</span>
           <p-select
             inputId="issue-category"
+            [ariaLabel]="copy().issueCategoryLabel"
             formControlName="category"
             [options]="copy().issueCategories"
             optionLabel="label"
