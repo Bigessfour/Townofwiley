@@ -270,20 +270,32 @@ def ensure_cloudwatch_alarm(
 def ensure_alert_alarms(
     namespace: str, notification_email: str, function_name: str
 ) -> None:
-    triggered_topic_name = f"{function_name}AlertTriggeredNotifications"
-    failure_topic_name = f"{function_name}AlertFailureNotifications"
-    triggered_topic_arn = ensure_sns_topic(triggered_topic_name)
-    failure_topic_arn = ensure_sns_topic(failure_topic_name)
+    """Keep only the delivery-failure alarm.
 
-    ensure_sns_email_subscription(triggered_topic_arn, notification_email)
+    NormalAlertTriggered is informational (a weather notice went out). CloudWatch
+    includes 10 alarms in the free tier, so that alarm is not created and is
+    removed if a previous deploy left it behind.
+    """
+    failure_topic_name = f"{function_name}AlertFailureNotifications"
+    failure_topic_arn = ensure_sns_topic(failure_topic_name)
     ensure_sns_email_subscription(failure_topic_arn, notification_email)
 
-    ensure_cloudwatch_alarm(
-        f"{function_name}AlertTriggeredAlarm",
-        namespace,
-        "NormalAlertTriggered",
-        triggered_topic_arn,
-        "Notifies when the severe weather backend publishes a normal alert-trigger event.",
+    run_aws(
+        [
+            "cloudwatch",
+            "delete-alarms",
+            "--alarm-names",
+            f"{function_name}AlertTriggeredAlarm",
+        ],
+        expect_json=False,
+    )
+    # DeleteTopic succeeds when the topic is already gone.
+    triggered_topic_arn = failure_topic_arn[: -len(failure_topic_name)] + (
+        f"{function_name}AlertTriggeredNotifications"
+    )
+    run_aws(
+        ["sns", "delete-topic", "--topic-arn", triggered_topic_arn],
+        expect_json=False,
     )
     ensure_cloudwatch_alarm(
         f"{function_name}AlertFailureAlarm",

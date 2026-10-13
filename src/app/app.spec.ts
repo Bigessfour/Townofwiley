@@ -319,7 +319,7 @@ describe('App', () => {
     expect(command).toHaveBeenCalledWith(event);
   });
 
-  it('should navigate on mega menu leaf click when routerLink is set without command', async () => {
+  it('should leave an uncancelled mega menu click to RouterLink', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await flushWeatherRequests();
@@ -338,17 +338,38 @@ describe('App', () => {
       cancelable: true,
       button: 0,
     });
-    vi.spyOn(event, 'preventDefault');
-    vi.spyOn(event, 'stopPropagation');
 
     component.onMegaMenuLeafClick(
       { label: 'Test', routerLink: ['/services'], fragment: 'payment-help' },
       event,
     );
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/services'], { fragment: 'payment-help' });
-    expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).not.toHaveBeenCalled();
+  });
+
+  it('should still navigate when the mega menu already cancelled the click', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await flushWeatherRequests();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    const component = fixture.componentInstance as App & {
+      onMegaMenuLeafClick: (item: MegaMenuItem, event: MouseEvent) => void;
+    };
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    event.preventDefault();
+
+    component.onMegaMenuLeafClick(
+      { label: 'Online Payments', routerLink: ['/pay-bill'], fragment: 'payment-help' },
+      event,
+    );
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/pay-bill'], { fragment: 'payment-help' });
   });
 
   it('should not programmatically navigate on mega menu leaf click when Ctrl is held', async () => {
