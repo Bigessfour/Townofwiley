@@ -140,6 +140,17 @@ ${publicDocumentFields}
       active
     }
   }
+  listSiteCopies(filter: { active: { eq: true } }, limit: 200) {
+    items {
+      id
+      key
+      valueEn
+      valueEs
+      description
+      active
+      displayOrder
+    }
+  }
 }`;
 }
 
