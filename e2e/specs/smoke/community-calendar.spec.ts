@@ -103,7 +103,7 @@ test.describe('community calendar on meetings', () => {
 });
 
 test.describe('this week in Wiley on homepage', () => {
-  test('shows Coming up / This week card with community yard sale seed', async ({ homePage }) => {
+  test('shows Coming up / This week card with an upcoming town event', async ({ homePage }) => {
     await homePage.goto();
     const section = homePage.page.getByTestId('this-week-in-wiley');
     await expect(section).toBeVisible();
@@ -113,7 +113,7 @@ test.describe('this week in Wiley on homepage', () => {
         name: /This week in Wiley|Coming up in Wiley/i,
       }),
     ).toBeVisible();
-    await expect(section.getByText(/Community-wide yard sale/i)).toBeVisible({
+    await expect(section.getByText(/City Council Meeting/i).first()).toBeVisible({
       timeout: 10_000,
     });
     await expect(section.getByRole('link', { name: /Open the calendar/i })).toBeVisible();
