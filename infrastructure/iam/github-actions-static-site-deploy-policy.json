@@ -11,8 +11,8 @@
         "s3:DeleteObject"
       ],
       "Resource": [
-        "arn:aws:s3:::townofwiley-static-site",
-        "arn:aws:s3:::townofwiley-static-site/*"
+        "arn:aws:s3:::townofwiley-static-site-818904800844",
+        "arn:aws:s3:::townofwiley-static-site-818904800844/*"
       ]
     },
     {
@@ -22,7 +22,7 @@
         "cloudfront:CreateInvalidation",
         "cloudfront:GetInvalidation"
       ],
-      "Resource": "arn:aws:cloudfront::570912405222:distribution/E1NZ3XCY5CYR1J"
+      "Resource": "arn:aws:cloudfront::818904800844:distribution/E19PUUL2H76CZA"
     },
     {
       "Sid": "CallerIdentity",

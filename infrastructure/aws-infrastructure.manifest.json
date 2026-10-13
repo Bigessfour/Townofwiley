@@ -13,6 +13,7 @@
     "region": "us-east-2",
     "cloudFrontDistributionId": "E19PUUL2H76CZA",
     "cloudFrontDomain": "d1bhtly4h27ucg.cloudfront.net",
+    "responseHeadersPolicyId": "f8bbcef4-5b22-4f74-a2b4-aa542d09aa43",
     "spaRedirectFunction": "townofwiley-spa-redirect",
     "aliases": [
       "townofwiley.gov",
@@ -96,7 +97,7 @@
       "deployScript": "scripts/deploy-severe-weather-backend.py",
       "required": true,
       "accountId": "818904800844",
-      "notes": "Migrated to tow 2026-08-20 (email via SES alerts@townofwiley.gov). SMS deferred until toll-free number moves. SES production access PENDING."
+      "notes": "On tow. SES production GRANTED. SMS uses RAM-shared TFN +18666509844 from personal 570 (do not release). tow SMS still SANDBOX until production quota case."
     },
     {
       "functionName": "TownOfWileyAppSyncKeyReminder",
@@ -153,7 +154,7 @@
         "authType": "NONE",
         "required": true
       },
-      "functionUrlEndpoint": "https://vkdnqjk5dlz6yddetbviqaysqa0rpzek.lambda-url.us-east-2.on.aws/",
+      "functionUrlEndpoint": "https://rvfxlmux43jltaffqmhatzxpiq0ahlqs.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-community-calendar-backend.py",
       "required": false,
       "notes": "Community calendar submissions + clerk email approve/reject"

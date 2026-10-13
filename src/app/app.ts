@@ -21,7 +21,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { MegaMenuItem } from 'primeng/api';
@@ -1573,7 +1573,6 @@ function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuIte
     NgOptimizedImage,
     NgTemplateOutlet,
     RouterLink,
-    RouterLinkActive,
     DrawerModule,
     ReactiveFormsModule,
     AvatarModule,
@@ -2073,14 +2072,13 @@ export class App {
   }
 
   /**
-   * Flyout submenu links used `activateMegaMenuItem`, which returned early unless `command` was set—so clicks
-   * were swallowed in production hydration/event-replay setups. Navigate imperatively here (same UX as RouterLink).
+   * `routerLink` owns a normal click (https://angular.dev/guide/routing/navigate-to-routes).
+   * Hydration event replay delivers that click with `defaultPrevented` already set, and
+   * `RouterLink` skips it (https://angular.dev/guide/hydration). Navigate only then.
    */
   protected onMegaMenuLeafClick(item: MegaMenuItem, event: MouseEvent): void {
     if (item.command) {
-      event.preventDefault();
-      event.stopPropagation();
-      item.command(event);
+      this.activateMegaMenuItem(item, event);
       return;
     }
 
@@ -2088,19 +2086,16 @@ export class App {
       return;
     }
 
-    const allowBrowserDefaultNavigation =
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.altKey;
-
-    if (allowBrowserDefaultNavigation) {
+    const modifiedClick =
+      event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+    if (modifiedClick) {
       return;
     }
 
-    event.preventDefault();
+    if (!event.defaultPrevented) {
+      return;
+    }
+
     event.stopPropagation();
 
     const commands = Array.isArray(item.routerLink) ? item.routerLink : [item.routerLink];
