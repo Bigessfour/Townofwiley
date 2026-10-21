@@ -34,15 +34,15 @@ const NOT_FOUND_COPY: Record<
       data-testid="not-found-page"
     >
       <p-card class="panel wiley-panel">
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <div class="wiley-page-header">
             <h1 id="not-found-heading">{{ copy().heading }}</h1>
           </div>
         </ng-template>
-        <ng-template pTemplate="content">
+        <ng-template #content>
           <p class="m-0 text-balance">{{ copy().body }}</p>
         </ng-template>
-        <ng-template pTemplate="footer">
+        <ng-template #footer>
           <div class="flex flex-wrap gap-4">
             <a routerLink="/" class="button-cta button-cta--solid">{{ copy().homeCta }}</a>
             <a

@@ -10,7 +10,7 @@
       <p class="cms-record-editor__status" role="status">Loading saved records…</p>
     }
     @if (loadError()) {
-      <p-message severity="warn" [text]="loadError()!" styleClass="cms-record-editor__message" />
+      <p-message severity="warn" class="cms-record-editor__message">{{ loadError()! }}</p-message>
     }
 
     @if (showOrderedPanelAtTop()) {
@@ -45,15 +45,15 @@
         }
 
         @if (orderedGroupFilterActive() && orderedList().length > 0) {
-          <p-orderList
+          <p-orderlist
             [value]="orderedList()"
             [dragdrop]="true"
             [disabled]="reordering() || submitting() || deleting()"
             dataKey="id"
             (onReorder)="onOrderedListReorder($event)"
-            styleClass="cms-record-editor__order-list"
+            class="cms-record-editor__order-list"
           >
-            <ng-template pTemplate="item" let-record>
+            <ng-template #item let-record>
               <div class="cms-record-editor__ordered-item">
                 <span>{{ orderedItemLabel(record) }}</span>
                 <button
@@ -67,7 +67,7 @@
                 </button>
               </div>
             </ng-template>
-          </p-orderList>
+          </p-orderlist>
           <p class="cms-record-editor__ordered-hint">
             Drag to reorder — each change saves immediately. Use Edit to update a name or hide it
             from the website.
@@ -79,7 +79,7 @@
     @if (showRecordPicker()) {
       <div class="cms-record-editor__picker">
         <p class="cms-record-editor__picker-label">Saved on the website</p>
-        <p-table [value]="visibleRecords()" styleClass="cms-record-table" dataKey="id">
+        <p-table [value]="visibleRecords()" class="cms-record-table" dataKey="id">
           <ng-template #header>
             <tr>
               <th scope="col">Item</th>
@@ -204,7 +204,7 @@
                 *
               }
             </span>
-            <p-inputNumber
+            <p-inputnumber
               [inputId]="fieldInputId(field.name)"
               [ngModel]="fieldValue(field)"
               (ngModelChange)="updateField(field.name, numberToFieldValue($event))"
@@ -261,10 +261,13 @@
             @if (electedRosterMissingMayorWarning()) {
               <p-message
                 severity="warn"
-                styleClass="cms-record-editor__message"
+                class="cms-record-editor__message"
                 data-testid="cms-mayor-missing-warning"
-                text="No Mayor line in Elected Officials yet. Adding trustees replaces the default list entirely — add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on the Contact page."
-              />
+              >
+                No Mayor line in Elected Officials yet. Adding trustees replaces the default list
+                entirely — add a row such as “Mayor: Pat Garcia” or the Mayor will not appear on
+                the Contact page.
+              </p-message>
             }
             <div class="cms-record-editor__ordered" data-testid="cms-ordered-panel">
               @if (isLeadershipTask() && selectedLeadershipGroupLabel()) {
@@ -289,15 +292,15 @@
               }
 
               @if (orderedGroupFilterActive() && orderedList().length > 0) {
-                <p-orderList
+                <p-orderlist
                   [value]="orderedList()"
                   [dragdrop]="true"
                   [disabled]="reordering() || submitting() || deleting()"
                   dataKey="id"
                   (onReorder)="onOrderedListReorder($event)"
-                  styleClass="cms-record-editor__order-list"
+                  class="cms-record-editor__order-list"
                 >
-                  <ng-template pTemplate="item" let-record>
+                  <ng-template #item let-record>
                     <div class="cms-record-editor__ordered-item">
                       <span>{{ orderedItemLabel(record) }}</span>
                       <button
@@ -311,7 +314,7 @@
                       </button>
                     </div>
                   </ng-template>
-                </p-orderList>
+                </p-orderlist>
                 <p class="cms-record-editor__ordered-hint">
                   Drag to reorder — each change saves immediately. Use Edit to update a name or hide
                   it from the website.
@@ -442,13 +445,11 @@
       @if (fileUploadError()) {
         <p-message
           severity="error"
-          [text]="fileUploadError()!"
-          styleClass="cms-record-editor__message"
-        />
+          class="cms-record-editor__message">{{ fileUploadError()! }}</p-message>
       }
 
       @if (deleteBlockedReason(); as blocked) {
-        <p-message severity="warn" [text]="blocked" styleClass="cms-record-editor__message" />
+        <p-message severity="warn" class="cms-record-editor__message">{{ blocked }}</p-message>
       }
 
       @if (savePreviewLines().length > 0) {
@@ -501,9 +502,7 @@
     @if (submitResult()) {
       <p-message
         severity="success"
-        [text]="submitResult()!"
-        styleClass="cms-record-editor__message"
-      />
+        class="cms-record-editor__message">{{ submitResult()! }}</p-message>
       <button
         pButton
         type="button"
@@ -515,7 +514,7 @@
       </button>
     }
     @if (submitError()) {
-      <p-message severity="error" [text]="submitError()!" styleClass="cms-record-editor__message" />
+      <p-message severity="error" class="cms-record-editor__message">{{ submitError()! }}</p-message>
     }
   </div>
 }

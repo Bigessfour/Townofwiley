@@ -103,7 +103,6 @@ describe('App', () => {
             },
           },
           ripple: true,
-          inputStyle: 'outlined',
           inputVariant: 'outlined',
           zIndex: {
             modal: 1100,
