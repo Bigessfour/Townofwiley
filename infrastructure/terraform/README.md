@@ -14,7 +14,7 @@ This repo does **not** manage all AWS through Terraform today. Production CMS us
 
 | Field | Value |
 | ----- | ----- |
-| **AWS account (Town)** | `570912405222` (see [`town-aws-account.json`](../town-aws-account.json)) |
+| **AWS accounts** | Hosting `818904800844` (`tow`); Gen1 backend still `570912405222` until cutover (see [`town-aws-account.json`](../town-aws-account.json)) |
 | **Primary region** | `us-east-2` |
 | **CLI profile** | `townofwiley` (see `npm run aws:configure-profile`) |
 

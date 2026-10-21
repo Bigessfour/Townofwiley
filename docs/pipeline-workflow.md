@@ -28,7 +28,8 @@ cd /path/to/Townofwiley   # repo root
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"   # Intel: /usr/local/opt/node@24/bin
 source scripts/agent-aws-env.sh
 node -v    # expect v24.x (see .nvmrc)
-aws sts get-caller-identity   # expect account 570912405222
+aws sts get-caller-identity --profile tow   # expect account 818904800844 (hosting)
+# Gen1 backend until cutover: --profile steve → 570912405222
 ```
 
 **Windows (Cursor / VS Code):**

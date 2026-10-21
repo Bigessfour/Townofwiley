@@ -166,23 +166,19 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## AWS and secrets
 
-- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — account **`570912405222`** only (starts with **57**); IAM user **`copilot`** for agent/IDE CLI access; profile **`townofwiley`**; region **`us-east-2`**. Policies: [`infrastructure/iam/`](infrastructure/iam/) (`copilot-*`). Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Other AWS accounts on your machine are **not** this repo.
+- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — official Town **`818904800844`** / profile **`tow`** for site hosting and deploy; Gen1 backend still on Steve personal **`570912405222`** / **`steve`** (legacy alias `townofwiley`) until cutover. Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Manifest: [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json).
 - Never commit credentials; use `npm run secrets:*` scripts.
 - **For agent access (Grok, Cursor, etc.):** Source the helper before working with AWS:
   ```bash
   source scripts/agent-aws-env.sh
   ```
-  This exports `AWS_PROFILE=townofwiley` and `AWS_DEFAULT_REGION=us-east-2` so the agent can run `aws` commands directly.
-- First-time setup (or when credentials expire):
+  This exports `AWS_PROFILE=tow` (818…) by default. For Gen1 backend: `AWS_PROFILE_NAME=steve source scripts/agent-aws-env.sh`.
+- Prefer SSO:
   ```bash
-  npm run aws:configure-profile
+  aws sso login --profile tow      # hosting / official Town
+  aws sso login --profile steve    # Gen1 backend until cutover
   ```
-  Or prefer modern SSO:
-  ```bash
-  aws configure sso --profile townofwiley
-  aws sso login --profile townofwiley
-  ```
-- Always verify with: `aws sts get-caller-identity`
+- Always verify with: `aws sts get-caller-identity` (confirm account matches the task)
 - Cost optimization: [`docs/aws-cost-optimization-runbook.md`](docs/aws-cost-optimization-runbook.md) — `npm run aws:optimize:discover` / `aws:optimize:apply`
 - See also: `scripts/configure-aws-cli-profile.sh`, `scripts/agent-aws-env.sh`, and `infrastructure/aws-infrastructure.manifest.json` (Single Source of Truth).
 

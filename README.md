@@ -6,7 +6,7 @@ The official, bilingual (English/Spanish) website for the Town of Wiley, Colorad
 
 | Area             | Stack                                                                                                    |
 | ---------------- | -------------------------------------------------------------------------------------------------------- |
-| Frontend         | Angular 21 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens                         |
+| Frontend         | Angular 22 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens                         |
 | Hosting          | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing)    |
 | Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
 | Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
@@ -64,12 +64,10 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   - Origin: S3 `townofwiley-static-site` (OAI; OAC E1UXALBLRIDL2E prepared + bucket policy updated for migration; complete in console if needed)
   - Viewer request Function: `townofwiley-spa-redirect` (handles Angular SPA deep links / 403→index.html rewrite)
   - Aliases: `townofwiley.gov`, `www.townofwiley.gov`
-  - ACM certificate: `arn:aws:acm:us-east-1:570912405222:certificate/a7d4c19b-070a-478b-9f3a-7203e53fcf90` (us-east-1)
+  - ACM certificate: `arn:aws:acm:us-east-1:818904800844:certificate/1ca102fe-d903-47f6-8f0f-15282c340ff5` (us-east-1)
   - Default root: (none; SPA handled by function + pre-generated static route entrypoints)
-- **DNS (Route 53, zone `Z088746831TMIL67NZ0VF` for `townofwiley.gov`):**
-  - `townofwiley.gov` → A alias → `d34qrz3qxoppc5.cloudfront.net`
-  - `www.townofwiley.gov` → A alias → `d34qrz3qxoppc5.cloudfront.net`
-- **AWS account:** `570912405222` only. Default profile **`townofwiley`** (see `.vscode/settings.json`).
+- **DNS:** Public aliases point at CloudFront `E19PUUL2H76CZA` (`d1bhtly4h27ucg.cloudfront.net`) in official Town account **818…**.
+- **AWS accounts:** Hosting **`818904800844`** / profile **`tow`**; Gen1 backend still **`570912405222`** / **`steve`** until cutover (see `infrastructure/town-aws-account.json`).
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
 - **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
 - **Deploy steps:**
