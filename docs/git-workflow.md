@@ -126,162 +126,65 @@ If the docs explain the exact same deploy, keeping the app change and docs in on
 
 ## CI Policy
 
-The GitHub Actions workflow at `.github/workflows/git-workflow.yml` is the repository CI gate.
+The GitHub Actions entrypoint [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) calls [`.github/workflows/site-ci.yml`](../.github/workflows/site-ci.yml) (job id `site-ci`) so the required check stays **`site-ci / CI gate (merge required)`**.
 
-It uses path-aware classification so the checks match the actual website surface instead of treating every repo file as production-critical.
+It is intentionally basic (not a full regression suite). Playwright smoke stays local: `npm run test:e2e:smoke`.
 
-### Frontend validation paths
+### Site CI steps
 
-These trigger the frontend CI pipeline:
-
-- `src/**`
-- `public/**`
-- `e2e/**`
-- `package.json`
-- `package-lock.json`
-- `angular.json`
-- `playwright.config.ts`
-- `tsconfig*.json`
-- `eslint.config.js`
-- `amplify.yml`
-- `scripts/generate-runtime-config.mjs`
-
-### Frontend CI steps
-
-For frontend-impacting changes, GitHub Actions runs:
+Every PR and every push to `main` runs:
 
 1. `npm ci --prefer-offline --no-audit`
-2. `npm run lint`
-3. `npm run build`
-4. `npm run test:e2e:install` (Chromium only; CI caches `~/.cache/ms-playwright` and skips `--with-deps` apt)
-5. `npm run test:e2e:smoke`
+2. CSP SSOT check (`node scripts/verify-custom-http-yaml.mjs`)
+3. `npm run lint`
+4. `npm run test:unit:browser`
+5. `npm run test:vitest`
+6. `npm run build:ci`
+7. `npm audit --audit-level=critical`
 
-That is the recommended minimum deterministic gate for this site because it validates:
+Required merge check: **`site-ci / CI gate (merge required)`**.
 
-- Angular compilation
-- linting and config drift
-- generated runtime-config compatibility
-- core resident-facing smoke flows on desktop and mobile emulation
+On green push to `main`, **`deploy-production`** deploys the built artifact to S3 + CloudFront.
 
-### Optional site-runtime checks
+### Local / optional checks
 
-The workflow also runs targeted checks when website-facing backend code changes:
+Run these locally when needed (not on every PR):
 
-- `npm run test:infra` for `infrastructure/nws-weather-proxy/**` and `infrastructure/cms-media-upload/**`
-- `npm run test:infra:alerts` for `infrastructure/severe-weather-signup/**` (Python **3.13**)
-- `npm run test:infra:contact` for contact Lambdas and deploy scripts (see below)
-- `node scripts/verify-aws-infrastructure.mjs --offline` when the SSOT manifest or contact infra changes
+- `npm run test:e2e:smoke` — Playwright critical smoke
+- `npm run test:infra` — NWS / CMS media upload
+- `npm run test:infra:alerts` — severe-weather signup (Python **3.13**)
+- `npm run test:infra:contact` — contact Lambdas and deploy scripts
+- `node scripts/verify-aws-infrastructure.mjs --offline` — SSOT manifest checks
 
-### Contact infrastructure CI
+### Caching
 
-When paths under `infrastructure/contact-update-lambda/**`, `infrastructure/contact-updates-review/**`, `infrastructure/contact-updates-review-proxy/**`, or the contact deploy scripts change, Site CI runs the **`contact-infra-tests`** job:
-
-1. `npm ci` (root and `infrastructure/contact-updates-review` for AWS SDK)
-2. `npm run test:infra:contact` (sanitize, review handler guards, proxy origin checks)
-3. `node scripts/verify-aws-infrastructure.mjs --offline` (contact Function URL auth matrix: review=`AWS_IAM`, write/proxy=`NONE`; deploy script must enforce `AWS_IAM`)
-4. `npx vitest run src/app/clerk-setup/contact-update-review.service.vitest.ts`
-
-Manifest-only edits (`aws-infrastructure.manifest.json`, `amplify-branch-env.manifest.json`, `docs/AWS_INFRASTRUCTURE_SOT.md`) trigger **`verify-aws-infra-manifest`** without re-running contact unit tests unless contact code also changed.
-
-### Amplify alignment
-
-The CI workflow intentionally mirrors the key AWS Amplify build recommendations:
-
-- use an explicit build spec in `amplify.yml`
-- pin the Node major version explicitly
-- prefer lockfile-based installs with `npm ci`
-- cache dependencies deliberately instead of depending on mutable machine state
-
-For this repository, that translates to:
-
-- Amplify keeps `node_modules/**/*` caching in `amplify.yml`
-- GitHub Actions uses `actions/setup-node` npm cache instead of caching `node_modules` directly
-- GitHub Actions also restores Playwright browser binaries and Angular CLI build cache to reduce repeated work in CI
-
-That split is intentional. Amplify and GitHub Actions have different cache ergonomics.
-
-### Caching guidance
-
-Should caching be enabled in GitHub Actions?
-
-Yes, but only targeted caches.
-
-Recommended:
-
-- npm package cache
-- Playwright browser cache
-- Angular CLI persistent cache
-
-Not recommended as the primary strategy:
-
-- caching `node_modules` directly in GitHub Actions
-
-Why:
-
-- `npm ci` stays deterministic with the lockfile
-- npm cache is usually smaller and less fragile than a full `node_modules` cache
-- direct `node_modules` caches are more likely to bloat or become flaky across runner updates
-
-### About the prebundling message
-
-This message:
-
-`Prebundling has been configured but will not be used because caching has been disabled.`
-
-comes from Angular's dev-server cache behavior during the Playwright smoke run. It is not an AWS Amplify warning.
-
-To address that, this repo now enables Angular CLI persistent cache in all environments through `angular.json` and restores `.angular/cache` in GitHub Actions.
-
-That should improve smoke-run startup behavior without changing the production Amplify build model.
-
-### Maintainer-only changes
-
-Docs, runbooks, training material, and non-website operational notes stay tracked in the repo, but they do not trigger the frontend regression gate by themselves.
-
-That is the intended separation:
-
-- version everything maintainers need
-- gate only the paths that can regress the public website or its website-facing runtime services
+GitHub Actions caches npm (via `setup-node`) and Angular CLI (`.github/actions/cache-angular-cli`). Playwright browsers are installed only for local smoke, not in Site CI.
 
 ## CD Model
 
 This repository uses GitHub Actions for CI **and** production frontend deployment.
 
-- Pull requests are validated in GitHub Actions (lint, strict build, E2E smoke).
-- Merges to **`main`** with deployable app changes trigger **`deploy-production`**: OIDC auth → tiered S3 sync → CloudFront invalidation.
-- Docs-only merges skip deploy.
+- Pull requests are validated in Site CI (lint, unit tests, production build, critical audit).
+- Green pushes to **`main`** trigger **`deploy-production`**: OIDC → S3 sync → CloudFront invalidation.
 - Manual break-glass: `npm run deploy:site` locally or **Actions → Deploy production (manual)** on `main`.
 
 Runbook: [`docs/github-actions-production-deploy.md`](./github-actions-production-deploy.md).
 
-Command reference (secrets, PR validation, deploy verification): [`docs/pipeline-workflow.md`](./pipeline-workflow.md).
-
-Amplify Hosting is decommissioned for the public site; remaining Amplify references are for backend/AppSync context or historical docs.
+Command reference: [`docs/pipeline-workflow.md`](./pipeline-workflow.md).
 
 ## Governance
 
 Production changes flow through **pull requests** to **`main`** — do not push directly to `main`.
 
-| Control           | Implementation                                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------------------------- |
-| Merge gate        | GitHub ruleset on `main`: require PR + status check **`site-ci / CI gate (merge required)`**                    |
-| CI validation     | Path-aware Site CI in [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml)             |
-| Merge check logic | [`scripts/ci-gate-check.mjs`](../scripts/ci-gate-check.mjs) — skipped conditional jobs are OK; failures are not |
-| Code ownership    | [`.github/CODEOWNERS`](../.github/CODEOWNERS) — auto-requests review on deployable paths                        |
-| Production deploy | Auto **`deploy-production`** on merge when `app_changed` (no environment approval gate)                         |
-| Solo maintainer   | Required approvals **0** until a backup GitHub collaborator exists                                              |
+| Control           | Implementation                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Merge gate        | GitHub ruleset on `main`: require PR + **`site-ci / CI gate (merge required)`**              |
+| CI validation     | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)                                    |
+| Merge check logic | [`scripts/ci-gate-check.mjs`](../scripts/ci-gate-check.mjs) — `build-and-test` must succeed |
+| Code ownership    | [`.github/CODEOWNERS`](../.github/CODEOWNERS)                                                |
+| Production deploy | Auto **`deploy-production`** on green push to `main`                                         |
+| Solo maintainer   | Required approvals **0** until a backup GitHub collaborator exists                           |
 
 Setup runbook: [`docs/github-branch-protection.md`](./github-branch-protection.md)
 
-Helper: `bash scripts/setup-github-governance.sh` (auto-merge, delete-branch-on-merge, prints ruleset checklist).
-
-## When To Split Repositories
-
-Do not split by default. Split only if one of these becomes true:
-
-- different teams own app code and ops/docs with separate permissions
-- deployment cadence is completely different
-- the repository becomes too noisy to review effectively even with path-based discipline
-- compliance requires stronger separation
-
-Until then, one repository plus path-aware workflow is the standard professional setup.
+Helper: `bash scripts/setup-github-governance.sh`

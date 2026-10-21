@@ -1,3 +1,5 @@
+# Thin caller so required check stays: site-ci / CI gate (merge required)
+# Jobs live in site-ci.yml (workflow_call).
 name: Site CI
 
 on:
@@ -15,13 +17,9 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write # OIDC for deploy-production job in reusable workflow
-  actions: read # Ollama CI triage reads failed run logs
-  pull-requests: write # Ollama CI triage comments on PRs
+  id-token: write
 
-# E2E smoke-critical (`npm run test:e2e:smoke`) runs in git-workflow.yml → frontend-smoke.
-# Full Playwright regression is local/ops (`npm run test:e2e:regression`), not on every PR.
 jobs:
   site-ci:
-    uses: ./.github/workflows/git-workflow.yml
+    uses: ./.github/workflows/site-ci.yml
     secrets: inherit

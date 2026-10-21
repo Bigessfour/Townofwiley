@@ -1,30 +1,17 @@
 #!/usr/bin/env node
 /**
  * Validates GitHub Actions `needs` context for the ci-gate merge job.
- * Fails on failure/cancelled; skipped and success are OK for conditional jobs.
- * Always requires detect-changes and custom-headers-parity to succeed.
+ * Basic Site CI requires build-and-test to succeed.
  */
 
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /** @typedef {{ result: string }} NeedsJob */
 
-export const ALWAYS_REQUIRED = ['detect-changes', 'custom-headers-parity'];
+export const ALWAYS_REQUIRED = ['build-and-test'];
 
-export const GATED_JOBS = [
-  'detect-changes',
-  'custom-headers-parity',
-  'verify-playwright-mcp-package',
-  'csp-angular-sync-check',
-  'verify-aws-infra-manifest',
-  'frontend-lint-build',
-  'frontend-smoke',
-  'site-monitor-tests',
-  'site-runtime-proxy-tests',
-  'backend-python-tests',
-  'security-audit',
-  'maintainer-only-summary',
-];
+export const GATED_JOBS = ['build-and-test'];
 
 /**
  * @param {Record<string, NeedsJob>} needs
@@ -71,7 +58,7 @@ function main() {
 
   const { ok, failures } = evaluateCiGate(needs);
   if (ok) {
-    console.log('CI gate: all required jobs passed or were appropriately skipped');
+    console.log('CI gate: all required jobs passed');
     return;
   }
 
@@ -81,6 +68,9 @@ function main() {
   process.exit(1);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   main();
 }

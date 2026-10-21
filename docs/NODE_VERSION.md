@@ -25,7 +25,7 @@ We **pin an exact patch** (not “whatever `24` resolves to today”) so:
 When Node ships a new **24.x LTS security patch**, bump **all** pin files in one PR:
 
 - `.nvmrc`, `.node-version`, `.tool-versions`, `mise.toml`, `package.json` → `volta.node`
-- `amplify.yml`, `.github/workflows/git-workflow.yml`, `.github/workflows/copilot-setup-steps.yml`
+- `amplify.yml`, `.github/workflows/ci.yml`, `.github/workflows/deploy-production.yml`, `.github/workflows/copilot-setup-steps.yml`
 - `README.md`, this file, `.github/copilot-instructions.md`, `.cursor/rules/core-workflow.mdc`
 
 Then run `node scripts/ensure-node-version.mjs` and `npm run test:vitest`.

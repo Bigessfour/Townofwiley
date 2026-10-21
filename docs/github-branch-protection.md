@@ -73,7 +73,7 @@ Settings → Environments → **New environment** → `production`
 | Required reviewers | **None** (auto-deploy after merge; PR + CI is the gate) |
 | Deployment branches | **Selected branches** → `main` only |
 
-Workflow jobs [`deploy-production`](../.github/workflows/git-workflow.yml) and [manual deploy](../.github/workflows/deploy-production.yml) reference `environment: production` for deployment history only.
+Workflow jobs [`deploy-production`](../.github/workflows/ci.yml) and [manual deploy](../.github/workflows/deploy-production.yml) reference `environment: production` for deployment history only.
 
 ### 4. AWS OIDC (unchanged)
 
@@ -87,26 +87,18 @@ Branch protection complements IAM: even with credentials, only merged `main` con
 
 [`.github/CODEOWNERS`](../.github/CODEOWNERS) auto-requests review on deployable paths. With a single owner, use it for visibility — not as a merge blocker until a backup collaborator exists.
 
-## Dependabot
+## Dependency updates
 
-[`.github/dependabot.yml`](../.github/dependabot.yml) opens weekly dependency PRs. After `ci-gate` is required:
-
-1. Wait for `site-ci / CI gate (merge required)` green
-2. Merge (or enable auto-merge when a backup reviewer exists)
-
-Dependabot-triggered workflows do **not** receive repository secrets (manual **Re-run** on those PRs is secretless too). Site CI uses `npm run build:ci`, which runs a **non-strict** runtime-config path when `APPSYNC_CMS_API_KEY` is unavailable; lint, unit tests, and compile still run. Staff PRs with secrets keep strict validation. **Close** red Dependabot PRs that predate a CI or `main` fix rather than merging without a green gate; Dependabot will open fresh PRs on the next schedule.
-
-Optional later: [Dependabot auto-merge](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions) for grouped patch updates.
+Dependabot is **off** for this repo. Bump dependencies in a normal PR when needed; Site CI still runs lint, unit tests, production build, and critical `npm audit`.
 
 ## Verification checklist
 
 After applying the ruleset:
 
-1. **Docs-only PR** — frontend jobs skipped; `ci-gate` still green; merge allowed
-2. **App PR** — lint/build/smoke run; merge blocked until `ci-gate` green
-3. **Direct push to `main`** — blocked by ruleset
-4. **Merge app change to `main`** — `deploy-production` runs when `app_changed=true`
-5. **Rollback** — revert on `main`; auto-deploy if deployable paths changed ([deploy runbook](./github-actions-production-deploy.md#rollback))
+1. **Any PR** — `build-and-test` + `ci-gate` green before merge
+2. **Direct push to `main`** — blocked by ruleset
+3. **Merge to `main`** — `deploy-production` runs after a green gate
+4. **Rollback** — revert on `main`; auto-deploy ([deploy runbook](./github-actions-production-deploy.md#rollback))
 
 ## Application order
 
