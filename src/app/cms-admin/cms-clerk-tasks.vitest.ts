@@ -43,6 +43,13 @@ describe('cms-clerk-tasks', () => {
     expect(CLERK_VERIFY_STEPS.join(' ')).toMatch(/hard-refresh/i);
   });
 
+  it('hides overlapping contact editors from the hub and adds a Contact page chooser', () => {
+    expect(clerkTaskById('update-contacts')?.hubVisible).toBe(false);
+    expect(clerkTaskById('update-leadership')?.hubVisible).toBe(false);
+    expect(clerkTaskUsesDedicatedEditor('update-contact-page')).toBe(true);
+    expect(clerkTaskById('update-contact-page')?.title).toMatch(/Contact page/i);
+  });
+
   it('defines manage-community-calendar as a dedicated editor task', () => {
     const task = clerkTaskById('manage-community-calendar');
     expect(task?.model).toBe('CommunityEvent');
