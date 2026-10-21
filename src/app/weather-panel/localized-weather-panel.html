@@ -167,7 +167,7 @@
               [class]="'weather-current-card' + (!period.isDaytime ? ' is-night' : '')"
               data-testid="weather-current-card"
             >
-              <ng-template pTemplate="header">
+              <ng-template #header>
                 <div
                   class="weather-current-topline flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
                 >
@@ -203,7 +203,7 @@
                 </div>
               </dl>
 
-              <ng-template pTemplate="footer">
+              <ng-template #footer>
                 <div class="weather-current-footer flex flex-wrap gap-3">
                   <a
                     class="weather-action is-link"
@@ -294,10 +294,10 @@
       >
         @if (!(loadError() && !hasForecastPayload())) {
           <p-panel
-            styleClass="weather-alerts-panel"
+            class="weather-alerts-panel"
             [pt]="{ header: { class: 'weather-alerts-header-host' } }"
           >
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <div
                 class="weather-alerts-panel-header flex items-center justify-between gap-4 w-full"
               >
@@ -308,7 +308,7 @@
                 <p-tag
                   [value]="hasAlerts() ? alertSummary() : copy().noActiveAlerts"
                   [severity]="hasAlerts() ? 'danger' : 'success'"
-                  styleClass="weather-alert-pill"
+                  class="weather-alert-pill"
                 />
               </div>
             </ng-template>
@@ -316,7 +316,7 @@
             @if (hasAlerts()) {
               <p-accordion
                 [multiple]="true"
-                styleClass="weather-accordion"
+                class="weather-accordion"
                 [value]="accordionActiveValue()"
               >
                 @for (
@@ -332,7 +332,7 @@
                         <p-tag
                           [value]="alert.severity"
                           [severity]="alertSeverityClass(alert.severity)"
-                          styleClass="weather-alert-badge"
+                          class="weather-alert-badge"
                         />
                         <span>{{ alert.event }}</span>
                       </span>
@@ -354,7 +354,7 @@
               </p-accordion>
             } @else {
               <div class="weather-no-alerts grid gap-2">
-                <p-message severity="success" [text]="copy().noAlertsTitle" />
+                <p-message severity="success">{{ copy().noAlertsTitle }}</p-message>
                 <p class="weather-copy">{{ copy().noAlertsBody }}</p>
               </div>
             }
@@ -419,7 +419,7 @@
                     );
                     as message
                   ) {
-                    <p-message severity="error" [text]="message" />
+                    <p-message severity="error">{{ message }}</p-message>
                   }
                 </label>
 
@@ -476,9 +476,7 @@
               @if (alertSignupFeedback(); as feedback) {
                 <p-message
                   class="weather-signup-status"
-                  [severity]="alertSignupFeedbackTone() === 'error' ? 'error' : 'success'"
-                  [text]="feedback"
-                />
+                  [severity]="alertSignupFeedbackTone() === 'error' ? 'error' : 'success'">{{ feedback }}</p-message>
               }
 
               @if (alertSignupUnsubscribeUrl(); as unsubscribeUrl) {
@@ -510,8 +508,8 @@
           }
         </section>
 
-        <p-panel styleClass="weather-radar-panel">
-          <ng-template pTemplate="header">
+        <p-panel class="weather-radar-panel">
+          <ng-template #header>
             <div class="weather-radar-header flex items-center justify-between gap-3 w-full">
               <div class="flex items-center gap-3">
                 <span class="meta-label">{{ copy().radarLabel }}</span>

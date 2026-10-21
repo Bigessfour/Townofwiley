@@ -7,15 +7,15 @@
 
   @if (cmsLoading()) {
     <p-card class="featured-news-card panel wiley-panel" [pt]="newsCardPt">
-      <ng-template pTemplate="header">
-        <p-skeleton width="11rem" height="0.7rem" styleClass="mb-2" />
-        <p-skeleton width="92%" height="1.35rem" borderRadius="8px" styleClass="mb-2" />
+      <ng-template #header>
+        <p-skeleton width="11rem" height="0.7rem" class="mb-2" />
+        <p-skeleton width="92%" height="1.35rem" borderRadius="8px" class="mb-2" />
         <p-skeleton width="6.5rem" height="0.75rem" />
       </ng-template>
-      <ng-template pTemplate="content">
+      <ng-template #content>
         <p-skeleton width="100%" height="4.5rem" borderRadius="12px" />
       </ng-template>
-      <ng-template pTemplate="footer">
+      <ng-template #footer>
         <p-skeleton width="9.5rem" height="2.85rem" borderRadius="999px" />
       </ng-template>
     </p-card>
@@ -35,11 +35,11 @@
       <div class="public-card-grid news-card-grid">
         @for (_ of [0, 1, 2]; track $index) {
           <p-card class="public-card panel wiley-panel news-card" [pt]="newsCardPt">
-            <ng-template pTemplate="header">
-              <p-skeleton width="5.5rem" height="0.65rem" styleClass="mb-2" />
+            <ng-template #header>
+              <p-skeleton width="5.5rem" height="0.65rem" class="mb-2" />
               <p-skeleton width="94%" height="1.1rem" borderRadius="6px" />
             </ng-template>
-            <ng-template pTemplate="content">
+            <ng-template #content>
               <p-skeleton width="100%" height="3.75rem" borderRadius="10px" />
             </ng-template>
           </p-card>
@@ -59,11 +59,11 @@
         </div>
 
         <p-card class="newsletter-item-card public-card panel wiley-panel notice-card" [pt]="newsCardPt">
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <p class="meta-label">{{ newsletter.date }}</p>
             <h3>{{ newsletter.title }}</h3>
           </ng-template>
-          <ng-template pTemplate="content">
+          <ng-template #content>
             @if (trustedNewsletterUrl(); as src) {
               <iframe
                 class="newsletter-pdf-frame"
@@ -85,7 +85,7 @@
               </div>
             }
           </ng-template>
-          <ng-template pTemplate="footer">
+          <ng-template #footer>
             @if (resolvedNewsletterHref(); as href) {
               <a
                 pButton
@@ -120,12 +120,12 @@
           [attr.aria-label]="cmsNoticeLinkAriaLabel(featuredNotice)"
         >
           <p-card class="featured-news-card panel wiley-panel notice-card" [pt]="newsCardPt">
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <p class="meta-label">{{ copy().featuredKicker }}</p>
               <h2>{{ featuredNotice.title }}</h2>
               <p class="featured-news-date">{{ featuredNotice.date }}</p>
             </ng-template>
-            <ng-template pTemplate="content">
+            <ng-template #content>
               @if (featuredMedia.thumbnailUrl) {
                 <img
                   class="news-card__image"
@@ -138,7 +138,7 @@
               }
               <p>{{ featuredNotice.detail }}</p>
             </ng-template>
-            <ng-template pTemplate="footer">
+            <ng-template #footer>
               <span
                 pButton
                 severity="secondary"
@@ -158,12 +158,12 @@
           [attr.id]="cmsNoticeFragmentId(featuredNotice.id)"
         >
           <p-card class="featured-news-card panel wiley-panel notice-card" [pt]="newsCardPt">
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <p class="meta-label">{{ copy().featuredKicker }}</p>
               <h2>{{ featuredNotice.title }}</h2>
               <p class="featured-news-date">{{ featuredNotice.date }}</p>
             </ng-template>
-            <ng-template pTemplate="content">
+            <ng-template #content>
               @if (featuredMedia.photoUrl) {
                 <img
                   class="news-card__image"
@@ -206,11 +206,11 @@
                 [attr.aria-label]="cmsNoticeLinkAriaLabel(item)"
               >
                 <p-card class="public-card panel wiley-panel news-card notice-card h-full" [pt]="newsCardPt">
-                  <ng-template pTemplate="header">
+                  <ng-template #header>
                     <p class="meta-label">{{ item.date }}</p>
                     <h3>{{ item.title }}</h3>
                   </ng-template>
-                  <ng-template pTemplate="content">
+                  <ng-template #content>
                     @if (itemMedia.thumbnailUrl) {
                       <img
                         class="news-card__image"
@@ -223,7 +223,7 @@
                     }
                     <p class="public-card-copy news-card-detail">{{ item.detail }}</p>
                   </ng-template>
-                  <ng-template pTemplate="footer">
+                  <ng-template #footer>
                     <span
                       pButton
                       severity="secondary"
@@ -243,11 +243,11 @@
                 [attr.id]="cmsNoticeFragmentId(item.id)"
               >
                 <p-card class="public-card panel wiley-panel news-card notice-card h-full" [pt]="newsCardPt">
-                  <ng-template pTemplate="header">
+                  <ng-template #header>
                     <p class="meta-label">{{ item.date }}</p>
                     <h3>{{ item.title }}</h3>
                   </ng-template>
-                  <ng-template pTemplate="content">
+                  <ng-template #content>
                     @if (itemMedia.photoUrl) {
                       <img
                         class="news-card__image"
@@ -288,11 +288,11 @@
           [pt]="newsCardPt"
           [attr.id]="item.id ? 'external-news-' + item.id : null"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <p class="meta-label">{{ item.source }}</p>
             <h3>{{ item.title }}</h3>
           </ng-template>
-          <ng-template pTemplate="footer">
+          <ng-template #footer>
             <div class="public-card-actions flex flex-wrap gap-3">
               <a
                 pButton

@@ -21,7 +21,7 @@ const DEDICATED_EDITOR_MODELS = new Set();
  * Clerk task `model` labels that are not AppSync / cms-inventory models
  * (custom Function URL / DynamoDB backends). Skipped by inventory assertions.
  */
-const NON_APPSYNC_CLERK_MODELS = new Set(['CommunityEvent']);
+const NON_APPSYNC_CLERK_MODELS = new Set(['CommunityEvent', 'ContactPage']);
 
 function extractClerkEditorModels(clerkTasksSource) {
   const models = new Set();
