@@ -59,15 +59,12 @@ node -v   # v24.16.0 (or any 24.15+ satisfying engines)
 
 Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1fhoir` was permanently deleted after migration).
 
-- **S3 bucket (origin):** `townofwiley-static-site` (us-east-2)
-- **CloudFront distribution:** ID `E1NZ3XCY5CYR1J` → `d34qrz3qxoppc5.cloudfront.net`
-  - Origin: S3 `townofwiley-static-site` (OAI; OAC E1UXALBLRIDL2E prepared + bucket policy updated for migration; complete in console if needed)
-  - Viewer request Function: `townofwiley-spa-redirect` (handles Angular SPA deep links / 403→index.html rewrite)
-  - Aliases: `townofwiley.gov`, `www.townofwiley.gov`
+- **S3 bucket (origin):** `townofwiley-static-site-818904800844` (us-east-2, official Town **818…**)
+- **CloudFront distribution:** ID `E19PUUL2H76CZA` → `d1bhtly4h27ucg.cloudfront.net`
+  - Viewer request Function: `townofwiley-spa-redirect` (SPA deep links)
+  - Aliases: `townofwiley.gov`, `www.townofwiley.gov`, `staging.townofwiley.gov`
   - ACM certificate: `arn:aws:acm:us-east-1:818904800844:certificate/1ca102fe-d903-47f6-8f0f-15282c340ff5` (us-east-1)
-  - Default root: (none; SPA handled by function + pre-generated static route entrypoints)
-- **DNS:** Public aliases point at CloudFront `E19PUUL2H76CZA` (`d1bhtly4h27ucg.cloudfront.net`) in official Town account **818…**.
-- **AWS accounts:** Hosting **`818904800844`** / profile **`tow`**; Gen1 backend still **`570912405222`** / **`steve`** until cutover (see `infrastructure/town-aws-account.json`).
+- **AWS accounts:** Hosting **`818904800844`** / profile **`tow`**; Gen1 backend still **`570912405222`** / **`steve`** until cutover (see `infrastructure/town-aws-account.json`). Legacy personal CF `E1NZ3XCY5CYR1J` is not production.
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
 - **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
 - **Deploy steps:**

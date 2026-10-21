@@ -53,19 +53,33 @@ resolve_profile() {
   return 1
 }
 
+# Never silently fall back from hosting (818/tow) to Gen1 (570/steve).
+# Gen1 profiles only when the caller explicitly set AWS_PROFILE_NAME=steve|townofwiley.
 if ! RESOLVED="$(resolve_profile "$PROFILE" "$EXPECTED_FOR_PROFILE" 2>/dev/null)"; then
-  for fallback in tow steve townofwiley default; do
-    expect="$EXPECTED_ACCOUNT"
-    if [[ "$fallback" == "steve" || "$fallback" == "townofwiley" ]]; then
-      expect="$LEGACY_ACCOUNT"
+  if [[ "$PROFILE" == "steve" || "$PROFILE" == "townofwiley" ]]; then
+    for fallback in steve townofwiley; do
+      if RESOLVED="$(resolve_profile "$fallback" "$LEGACY_ACCOUNT" 2>/dev/null)"; then
+        echo "[agent-aws-env] Using Gen1 profile '$fallback' (account ${LEGACY_ACCOUNT})."
+        PROFILE="$RESOLVED"
+        EXPECTED_FOR_PROFILE="$LEGACY_ACCOUNT"
+        break
+      fi
+    done
+  else
+    for fallback in tow; do
+      if RESOLVED="$(resolve_profile "$fallback" "$EXPECTED_ACCOUNT" 2>/dev/null)"; then
+        echo "[agent-aws-env] Using hosting profile '$fallback' (account ${EXPECTED_ACCOUNT})."
+        PROFILE="$RESOLVED"
+        EXPECTED_FOR_PROFILE="$EXPECTED_ACCOUNT"
+        break
+      fi
+    done
+    if [[ -z "${RESOLVED:-}" ]]; then
+      echo "[agent-aws-env] WARNING: No working profile for official Town account ${EXPECTED_ACCOUNT}."
+      echo "               Run: aws sso login --profile tow"
+      echo "               Gen1 backend only: AWS_PROFILE_NAME=steve source scripts/agent-aws-env.sh"
     fi
-    if RESOLVED="$(resolve_profile "$fallback" "$expect" 2>/dev/null)"; then
-      echo "[agent-aws-env] Profile '${AWS_PROFILE_NAME:-$DEFAULT_PROFILE}' unavailable; using '$fallback' (account ${expect})."
-      PROFILE="$RESOLVED"
-      EXPECTED_FOR_PROFILE="$expect"
-      break
-    fi
-  done
+  fi
 else
   PROFILE="$RESOLVED"
 fi

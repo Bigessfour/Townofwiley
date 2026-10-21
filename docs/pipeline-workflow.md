@@ -36,8 +36,9 @@ aws sts get-caller-identity --profile tow   # expect account 818904800844 (hosti
 
 ```powershell
 .\scripts\setup-repo-node.ps1
-$env:AWS_PROFILE = "townofwiley"
-aws sts get-caller-identity
+$env:AWS_PROFILE = "tow"
+aws sts get-caller-identity   # expect 818904800844 for hosting
+# Gen1 backend: $env:AWS_PROFILE = "steve"
 ```
 
 ## One-time setup
