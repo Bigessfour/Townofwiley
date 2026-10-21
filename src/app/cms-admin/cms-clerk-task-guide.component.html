@@ -25,6 +25,11 @@
               <app-cms-community-calendar-admin />
             </div>
           }
+          @if (id === 'update-contact-page') {
+            <div data-testid="cms-contact-page-editor-slot">
+              <app-cms-contact-page-chooser />
+            </div>
+          }
         </div>
       } @else if (usesDocumentsWorkflow(id)) {
         <div id="cms-task-form" class="cms-task-guide__form-panel" data-testid="cms-task-form">
@@ -62,10 +67,7 @@
         <dl class="cms-task-guide__glossary">
           @for (field of active.fieldGlossary; track field.technicalName) {
             <div>
-              <dt>
-                {{ field.plainLabel }}
-                <span class="cms-task-guide__tech">({{ field.technicalName }})</span>
-              </dt>
+              <dt>{{ field.plainLabel }}</dt>
               <dd>{{ field.help }}</dd>
             </div>
           }
@@ -73,11 +75,11 @@
       }
 
       @if (taskId() === 'edit-site-copy') {
-        <h3 class="cms-task-guide__subtitle">SiteCopy keys that work on the live site</h3>
+        <h3 class="cms-task-guide__subtitle">Headings and menu names you can change</h3>
         <ul class="cms-task-guide__key-list">
           @for (entry of siteCopyKeys; track entry.key) {
             <li>
-              <code>{{ entry.key }}</code> — {{ entry.plainLabel }}
+              {{ entry.plainLabel }}
               <span class="cms-task-guide__tech">({{ entry.appearsOn }})</span>
             </li>
           }

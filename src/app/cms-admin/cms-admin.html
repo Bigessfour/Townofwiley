@@ -3,15 +3,14 @@
     <p class="cms-new-staff-banner">
       New staff?
       <a href="/admin/new-staff">First-time access instructions</a>
-      — share with clerks after Town Hall / IT creates their account.
+      — share this after their login is created.
     </p>
     <div>
       <p class="cms-kicker">Town staff</p>
       <h1 class="cms-title">Update the Town website</h1>
       <p class="cms-copy">
-        Pick what you want to change, click <strong>Edit content</strong> to open the in-app form on this
-        page. Save, then <strong>See on website</strong> and hard-refresh. Need help? Call Town Hall
-        at (719) 829-4974.
+        Pick what you want to change, click <strong>Edit content</strong>, then Save.
+        Use <strong>See on website</strong> to check. Need help? Call Town Hall at (719) 829-4974.
       </p>
     </div>
     <div class="cms-header__actions">
@@ -32,7 +31,6 @@
       <nav class="cms-jump-nav" aria-label="Page sections">
         <a href="#start">Start here</a>
         <a href="#documents">Documents</a>
-        <a href="#advanced">Advanced (IT)</a>
         <a href="/">Public site</a>
         @if (!isStaffSignedIn()) {
           <a href="/admin/login">Staff sign in</a>
@@ -71,9 +69,8 @@
   <section id="documents" class="cms-section cms-help" aria-labelledby="cms-documents-heading">
     <h2 id="cms-documents-heading">Document publishing</h2>
     <p>
-      Upload meeting agendas and approved minutes below, or open PublicDocument in the Content
-      editor URL under Advanced (IT). Newsletter PDFs use the Post a notice task, not
-      PublicDocument.
+      Upload meeting agendas and approved minutes below. Newsletter PDFs use the Post a notice
+      task.
     </p>
     <ol class="cms-help-list">
       @for (step of documentPublishingSteps; track step) {
@@ -83,18 +80,6 @@
 
     <app-cms-meeting-document-upload />
 
-    <p-card class="setup-primeng-card" [pt]="setupCardPt">
-      <ng-template #title>Website section names</ng-template>
-      <ul class="grid gap-3">
-        @for (section of documentSections; track section.sectionId) {
-          <li>
-            <strong>{{ section.label }}:</strong>
-            <p-tag [value]="section.sectionId" severity="secondary" styleClass="ml-1" />
-            <p class="cms-muted">{{ section.detail }}</p>
-          </li>
-        }
-      </ul>
-    </p-card>
     <ul class="cms-help-list simple">
       @for (item of documentPublishingChecks; track item) {
         <li>{{ item }}</li>
@@ -103,10 +88,10 @@
   </section>
 
   <details id="advanced" class="cms-section cms-advanced">
-    <summary class="cms-advanced__summary">Advanced and IT troubleshooting</summary>
+    <summary class="cms-advanced__summary">Technical details</summary>
     <div class="cms-advanced__body">
       <p class="cms-muted">
-        Clerks can ignore this section unless Town Hall or IT asks you to open it.
+        You do not need this section for day-to-day edits.
       </p>
 
       <a

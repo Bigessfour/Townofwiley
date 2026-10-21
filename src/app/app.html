@@ -83,7 +83,7 @@
           [attr.aria-labelledby]="'site-alert-title'"
           [attr.aria-describedby]="'site-alert-detail'"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <div class="site-alert-copy">
               <p class="site-alert-headline">{{ appCopy().alertHeadline }}</p>
               <p class="site-alert-label">{{ alertBanner().label }}</p>
@@ -94,7 +94,7 @@
             </div>
           </ng-template>
 
-          <ng-template pTemplate="footer">
+          <ng-template #footer>
             <div class="site-alert-actions">
               @if (alertBanner().linkLabel && alertBanner().linkHref) {
                 <a
@@ -211,10 +211,10 @@
           [model]="menuItems()"
           [pt]="desktopMegaMenuPt"
           orientation="horizontal"
-          styleClass="desktop-mega-menu mega-menu-civic w-full border-none shadow-none"
+          class="desktop-mega-menu mega-menu-civic w-full border-none shadow-none"
           data-testid="homepage-section-nav"
         >
-          <ng-template pTemplate="start">
+          <ng-template #start>
             <a
               class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
               routerLink="/"
@@ -319,7 +319,7 @@
               }
             }
           </ng-template>
-          <ng-template pTemplate="end">
+          <ng-template #end>
             <div class="header-end-controls flex flex-nowrap items-center gap-3">
               <form
                   class="header-search-form max-w-xs"
@@ -637,7 +637,7 @@
             }
           </header>
 
-          <p-divider styleClass="section-divider" />
+          <p-divider class="section-divider" />
 
           <section
             class="task-grid landing-task-grid mt-0 grid gap-4 sm:gap-5 sm:grid-cols-2"
@@ -651,8 +651,8 @@
                     [routerLink]="taskLink.path"
                     [fragment]="taskLink.fragment"
                   >
-                    <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
-                      <ng-template pTemplate="content">
+                    <p-card class="task-card-surface h-full" [pt]="taskCardPt">
+                      <ng-template #content>
                         <div class="task-card-inner">
                           <span class="task-card-icon" aria-hidden="true">
                             @switch (taskIndex) {
@@ -711,8 +711,8 @@
                     class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
                     [attr.href]="taskLink.href"
                   >
-                    <p-card styleClass="task-card-surface h-full" [pt]="taskCardPt">
-                      <ng-template pTemplate="content">
+                    <p-card class="task-card-surface h-full" [pt]="taskCardPt">
+                      <ng-template #content>
                         <div class="task-card-inner">
                           <span class="task-card-icon" aria-hidden="true">
                             @switch (taskIndex) {
@@ -827,7 +827,7 @@
           class="panel civic-panel wiley-panel h-full rounded-wiley-xl border border-wiley-cream-100 shadow-wiley-card"
           aria-labelledby="homepage-meetings-heading"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <header
               class="section-header landing-section-header grid lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end"
             >
@@ -854,7 +854,7 @@
             >
               @for (_ of [0, 1, 2]; track $index) {
                 <div class="home-info-row meeting-card" aria-hidden="true">
-                  <p-skeleton width="72%" height="1.1rem" styleClass="mb-2" />
+                  <p-skeleton width="72%" height="1.1rem" class="mb-2" />
                   <p-skeleton width="44%" height="0.85rem" />
                 </div>
               }
@@ -901,7 +901,7 @@
           id="alerts"
           aria-labelledby="homepage-notices-heading"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <header
               class="section-header landing-section-header landing-notices-header grid lg:grid-cols-[minmax(0,1.2fr)_auto] lg:items-end"
             >

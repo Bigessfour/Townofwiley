@@ -22,7 +22,7 @@ test.describe('Global Error Handler', () => {
       );
     });
 
-    const toast = homePage.page.locator('.p-toast').filter({ hasText: 'Unexpected Error' });
+    const toast = homePage.page.locator('.p-toast-message').filter({ hasText: 'Unexpected Error' });
     await expect(toast).toBeVisible({ timeout: 20_000 });
     await expect(toast).toContainText('An unexpected error occurred. Please try again');
     await expect(toast).toContainText('contact the Town Hall');

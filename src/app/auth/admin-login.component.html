@@ -17,10 +17,10 @@
     </section>
 
     @if (successMessage()) {
-      <p-message severity="success" [text]="successMessage()!" styleClass="admin-login__banner" />
+      <p-message severity="success" class="admin-login__banner">{{ successMessage()! }}</p-message>
     }
     @if (loadError()) {
-      <p-message severity="error" [text]="loadError()!" styleClass="admin-login__banner" />
+      <p-message severity="error" class="admin-login__banner">{{ loadError()! }}</p-message>
     }
 
     @switch (step()) {
@@ -135,9 +135,7 @@
           @if (newPasswordForm.hasError('passwordMismatch') && newPasswordForm.touched) {
             <p-message
               severity="warn"
-              [text]="copy.passwordMismatch"
-              styleClass="admin-login__banner"
-            />
+              class="admin-login__banner">{{ copy.passwordMismatch }}</p-message>
           }
           <button
             type="submit"
@@ -253,9 +251,7 @@
             @if (confirmResetForm.hasError('passwordMismatch') && confirmResetForm.touched) {
               <p-message
                 severity="warn"
-                [text]="copy.passwordMismatch"
-                styleClass="admin-login__banner"
-              />
+                class="admin-login__banner">{{ copy.passwordMismatch }}</p-message>
             }
             <p class="admin-login__secondary-action">
               <button type="button" class="admin-login__text-button" (click)="showSignIn()">

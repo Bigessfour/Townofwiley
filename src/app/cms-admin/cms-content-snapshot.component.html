@@ -4,15 +4,13 @@
       <h2 id="cms-snapshot-heading">Content inventory (IT)</h2>
       <p>Live website counts vs last AWS database scan.</p>
       @if (!awsInventory()) {
-        <p-message
-          severity="info"
-          text="Could not load cms-inventory.json — check public/cms-inventory.json in the repo."
-          styleClass="cms-snapshot__banner"
-        />
+        <p-message severity="info" class="cms-snapshot__banner">
+          Could not load cms-inventory.json — check public/cms-inventory.json in the repo.
+        </p-message>
       }
     </header>
 
-    <p-card styleClass="cms-snapshot__hero-card">
+    <p-card class="cms-snapshot__hero-card">
       <ng-template #title>Homepage preview</ng-template>
       <div class="cms-snapshot__hero">
         <div class="cms-snapshot__hero-media">
@@ -33,10 +31,9 @@
           </div>
           @if (heroUsesFallbackImage()) {
             <div class="cms-snapshot__hero-note">
-              <p-message
-                severity="warn"
-                text="No custom photo URL — site uses default /hero-wiley.webp."
-              />
+              <p-message severity="warn">
+                No custom photo URL — site uses default /hero-wiley.webp.
+              </p-message>
             </div>
           }
         </dl>
@@ -46,7 +43,7 @@
     <p-table
       [value]="inventoryRows()"
       dataKey="model"
-      styleClass="cms-snapshot__table"
+      class="cms-snapshot__table"
       aria-label="Content inventory"
     >
       <ng-template #header>
@@ -73,7 +70,7 @@
         @if (row.warning) {
           <tr class="cms-snapshot__warning-row">
             <td colspan="5">
-              <p-message severity="warn" [text]="row.warning" styleClass="w-full" />
+              <p-message severity="warn" class="w-full">{{ row.warning }}</p-message>
             </td>
           </tr>
         }

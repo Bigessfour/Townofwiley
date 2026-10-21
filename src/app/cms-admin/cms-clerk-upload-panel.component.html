@@ -19,10 +19,10 @@
   }
 
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="cms-upload-panel__banner" />
+    <p-message severity="error" class="cms-upload-panel__banner">{{ error()! }}</p-message>
   }
   @if (resultMessage()) {
-    <p-message severity="success" [text]="resultMessage()!" styleClass="cms-upload-panel__banner" />
+    <p-message severity="success" class="cms-upload-panel__banner">{{ resultMessage()! }}</p-message>
   }
 
   <label class="cms-upload-panel__file">

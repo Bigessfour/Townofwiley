@@ -33,7 +33,7 @@
       </div>
     </p-fieldset>
   } @else if (isEmbedConfigured) {
-    <p-panel header="External Chat" styleClass="assistant-launch-panel">
+    <p-panel header="External Chat" class="assistant-launch-panel">
       <p class="assistant-helper mb-3">{{ copy().embedHelper }}</p>
       @if (hasDirectChatLink) {
         <a
@@ -59,15 +59,15 @@
             <p-chip
               [label]="prompt"
               (click)="askPrompt(prompt)"
-              styleClass="assistant-chip cursor-pointer"
+              class="assistant-chip cursor-pointer"
             />
           }
         </div>
       </p-fieldset>
     }
 
-    <p-panel styleClass="assistant-thread">
-      <ng-template pTemplate="header">
+    <p-panel class="assistant-thread">
+      <ng-template #header>
         <div
           class="assistant-thread-header flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between w-full"
         >
@@ -83,22 +83,22 @@
         </div>
       </ng-template>
 
-      <p-scrollPanel
+      <p-scrollpanel
         #messagesContainer
-        styleClass="assistant-messages-scroll pr-2"
+        class="assistant-messages-scroll pr-2"
         [style.height]="'350px'"
       >
         <div class="assistant-messages-container grid gap-4">
           @for (message of messages(); track $index) {
             <p-card
-              [styleClass]="
+              [class]="
                 message.role === 'user'
                   ? 'assistant-message is-user bg-primary-50 dark:bg-primary-900 border-none'
                   : 'assistant-message surface-100 border-none'
               "
               [pt]="messageCardPt"
             >
-              <ng-template pTemplate="header">
+              <ng-template #header>
                 <span class="assistant-role block text-xs font-semibold mb-2 opacity-70">{{
                   message.role === 'user' ? copy().userRole : copy().assistantRole
                 }}</span>
@@ -140,7 +140,7 @@
             </p-card>
           }
         </div>
-      </p-scrollPanel>
+      </p-scrollpanel>
     </p-panel>
   </div>
 </section>

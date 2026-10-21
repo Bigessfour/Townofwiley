@@ -24,8 +24,8 @@
           [attr.aria-label]="panel.title + ', ' + panel.meta"
           (click)="selectServicePanel(panel.id)"
         >
-          <p-card styleClass="resident-picker-card">
-            <ng-template pTemplate="header">
+          <p-card class="resident-picker-card">
+            <ng-template #header>
               <div class="resident-picker-card-head">
                 <i [class]="panel.icon" aria-hidden="true"></i>
                 <span class="resident-picker-meta">{{ panel.meta }}</span>
