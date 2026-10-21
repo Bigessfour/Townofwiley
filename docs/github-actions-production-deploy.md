@@ -88,8 +88,7 @@ npm run secrets:lock                  # update encrypted lockbox (safe to commit
 
 | Workflow | Trigger | Deploy |
 |----------|---------|--------|
-| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push `main` | Calls reusable Site CI |
-| [`.github/workflows/git-workflow.yml`](../.github/workflows/git-workflow.yml) | `workflow_call` | `deploy-production` after CI green |
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push `main` | `build-and-test` → `ci-gate`; auto `deploy-production` on green push to `main` |
 | [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml) | `workflow_dispatch` | Manual build + deploy from `main` |
 
 ### When auto-deploy runs
@@ -97,11 +96,8 @@ npm run secrets:lock                  # update encrypted lockbox (safe to commit
 All of the following must be true:
 
 1. Event is **`push`** to **`refs/heads/main`**
-2. `detect-changes` reports **`app_changed=true`**
-3. `frontend-lint-build` succeeded
-4. `frontend-smoke` succeeded or was skipped
-
-Docs-only merges skip deploy.
+2. `build-and-test` succeeded
+3. `ci-gate` succeeded
 
 ## Deploy script (humans + CI)
 
@@ -119,9 +115,9 @@ CI passes `--skip-build` because the artifact is already at `dist/townofwiley-ap
 
 ## Rollback
 
-1. **Revert + merge** — push a revert commit to `main`; auto-deploy runs if `app_changed`.
+1. **Revert + merge** — push a revert commit to `main`; auto-deploy runs on green Site CI.
 2. **Manual redeploy** — Actions → **Deploy production (manual)** on `main` (rebuilds from current `main` tip).
-3. **Local break-glass** — checkout known-good commit, `npm run deploy:site` with `townofwiley` profile.
+3. **Local break-glass** — checkout known-good commit, `npm run deploy:site` with profile `tow`.
 
 ## Troubleshooting
 

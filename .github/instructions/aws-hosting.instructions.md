@@ -14,7 +14,7 @@ applyTo:
 
 **Current frontend hosting:** S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J` (SPA Function, OAC `E1UXALBLRIDL2E` active since 2026-06-20, custom Response Headers Policy for CSP+security headers, managed CachingOptimized, logging enabled). Full details + domain + improved deploy (cache controls): `README.md` and `AWS_INFRASTRUCTURE_SOT.md` (manifest SSOT for IDs).
 
-- **Production CD:** merges to `main` auto-deploy via GitHub Actions (`deploy-production` job in `git-workflow.yml`) using OIDC role `GitHubActions-TownOfWiley-StaticSiteDeploy`. Runbook: [`docs/github-actions-production-deploy.md`](../../docs/github-actions-production-deploy.md). Canonical script: [`scripts/deploy-static-site.sh`](../../scripts/deploy-static-site.sh) (`npm run deploy:site` for local break-glass).
+- **Production CD:** green push to `main` auto-deploys via GitHub Actions (`deploy-production` job in `ci.yml`) using OIDC role `GitHubActions-TownOfWiley-StaticSiteDeploy`. Runbook: [`docs/github-actions-production-deploy.md`](../../docs/github-actions-production-deploy.md). Canonical script: [`scripts/deploy-static-site.sh`](../../scripts/deploy-static-site.sh) (`npm run deploy:site` for local break-glass).
 
 - Use the repository runbooks in `docs/` first (especially `AWS_INFRASTRUCTURE_SOT.md`, `aws-cost-optimization-runbook.md`, and historical `AMPLIFY_HOSTING_SOT.md` for build/CSP context).
 - For frontend deploys: **automatic** on merge to `main` (Site CI artifact → [`scripts/deploy-static-site.sh`](../../scripts/deploy-static-site.sh) → CloudFront invalidation); **manual** via `npm run deploy:site` or GitHub **Deploy production (manual)**. Tiered Cache-Control passes match manifest `hosting.deployCommand`.

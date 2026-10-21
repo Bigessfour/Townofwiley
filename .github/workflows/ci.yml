@@ -1,3 +1,6 @@
+# Basic Site CI: lint, unit tests, production build, critical audit.
+# Playwright smoke / regression stay local (`npm run test:e2e:smoke`).
+# Auto-deploy to S3 + CloudFront on green push to main.
 name: Site CI
 
 on:
@@ -15,13 +18,147 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write # OIDC for deploy-production job in reusable workflow
-  actions: read # Ollama CI triage reads failed run logs
-  pull-requests: write # Ollama CI triage comments on PRs
+  id-token: write
 
-# E2E smoke-critical (`npm run test:e2e:smoke`) runs in git-workflow.yml → frontend-smoke.
-# Full Playwright regression is local/ops (`npm run test:e2e:regression`), not on every PR.
+env:
+  NODE_VERSION: 24.16.0
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  NG_CLI_ANALYTICS: 'false'
+
 jobs:
-  site-ci:
-    uses: ./.github/workflows/git-workflow.yml
-    secrets: inherit
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.16.0
+          cache: npm
+
+      - name: Restore Angular CLI cache
+        uses: ./.github/actions/cache-angular-cli
+
+      - name: Verify Node version
+        run: node --version | grep -qE '^v24\.' || (echo "::error::Expected Node 24.x, got $(node --version)" && exit 1)
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Verify CSP SSOT (customHttp.yml + angular.json parity)
+        run: node scripts/verify-custom-http-yaml.mjs
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run Angular browser unit tests
+        run: npm run test:unit:browser
+
+      - name: Run Vitest helper tests
+        run: npm run test:vitest
+
+      - name: Verify WebP hero assets exist
+        run: |
+          for f in public/hero-wiley.webp public/hero-wiley-800.webp; do
+            [ -f "$f" ] || (echo "::error::Missing required asset: $f — run npm run assets:hero" && exit 1)
+          done
+
+      - name: Build
+        run: npm run build:ci
+        env:
+          STRICT_RUNTIME_CONFIG: ${{ secrets.APPSYNC_CMS_API_KEY != '' && '1' || '0' }}
+          APPSYNC_CMS_ENDPOINT: ${{ secrets.APPSYNC_CMS_ENDPOINT }}
+          APPSYNC_CMS_API_KEY: ${{ secrets.APPSYNC_CMS_API_KEY }}
+          APPSYNC_CMS_REGION: ${{ secrets.APPSYNC_CMS_REGION }}
+          NWS_PROXY_ENDPOINT: ${{ secrets.NWS_PROXY_ENDPOINT }}
+          SEVERE_WEATHER_SIGNUP_API_ENDPOINT: ${{ secrets.SEVERE_WEATHER_SIGNUP_API_ENDPOINT }}
+          SEVERE_WEATHER_SIGNUP_ENABLED: ${{ secrets.SEVERE_WEATHER_SIGNUP_ENABLED }}
+          COMMUNITY_CALENDAR_ENDPOINT: ${{ secrets.COMMUNITY_CALENDAR_ENDPOINT }}
+          EASYPEASY_API_ENDPOINT: ${{ secrets.EASYPEASY_API_ENDPOINT }}
+          EASYPEASY_CHAT_URL: ${{ secrets.EASYPEASY_CHAT_URL }}
+          CONTACT_UPDATE_REVIEW_API_URL: ${{ secrets.CONTACT_UPDATE_REVIEW_API_URL }}
+          PAYSTAR_PORTAL_URL: ${{ secrets.PAYSTAR_PORTAL_URL || 'https://secure.paystar.io/pay/town-of-wiley-utilitybill' }}
+          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          COGNITO_USER_POOL_CLIENT_ID: ${{ secrets.COGNITO_USER_POOL_CLIENT_ID }}
+          COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
+          COGNITO_HOSTED_UI_DOMAIN: ${{ secrets.COGNITO_HOSTED_UI_DOMAIN }}
+          STORAGE_S3_BUCKET: ${{ secrets.STORAGE_S3_BUCKET }}
+          STORAGE_S3_REGION: ${{ secrets.STORAGE_S3_REGION }}
+
+      - name: Verify build output contains WebP reference
+        run: grep -r 'hero-wiley.webp' dist/townofwiley-app/browser/ || (echo '::warning::hero-wiley.webp not referenced in build output' && true)
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: production-browser-dist
+          path: dist/townofwiley-app/browser/
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Run npm audit (fail on critical)
+        run: npm audit --audit-level=critical
+
+  ci-gate:
+    name: CI gate (merge required)
+    needs:
+      - build-and-test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Fail if build-and-test did not succeed
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node scripts/ci-gate-check.mjs
+
+  deploy-production:
+    name: Deploy production (S3 + CloudFront)
+    needs:
+      - build-and-test
+      - ci-gate
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.build-and-test.result == 'success' &&
+      needs.ci-gate.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: production-browser-dist
+          path: dist/townofwiley-app/browser
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy
+          aws-region: us-east-2
+
+      - name: Deploy static site to S3 + CloudFront
+        run: bash scripts/deploy-static-site.sh --skip-build
+
+      - name: Post-deploy smoke (homepage headers)
+        run: curl -sfI https://townofwiley.gov/
+
+      - name: Post-deploy smoke (runtime-config JSON)
+        run: |
+          curl -sf https://townofwiley.gov/runtime-config.js | node -e "
+          const src = require('fs').readFileSync(0, 'utf8');
+          const match = src.match(/window\.__TOW_RUNTIME_CONFIG__\s*=\s*(\{[\s\S]*\});?\s*$/);
+          if (!match) { console.error('::error::runtime-config.js missing window.__TOW_RUNTIME_CONFIG__ payload'); process.exit(1); }
+          JSON.parse(match[1]);
+          console.log('runtime-config ok');
+          "
+
+      - name: Post-deploy CSP probe
+        run: bash scripts/probe-live-hosting-csp.sh

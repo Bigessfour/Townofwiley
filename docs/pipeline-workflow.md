@@ -1,6 +1,6 @@
 # Pipeline workflow (CI/CD command reference)
 
-Canonical commands for the Town of Wiley **GitHub Flow + path-aware CI + continuous deployment** pipeline. Production frontend: **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`).
+Canonical commands for the Town of Wiley **GitHub Flow + basic CI + continuous deployment** pipeline. Production frontend: **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`).
 
 Agents and maintainers: run these in order unless the task is docs-only.
 
@@ -8,13 +8,13 @@ Agents and maintainers: run these in order unless the task is docs-only.
 
 ```text
 feature branch → PR → site-ci / CI gate (merge required) → merge main
-                    → deploy-production (when app_changed) → townofwiley.gov
+                    → deploy-production → townofwiley.gov
 ```
 
 | Stage | Authority | Doc |
 |-------|-----------|-----|
 | Merge gate | GitHub ruleset + `scripts/ci-gate-check.mjs` | [`github-branch-protection.md`](./github-branch-protection.md) |
-| CI | `.github/workflows/git-workflow.yml` | [`git-workflow.md`](./git-workflow.md) |
+| CI | `.github/workflows/ci.yml` | [`git-workflow.md`](./git-workflow.md) |
 | Runtime secrets | GitHub repository secrets + local locker | [`secrets/README.md`](../secrets/README.md) |
 | Production deploy | OIDC → `scripts/deploy-static-site.sh` via Actions | [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) · [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md) |
 | IaC | Terraform (`infrastructure/terraform/`) | [terraform README](../infrastructure/terraform/README.md) |
@@ -134,13 +134,12 @@ gh run list --limit 5   # recent workflow runs
 Auto-deploy runs when **all** are true:
 
 - Push to `refs/heads/main`
-- `app_changed=true` (not docs-only)
-- `frontend-lint-build` and smoke jobs succeeded
+- `build-and-test` and `ci-gate` succeeded
 
 **Verify deploy:**
 
 ```bash
-gh run list --workflow=git-workflow.yml --limit 3
+gh run list --workflow=ci.yml --limit 3
 curl -sfI https://townofwiley.gov/
 curl -sf https://townofwiley.gov/runtime-config.js | head -5
 npm run verify:live-csp-probe
