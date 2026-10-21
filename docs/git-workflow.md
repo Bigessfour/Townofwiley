@@ -126,7 +126,7 @@ If the docs explain the exact same deploy, keeping the app change and docs in on
 
 ## CI Policy
 
-The GitHub Actions workflow at [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) is the repository CI gate (**Site CI**).
+The GitHub Actions entrypoint [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) calls [`.github/workflows/site-ci.yml`](../.github/workflows/site-ci.yml) (job id `site-ci`) so the required check stays **`site-ci / CI gate (merge required)`**.
 
 It is intentionally basic (not a full regression suite). Playwright smoke stays local: `npm run test:e2e:smoke`.
 

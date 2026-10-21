@@ -88,7 +88,7 @@ npm run secrets:lock                  # update encrypted lockbox (safe to commit
 
 | Workflow | Trigger | Deploy |
 |----------|---------|--------|
-| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push `main` | `build-and-test` → `ci-gate`; auto `deploy-production` on green push to `main` |
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) → [`site-ci.yml`](../.github/workflows/site-ci.yml) | PR / push `main` | Job id `site-ci` → `build-and-test` → `ci-gate`; auto `deploy-production` on green push to `main` |
 | [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml) | `workflow_dispatch` | Manual build + deploy from `main` |
 
 ### When auto-deploy runs
