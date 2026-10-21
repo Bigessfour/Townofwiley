@@ -7,10 +7,10 @@
   <p class="cms-meeting-upload__lead">{{ copy().lead }}</p>
 
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="cms-meeting-upload__banner" />
+    <p-message severity="error" class="cms-meeting-upload__banner">{{ error()! }}</p-message>
   }
   @if (success()) {
-    <p-message severity="success" [text]="success()!" styleClass="cms-meeting-upload__banner" />
+    <p-message severity="success" class="cms-meeting-upload__banner">{{ success()! }}</p-message>
   }
 
   @if (meetingOptions().length === 0) {

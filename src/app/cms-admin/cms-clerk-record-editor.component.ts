@@ -42,6 +42,7 @@ import {
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from '../site-cms-content';
+import { siteCopyKeySelectOptions, siteCopyPlainLabel } from '../site-copy-overrides';
 import {
   applyPostNoticeAttachmentDefaults,
   clerkTaskFormFields,
@@ -52,6 +53,7 @@ import {
 } from './cms-clerk-task-form-fields';
 import { buildClerkTaskLiveLink, TASKS_WITHOUT_LIVE_LINK } from './cms-clerk-task-live-link';
 import { clerkTaskById, type ClerkCmsTaskId } from './cms-clerk-tasks';
+import type { ClerkRecordEditorOptions } from './cms-clerk-record-editor-options';
 import { clerkUploadImagePreviewUrl, resolveClerkUploadFieldValue } from './cms-clerk-upload-field';
 import { CMS_SINGLETON_MODELS, cmsRecordSummaryLabel } from './cms-model-admin-fields';
 import { cmsOrderedEditorConfig, type CmsOrderedEditorConfig } from './cms-model-inventory';
@@ -88,6 +90,7 @@ import { resolveOrderListAfterReorder } from './cms-order-list-reorder';
 })
 export class CmsClerkRecordEditorComponent implements OnInit {
   readonly taskId = input<ClerkCmsTaskId | null>(null);
+  readonly editorOptions = input<ClerkRecordEditorOptions | undefined>(undefined);
 
   private readonly staffAuth = inject(StaffAuthService);
   private readonly genericModel = inject(CmsGenericModelAdminService);
@@ -133,17 +136,48 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   protected readonly fields = computed(() => {
     const id = this.taskId();
     const all = id ? clerkTaskFormFields(id) : [];
-    // OfficialContact `id` is a stable lookup key. Hide it while editing so clerks are not
-    // told the field is both required and "do not change".
-    if (id === 'update-contacts' && this.editingId()) {
-      return all.filter((field) => field.name !== 'id');
+    const options = this.editorOptions();
+    let next = all;
+    if (id === 'edit-site-copy') {
+      next = next.map((field) => {
+        if (field.name !== 'key') {
+          return field;
+        }
+        return {
+          ...field,
+          type: 'select' as const,
+          options: siteCopyKeySelectOptions(options?.allowedSiteCopyKeys),
+        };
+      });
     }
-    return all;
+    if (id === 'update-contacts' && this.editingId()) {
+      return next.filter((field) => field.name !== 'id');
+    }
+    return next;
   });
 
-  protected readonly formPurpose = computed(() => this.task()?.shortDescription ?? '');
+  protected readonly displayFields = computed(() => {
+    const options = this.editorOptions();
+    let next = this.fields();
+    if (options?.lockedGroupId) {
+      next = next.filter((field) => field.name !== 'groupId');
+    }
+    if (options?.visibleFieldNames?.length && this.editingId()) {
+      const allowed = new Set(options.visibleFieldNames);
+      next = next.filter((field) => allowed.has(field.name));
+    }
+    return next;
+  });
 
-  protected readonly formSections = computed(() => clerkFormSections(this.fields()));
+  protected readonly formPurpose = computed(() => {
+    const override = this.editorOptions()?.purposeOverride;
+    if (override !== undefined) {
+      return override;
+    }
+    return this.task()?.shortDescription ?? '';
+  });
+
+  protected readonly formSections = computed(() => clerkFormSections(this.displayFields()));
 
   protected readonly isSingleton = computed(() => {
     const active = this.task();
@@ -157,12 +191,26 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
   protected readonly isOrderedEditor = computed(() => Boolean(this.orderedConfig()));
 
+  protected readonly visibleRecords = computed(() => {
+    const match = this.editorOptions()?.recordMatch;
+    const keys = this.editorOptions()?.allowedSiteCopyKeys;
+    let items = this.records();
+    if (match) {
+      items = items.filter((record) => match(record));
+    }
+    if (keys?.length) {
+      const allow = new Set(keys);
+      items = items.filter((record) => allow.has(String(record['key'] ?? '')));
+    }
+    return items;
+  });
+
   protected readonly orderedRecords = computed(() => {
     const config = this.orderedConfig();
     if (!config) {
       return [];
     }
-    let items = this.records().filter((record) => record['active'] !== false);
+    let items = this.visibleRecords().filter((record) => record['active'] !== false);
     if (config.groupField) {
       const groupValue = this.formValues()[config.groupField];
       const group = typeof groupValue === 'string' ? groupValue.trim() : '';
@@ -199,7 +247,9 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   );
 
   protected readonly showOrderedPanelAtTop = computed(
-    () => this.showOrderedPanel() && !this.isLeadershipTask(),
+    () =>
+      this.showOrderedPanel() &&
+      (!this.isLeadershipTask() || Boolean(this.editorOptions()?.lockedGroupId)),
   );
 
   protected readonly isLeadershipTask = computed(() => this.taskId() === 'update-leadership');
@@ -229,6 +279,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   });
 
   protected readonly formTitle = computed(() => {
+    const override = this.editorOptions()?.titleOverride;
+    if (override) {
+      return override;
+    }
     const active = this.task();
     if (!active) {
       return '';
@@ -237,9 +291,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return 'Edit the saved settings';
     }
     if (active.id === 'update-contacts') {
-      return this.editingId()
-        ? 'Edit Town Administration contact card'
-        : 'Add a Town Administration contact card (IT only)';
+      return this.editingId() ? 'Edit this item' : 'Add a new item';
     }
     if (active.id === 'update-leadership') {
       return this.editingId()
@@ -250,17 +302,21 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   });
 
   protected readonly formLead = computed(() => {
+    const override = this.editorOptions()?.leadOverride;
+    if (override) {
+      return override;
+    }
     const active = this.task();
     if (!active) {
       return '';
     }
     if (this.isSingleton()) {
-      return 'Changes save directly to the live website through Town content storage (AWS AppSync).';
+      return 'Changes save to the live website.';
     }
     if (active.id === 'update-contacts') {
       return this.editingId()
-        ? 'You are editing an existing contact card. Update the heading, phone/email, and detail text residents see. The card’s system id stays locked.'
-        : 'Only add a new card if IT asks you to. Prefer Edit on Town Information, City Clerk, or Town Superintendent from the list above.';
+        ? 'You are editing an existing row. Update the text residents see.'
+        : 'Prefer Edit on an existing Clerk or Superintendent row instead of adding a new one.';
     }
     if (active.id === 'update-leadership') {
       return this.editingId()
@@ -268,18 +324,26 @@ export class CmsClerkRecordEditorComponent implements OnInit {
         : 'Choose the list first. Prefer Edit on an existing row when updating a name. Use Add only when the person is not already listed.';
     }
     if (this.editingId()) {
-      return `You are editing an existing ${active.model} row. Save updates the live site immediately.`;
+      return 'You are editing an existing item. Save updates the live site.';
     }
-    return `Fill in the fields below to add a new ${active.model} row on the live site.`;
+    return 'Fill in the fields below to add a new item on the live site.';
+  });
+
+  protected readonly hideAddNew = computed(() => {
+    if (this.editorOptions()?.hideAddNew !== true) {
+      return false;
+    }
+    return this.visibleRecords().length > 0;
   });
 
   protected readonly showRecordPicker = computed(() => {
-    return (
-      Boolean(this.task()) &&
-      !this.isSingleton() &&
-      !this.isOrderedEditor() &&
-      this.records().length > 0
-    );
+    if (!this.task() || this.isSingleton() || this.isOrderedEditor()) {
+      return false;
+    }
+    if (this.editorOptions()?.autoEditRecordId && this.visibleRecords().length <= 1) {
+      return false;
+    }
+    return this.visibleRecords().length > 0;
   });
 
   /**
@@ -293,11 +357,18 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     if (!taskId || TASKS_WITHOUT_LIVE_LINK.has(taskId)) {
       return null;
     }
-    return buildClerkTaskLiveLink({
+    const options = this.editorOptions();
+    const recordLink = buildClerkTaskLiveLink({
       taskId,
       savedId: this.lastSavedId(),
       formValues: this.lastSavedFormValues(),
     });
+    if (options?.liveSiteUrl) {
+      if (options.useRecordLiveLink === false || !this.lastSavedId()) {
+        return options.liveSiteUrl;
+      }
+    }
+    return recordLink;
   });
 
   protected readonly canDeleteRecord = computed(() => {
@@ -311,7 +382,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
   protected readonly savePreviewLines = computed(() =>
     buildClerkSavePreviewLines(
-      this.fields(),
+      this.displayFields(),
       this.formValues(),
       this.baselineFormValues(),
       Boolean(this.editingId()),
@@ -325,7 +396,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return null;
     }
     if (this.isProtectedDeleteTarget(active.model, id)) {
-      return 'This contact row is required by the website layout and cannot be deleted. Update its label, value, or detail instead.';
+      return 'This row is required by the Contact page and cannot be deleted. Update the text instead.';
     }
     return null;
   });
@@ -333,6 +404,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   constructor() {
     effect(() => {
       const id = this.taskId();
+      const options = this.editorOptions();
       this.editingId.set(null);
       this.submitResult.set(null);
       this.submitError.set(null);
@@ -341,7 +413,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       this.lastSavedFormValues.set({});
       const fieldDefs = id ? clerkTaskFormFields(id) : [];
       this.commitFormValues(
-        defaultDynamicFormValues(fieldDefs, { taskId: id ?? undefined }),
+        defaultDynamicFormValues(fieldDefs, {
+          taskId: id ?? undefined,
+          lockedGroupId: options?.lockedGroupId,
+        }),
         true,
       );
       this.fileUploadingField.set(null);
@@ -473,7 +548,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
     this.lastSavedId.set(null);
     this.lastSavedFormValues.set({});
     this.commitFormValues(
-      defaultDynamicFormValues(this.fields(), { taskId: this.taskId() ?? undefined }),
+      defaultDynamicFormValues(this.fields(), {
+        taskId: this.taskId() ?? undefined,
+        lockedGroupId: this.editorOptions()?.lockedGroupId,
+      }),
       true,
     );
 
@@ -508,6 +586,10 @@ export class CmsClerkRecordEditorComponent implements OnInit {
   }
 
   protected recordLabel(record: Record<string, unknown>): string {
+    const custom = this.editorOptions()?.recordLabel;
+    if (custom) {
+      return custom(record);
+    }
     const active = this.task();
     if (!active) {
       return 'Record';
@@ -521,7 +603,8 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       return this.recordLabel(record);
     }
     const preview = String(record[config.previewField] ?? '').trim();
-    const prefix = config.prefixField ? String(record[config.prefixField] ?? '').trim() : '';
+    const prefixRaw = config.prefixField ? String(record[config.prefixField] ?? '').trim() : '';
+    const prefix = prefixRaw ? (siteCopyPlainLabel(prefixRaw) ?? prefixRaw) : '';
     if (prefix && preview) {
       return `${prefix}: ${preview}`;
     }
@@ -676,7 +759,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       const verifySuffix = liveLink
         ? `Use the button below to verify on the live site after the public copy updates (usually within about one minute). Direct link: ${liveLink}`
         : 'Use the button below to verify on the live site after the public copy updates (usually within about one minute).';
-      this.submitResult.set(`${active.model} saved (ID ${savedId}). ${verifySuffix}`);
+      this.submitResult.set(`Saved. ${verifySuffix}`);
       const savedLabel = this.editingId()
         ? this.recordLabel({ id: savedId, ...this.formValues() })
         : this.recordLabel({ id: savedId, ...input });
@@ -711,7 +794,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
           : typeof err === 'object' && err !== null && 'message' in err
             ? String((err as { message?: unknown }).message)
             : '';
-      this.submitError.set(msg || `Could not save ${active.model}. Try signing in again.`);
+      this.submitError.set(msg || 'Could not save. Try signing in again.');
     } finally {
       this.submitting.set(false);
     }
@@ -741,7 +824,7 @@ export class CmsClerkRecordEditorComponent implements OnInit {
       ? ` To hide it without deleting, turn off the "${hideCheckbox.label}" box and save instead.`
       : '';
     const confirmed = window.confirm(
-      `Permanently delete this ${active.model} record?\n\n${label}\n\nThis cannot be undone.${hideHint}`,
+      `Permanently delete this item?\n\n${label}\n\nThis cannot be undone.${hideHint}`,
     );
     if (!confirmed) {
       return;
@@ -753,16 +836,15 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
     try {
       const deletedId = await this.genericModel.deleteRecord(active.model, id);
-      this.submitResult.set(
-        `${active.model} deleted (ID ${deletedId}). Hard-refresh ${active.previewPath} to verify.`,
-      );
+      void deletedId;
+      this.submitResult.set(`Deleted. Hard-refresh ${active.previewPath} to verify.`);
       this.showSavedToast(this.recordLabel({ id, ...this.formValues() }));
       await this.cmsStore.forceLiveRefresh();
       await this.loadRecords(active.id);
       this.startNewRecord();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
-      this.submitError.set(msg || `Could not delete ${active.model}. Try signing in again.`);
+      this.submitError.set(msg || 'Could not delete. Try signing in again.');
     } finally {
       this.deleting.set(false);
     }
@@ -802,15 +884,44 @@ export class CmsClerkRecordEditorComponent implements OnInit {
 
       if (CMS_SINGLETON_MODELS.has(active.model) && items[0]) {
         this.editRecord(items[0]);
+      } else {
+        this.applyLoadedRecordSelection(items);
       }
     } catch (err: unknown) {
       this.records.set([]);
       const msg = err instanceof Error ? err.message : '';
       this.loadError.set(
-        msg || `Could not load saved ${active.model} rows. Sign in at /admin/login and try again.`,
+        msg || 'Could not load saved items. Sign in at /admin/login and try again.',
       );
     } finally {
       this.recordsLoading.set(false);
+    }
+  }
+
+  private applyLoadedRecordSelection(items: Record<string, unknown>[]): void {
+    const options = this.editorOptions();
+    if (!options) {
+      return;
+    }
+    let visible = items;
+    if (options.recordMatch) {
+      visible = visible.filter((record) => options.recordMatch!(record));
+    }
+    if (options.allowedSiteCopyKeys?.length) {
+      const allow = new Set(options.allowedSiteCopyKeys);
+      visible = visible.filter((record) => allow.has(String(record['key'] ?? '')));
+    }
+    const autoId = options.autoEditRecordId;
+    if (autoId) {
+      const found =
+        visible.find((record) => String(record['id'] ?? '') === autoId) ?? visible[0];
+      if (found) {
+        this.editRecord(found);
+      }
+      return;
+    }
+    if (options.hideAddNew && visible.length === 1 && visible[0]) {
+      this.editRecord(visible[0]);
     }
   }
 
