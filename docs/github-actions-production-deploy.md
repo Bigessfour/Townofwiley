@@ -50,7 +50,7 @@ bash scripts/setup-github-actions-deploy-role.sh
 Role ARN (used in workflows):
 
 ```text
-arn:aws:iam::570912405222:role/GitHubActions-TownOfWiley-StaticSiteDeploy
+arn:aws:iam::818904800844:role/GitHubActions-TownOfWiley-StaticSiteDeploy
 ```
 
 ### Verify OIDC provider
@@ -135,9 +135,9 @@ CI passes `--skip-build` because the artifact is already at `dist/townofwiley-ap
 - Confirm workflow job has `permissions: id-token: write`.
 - Manual deploy workflow must run from **`main`** branch.
 
-### `expected AWS account 570912405222`
+### `expected AWS account 818904800844`
 
-- Wrong AWS profile or credentials in local deploy.
+- Wrong AWS profile or credentials in local deploy — use **`tow`** for hosting.
 
 ### Missing `runtime-config.js` in artifact
 

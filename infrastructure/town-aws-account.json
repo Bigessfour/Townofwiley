@@ -1,23 +1,39 @@
 {
   "$schema": "./town-aws-account.schema.json",
   "version": 1,
-  "description": "Canonical AWS identity for this repository. All agents, scripts, and Terraform must target this account only.",
-  "accountId": "570912405222",
-  "accountLabel": "Town of Wiley production",
-  "defaultProfile": "townofwiley",
+  "description": "AWS identity SSOT for this repository. Official Town account hosts the public site (S3 + CloudFront). Gen 1 AppSync/Cognito/Lambdas remain on Steve personal until backend cutover — see aws-infrastructure.manifest.json and migration/CUTOVER-STATUS.md.",
+  "accountId": "818904800844",
+  "accountLabel": "Town of Wiley (official)",
+  "defaultProfile": "tow",
   "primaryRegion": "us-east-2",
   "site": "townofwiley.gov",
-  "verifyCommand": "aws sts get-caller-identity --query Account --output text",
+  "verifyCommand": "aws sts get-caller-identity --profile tow --query Account --output text",
+  "legacyPersonalAccount": {
+    "accountId": "570912405222",
+    "accountLabel": "Steve personal (legacy Gen1 backend until cutover)",
+    "profiles": ["steve", "townofwiley"],
+    "agentIamUser": "copilot",
+    "note": "Not the municipal AWS account. Use only for Gen1 AppSync/Cognito/Lambda work until migration completes."
+  },
   "agentAccess": {
-    "iamUserName": "copilot",
-    "cliProfile": "townofwiley",
-    "credentialSetup": "npm run aws:configure-profile",
-    "iamPoliciesPath": "infrastructure/iam/copilot-*.json",
-    "expectedCallerArnSuffix": ":user/copilot"
+    "iamUserName": "(prefer SSO / named profiles below)",
+    "cliProfile": "tow",
+    "credentialSetup": "aws sso login --profile tow (hosting) or profile steve for Gen1 backend",
+    "hosting": {
+      "accountId": "818904800844",
+      "cliProfile": "tow",
+      "roleHint": "GitHubActions-TownOfWiley-StaticSiteDeploy"
+    },
+    "gen1Backend": {
+      "accountId": "570912405222",
+      "cliProfile": "steve",
+      "legacyProfileAlias": "townofwiley",
+      "iamUserName": "copilot"
+    }
   },
   "agentSetup": "source scripts/agent-aws-env.sh",
   "notThisWorkspace": {
-    "note": "Do not use other AWS accounts for Town site work in this repo (training/personal profiles belong elsewhere).",
+    "note": "Do not use Code Platoon or unrelated personal accounts for Town site hosting deploys.",
     "exampleOtherAccountIds": ["388691194728"]
   }
 }

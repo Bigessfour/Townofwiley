@@ -28,15 +28,17 @@ cd /path/to/Townofwiley   # repo root
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"   # Intel: /usr/local/opt/node@24/bin
 source scripts/agent-aws-env.sh
 node -v    # expect v24.x (see .nvmrc)
-aws sts get-caller-identity   # expect account 570912405222
+aws sts get-caller-identity --profile tow   # expect account 818904800844 (hosting)
+# Gen1 backend until cutover: --profile steve → 570912405222
 ```
 
 **Windows (Cursor / VS Code):**
 
 ```powershell
 .\scripts\setup-repo-node.ps1
-$env:AWS_PROFILE = "townofwiley"
-aws sts get-caller-identity
+$env:AWS_PROFILE = "tow"
+aws sts get-caller-identity   # expect 818904800844 for hosting
+# Gen1 backend: $env:AWS_PROFILE = "steve"
 ```
 
 ## One-time setup

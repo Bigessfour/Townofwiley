@@ -5,7 +5,7 @@
  * 1. `--input <path>` (relative to repo root or absolute)
  * 2. First positional argument (relative to repo root or absolute)
  * 3. `Photos/Wley,_Colorado.JPG` or `Photos/wiley01.webp` when present
- * 4. `public/hero-wiley.jpg` (legacy)
+ * 4. (removed) legacy `public/hero-wiley.jpg` — use Photos/ or `--input`
  *
  * Usage:
  *   npm run assets:hero
@@ -42,22 +42,14 @@ function parseCliSource() {
 
 const defaultPhotoJpg = join(rootDir, 'Photos', 'Wley,_Colorado.JPG');
 const defaultWebp = join(rootDir, 'Photos', 'wiley01.webp');
-const fallbackJpg = join(publicDir, 'hero-wiley.jpg');
-
 const src =
   parseCliSource() ??
-  (existsSync(defaultPhotoJpg)
-    ? defaultPhotoJpg
-    : existsSync(defaultWebp)
-      ? defaultWebp
-      : existsSync(fallbackJpg)
-        ? fallbackJpg
-        : null);
+  (existsSync(defaultPhotoJpg) ? defaultPhotoJpg : existsSync(defaultWebp) ? defaultWebp : null);
 
 if (!src || !existsSync(src)) {
   console.error('No hero source image found.');
   console.error(
-    'Add Photos/wiley01.webp, or public/hero-wiley.jpg, or pass: npm run assets:hero -- --input Photos/your.webp',
+    'Add Photos/wiley01.webp or Photos/Wley,_Colorado.JPG, or pass: npm run assets:hero -- --input Photos/your.webp',
   );
   process.exit(1);
 }
