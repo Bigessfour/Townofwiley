@@ -111,3 +111,8 @@ export const publicRouteContracts: PublicRouteContract[] = [
 ];
 
 export const accessibilityRouteContracts = publicRouteContracts;
+
+/** Narrow set for weekly CI smoke (homepage + high-traffic public pages). */
+export const accessibilitySmokeRouteContracts: PublicRouteContract[] = publicRouteContracts.filter(
+  (route) => ['/', '/accessibility', '/contact', '/pay-bill', '/weather'].includes(route.path),
+);

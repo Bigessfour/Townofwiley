@@ -102,6 +102,7 @@
     "test:e2e:live:staging": "playwright test e2e/specs/smoke/live-hosting.spec.ts e2e/specs/smoke/live-hosting-headers.spec.ts --project=desktop-chromium --workers=1",
     "test:e2e:live:production": "E2E_BASE_URL=https://www.townofwiley.gov/ playwright test e2e/specs/smoke/live-hosting.spec.ts e2e/specs/smoke/live-hosting-headers.spec.ts --project=desktop-chromium --workers=1",
     "test:e2e:live:csp-inline-style": "playwright test e2e/specs/smoke/live-hosting.spec.ts -g \"inline-style\" --project=desktop-chromium --workers=1",
+    "test:e2e:a11y:smoke": "playwright test e2e/specs/accessibility/a11y-smoke.spec.ts --project=desktop-chromium --workers=1",
     "test:e2e:regression": "npm run test:e2e:smoke:full && playwright test e2e/specs/accessibility e2e/specs/responsive e2e/specs/typography --project=desktop-chromium --workers=1",
     "test:e2e:snapshots": "PLAYWRIGHT_VISUAL_SNAPSHOTS=1 playwright test e2e/specs/best-practices/deterministic-coverage.spec.ts --project=desktop-chromium --workers=1",
     "test:e2e:install": "node scripts/playwright-install.mjs",

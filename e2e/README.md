@@ -102,7 +102,7 @@ Tasks use **`npm`** scripts so they work on Windows and macOS (integrated termin
 | **Live hosting**          | `npm run test:e2e:live:production` or `test:e2e:live:staging` | Requires `E2E_BASE_URL` (set by script or env)                                                                    |
 | **Regression**            | `npm run test:e2e:regression`                                 | Full smoke + `accessibility/` + `responsive/` + `typography/`                                                     |
 
-Site CI does **not** run Playwright. Run smoke locally before risky UI merges (`npm run test:e2e:smoke`). Live and full regression stay local/ops (`npm run test:e2e:live:production`, `npm run test:e2e:regression`).
+Site CI does **not** run Playwright on every PR. A weekly **Accessibility smoke** workflow runs `npm run test:e2e:a11y:smoke`. Run PR smoke locally before risky UI merges (`npm run test:e2e:smoke`). Full regression stays local/ops (`npm run test:e2e:live:production`, `npm run test:e2e:regression`).
 
 ## Commands
 

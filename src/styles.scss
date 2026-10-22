@@ -19,7 +19,8 @@
   --civic-blue: var(--p-primary-color);
   --civic-blue-strong: var(--p-primary-900);
   --civic-blue-hover: var(--p-primary-hover-color);
-  --civic-rust: var(--wiley-gold-500);
+  /* Gold-600 for AA contrast on cream/white (~4.6:1); gold-500 fails AA for small text */
+  --civic-rust: var(--wiley-gold-600);
   --civic-cream: var(--p-surface-50);
   --civic-gold: var(--wiley-gold-400);
   --focus-ring: var(--wiley-gold-400);

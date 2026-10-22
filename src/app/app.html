@@ -153,11 +153,7 @@
             </button>
           </div>
 
-          <a
-            class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
-            routerLink="/"
-            [attr.aria-label]="appCopy().townLogoAriaLabel"
-          >
+          <a class="town-logo flex min-w-0 flex-col gap-0.5 no-underline" routerLink="/">
             <span
               class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
               >{{ heroContent().status }}</span
@@ -215,11 +211,7 @@
           data-testid="homepage-section-nav"
         >
           <ng-template #start>
-            <a
-              class="town-logo flex min-w-0 flex-col gap-0.5 no-underline"
-              routerLink="/"
-              [attr.aria-label]="appCopy().townLogoAriaLabel"
-            >
+            <a class="town-logo flex min-w-0 flex-col gap-0.5 no-underline" routerLink="/">
               <span
                 class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
                 >{{ heroContent().status }}</span
@@ -799,26 +791,27 @@
 
           <p class="search-note m-0 text-sm text-wiley-ink-500">{{ appCopy().searchNote }}</p>
 
-          <div class="search-suggestion-row flex flex-wrap gap-2" role="list">
+          <ul class="search-suggestion-row m-0 flex list-none flex-wrap gap-2 p-0">
             @for (task of topTasks(); track task.href) {
               @if (resolveAppLink(task.href); as taskLink) {
-                @if (taskLink.isInternal) {
-                  <a
-                    class="search-suggestion"
-                    role="listitem"
-                    [routerLink]="taskLink.path"
-                    [fragment]="taskLink.fragment"
-                  >
-                    {{ task.title }}
-                  </a>
-                } @else {
-                  <a class="search-suggestion" role="listitem" [attr.href]="taskLink.href">
-                    {{ task.title }}
-                  </a>
-                }
+                <li>
+                  @if (taskLink.isInternal) {
+                    <a
+                      class="search-suggestion"
+                      [routerLink]="taskLink.path"
+                      [fragment]="taskLink.fragment"
+                    >
+                      {{ task.title }}
+                    </a>
+                  } @else {
+                    <a class="search-suggestion" [attr.href]="taskLink.href">
+                      {{ task.title }}
+                    </a>
+                  }
+                </li>
               }
             }
-          </div>
+          </ul>
         </section>
       </div>
 
@@ -942,12 +935,12 @@
                     [href]="noticeLink.href"
                     target="_blank"
                     rel="noreferrer noopener"
-                    [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
                   >
                     <p class="notice-card-title">{{ notice.title }}</p>
                     <p class="notice-card-detail">{{ notice.detail }}</p>
-                    <p class="notice-card-cta" aria-hidden="true">
+                    <p class="notice-card-cta">
                       {{ noticeExternalCta(noticeLink.kind) }}
+                      <span class="sr-only"> ({{ externalLinkNewTabHint() }})</span>
                     </p>
                   </a>
                 } @else {
@@ -955,7 +948,6 @@
                     class="notice-card notice-card--timeline notice-card--link"
                     [routerLink]="noticeLink.path"
                     [fragment]="noticeLink.fragment"
-                    [attr.aria-label]="cmsNoticeLinkAriaLabel(notice)"
                   >
                     <p class="notice-card-title">{{ notice.title }}</p>
                     <p class="notice-card-detail">{{ notice.detail }}</p>
@@ -1067,7 +1059,8 @@
             image="mayor-steve-mckitrick.jpg"
             shape="circle"
             size="xlarge"
-            [attr.aria-label]="appCopy().footerAttestationPhotoAlt"
+            [ariaLabel]="appCopy().footerAttestationPhotoAlt"
+            [pt]="{ image: { alt: appCopy().footerAttestationPhotoAlt } }"
           />
           <div class="site-footer__attestation-copy">
             <p class="site-footer__attestation-kicker" id="site-footer-attestation-heading">
