@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AppCopy } from './app';
+import type { AppCopy } from './app-copy';
 import {
   applyAppCopySiteCopyOverrides,
   resolveSiteCopyLabel,

@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { APP_COPY } from '../app';
+import { APP_COPY } from '../app-copy';
 import { DocumentUploadService } from '../document-upload.service';
 import { type CmsCalendarEvent, LocalizedCmsContentStore } from '../site-cms-content';
 import { SiteLanguageService } from '../site-language';

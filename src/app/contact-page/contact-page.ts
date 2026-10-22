@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SkeletonModule } from 'primeng/skeleton';
-import { APP_COPY, type AppCopy, type LeadershipGroup } from '../app';
+import { APP_COPY, type AppCopy, type LeadershipGroup } from '../app-copy';
 import {
   LEADERSHIP_ROSTER_GROUP_MAYOR_COUNCIL,
   LEADERSHIP_ROSTER_GROUP_TOWN_ADMINISTRATION,

@@ -33,6 +33,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
+import { WEATHER_ALERT_SIGNUP_FRAGMENT } from '../app-copy/weather-alert-signup-fragment';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { readWeatherRuntimeConfig } from './weather-runtime-config';
 
@@ -46,7 +47,9 @@ const WILEY_FORECAST_PAGE_URL =
 const NWS_FORECAST_MAPS_URL = 'https://www.weather.gov/forecastmaps';
 const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
 const DEFAULT_ALERT_LANGUAGE = 'en';
-export const WEATHER_ALERT_SIGNUP_FRAGMENT = 'weather-alert-signup';
+
+/** @deprecated Import from `../app-copy` instead. */
+export { WEATHER_ALERT_SIGNUP_FRAGMENT };
 
 type AlertSignupFeedbackTone = 'success' | 'error';
 

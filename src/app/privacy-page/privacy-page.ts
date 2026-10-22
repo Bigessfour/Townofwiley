@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
-import { WEATHER_ALERT_POLICY_COPY } from '../app';
+import { WEATHER_ALERT_POLICY_COPY } from '../app-copy';
 import { SiteLanguageService } from '../site-language';
 
 @Component({
