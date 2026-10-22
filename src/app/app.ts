@@ -50,14 +50,7 @@ import {
   createIcsDataUrlForEvent,
   createIcsDataUrlForSeed,
 } from './calendar-public-links';
-import {
-  cmsNoticeFragmentId,
-  getCmsNoticeCardLink,
-  getCmsNoticeExternalCtaLabel,
-  getCmsNoticeExternalLinkSuffix,
-  getCmsNoticeLinkAriaLabel,
-  type CmsNoticeExternalKind,
-} from './cms-notice-link';
+import { cmsNoticeFragmentId } from './cms-notice-link';
 import { GoogleAnalyticsService } from './google-analytics.service';
 import { AppRouteLink, getAppRouteLink, normalizeAppRoutePath } from './internal-route-link';
 import {
@@ -80,20 +73,16 @@ import {
   CmsAlertBanner,
   CmsCalendarEvent,
   CmsContact,
-  CmsNotice,
   LocalizedCmsContentStore,
   OFFICIAL_CONTACT_ID_CITY_CLERK,
   OFFICIAL_CONTACT_ID_TOWN_INFORMATION,
 } from './site-cms-content';
 import { applyAppCopySiteCopyOverrides } from './site-copy-overrides';
 import { SiteLanguage, SiteLanguageService } from './site-language';
-import { ThisWeekInWileyComponent } from './this-week-in-wiley/this-week-in-wiley.component';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
-import {
-  LocalizedWeatherPanel,
-  type HomepageWeatherAlert,
-} from './weather-panel/localized-weather-panel';
+import { type HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
+import { HomepageLandingComponent } from './homepage/homepage-landing.component';
 import {
   APP_COPY,
   WEATHER_ALERT_POLICY_COPY,
@@ -142,8 +131,7 @@ import { scoreSearchItem } from './site-search/score-search-item';
     RouterOutlet,
     HomepageWeatherAlertPrimer,
     WeatherAlertBannerComponent,
-    LocalizedWeatherPanel,
-    ThisWeekInWileyComponent,
+    HomepageLandingComponent,
     Ripple,
   ],
   templateUrl: './app.html',
@@ -206,9 +194,6 @@ export class App {
     header: { class: 'support-card-header' },
     body: { class: 'support-card-body' },
     footer: { class: 'support-card-footer' },
-  };
-  protected readonly taskCardPt = {
-    content: { class: 'task-card-content' },
   };
   /**
    * PrimeNG MegaMenu sets aria-level on role=menuitem (invalid per ARIA) and aria-label on
@@ -309,22 +294,8 @@ export class App {
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
   private readonly siteRouteChrome = computed(() => resolveSiteRouteChrome(this.currentPath()));
-  protected readonly isAdminMode = computed(() => this.siteRouteChrome().isAdminMode);
-  protected readonly isAdminLoginMode = computed(() => this.siteRouteChrome().isAdminLoginMode);
-  protected readonly isClerkSetupMode = computed(() => this.siteRouteChrome().isClerkSetupMode);
-  protected readonly isDocumentHubMode = computed(() => this.siteRouteChrome().isDocumentHubMode);
   protected readonly isWeatherMode = computed(() => this.siteRouteChrome().isWeatherMode);
   protected readonly isMeetingsMode = computed(() => this.siteRouteChrome().isMeetingsMode);
-  protected readonly isServicesMode = computed(() => this.siteRouteChrome().isServicesMode);
-  protected readonly isRecordsMode = computed(() => this.siteRouteChrome().isRecordsMode);
-  protected readonly isContactMode = computed(() => this.siteRouteChrome().isContactMode);
-  protected readonly isAccessibilityMode = computed(() => this.siteRouteChrome().isAccessibilityMode);
-  protected readonly isPrivacyMode = computed(() => this.siteRouteChrome().isPrivacyMode);
-  protected readonly isTermsMode = computed(() => this.siteRouteChrome().isTermsMode);
-  protected readonly isBusinessesMode = computed(() => this.siteRouteChrome().isBusinessesMode);
-  protected readonly isHistoryMode = computed(() => this.siteRouteChrome().isHistoryMode);
-  protected readonly isNewsMode = computed(() => this.siteRouteChrome().isNewsMode);
-  protected readonly isPaymentsMode = computed(() => this.siteRouteChrome().isPaymentsMode);
   protected readonly isTopLevelLazyRouteMode = computed(
     () => this.siteRouteChrome().isTopLevelLazyRouteMode,
   );
@@ -516,10 +487,6 @@ export class App {
 
   protected readonly topTasks = computed(() => this.appCopy().topTasks);
 
-  // Live (CMS-overridable) values for the top "How do I..." section.
-  protected readonly topTasksKicker = computed(() => this.appCopy().topTasksKicker);
-  protected readonly topTasksHeading = computed(() => this.appCopy().topTasksHeading);
-
   protected readonly featurePages = computed<FeaturePage[]>(() =>
     buildFeaturePages({
       copy: this.appCopy(),
@@ -574,19 +541,6 @@ export class App {
       window.removeEventListener('scroll', handleScroll);
     };
   });
-  protected readonly homepageNotices = computed(() =>
-    this.notices().slice(0, App.HOMEPAGE_NOTICES_PREVIEW),
-  );
-  protected readonly cmsNoticeCardLink = getCmsNoticeCardLink;
-  protected cmsNoticeLinkAriaLabel(notice: CmsNotice): string {
-    return getCmsNoticeLinkAriaLabel(notice, this.siteLanguageService.currentLanguage() || 'en');
-  }
-  protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
-    return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
-  }
-  protected externalLinkNewTabHint(): string {
-    return getCmsNoticeExternalLinkSuffix(this.siteLanguageService.currentLanguage() || 'en');
-  }
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const copy = this.appCopy();
     const locale = this.siteLanguage() === 'es' ? 'es-US' : 'en-US';
