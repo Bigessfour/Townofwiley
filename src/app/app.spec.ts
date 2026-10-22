@@ -411,9 +411,9 @@ describe('App', () => {
     expect(calendarJump?.textContent).toContain('Open the full town calendar');
   });
 
-  it('should map published CMS events into the meetings calendar month view', async () => {
+  it('should map published CMS events into shell calendar search items', async () => {
     // Public site loads events from CDN snapshot (not live AppSync). Flush a
-    // snapshot with a known event so the calendar maps CMS → FullCalendar.
+    // snapshot with a known event so the shell search index can surface it.
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
@@ -455,22 +455,15 @@ describe('App', () => {
       await Promise.resolve();
     }
 
-    await TestBed.inject(Router).navigateByUrl('/meetings');
     fixture.detectChanges();
     await fixture.whenStable();
 
     const component = fixture.componentInstance as App & {
       calendarItems: () => { title: string; startDate: Date; endDate: Date }[];
-      calendarOptions: () => { events: { title: string; start: Date; end: Date }[] };
     };
 
     expect(component.calendarItems()[0]?.title).toBe('Spring Cleanup Day');
     expect(component.calendarItems()[0]?.startDate.toISOString()).toBe('2026-12-15T17:00:00.000Z');
-    expect(component.calendarOptions().events[0]).toMatchObject({
-      title: 'Spring Cleanup Day',
-      start: new Date('2026-12-15T10:00:00-07:00'),
-      end: new Date('2026-12-15T13:00:00-07:00'),
-    });
   });
 
   it('should render published CMS events in the meetings card list', async () => {

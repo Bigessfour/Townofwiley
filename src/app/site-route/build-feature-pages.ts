@@ -1,12 +1,18 @@
-import type { AppCopy, CalendarItem, FeaturePage, PolicyPageCopy } from '../app-copy';
+import type { AppCopy, FeaturePage, PolicyPageCopy } from '../app-copy';
 import type { CmsContact, CmsNotice } from '../site-cms-content';
 import type { HomepageWeatherAlert } from '../weather-panel/localized-weather-panel';
+
+/** Minimal calendar preview fields for feature-page meta summaries. */
+export interface FeaturePageCalendarPreview {
+  title: string;
+  date: string;
+}
 
 export interface BuildFeaturePagesInput {
   copy: AppCopy;
   weatherAlert: HomepageWeatherAlert | null;
   latestNotice: CmsNotice | undefined;
-  nextCalendarItem: CalendarItem | undefined;
+  nextCalendarItem: FeaturePageCalendarPreview | undefined;
   primaryContact: CmsContact | null | undefined;
   clerkContact: CmsContact | null | undefined;
   privacyPolicyCopy: PolicyPageCopy;

@@ -4,6 +4,7 @@ import {
   ErrorHandler,
   inject,
   isDevMode,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -18,7 +19,9 @@ import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
+import { GoogleAnalyticsService } from './google-analytics.service';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
+import { OfflineConnectivityNotifier } from './offline-connectivity.service';
 import { WILEY_THEME_PRESET } from './wiley-theme-preset';
 import { GlobalErrorHandler } from './global-error-handler';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -29,6 +32,11 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     MessageService,
     provideBrowserGlobalErrorListeners(),
+    // Side-effect services: start SPA page_view + offline toasts without App shell DI.
+    provideAppInitializer(() => {
+      inject(GoogleAnalyticsService);
+      inject(OfflineConnectivityNotifier);
+    }),
     provideHttpClient(
       withFetch(),
       withInterceptors([nwsApiHttpInterceptor, nwsApiRetryInterceptor]),
