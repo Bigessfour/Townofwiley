@@ -6,8 +6,10 @@ import {
 } from './internal-route-link';
 
 describe('normalizeAppRoutePath', () => {
-  it('strips query strings and trailing slashes', () => {
+  it('strips query, hash, and trailing slashes', () => {
     expect(normalizeAppRoutePath('/services?ref=1')).toBe('/services');
+    expect(normalizeAppRoutePath('/weather#signup')).toBe('/weather');
+    expect(normalizeAppRoutePath('/meetings/?tab=1#calendar')).toBe('/meetings');
     expect(normalizeAppRoutePath('/meetings/')).toBe('/meetings');
     expect(normalizeAppRoutePath('/')).toBe('/');
     expect(normalizeAppRoutePath('///')).toBe('/');

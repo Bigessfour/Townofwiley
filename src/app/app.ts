@@ -59,7 +59,20 @@ import {
   type CmsNoticeExternalKind,
 } from './cms-notice-link';
 import { GoogleAnalyticsService } from './google-analytics.service';
-import { AppRouteLink, getAppRouteLink, isPathRegisteredAppRoute } from './internal-route-link';
+import { AppRouteLink, getAppRouteLink, normalizeAppRoutePath } from './internal-route-link';
+import {
+  buildBrowserDescription,
+  buildBrowserTitle,
+  DEFAULT_SITE_TITLE,
+} from './shell/browser-meta';
+import {
+  scheduleFragmentScroll,
+  scheduleFragmentScrollWithRetry,
+  scrollToFragment,
+} from './shell/fragment-scroll';
+import { buildFeaturePages } from './site-route/build-feature-pages';
+import { findCurrentFeaturePage } from './site-route/find-current-feature-page';
+import { resolveSiteRouteChrome } from './site-route/site-route-chrome';
 import { LoggingService } from './logging.service';
 import { localizeCmsPublicDocument } from './meeting-documents/localize-public-document';
 import { OfflineConnectivityNotifier } from './offline-connectivity.service';
@@ -102,13 +115,6 @@ import { buildSearchKeywords } from './site-search/build-search-keywords';
 import { dedupeSearchItems } from './site-search/dedupe-search-items';
 import { scoreSearchItem } from './site-search/score-search-item';
 
-function normalizePath(pathname: string): string {
-  const pathWithoutHashOrQuery = pathname.split(/[?#]/, 1)[0] ?? pathname;
-  const trimmedPath = pathWithoutHashOrQuery.replace(/\/+$/, '');
-
-  return trimmedPath || '/';
-}
-
 @Component({
   selector: 'app-root',
   imports: [
@@ -145,8 +151,6 @@ function normalizePath(pathname: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  private static readonly DEFAULT_SITE_TITLE = 'Town of Wiley';
-  private static readonly MAX_META_DESCRIPTION_LENGTH = 160;
   private static readonly SEARCH_DEBOUNCE_MS = 120;
   /** Homepage notices timeline preview count; show “view all” when `notices.length` exceeds this. */
   private static readonly HOMEPAGE_NOTICES_PREVIEW = 3;
@@ -165,8 +169,8 @@ export class App {
   private readonly googleAnalytics = inject(GoogleAnalyticsService);
   private readonly initialPath =
     typeof window !== 'undefined'
-      ? normalizePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
-      : normalizePath(this.router.url);
+      ? normalizeAppRoutePath(`${window.location.pathname}${window.location.search}${window.location.hash}`)
+      : normalizeAppRoutePath(this.router.url);
   private readonly initialFragment =
     typeof window !== 'undefined'
       ? window.location.hash.replace(/^#/, '')
@@ -174,7 +178,7 @@ export class App {
   private readonly currentPath = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => normalizePath(this.router.url)),
+      map(() => normalizeAppRoutePath(this.router.url)),
       startWith(this.initialPath),
     ),
     { initialValue: this.initialPath },
@@ -251,11 +255,11 @@ export class App {
     }
 
     if (fragment === WEATHER_ALERT_SIGNUP_FRAGMENT) {
-      this.scheduleFragmentScrollWithRetry(`#${fragment}`);
+      scheduleFragmentScrollWithRetry(`#${fragment}`);
       return;
     }
 
-    this.scheduleFragmentScroll(`#${fragment}`);
+    scheduleFragmentScroll(`#${fragment}`);
   });
 
   protected readonly calendarOptions = computed(() => ({
@@ -304,105 +308,53 @@ export class App {
   protected readonly nwsBannerDismissed = signal(false);
   private lastHomepageWeatherAlertDismissKey: string | null = null;
   protected readonly currentYear = new Date().getFullYear();
-  protected readonly isAdminMode = computed(() => this.currentPath() === '/admin');
-  protected readonly isAdminLoginMode = computed(() => {
-    const path = this.currentPath();
-    return path === '/admin/login' || path === '/admin/new-staff';
-  });
-  protected readonly isClerkSetupMode = computed(() => this.currentPath() === '/clerk-setup');
-  protected readonly isDocumentHubMode = computed(() => false);
-  protected readonly isWeatherMode = computed(() => this.currentPath() === '/weather');
-  protected readonly isMeetingsMode = computed(() => this.currentPath() === '/meetings');
-  protected readonly isServicesMode = computed(() => this.currentPath() === '/services');
-  protected readonly isRecordsMode = computed(() => false);
-  protected readonly isContactMode = computed(() => this.currentPath() === '/contact');
-  protected readonly isAccessibilityMode = computed(() => this.currentPath() === '/accessibility');
-  protected readonly isPrivacyMode = computed(() => this.currentPath() === '/privacy');
-  protected readonly isTermsMode = computed(() => this.currentPath() === '/terms');
-  protected readonly isBusinessesMode = computed(() => this.currentPath() === '/businesses');
-  protected readonly isHistoryMode = computed(() => this.currentPath() === '/history');
-  /** `/notices` is a redirect; treat the first paint as the news hub so chrome does not flash home. */
-  protected readonly isNewsMode = computed(() => {
-    const path = this.currentPath();
-    return path === '/news' || path === '/notices';
-  });
-  protected readonly isPaymentsMode = computed(
-    () => this.currentPath() === '/pay-bill' || this.currentPath() === '/payments',
-  );
+  private readonly siteRouteChrome = computed(() => resolveSiteRouteChrome(this.currentPath()));
+  protected readonly isAdminMode = computed(() => this.siteRouteChrome().isAdminMode);
+  protected readonly isAdminLoginMode = computed(() => this.siteRouteChrome().isAdminLoginMode);
+  protected readonly isClerkSetupMode = computed(() => this.siteRouteChrome().isClerkSetupMode);
+  protected readonly isDocumentHubMode = computed(() => this.siteRouteChrome().isDocumentHubMode);
+  protected readonly isWeatherMode = computed(() => this.siteRouteChrome().isWeatherMode);
+  protected readonly isMeetingsMode = computed(() => this.siteRouteChrome().isMeetingsMode);
+  protected readonly isServicesMode = computed(() => this.siteRouteChrome().isServicesMode);
+  protected readonly isRecordsMode = computed(() => this.siteRouteChrome().isRecordsMode);
+  protected readonly isContactMode = computed(() => this.siteRouteChrome().isContactMode);
+  protected readonly isAccessibilityMode = computed(() => this.siteRouteChrome().isAccessibilityMode);
+  protected readonly isPrivacyMode = computed(() => this.siteRouteChrome().isPrivacyMode);
+  protected readonly isTermsMode = computed(() => this.siteRouteChrome().isTermsMode);
+  protected readonly isBusinessesMode = computed(() => this.siteRouteChrome().isBusinessesMode);
+  protected readonly isHistoryMode = computed(() => this.siteRouteChrome().isHistoryMode);
+  protected readonly isNewsMode = computed(() => this.siteRouteChrome().isNewsMode);
+  protected readonly isPaymentsMode = computed(() => this.siteRouteChrome().isPaymentsMode);
   protected readonly isTopLevelLazyRouteMode = computed(
-    () =>
-      this.isAdminMode() ||
-      this.isAdminLoginMode() ||
-      this.isClerkSetupMode() ||
-      this.isDocumentHubMode(),
+    () => this.siteRouteChrome().isTopLevelLazyRouteMode,
   );
-  protected readonly isFeaturePageMode = computed(
-    () =>
-      this.isWeatherMode() ||
-      this.isMeetingsMode() ||
-      this.isServicesMode() ||
-      this.isContactMode() ||
-      this.isAccessibilityMode() ||
-      this.isPrivacyMode() ||
-      this.isTermsMode() ||
-      this.isBusinessesMode() ||
-      this.isHistoryMode() ||
-      this.isNewsMode() ||
-      this.isPaymentsMode(),
-  );
-  /** Unknown in-app URL: show wildcard route in main outlet (not admin/document clerk shell). */
-  protected readonly isNotFoundMode = computed(() => {
-    if (this.isTopLevelLazyRouteMode()) {
-      return false;
-    }
-
-    const path = this.currentPath();
-
-    if (path === '/' || path === '') {
-      return false;
-    }
-
-    return !isPathRegisteredAppRoute(path);
-  });
+  protected readonly isFeaturePageMode = computed(() => this.siteRouteChrome().isFeaturePageMode);
+  protected readonly isNotFoundMode = computed(() => this.siteRouteChrome().isNotFoundMode);
   protected readonly shouldPrimeWeatherAlerts = computed(
-    () =>
-      !this.isAdminMode() &&
-      !this.isClerkSetupMode() &&
-      !this.isDocumentHubMode() &&
-      !this.isWeatherMode(),
+    () => this.siteRouteChrome().shouldPrimeWeatherAlerts,
   );
   protected readonly heroContent = this.cmsStore.hero;
   protected readonly cmsAlertBanner = this.cmsStore.alertBanner;
   protected readonly pageTitle = computed(() => this.heroContent().title);
   protected readonly browserTitle = computed(() => {
-    const siteTitle = this.pageTitle()?.trim() || App.DEFAULT_SITE_TITLE;
-
-    if (this.isNotFoundMode()) {
-      return `${this.appCopy().notFoundBrowserTitle} | ${siteTitle}`;
-    }
-
-    const featureTitle = this.currentFeaturePage()?.title?.trim();
-
-    if (!featureTitle || featureTitle === siteTitle) {
-      return `${siteTitle} | Official Website`;
-    }
-
-    return `${featureTitle} | ${siteTitle}`;
+    const copy = this.appCopy();
+    return buildBrowserTitle({
+      siteTitle: this.pageTitle()?.trim() || DEFAULT_SITE_TITLE,
+      featureTitle: this.currentFeaturePage()?.title,
+      isNotFound: this.isNotFoundMode(),
+      notFoundBrowserTitle: copy.notFoundBrowserTitle,
+    });
   });
   protected readonly browserDescription = computed(() => {
-    if (this.isNotFoundMode()) {
-      return this.truncateMetaDescription(this.appCopy().notFoundMetaDescription);
-    }
-
+    const copy = this.appCopy();
     const featurePage = this.currentFeaturePage();
-
-    if (!featurePage) {
-      return this.appCopy().siteMetaDescription;
-    }
-
-    const description = [featurePage.title, featurePage.summary].filter(Boolean).join('. ');
-
-    return this.truncateMetaDescription(description || this.appCopy().siteMetaDescription);
+    return buildBrowserDescription({
+      isNotFound: this.isNotFoundMode(),
+      notFoundMetaDescription: copy.notFoundMetaDescription,
+      siteMetaDescription: copy.siteMetaDescription,
+      featureTitle: featurePage?.title,
+      featureSummary: featurePage?.summary,
+    });
   });
   protected readonly notices = this.cmsStore.notices;
   protected readonly liveCalendarEvents = this.cmsStore.events;
@@ -568,143 +520,24 @@ export class App {
   protected readonly topTasksKicker = computed(() => this.appCopy().topTasksKicker);
   protected readonly topTasksHeading = computed(() => this.appCopy().topTasksHeading);
 
-  protected readonly featurePages = computed<FeaturePage[]>(() => {
-    const copy = this.appCopy();
-    const weatherAlert = this.homepageWeatherAlert();
-    const latestNotice = this.notices()[0];
-    const nextCalendarItem = this.calendarItems()[0];
-    const primaryContact = this.primaryContact();
-    const clerkContact = this.clerkContact();
-
-    return [
-      {
-        id: 'weather',
-        kicker: weatherAlert ? copy.nwsAlertLabel : copy.featureTitles.weather,
-        title: copy.featureTitles.weather,
-        summary: weatherAlert
-          ? [weatherAlert.event, weatherAlert.headline].filter(Boolean).join('. ')
-          : copy.alertHeadline,
-        href: '/weather',
-        showOnHomepage: true,
-      },
-      {
-        id: 'notices',
-        kicker: copy.noticesKicker,
-        title: copy.featureTitles.notices,
-        summary: latestNotice
-          ? `${latestNotice.title}. ${latestNotice.detail}`
-          : copy.noticesHeading,
-        href: '/news',
-        showOnHomepage: true,
-      },
-      {
-        id: 'meetings',
-        kicker: copy.meetingsKicker,
-        title: copy.featureTitles.meetings,
-        summary: nextCalendarItem
-          ? `${nextCalendarItem.title}. ${nextCalendarItem.date}`
-          : copy.openCalendarLabel,
-        href: '/meetings',
-        showOnHomepage: true,
-      },
-      {
-        id: 'services',
-        kicker: copy.servicesKicker,
-        title: copy.featureTitles.services,
-        summary: copy.topTasks
-          .slice(0, 3)
-          .map((task) => task.title)
-          .join(' · '),
-        href: '/services',
-        showOnHomepage: true,
-      },
-      {
-        id: 'records',
-        kicker: copy.meetingsKicker,
-        title: copy.featureTitles.records,
-        summary: copy.documentsFeatureSummary,
-        href: '/meetings',
-        showOnHomepage: false,
-      },
-      {
-        id: 'contact',
-        kicker: copy.contactKicker,
-        title: copy.featureTitles.contact,
-        summary:
-          [primaryContact?.value, clerkContact?.linkLabel ?? clerkContact?.value]
-            .filter(Boolean)
-            .join(' · ') || copy.contactHeading,
-        href: '/contact',
-        showOnHomepage: true,
-      },
-      {
-        id: 'accessibility',
-        kicker: copy.accessibilityKicker,
-        title: copy.featureTitles.accessibility,
-        summary: copy.complianceNote,
-        href: '/accessibility',
-        showOnHomepage: false,
-      },
-      {
-        id: 'privacy',
-        kicker: this.privacyPolicyCopy().kicker,
-        title: copy.featureTitles.privacy,
-        summary: copy.privacySummary,
-        href: '/privacy',
-        showOnHomepage: false,
-      },
-      {
-        id: 'terms',
-        kicker: this.smsTermsCopy().kicker,
-        title: copy.featureTitles.terms,
-        summary: copy.termsSummary,
-        href: '/terms',
-        showOnHomepage: false,
-      },
-      {
-        id: 'businesses',
-        kicker: copy.featureTitles.businesses,
-        title: copy.featureTitles.businesses,
-        summary: copy.businessesFeatureSummary,
-        href: '/businesses',
-        showOnHomepage: false,
-      },
-      {
-        id: 'history',
-        kicker: copy.historyKicker,
-        title: copy.featureTitles.history,
-        summary: copy.historyFeatureSummary,
-        href: '/history',
-        showOnHomepage: false,
-      },
-      {
-        id: 'news',
-        kicker: copy.featureTitles.news,
-        title: copy.featureTitles.news,
-        summary: copy.newsFeatureSummary,
-        href: '/news',
-        showOnHomepage: false,
-      },
-      {
-        id: 'payments',
-        kicker: copy.servicesKicker,
-        title: copy.featureTitles.payments,
-        summary: copy.paymentsFeatureSummary,
-        href: '/pay-bill',
-        showOnHomepage: false,
-      },
-    ];
-  });
+  protected readonly featurePages = computed<FeaturePage[]>(() =>
+    buildFeaturePages({
+      copy: this.appCopy(),
+      weatherAlert: this.homepageWeatherAlert(),
+      latestNotice: this.notices()[0],
+      nextCalendarItem: this.calendarItems()[0],
+      primaryContact: this.primaryContact(),
+      clerkContact: this.clerkContact(),
+      privacyPolicyCopy: this.privacyPolicyCopy(),
+      smsTermsCopy: this.smsTermsCopy(),
+    }),
+  );
   protected readonly homepageFeaturePages = computed(() =>
     this.featurePages().filter((page) => page.showOnHomepage),
   );
-  protected readonly currentFeaturePage = computed<FeaturePage | null>(() => {
-    const path = this.currentPath();
-    if (path === '/notices') {
-      return this.featurePages().find((page) => page.href === '/news') ?? null;
-    }
-    return this.featurePages().find((page) => page.href === path) ?? null;
-  });
+  protected readonly currentFeaturePage = computed<FeaturePage | null>(() =>
+    findCurrentFeaturePage(this.currentPath(), this.featurePages()),
+  );
   private readonly pageViewLoggingEffect = effect(() => {
     const path = this.currentPath();
     const fragment = this.currentFragment();
@@ -1123,7 +956,7 @@ export class App {
     if (this.isFeaturePageMode() || this.isNotFoundMode()) {
       return;
     }
-    this.scrollToFragment('#search-panel');
+    scrollToFragment('#search-panel');
   }
 
   protected trackAlertSignupClick(): void {
@@ -1135,7 +968,7 @@ export class App {
     event?.preventDefault();
 
     if (this.isMeetingsMode()) {
-      this.scrollToFragment('#calendar');
+      scrollToFragment('#calendar');
       return;
     }
 
@@ -1206,7 +1039,7 @@ export class App {
     this.trackAlertSignupClick();
     const anchorId = WEATHER_ALERT_SIGNUP_FRAGMENT;
     void this.router.navigate(['/weather'], { fragment: anchorId }).then(() => {
-      this.scheduleFragmentScrollWithRetry(`#${anchorId}`);
+      scheduleFragmentScrollWithRetry(`#${anchorId}`);
     });
   }
 
@@ -1221,7 +1054,7 @@ export class App {
     }
 
     if (href.startsWith('#')) {
-      this.scrollToFragment(href);
+      scrollToFragment(href);
       return;
     }
 
@@ -1237,8 +1070,8 @@ export class App {
 
     const [path, fragment] = href.split('#', 2);
 
-    if (fragment && normalizePath(path || this.router.url) === this.currentPath()) {
-      this.scrollToFragment(`#${fragment}`);
+    if (fragment && normalizeAppRoutePath(path || this.router.url) === this.currentPath()) {
+      scrollToFragment(`#${fragment}`);
       return;
     }
 
@@ -1248,7 +1081,7 @@ export class App {
 
       void this.router.navigateByUrl(urlTree).then((didNavigate) => {
         if (didNavigate && fragment) {
-          this.scheduleFragmentScroll(`#${fragment}`);
+          scheduleFragmentScroll(`#${fragment}`);
         }
       });
     } catch {
@@ -1256,71 +1089,6 @@ export class App {
     }
   }
 
-  private scheduleFragmentScroll(fragment: string): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    window.setTimeout(() => {
-      this.scrollToFragment(fragment);
-    }, 0);
-  }
-
-  /**
-   * Weather signup may render after runtime config resolves; retry so the anchor exists before scrolling.
-   */
-  private scheduleFragmentScrollWithRetry(fragment: string, maxAttempts = 12): void {
-    if (typeof document === 'undefined' || typeof window === 'undefined') {
-      return;
-    }
-
-    let attempts = 0;
-
-    const attempt = () => {
-      attempts += 1;
-      const target = document.querySelector<HTMLElement>(fragment);
-      if (target) {
-        this.scrollToFragment(fragment);
-        return;
-      }
-      if (attempts < maxAttempts) {
-        window.setTimeout(attempt, 100);
-      }
-    };
-
-    window.setTimeout(attempt, 0);
-  }
-
-  private scrollToFragment(fragment: string, fallbackFragment?: string): void {
-    if (typeof document === 'undefined') {
-      return;
-    }
-
-    const target =
-      document.querySelector<HTMLElement>(fragment) ??
-      (fallbackFragment ? document.querySelector<HTMLElement>(fallbackFragment) : null);
-
-    if (!target) {
-      return;
-    }
-
-    const targetId = target.getAttribute('id');
-
-    if (typeof window !== 'undefined' && targetId) {
-      const nextUrl = `${window.location.pathname}${window.location.search}#${targetId}`;
-      window.history.replaceState(window.history.state, '', nextUrl);
-    }
-
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    if (!target.hasAttribute('tabindex')) {
-      target.setAttribute('tabindex', '-1');
-    }
-
-    queueMicrotask(() => {
-      target.focus({ preventScroll: true });
-    });
-  }
 
   private createCalendarItem(seed: CalendarEventSeed, isFeatured: boolean): CalendarItem {
     const copy = this.appCopy();
@@ -1578,11 +1346,4 @@ export class App {
     return formatter.format(value);
   }
 
-  private truncateMetaDescription(value: string): string {
-    if (value.length <= App.MAX_META_DESCRIPTION_LENGTH) {
-      return value;
-    }
-
-    return `${value.slice(0, App.MAX_META_DESCRIPTION_LENGTH - 3).trimEnd()}...`;
-  }
 }
