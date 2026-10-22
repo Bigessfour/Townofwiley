@@ -32,12 +32,12 @@ const APP_ROUTE_PATHS = new Set([
 const EXTERNAL_LINK_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 /**
- * Normalizes an app path for matching: trims, strips query string, removes trailing slashes (except root).
+ * Normalizes an app path for matching: trims, strips query/hash, removes trailing slashes (except root).
  */
 export function normalizeAppRoutePath(raw: string): string {
   const trimmed = raw.trim();
-  const withoutQuery = trimmed.split('?', 1)[0] ?? '';
-  const collapsed = withoutQuery.replace(/\/+$/, '') || '/';
+  const withoutQueryOrHash = trimmed.split(/[?#]/, 1)[0] ?? '';
+  const collapsed = withoutQueryOrHash.replace(/\/+$/, '') || '/';
 
   return collapsed === '' ? '/' : collapsed;
 }
