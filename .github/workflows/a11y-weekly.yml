@@ -1,0 +1,49 @@
+# Weekly axe smoke — keeps Site CI fast; full a11y suite stays local (`npm run test:e2e:regression`).
+name: Accessibility smoke
+
+on:
+  schedule:
+    # Mondays 14:00 UTC (~8am Mountain)
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: a11y-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 24.16.0
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  NG_CLI_ANALYTICS: 'false'
+  CI: 'true'
+
+jobs:
+  a11y-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.16.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run accessibility smoke
+        run: npx playwright test e2e/specs/accessibility/a11y-smoke.spec.ts --project=desktop-chromium --workers=1
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: a11y-smoke-report
+          path: playwright-report/
+          retention-days: 7

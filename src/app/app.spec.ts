@@ -184,7 +184,7 @@ describe('App', () => {
     expect(mobileMenuButton?.textContent).toContain(APP_COPY.en.mobileMenuLabel);
 
     const townLogo = compiled.querySelector('a.town-logo');
-    expect(townLogo?.getAttribute('aria-label')).toBe(APP_COPY.en.townLogoAriaLabel);
+    expect(townLogo?.hasAttribute('aria-label')).toBe(false);
     expect(townLogo?.textContent).toContain('Town of Wiley');
 
     const primaryNav = compiled.querySelector('[data-testid="homepage-section-nav"]');

@@ -54,6 +54,7 @@ import {
   cmsNoticeFragmentId,
   getCmsNoticeCardLink,
   getCmsNoticeExternalCtaLabel,
+  getCmsNoticeExternalLinkSuffix,
   getCmsNoticeLinkAriaLabel,
   type CmsNoticeExternalKind,
 } from './cms-notice-link';
@@ -784,9 +785,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityKicker: 'Accessibility',
     accessibilityHeading: 'Accessible services and inclusive design',
     complianceNote:
-      'Read our accessibility statement, request alternate formats, and report barriers to town staff.',
+      'Read our accessibility statement, request alternate formats, and report barriers to town staff. Automated axe checks disable aria-valid-attr-value and scrollable-region-focusable for known PrimeNG widget quirks until upstream fixes land.',
     accessibilityLastReviewedLabel: 'Last reviewed',
-    accessibilityLastReviewedDate: 'May 6, 2026',
+    accessibilityLastReviewedDate: 'October 22, 2026',
     contactKicker: 'Contact',
     contactHeading: 'Contact Town Hall',
     contactEmptyState:
@@ -1239,9 +1240,9 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     accessibilityKicker: 'Accesibilidad',
     accessibilityHeading: 'Servicios accesibles y diseno inclusivo',
     complianceNote:
-      'Lea nuestra declaracion de accesibilidad, solicite formatos alternativos e informe barreras al personal.',
+      'Lea nuestra declaracion de accesibilidad, solicite formatos alternativos e informe barreras al personal. Las pruebas automaticas axe desactivan aria-valid-attr-value y scrollable-region-focusable por limitaciones conocidas de widgets PrimeNG hasta que haya correcciones.',
     accessibilityLastReviewedLabel: 'Ultima revision',
-    accessibilityLastReviewedDate: '6 de mayo de 2026',
+    accessibilityLastReviewedDate: '22 de octubre de 2026',
     contactKicker: 'Contacto',
     contactHeading: 'Contactar al Ayuntamiento',
     contactEmptyState:
@@ -2375,6 +2376,9 @@ export class App {
   }
   protected noticeExternalCta(kind: CmsNoticeExternalKind): string {
     return getCmsNoticeExternalCtaLabel(kind, this.siteLanguageService.currentLanguage() || 'en');
+  }
+  protected externalLinkNewTabHint(): string {
+    return getCmsNoticeExternalLinkSuffix(this.siteLanguageService.currentLanguage() || 'en');
   }
   protected readonly meetings = computed<MeetingItem[]>(() => {
     const liveEvents = this.liveCalendarEvents();

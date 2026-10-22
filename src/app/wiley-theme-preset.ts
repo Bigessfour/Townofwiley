@@ -82,12 +82,13 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
         light: {
           root: {
             primary: {
-              background: '#d4a14b',
-              hoverBackground: '#c4923a',
-              activeBackground: '#a67a2f',
-              borderColor: '#d4a14b',
-              hoverBorderColor: '#c4923a',
-              activeBorderColor: '#a67a2f',
+              background: '#a67a2f',
+              hoverBackground: '#8f6828',
+              activeBackground: '#7a5822',
+              borderColor: '#a67a2f',
+              hoverBorderColor: '#8f6828',
+              activeBorderColor: '#7a5822',
+              /* Forest on gold meets WCAG AA (white on gold-400 fails ~2.3:1) */
               color: '#0f3d2e',
             },
             secondary: {

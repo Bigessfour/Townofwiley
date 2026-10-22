@@ -3140,6 +3140,19 @@ button:not(:disabled):active,
   flex: 1 1 auto;
 }
 
+:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary {
+  background: var(--wiley-gold-600, #a67a2f);
+  border-color: var(--wiley-gold-600, #a67a2f);
+  color: var(--wiley-forest-900, #0f3d2e);
+}
+
+:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
+:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
+  background: #8f6828;
+  border-color: #8f6828;
+  color: var(--wiley-forest-900, #0f3d2e);
+}
+
 .hero-landing-actions .hero-landing-cta.p-button-outlined.p-button-contrast {
   backdrop-filter: blur(10px);
 }
