@@ -48,9 +48,6 @@ const NWS_FORECAST_MAPS_URL = 'https://www.weather.gov/forecastmaps';
 const ALLOWED_ALERT_SIGNUP_ZIP_CODE = '81092';
 const DEFAULT_ALERT_LANGUAGE = 'en';
 
-/** @deprecated Import from `../app-copy` instead. */
-export { WEATHER_ALERT_SIGNUP_FRAGMENT };
-
 type AlertSignupFeedbackTone = 'success' | 'error';
 
 interface SelectOption<TValue extends string> {
