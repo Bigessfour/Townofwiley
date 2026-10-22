@@ -96,31 +96,17 @@ import {
   type PrimaryNavLink,
   type SearchItem,
 } from './app-copy';
-
-/** @deprecated Import from `./app-copy` instead. */
-export {
-  APP_COPY,
-  WEATHER_ALERT_POLICY_COPY,
-  WEATHER_ALERT_SIGNUP_FRAGMENT,
-  type AppCopy,
-  type LeadershipGroup,
-} from './app-copy';
+import { buildHomepageMeetings } from './homepage/build-homepage-meetings';
+import { buildMegaMenuItems } from './shell-nav/build-mega-menu';
+import { buildSearchKeywords } from './site-search/build-search-keywords';
+import { dedupeSearchItems } from './site-search/dedupe-search-items';
+import { scoreSearchItem } from './site-search/score-search-item';
 
 function normalizePath(pathname: string): string {
   const pathWithoutHashOrQuery = pathname.split(/[?#]/, 1)[0] ?? pathname;
   const trimmedPath = pathWithoutHashOrQuery.replace(/\/+$/, '');
 
   return trimmedPath || '/';
-}
-
-function megaMenuColumn(links: MegaMenuItem[], groupLabel?: string): MegaMenuItem[] {
-  // Prime typings declare `items` as MenuItem[][]; flyout group rows use a flat leaf list at runtime.
-  const group: MegaMenuItem = { items: links as MegaMenuItem[][] };
-  const trimmed = groupLabel?.trim();
-  if (trimmed) {
-    group.label = trimmed;
-  }
-  return [group];
 }
 
 @Component({
@@ -428,174 +414,7 @@ export class App {
     const base = APP_COPY[lang];
     return applyAppCopySiteCopyOverrides(base, (key) => this.cmsStore.getSiteCopy(key), lang);
   });
-  protected readonly menuItems = computed<MegaMenuItem[]>(() => {
-    const copy = this.appCopy();
-
-    return [
-      {
-        root: true,
-        label: copy.menuQuickTasksLabel,
-        icon: 'pi pi-list',
-        items: [
-          megaMenuColumn(
-            [
-              {
-                label: copy.mobileOnlinePaymentsLabel,
-                routerLink: '/pay-bill',
-              },
-              {
-                label: copy.mobileIssueLabel,
-                routerLink: ['/services'],
-                fragment: 'issue-report',
-              },
-              {
-                label: copy.meetingsQuickLinkLabel,
-                routerLink: '/meetings',
-                fragment: 'calendar',
-              },
-              {
-                label: copy.communityCalendarQuickLinkLabel,
-                routerLink: '/meetings',
-                fragment: 'community',
-              },
-              {
-                label: copy.mobileSearchAllServicesLabel,
-                routerLink: ['/'],
-                fragment: 'search-panel',
-              },
-            ],
-            copy.menuQuickTasksServicesColumnLabel,
-          ),
-          megaMenuColumn(
-            [
-              { label: copy.featureTitles.weather, routerLink: '/weather', icon: 'pi pi-cloud' },
-              { label: copy.nwsAlertLabel, routerLink: '/weather' },
-              {
-                label: copy.mobileWeatherAlertsLabel,
-                routerLink: '/weather',
-                fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
-              },
-              { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
-              {
-                label: copy.communityCalendarQuickLinkLabel,
-                routerLink: '/meetings',
-                fragment: 'community',
-                icon: 'pi pi-calendar-plus',
-              },
-            ],
-            copy.menuQuickTasksWeatherColumnLabel,
-          ),
-        ],
-      },
-      {
-        root: true,
-        label: copy.menuGovernmentLabel,
-        icon: 'pi pi-building',
-        items: [
-          megaMenuColumn(
-            [
-              {
-                label: copy.featureTitles.meetings,
-                routerLink: '/meetings',
-                icon: 'pi pi-calendar',
-              },
-              { label: copy.calendarKicker, routerLink: '/meetings', fragment: 'calendar' },
-              {
-                label: copy.communityCalendarQuickLinkLabel,
-                routerLink: '/meetings',
-                fragment: 'community',
-                icon: 'pi pi-calendar-plus',
-              },
-              { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
-            ],
-            copy.menuGovernmentMeetingsColumnLabel,
-          ),
-          megaMenuColumn(
-            [
-              { label: copy.transparencyKicker, routerLink: '/contact' },
-              { label: copy.featureTitles.accessibility, routerLink: '/accessibility' },
-              { label: copy.menuLeadershipLabel, routerLink: '/contact', fragment: 'leadership' },
-            ],
-            copy.menuGovernmentTownColumnLabel,
-          ),
-        ],
-      },
-      {
-        root: true,
-        label: copy.menuServicesPermitsLabel,
-        icon: 'pi pi-briefcase',
-        items: [
-          megaMenuColumn(
-            [
-              {
-                label: copy.mobileOnlinePaymentsLabel,
-                routerLink: '/pay-bill',
-              },
-              { label: copy.mobileIssueLabel, routerLink: ['/services'], fragment: 'issue-report' },
-              { label: copy.featureTitles.services, routerLink: '/services' },
-            ],
-            copy.menuServicesPermitsLabel,
-          ),
-          megaMenuColumn(
-            [
-              { label: copy.featureTitles.records, routerLink: '/meetings' },
-              { label: copy.openCalendarLabel, routerLink: '/meetings', fragment: 'calendar' },
-            ],
-            copy.menuServicesRelatedColumnLabel,
-          ),
-        ],
-      },
-      {
-        root: true,
-        label: copy.menuNewsNoticesLabel,
-        icon: 'pi pi-bell',
-        items: [
-          megaMenuColumn([
-            { label: copy.featureTitles.news, routerLink: '/news', icon: 'pi pi-newspaper' },
-          ]),
-          megaMenuColumn([
-            { label: copy.nwsAlertLabel, routerLink: '/weather' },
-            {
-              label: copy.alertActionLabel,
-              routerLink: '/weather',
-              fragment: WEATHER_ALERT_SIGNUP_FRAGMENT,
-            },
-          ]),
-        ],
-      },
-      {
-        root: true,
-        label: copy.menuWeatherLabel,
-        icon: 'pi pi-cloud',
-        routerLink: '/weather',
-      },
-      {
-        root: true,
-        label: copy.menuBusinessCommunityLabel,
-        icon: 'pi pi-users',
-        items: [
-          megaMenuColumn([
-            {
-              label: copy.menuBusinessDirectoryLabel,
-              routerLink: '/businesses',
-              icon: 'pi pi-building',
-            },
-            {
-              label: copy.featureTitles.history,
-              routerLink: '/history',
-              icon: 'pi pi-book',
-            },
-          ]),
-        ],
-      },
-      {
-        root: true,
-        label: copy.menuContactHallLabel,
-        icon: 'pi pi-envelope',
-        routerLink: '/contact',
-      },
-    ];
-  });
+  protected readonly menuItems = computed<MegaMenuItem[]>(() => buildMegaMenuItems(this.appCopy()));
 
   private buildMenuUrl(path: string, fragment?: string): string {
     return this.router.serializeUrl(
@@ -936,36 +755,17 @@ export class App {
     return getCmsNoticeExternalLinkSuffix(this.siteLanguageService.currentLanguage() || 'en');
   }
   protected readonly meetings = computed<MeetingItem[]>(() => {
-    const liveEvents = this.liveCalendarEvents();
-    const linkedAgendaByEventId = this.cmsStore.linkedAgendaDocumentByEventId();
-    const extraNotices = this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW;
+    const copy = this.appCopy();
+    const locale = this.siteLanguage() === 'es' ? 'es-US' : 'en-US';
 
-    if (liveEvents.length) {
-      return liveEvents.map((event) =>
-        this.createMeetingItemFromEvent(event, linkedAgendaByEventId),
-      );
-    }
-
-    return this.appCopy().meetings.map((m) => {
-      const copy = this.appCopy();
-      const agendaPdfHref = m.agendaPdfHref ?? '/meetings';
-      const agendaButtonLabel =
-        m.href === '/news' ? copy.meetingsDocumentsHubButtonLabel : undefined;
-
-      if (m.href === '/news' && !extraNotices) {
-        return {
-          title: m.title,
-          schedule: m.schedule,
-          format: m.format,
-          location: m.location,
-          agendaNote: m.agendaNote,
-          agendaPdfHref,
-          agendaButtonLabel,
-        };
-      }
-
-      return { ...m, agendaPdfHref, agendaButtonLabel };
-    });
+    return buildHomepageMeetings(
+      this.liveCalendarEvents(),
+      copy.meetings,
+      copy,
+      locale,
+      this.cmsStore.linkedAgendaDocumentByEventId(),
+      this.notices().length > App.HOMEPAGE_NOTICES_PREVIEW,
+    );
   });
   protected readonly calendarItems = computed(() => {
     const liveEvents = this.liveCalendarEvents();
@@ -1060,7 +860,7 @@ export class App {
         summary: weatherAlert ? alertBanner.detail : copy.alertHeadline,
         category: weatherAlert ? copy.nwsAlertLabel : copy.featureTitles.weather,
         href: '/weather',
-        keywords: this.buildSearchKeywords(
+        keywords: buildSearchKeywords(
           copy.alertHeadline,
           copy.alertActionLabel,
           copy.nwsAlertLinkLabel,
@@ -1077,7 +877,7 @@ export class App {
       summary: task.description,
       category: copy.topTasksKicker,
       href: task.href,
-      keywords: this.buildSearchKeywords(task.description, task.note),
+      keywords: buildSearchKeywords(task.description, task.note),
     }));
   });
   private readonly meetingSearchItems = computed<SearchItem[]>(() => {
@@ -1088,7 +888,7 @@ export class App {
       summary: meeting.format,
       category: copy.meetingsKicker,
       href: '/meetings',
-      keywords: this.buildSearchKeywords(
+      keywords: buildSearchKeywords(
         meeting.schedule,
         meeting.location,
         meeting.agendaNote,
@@ -1104,7 +904,7 @@ export class App {
       summary: item.detail,
       category: copy.calendarKicker,
       href: '/meetings',
-      keywords: this.buildSearchKeywords(
+      keywords: buildSearchKeywords(
         item.date,
         item.category,
         item.location,
@@ -1126,7 +926,7 @@ export class App {
         summary: document.summary,
         category: copy.meetingsKicker,
         href: `/meetings#cms-doc-${document.id}`,
-        keywords: this.buildSearchKeywords(document.format, ...document.keywords),
+        keywords: buildSearchKeywords(document.format, ...document.keywords),
       }));
   });
   private readonly serviceSearchItems = computed<SearchItem[]>(() => {
@@ -1137,7 +937,7 @@ export class App {
       summary: service.description,
       category: copy.servicesKicker,
       href: service.href,
-      keywords: this.buildSearchKeywords(service.availability, service.cta),
+      keywords: buildSearchKeywords(service.availability, service.cta),
     }));
   });
   private readonly transparencySearchItems = computed<SearchItem[]>(() => {
@@ -1148,7 +948,7 @@ export class App {
       summary: action.detail,
       category: copy.transparencyKicker,
       href: action.href,
-      keywords: this.buildSearchKeywords(action.detail),
+      keywords: buildSearchKeywords(action.detail),
     }));
   });
   private readonly noticeSearchItems = computed<SearchItem[]>(() => {
@@ -1159,7 +959,7 @@ export class App {
       summary: notice.detail,
       category: copy.noticesKicker,
       href: `/news#${cmsNoticeFragmentId(notice.id)}`,
-      keywords: this.buildSearchKeywords(notice.date),
+      keywords: buildSearchKeywords(notice.date),
     }));
   });
   private readonly contactSearchItems = computed<SearchItem[]>(() => {
@@ -1170,7 +970,7 @@ export class App {
       summary: contact.detail,
       category: copy.contactKicker,
       href: contact.href ?? '/contact',
-      keywords: this.buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
+      keywords: buildSearchKeywords(contact.label, contact.value, contact.linkLabel),
     }));
   });
   private readonly accessibilitySearchItems = computed<SearchItem[]>(() => {
@@ -1181,7 +981,7 @@ export class App {
       summary: item.detail,
       category: copy.accessibilityKicker,
       href: '/accessibility',
-      keywords: this.buildSearchKeywords(item.detail),
+      keywords: buildSearchKeywords(item.detail),
     }));
   });
   private readonly featurePageSearchItems = computed<SearchItem[]>(() => {
@@ -1190,11 +990,11 @@ export class App {
       summary: page.summary,
       category: page.kicker || 'Features',
       href: page.href,
-      keywords: this.buildSearchKeywords(page.title, page.summary, page.kicker || ''),
+      keywords: buildSearchKeywords(page.title, page.summary, page.kicker || ''),
     }));
   });
   protected readonly searchIndex = computed<SearchItem[]>(() => {
-    return this.dedupeSearchItems([
+    return dedupeSearchItems([
       ...this.weatherSearchItems(),
       ...this.topTaskSearchItems(),
       ...this.meetingSearchItems(),
@@ -1245,7 +1045,7 @@ export class App {
     return searchIndex
       .map((item) => ({
         item,
-        score: this.scoreSearchItem(item, terms, query),
+        score: scoreSearchItem(item, terms, query),
       }))
       .filter(({ score }) => score > 0)
       .sort((left, right) => right.score - left.score)
@@ -1324,104 +1124,6 @@ export class App {
       return;
     }
     this.scrollToFragment('#search-panel');
-  }
-
-  private scoreSearchItem(item: SearchItem, terms: string[], normalizedQuery: string): number {
-    const title = item.title.toLowerCase();
-    const summary = item.summary.toLowerCase();
-    const category = item.category.toLowerCase();
-    const href = item.href.toLowerCase();
-    const keywords = item.keywords.map((keyword) => keyword.toLowerCase());
-    const haystack = [title, summary, category, ...keywords].join(' ');
-    const hasMeetingIntent = terms.some((term) =>
-      ['meeting', 'meetings', 'calendar', 'agenda', 'council'].includes(term),
-    );
-    const hasContactIntent = terms.some((term) =>
-      ['contact', 'clerk', 'email', 'phone', 'call'].includes(term),
-    );
-    const hasDocumentIntent = terms.some((term) =>
-      [
-        'document',
-        'documents',
-        'record',
-        'records',
-        'minutes',
-        'packet',
-        'form',
-        'pdf',
-        'archive',
-        'guide',
-      ].includes(term),
-    );
-
-    if (!terms.every((term) => haystack.includes(term))) {
-      return 0;
-    }
-
-    let score = 0;
-
-    if (title.includes(normalizedQuery)) {
-      score += 40;
-    }
-
-    if (category.includes(normalizedQuery)) {
-      score += 20;
-    }
-
-    if (summary.includes(normalizedQuery)) {
-      score += 10;
-    }
-
-    if (keywords.some((keyword) => keyword.includes(normalizedQuery))) {
-      score += 16;
-    }
-
-    if ((href === '/meetings' || href.startsWith('/meetings#')) && hasMeetingIntent) {
-      score += 30;
-    }
-
-    if (
-      (href === '/contact' || href.startsWith('mailto:') || href.startsWith('tel:')) &&
-      hasContactIntent
-    ) {
-      score += 24;
-    }
-
-    if (
-      href.startsWith('mailto:') &&
-      title.includes('clerk') &&
-      terms.some((term) => ['clerk', 'deb', 'dillon'].includes(term))
-    ) {
-      score += 48;
-    }
-
-    if (href.startsWith('/meetings#') && !hasDocumentIntent) {
-      score -= 12;
-    }
-
-    for (const term of terms) {
-      if (title.includes(term)) {
-        score += 8;
-      }
-
-      if (category.includes(term)) {
-        score += 6;
-      }
-
-      if (keywords.some((keyword) => keyword.includes(term))) {
-        score += 4;
-      }
-
-      if (summary.includes(term)) {
-        score += 2;
-      }
-
-      if (href.includes(term)) {
-        score += 1;
-      }
-    }
-
-    return score;
   }
 
   protected trackAlertSignupClick(): void {
@@ -1511,25 +1213,6 @@ export class App {
   protected updateSiteLanguage(value: SiteLanguage): void {
     this.logging.buttonClick(`language-${value}`);
     this.siteLanguageService.setLanguage(value);
-  }
-
-  private buildSearchKeywords(...values: (string | null | undefined)[]): string[] {
-    return values.filter((value): value is string => Boolean(value?.trim()));
-  }
-
-  private dedupeSearchItems(items: SearchItem[]): SearchItem[] {
-    const seen = new Set<string>();
-
-    return items.filter((item) => {
-      const key = `${item.href}::${item.title}`.toLowerCase();
-
-      if (seen.has(key)) {
-        return false;
-      }
-
-      seen.add(key);
-      return true;
-    });
   }
 
   private navigateToHref(href: string): void {
@@ -1677,32 +1360,6 @@ export class App {
         },
         ...(seed.extraActions ?? []),
       ],
-    };
-  }
-
-  private createMeetingItemFromEvent(
-    event: CmsCalendarEvent,
-    linkedAgendaByEventId: Record<
-      string,
-      import('./public-document-event-link').LinkedAgendaDocument
-    > = {},
-  ): MeetingItem {
-    const copy = this.appCopy();
-    const start = new Date(event.start);
-    const end = this.resolveCalendarEventEnd(event);
-    const linked = linkedAgendaByEventId[event.id];
-
-    return {
-      title: event.title,
-      schedule: this.formatCalendarEventDate(start, end),
-      format: event.description || copy.calendarEventFallbackDetail,
-      location: event.location || copy.calendarEventFallbackLocation,
-      eventId: event.id,
-      hasLinkedAgenda: Boolean(linked),
-      agendaStorageHref: linked?.storageHref,
-      agendaButtonLabel: linked
-        ? copy.meetingsAgendaLinkedButtonLabel
-        : copy.meetingsAgendaPdfButtonLabel,
     };
   }
 
