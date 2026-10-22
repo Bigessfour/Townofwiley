@@ -1,7 +1,7 @@
 import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
-import { APP_COPY } from '../app';
+import { APP_COPY } from '../app-copy';
 import { SiteLanguageService } from '../site-language';
 
 /** Raster of the one-page history flyer (reliable cross-browser display). */

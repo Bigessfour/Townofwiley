@@ -1,4 +1,4 @@
-import type { AppCopy } from './app';
+import type { AppCopy } from './app-copy';
 
 /** Stable SiteCopy keys clerks can edit on `/admin` (wired in the public app). */
 

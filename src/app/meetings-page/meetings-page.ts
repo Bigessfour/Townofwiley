@@ -22,7 +22,7 @@ import { Ripple } from 'primeng/ripple';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
-import { APP_COPY } from '../app';
+import { APP_COPY } from '../app-copy';
 import { COMMUNITY_CALENDAR_COPY } from '../community-calendar/community-calendar.copy';
 import { CommunityCalendarPanel } from '../community-calendar/community-calendar.page';
 import type { CommunityEvent } from '../community-calendar/community-calendar.types';
