@@ -1922,9 +1922,10 @@ class AIManifestGenerator:
         overall_progress.close()
         print("✨ Manifest generation complete!")
 
+        schema_base = repo_info.get("owner_repo", "Bigessfour/Townofwiley")
         return {
             "$schema": (
-                "https://raw.githubusercontent.com/Bigessfour/Wiley-Widget/main/"
+                f"https://raw.githubusercontent.com/{schema_base}/main/"
                 "schemas/ai-manifest-schema.json"
             ),
             "manifest_version": "2.1",
