@@ -13,10 +13,6 @@ from ask import handle, settings_from_env
 SETTINGS = {
     "knowledge_base_id": "kb",
     "model_id": "amazon.nova-lite-v1:0",
-    "guardrail_id": "guard",
-    "guardrail_version": "1",
-    "grounding_guardrail_id": "grounding",
-    "grounding_guardrail_version": "1",
     "min_score": 0.7,
     "max_tokens": 512,
     "allowed_origins": ["https://townofwiley.gov"],
@@ -24,16 +20,9 @@ SETTINGS = {
 
 
 class FakeClients:
-    def __init__(
-        self, *, guard_action: str = "NONE", results: list | None = None
-    ) -> None:
-        self.guard_action = guard_action
+    def __init__(self, *, results: list | None = None) -> None:
         self.results = results or []
         self.calls: list[str] = []
-
-    def apply_guardrail(self, **kwargs):
-        self.calls.append("guardrail")
-        return {"action": self.guard_action}
 
     def retrieve(self, **kwargs):
         self.calls.append("retrieve")
@@ -49,13 +38,7 @@ class FakeClients:
         instruction = content[0]["text"]
         assert "Do not invent rules" in instruction
         assert "ordinance-2024-2" in instruction
-        qualifiers = []
-        for block in content:
-            guard = block.get("guardContent")
-            if guard:
-                qualifiers.extend(guard["text"]["qualifiers"])
-        assert qualifiers == ["grounding_source", "query"]
-        assert kwargs["guardrailConfig"]["guardrailIdentifier"] == "grounding"
+        assert "guardrailConfig" not in kwargs
         assert kwargs["inferenceConfig"]["maxTokens"] == 512
         assert kwargs["inferenceConfig"]["temperature"] == 0
         return {
@@ -77,9 +60,17 @@ def event(question: str) -> dict:
 
 class AskHandlerTest(unittest.TestCase):
     def test_homework_never_reaches_converse(self) -> None:
-        clients = FakeClients(guard_action="GUARDRAIL_INTERVENED")
+        clients = FakeClients()
+        result = handle(
+            event("Write my homework about the Wiley dog license"), clients, SETTINGS
+        )
+        self.assertEqual(clients.calls, [])
+        self.assertIn("only answer questions", json.loads(result["body"])["answer"])
+
+    def test_general_knowledge_never_reaches_retrieve(self) -> None:
+        clients = FakeClients()
         result = handle(event("What is the capital of France?"), clients, SETTINGS)
-        self.assertEqual(clients.calls, ["guardrail"])
+        self.assertEqual(clients.calls, [])
         self.assertIn("only answer questions", json.loads(result["body"])["answer"])
 
     def test_no_matching_section_never_reaches_converse(self) -> None:
@@ -87,7 +78,7 @@ class AskHandlerTest(unittest.TestCase):
             results=[{"score": 0.2, "content": {"text": "unrelated"}, "metadata": {}}]
         )
         result = handle(event("Do I need a license for my dog?"), clients, SETTINGS)
-        self.assertEqual(clients.calls, ["guardrail", "retrieve"])
+        self.assertEqual(clients.calls, ["retrieve"])
         self.assertFalse(json.loads(result["body"])["matched"])
 
     def test_matching_section_cites_the_ordinance(self) -> None:
@@ -107,11 +98,11 @@ class AskHandlerTest(unittest.TestCase):
                 event("What is the rule for a dog running at large?"), clients, SETTINGS
             )["body"]
         )
-        self.assertEqual(clients.calls, ["guardrail", "retrieve", "converse"])
+        self.assertEqual(clients.calls, ["retrieve", "converse"])
         self.assertEqual(body["citations"][0]["section"], "7-6-120")
         self.assertEqual(body["citations"][0]["authority"], "ordinance-2024-2")
 
-    def test_blocked_generation_keeps_the_section(self) -> None:
+    def test_matching_section_returns_the_model_answer(self) -> None:
         clients = FakeClients(
             results=[
                 {
@@ -123,29 +114,15 @@ class AskHandlerTest(unittest.TestCase):
                 }
             ]
         )
-        clients.converse = lambda **kwargs: (
-            clients.calls.append("converse")
-            or {
-                "stopReason": "guardrail_intervened",
-                "output": {
-                    "message": {
-                        "content": [
-                            {
-                                "text": "I could not answer from the municipal code. The Town Clerk can provide the official text."
-                            }
-                        ]
-                    }
-                },
-            }
-        )
         body = json.loads(
             handle(event("Where are the zoning variance rules?"), clients, SETTINGS)[
                 "body"
             ]
         )
-        self.assertNotIn("only answer questions", body["answer"])
+        self.assertEqual(clients.calls, ["retrieve", "converse"])
+        self.assertTrue(body["matched"])
         self.assertEqual(body["citations"][0]["section"], "16-10-10")
-        self.assertFalse(body["matched"])
+        self.assertIn("7-6-120", body["answer"])
 
     def test_score_just_above_floor_reaches_converse(self) -> None:
         settings = {**SETTINGS, "min_score": 0.50}
@@ -163,7 +140,7 @@ class AskHandlerTest(unittest.TestCase):
         body = json.loads(
             handle(event("Can I build a fence?"), clients, settings)["body"]
         )
-        self.assertEqual(clients.calls, ["guardrail", "retrieve", "converse"])
+        self.assertEqual(clients.calls, ["retrieve", "converse"])
         self.assertTrue(body["matched"])
         self.assertEqual(body["citations"][0]["section"], "16-2-40")
 
@@ -183,7 +160,7 @@ class AskHandlerTest(unittest.TestCase):
         body = json.loads(
             handle(event("Can I build a fence?"), clients, settings)["body"]
         )
-        self.assertEqual(clients.calls, ["guardrail", "retrieve"])
+        self.assertEqual(clients.calls, ["retrieve"])
         self.assertFalse(body["matched"])
         self.assertIn("Town Clerk", body["answer"])
         self.assertEqual(body["citations"], [])
@@ -194,10 +171,6 @@ class AskHandlerTest(unittest.TestCase):
             {
                 "KNOWLEDGE_BASE_ID": "kb",
                 "MODEL_ID": "model",
-                "GUARDRAIL_ID": "guard",
-                "GUARDRAIL_VERSION": "1",
-                "GROUNDING_GUARDRAIL_ID": "grounding",
-                "GROUNDING_GUARDRAIL_VERSION": "1",
             },
             clear=False,
         ):
