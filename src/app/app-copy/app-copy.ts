@@ -200,6 +200,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       'One-page brief history of Wiley, Colorado, with restored historic photographs',
     historyOpenPdfLabel: 'Open printable PDF',
     historyFeatureSummary: 'A brief history of Wiley with restored photographs on a one-page PDF.',
+    ordinancesKicker: 'Municipal code',
+    ordinancesHeading: 'Municipal code assistant',
+    ordinancesFeatureSummary:
+      'Ask about adopted Wiley ordinances. The assistant stays on the municipal code and cites the section.',
     featureTitles: {
       weather: 'Local weather',
       notices: 'Town notices',
@@ -212,6 +216,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       terms: 'Weather alert SMS terms',
       businesses: 'Business directory',
       history: 'History & Stories',
+      ordinances: 'Municipal code assistant',
       news: 'Town news',
       payments: 'Utility bill payment',
       documents: 'Public documents hub',
@@ -223,6 +228,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'History & Stories', href: '/history' },
       { label: 'Contact the Town Clerk', href: '/contact' },
       { label: 'Meeting notices', href: '/meetings' },
+      { label: 'Municipal code assistant', href: '/ordinances' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
     communityFacts: [
@@ -657,6 +663,10 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     historyOpenPdfLabel: 'Abrir PDF para imprimir',
     historyFeatureSummary:
       'Una breve historia de Wiley con fotografias restauradas en un PDF de una pagina.',
+    ordinancesKicker: 'Codigo municipal',
+    ordinancesHeading: 'Asistente del codigo municipal',
+    ordinancesFeatureSummary:
+      'Pregunte sobre las ordenanzas adoptadas de Wiley. El asistente se limita al codigo municipal y cita la seccion.',
     featureTitles: {
       weather: 'Clima local',
       notices: 'Avisos del pueblo',
@@ -669,6 +679,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       terms: 'Terminos de SMS para alertas del clima',
       businesses: 'Directorio de negocios',
       history: 'Historia y Relatos',
+      ordinances: 'Asistente del codigo municipal',
       news: 'Noticias del pueblo',
       payments: 'Pago de factura de servicios',
       documents: 'Documentos publicos',
@@ -680,6 +691,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Historia y Relatos', href: '/history' },
       { label: 'Contactar a la secretaria', href: '/contact' },
       { label: 'Avisos de reuniones', href: '/meetings' },
+      { label: 'Asistente del codigo municipal', href: '/ordinances' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
     communityFacts: [

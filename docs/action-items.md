@@ -42,6 +42,12 @@
 
 ---
 
+## Ordinance assistant (layout only)
+
+- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes. Town account knowledge base `OFI1SQX6LC` ingested 712 of 715 section files with fixed 200-token chunks. The live ask API cites a dog-license section and refuses a homework question. The public site still uses the empty runtime config until PR 182 merges.
+
+---
+
 ## Key workflows
 
 - [x] Staff login UI + forgot password

@@ -170,6 +170,7 @@ export type FeaturePageId =
   | 'terms'
   | 'businesses'
   | 'history'
+  | 'ordinances'
   | 'news'
   | 'payments'
   | 'documents';
@@ -371,6 +372,9 @@ export interface AppCopy {
   historyDocumentAlt: string;
   historyOpenPdfLabel: string;
   historyFeatureSummary: string;
+  ordinancesKicker: string;
+  ordinancesHeading: string;
+  ordinancesFeatureSummary: string;
   featureTitles: FeatureTitles;
   footerLinks: NavLink[];
   communityFacts: CommunityFact[];

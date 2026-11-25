@@ -45,6 +45,16 @@
     {
       "name": "LOG_ENDPOINT",
       "runtimePath": "logging.endpoint"
+    },
+    {
+      "name": "ORDINANCE_API_ENDPOINT",
+      "runtimePath": "ordinances.apiEndpoint",
+      "notes": "Ordinance assistant POST /ask. Empty leaves the page on the local not-connected reply."
+    },
+    {
+      "name": "ORDINANCE_API_KEY",
+      "runtimePath": "ordinances.apiKey",
+      "notes": "API Gateway usage-plan token. Public in runtime-config.js. Throttle only, not an AWS credential."
     }
   ],
   "decommissionedJune2026": [

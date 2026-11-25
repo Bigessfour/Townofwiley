@@ -1,0 +1,98 @@
+.ordinances-scope {
+  display: block;
+  margin-bottom: var(--space-md);
+}
+
+.ordinances-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 0.9fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.ordinances-chat,
+.ordinances-aside,
+.ordinances-messages,
+.ordinances-composer,
+.ordinances-field,
+.ordinances-prompts {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.ordinances-thread {
+  border: 1px solid color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.ordinance-message {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.ordinance-message--assistant {
+  background: color-mix(in srgb, var(--wiley-forest-900) 6%, var(--surface-card));
+}
+
+.ordinance-message--user {
+  background: color-mix(in srgb, var(--wiley-forest-900) 14%, var(--surface-card));
+}
+
+.ordinance-message__role {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wiley-forest-900);
+}
+
+.ordinance-message__body,
+.ordinances-helper,
+.ordinances-sample-note,
+.ordinances-clerk {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ordinances-field span {
+  font-weight: 600;
+}
+
+.ordinances-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.ordinances-prompts {
+  justify-items: stretch;
+}
+
+:host ::ng-deep .ordinance-prompt.p-button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+:host ::ng-deep .ordinance-prompt .p-button-label {
+  white-space: normal;
+  text-align: left;
+}
+
+.ordinances-citations {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.ordinances-clerk a {
+  font-weight: 700;
+}
+
+@media (max-width: 800px) {
+  .ordinances-layout {
+    grid-template-columns: 1fr;
+  }
+}
