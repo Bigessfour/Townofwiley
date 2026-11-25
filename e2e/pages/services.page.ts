@@ -9,6 +9,6 @@ export class ServicesPage extends PublicRoutePage {
   constructor(page: Page) {
     super(page, '/services');
     this.residentServices = page.locator('#resident-services');
-    this.paymentPanel = page.locator('#payment-help');
+    this.paymentPanel = page.getByTestId('resident-service-payment');
   }
 }

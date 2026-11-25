@@ -23,8 +23,10 @@ test.describe('public language coverage', () => {
     await expect(homePage.weatherSignupShell).toContainText('Alertas para residentes');
     await expect(homePage.weatherSignupShell).toContainText('Idioma de la alerta');
 
-    await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.locator('#payment-help')).toBeVisible({ timeout: 20_000 });
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.getByRole('link', { name: /Pagar recibo/i })).toBeVisible({
+      timeout: 20_000,
+    });
 
     await homePage.page.goto('/pay-bill', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByTestId('pay-instructions-infographic')).toHaveAttribute(

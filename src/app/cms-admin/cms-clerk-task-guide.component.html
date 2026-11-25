@@ -8,13 +8,13 @@
     <p class="cms-task-guide__purpose">{{ active.shortDescription }}</p>
 
     @if (showStaffSignInNote()) {
-      <p class="cms-task-guide__note" role="note">
+      <p-message severity="warn" class="cms-task-guide__note">
         <a href="/admin/login">Sign in to Town admin</a> before submitting the form below.
-      </p>
+      </p-message>
     } @else if (isSignedIn()) {
-      <p class="cms-task-guide__note cms-task-guide__note--ok" role="status">
+      <p-message severity="success" class="cms-task-guide__note">
         Signed in — you can save changes below.
-      </p>
+      </p-message>
     }
 
     @if (taskId(); as id) {
@@ -41,7 +41,8 @@
             pButton
             severity="primary"
             class="cms-task-guide__documents-link"
-            href="#documents"
+            routerLink="/admin"
+            fragment="documents"
             data-testid="cms-task-open-documents"
           >
             Open upload form
@@ -54,7 +55,7 @@
       }
     }
 
-    <details class="cms-task-guide__help" [open]="helpExpanded()">
+    <details class="cms-task-guide__help" [attr.open]="helpExpanded() ? '' : null">
       <summary>Step-by-step help and field names</summary>
       <ol class="cms-task-guide__steps">
         @for (step of active.steps; track step) {

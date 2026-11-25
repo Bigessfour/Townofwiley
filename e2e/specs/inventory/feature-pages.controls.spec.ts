@@ -4,17 +4,17 @@ import { test } from '../../fixtures/town-pages.fixture';
 import { inventoryStep } from '../../support/inventory-step';
 
 test.describe('services page inventory controls', () => {
-  test('[services.payment-panel-toggle] payment help panel toggles on', async ({
+  test('[services.payment-panel-toggle] pay bill card opens the pay bill page', async ({
     homePage,
     servicesPage,
   }) => {
     await servicesPage.goto();
 
-    await inventoryStep('Select payment resident service panel', async () => {
+    await inventoryStep('Open pay bill from resident services', async () => {
       await homePage.selectResidentServicePanel('payment');
     });
 
-    await expect(servicesPage.paymentPanel).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/);
   });
 
   test('[services.issue-report-panel] issue report panel toggles on', async ({

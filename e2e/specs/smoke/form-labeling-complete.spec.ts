@@ -3,7 +3,7 @@ import { expect, test } from '../../fixtures/town.fixture';
 const formRoutes = [
   { path: '/', label: 'homepage search' },
   { path: '/weather', label: 'weather signup' },
-  { path: '/services#payment-help', label: 'payment help' },
+  { path: '/pay-bill', label: 'pay bill' },
   { path: '/services#issue-report', label: 'issue report' },
   { path: '/contact', label: 'contact clerk assistance' },
   { path: '/accessibility', label: 'accessibility report' },

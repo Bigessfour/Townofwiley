@@ -1,9 +1,12 @@
+@use './cms-admin-theme' as cms;
+
 .cms-sitecopy-mock {
   margin: 0 0 1rem;
   padding: 1rem;
   border-radius: 0.75rem;
-  border: 1px dashed var(--wiley-cream-100, #e8e0d4);
-  background: color-mix(in srgb, var(--wiley-cream-50, #faf8f5) 90%, #fff);
+  border: 1px dashed color-mix(in srgb, var(--wiley-ink-900) 22%, transparent);
+  background: color-mix(in srgb, var(--wiley-cream-50) 90%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
 }
 
 .cms-sitecopy-mock__title {
@@ -15,7 +18,7 @@
   margin: 0 0 0.75rem;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-sitecopy-mock__where {
@@ -26,8 +29,7 @@
 .cms-sitecopy-mock__town-hall {
   padding: 0.85rem 1rem;
   border-radius: 0.65rem;
-  background: #fff;
-  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+  @include cms.card;
 }
 
 .cms-sitecopy-mock__town-hall-title {
@@ -49,6 +51,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  @include cms.kicker;
 }
 
 .cms-sitecopy-mock__heading {

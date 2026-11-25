@@ -16,6 +16,7 @@ export interface WeatherPanelCopy {
   selector: 'app-resident-weather-panel',
   imports: [ButtonModule, CardModule, Ripple, RouterLink],
   templateUrl: './weather-panel.html',
+  styleUrl: '../resident-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResidentWeatherPanel {

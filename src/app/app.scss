@@ -184,7 +184,7 @@
   margin-top: var(--space-md);
   border-radius: var(--radius-xl);
   background: linear-gradient(135deg, var(--alert-banner-start), var(--alert-banner-end));
-  color: var(--surface-inverse-strong);
+  color: var(--wiley-inverse);
   box-shadow: var(--shadow-strong);
   overflow-x: clip;
   overflow-y: visible;
@@ -226,7 +226,7 @@
 }
 
 .site-alert-footer {
-  border-top: 1px solid color-mix(in srgb, var(--surface-inverse) 20%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--wiley-inverse) 20%, transparent);
 }
 
 .site-alert-label,
@@ -241,7 +241,7 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--surface-inverse-muted);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
   max-width: 100%;
   overflow-wrap: anywhere;
 }
@@ -251,7 +251,7 @@
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--surface-inverse-muted);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
   max-width: 100%;
   overflow-wrap: anywhere;
 }
@@ -261,7 +261,7 @@
   font-size: clamp(1.2rem, 2.6vw, 1.75rem);
   line-height: 1.3;
   font-weight: 700;
-  color: var(--surface-inverse);
+  color: var(--wiley-inverse);
   overflow-wrap: anywhere;
   word-break: break-word;
   text-wrap: balance;
@@ -271,7 +271,7 @@
 .site-alert-detail {
   max-width: 100%;
   line-height: 1.65;
-  color: var(--surface-inverse-muted);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
   overflow-wrap: anywhere;
   word-break: break-word;
   text-wrap: pretty;
@@ -288,17 +288,6 @@
   .site-alert-label {
     letter-spacing: 0.07em;
   }
-}
-
-/* PrimeNG Card header/footer: allow long NWS strings to shrink-wrap inside flex layouts */
-:host ::ng-deep .site-alert.p-card .p-card-header,
-:host ::ng-deep .site-alert.p-card .p-card-footer {
-  width: 100%;
-  min-width: 0;
-}
-
-:host ::ng-deep .site-alert.p-card .p-card-body {
-  min-width: 0;
 }
 
 .site-header {
@@ -401,6 +390,12 @@
   background: var(--wiley-header-control-bg);
   border: 1px solid var(--wiley-header-control-border);
   color: var(--wiley-header-control-text);
+  --p-inputtext-background: transparent;
+  --p-inputtext-color: var(--wiley-header-control-text);
+  --p-inputtext-placeholder-color: var(--wiley-header-control-muted);
+  --p-inputtext-border-color: transparent;
+  --p-inputtext-hover-border-color: transparent;
+  --p-inputtext-focus-border-color: transparent;
 }
 
 .header-search-row:focus-within {
@@ -433,9 +428,13 @@
   max-height: min(24rem, 70vh);
   overflow: auto;
   padding: var(--space-sm);
-  border: 1px solid var(--wiley-cream-100, #e8e4d9);
-  border-radius: var(--radius-lg, 0.75rem);
-  background: var(--wiley-cream-0, #fff);
+  border: 1px solid var(--wiley-cream-100);
+  border-radius: var(--radius-lg);
+  background: var(--wiley-cream-0);
+  color: var(--wiley-ink-900);
+}
+
+.search-result {
   color: var(--wiley-ink-900);
 }
 
@@ -448,12 +447,12 @@
 .search-suggestion {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: var(--touch-target-min);
   padding: 0.4rem 0.9rem;
-  border: 1px solid var(--wiley-teal-600, #0f6b6b);
-  border-radius: var(--radius-full, 999px);
-  background: var(--wiley-cream-0, #fff);
-  color: var(--wiley-navy-900, #1f2a2e);
+  border: 1px solid var(--wiley-forest-600);
+  border-radius: var(--radius-full);
+  background: var(--wiley-surface-card);
+  color: var(--wiley-ink-900);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -461,7 +460,7 @@
 
 .search-suggestion:hover,
 .search-suggestion:focus-visible {
-  background: color-mix(in srgb, var(--wiley-teal-600, #0f6b6b) 12%, #fff);
+  background: color-mix(in srgb, var(--wiley-forest-600) 12%, var(--wiley-surface-card));
 }
 
 .header-right,
@@ -770,6 +769,7 @@
   padding: 2px;
   min-height: var(--header-touch);
   align-items: center;
+  box-shadow: var(--shadow-subtle);
 }
 
 .language-toggle-btn {
@@ -943,14 +943,14 @@ p-tag.section-kicker-tag,
   margin: 0 auto;
   max-width: var(--content-max-width, 72rem);
   padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--surface-200, #e2e8f0);
-  background: color-mix(in srgb, var(--alert-banner-start, #fff7ed) 72%, white);
+  border-bottom: 1px solid var(--wiley-cream-100);
+  background: color-mix(in srgb, var(--wiley-alert-warn-bg) 72%, var(--wiley-surface-card));
 }
 
 .cms-load-status__message {
   flex: 1 1 16rem;
   margin: 0;
-  color: var(--ink-800);
+  color: var(--wiley-ink-900);
   font-size: var(--font-size-body-sm, 0.9375rem);
   line-height: var(--line-height-normal, 1.5);
 }
@@ -1044,7 +1044,7 @@ h6 {
   display: grid;
   gap: 0.6rem;
   padding: var(--space-md) 0;
-  border-top: 1px solid rgba(13, 44, 84, 0.14);
+  border-top: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
 }
 
 .search-results--loading > .search-result-skeleton:first-child {
@@ -1072,7 +1072,7 @@ h6 {
 .empty-state {
   margin: 0;
   padding: var(--space-sm) 0 0;
-  border-top: 1px solid rgba(13, 44, 84, 0.14);
+  border-top: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
 }
 
 .notice-grid {
@@ -1087,10 +1087,11 @@ h6 {
   gap: var(--space-sm);
   min-height: 100%;
   padding: var(--space-md);
-  border: 1px solid var(--surface-border);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
+  background: var(--wiley-surface-card);
   box-shadow: var(--shadow-subtle);
+  color: var(--wiley-ink-900);
   scroll-margin-top: var(--sticky-stack-offset);
 }
 
@@ -1108,27 +1109,28 @@ h6 {
   width: fit-content;
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-full);
-  background: rgba(13, 44, 84, 0.06);
+  background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--wiley-surface-card));
+  color: var(--wiley-ink-700);
 }
 
 .notice-card-title {
   margin: 0;
   font-size: var(--font-size-h3);
   font-weight: 700;
-  color: var(--ink-900);
+  color: var(--wiley-ink-900);
   line-height: var(--line-height-title);
 }
 
 .notice-card-detail {
   margin: 0;
   line-height: var(--line-height-body);
-  color: var(--ink-700);
+  color: var(--wiley-ink-700);
 }
 
 .notice-card-cta {
   margin: 0;
   font-weight: 600;
-  color: var(--wiley-teal-700);
+  color: var(--wiley-color-link);
 }
 
 .stack-list {
@@ -1193,7 +1195,6 @@ h6 {
   color: var(--ink-600);
 }
 
-.notice-card,
 .meeting-card,
 .accessibility-row {
   background: transparent;
@@ -1655,8 +1656,8 @@ h6 {
   margin: 0;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
-  background: rgba(212, 161, 75, 0.12);
-  color: var(--ink-900);
+  background: color-mix(in srgb, var(--wiley-gold-400) 18%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
   font-weight: 600;
 }
 
@@ -1883,6 +1884,7 @@ h6 {
 :host ::ng-deep .p-button,
 :host ::ng-deep .p-datatable,
 :host ::ng-deep .p-datatable-wrapper,
+:host ::ng-deep .p-datatable-table-container,
 :host ::ng-deep .p-tabs,
 :host ::ng-deep .p-tabpanels,
 :host ::ng-deep .p-tabpanel,
@@ -2332,11 +2334,13 @@ button:not(:disabled):active,
     min-width: 0;
   }
 
-  // FullCalendar and PrimeNG table must not push the layout wider
-  .fc,
-  .fc-view,
-  .fc-view-harness,
-  .p-datatable-wrapper {
+  // FullCalendar and PrimeNG table must not push the layout wider.
+  // ::ng-deep is required so these reach routed page components.
+  :host ::ng-deep .fc,
+  :host ::ng-deep .fc-view,
+  :host ::ng-deep .fc-view-harness,
+  :host ::ng-deep .p-datatable-wrapper,
+  :host ::ng-deep .p-datatable-table-container {
     overflow-x: auto;
     min-width: 0;
     max-width: 100%;
@@ -2454,9 +2458,9 @@ button:not(:disabled):active,
   inset: 0;
   background: linear-gradient(
     105deg,
-    rgba(6, 31, 24, 0.72) 0%,
-    rgba(15, 61, 46, 0.38) 42%,
-    rgba(0, 0, 0, 0.12) 100%
+    color-mix(in srgb, var(--wiley-forest-950) 78%, transparent) 0%,
+    color-mix(in srgb, var(--wiley-forest-900) 42%, transparent) 42%,
+    color-mix(in srgb, var(--wiley-forest-950) 12%, transparent) 100%
   );
   z-index: 1;
 }
@@ -2488,10 +2492,14 @@ button:not(:disabled):active,
   gap: 0.8rem;
   max-width: 42rem;
   padding: clamp(1.25rem, 2.8vw, 2rem);
-  border: 1px solid color-mix(in srgb, var(--surface-inverse) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-inverse) 16%, transparent);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(10, 20, 35, 0.58), rgba(10, 20, 35, 0.42));
-  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.26);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wiley-forest-950) 58%, transparent),
+    color-mix(in srgb, var(--wiley-forest-950) 42%, transparent)
+  );
+  box-shadow: 0 28px 64px color-mix(in srgb, var(--wiley-forest-950) 26%, transparent);
   backdrop-filter: blur(14px);
 }
 
@@ -2532,20 +2540,22 @@ button:not(:disabled):active,
 
 .hero-landing-actions .hero-landing-cta {
   min-width: 13rem;
+  min-height: var(--touch-target-min);
   flex: 1 1 auto;
 }
 
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary {
-  background: var(--wiley-gold-500, #c4923a);
-  border-color: var(--wiley-gold-500, #c4923a);
-  color: var(--wiley-forest-950, #161514);
+/* Anchor buttons inherit the hero's white text. Re-apply the Aura preset so the gold label stays dark in both themes. */
+.hero-landing-actions a.hero-landing-cta.p-button-primary {
+  background: var(--p-button-primary-background);
+  border-color: var(--p-button-primary-border-color);
+  color: var(--p-button-primary-color);
 }
 
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
-  background: #b8860b;
-  border-color: #b8860b;
-  color: var(--wiley-forest-950, #161514);
+.hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
+.hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
+  background: var(--p-button-primary-hover-background);
+  border-color: var(--p-button-primary-hover-border-color);
+  color: var(--p-button-primary-color);
 }
 
 .hero-landing-actions .hero-landing-cta.p-button-outlined.p-button-contrast {
@@ -2558,8 +2568,8 @@ button:not(:disabled):active,
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.018em;
-  color: #fff;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.72);
+  color: var(--wiley-inverse);
+  text-shadow: 0 4px 18px color-mix(in srgb, var(--wiley-forest-950) 72%, transparent);
   text-wrap: balance;
   text-rendering: optimizeLegibility;
   margin: 0;
@@ -2634,10 +2644,6 @@ button:not(:disabled):active,
     padding-inline: var(--space-sm);
   }
 
-  :host ::ng-deep .p-megamenu.mega-menu-civic {
-    display: none !important;
-  }
-
   .mobile-menu-bar {
     display: flex;
     justify-content: flex-start;
@@ -2658,7 +2664,7 @@ button:not(:disabled):active,
     color: var(--wiley-header-control-text);
     font-size: var(--header-control-size);
     font-weight: 800;
-    box-shadow: 0 8px 24px rgba(17, 36, 61, 0.08);
+    box-shadow: var(--shadow-subtle);
   }
 
   .mobile-menu-button i {
@@ -2734,14 +2740,6 @@ button:not(:disabled):active,
     display: block !important;
     width: 100%;
   }
-}
-
-:host ::ng-deep .mobile-menu-drawer {
-  z-index: 1500;
-}
-
-:host ::ng-deep .mobile-menu-drawer .p-drawer-content {
-  padding: 1.25rem;
 }
 
 .mobile-menu-drawer-content {
@@ -2827,272 +2825,6 @@ button:not(:disabled):active,
   }
 }
 
-:host ::ng-deep .p-megamenu.mega-menu-civic {
-  border: none;
-  box-shadow: none;
-  overflow: visible;
-  position: relative;
-  z-index: 1200;
-  width: 100%;
-  margin-bottom: var(--space-sm);
-  background: transparent;
-  color: var(--wiley-header-nav-text);
-
-  /*
-   * Root bar sits on forest-900 with white labels. PrimeNG MegaMenu item tokens default to
-   * light surface.50/100 focus/active backgrounds (Aura navigation.item.*) which wash out
-   * white text. Scope dark-header-compatible --p-megamenu-item-* vars to the root list only;
-   * the overlay panel restores dark ink + soft forest hover below.
-   * @see https://primeng.org/megamenu (design tokens: item.focus.background / item.active.background)
-   */
-  .p-megamenu-root-list {
-    --p-megamenu-item-color: var(--wiley-header-nav-text);
-    --p-megamenu-item-focus-color: var(--wiley-header-nav-text-hover);
-    --p-megamenu-item-active-color: var(--wiley-header-nav-text-hover);
-    --p-megamenu-item-focus-background: var(--wiley-header-nav-hover-bg);
-    --p-megamenu-item-active-background: var(--wiley-header-nav-active-bg);
-    --p-megamenu-item-icon-color: var(--wiley-header-nav-text);
-    --p-megamenu-item-icon-focus-color: var(--wiley-header-nav-text-hover);
-    --p-megamenu-item-icon-active-color: var(--wiley-header-nav-text-hover);
-  }
-
-  /* End-slot chrome (search / pay / EN–ES) must stay under the flyout. PrimeNG
-   * overlays default to z-index 1; .site-language-switcher is z-index 2. */
-  .p-megamenu-end {
-    position: relative;
-    z-index: 0;
-  }
-
-  .p-megamenu-overlay,
-  .p-megamenu-panel {
-    z-index: 20;
-    --p-megamenu-item-color: var(--wiley-ink-900);
-    --p-megamenu-item-focus-color: var(--wiley-ink-900);
-    --p-megamenu-item-active-color: var(--wiley-ink-900);
-    --p-megamenu-item-focus-background: color-mix(
-      in srgb,
-      var(--wiley-ink-900) 8%,
-      var(--surface-card)
-    );
-    --p-megamenu-item-active-background: color-mix(
-      in srgb,
-      var(--wiley-ink-900) 12%,
-      var(--surface-card)
-    );
-    --p-megamenu-item-icon-color: var(--wiley-ink-700);
-    --p-megamenu-item-icon-focus-color: var(--wiley-ink-900);
-    --p-megamenu-item-icon-active-color: var(--wiley-ink-900);
-  }
-
-  .p-menuitem-link {
-    display: flex;
-    align-items: center;
-    min-height: var(--header-touch);
-    padding: 0.7rem 1rem;
-    border-radius: 9999px;
-    margin: 0 4px;
-    font-size: max(var(--mega-menu-copy-min), var(--header-mega-size));
-    font-weight: 700;
-    line-height: 1.35;
-    color: var(--wiley-header-nav-text);
-  }
-
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--wiley-header-nav-text);
-  }
-
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link,
-  .p-megamenu-root-list .mega-menu-root-link,
-  .p-megamenu-root-list .mega-menu-root-link span,
-  .p-megamenu-root-list .p-menuitem-link span,
-  .p-megamenu-root-list .p-menuitem-link .p-megamenu-item-label {
-    color: var(--wiley-header-nav-text);
-  }
-
-  .p-megamenu-root-list .p-menuitem-link i,
-  .p-megamenu-root-list .mega-menu-root-link i {
-    color: var(--wiley-header-nav-text);
-    opacity: 0.92;
-  }
-
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:hover,
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:focus-visible,
-  .p-megamenu-root-list > .p-megamenu-item.p-focus > .p-menuitem-link,
-  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link {
-    color: var(--wiley-header-nav-text-hover);
-    background: var(--wiley-header-nav-hover-bg);
-  }
-
-  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link,
-  .p-megamenu-root-list > .p-megamenu-item.p-megamenu-item-active > .p-menuitem-link:hover {
-    background: var(--wiley-header-nav-active-bg);
-  }
-
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:hover .mega-menu-root-link,
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:hover .mega-menu-root-link span,
-  .p-megamenu-root-list > .p-megamenu-item > .p-menuitem-link:focus-visible .mega-menu-root-link,
-  .p-megamenu-root-list
-    > .p-megamenu-item
-    > .p-menuitem-link:focus-visible
-    .mega-menu-root-link
-    span,
-  .p-megamenu-root-list
-    > .p-megamenu-item.p-megamenu-item-active
-    > .p-menuitem-link
-    .mega-menu-root-link,
-  .p-megamenu-root-list
-    > .p-megamenu-item.p-megamenu-item-active
-    > .p-menuitem-link
-    .mega-menu-root-link
-    span {
-    color: var(--wiley-header-nav-text-hover);
-  }
-
-  .mega-menu-root-link,
-  .mega-menu-sub-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--header-touch);
-    min-width: var(--touch-target-min);
-    padding: 0.55rem 0.85rem;
-    box-sizing: border-box;
-    font-size: max(var(--mega-menu-copy-min), var(--header-mega-size));
-    line-height: 1.35;
-    text-decoration: none;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  /* Clearer button boundaries for sub menu items in panels (hover defines the full clickable area distinctly) */
-  .p-megamenu-panel .mega-menu-sub-link {
-    border-radius: var(--radius-sm);
-    border: 1px solid transparent;
-    color: var(--wiley-ink-900);
-    transition:
-      background-color 140ms ease,
-      border-color 140ms ease,
-      box-shadow 140ms ease,
-      color 140ms ease;
-  }
-
-  .p-megamenu-panel .mega-menu-sub-link:hover,
-  .p-megamenu-panel .mega-menu-sub-link:focus-visible {
-    color: var(--wiley-ink-900);
-    background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
-    box-shadow: var(--shadow-subtle);
-  }
-
-  /* Root flyout triggers use <button> (not <a href="#">) for correct semantics. */
-  button.mega-menu-root-link {
-    appearance: none;
-    margin: 0;
-    border: none;
-    background: transparent;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-    text-align: inherit;
-    width: auto;
-  }
-
-  /* PrimeNG can reset outline; reinforce keyboard focus for root + flyout links */
-  .p-menuitem-link:focus-visible,
-  button.mega-menu-root-link:focus-visible,
-  a.mega-menu-root-link:focus-visible,
-  a.mega-menu-sub-link:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring);
-    outline-offset: 3px;
-    box-shadow:
-      0 0 0 0.15rem color-mix(in srgb, var(--surface-card) 88%, transparent),
-      0 0 0 0.45rem var(--focus-ring-glow);
-  }
-
-  .p-megamenu-panel .mega-menu-sub-link {
-    font-size: max(var(--mega-menu-copy-min), calc(var(--header-mega-size) * 0.98));
-  }
-
-  .p-megamenu-submenu-label:not(:empty) {
-    font-size: max(12px, 0.8125rem);
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    line-height: 1.35;
-    color: var(--ink-700);
-  }
-
-  .p-megamenu-item > .p-menuitem-link {
-    margin: 2px 4px;
-  }
-
-  .p-megamenu-panel {
-    border-radius: 24px;
-    box-shadow: 0 20px 42px rgba(17, 36, 61, 0.12);
-    background: var(--wiley-surface-card);
-    border: 1px solid var(--surface-border);
-    color: var(--wiley-ink-900);
-  }
-
-  /* Synthetic column groups use `{ items: [...] }` without a label; hide empty presentation rows. */
-  .p-megamenu-submenu-label:empty {
-    display: none;
-  }
-}
-
-@media (min-width: 641px) {
-  :host ::ng-deep .p-megamenu.mega-menu-civic {
-    .p-megamenu-root-list {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 0.25rem;
-    }
-
-    .p-megamenu-panel {
-      width: min(72rem, calc(100vw - 2rem));
-      left: 50% !important;
-      transform: translateX(-50%);
-    }
-
-    .p-megamenu-grid {
-      gap: 1.25rem 1.5rem;
-      padding: 0.25rem 0.5rem;
-    }
-
-    .p-megamenu-submenu {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      padding: 0;
-      min-width: 0;
-    }
-
-    .p-megamenu-submenu > li {
-      min-width: 0;
-    }
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1100px) {
-  :host ::ng-deep .p-megamenu.mega-menu-civic {
-    .mega-menu-root-link,
-    .mega-menu-sub-link {
-      min-height: var(--header-touch);
-      min-width: var(--touch-target-min);
-      padding: 0.65rem 1rem;
-      font-size: max(var(--mega-menu-copy-min), calc(var(--header-mega-size) * 0.97));
-      box-sizing: border-box;
-    }
-
-    .p-megamenu-panel .mega-menu-sub-link {
-      font-size: max(var(--mega-menu-copy-min), calc(var(--header-mega-size) * 0.96));
-    }
-  }
-}
-
 .header-end-controls {
   display: flex;
   flex-wrap: nowrap;
@@ -3117,32 +2849,6 @@ button:not(:disabled):active,
   min-width: 16rem;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-}
-
-:host ::ng-deep .p-megamenu.mega-menu-civic .p-inputgroup-addon {
-  background: transparent;
-  border: none;
-  color: var(--wiley-header-text-muted);
-}
-
-:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li > .p-menuitem-link {
-  padding: 0.75rem 1.25rem;
-  margin: 0 0.25rem;
-  border-radius: 9999px;
-  background: transparent;
-  color: var(--wiley-header-nav-text);
-}
-
-:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li > .p-menuitem-link:hover,
-:host ::ng-deep .p-megamenu.mega-menu-civic .p-megamenu-root-list > li.p-focus > .p-menuitem-link,
-:host
-  ::ng-deep
-  .p-megamenu.mega-menu-civic
-  .p-megamenu-root-list
-  > li.p-megamenu-item-active
-  > .p-menuitem-link {
-  color: var(--wiley-header-nav-text-hover);
-  background: var(--wiley-header-nav-hover-bg);
 }
 
 .floating-chat-button {

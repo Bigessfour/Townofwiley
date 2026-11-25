@@ -6,6 +6,7 @@
   >
     <span class="meetings-source-filter__label">{{ communityCopy().sourceFilterLabel }}</span>
     <p-selectbutton
+      styleClass="meetings-source-select"
       [options]="sourceFilterOptions()"
       optionLabel="label"
       optionValue="value"
@@ -27,7 +28,7 @@
       @if (cmsLoading()) {
         <div class="meetings-table-skeleton" aria-live="polite" aria-busy="true">
           @for (_ of [0, 1, 2, 3, 4]; track $index) {
-            <p-skeleton height="3.25rem" width="100%" borderRadius="12px" class="mb-2" />
+            <p-skeleton height="3.25rem" width="100%" borderRadius="12px" styleClass="meetings-skeleton mb-2" />
           }
         </div>
       } @else if (meetings().length === 0) {
@@ -54,6 +55,7 @@
               @if (next.eventId || next.agendaPdfHref) {
                 <p-button
                   styleClass="meetings-agenda-btn"
+                  severity="secondary"
                   [outlined]="true"
                   icon="pi pi-file-pdf"
                   [label]="next.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
@@ -69,10 +71,14 @@
           </article>
         }
         @if (laterMeetings().length) {
+          <div
+            class="meetings-table-scroll"
+            tabindex="0"
+            [attr.aria-label]="copy().meetingsTableAriaLabel"
+          >
           <p-table
             class="meetings-table"
             [value]="laterMeetings()"
-            [tableStyle]="{ 'min-width': '52rem' }"
             [attr.aria-label]="copy().meetingsTableAriaLabel"
           >
           <ng-template #header>
@@ -112,6 +118,7 @@
                   @if (meeting.eventId || meeting.agendaPdfHref) {
                     <p-button
                       styleClass="meetings-agenda-btn"
+                      severity="secondary"
                       [outlined]="true"
                       icon="pi pi-file-pdf"
                       [label]="meeting.agendaButtonLabel ?? copy().meetingsAgendaPdfButtonLabel"
@@ -128,6 +135,7 @@
             </tr>
           </ng-template>
           </p-table>
+          </div>
         }
       }
     </p-card>
@@ -157,9 +165,9 @@
     </ng-template>
     @if (cmsLoading() && showOfficial()) {
       <div class="calendar-panel-skeleton" aria-live="polite" aria-busy="true">
-        <p-skeleton width="100%" height="18rem" borderRadius="16px" class="mb-4" />
+        <p-skeleton width="100%" height="18rem" borderRadius="16px" styleClass="meetings-skeleton mb-4" />
         @for (_ of [0, 1, 2]; track $index) {
-          <p-skeleton height="5.5rem" width="100%" borderRadius="14px" class="mb-3" />
+          <p-skeleton height="5.5rem" width="100%" borderRadius="14px" styleClass="meetings-skeleton mb-3" />
         }
       </div>
     } @else {
@@ -188,6 +196,7 @@
                 </span>
               </div>
               <p-button
+                severity="secondary"
                 [outlined]="true"
                 [label]="communityCopy().calendarSelectionClose"
                 (onClick)="clearCalendarSelection()"
@@ -213,61 +222,23 @@
                     @if (action.isAgendaAction) {
                       <p-button
                         styleClass="meetings-agenda-btn calendar-agenda-btn"
+                        severity="secondary"
                         [outlined]="true"
                         icon="pi pi-file-pdf"
                         [label]="action.label"
                         (onClick)="openCalendarAgenda(item)"
                       />
-                    } @else if (action.href.startsWith('tel:')) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-text calendar-inline-action"
-                        [attr.href]="action.href"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.href.startsWith('mailto:')) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-text calendar-inline-action"
-                        [attr.href]="action.href"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.downloadFileName) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
-                        [attr.href]="action.href"
-                        [attr.download]="action.downloadFileName"
-                      >
-                        {{ action.label }}
-                      </a>
-                    } @else if (action.external) {
-                      <a
-                        pButton
-                        pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
-                        [attr.href]="action.href"
-                        target="_blank"
-                        rel="noreferrer noopener"
-                      >
-                        {{ action.label }}
-                      </a>
                     } @else {
                       <a
                         pButton
                         pRipple
-                        type="button"
-                        class="p-button-outlined calendar-inline-action"
+                        severity="secondary"
+                        [outlined]="true"
+                        class="calendar-inline-action"
                         [attr.href]="action.href"
+                        [attr.download]="action.downloadFileName || null"
+                        [attr.target]="action.external ? '_blank' : null"
+                        [attr.rel]="action.external ? 'noreferrer noopener' : null"
                       >
                         {{ action.label }}
                       </a>

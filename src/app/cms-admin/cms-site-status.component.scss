@@ -1,3 +1,5 @@
+@use './cms-admin-theme' as cms;
+
 .cms-site-status__banner {
   display: block;
   width: 100%;
@@ -12,6 +14,6 @@
 }
 
 .cms-site-status__meta {
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
   font-size: 0.9rem;
 }

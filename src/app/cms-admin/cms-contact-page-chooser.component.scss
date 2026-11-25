@@ -1,3 +1,5 @@
+@use './cms-admin-theme' as cms;
+
 .cms-contact-chooser__lead,
 .cms-contact-chooser__preview,
 .cms-contact-chooser__section-help {
@@ -10,21 +12,24 @@
   font-size: 0.95rem;
 }
 
-.cms-contact-chooser__back {
-  margin: 0 0 0.85rem;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--wiley-blue-700, #1d4ed8);
-  font: inherit;
+.cms-contact-chooser__preview a {
+  display: inline-flex;
+  align-items: center;
   font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
+  @include cms.link;
+  @include cms.touch-target;
 }
 
-.cms-contact-chooser__back:focus-visible {
-  outline: 2px solid var(--wiley-blue-700, #1d4ed8);
-  outline-offset: 2px;
+.cms-contact-chooser__preview a:hover {
+  @include cms.link-hover;
+}
+
+.cms-contact-chooser__preview a:focus-visible {
+  @include cms.focus-ring;
+}
+
+.cms-contact-chooser__back {
+  margin: 0 0 0.85rem;
 }
 
 .cms-contact-chooser__list {
@@ -39,20 +44,22 @@
   display: grid;
   gap: 0.35rem;
   width: 100%;
+  min-height: var(--touch-target-min);
   text-align: left;
   padding: 0.95rem 1.05rem;
   border-radius: var(--radius-lg, 0.75rem);
-  border: 1px solid var(--wiley-cream-100, #e8e0d4);
-  background: var(--wiley-inverse, #fff);
   cursor: pointer;
   font: inherit;
+  @include cms.card;
 }
 
-.cms-contact-chooser__card:hover,
+.cms-contact-chooser__card:hover {
+  border-color: var(--wiley-color-link);
+}
+
 .cms-contact-chooser__card:focus-visible {
-  border-color: var(--wiley-blue-700, #1d4ed8);
-  outline: 2px solid var(--wiley-blue-700, #1d4ed8);
-  outline-offset: 1px;
+  border-color: var(--wiley-color-link);
+  @include cms.focus-ring;
 }
 
 .cms-contact-chooser__card-title {
@@ -61,6 +68,6 @@
 }
 
 .cms-contact-chooser__card-body {
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
   line-height: 1.45;
 }

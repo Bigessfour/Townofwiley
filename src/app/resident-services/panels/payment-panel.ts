@@ -17,6 +17,7 @@ export interface PaymentPanelCopy {
   selector: 'app-resident-payment-panel',
   imports: [ButtonModule, RouterLink],
   templateUrl: './payment-panel.html',
+  styleUrl: '../resident-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResidentPaymentPanel {

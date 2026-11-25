@@ -36,7 +36,11 @@ test.describe('homepage responsive coverage', () => {
     await expect(homePage.weatherSignupSubmitButton).toBeVisible();
 
     await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.locator('#payment-help [data-testid="resident-pay-bill-link"]')).toBeVisible();
+    await expect(homePage.page.getByTestId('resident-service-payment')).toBeVisible();
+    await expect(homePage.page.getByTestId('resident-service-payment')).toHaveAttribute(
+      'href',
+      /\/pay-bill/,
+    );
 
     await homePage.page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await expect(homePage.page.getByTestId('contact-town-hall')).toBeVisible();

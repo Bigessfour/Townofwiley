@@ -1,11 +1,21 @@
+/* Paystar styling boundary
+   The checkout is Paystar's hosted page, opened in a new tab by resolveQuickPayHref().
+   There is no iframe and no Paystar DOM to theme.
+   The step graphics are raster files (/pay-bill-instructions-en.jpg and
+   /pay-bill-instructions-es-v2.jpg). Their colors are baked in. Dark mode can
+   only theme the card around them.
+   Do not restyle a future Paystar embed with ::ng-deep. Any widget stylesheet
+   stays Paystar's until they expose theme tokens. */
+
 :host {
   display: block;
-  background: var(--wiley-cream-50);
+  background: var(--wiley-surface-page);
+  color: var(--wiley-ink-900);
 }
 
 .pay-bill {
   color: var(--wiley-ink-900);
-  padding-bottom: 3rem;
+  padding-bottom: var(--space-xl);
 }
 
 .pay-bill-hero {
@@ -26,8 +36,8 @@
 .pay-bill-kicker {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: var(--space-xs);
+  font-size: var(--font-size-small);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 0.9;
@@ -35,9 +45,9 @@
 }
 
 .pay-bill-hero h1 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(1.75rem, 4vw, 2.35rem);
-  line-height: 1.15;
+  line-height: var(--line-height-tight);
   margin: 0 0 0.75rem;
 }
 
@@ -54,7 +64,7 @@
   margin: clamp(1.25rem, 3vw, 2rem) auto 0;
   padding: 0 1.25rem;
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-md);
 }
 
 .pay-bill-main {
@@ -68,42 +78,52 @@
   justify-items: center;
   text-align: center;
   padding: clamp(1.25rem, 4vw, 2rem);
-  border-radius: 1rem;
-  border: 1px solid color-mix(in srgb, var(--wiley-teal-600) 28%, transparent);
-  background: color-mix(in srgb, var(--wiley-cream-0) 92%, var(--wiley-teal-600) 8%);
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.06),
-    0 12px 28px rgb(15 23 42 / 0.1);
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+  background: var(--wiley-surface-card);
+  box-shadow: var(--shadow-medium);
+  color: var(--wiley-ink-900);
 }
 
 .pay-bill-cta-cue {
   margin: -0.35rem 0 0;
-  color: var(--wiley-teal-700);
+  color: var(--wiley-color-accent);
   font-size: 1.1rem;
   line-height: 1;
 }
 
 .pay-bill-cta-heading {
   margin: 0;
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(1.35rem, 3vw, 1.65rem);
-  line-height: 1.2;
+  line-height: var(--line-height-heading);
   font-weight: 700;
-  color: var(--wiley-navy-900);
+  color: var(--wiley-ink-900);
 }
 
 .pay-bill-cta-lead {
   margin: 0;
   max-width: 28rem;
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.5;
-  color: color-mix(in srgb, var(--wiley-navy-900) 78%, #64748b);
+  color: var(--wiley-ink-700);
 }
 
-:host ::ng-deep .pay-bill-cta-message.p-message {
+.pay-bill-cta-message {
   width: 100%;
   max-width: 32rem;
-  justify-content: center;
+  justify-self: center;
+  text-align: center;
+}
+
+/* Aura's info blue is under 4.5:1 on the dark zinc surface. */
+:host-context(html.wiley-dark) .pay-bill-cta-message {
+  --p-message-info-color: var(--wiley-color-link);
+  --p-message-info-background: var(--wiley-alert-info-bg);
+  --p-message-info-border-color: var(--wiley-alert-info-border);
+  --p-message-warn-color: var(--wiley-ink-900);
+  --p-message-warn-background: var(--wiley-alert-warn-bg);
+  --p-message-warn-border-color: var(--wiley-alert-warn-border);
 }
 
 .pay-bill-cta-actions {
@@ -115,63 +135,87 @@
   margin-top: 0.25rem;
 }
 
-:host ::ng-deep .pay-bill-cta-primary.p-button {
-  min-width: 12rem;
-  width: min(100%, 20rem);
-  justify-content: center;
-  font-size: 1.05rem;
-  padding: 0.75rem 1.5rem;
+/* Global `a { color: inherit }` is unlayered, so it beats PrimeNG's layered
+   button color. Restate the severity tokens or the gold CTA label follows
+   page ink and turns white on gold in the dark theme. */
+.pay-bill-cta-actions :is(a, button) {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  color: var(--p-button-primary-color);
+  --p-button-focus-ring-width: var(--focus-ring-width);
+  --p-button-focus-ring-offset: var(--focus-ring-offset-focus);
+  --p-button-primary-focus-ring-color: var(--focus-ring);
+  --p-button-secondary-focus-ring-color: var(--focus-ring);
+  --p-button-primary-focus-ring-shadow: none;
+  --p-button-secondary-focus-ring-shadow: none;
 }
 
-:host ::ng-deep .pay-bill-card.p-card {
-  border-radius: 1rem;
-  border: 1px solid color-mix(in srgb, var(--wiley-navy-900) 12%, transparent);
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.06),
-    0 12px 28px rgb(15 23 42 / 0.08);
+.pay-bill-cta-actions :is(a, button):hover {
+  color: var(--p-button-primary-hover-color);
 }
 
-:host ::ng-deep .pay-bill-card--help.p-card {
-  background: color-mix(in srgb, var(--wiley-teal-600) 6%, #fff);
-  border-color: color-mix(in srgb, var(--wiley-teal-600) 22%, transparent);
+.pay-bill-cta-actions :is(a, button).p-button-outlined.p-button-secondary {
+  color: var(--p-button-outlined-secondary-color);
+}
+
+.pay-bill-cta-actions :is(a, button).p-button-outlined.p-button-secondary:hover {
+  color: var(--p-button-outlined-secondary-color);
+}
+
+.pay-bill-card {
+  --p-card-background: var(--wiley-surface-card);
+  --p-card-color: var(--wiley-ink-900);
+  --p-card-border-radius: var(--radius-lg);
+  --p-card-shadow: var(--shadow-medium);
+  background: var(--p-card-background);
+  color: var(--p-card-color);
+  border-radius: var(--p-card-border-radius);
+  box-shadow: var(--p-card-shadow);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
 }
 
 .pay-bill-card-head {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-xs);
   font-weight: 600;
   font-size: 1.05rem;
+  color: var(--wiley-ink-900);
 }
 
 .pay-bill-help-list {
   list-style: none;
   padding: 0;
-  margin: 1rem 0 0;
+  margin: var(--space-sm) 0 0;
   display: grid;
   gap: 0.65rem;
+  color: var(--wiley-ink-900);
 }
 
 .pay-bill-help-list li {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem 0.5rem;
+  gap: 0.35rem var(--space-xs);
 }
 
 .pay-bill-help-list a {
-  color: var(--wiley-teal-700);
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  color: var(--wiley-color-link);
   font-weight: 600;
+  text-decoration: none;
 }
 
+.pay-bill-help-list a:hover {
+  color: var(--wiley-color-link-hover);
+}
+
+.pay-bill-cta-actions :is(a, button):focus-visible,
 .pay-bill-help-list a:focus-visible {
-  outline: 2px solid var(--wiley-teal-600);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-:host ::ng-deep .pay-bill .p-button:focus-visible {
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 4px var(--wiley-teal-600);
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset-focus);
 }

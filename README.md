@@ -4,13 +4,13 @@
 
 The official, bilingual (English/Spanish) website for the Town of Wiley, Colorado — built and operated as a modern, low-cost, serverless municipal platform.
 
-| Area             | Stack                                                                                                    |
-| ---------------- | -------------------------------------------------------------------------------------------------------- |
-| Frontend         | Angular 22 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens                         |
-| Hosting          | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing)    |
-| Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                |
-| Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                         |
-| Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility         |
+| Area             | Stack                                                                                                                                                                                                                                                                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend         | Angular 22 (standalone components, signals, OnPush), PrimeNG, SCSS design tokens                                                                                                                                                                                                                                                                    |
+| Hosting          | AWS S3 + CloudFront (OIDC-authenticated GitHub Actions deploys, CloudFront Functions for SPA routing)                                                                                                                                                                                                                                               |
+| Content (CMS)    | AWS AppSync (GraphQL) + DynamoDB; in-app clerk editor at `/admin` with Cognito staff auth                                                                                                                                                                                                                                                           |
+| Backend services | AWS Lambda (weather proxy, payments proxy, contact updates, email alias routing)                                                                                                                                                                                                                                                                    |
+| Quality          | Vitest unit tests, Playwright e2e (smoke + regression), Trunk lint/format, WCAG AA accessibility                                                                                                                                                                                                                                                    |
 | CI/CD            | GitHub Actions Site CI + auto-deploy on green `main` → S3 + CloudFront ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)); **Terraform** IaC ([infrastructure/terraform/](infrastructure/terraform/)); Ansible **removed** ([docs/DEPLOYMENT_SSOT.md](docs/DEPLOYMENT_SSOT.md)); ops ([docs/ops-observability.md](docs/ops-observability.md)) |
 
 Key design goals: **non-technical clerks manage all content in-app** (no AWS console required), offline-first content caching for residents, and free-tier-friendly AWS architecture.
@@ -371,6 +371,12 @@ Current implementation status:
 - The public payment card still supports billing-help email as the fallback path.
 - Hosted Paystar portal links via `resolveQuickPayHref()` on `/pay-bill` and `/services` (see `src/app/payments/paystar-quick-pay.ts`).
 - CTAs are disabled when `PAYSTAR_PORTAL_URL` is empty; no in-browser API or proxy path.
+
+Styling boundary:
+
+- The checkout is Paystar's hosted page, opened in a new tab by `resolveQuickPayHref()`. There is no iframe and no Paystar DOM for the site theme to reach.
+- The step graphics are raster files (`/pay-bill-instructions-en.jpg`, `/pay-bill-instructions-es-v2.jpg`). Their colors are baked in. Dark mode themes the card around them only.
+- Do not restyle a future Paystar embed with `::ng-deep`. Any widget stylesheet stays Paystar's until they expose theme tokens.
 
 Traceability:
 

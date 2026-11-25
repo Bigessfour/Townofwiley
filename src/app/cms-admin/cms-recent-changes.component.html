@@ -10,33 +10,30 @@
         Who changed website content and when (usually within a minute of saving).
       </p>
     </div>
-    <button
-      pButton
+    <p-button
       type="button"
-      class="p-button-outlined p-button-sm"
+      severity="secondary"
+      [outlined]="true"
       icon="pi pi-refresh"
+      label="Refresh list"
       [loading]="refreshLoading()"
       [disabled]="loading() || refreshLoading()"
       data-testid="cms-recent-changes-refresh"
-      (click)="refresh()"
-    >
-      Refresh list
-    </button>
+      (onClick)="refresh()"
+    />
   </div>
 
   @if (loading()) {
-    <p class="cms-recent-changes__status" role="status">Loading recent changes…</p>
+    <p-message severity="info" class="cms-recent-changes__status">Loading recent changes…</p-message>
   } @else if (auditUnavailable()) {
-    <p class="cms-recent-changes__status" role="status">
-      Sign in at /admin/login to see change history. If you are signed in and this stays empty, try
-      Refresh list.
-    </p>
+    <p-message severity="warn" class="cms-recent-changes__status">
+      Sign in at <a href="/admin/login">/admin/login</a> to see change history. If you are signed in
+      and this stays empty, try Refresh list.
+    </p-message>
   } @else if (error(); as message) {
-    <p class="cms-recent-changes__status cms-recent-changes__status--error" role="alert">
-      {{ message }}
-    </p>
+    <p-message severity="error" class="cms-recent-changes__status">{{ message }}</p-message>
   } @else if (entries().length === 0) {
-    <p class="cms-recent-changes__status">No changes recorded yet.</p>
+    <p-message severity="info" class="cms-recent-changes__status">No changes recorded yet.</p-message>
   } @else {
     <ul class="cms-recent-changes__list">
       @for (entry of entries(); track entry.timestamp + (entry.recordId ?? '')) {

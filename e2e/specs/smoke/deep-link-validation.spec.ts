@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/town.fixture';
 
 const deepLinkTargets = [
   { path: '/#top-tasks', selector: '#top-tasks', label: 'homepage top tasks' },
-  { path: '/services#payment-help', selector: '#payment-help', label: 'payment help' },
+  { path: '/services#payment-help', selector: '[data-testid="pay-bill-cta-band"]', label: 'pay bill' },
   { path: '/services#issue-report', selector: '#issue-report', label: 'issue report' },
   {
     path: '/contact',

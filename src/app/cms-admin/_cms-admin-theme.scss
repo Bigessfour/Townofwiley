@@ -1,0 +1,98 @@
+/* Shared CMS admin surfaces. Colors come from public tokens that flip on html.wiley-dark. */
+
+@mixin page {
+  background:
+    radial-gradient(circle at top left, var(--page-glow-warm), transparent 28%),
+    radial-gradient(circle at 85% 12%, var(--page-glow-cool), transparent 22%),
+    linear-gradient(
+      180deg,
+      var(--wiley-surface-page) 0%,
+      color-mix(in srgb, var(--wiley-surface-page) 88%, var(--wiley-cream-100)) 100%
+    );
+  color: var(--wiley-ink-900);
+}
+
+@mixin card {
+  background: var(--wiley-surface-card);
+  color: var(--wiley-ink-900);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+}
+
+@mixin muted-fill {
+  background: var(--wiley-surface-card-muted);
+  color: var(--wiley-ink-900);
+}
+
+@mixin ink {
+  color: var(--wiley-ink-900);
+}
+
+@mixin muted {
+  color: var(--wiley-ink-700);
+}
+
+@mixin kicker {
+  color: var(--wiley-gold-600);
+}
+
+@mixin link {
+  color: var(--wiley-color-link);
+}
+
+@mixin link-hover {
+  color: var(--wiley-color-link-hover);
+}
+
+@mixin hairline {
+  border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+}
+
+@mixin field {
+  background: var(--p-form-field-background);
+  color: var(--p-form-field-color);
+  border: 1px solid var(--p-form-field-border-color);
+  min-height: var(--touch-target-min);
+}
+
+@mixin focus-ring {
+  /* Keep this as one unparsed value. Sass splits var() shorthands and drops the color. */
+  outline: #{"var(--focus-ring-width) solid var(--focus-ring)"};
+  outline-offset: var(--focus-ring-offset-focus);
+}
+
+@mixin touch-target {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+@mixin status-neutral {
+  background: var(--wiley-surface-card-muted);
+  color: var(--wiley-ink-900);
+}
+
+@mixin status-ok {
+  background: var(--p-message-success-background);
+  color: var(--p-message-success-color);
+}
+
+@mixin status-error {
+  background: var(--p-message-error-background);
+  color: var(--p-message-error-color);
+}
+
+@mixin status-ok-text {
+  color: var(--p-message-success-color);
+}
+
+@mixin status-error-text {
+  color: var(--p-message-error-color);
+}
+
+@mixin shadow-subtle {
+  box-shadow: var(--shadow-subtle);
+}
+
+@mixin shadow-medium {
+  box-shadow: var(--shadow-medium);
+}

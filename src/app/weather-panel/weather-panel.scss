@@ -119,7 +119,7 @@
       transparent 24%
     );
   color: var(--surface-inverse);
-  box-shadow: 0 22px 50px rgba(17, 36, 61, 0.16);
+  box-shadow: var(--shadow-strong);
 }
 
 .weather-current-card :where(.p-card-content) {
@@ -368,7 +368,7 @@
 
 .weather-signup-link:hover,
 .weather-signup-link:focus-visible {
-  color: color-mix(in srgb, var(--brand-primary) 80%, black);
+  color: var(--wiley-color-link-hover);
 }
 
 .weather-signup-status {
@@ -387,36 +387,8 @@
   color: var(--p-red-800);
 }
 
-/* Contrast fix: filled success CTA needs light label text.
-   `.weather-action` sets `color: var(--civic-blue)` (dark) which disappears on this fill. */
-.weather-signup-submit.weather-action,
-.weather-signup-submit.p-button,
-.weather-signup-submit.weather-action.p-button,
-.weather-signup-submit .p-button {
-  background: color-mix(in srgb, var(--success-text) 92%, black);
-  border-color: color-mix(in srgb, var(--success-text) 92%, black);
-  color: var(--p-primary-contrast-color, #ffffff);
-}
-
-.weather-signup-submit .p-button-label,
-.weather-signup-submit.p-button .p-button-label,
-.weather-signup-submit.weather-action .p-button-label {
-  color: inherit;
-}
-
-.weather-signup-submit.weather-action:hover,
-.weather-signup-submit.p-button:hover,
-.weather-signup-submit.weather-action.p-button:hover,
-.weather-signup-submit .p-button:hover {
-  background: color-mix(in srgb, var(--success-text) 80%, black);
-  border-color: color-mix(in srgb, var(--success-text) 80%, black);
-  color: var(--p-primary-contrast-color, #ffffff);
-}
-
-.weather-signup-submit.weather-action:disabled,
-.weather-signup-submit.p-button:disabled,
-.weather-signup-submit.weather-action.p-button:disabled {
-  color: var(--p-primary-contrast-color, #ffffff);
+.weather-signup-submit.p-button {
+  min-height: var(--touch-target-min);
 }
 
 .weather-alert-meta {
@@ -439,11 +411,8 @@
 
 .weather-action,
 .weather-action.is-link {
-  min-height: 2.75rem;
+  min-height: var(--touch-target-min);
   padding: 0.8rem 1rem;
-  border: 1px solid var(--surface-border);
-  background: var(--surface-overlay);
-  color: var(--civic-blue);
   font: inherit;
   appearance: none;
   cursor: pointer;
@@ -453,6 +422,13 @@
     box-shadow 160ms ease,
     border-color 160ms ease,
     background-color 160ms ease;
+}
+
+.weather-action:not(.p-button),
+.weather-action.is-link {
+  border: 1px solid var(--surface-border);
+  background: var(--surface-overlay);
+  color: var(--wiley-color-link);
 }
 
 .weather-action {
@@ -500,24 +476,10 @@
 .weather-outage-callout__text {
   max-width: 52rem;
 }
-:host ::ng-deep .weather-no-alerts .p-message.p-message-success {
-  background: var(--success-surface);
-  border: 1px solid color-mix(in srgb, #111111 14%, transparent);
-  color: var(--p-message-success-color) !important;
-  --p-message-success-color: #111111;
-  --p-message-success-border-color: color-mix(in srgb, #111111 14%, transparent);
-}
-
-:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-text {
-  font-weight: 700;
-}
-
-:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-icon {
-  color: var(--p-message-success-color) !important;
-}
-
-:host ::ng-deep .weather-no-alerts .p-message.p-message-success .p-message-detail {
-  color: var(--p-message-success-color) !important;
+.weather-no-alerts {
+  --p-message-success-color: var(--wiley-ink-900);
+  --p-message-success-border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+  --p-message-success-background: color-mix(in srgb, var(--wiley-ink-900) 6%, var(--wiley-surface-card));
 }
 
 .weather-action:focus-visible,
@@ -588,7 +550,7 @@
 
 .weather-atglance {
   padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(0 0 0 / 0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--wiley-ink-900) 12%, transparent);
 }
 
 .atglance-card {
@@ -596,34 +558,34 @@
   flex-direction: column;
   gap: 0.2rem;
   padding: 0.55rem 0.85rem;
-  background: rgba(255 255 255 / 0.75);
-  border: 1px solid rgba(0 0 0 / 0.08);
+  background: color-mix(in srgb, var(--wiley-surface-card) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 12%, transparent);
   border-radius: 0.6rem;
   min-width: 6rem;
   text-align: center;
 
   strong {
     font-size: 1.05rem;
-    color: var(--ink-900, #111);
+    color: var(--ink-900);
   }
 }
 
 .atglance-unit {
   font-size: 0.7rem;
-  color: var(--ink-700, #45566e);
+  color: var(--ink-700);
 }
 
 .atglance-card--unavailable {
-  background: rgba(19, 59, 99, 0.04);
+  background: color-mix(in srgb, var(--wiley-forest-900) 4%, transparent);
   border-style: dashed;
-  border-color: rgba(19, 59, 99, 0.22);
+  border-color: color-mix(in srgb, var(--wiley-forest-900) 22%, transparent);
   min-width: 9rem;
 }
 
 .atglance-unavailable {
   font-size: 0.78rem;
   line-height: 1.35;
-  color: var(--ink-800, #2d3f57);
+  color: var(--ink-800);
 }
 
 .weather-hourly-unavailable {
@@ -656,7 +618,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--ink-800, #2d3f57);
+  color: var(--ink-800);
   cursor: help;
   flex-shrink: 0;
 }
@@ -696,7 +658,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0 0 0 / 0.18);
+    background: color-mix(in srgb, var(--wiley-ink-900) 18%, transparent);
     border-radius: 99px;
   }
 }
@@ -707,8 +669,8 @@
   align-items: center;
   gap: 0.2rem;
   padding: 0.6rem 0.75rem;
-  background: rgba(255 255 255 / 0.78);
-  border: 1px solid rgba(0 0 0 / 0.08);
+  background: color-mix(in srgb, var(--wiley-surface-card) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 12%, transparent);
   border-radius: 0.6rem;
   min-width: 3.75rem;
   flex-shrink: 0;
@@ -716,14 +678,14 @@
   text-align: center;
 
   &.is-night {
-    background: rgba(20 30 60 / 0.08);
-    border-color: rgba(20 30 60 / 0.14);
+    background: color-mix(in srgb, var(--wiley-forest-950) 8%, var(--wiley-surface-card));
+    border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
   }
 }
 
 .hourly-time {
   font-size: 0.72rem;
-  color: var(--ink-700, #45566e);
+  color: var(--ink-700);
   font-weight: 600;
 }
 
@@ -733,7 +695,7 @@
 
 .hourly-precip {
   font-size: 0.7rem;
-  color: var(--ink-700, #45566e);
+  color: var(--ink-700);
 }
 
 .weather-current-updated {
@@ -784,7 +746,7 @@
 }
 
 .weather-radar-note {
-  color: var(--ink-700, #45566e);
+  color: var(--ink-700);
   font-size: 0.78rem;
 }
 
@@ -810,7 +772,7 @@
 
 .weather-radar-toggle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(17, 36, 61, 0.12);
+  box-shadow: var(--shadow-medium);
 }
 
 .weather-radar-toggle:focus-visible {
@@ -823,13 +785,13 @@
   width: 100%;
   max-width: 100%;
   border: none;
-  border-top: 1px solid rgba(0 0 0 / 0.08);
+  border-top: 1px solid color-mix(in srgb, var(--wiley-ink-900) 12%, transparent);
 }
 
 .weather-radar-fallback {
   margin: 0;
   padding: 0.75rem 0.5rem;
-  color: var(--ink-800, #334155);
+  color: var(--ink-800);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -845,13 +807,14 @@
 }
 
 .weather-action--secondary {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-inverse) 18%, transparent);
 }
 
 .weather-compact {
   display: grid;
   gap: var(--space-sm, 0.75rem);
+  color: var(--wiley-ink-900);
 }
 
 .weather-compact__row {
@@ -883,11 +846,13 @@
   margin: 0;
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full, 999px);
-  background: color-mix(in srgb, var(--wiley-gold-400, #c9a227) 18%, #fff);
+  background: color-mix(in srgb, var(--wiley-gold-400) 18%, var(--wiley-surface-card));
   font-weight: 700;
   font-size: 0.875rem;
 }
 
-.weather-compact__link {
+a.weather-compact__link {
   justify-self: start;
+  min-height: var(--touch-target-min);
+  color: var(--wiley-color-link);
 }

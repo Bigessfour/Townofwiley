@@ -133,13 +133,13 @@ export class HomePage {
     this.residentServicePicker = page.locator('.resident-service-picker');
     this.residentServiceToggles = page.locator('.resident-picker-wrap');
     const residentServicesRoot = page.locator('#resident-services');
-    this.residentServicePaymentToggle = residentServicesRoot.getByRole('button', {
+    this.residentServicePaymentToggle = residentServicesRoot.getByRole('link', {
       name: /Pay bill, Utilities/i,
     });
-    this.residentServiceIssueToggle = residentServicesRoot.getByRole('button', {
+    this.residentServiceIssueToggle = residentServicesRoot.getByRole('link', {
       name: /Report an issue, Public works/i,
     });
-    this.residentServiceWeatherToggle = residentServicesRoot.getByRole('button', {
+    this.residentServiceWeatherToggle = residentServicesRoot.getByRole('link', {
       name: /Weather alerts, Safety/i,
     });
     this.residentServicePaymentPanel = page.locator('#payment-help');

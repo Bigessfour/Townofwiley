@@ -1,9 +1,12 @@
+@use './cms-admin-theme' as cms;
+
 .cms-upload-panel {
   margin: 1rem 0;
   padding: 1rem;
   border-radius: var(--radius-lg, 0.75rem);
-  border: 1px dashed var(--wiley-cream-100, #e8e0d4);
-  background: var(--wiley-inverse, #fff);
+  border: 1px dashed color-mix(in srgb, var(--wiley-ink-900) 22%, transparent);
+  background: var(--wiley-surface-card);
+  color: var(--wiley-ink-900);
 }
 
 .cms-upload-panel__title {
@@ -14,7 +17,7 @@
 .cms-upload-panel__lead {
   margin: 0 0 0.75rem;
   font-size: 0.9375rem;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-upload-panel__banner {
@@ -23,17 +26,25 @@
 }
 
 .cms-upload-panel__file {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   margin-bottom: 0.75rem;
   font-weight: 600;
   cursor: pointer;
+  @include cms.link;
+  @include cms.touch-target;
+}
+
+.cms-upload-panel__file:focus-within {
+  @include cms.focus-ring;
 }
 
 .cms-upload-panel__value code {
   display: block;
   word-break: break-all;
   padding: 0.5rem;
-  background: var(--wiley-cream-50, #faf8f5);
+  background: var(--wiley-surface-card-muted);
+  color: var(--wiley-ink-900);
   border-radius: var(--radius-md, 0.5rem);
 }
 
@@ -45,7 +56,22 @@
 }
 
 .cms-upload-panel__signin {
+  display: block;
   margin: 0.75rem 0 0;
-  font-size: 0.875rem;
-  color: var(--text-muted, #64748b);
+}
+
+.cms-upload-panel__signin a {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  @include cms.link;
+  @include cms.touch-target;
+}
+
+.cms-upload-panel__signin a:hover {
+  @include cms.link-hover;
+}
+
+.cms-upload-panel__signin a:focus-visible {
+  @include cms.focus-ring;
 }

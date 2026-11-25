@@ -1,3 +1,5 @@
+@use './cms-admin-theme' as cms;
+
 :host {
   display: block;
 }
@@ -18,7 +20,7 @@
 
 .cms-community-calendar-admin__meta {
   font-size: 0.85rem;
-  opacity: 0.8;
+  @include cms.muted;
 }
 
 .cms-community-calendar-admin__form {

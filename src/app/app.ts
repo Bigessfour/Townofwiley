@@ -156,7 +156,7 @@ export class App {
    */
   protected readonly desktopMegaMenuPt = {
     panel: {
-      class: 'p-6 shadow-xl border border-surface-200 rounded-3xl bg-surface-0',
+      class: 'p-6 rounded-3xl',
     },
     submenu: { class: 'mega-menu-submenu' },
     submenuLabel: { class: 'mega-menu-column-label' },

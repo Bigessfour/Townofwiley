@@ -246,63 +246,69 @@ export const WILEY_THEME_PRESET = definePreset(Aura, {
       root: {
         background: 'transparent',
         borderColor: 'transparent',
-        color: '#ffffff',
+        color: 'var(--wiley-header-nav-text)',
         gap: '0.5rem',
       },
       overlay: {
         borderRadius: '1.25rem',
-        shadow: '0 18px 40px rgba(42, 41, 39, 0.14)',
+        background: 'var(--wiley-surface-card)',
+        borderColor: 'var(--wiley-cream-100)',
+        color: 'var(--wiley-ink-900)',
+        shadow: 'var(--shadow-floating)',
       },
       colorScheme: {
         light: {
           overlay: {
-            background: '#ffffff',
-            borderColor: '{surface.200}',
-            color: '{surface.800}',
+            background: 'var(--wiley-surface-card)',
+            borderColor: 'var(--wiley-cream-100)',
+            color: 'var(--wiley-ink-900)',
           },
           item: {
-            color: '{surface.800}',
-            focusColor: '{surface.900}',
-            activeColor: '{surface.900}',
-            focusBackground: 'color-mix(in srgb, #2a2927 8%, #ffffff)',
-            activeBackground: 'color-mix(in srgb, #2a2927 12%, #ffffff)',
+            color: 'var(--wiley-ink-900)',
+            focusColor: 'var(--wiley-ink-900)',
+            activeColor: 'var(--wiley-ink-900)',
+            focusBackground:
+              'color-mix(in srgb, var(--wiley-ink-900) 8%, var(--wiley-surface-card))',
+            activeBackground:
+              'color-mix(in srgb, var(--wiley-ink-900) 12%, var(--wiley-surface-card))',
             icon: {
-              color: '{surface.700}',
-              focusColor: '{surface.900}',
-              activeColor: '{surface.900}',
+              color: 'var(--wiley-ink-700)',
+              focusColor: 'var(--wiley-ink-900)',
+              activeColor: 'var(--wiley-ink-900)',
             },
           },
           submenuLabel: {
-            color: '{primary.700}',
+            color: 'var(--wiley-color-link)',
           },
         },
         dark: {
           overlay: {
-            background: '#18181b',
-            borderColor: '#3f3f46',
-            color: '#fafafa',
-            shadow: '0 18px 40px rgba(0, 0, 0, 0.35)',
+            background: 'var(--wiley-surface-card)',
+            borderColor: 'var(--wiley-cream-100)',
+            color: 'var(--wiley-ink-900)',
+            shadow: 'var(--shadow-floating)',
           },
           item: {
-            color: '#fafafa',
-            focusColor: '#ffffff',
-            activeColor: '#ffffff',
-            focusBackground: 'color-mix(in srgb, #2ab5d7 16%, #18181b)',
-            activeBackground: 'color-mix(in srgb, #2ab5d7 22%, #18181b)',
+            color: 'var(--wiley-ink-900)',
+            focusColor: 'var(--wiley-ink-900)',
+            activeColor: 'var(--wiley-ink-900)',
+            focusBackground:
+              'color-mix(in srgb, var(--wiley-ink-900) 8%, var(--wiley-surface-card))',
+            activeBackground:
+              'color-mix(in srgb, var(--wiley-ink-900) 12%, var(--wiley-surface-card))',
             icon: {
-              color: '#2ab5d7',
-              focusColor: '#ffffff',
-              activeColor: '#ffffff',
+              color: 'var(--wiley-ink-700)',
+              focusColor: 'var(--wiley-ink-900)',
+              activeColor: 'var(--wiley-ink-900)',
             },
           },
           submenuLabel: {
-            color: '#2ab5d7',
+            color: 'var(--wiley-color-link)',
           },
         },
       },
-      // Scheme colors live under colorScheme so the overlay is not a light panel in dark mode.
-      // Root bar overrides --p-megamenu-item-* under .p-megamenu-root-list in app.scss
-      // so white labels are never paired with a surface wash on the dark header.
+      // Item tokens paint the overlay. The root bar redefines --p-megamenu-item-* on
+      // .p-megamenu-root-list in styles.scss so header labels stay light in both themes.
       item: {
         borderRadius: '0.5rem',
       },

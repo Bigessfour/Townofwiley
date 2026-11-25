@@ -12,6 +12,7 @@ import { providePrimeNG } from 'primeng/config';
 import { APP_COPY } from './app-copy';
 import { App } from './app';
 import { routes } from './app.routes';
+import { IT_ADMIN_COPY } from './cms-admin/cms-admin-it-copy';
 import { buildAppSyncQueriesConsoleUrl } from './clerk-setup/appsync-console-url';
 import { flushBuildCmsSnapshotNotFound, flushCmsSnapshotAndWait } from './cms-test-support';
 import { nwsApiHttpInterceptor, nwsApiRetryInterceptor } from './nws-api-http.interceptor';
@@ -540,11 +541,12 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const payBillLink = compiled.querySelector(
-      '#payment-help [data-testid="resident-pay-bill-link"]',
+      '[data-testid="resident-service-payment"]',
     ) as HTMLAnchorElement | null;
 
     expect(payBillLink).not.toBeNull();
     expect(payBillLink?.getAttribute('href') ?? '').toContain('/pay-bill');
+    expect(compiled.querySelector('#payment-help')).toBeNull();
   });
 
   it('should use the configured weather proxy when available', async () => {
@@ -897,6 +899,34 @@ describe('App', () => {
     expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // Gen 1 AppSync Queries (IT Advanced)
     expect(compiled.textContent).toContain('Technical details');
     expect(compiled.textContent).toContain('Setup values (IT)');
+    expect(compiled.textContent).toContain('You do not need this section for day-to-day edits.');
+    expect(compiled.textContent).not.toContain(IT_ADMIN_COPY.connectionBody);
+    expect(compiled.textContent).not.toContain(IT_ADMIN_COPY.refreshFromDatabaseHelp);
+
+    const advanced = compiled.querySelector<HTMLDetailsElement>('#advanced');
+    expect(advanced?.open).toBe(false);
+    expect(
+      compiled.querySelector('[data-testid="cms-connection-help"]')?.getAttribute('aria-label'),
+    ).toBe(IT_ADMIN_COPY.connectionBody);
+    expect(
+      compiled.querySelector('[data-testid="cms-clear-cache-help"]')?.getAttribute('aria-label'),
+    ).toBe(IT_ADMIN_COPY.clearWebsiteCacheHelp);
+    expect(
+      compiled.querySelector('[data-testid="cms-refresh-help"]')?.getAttribute('aria-label'),
+    ).toBe(IT_ADMIN_COPY.refreshFromDatabaseHelp);
+
+    const awsLink = compiled.querySelector('[data-testid="cms-aws-console"]');
+    expect(awsLink?.getAttribute('href')).toBe('https://us-east-2.console.aws.amazon.com/');
+    expect(awsLink?.getAttribute('target')).toBe('_blank');
+    expect(awsLink?.getAttribute('rel')).toContain('noopener');
+    expect(compiled.textContent).toContain('Test connection');
+    expect(compiled.textContent).toContain('Clear saved website copy');
+    expect(compiled.textContent).toContain('Refresh from database');
+
+    const editorLink = compiled.querySelector('[data-testid="cms-snapshot-open-editor"]');
+    expect(editorLink?.getAttribute('href')).toBe(appSyncQueriesUrl);
+    expect(editorLink?.getAttribute('target')).toBe('_blank');
+    expect(advanced?.querySelectorAll('.cms-copy-button').length).toBe(5);
   });
 
   it('should redirect the clerk setup document fragment to the admin document tab', async () => {
@@ -932,9 +962,15 @@ describe('App', () => {
     await settleAdminRoute(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.cms-jump-nav a[href="#documents"]')?.getAttribute('href')).toBe(
-      '#documents',
+    expect(compiled.querySelector('.cms-jump-nav a[href="/admin#documents"]')?.getAttribute('href')).toBe(
+      '/admin#documents',
     );
+    expect(compiled.querySelector('.cms-jump-nav a[href="/admin#start"]')?.getAttribute('href')).toBe(
+      '/admin#start',
+    );
+    expect(compiled.querySelector('#start')).not.toBeNull();
+    expect(compiled.querySelector('#documents')).not.toBeNull();
+    expect(compiled.querySelector('a[href*="townofwiley.gov"]')).not.toBeNull();
   });
 
   it('should redirect /documents to the meetings archive', async () => {

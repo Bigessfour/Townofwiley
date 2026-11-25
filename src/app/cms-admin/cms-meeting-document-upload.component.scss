@@ -1,9 +1,10 @@
+@use './cms-admin-theme' as cms;
+
 .cms-meeting-upload {
   margin-block: 1.5rem;
   padding: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--primary-color, #0f172a) 18%, transparent);
   border-radius: var(--border-radius, 0.75rem);
-  background: color-mix(in srgb, var(--surface-card, #fff) 92%, var(--primary-color, #0f172a));
+  @include cms.card;
 }
 
 .cms-meeting-upload__title {
@@ -17,6 +18,22 @@
 .cms-meeting-upload__signin {
   margin: 0 0 1rem;
   line-height: 1.5;
+}
+
+.cms-meeting-upload__signin a {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  @include cms.link;
+  @include cms.touch-target;
+}
+
+.cms-meeting-upload__signin a:hover {
+  @include cms.link-hover;
+}
+
+.cms-meeting-upload__signin a:focus-visible {
+  @include cms.focus-ring;
 }
 
 .cms-meeting-upload__field {
@@ -33,21 +50,32 @@
   width: 100%;
   max-width: 36rem;
   padding: 0.65rem 0.75rem;
-  border: 1px solid var(--surface-border, #cbd5e1);
   border-radius: var(--border-radius, 0.5rem);
-  background: var(--surface-card, #fff);
+  @include cms.field;
+}
+
+.cms-meeting-upload__select:focus-visible {
+  @include cms.focus-ring;
 }
 
 .cms-meeting-upload__file {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
   padding: 0.65rem 1rem;
   border-radius: var(--border-radius, 0.5rem);
-  background: var(--primary-color, #0f172a);
-  color: #fff;
+  border: 1px solid var(--p-button-primary-border-color);
+  background: var(--p-button-primary-background);
+  color: var(--p-button-primary-color);
+  font-weight: 700;
   cursor: pointer;
+  @include cms.touch-target;
+}
+
+.cms-meeting-upload__file:focus-within {
+  @include cms.focus-ring;
 }
 
 .cms-meeting-upload__file input {
@@ -62,8 +90,7 @@
   margin: 0 0 1rem;
   padding: 1rem;
   border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--primary-color, #17344d) 16%, transparent);
-  background: #fff;
+  @include cms.card;
 }
 
 .cms-meeting-upload__preview-title {

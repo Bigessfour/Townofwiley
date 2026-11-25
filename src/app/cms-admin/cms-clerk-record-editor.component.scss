@@ -1,3 +1,5 @@
+@use './cms-admin-theme' as cms;
+
 .cms-record-editor__title {
   margin: 0 0 0.5rem;
   font-size: 1rem;
@@ -6,7 +8,7 @@
 .cms-record-editor__purpose {
   margin: 0 0 0.65rem;
   line-height: 1.45;
-  color: var(--text-muted, #475569);
+  @include cms.muted;
   font-size: 0.95rem;
 }
 
@@ -19,8 +21,9 @@
   margin: 0 0 1.25rem;
   padding: 1rem 1.1rem;
   border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--wiley-primary, #17344d) 18%, transparent);
-  background: color-mix(in srgb, var(--wiley-cream-50, #faf8f5) 80%, #fff);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+  background: color-mix(in srgb, var(--wiley-cream-50) 80%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
 }
 
 .cms-record-editor__preview-title {
@@ -32,7 +35,7 @@
   margin: 0 0 0.75rem;
   font-size: 0.9rem;
   line-height: 1.45;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-record-editor__preview-list {
@@ -59,8 +62,8 @@
 }
 
 .cms-record-editor__status {
+  display: block;
   margin: 0 0 1rem;
-  color: var(--text-muted, #64748b);
 }
 
 .cms-record-editor__picker {
@@ -87,11 +90,15 @@
   line-height: 1.5;
 }
 
-.cms-record-editor__ordered-empty,
+.cms-record-editor__ordered-empty {
+  display: block;
+  margin: 0.5rem 0 0;
+}
+
 .cms-record-editor__ordered-hint {
   margin: 0.5rem 0 0;
   font-size: 0.875rem;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-record-editor__ordered-item {
@@ -124,20 +131,25 @@
   padding: 0;
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--wiley-primary, #17344d);
+  @include cms.ink;
 }
 
 .cms-record-editor__optional {
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  border: 1px dashed color-mix(in srgb, var(--wiley-primary, #17344d) 22%, transparent);
-  background: color-mix(in srgb, var(--wiley-cream-50, #faf8f5) 50%, #fff);
+  border: 1px dashed color-mix(in srgb, var(--wiley-ink-900) 22%, transparent);
+  background: color-mix(in srgb, var(--wiley-cream-50) 50%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
 }
 
 .cms-record-editor__optional-summary {
   cursor: pointer;
   font-weight: 700;
   margin-bottom: 0.75rem;
+}
+
+.cms-record-editor__optional-summary:focus-visible {
+  @include cms.focus-ring;
 }
 
 .cms-record-editor__optional[open] {
@@ -149,7 +161,7 @@
   margin: 0 0 0.35rem;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
   line-height: 1.4;
 }
 
@@ -172,11 +184,25 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-height: var(--touch-target-min);
 }
 
 .cms-record-field--checkbox label {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
   font-weight: 600;
   margin: 0;
+}
+
+.cms-record-field input.p-inputtext {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+}
+
+:host ::ng-deep .cms-record-field :is(.p-inputnumber-input, .p-select) {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
 }
 
 .cms-record-field--file {
@@ -185,9 +211,10 @@
 
 .cms-record-field--hero-photo {
   padding: 1rem 1.1rem;
-  border: 2px solid color-mix(in srgb, var(--primary-color, #17344d) 18%, transparent);
+  border: 2px solid color-mix(in srgb, var(--wiley-color-primary) 18%, transparent);
   border-radius: var(--radius-lg, 0.75rem);
-  background: color-mix(in srgb, var(--primary-color, #17344d) 4%, #fffdf8);
+  background: color-mix(in srgb, var(--wiley-color-primary) 6%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
 }
 
 .cms-record-field__label--hero {
@@ -198,36 +225,42 @@
 .cms-record-field__hero-lead {
   margin: 0;
   line-height: 1.5;
-  color: var(--text-color, #17344d);
+  @include cms.ink;
 }
 
-.cms-record-field__file-picker--hero {
+.cms-record-field__file-picker.cms-record-field__file-picker--hero {
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   max-width: 28rem;
-  min-height: 3rem;
   padding: 0.85rem 1.25rem;
   border-radius: var(--radius-lg, 0.75rem);
-  border: 2px dashed color-mix(in srgb, var(--primary-color, #17344d) 35%, transparent);
-  background: #fff;
-  color: var(--primary-color, #17344d);
+  border: 2px dashed color-mix(in srgb, var(--wiley-color-primary) 35%, transparent);
+  background: var(--wiley-surface-card);
+  color: var(--wiley-color-link);
   font-weight: 700;
   text-align: center;
+  @include cms.touch-target;
 }
 
-.cms-record-field__file-picker--hero:hover {
-  border-color: var(--primary-color, #17344d);
-  background: color-mix(in srgb, var(--primary-color, #17344d) 6%, #fff);
+.cms-record-field__file-picker.cms-record-field__file-picker--hero:hover {
+  border-color: var(--wiley-color-primary);
+  background: color-mix(in srgb, var(--wiley-color-primary) 8%, var(--wiley-surface-card));
+  @include cms.link-hover;
 }
 
-.cms-record-field__file-picker--hero.cms-record-field__file-picker--busy {
+.cms-record-field__file-picker.cms-record-field__file-picker--hero:focus-within {
+  @include cms.focus-ring;
+}
+
+.cms-record-field__file-picker.cms-record-field__file-picker--hero.cms-record-field__file-picker--busy {
   opacity: 0.75;
   cursor: wait;
 }
 
-.cms-record-field__file-picker--hero input[type='file'] {
+.cms-record-field__file-picker.cms-record-field__file-picker--hero input[type='file'] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -246,20 +279,20 @@
   max-height: 14rem;
   object-fit: cover;
   border-radius: var(--radius-md, 0.5rem);
-  border: 1px solid rgba(23, 52, 77, 0.15);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
 }
 
 .cms-record-field__hero-preview figcaption {
   margin-top: 0.45rem;
   font-size: 0.875rem;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-record-field__hero-url-label {
   margin-top: 0.35rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-record-field__file-picker {
@@ -268,6 +301,12 @@
   gap: 0.5rem;
   font-weight: 600;
   cursor: pointer;
+  @include cms.link;
+  @include cms.touch-target;
+}
+
+.cms-record-field__file-picker:focus-within {
+  @include cms.focus-ring;
 }
 
 .cms-record-field__file-picker input[type='file'] {
@@ -283,7 +322,7 @@
 .cms-record-field__help {
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-record-editor__actions {
@@ -298,16 +337,13 @@
 .cms-record-field--date .cms-record-date-input {
   width: 100%;
   max-width: 24rem;
-  min-height: 3rem;
-  border: 1px solid rgba(23, 52, 77, 0.2);
   border-radius: 0.75rem;
   padding: 0.75rem 0.95rem;
   font: inherit;
-  color-scheme: light;
-  background: #fffdf8;
+  @include cms.field;
+  min-height: 3rem;
 }
 
 .cms-record-field--date .cms-record-date-input:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--primary-color, #17344d) 55%, transparent);
-  outline-offset: 2px;
+  @include cms.focus-ring;
 }

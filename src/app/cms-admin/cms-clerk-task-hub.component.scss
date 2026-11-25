@@ -1,12 +1,27 @@
-.cms-task-hub__title {
+@use './cms-admin-theme' as cms;
+
+.cms-task-hub__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   margin: 0 0 0.35rem;
+}
+
+.cms-task-hub__title {
+  margin: 0;
   font-size: 1.35rem;
 }
 
 .cms-task-hub__lead {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
   max-width: 42rem;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
+}
+
+::ng-deep .cms-help-tooltip .p-tooltip-text {
+  max-width: 22rem;
+  white-space: normal;
+  line-height: 1.45;
 }
 
 .cms-task-hub__grid {
@@ -25,9 +40,8 @@
   height: 100%;
   padding: 1.1rem;
   border-radius: var(--radius-xl, 1rem);
-  border: 1px solid var(--wiley-cream-100, #e8e0d4);
-  background: var(--wiley-inverse, #fff);
-  box-shadow: var(--shadow-subtle, 0 2px 8px rgb(15 23 42 / 6%));
+  @include cms.card;
+  @include cms.shadow-subtle;
 }
 
 .cms-task-card__header {
@@ -48,12 +62,8 @@
 }
 
 .cms-task-card__icon {
-  color: var(--wiley-primary, #1e3a5f);
+  color: var(--wiley-color-primary);
   font-size: 1rem;
-}
-
-.cms-task-card__btn-icon {
-  margin-right: 0.35rem;
 }
 
 .cms-task-card__body {
@@ -64,9 +74,8 @@
 }
 
 .cms-task-card__note {
+  display: block;
   margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-muted, #64748b);
 }
 
 .cms-task-card__actions {
@@ -77,7 +86,7 @@
 
 .cms-task-card__btn {
   width: 100%;
-  min-height: 2.5rem;
+  min-height: var(--touch-target-min);
   text-align: center;
   text-decoration: none;
   display: inline-flex;
@@ -85,19 +94,10 @@
   justify-content: center;
 }
 
-.cms-task-card__steps {
-  padding: 0.35rem 0;
-  border: none;
-  background: none;
-  color: var(--wiley-blue-700, #1d4ed8);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  text-align: left;
+:host ::ng-deep .cms-task-card__actions .p-button {
+  width: 100%;
 }
 
-.cms-task-card__steps:focus-visible {
-  outline: 2px solid var(--wiley-blue-700, #1d4ed8);
-  outline-offset: 2px;
+:host ::ng-deep .cms-task-card__steps.p-button {
+  justify-content: flex-start;
 }

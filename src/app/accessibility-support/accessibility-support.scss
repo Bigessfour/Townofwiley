@@ -1,7 +1,12 @@
 :host {
   display: block;
-  margin-top: 0.5rem;
-  padding: 0 0.25rem;
+  margin-top: var(--space-xs);
+  padding-inline: var(--space-xs);
+}
+
+/* Aura info text is blue.500 on a light wash. That pair is under 4.5:1 in the dark theme. */
+:host-context(html.wiley-dark) {
+  --p-message-info-color: var(--wiley-color-link);
 }
 
 .accessibility-support-grid {
@@ -14,10 +19,12 @@
   border: 1px solid var(--wiley-cream-100);
   background: linear-gradient(180deg, var(--wiley-cream-0), var(--wiley-sage-50));
   box-shadow: var(--shadow-subtle);
+  padding: var(--card-padding);
+  box-sizing: border-box;
   align-self: stretch;
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
 }
 
 .accessibility-statement-card:hover,
@@ -29,10 +36,10 @@
 .accessibility-statement-card h2,
 .accessibility-report-card h2 {
   margin: 0;
-  color: var(--ink-900);
-  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  color: var(--wiley-ink-900);
+  font-size: clamp(var(--font-size-h4), 2.5vw, var(--font-size-h3));
   font-weight: 700;
-  line-height: 1.3;
+  line-height: var(--line-height-title);
 }
 
 .accessibility-statement-card p,
@@ -41,12 +48,8 @@
 .accessibility-contact-link,
 .accessibility-support-list {
   margin: 0;
-  color: var(--ink-700);
-  line-height: 1.6;
-}
-
-.accessibility-contact-row {
-  gap: 0.5rem;
+  color: var(--wiley-ink-700);
+  line-height: var(--line-height-body);
 }
 
 .accessibility-contact-link,
@@ -54,41 +57,51 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 999px;
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
   text-decoration: none;
   font-weight: 700;
-  white-space: nowrap;
   text-align: center;
   transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
+    color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
 }
 
 .accessibility-contact-link {
-  border: 1px solid var(--surface-border);
-  background: var(--surface-overlay);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
+  background: var(--wiley-surface-card);
+  color: var(--wiley-color-link);
+}
+
+.accessibility-contact-link:hover {
+  color: var(--wiley-color-link-hover);
+  box-shadow: var(--shadow-subtle);
+  transform: var(--lift-hover);
 }
 
 .accessibility-action {
   border: 1px solid transparent;
-  background: var(--brand-gradient-strong);
-  color: var(--surface-inverse);
+  background: var(--wiley-color-primary);
+  color: var(--wiley-color-primary-contrast);
 }
 
-.accessibility-contact-link:hover,
 .accessibility-action:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--surface-shadow-soft);
+  box-shadow: var(--shadow-medium);
+  transform: var(--lift-hover);
 }
 
 .accessibility-action.is-disabled {
   pointer-events: auto;
-  background: color-mix(in srgb, var(--civic-blue) 70%, var(--p-surface-400));
-  color: var(--surface-inverse);
+  background: var(--wiley-surface-card-muted);
+  color: var(--wiley-ink-700);
+  border-color: color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
+  transform: none;
+  box-shadow: none;
 }
 
 .accessibility-field--wide {
@@ -96,24 +109,18 @@
 }
 
 .accessibility-field span {
-  font-size: 0.88rem;
+  font-size: var(--font-size-small);
   font-weight: 700;
-  color: var(--ink-900);
+  color: var(--wiley-ink-900);
 }
 
+/* Aura formField tokens own fill, border, and text. */
 .accessibility-field input,
 .accessibility-field textarea,
 .accessibility-field .p-inputtext,
 .accessibility-field .p-textarea {
   width: 100%;
-  min-height: 3.25rem;
-  padding: 0.85rem 0.95rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 16px;
-  background: var(--surface-card);
-  color: var(--ink-900);
-  font: inherit;
-  line-height: 1.5;
+  min-height: var(--touch-target-min);
   box-sizing: border-box;
 }
 
@@ -123,17 +130,15 @@
   min-height: 7rem;
 }
 
-.accessibility-field input:focus-visible,
-.accessibility-field textarea:focus-visible,
 .accessibility-contact-link:focus-visible,
 .accessibility-action:focus-visible {
-  outline: 3px solid var(--focus-ring, rgba(13, 44, 84, 0.28));
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--wiley-gold-400);
+  outline-offset: var(--focus-ring-offset-focus);
 }
 
 .accessibility-status {
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-body);
 }
 
 .accessibility-status-message {
@@ -142,13 +147,12 @@
 
 @media (max-width: 640px) {
   :host {
-    padding: 0;
+    padding-inline: 0;
   }
 
   .accessibility-statement-card,
   .accessibility-report-card {
-    padding: 1rem !important;
-    border-radius: 16px;
+    padding: var(--space-sm);
   }
 
   .accessibility-contact-row {

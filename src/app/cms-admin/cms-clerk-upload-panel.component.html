@@ -45,26 +45,29 @@
       <code>{{ value }}</code>
     </p>
     <div class="cms-upload-panel__actions">
-      <button pButton type="button" severity="secondary" [outlined]="true" (click)="copyToClipboard()">
-        Copy
-      </button>
-      <button pButton type="button" severity="primary" (click)="onOpenTaskGuide()">
-        @if (mode() === 'hero') {
-          Go to homepage task
-        } @else {
-          Go to post notice task
-        }
-      </button>
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        label="Copy"
+        (onClick)="copyToClipboard()"
+      />
+      <p-button
+        type="button"
+        severity="primary"
+        [label]="mode() === 'hero' ? 'Go to homepage task' : 'Go to post notice task'"
+        (onClick)="onOpenTaskGuide()"
+      />
     </div>
   }
 
   @if (!isSignedIn()) {
-    <p class="cms-upload-panel__signin">
+    <p-message severity="warn" class="cms-upload-panel__signin">
       <a href="/admin/login">Sign in to Town admin</a> before uploading.
-    </p>
+    </p-message>
   } @else {
-    <p class="cms-upload-panel__signin cms-upload-panel__signin--ok" role="status">
+    <p-message severity="success" class="cms-upload-panel__signin">
       Signed in — choose a file above to upload.
-    </p>
+    </p-message>
   }
 </section>

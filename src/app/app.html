@@ -128,7 +128,7 @@
 
   <header
     #headerElement
-    class="site-header sticky top-0 z-50 w-full max-w-none border-b border-wiley-header/20 bg-wiley-forest-900 text-wiley-inverse shadow-wiley-card transition-shadow"
+    class="site-header sticky top-0 z-50 w-full max-w-none border-b border-[var(--wiley-header-border)] bg-wiley-header text-[var(--wiley-header-text)] shadow-wiley-card transition-shadow"
     [class.is-feature-page]="isFeaturePageMode() || isNotFoundMode()"
     [class.scrolled]="headerScrolled()"
     role="banner"
@@ -185,7 +185,7 @@
               @for (choice of languageChoices(); track choice.value) {
                 <button
                   type="button"
-                  class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold transition"
+                  class="language-toggle-btn rounded-wiley-full px-3 text-sm font-bold transition"
                   [class.active]="siteLanguage() === choice.value"
                   [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
                   [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
@@ -363,7 +363,7 @@
                     <!-- duplicate id avoided here (menu context); header instance provides the site-language-es/en ids -->
                     <button
                       type="button"
-                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold transition"
+                      class="language-toggle-btn rounded-wiley-full px-3 text-sm font-bold transition"
                       [class.active]="siteLanguage() === choice.value"
                       [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                       [attr.aria-pressed]="siteLanguage() === choice.value"

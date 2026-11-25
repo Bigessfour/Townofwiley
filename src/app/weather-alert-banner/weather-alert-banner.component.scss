@@ -25,8 +25,8 @@
 .weather-alert-banner__icon {
   font-size: clamp(2rem, 4vw, 2.75rem);
   line-height: 1;
-  color: rgba(255, 248, 241, 0.95);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  color: color-mix(in srgb, var(--wiley-inverse) 95%, transparent);
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--wiley-forest-950) 20%, transparent));
 }
 
 .weather-alert-banner__copy {
@@ -41,8 +41,8 @@
   letter-spacing: 0.14em;
   line-height: 1.3;
   margin: 0;
-  /* Stronger than 0.78 for small caps on dark red gradient (readability, not audit counting) */
-  color: rgba(255, 248, 241, 0.92);
+  /* Stronger than 0.78 for small caps on the urgent banner. */
+  color: color-mix(in srgb, var(--wiley-inverse) 92%, transparent);
 }
 
 .weather-alert-banner__title {
@@ -55,7 +55,7 @@
   margin: 0;
   font-size: clamp(0.8rem, 1.5vw, 0.9rem);
   line-height: 1.35;
-  color: rgba(255, 248, 241, 0.88);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
 }
 
 .weather-alert-banner__instruction {
@@ -63,7 +63,7 @@
   font-size: clamp(0.78rem, 1.4vw, 0.88rem);
   line-height: 1.35;
   font-style: italic;
-  color: rgba(255, 248, 241, 0.88);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
 }
 
 .weather-alert-banner__actions {
@@ -108,56 +108,52 @@
   }
 }
 
-:host ::ng-deep .weather-alert-banner__p-body {
-  padding: 0;
-}
-
-:host ::ng-deep .weather-alert-banner__p-content {
-  padding: 0;
-}
-
-:host ::ng-deep .site-alert.site-alert--nws.p-card {
+.site-alert.site-alert--nws.p-card {
   margin-top: var(--space-md);
   border-radius: var(--radius-xl);
-  border-top: 1px solid rgba(255, 200, 200, 0.45);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #7b1f1f 0%, #9f2323 55%, #b32d2d 100%);
-  color: var(--surface-inverse-strong);
+  border-top: 1px solid color-mix(in srgb, var(--wiley-inverse) 45%, transparent);
+  box-shadow: var(--shadow-subtle);
+  background: linear-gradient(
+    135deg,
+    var(--wiley-alert-urgent-start) 0%,
+    var(--wiley-alert-urgent-end) 100%
+  );
+  color: var(--wiley-inverse);
   overflow-x: clip;
   overflow-y: visible;
+  --p-button-danger-color: var(--wiley-inverse);
+  --p-button-danger-border-color: color-mix(in srgb, var(--wiley-inverse) 35%, transparent);
+  --p-button-outlined-danger-color: var(--wiley-inverse);
+  --p-button-outlined-danger-border-color: color-mix(in srgb, var(--wiley-inverse) 55%, transparent);
+  --p-button-outlined-danger-background: color-mix(in srgb, var(--wiley-inverse) 8%, transparent);
+  --p-button-text-secondary-color: var(--wiley-inverse);
 }
 
-:host ::ng-deep .site-alert.site-alert--nws .weather-alert-banner {
+.site-alert.site-alert--nws .weather-alert-banner {
   padding: clamp(0.55rem, 1.2vw, 0.85rem) clamp(0.65rem, 1.5vw, 1rem);
   min-height: clamp(8.5rem, 18vh, 10rem);
 }
 
+.site-alert.site-alert--nws .p-button {
+  min-height: var(--touch-target-min);
+  color: var(--wiley-inverse);
+  border-color: color-mix(in srgb, var(--wiley-inverse) 45%, transparent);
+}
+
+.site-alert.site-alert--nws .p-button.p-button-outlined {
+  background: color-mix(in srgb, var(--wiley-inverse) 8%, transparent);
+}
+
+.site-alert.site-alert--nws .p-button:focus-visible {
+  outline: 3px solid var(--wiley-inverse);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--wiley-forest-950) 35%, transparent);
+}
+
 @media (max-width: 640px) {
-  :host ::ng-deep .site-alert.site-alert--nws .weather-alert-banner {
+  .site-alert.site-alert--nws .weather-alert-banner {
     min-height: auto;
     max-height: none;
     padding: 0.75rem 0.85rem 0.95rem;
   }
-}
-
-:host ::ng-deep .site-alert.site-alert--nws .p-button.p-button-danger:not(.p-button-outlined) {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-:host ::ng-deep .site-alert.site-alert--nws .p-button.p-button-danger.p-button-outlined {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-:host ::ng-deep .site-alert.site-alert--nws .p-button.p-button-secondary.p-button-text {
-  color: rgba(255, 248, 241, 0.92);
-}
-
-/* High-contrast focus ring on dark alert (keyboard users); avoids PrimeNG outline reset on red panel */
-:host ::ng-deep .site-alert.site-alert--nws .p-button:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.95);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.35);
 }

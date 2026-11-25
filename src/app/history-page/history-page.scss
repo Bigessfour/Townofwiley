@@ -13,19 +13,28 @@
   width: 100%;
   height: auto;
   border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 8%));
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
+  background: var(--wiley-surface-card);
+  box-shadow: var(--shadow-subtle);
 }
 
 .history-document__actions {
   margin: 0;
 }
 
+/* Anchor buttons inherit the card ink. Re-apply the Aura preset so the gold label stays dark in both themes. */
 .history-document__pdf-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  box-sizing: border-box;
   min-height: var(--touch-target-min);
-  text-decoration: none;
+  width: fit-content;
+  background: var(--p-button-primary-background);
+  border-color: var(--p-button-primary-border-color);
+  color: var(--p-button-primary-color);
+}
+
+.history-document__pdf-link:hover,
+.history-document__pdf-link:focus-visible {
+  background: var(--p-button-primary-hover-background);
+  border-color: var(--p-button-primary-hover-border-color);
+  color: var(--p-button-primary-color);
 }

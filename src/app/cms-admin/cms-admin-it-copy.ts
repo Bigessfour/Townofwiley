@@ -22,6 +22,7 @@ export const IT_ADMIN_COPY = {
   apiKeyMissing: 'Missing',
   troubleLabel: 'Error',
   clearWebsiteCache: 'Clear saved website copy',
+  clearWebsiteCacheHelp: 'Clears the saved website copy in this browser only.',
   clearWebsiteCacheSuccess: 'Saved website copy cleared from this browser.',
   refreshFromDatabase: 'Refresh from database',
   refreshingFromDatabase: 'Refreshing…',
