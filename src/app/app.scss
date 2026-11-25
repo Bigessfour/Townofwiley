@@ -1898,7 +1898,7 @@ h6 {
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 :host ::ng-deep .p-button .p-button-icon,
