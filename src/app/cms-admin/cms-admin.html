@@ -7,30 +7,44 @@
     </p>
     <div>
       <p class="cms-kicker">Town staff</p>
-      <h1 class="cms-title">Update the Town website</h1>
-      <p class="cms-copy">
-        Pick what you want to change, click <strong>Edit content</strong>, then Save.
-        Use <strong>See on website</strong> to check. Need help? Call Town Hall at (719) 829-4974.
-      </p>
+      <div class="cms-title-row">
+        <h1 class="cms-title">Update the Town website</h1>
+        <p-button
+          type="button"
+          icon="pi pi-info-circle"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          data-testid="cms-page-help"
+          [pTooltip]="clerkQuickHelp"
+          [ariaLabel]="clerkQuickHelp"
+          [attr.aria-label]="clerkQuickHelp"
+          tooltipEvent="both"
+          tooltipPosition="bottom"
+          appendTo="body"
+          tooltipStyleClass="cms-help-tooltip"
+        />
+      </div>
+      <p class="cms-copy">Choose a task below, then save.</p>
     </div>
     <div class="cms-header__actions">
       @if (isStaffSignedIn()) {
         <p class="cms-staff-session" data-testid="cms-staff-session" role="status">
           Signed in as {{ staffEmail() ?? 'Town staff' }}.
-          <button
-            pButton
+          <p-button
             type="button"
-            class="p-button-text p-button-sm cms-staff-sign-out"
+            label="Sign out"
+            severity="secondary"
+            [text]="true"
+            class="cms-staff-sign-out"
             data-testid="cms-staff-sign-out"
-            (click)="signOutStaff()"
-          >
-            Sign out
-          </button>
+            (onClick)="signOutStaff()"
+          />
         </p>
       }
       <nav class="cms-jump-nav" aria-label="Page sections">
-        <a href="#start">Start here</a>
-        <a href="#documents">Documents</a>
+        <a routerLink="/admin" fragment="start">Start here</a>
+        <a routerLink="/admin" fragment="documents">Documents</a>
         <a href="/">Public site</a>
         @if (!isStaffSignedIn()) {
           <a href="/admin/login">Staff sign in</a>
@@ -72,19 +86,21 @@
       Upload meeting agendas and approved minutes below. Newsletter PDFs use the Post a notice
       task.
     </p>
-    <ol class="cms-help-list">
-      @for (step of documentPublishingSteps; track step) {
-        <li>{{ step }}</li>
-      }
-    </ol>
+    <details class="cms-help-details">
+      <summary>Publishing steps and checklist</summary>
+      <ol class="cms-help-list">
+        @for (step of documentPublishingSteps; track step) {
+          <li>{{ step }}</li>
+        }
+      </ol>
+      <ul class="cms-help-list simple">
+        @for (item of documentPublishingChecks; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </details>
 
     <app-cms-meeting-document-upload />
-
-    <ul class="cms-help-list simple">
-      @for (item of documentPublishingChecks; track item) {
-        <li>{{ item }}</li>
-      }
-    </ul>
   </section>
 
   <details id="advanced" class="cms-section cms-advanced">
@@ -95,7 +111,10 @@
       </p>
 
       <a
-        class="cms-button secondary"
+        pButton
+        severity="secondary"
+        [outlined]="true"
+        data-testid="cms-aws-console"
         [href]="awsConsoleUrl"
         target="_blank"
         rel="noreferrer noopener"
@@ -105,55 +124,92 @@
 
       <section class="cms-connection" aria-labelledby="cms-connection-heading">
         <h3 id="cms-connection-heading">{{ it.connectionTitle }}</h3>
-        <p>{{ it.connectionBody }}</p>
-        <p class="cms-muted">{{ it.refreshFromDatabaseHelp }}</p>
         <div class="cms-connection-actions">
-          <button
-            pButton
-            type="button"
-            [disabled]="connectionTestLoading()"
-            (click)="testConnection()"
-          >
-            {{ connectionTestLoading() ? it.testingConnection : it.testConnection }}
-          </button>
-          <button
-            pButton
-            type="button"
-            class="p-button-secondary"
-            [disabled]="forceRefreshLoading()"
-            (click)="clearWebsiteCache()"
-          >
-            {{ it.clearWebsiteCache }}
-          </button>
-          <button
-            pButton
-            type="button"
-            class="p-button-secondary"
-            [disabled]="forceRefreshLoading() || !hasAppSyncRuntimeConfig"
-            (click)="refreshFromDatabase()"
-          >
-            {{ forceRefreshLoading() ? it.refreshingFromDatabase : it.refreshFromDatabase }}
-          </button>
-          <strong
-            class="cms-connection-status"
-            [class.is-ok]="connectionTestResult()?.ok === true"
-            [class.is-error]="connectionTestResult()?.ok === false"
-          >
-            @if (connectionTestLoading()) {
-              {{ it.testingConnection }}
-            } @else if (connectionTestResult(); as result) {
-              {{ result.ok ? it.connectionSuccess : it.connectionFailed }}
-            } @else {
-              {{ hasAppSyncRuntimeConfig ? it.connectionReady : it.connectionNotRun }}
-            }
-          </strong>
+          <div class="cms-action-with-help">
+            <p-button
+              type="button"
+              [label]="connectionTestLoading() ? it.testingConnection : it.testConnection"
+              [disabled]="connectionTestLoading()"
+              (onClick)="testConnection()"
+            />
+            <p-button
+              type="button"
+              icon="pi pi-info-circle"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              data-testid="cms-connection-help"
+              [pTooltip]="it.connectionBody"
+              [ariaLabel]="it.connectionBody"
+              [attr.aria-label]="it.connectionBody"
+              tooltipEvent="both"
+              tooltipPosition="bottom"
+              appendTo="body"
+              tooltipStyleClass="cms-help-tooltip"
+            />
+          </div>
+          <div class="cms-action-with-help">
+            <p-button
+              type="button"
+              severity="secondary"
+              [outlined]="true"
+              [label]="it.clearWebsiteCache"
+              [disabled]="forceRefreshLoading()"
+              (onClick)="clearWebsiteCache()"
+            />
+            <p-button
+              type="button"
+              icon="pi pi-info-circle"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              data-testid="cms-clear-cache-help"
+              [pTooltip]="it.clearWebsiteCacheHelp"
+              [ariaLabel]="it.clearWebsiteCacheHelp"
+              [attr.aria-label]="it.clearWebsiteCacheHelp"
+              tooltipEvent="both"
+              tooltipPosition="bottom"
+              appendTo="body"
+              tooltipStyleClass="cms-help-tooltip"
+            />
+          </div>
+          <div class="cms-action-with-help">
+            <p-button
+              type="button"
+              severity="secondary"
+              [outlined]="true"
+              [label]="forceRefreshLoading() ? it.refreshingFromDatabase : it.refreshFromDatabase"
+              [disabled]="forceRefreshLoading() || !hasAppSyncRuntimeConfig"
+              (onClick)="refreshFromDatabase()"
+            />
+            <p-button
+              type="button"
+              icon="pi pi-info-circle"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              data-testid="cms-refresh-help"
+              [pTooltip]="it.refreshFromDatabaseHelp"
+              [ariaLabel]="it.refreshFromDatabaseHelp"
+              [attr.aria-label]="it.refreshFromDatabaseHelp"
+              tooltipEvent="both"
+              tooltipPosition="bottom"
+              appendTo="body"
+              tooltipStyleClass="cms-help-tooltip"
+            />
+          </div>
+          <p-tag
+            [value]="connectionStatusLabel()"
+            [severity]="connectionStatusSeverity()"
+            data-testid="cms-connection-status"
+          />
         </div>
         @if (cacheClearMessage(); as message) {
-          <p class="cms-connection-status is-ok">{{ message }}</p>
+          <p-message severity="success">{{ message }}</p-message>
         }
         @if (connectionTestResult(); as result) {
           @if (result.error) {
-            <p class="cms-trouble">{{ it.troubleLabel }}: {{ result.error }}</p>
+            <p-message severity="error">{{ it.troubleLabel }}: {{ result.error }}</p-message>
           }
         }
       </section>
@@ -167,9 +223,14 @@
             <div class="cms-setup-detail-block">
               <dt>{{ detail.label }}</dt>
               <dd>{{ detail.value }}</dd>
-              <button type="button" class="cms-copy-button" (click)="copySetupValue(detail)">
-                {{ copiedSetupKey() === detail.key ? it.copiedLabel : it.copyValueLabel }}
-              </button>
+              <p-button
+                type="button"
+                class="cms-copy-button"
+                severity="secondary"
+                [outlined]="true"
+                [label]="copiedSetupKey() === detail.key ? it.copiedLabel : it.copyValueLabel"
+                (onClick)="copySetupValue(detail)"
+              />
             </div>
           }
         </dl>

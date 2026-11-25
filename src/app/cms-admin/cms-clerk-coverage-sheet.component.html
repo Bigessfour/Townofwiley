@@ -30,15 +30,14 @@
             </td>
             <td>
               @if (canOpenRow(row)) {
-                <button
-                  pButton
+                <p-button
                   type="button"
-                  class="p-button-sm p-button-outlined"
+                  severity="secondary"
+                  [outlined]="true"
+                  label="Open"
                   [attr.data-testid]="'cms-coverage-open-' + (row.taskId ?? 'docs')"
-                  (click)="onOpenRow(row)"
-                >
-                  Open
-                </button>
+                  (onClick)="onOpenRow(row)"
+                />
               } @else {
                 <span class="cms-coverage__na">—</span>
               }

@@ -89,13 +89,16 @@ test.describe('pay bill without Paystar portal URL', () => {
 });
 
 test.describe('services payment panel', () => {
-  test('links to /pay-bill from /services#payment-help', async ({ homePage }) => {
-    await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
-    await expect(homePage.page.locator('#payment-help')).toBeVisible({ timeout: 20_000 });
-    await expect(homePage.page.getByTestId('resident-pay-bill-link')).toHaveAttribute(
-      'href',
-      /\/pay-bill$/,
-    );
+  test('opens /pay-bill from the services card and the old payment-help link', async ({
+    homePage,
+  }) => {
+    await homePage.page.goto('/services', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page.locator('#payment-help')).toHaveCount(0);
+    await homePage.residentServicePaymentToggle.click();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/, { timeout: 20_000 });
     await expect(homePage.page.locator('#bill-pay-request')).toHaveCount(0);
+
+    await homePage.page.goto('/services#payment-help', { waitUntil: 'domcontentloaded' });
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/, { timeout: 20_000 });
   });
 });

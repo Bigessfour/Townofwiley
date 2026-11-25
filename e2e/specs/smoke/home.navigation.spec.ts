@@ -55,9 +55,8 @@ test.describe('homepage navigation', () => {
     // matches `public deep links` and `src/app/app.ts` menu model (`/services` + `payment-help`).
     await homePage.goto();
     await homePage.page.goto('/services#payment-help');
-    await expect(homePage.page).toHaveURL(/\/services/);
-    await expect(homePage.page).toHaveURL(/#payment-help/);
-    await expect(homePage.page.locator('#payment-help')).toBeVisible();
+    await expect(homePage.page).toHaveURL(/\/pay-bill$/);
+    await expect(homePage.page.getByTestId('pay-bill-cta-band')).toBeVisible();
   });
 
   test('keeps section navigation and skip link usable for features', async ({ homePage }) => {

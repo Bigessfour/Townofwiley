@@ -1,25 +1,31 @@
+/* Paystar styling boundary
+   The step graphics are raster files (/pay-bill-instructions-en.jpg and
+   /pay-bill-instructions-es-v2.jpg). Their colors are baked in. Dark mode can
+   only theme this card. The checkout itself is Paystar's hosted page and has
+   no DOM here to theme.
+   Do not restyle a future Paystar embed with ::ng-deep. Any widget stylesheet
+   stays Paystar's until they expose theme tokens. */
+
 :host {
   display: flex;
   justify-content: center;
 }
 
-:host ::ng-deep .pay-instructions-card.p-card {
+.pay-instructions-card {
   width: 100%;
   max-width: clamp(20rem, 85vw, 36rem);
-  border-radius: 1rem;
-  border: 1px solid color-mix(in srgb, var(--wiley-teal-600) 22%, transparent);
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.04),
-    0 6px 16px rgb(15 23 42 / 0.06);
+  --p-card-background: var(--wiley-surface-card);
+  --p-card-color: var(--wiley-ink-900);
+  --p-card-border-radius: var(--radius-lg);
+  --p-card-shadow: var(--shadow-subtle);
+  --p-card-body-padding: 0;
+  --p-card-body-gap: 0;
+  background: var(--p-card-background);
+  color: var(--p-card-color);
+  border-radius: var(--p-card-border-radius);
+  box-shadow: var(--p-card-shadow);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
   overflow: hidden;
-}
-
-:host ::ng-deep .pay-instructions-card .p-card-body {
-  padding: 0;
-}
-
-:host ::ng-deep .pay-instructions-card .p-card-content {
-  padding: 0;
 }
 
 .pay-instructions-figure {

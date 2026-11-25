@@ -1,5 +1,6 @@
 import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { APP_COPY } from '../app-copy';
 import { SiteLanguageService } from '../site-language';
@@ -12,7 +13,7 @@ export const HISTORY_PDF_HREF = '/media/wiley-history-one-page.pdf' as const;
 
 @Component({
   selector: 'app-history-page',
-  imports: [CardModule, NgOptimizedImage],
+  imports: [ButtonModule, CardModule, NgOptimizedImage],
   templateUrl: './history-page.html',
   styleUrl: './history-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -14,7 +14,7 @@
   }
 
   @if (meetingOptions().length === 0) {
-    <p class="cms-meeting-upload__note" role="note">{{ copy().noEvents }}</p>
+    <p-message severity="warn" class="cms-meeting-upload__note">{{ copy().noEvents }}</p-message>
   } @else {
     <div class="cms-meeting-upload__field">
       <label class="cms-meeting-upload__label" for="cms-meeting-upload-event">
@@ -85,18 +85,18 @@
   }
 
   <div class="cms-meeting-upload__actions">
-    <button
+    <p-button
       type="button"
-      class="cms-button add"
+      [label]="copy().uploadButton"
       [disabled]="!canUpload()"
-      (click)="uploadSelectedFile()"
+      (onClick)="uploadSelectedFile()"
       data-testid="cms-meeting-upload-submit"
-    >
-      {{ copy().uploadButton }}
-    </button>
+    />
     @if (publishedDocumentsHref(); as documentsHref) {
       <a
-        class="cms-button secondary"
+        pButton
+        severity="secondary"
+        [outlined]="true"
         [href]="documentsHref"
         target="_blank"
         rel="noreferrer noopener"
@@ -107,14 +107,14 @@
   </div>
 
   @if (!isSignedIn()) {
-    <p class="cms-meeting-upload__signin">
+    <p-message severity="warn" class="cms-meeting-upload__signin">
       {{ copy().signInHint }}
       <a href="/admin/login">{{ copy().signInLink }}</a>
       at /admin/login before uploading.
-    </p>
+    </p-message>
   } @else {
-    <p class="cms-meeting-upload__signin cms-meeting-upload__signin--ok" role="status">
+    <p-message severity="success" class="cms-meeting-upload__signin">
       Signed in — choose a meeting and PDF above to publish.
-    </p>
+    </p-message>
   }
 </section>

@@ -1,6 +1,9 @@
+@use './cms-admin-theme' as cms;
+
 .cms-snapshot {
   display: grid;
   gap: 1.25rem;
+  color: var(--wiley-ink-900);
 }
 
 .cms-snapshot__header h2 {
@@ -10,7 +13,7 @@
 
 .cms-snapshot__header p {
   margin: 0;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-snapshot__banner {
@@ -35,7 +38,7 @@
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-lg, 0.75rem);
   overflow: hidden;
-  background: var(--wiley-cream-100, #e8e0d4);
+  background: var(--wiley-surface-card-muted);
 }
 
 .cms-snapshot__hero-img {
@@ -66,8 +69,21 @@
 }
 
 .cms-snapshot__link {
+  display: inline-flex;
+  align-items: center;
   font-weight: 600;
-  color: var(--wiley-blue-700, #1d4ed8);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  @include cms.link;
+  @include cms.touch-target;
+}
+
+.cms-snapshot__link:hover {
+  @include cms.link-hover;
+}
+
+.cms-snapshot__link:focus-visible {
+  @include cms.focus-ring;
 }
 
 .cms-snapshot__footer {

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsCommunityCalendarAdminComponent } from './cms-community-calendar-admin.component';
 import { CmsContactPageChooserComponent } from './cms-contact-page-chooser.component';
@@ -19,6 +20,7 @@ import { MessageModule } from 'primeng/message';
   selector: 'app-cms-clerk-task-guide',
   imports: [
     ButtonModule,
+    RouterLink,
     CmsClerkRecordEditorComponent,
     CmsCommunityCalendarAdminComponent,
     CmsContactPageChooserComponent,

@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { StaffAuthService } from '../auth/staff-auth.service';
+import { CMS_CLERK_QUICK_HELP } from './cms-admin-constants';
 import { buildClerkTaskHubLiveLink } from './cms-clerk-task-live-link';
 import {
   CLERK_CMS_TASKS,
@@ -33,13 +36,14 @@ function taskVisibleForGroups(task: ClerkCmsTask, groups: string[]): boolean {
 @Component({
   selector: 'app-cms-clerk-task-hub',
   standalone: true,
-  imports: [ButtonModule, TagModule],
+  imports: [ButtonModule, MessageModule, TagModule, TooltipModule],
   templateUrl: './cms-clerk-task-hub.component.html',
   styleUrl: './cms-clerk-task-hub.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CmsClerkTaskHubComponent {
   private readonly staffAuth = inject(StaffAuthService);
+  protected readonly clerkQuickHelp = CMS_CLERK_QUICK_HELP;
 
   readonly modelCounts = input.required<Record<string, number>>();
 

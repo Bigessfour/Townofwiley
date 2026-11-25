@@ -2,17 +2,15 @@
   <p-message [severity]="severity()" class="cms-site-status__banner">{{ message() }}</p-message>
 
   <div class="cms-site-status__actions">
-    <button
-      pButton
+    <p-button
       type="button"
       icon="pi pi-refresh"
+      label="Force Refresh Live CMS Content"
       [loading]="refreshing()"
       [disabled]="refreshing()"
       data-testid="cms-force-refresh"
-      (click)="forceRefreshLiveContent()"
-    >
-      Force Refresh Live CMS Content
-    </button>
+      (onClick)="forceRefreshLiveContent()"
+    />
     <p-tag
       [value]="contentSourceLabel()"
       [severity]="contentSourceSeverity()"

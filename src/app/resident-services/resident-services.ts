@@ -9,10 +9,9 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
-import { Ripple } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { startWith } from 'rxjs';
 import {
@@ -23,8 +22,6 @@ import {
 } from '../site-cms-content';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
 import { ResidentIssuePanel } from './panels/issue-panel';
-import { ResidentPaymentPanel } from './panels/payment-panel';
-import { ResidentWeatherPanel } from './panels/weather-panel';
 
 type IssueCategory = 'water' | 'street' | 'streetlight' | 'property' | 'other';
 type ServicePanelId = 'payment' | 'issue' | 'weather';
@@ -36,7 +33,8 @@ interface SelectOption<TValue extends string> {
 
 interface ServicePanelOption {
   id: ServicePanelId;
-  anchor: string;
+  href: string;
+  fragment?: string;
   meta: string;
   title: string;
   summary: string;
@@ -103,7 +101,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionBody:
       'Pay your utility bill, report an issue, and open weather alerts — without hunting for the right office.',
     taskPickerLabel: 'Choose a service',
-    taskPickerHelp: 'Select a card below, then complete the matching section.',
+    taskPickerHelp: 'Choose a service to continue.',
     validationMessage:
       'Complete the required fields so the site can prepare the message with the right details.',
     mailClientMessage:
@@ -166,7 +164,7 @@ const RESIDENT_SERVICES_COPY: Record<SiteLanguage, ResidentServicesCopy> = {
     sectionBody:
       'Pague su recibo, reporte un problema y abra alertas del clima sin buscar la oficina.',
     taskPickerLabel: 'Elija un servicio',
-    taskPickerHelp: 'Seleccione una tarjeta y complete la seccion correspondiente.',
+    taskPickerHelp: 'Elija un servicio para continuar.',
     validationMessage:
       'Complete los campos obligatorios para que el sitio pueda preparar el mensaje con los detalles correctos.',
     mailClientMessage:
@@ -236,14 +234,7 @@ type IssueFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-resident-services',
-  imports: [
-    CardModule,
-    ToastModule,
-    Ripple,
-    ResidentIssuePanel,
-    ResidentPaymentPanel,
-    ResidentWeatherPanel,
-  ],
+  imports: [CardModule, ToastModule, RouterLink, ResidentIssuePanel],
   templateUrl: './resident-services.html',
   styleUrl: './resident-services.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -252,6 +243,7 @@ export class ResidentServices {
   readonly contacts = input<CmsContact[]>([]);
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly cmsStore = inject(LocalizedCmsContentStore);
   private readonly messages = inject(MessageService);
   private readonly siteLanguageService = inject(SiteLanguageService);
@@ -261,7 +253,7 @@ export class ResidentServices {
     () => RESIDENT_SERVICES_COPY[this.siteLanguageService.currentLanguage() || 'en'],
   );
 
-  protected readonly activeServicePanel = signal<ServicePanelId>('payment');
+  protected readonly activeServicePanel = signal<ServicePanelId | null>(null);
   protected readonly issueSubmitting = signal(false);
 
   private readonly resolvedContacts = computed<CmsContact[]>(() => {
@@ -274,7 +266,7 @@ export class ResidentServices {
     return [
       {
         id: 'payment',
-        anchor: 'payment-help',
+        href: '/pay-bill',
         meta: c.paymentMeta,
         title: c.paymentTitle,
         summary: c.paymentBody,
@@ -282,7 +274,8 @@ export class ResidentServices {
       },
       {
         id: 'issue',
-        anchor: 'issue-report',
+        href: '/services',
+        fragment: 'issue-report',
         meta: c.issueMeta,
         title: c.issueTitle,
         summary: c.issueBody,
@@ -290,7 +283,7 @@ export class ResidentServices {
       },
       {
         id: 'weather',
-        anchor: 'weather-alerts',
+        href: '/weather',
         meta: c.weatherMeta,
         title: c.weatherTitle,
         summary: c.weatherBody,
@@ -346,16 +339,28 @@ export class ResidentServices {
       const fragment = this.routeFragment();
       if (fragment === 'issue-report') {
         this.activeServicePanel.set('issue');
-      } else if (fragment === 'payment-help') {
-        this.activeServicePanel.set('payment');
-      } else if (fragment === 'weather-alerts') {
-        this.activeServicePanel.set('weather');
+        this.scrollToIssueReport();
+        return;
+      }
+      if (fragment === 'payment-help') {
+        void this.router.navigate(['/pay-bill'], { replaceUrl: true });
+        return;
+      }
+      if (fragment === 'weather-alerts') {
+        void this.router.navigate(['/weather'], { replaceUrl: true });
       }
     });
   }
 
-  protected selectServicePanel(panelId: ServicePanelId): void {
-    this.activeServicePanel.set(panelId);
+  private scrollToIssueReport(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        document.getElementById('issue-report')?.scrollIntoView({ block: 'start' });
+      });
+    });
   }
 
   protected async submitIssueReport(): Promise<void> {

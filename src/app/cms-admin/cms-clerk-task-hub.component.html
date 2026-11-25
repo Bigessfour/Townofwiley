@@ -1,10 +1,23 @@
 <section class="cms-task-hub" aria-labelledby="cms-task-hub-heading" data-testid="cms-task-hub">
-  <h2 id="cms-task-hub-heading" class="cms-task-hub__title">What do you want to update?</h2>
-  <p class="cms-task-hub__lead">
-    Pick a task and click <strong>Edit content</strong>. Save, then
-    <strong>See on website</strong>
-    to check. Call Town Hall at (719) 829-4974 if you get stuck.
-  </p>
+  <div class="cms-task-hub__heading">
+    <h2 id="cms-task-hub-heading" class="cms-task-hub__title">What do you want to update?</h2>
+    <p-button
+      type="button"
+      icon="pi pi-info-circle"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+      data-testid="cms-task-hub-help"
+      [pTooltip]="clerkQuickHelp"
+      [ariaLabel]="clerkQuickHelp"
+      [attr.aria-label]="clerkQuickHelp"
+      tooltipEvent="both"
+      tooltipPosition="bottom"
+      appendTo="body"
+      tooltipStyleClass="cms-help-tooltip"
+    />
+  </div>
+  <p class="cms-task-hub__lead">Choose a task card to begin.</p>
 
   <ul class="cms-task-hub__grid">
     @for (task of tasks(); track task.id) {
@@ -26,22 +39,20 @@
           </header>
           <p class="cms-task-card__body">{{ task.shortDescription }}</p>
           @if (task.emptyStateMessage && countLabel(task) === 'None saved yet') {
-            <p class="cms-task-card__note" role="note">{{ task.emptyStateMessage }}</p>
+            <p-message severity="info" class="cms-task-card__note">{{
+              task.emptyStateMessage
+            }}</p-message>
           }
           <div class="cms-task-card__actions">
-            <button
-              pButton
+            <p-button
               type="button"
               severity="primary"
-              class="cms-task-card__btn"
+              styleClass="cms-task-card__btn"
+              [icon]="taskIcon(task) ?? undefined"
+              [label]="task.primaryActionLabel ?? 'Edit content'"
               [attr.data-testid]="'cms-task-edit-' + task.id"
-              (click)="onEditContent(task.id)"
-            >
-              @if (taskIcon(task); as iconClass) {
-                <i [class]="iconClass + ' cms-task-card__btn-icon'" aria-hidden="true"></i>
-              }
-              {{ task.primaryActionLabel ?? 'Edit content' }}
-            </button>
+              (onClick)="onEditContent(task.id)"
+            />
             @if (showsPublicPreview(task)) {
               <a
                 pButton
@@ -55,9 +66,14 @@
                 See on website
               </a>
             }
-            <button type="button" class="cms-task-card__steps" (click)="onShowSteps(task.id)">
-              Show step-by-step help
-            </button>
+            <p-button
+              type="button"
+              severity="secondary"
+              [text]="true"
+              label="Show step-by-step help"
+              styleClass="cms-task-card__steps"
+              (onClick)="onShowSteps(task.id)"
+            />
           </div>
         </article>
       </li>

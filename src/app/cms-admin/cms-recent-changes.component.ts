@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsAuditLogEntry, CmsAuditLogService } from './cms-audit-log.service';
@@ -11,7 +12,7 @@ import {
 @Component({
   selector: 'app-cms-recent-changes',
   standalone: true,
-  imports: [ButtonModule, TagModule],
+  imports: [ButtonModule, MessageModule, TagModule],
   templateUrl: './cms-recent-changes.component.html',
   styleUrl: './cms-recent-changes.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

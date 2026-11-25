@@ -1,12 +1,12 @@
 :host {
   display: block;
-  margin-top: 0.5rem;
+  margin-top: var(--space-xs);
 }
 
 .public-page-header h1,
 .public-card h2 {
   margin: 0;
-  color: var(--ink-900);
+  color: var(--wiley-ink-900);
 }
 
 .public-page-copy,
@@ -14,45 +14,35 @@
 .public-empty-state,
 .directory-details dd {
   margin: 0;
-  line-height: 1.65;
-  color: var(--ink-700);
+  line-height: var(--line-height-body);
+  color: var(--wiley-ink-700);
 }
 
 .public-search-field span,
 .directory-details dt {
-  font-size: 0.82rem;
+  font-size: var(--font-size-kicker);
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--letter-spacing-caps);
   text-transform: uppercase;
-  color: var(--civic-rust);
+  color: var(--wiley-gold-600);
 }
 
 .public-search-input {
   width: 100%;
 }
 
+/* Aura formField tokens own fill, border, and text. */
 .public-search-input .p-inputtext,
 .public-search-field input {
   width: 100%;
-  min-height: 52px;
-  padding: 12px 16px;
-  line-height: 1.5;
-  border: 1px solid var(--surface-border);
-  border-radius: 18px;
-  background: var(--surface-card);
-  color: var(--ink-900);
+  min-height: var(--touch-target-min);
+  box-sizing: border-box;
 }
 
-/* Card improvements */
 .public-card {
-  border: 1px solid var(--surface-border);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
-  border-radius: 24px;
-  box-shadow: var(--surface-shadow-soft);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
   height: 100%;
+  padding: var(--card-padding);
+  box-sizing: border-box;
 }
 
 .business-directory-count {
@@ -60,13 +50,13 @@
 }
 
 .public-card h2 {
-  font-size: 1.35rem;
-  line-height: 1.25;
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-title);
 }
 
 .public-card-copy {
-  font-size: 0.97rem;
-  line-height: 1.6;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
 }
 
 .directory-logo-link {
@@ -75,23 +65,23 @@
   justify-content: center;
   width: 4.75rem;
   height: 4.75rem;
-  padding: 0.5rem;
-  border-radius: 20px;
-  background: var(--surface-overlay);
-  box-shadow: inset 0 0 0 1px var(--surface-border);
+  padding: var(--space-xs);
+  border-radius: var(--radius-lg);
+  background: var(--wiley-surface-card-muted);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
 }
 
 .directory-logo-link--fallback {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--surface-card) 84%, var(--p-primary-50)),
-    var(--surface-overlay)
+    color-mix(in srgb, var(--wiley-surface-card) 84%, var(--wiley-cream-100)),
+    var(--wiley-surface-card-muted)
   );
 }
 
 .directory-logo-fallback-text {
-  color: var(--civic-blue-strong);
-  font-size: 1.05rem;
+  color: var(--wiley-color-primary);
+  font-size: var(--font-size-h5);
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -115,17 +105,22 @@
   margin: 0;
 }
 
-.directory-details a {
-  color: var(--civic-blue);
+.directory-details a:not(.p-button) {
+  color: var(--wiley-color-link);
   text-decoration: none;
   font-weight: 700;
+}
+
+.directory-details a:not(.p-button):hover,
+.directory-details a:not(.p-button):focus-visible {
+  color: var(--wiley-color-link-hover);
 }
 
 .directory-contact-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem;
+  gap: var(--space-xs);
   min-width: 0;
 }
 
@@ -135,14 +130,15 @@
 
 .directory-contact-actions a,
 .directory-address-link {
-  min-height: 44px;
+  min-height: var(--touch-target-min);
   display: inline-flex;
   align-items: center;
 }
 
 .directory-call-button {
-  padding-block: 0.7rem;
-  padding-inline: 1rem;
+  box-sizing: border-box;
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
   white-space: nowrap;
 }
 
@@ -155,8 +151,13 @@
   background: none;
   border: none;
   padding: 0;
-  color: var(--civic-blue);
+  color: var(--wiley-color-link);
   font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--wiley-color-link-hover);
 }

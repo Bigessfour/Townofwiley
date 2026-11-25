@@ -15,14 +15,14 @@
     <p class="resident-service-picker-help">{{ copy().taskPickerHelp }}</p>
     <div class="resident-service-picker-cards grid gap-4 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3">
       @for (panel of servicePanels(); track panel.id) {
-        <button
-          type="button"
+        <a
           class="resident-picker-wrap"
-          pRipple
+          [routerLink]="panel.href"
+          [fragment]="panel.fragment"
           [class.is-selected]="activeServicePanel() === panel.id"
-          [attr.aria-pressed]="activeServicePanel() === panel.id"
+          [attr.aria-current]="activeServicePanel() === panel.id ? 'page' : null"
           [attr.aria-label]="panel.title + ', ' + panel.meta"
-          (click)="selectServicePanel(panel.id)"
+          [attr.data-testid]="'resident-service-' + panel.id"
         >
           <p-card class="resident-picker-card">
             <ng-template #header>
@@ -36,21 +36,13 @@
               <p class="resident-picker-summary leading-relaxed">{{ panel.summary }}</p>
             </div>
           </p-card>
-        </button>
+        </a>
       }
     </div>
   </section>
 
-  <section class="resident-services-stage grid gap-4">
-    @if (activeServicePanel() === 'payment') {
-      <app-resident-payment-panel
-        [copy]="copy()"
-        [townHallPhoneHref]="townHallPhoneHref()"
-        [townHallPhoneLabel]="townHallPhoneLabel()"
-        [clerkEmailHref]="clerkEmailHref()"
-        [clerkEmailLabel]="clerkEmailLabel()"
-      />
-    } @else if (activeServicePanel() === 'issue') {
+  @if (activeServicePanel() === 'issue') {
+    <section class="resident-services-stage grid gap-4">
       <app-resident-issue-panel
         [copy]="copy()"
         [issueForm]="issueForm"
@@ -62,9 +54,6 @@
         [validationMessage]="boundValidationMessage"
         (submitIssue)="submitIssueReport()"
       />
-    } @else if (activeServicePanel() === 'weather') {
-      <app-resident-weather-panel [copy]="copy()" />
-    }
-
-  </section>
+    </section>
+  }
 </section>

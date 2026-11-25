@@ -19,9 +19,12 @@
       />
       <figcaption class="history-document__actions">
         <a
-          class="button-cta history-document__pdf-link"
+          pButton
+          severity="primary"
+          [rounded]="true"
+          class="history-document__pdf-link"
           data-testid="history-pdf-download"
-          [attr.href]="pdfHref"
+          [href]="pdfHref"
           target="_blank"
           rel="noopener noreferrer"
           >{{ copy().historyOpenPdfLabel }}</a

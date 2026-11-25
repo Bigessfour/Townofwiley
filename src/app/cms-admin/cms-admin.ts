@@ -6,13 +6,19 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { getClerkSetupRuntimeConfig } from '../clerk-setup/clerk-setup-config';
 import { CmsConnectionTestResult, LocalizedCmsContentStore } from '../site-cms-content';
-import { DOCUMENT_PUBLISHING_CHECKS, DOCUMENT_PUBLISHING_STEPS } from './cms-admin-constants';
+import {
+  CMS_CLERK_QUICK_HELP,
+  DOCUMENT_PUBLISHING_CHECKS,
+  DOCUMENT_PUBLISHING_STEPS,
+} from './cms-admin-constants';
 import { IT_ADMIN_COPY } from './cms-admin-it-copy';
 import { CmsClerkCoverageSheetComponent } from './cms-clerk-coverage-sheet.component';
 import { CmsClerkTaskGuideComponent } from './cms-clerk-task-guide.component';
@@ -57,6 +63,9 @@ interface CmsAdminSetupDetail {
   imports: [
     ButtonModule,
     MessageModule,
+    RouterLink,
+    TagModule,
+    TooltipModule,
     CmsSiteStatusComponent,
     CmsClerkTaskHubComponent,
     CmsClerkCoverageSheetComponent,
@@ -74,6 +83,7 @@ export class CmsAdmin {
   protected readonly clerkSetupConfig = getClerkSetupRuntimeConfig();
 
   protected readonly it = IT_ADMIN_COPY;
+  protected readonly clerkQuickHelp = CMS_CLERK_QUICK_HELP;
   protected readonly documentPublishingSteps = DOCUMENT_PUBLISHING_STEPS;
   protected readonly documentPublishingChecks = DOCUMENT_PUBLISHING_CHECKS;
 
@@ -111,6 +121,33 @@ export class CmsAdmin {
   protected readonly staffEmail = this.staffAuth.email;
   protected readonly hasAppSyncRuntimeConfig =
     Boolean(this.appSyncRuntimeConfig.apiEndpoint) && Boolean(this.appSyncRuntimeConfig.apiKey);
+
+  protected readonly connectionStatusLabel = computed(() => {
+    if (this.connectionTestLoading()) {
+      return this.it.testingConnection;
+    }
+    const result = this.connectionTestResult();
+    if (result) {
+      return result.ok ? this.it.connectionSuccess : this.it.connectionFailed;
+    }
+    return this.hasAppSyncRuntimeConfig ? this.it.connectionReady : this.it.connectionNotRun;
+  });
+
+  protected readonly connectionStatusSeverity = computed(
+    (): 'success' | 'danger' | 'info' | 'warn' => {
+      if (this.connectionTestLoading()) {
+        return 'info';
+      }
+      const result = this.connectionTestResult();
+      if (result?.ok === true) {
+        return 'success';
+      }
+      if (result?.ok === false) {
+        return 'danger';
+      }
+      return this.hasAppSyncRuntimeConfig ? 'info' : 'warn';
+    },
+  );
 
   protected readonly awsRegion = this.clerkSetupConfig.awsRegion;
   protected readonly amplifyAppId = this.clerkSetupConfig.amplifyAppId;

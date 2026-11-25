@@ -7,7 +7,7 @@
     <p class="cms-record-editor__lead">{{ formLead() }}</p>
 
     @if (recordsLoading()) {
-      <p class="cms-record-editor__status" role="status">Loading saved records…</p>
+      <p-message severity="info" class="cms-record-editor__status">Loading saved records…</p-message>
     }
     @if (loadError()) {
       <p-message severity="warn" class="cms-record-editor__message">{{ loadError()! }}</p-message>
@@ -31,9 +31,9 @@
           />
         }
         @if (!orderedGroupFilterActive()) {
-          <p class="cms-record-editor__ordered-empty">
+          <p-message severity="info" class="cms-record-editor__ordered-empty">
             Choose a list above to preview active names for that section on /contact.
-          </p>
+          </p-message>
         } @else if (orderedPreviewLines().length > 0) {
           <ul class="cms-record-editor__ordered-preview">
             @for (line of orderedPreviewLines(); track line) {
@@ -41,7 +41,9 @@
             }
           </ul>
         } @else {
-          <p class="cms-record-editor__ordered-empty">No active rows in this group yet.</p>
+          <p-message severity="info" class="cms-record-editor__ordered-empty"
+            >No active rows in this group yet.</p-message
+          >
         }
 
         @if (orderedGroupFilterActive() && orderedList().length > 0) {
@@ -56,15 +58,14 @@
             <ng-template #item let-record>
               <div class="cms-record-editor__ordered-item">
                 <span>{{ orderedItemLabel(record) }}</span>
-                <button
-                  pButton
+                <p-button
                   type="button"
-                  class="p-button-sm p-button-text"
+                  severity="secondary"
+                  [text]="true"
+                  label="Edit"
                   [attr.data-testid]="'cms-edit-ordered-record-' + record['id']"
-                  (click)="editRecord(record)"
-                >
-                  Edit
-                </button>
+                  (onClick)="editRecord(record)"
+                />
               </div>
             </ng-template>
           </p-orderlist>
@@ -90,29 +91,29 @@
             <tr>
               <td>{{ recordLabel(record) }}</td>
               <td>
-                <button
-                  pButton
+                <p-button
                   type="button"
-                  class="p-button-sm p-button-outlined"
+                  severity="secondary"
+                  [outlined]="true"
+                  label="Edit"
                   [attr.data-testid]="'cms-edit-record-' + record['id']"
-                  (click)="editRecord(record)"
-                >
-                  Edit
-                </button>
+                  (onClick)="editRecord(record)"
+                />
               </td>
             </tr>
           </ng-template>
         </p-table>
         @if (!hideAddNew()) {
-          <button
-            pButton
+          <p-button
             type="button"
-            class="p-button-text cms-record-editor__new"
+            severity="secondary"
+            [text]="true"
+            icon="pi pi-plus"
+            label="Add new instead"
+            class="cms-record-editor__new"
             data-testid="cms-new-record"
-            (click)="startNewRecord()"
-          >
-            + Add new instead
-          </button>
+            (onClick)="startNewRecord()"
+          />
         }
       </div>
     }
@@ -279,9 +280,9 @@
                 <p class="cms-record-editor__ordered-label">Current order on the website</p>
               }
               @if (!orderedGroupFilterActive()) {
-                <p class="cms-record-editor__ordered-empty">
+                <p-message severity="info" class="cms-record-editor__ordered-empty">
                   Choose a list to preview active names for that section on /contact.
-                </p>
+                </p-message>
               } @else if (orderedPreviewLines().length > 0) {
                 <ul class="cms-record-editor__ordered-preview">
                   @for (line of orderedPreviewLines(); track line) {
@@ -289,7 +290,9 @@
                   }
                 </ul>
               } @else {
-                <p class="cms-record-editor__ordered-empty">No active rows in this group yet.</p>
+                <p-message severity="info" class="cms-record-editor__ordered-empty"
+            >No active rows in this group yet.</p-message
+          >
               }
 
               @if (orderedGroupFilterActive() && orderedList().length > 0) {
@@ -304,15 +307,14 @@
                   <ng-template #item let-record>
                     <div class="cms-record-editor__ordered-item">
                       <span>{{ orderedItemLabel(record) }}</span>
-                      <button
-                        pButton
+                      <p-button
                         type="button"
-                        class="p-button-sm p-button-text"
+                        severity="secondary"
+                        [text]="true"
+                        label="Edit"
                         [attr.data-testid]="'cms-edit-ordered-record-' + record['id']"
-                        (click)="editRecord(record)"
-                      >
-                        Edit
-                      </button>
+                        (onClick)="editRecord(record)"
+                      />
                     </div>
                   </ng-template>
                 </p-orderlist>
@@ -477,25 +479,22 @@
       }
 
       <div class="cms-record-editor__actions">
-        <button
-          pButton
+        <p-button
           type="submit"
+          [label]="editingId() ? 'Save changes' : 'Save to website'"
           [disabled]="submitting() || deleting()"
           data-testid="cms-save-record"
-        >
-          {{ editingId() ? 'Save changes' : 'Save to website' }}
-        </button>
+        />
         @if (canDeleteRecord()) {
-          <button
-            pButton
+          <p-button
             type="button"
-            class="p-button-danger p-button-outlined"
+            severity="danger"
+            [outlined]="true"
+            [label]="deleting() ? 'Deleting…' : 'Delete record'"
             [disabled]="submitting() || deleting()"
             data-testid="cms-delete-record"
-            (click)="deleteCurrentRecord()"
-          >
-            {{ deleting() ? 'Deleting…' : 'Delete record' }}
-          </button>
+            (onClick)="deleteCurrentRecord()"
+          />
         }
       </div>
     </form>
@@ -504,15 +503,14 @@
       <p-message
         severity="success"
         class="cms-record-editor__message">{{ submitResult()! }}</p-message>
-      <button
-        pButton
+      <p-button
         type="button"
-        class="p-button-secondary"
-        (click)="verifyOnLiveSite()"
+        severity="secondary"
+        [outlined]="true"
+        label="See on live website (public view refreshed)"
+        (onClick)="verifyOnLiveSite()"
         data-testid="cms-verify-live-site"
-      >
-        See on live website (public view refreshed)
-      </button>
+      />
     }
     @if (submitError()) {
       <p-message severity="error" class="cms-record-editor__message">{{ submitError()! }}</p-message>

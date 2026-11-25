@@ -7,6 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { StaffAuthService } from '../auth/staff-auth.service';
 import { CmsPublicDocumentAdminService } from '../cms-public-document-admin.service';
@@ -71,7 +72,7 @@ const MEETING_UPLOAD_COPY = {
 @Component({
   selector: 'app-cms-meeting-document-upload',
   standalone: true,
-  imports: [MessageModule],
+  imports: [MessageModule, ButtonModule],
   templateUrl: './cms-meeting-document-upload.component.html',
   styleUrl: './cms-meeting-document-upload.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

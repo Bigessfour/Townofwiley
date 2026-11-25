@@ -1,0 +1,118 @@
+.resident-service-card {
+  padding: var(--card-padding);
+  box-sizing: border-box;
+}
+
+.resident-service-card h2,
+.resident-service-stage-inner h2 {
+  margin: 0;
+  color: var(--wiley-ink-900);
+}
+
+.resident-service-card p,
+.resident-service-stage-inner p {
+  margin: 0;
+  color: var(--wiley-ink-700);
+  line-height: var(--line-height-body);
+}
+
+.resident-service-intro > i,
+.resident-service-stage-inner > i {
+  font-size: var(--font-size-h1);
+  color: var(--wiley-color-link);
+  margin-bottom: var(--space-xs);
+}
+
+.resident-contact-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
+  background: var(--wiley-surface-card);
+  color: var(--wiley-color-link);
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.resident-contact-link:hover {
+  color: var(--wiley-color-link-hover);
+  box-shadow: var(--shadow-subtle);
+  transform: var(--lift-hover);
+}
+
+.resident-contact-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--wiley-gold-400);
+  outline-offset: var(--focus-ring-offset-focus);
+}
+
+.resident-field--wide {
+  grid-column: 1 / -1;
+}
+
+.resident-field span {
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  color: var(--wiley-ink-900);
+}
+
+/* Aura formField tokens own fill, border, and text. */
+.resident-field input,
+.resident-field .p-inputtext,
+.resident-field .p-textarea,
+.resident-field .p-select {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  box-sizing: border-box;
+}
+
+.resident-field textarea,
+.resident-field .p-textarea {
+  min-height: 7.5rem;
+  resize: none;
+}
+
+.required {
+  color: var(--p-red-600);
+  margin-left: 2px;
+}
+
+:host ::ng-deep .resident-service-stage-card .p-card-body {
+  padding: var(--card-padding);
+}
+
+/* Anchor buttons inherit the panel ink. Re-apply the Aura preset so the gold label stays dark in both themes. */
+:host a.p-button {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  background: var(--p-button-primary-background);
+  border-color: var(--p-button-primary-border-color);
+  color: var(--p-button-primary-color);
+}
+
+:host a.p-button:hover,
+:host a.p-button:focus-visible {
+  background: var(--p-button-primary-hover-background);
+  border-color: var(--p-button-primary-hover-border-color);
+  color: var(--p-button-primary-color);
+}
+
+@media (max-width: 640px) {
+  .resident-contact-row,
+  .resident-action-row {
+    align-items: stretch;
+  }
+
+  .resident-contact-link {
+    width: 100%;
+    white-space: normal;
+  }
+}

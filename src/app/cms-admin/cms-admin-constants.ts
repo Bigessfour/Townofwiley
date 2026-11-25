@@ -4,6 +4,10 @@ export interface CmsAdminDocumentSection {
   detail: string;
 }
 
+/** Short clerk guidance shown on demand from the admin page and task hub. */
+export const CMS_CLERK_QUICK_HELP =
+  'Pick a task and click Edit content. Save, then use See on website to check. Need help? Call Town Hall at (719) 829-4974.';
+
 export const DOCUMENT_PUBLISHING_STEPS: string[] = [
   'Use the upload form below for council agendas and approved minutes.',
   'For newsletter PDFs, use Post a notice and choose Newsletter.',

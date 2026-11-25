@@ -41,7 +41,16 @@ import { SiteThemeService } from './site-theme';
       align-items: center;
     }
 
-    :host ::ng-deep .theme-toggle-btn.p-button {
+    .theme-toggle-btn.p-button {
+      --p-button-primary-background: var(--wiley-header-control-bg);
+      --p-button-primary-hover-background: var(--wiley-header-control-bg);
+      --p-button-primary-active-background: var(--wiley-header-control-bg);
+      --p-button-primary-border-color: var(--wiley-header-control-border);
+      --p-button-primary-hover-border-color: var(--wiley-header-action-bg);
+      --p-button-primary-active-border-color: var(--wiley-header-action-bg);
+      --p-button-primary-color: var(--wiley-header-control-text);
+      --p-button-primary-hover-color: var(--wiley-header-control-text);
+      --p-button-primary-active-color: var(--wiley-header-control-text);
       width: 2.75rem;
       min-width: 2.75rem;
       min-height: 2.75rem;
@@ -51,11 +60,7 @@ import { SiteThemeService } from './site-theme';
       border: 1px solid var(--wiley-header-control-border);
     }
 
-    :host ::ng-deep .theme-toggle-btn.p-button .p-button-icon {
-      color: var(--wiley-header-control-text);
-    }
-
-    :host ::ng-deep .theme-toggle-btn.p-button:hover {
+    .theme-toggle-btn.p-button:hover {
       color: var(--wiley-header-control-text);
       background: var(--wiley-header-control-bg);
       border-color: var(--wiley-header-action-bg);

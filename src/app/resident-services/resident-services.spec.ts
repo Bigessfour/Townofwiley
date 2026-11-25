@@ -35,7 +35,7 @@ describe('ResidentServices', () => {
     window.localStorage.removeItem('tow-site-language');
   });
 
-  it('renders a link to /pay-bill on the payment panel', () => {
+  it('links pay bill and weather cards to their pages and hides the extra bill panel', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
       providers: [
@@ -51,15 +51,25 @@ describe('ResidentServices', () => {
     TestBed.flushEffects();
     fixture.detectChanges();
 
-    const payBillLink = fixture.nativeElement.querySelector(
-      '[data-testid="resident-pay-bill-link"]',
+    const root = fixture.nativeElement as HTMLElement;
+    const payBillLink = root.querySelector(
+      '[data-testid="resident-service-payment"]',
+    ) as HTMLAnchorElement | null;
+    const weatherLink = root.querySelector(
+      '[data-testid="resident-service-weather"]',
+    ) as HTMLAnchorElement | null;
+    const issueLink = root.querySelector(
+      '[data-testid="resident-service-issue"]',
     ) as HTMLAnchorElement | null;
 
-    expect(payBillLink).not.toBeNull();
     expect(payBillLink?.getAttribute('href')).toContain('/pay-bill');
+    expect(weatherLink?.getAttribute('href')).toContain('/weather');
+    expect(issueLink?.getAttribute('href')).toContain('issue-report');
+    expect(root.querySelector('#payment-help')).toBeNull();
+    expect(root.querySelector('#issue-report')).toBeNull();
   });
 
-  it('renders the resident service picker as native <button> elements with aria-pressed state', () => {
+  it('renders the resident service picker as links', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
       providers: [
@@ -76,22 +86,16 @@ describe('ResidentServices', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const pickerButtons = root.querySelectorAll<HTMLButtonElement>('button.resident-picker-wrap');
-    expect(pickerButtons.length).toBeGreaterThanOrEqual(2);
+    const pickerLinks = root.querySelectorAll<HTMLAnchorElement>('a.resident-picker-wrap');
+    expect(pickerLinks.length).toBe(3);
 
-    pickerButtons.forEach((button) => {
-      expect(button.tagName).toBe('BUTTON');
-      expect(button.getAttribute('type')).toBe('button');
-      expect(button.hasAttribute('aria-pressed')).toBe(true);
+    pickerLinks.forEach((link) => {
+      expect(link.tagName).toBe('A');
+      expect(link.getAttribute('href')).toBeTruthy();
     });
-
-    const pressedCount = Array.from(pickerButtons).filter(
-      (button) => button.getAttribute('aria-pressed') === 'true',
-    ).length;
-    expect(pressedCount).toBe(1);
   });
 
-  it('toggles aria-pressed when a different picker button is clicked', () => {
+  it('shows the issue report when the issue card destination is active', () => {
     TestBed.configureTestingModule({
       imports: [ResidentServices],
       providers: [
@@ -108,20 +112,19 @@ describe('ResidentServices', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const pickerButtons = Array.from(
-      root.querySelectorAll<HTMLButtonElement>('button.resident-picker-wrap'),
-    );
-    const initiallyPressedIndex = pickerButtons.findIndex(
-      (button) => button.getAttribute('aria-pressed') === 'true',
-    );
-    const targetIndex = pickerButtons.findIndex((_, index) => index !== initiallyPressedIndex);
-    pickerButtons[targetIndex].click();
+    const issueLink = root.querySelector(
+      '[data-testid="resident-service-issue"]',
+    ) as HTMLAnchorElement | null;
+    expect(issueLink?.getAttribute('href')).toContain('issue-report');
+
+    (
+      fixture.componentInstance as unknown as {
+        activeServicePanel: { set: (value: 'issue') => void };
+      }
+    ).activeServicePanel.set('issue');
     fixture.detectChanges();
 
-    const refreshed = Array.from(
-      root.querySelectorAll<HTMLButtonElement>('button.resident-picker-wrap'),
-    );
-    expect(refreshed[targetIndex].getAttribute('aria-pressed')).toBe('true');
-    expect(refreshed[initiallyPressedIndex].getAttribute('aria-pressed')).toBe('false');
+    expect(root.querySelector('#issue-report')).not.toBeNull();
+    expect(issueLink?.getAttribute('aria-current')).toBe('page');
   });
 });

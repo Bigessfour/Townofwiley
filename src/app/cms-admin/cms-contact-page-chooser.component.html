@@ -1,13 +1,14 @@
 <div class="cms-contact-chooser" data-testid="cms-contact-page-chooser">
   @if (selected(); as section) {
-    <button
+    <p-button
       type="button"
+      severity="secondary"
+      [text]="true"
+      label="Back to Contact page parts"
       class="cms-contact-chooser__back"
       data-testid="cms-contact-chooser-back"
-      (click)="backToParts()"
-    >
-      Back to Contact page parts
-    </button>
+      (onClick)="backToParts()"
+    />
     <p class="cms-contact-chooser__section-help">{{ section.help }}</p>
     <app-cms-clerk-record-editor
       [taskId]="section.editorTaskId"

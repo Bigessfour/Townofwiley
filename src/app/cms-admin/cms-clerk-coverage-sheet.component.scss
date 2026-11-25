@@ -1,9 +1,10 @@
+@use './cms-admin-theme' as cms;
+
 .cms-coverage {
   margin: 1.25rem 0;
   padding: 1.25rem;
   border-radius: var(--radius-lg, 0.75rem);
-  background: #fff;
-  border: 1px solid var(--wiley-cream-100, #e8e0d4);
+  @include cms.card;
 }
 
 .cms-coverage__title {
@@ -15,7 +16,7 @@
   margin: 0 0 1rem;
   max-width: 48rem;
   line-height: 1.55;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-coverage__table-wrap {
@@ -33,21 +34,21 @@
   padding: 0.65rem 0.75rem;
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--wiley-cream-100, #e8e0d4);
+  border-bottom: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
 }
 
 .cms-coverage__table th {
   font-weight: 700;
-  background: var(--wiley-cream-50, #faf8f5);
+  background: var(--wiley-cream-50);
 }
 
 .cms-coverage__hint {
   margin: 0.35rem 0 0;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }
 
 .cms-coverage__na {
-  color: var(--text-muted, #64748b);
+  @include cms.muted;
 }

@@ -45,6 +45,7 @@ export interface IssuePanelCopy {
     TextareaModule,
   ],
   templateUrl: './issue-panel.html',
+  styleUrl: '../resident-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResidentIssuePanel {
