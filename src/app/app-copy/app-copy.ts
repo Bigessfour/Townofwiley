@@ -266,6 +266,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuServicesRelatedColumnLabel: 'Meetings & documents',
     topTasks: [
       {
+        title: 'Ask about a town ordinance',
+        description:
+          'Ask the municipal code assistant about adopted Wiley ordinances. It cites the section.',
+        href: '/ordinances',
+        note: 'Answers stay on the municipal code.',
+      },
+      {
         title: 'Pay utility bill',
         description: 'Pay your water and utility bills online or find payment options.',
         href: '/pay-bill',
@@ -727,6 +734,13 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
     menuGovernmentTownColumnLabel: 'Información del pueblo',
     menuServicesRelatedColumnLabel: 'Reuniones y documentos',
     topTasks: [
+      {
+        title: 'Preguntar sobre una ordenanza',
+        description:
+          'Pregunte al asistente del codigo municipal sobre ordenanzas adoptadas. Cita la seccion.',
+        href: '/ordinances',
+        note: 'Las respuestas se quedan en el codigo municipal.',
+      },
       {
         title: 'Pagar recibo de servicios',
         description: 'Pague sus recibos de agua y servicios en línea o encuentre opciones de pago.',

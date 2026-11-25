@@ -14,6 +14,11 @@ export function buildMegaMenuItems(copy: AppCopy): MegaMenuItem[] {
         megaMenuColumn(
           [
             {
+              label: copy.featureTitles.ordinances,
+              routerLink: '/ordinances',
+              icon: 'pi pi-book',
+            },
+            {
               label: copy.mobileOnlinePaymentsLabel,
               routerLink: '/pay-bill',
             },
