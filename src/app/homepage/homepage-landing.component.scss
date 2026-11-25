@@ -100,6 +100,8 @@
 .landing-notice-timeline {
   margin-top: var(--space-xs);
   width: 100%;
+  container-type: inline-size;
+  container-name: notice-timeline;
 }
 
 .landing-notice-timeline .p-timeline-event {
@@ -120,6 +122,30 @@
   padding-bottom: var(--space-lg);
 }
 
+.notice-timeline-date--in-card {
+  margin: 0;
+  color: var(--ink-600);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/*
+ * PrimeNG Timeline keeps the date beside the card. In the homepage's half-width
+ * column that leaves the card too narrow for a newsletter title, so the date
+ * moves into the card and the card uses the full row.
+ */
+@container notice-timeline (max-width: 36rem) {
+  .landing-notice-timeline .p-timeline-event-opposite {
+    display: none;
+    flex: 0 0 0;
+    width: 0;
+    max-width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
 .notice-card--timeline {
   display: grid;
   gap: var(--space-xs);
@@ -128,6 +154,25 @@
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
   box-sizing: border-box;
+}
+
+.meeting-card-headline {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.meeting-card-headline strong {
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-title);
+  color: var(--ink-900);
+}
+
+.meeting-card-headline .meeting-schedule {
+  display: block;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-600);
 }
 
 .notice-card--link {
@@ -145,6 +190,16 @@
   display: inline-flex;
   align-items: center;
   min-height: 2rem;
+}
+
+.notice-timeline-date--in-card {
+  display: none;
+}
+
+@container notice-timeline (max-width: 36rem) {
+  .notice-timeline-date--in-card {
+    display: inline-flex;
+  }
 }
 
 .homepage-priority-stack {
