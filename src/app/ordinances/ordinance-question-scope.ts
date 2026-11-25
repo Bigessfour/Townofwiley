@@ -1,9 +1,9 @@
 export type OrdinanceQuestionScope = 'empty' | 'ordinance' | 'out-of-scope';
 
 /**
- * Courtesy filter for the public page. The paid boundary is the Town API:
- * ApplyGuardrail, retrieval with no generator call when nothing matches,
- * then a grounded answer. This function only keeps the layout honest.
+ * Courtesy filter for the public page. The Town API enforces the same
+ * rules in infrastructure/terraform/stacks/ordinance-assistant/lambda/ask.py
+ * before it retrieves a section or calls the model.
  */
 const MISUSE_PATTERNS: readonly RegExp[] = [
   /\b(homework|essay|term paper|book report|poem|short story|fanfic|tarea|ensayo)\b/i,

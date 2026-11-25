@@ -1,14 +1,15 @@
 """Answer a Wiley ordinance question only when a retrieved section matches.
 
-The browser never receives AWS credentials. ApplyGuardrail runs before any
-generation. Converse runs only after a chunk clears the score, with the
-retrieved text marked as a grounding source.
+The browser never receives AWS credentials. A local scope check refuses
+homework, coding, and other non-municipal questions before retrieval.
+Converse runs only after a chunk clears the score.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Any
 
 CLERK_MESSAGE = (
@@ -19,14 +20,61 @@ OFF_TOPIC_MESSAGE = "I only answer questions about the Town of Wiley municipal c
 MAX_QUESTION_LENGTH = 600
 
 
+# Keep these aligned with src/app/ordinances/ordinance-question-scope.ts.
+# Misuse is checked first, so "write my homework about the dog license" is refused.
+MISUSE_PATTERNS = [
+    re.compile(
+        r"\b(homework|essay|term paper|book report|poem|short story|fanfic|tarea|ensayo)\b",
+        re.I,
+    ),
+    re.compile(r"\b(python|javascript|typescript|\bjava\b|c\+\+|sql)\b", re.I),
+    re.compile(
+        r"\b(recipe|movie|celebrity|stock price|horoscope|netflix|receta|pel[ií]cula)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:write|draft|redacta|escribe)(?:\s+\w+){0,3}\s+(?:a |an |my |un |una )?(?:poem|story|email|code|script|essay|paper|correo|ensayo|c[oó]digo)\b",
+        re.I,
+    ),
+    re.compile(r"\b\d+\s*[+*/x×]\s*\d+\b"),
+    re.compile(r"\b\d+\s+-\s+\d+\b"),
+]
+ORDINANCE_PATTERNS = [
+    re.compile(
+        r"\b(ordinance|municipal code|wiley|section|sec\.|chapter|permit|zoning|dog|animal|fence|weed|grass|lawn|yard|building|alcohol|noise|parking|water|sewer|trash|garbage|license|penalty|trustee|mayor|annexation|subdivision|franchise|utility|sidewalk|traffic|offense|sanitation|nuisance|livestock|rabies|vehicle|car|automobile|truck|street|abandoned|tree|junk)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(pets?|cats?|chickens?|poultry|leash|bark(?:ing)?|kennels?|sheds?|decks?|garages?|setbacks?|variances?|burns?|fireworks|snow|rv|trailers?|campers?|signs?|business(?:es)?|vendors?|pools?|curfew|recycl(?:e|ing)|meters?|alleys?|easements?|coops?)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(ordenanza|c[oó]digo municipal|permisos?|zonificaci[oó]n|perros?|animal(?:es)?|licencias?|alcald[eí]|anexi[oó]n|basura|agua|alcantarillado|ruido|estacionamiento|estacionar|acera|tr[aá]fico|multas?|malezas|pasto|c[eé]sped|cerc[ao]s?|veh[ií]culos?|carros?|calles?|abandonad)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(mascotas?|gatos?|gallinas?|pollos?|vallas?|quejas?|construir|construcci[oó]n|patios?|negocios?|remolques?|nieve|quemas?|letreros?)\b",
+        re.I,
+    ),
+    re.compile(r"\b\d{1,2}-\d{1,2}-\d{1,3}\b"),
+]
+
+
+def question_scope(question: str) -> str:
+    text = question.strip()
+    if not text:
+        return "empty"
+    if any(pattern.search(text) for pattern in MISUSE_PATTERNS):
+        return "out-of-scope"
+    if any(pattern.search(text) for pattern in ORDINANCE_PATTERNS):
+        return "ordinance"
+    return "out-of-scope"
+
+
 def settings_from_env() -> dict[str, Any]:
     return {
         "knowledge_base_id": os.environ["KNOWLEDGE_BASE_ID"],
         "model_id": os.environ["MODEL_ID"],
-        "guardrail_id": os.environ["GUARDRAIL_ID"],
-        "guardrail_version": os.environ["GUARDRAIL_VERSION"],
-        "grounding_guardrail_id": os.environ["GROUNDING_GUARDRAIL_ID"],
-        "grounding_guardrail_version": os.environ["GROUNDING_GUARDRAIL_VERSION"],
         "min_score": float(os.environ.get("MIN_SCORE", "0.50")),
         "max_tokens": int(os.environ.get("MAX_TOKENS", "512")),
         "allowed_origins": [
@@ -100,40 +148,19 @@ def answer_from(generated: dict[str, Any]) -> str:
 
 
 def converse_blocks(question: str, hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    blocks: list[dict[str, Any]] = [
+    excerpts = "\n\n".join(hit["text"] for hit in hits)
+    return [
         {
             "text": (
                 "Answer the question using only the ordinance excerpts below. Cite the section number(s). "
                 "Prefer a clear, conversational answer. If the excerpts only partially address the question, "
                 "say what they do cover and note that the Town Clerk has the full official text. "
                 "Do not invent rules, penalties, or requirements that are not present in the excerpts. "
-                "When an excerpt has authority ordinance-2024-2, treat it as later law than the municipal code section it supersedes."
+                "When an excerpt has authority ordinance-2024-2, treat it as later law than the municipal code section it supersedes.\n\n"
+                f"Question: {question}\n\nExcerpts:\n{excerpts}"
             )
         }
     ]
-    for hit in hits:
-        blocks.append(
-            {
-                "guardContent": {
-                    "text": {
-                        "text": hit["text"],
-                        "qualifiers": ["grounding_source"],
-                    }
-                }
-            }
-        )
-    # Contextual grounding requires a query and content to guard, not only sources.
-    blocks.append(
-        {
-            "guardContent": {
-                "text": {
-                    "text": question,
-                    "qualifiers": ["query"],
-                }
-            }
-        }
-    )
-    return blocks
 
 
 def handle(
@@ -162,13 +189,7 @@ def handle(
             allowed,
         )
 
-    guard = clients.apply_guardrail(
-        guardrailIdentifier=settings["guardrail_id"],
-        guardrailVersion=settings["guardrail_version"],
-        source="INPUT",
-        content=[{"text": {"text": question}}],
-    )
-    if guard.get("action") == "GUARDRAIL_INTERVENED":
+    if question_scope(question) != "ordinance":
         return response(
             200,
             {"answer": OFF_TOPIC_MESSAGE, "citations": [], "matched": False},
@@ -199,23 +220,7 @@ def handle(
         modelId=settings["model_id"],
         messages=[{"role": "user", "content": converse_blocks(question, hits)}],
         inferenceConfig={"maxTokens": settings["max_tokens"], "temperature": 0},
-        guardrailConfig={
-            "guardrailIdentifier": settings["grounding_guardrail_id"],
-            "guardrailVersion": settings["grounding_guardrail_version"],
-            "trace": "disabled",
-        },
     )
-    if generated.get("stopReason") == "guardrail_intervened":
-        return response(
-            200,
-            {
-                "answer": answer_from(generated) or CLERK_MESSAGE,
-                "citations": public_citations(hits),
-                "matched": False,
-            },
-            origin,
-            allowed,
-        )
     return response(
         200,
         {
@@ -234,9 +239,6 @@ class AwsClients:
 
         self._runtime = boto3.client("bedrock-runtime")
         self._retrieve = boto3.client("bedrock-agent-runtime")
-
-    def apply_guardrail(self, **kwargs: Any) -> dict[str, Any]:
-        return self._runtime.apply_guardrail(**kwargs)
 
     def converse(self, **kwargs: Any) -> dict[str, Any]:
         return self._runtime.converse(**kwargs)

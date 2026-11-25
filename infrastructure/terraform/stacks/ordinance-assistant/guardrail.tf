@@ -1,3 +1,5 @@
+# Retained so an existing Bedrock guardrail is not deleted during apply.
+# tow-ordinance-ask no longer calls these. Scope is enforced in lambda/ask.py.
 resource "aws_bedrock_guardrail" "scope" {
   name                      = "tow-ordinance-scope"
   description               = "Refuse questions that are not about the Wiley municipal code"
