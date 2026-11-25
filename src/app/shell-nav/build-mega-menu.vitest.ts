@@ -12,6 +12,16 @@ describe('buildMegaMenuItems', () => {
     expect(labels).toContain(APP_COPY.en.menuContactHallLabel);
   });
 
+  it('puts the municipal code assistant first in I Want To', () => {
+    const items = buildMegaMenuItems(APP_COPY.en);
+    const quickTasks = items.find((item) => item.label === APP_COPY.en.menuQuickTasksLabel);
+    const firstColumn = quickTasks?.items?.[0]?.[0];
+    expect(firstColumn?.items?.[0]).toMatchObject({
+      label: 'Municipal code assistant',
+      routerLink: '/ordinances',
+    });
+  });
+
   it('wires weather alert signup fragment on alert leaves', () => {
     const serialized = JSON.stringify(buildMegaMenuItems(APP_COPY.en));
     expect(serialized).toContain(`"fragment":"${WEATHER_ALERT_SIGNUP_FRAGMENT}"`);

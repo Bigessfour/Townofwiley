@@ -38,6 +38,7 @@
                 @if (taskLink.isInternal) {
                   <a
                     class="task-card group block h-full rounded-wiley-xl no-underline transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wiley-teal-600"
+                    [class.task-card--featured]="task.href === '/ordinances'"
                     [routerLink]="taskLink.path"
                     [fragment]="taskLink.fragment"
                   >
@@ -45,8 +46,16 @@
                       <ng-template #content>
                         <div class="task-card-inner">
                           <span class="task-card-icon" aria-hidden="true">
-                            @switch (taskIndex) {
-                              @case (0) {
+                            @switch (task.href) {
+                              @case ('/ordinances') {
+                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                  <path d="M6 4h9a3 3 0 0 1 3 3v13H9a3 3 0 0 0-3 3z" />
+                                  <path d="M6 4v16" />
+                                  <path d="M10 8h5" />
+                                  <path d="M10 12h5" />
+                                </svg>
+                              }
+                              @case ('/pay-bill') {
                                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                                   <path d="M4 7.5h16" />
                                   <path d="M6 7.5V6a2 2 0 0 1 2-2h8a2 2 0 0 0 2 2v1.5" />
@@ -56,7 +65,7 @@
                                   <path d="M9 12h6" />
                                 </svg>
                               }
-                              @case (1) {
+                              @case ('/services#issue-report') {
                                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                                   <path d="M12 20v-7" />
                                   <path d="M8 17l4 3 4-3" />
@@ -65,7 +74,7 @@
                                   />
                                 </svg>
                               }
-                              @case (2) {
+                              @case ('/meetings') {
                                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                                   <rect x="4" y="5" width="16" height="15" rx="2" />
                                   <path d="M8 3v4" />
@@ -86,6 +95,9 @@
                           </span>
 
                           <div class="task-card-copy">
+                            @if (task.href === '/ordinances') {
+                              <span class="task-card-marker">{{ appCopy().ordinancesKicker }}</span>
+                            }
                             <strong [attr.id]="'top-task-title-' + taskIndex">{{
                               task.title
                             }}</strong>

@@ -7,6 +7,7 @@ export const siteContent = {
     alerts: 'Sign up for text or email alerts',
   },
   topTaskHeadings: [
+    'Ask about a town ordinance',
     'Pay utility bill',
     'Report a street or utility issue',
     'Find a meeting or agenda',
@@ -35,6 +36,7 @@ export const siteContent = {
    */
   mobileDrawerLinksEn: [
     { label: 'Pay your bill', urlRegex: /\/pay-bill$/ },
+    { label: 'Municipal code assistant', urlRegex: /\/ordinances$/ },
     { label: 'Home', urlRegex: /\/$/ },
     { label: 'I Want To...', urlRegex: /\/#top-tasks$/ },
     { label: 'Government & Meetings', urlRegex: /\/meetings$/ },
