@@ -1,0 +1,196 @@
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { FieldsetModule } from 'primeng/fieldset';
+import { MessageModule } from 'primeng/message';
+import { PanelModule } from 'primeng/panel';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
+import { APP_COPY } from '../app-copy';
+import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { assessOrdinanceQuestion } from './ordinance-question-scope';
+
+const QUESTION_MAX_LENGTH = 600;
+
+interface OrdinanceMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface OrdinanceChatCopy {
+  scopeTag: string;
+  scopeNote: string;
+  questionLabel: string;
+  placeholder: string;
+  helper: string;
+  tooLong: string;
+  send: string;
+  clear: string;
+  promptsLabel: string;
+  prompts: string[];
+  welcome: string;
+  outOfScope: string;
+  pendingKnowledgeBase: string;
+  you: string;
+  assistant: string;
+  conversationLabel: string;
+  sampleTitle: string;
+  sampleNote: string;
+  sampleQuestion: string;
+  sampleAnswer: string;
+  sampleCitations: string[];
+  clerkNote: string;
+  clerkLink: string;
+}
+
+const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
+  en: {
+    scopeTag: 'Ordinances only',
+    scopeNote:
+      'This assistant answers questions about the Wiley Municipal Code and later ordinances that amend it. It will not do homework, write papers, draft messages, or answer general questions.',
+    questionLabel: 'Your question about the municipal code',
+    placeholder: 'Example: Do I need a license for my dog?',
+    helper: 'Ask about a rule, permit, penalty, or section number.',
+    tooLong: 'Keep the question under 600 characters.',
+    send: 'Ask',
+    clear: 'Clear conversation',
+    promptsLabel: 'Questions this page is for',
+    prompts: [
+      'Do I need a license for my dog?',
+      'What is the rule for a dog running at large?',
+      'Where are the zoning variance rules?',
+      'What building regulations does the code adopt?',
+    ],
+    welcome:
+      'Ask about an adopted Wiley ordinance. Until the Town knowledge base is connected, in-scope questions are acknowledged and not answered from memory. Questions outside the municipal code are declined.',
+    outOfScope:
+      'I only answer questions about the Town of Wiley municipal code and adopted ordinances. I cannot help with homework, general knowledge, coding, or drafting. Try a question about a permit, animal rule, zoning section, or utility regulation.',
+    pendingKnowledgeBase:
+      'That question is about the Wiley Municipal Code. This page is not connected to the ordinance knowledge base yet, so I will not guess at the section. The Town Clerk can provide the official text.',
+    you: 'You',
+    assistant: 'Code assistant',
+    conversationLabel: 'Conversation',
+    sampleTitle: 'How a cited answer will look',
+    sampleNote:
+      'Layout sample from the code on file. This is not a live answer and is not a substitute for the official book.',
+    sampleQuestion: 'What is the rule for a dog running at large?',
+    sampleAnswer:
+      'Ordinance 2024-2 amends Section 7-6-120. It says it is unlawful for an owner, keeper, or lessee to fail to prevent an animal from running at large, and that an animal found running at large may be impounded.',
+    sampleCitations: [
+      'Ordinance 2024-2, Section 7-6-120',
+      'Wiley Municipal Code index, Section 7-6-170 (license required)',
+    ],
+    clerkNote: 'The adopted ordinance controls if this assistant and the code book ever disagree.',
+    clerkLink: 'Contact the Town Clerk',
+  },
+  es: {
+    scopeTag: 'Solo ordenanzas',
+    scopeNote:
+      'Este asistente responde preguntas sobre el Código Municipal de Wiley y las ordenanzas posteriores que lo modifican. No hace tareas, no redacta textos y no responde preguntas generales.',
+    questionLabel: 'Su pregunta sobre el código municipal',
+    placeholder: 'Ejemplo: ¿Necesito licencia para mi perro?',
+    helper: 'Pregunte sobre una regla, un permiso, una multa o un número de sección.',
+    tooLong: 'La pregunta debe tener menos de 600 caracteres.',
+    send: 'Preguntar',
+    clear: 'Borrar conversación',
+    promptsLabel: 'Preguntas para esta página',
+    prompts: [
+      '¿Necesito licencia para mi perro?',
+      '¿Cuál es la regla si un perro anda suelto?',
+      '¿Dónde están las reglas de variaciones de zonificación?',
+      '¿Qué reglamentos de construcción adopta el código?',
+    ],
+    welcome:
+      'Pregunte sobre una ordenanza adoptada de Wiley. Hasta que la base de conocimiento del Pueblo esté conectada, las preguntas del código se reconocen y no se responden de memoria. Las preguntas fuera del código municipal se rechazan.',
+    outOfScope:
+      'Solo respondo preguntas sobre el código municipal y las ordenanzas adoptadas del Pueblo de Wiley. No puedo ayudar con tareas, cultura general, programación ni redacción. Pruebe una pregunta sobre un permiso, animales, zonificación o servicios públicos.',
+    pendingKnowledgeBase:
+      'Esa pregunta es sobre el Código Municipal de Wiley. Esta página aún no está conectada a la base de conocimiento, así que no voy a adivinar la sección. La Secretaría del Pueblo puede dar el texto oficial.',
+    you: 'Usted',
+    assistant: 'Asistente del código',
+    conversationLabel: 'Conversación',
+    sampleTitle: 'Así se verá una respuesta con cita',
+    sampleNote:
+      'Muestra de diseño tomada del código en archivo. No es una respuesta en vivo ni sustituye el libro oficial.',
+    sampleQuestion: '¿Cuál es la regla si un perro anda suelto?',
+    sampleAnswer:
+      'La Ordenanza 2024-2 modifica la Sección 7-6-120. Dice que es ilegal que el dueño, cuidador o arrendatario no impida que un animal ande suelto, y que un animal encontrado suelto puede ser recogido.',
+    sampleCitations: [
+      'Ordenanza 2024-2, Sección 7-6-120',
+      'Índice del Código Municipal de Wiley, Sección 7-6-170 (licencia requerida)',
+    ],
+    clerkNote: 'La ordenanza adoptada manda si este asistente y el libro del código no coinciden.',
+    clerkLink: 'Contactar a la Secretaría',
+  },
+};
+
+@Component({
+  selector: 'app-ordinances-page',
+  imports: [
+    ButtonModule,
+    CardModule,
+    FieldsetModule,
+    MessageModule,
+    PanelModule,
+    RouterLink,
+    ScrollPanelModule,
+    TagModule,
+    TextareaModule,
+  ],
+  templateUrl: './ordinances-page.html',
+  styleUrl: './ordinances-page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class OrdinancesPage {
+  private readonly siteLanguageService = inject(SiteLanguageService);
+
+  protected readonly draft = signal('');
+  protected readonly messages = signal<OrdinanceMessage[]>([]);
+
+  protected readonly pageCopy = computed(
+    () => APP_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
+
+  protected readonly copy = computed(
+    () => CHAT_COPY[this.siteLanguageService.currentLanguage() || 'en'],
+  );
+
+  protected readonly questionTooLong = computed(
+    () => this.draft().trim().length > QUESTION_MAX_LENGTH,
+  );
+
+  protected updateDraft(value: string): void {
+    this.draft.set(value);
+  }
+
+  protected askPrompt(prompt: string): void {
+    this.draft.set(prompt);
+    this.sendMessage();
+  }
+
+  protected sendMessage(): void {
+    const text = this.draft().trim();
+    const scope = assessOrdinanceQuestion(text);
+    if (scope === 'empty' || this.questionTooLong()) {
+      return;
+    }
+
+    const copy = this.copy();
+    this.messages.update((current) => [
+      ...current,
+      { role: 'user', content: text },
+      {
+        role: 'assistant',
+        content: scope === 'ordinance' ? copy.pendingKnowledgeBase : copy.outOfScope,
+      },
+    ]);
+    this.draft.set('');
+  }
+
+  protected clearConversation(): void {
+    this.messages.set([]);
+    this.draft.set('');
+  }
+}

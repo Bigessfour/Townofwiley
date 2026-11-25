@@ -42,6 +42,12 @@
 
 ---
 
+## Ordinance assistant (layout only)
+
+- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes; browser check of an in-scope question and an off-topic question. Knowledge base and Bedrock are not connected.
+
+---
+
 ## Key workflows
 
 - [x] Staff login UI + forgot password

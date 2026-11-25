@@ -81,6 +81,11 @@ export function buildMegaMenuItems(copy: AppCopy): MegaMenuItem[] {
               icon: 'pi pi-calendar-plus',
             },
             { label: copy.featureTitles.records, routerLink: '/meetings', icon: 'pi pi-folder' },
+            {
+              label: copy.featureTitles.ordinances,
+              routerLink: '/ordinances',
+              icon: 'pi pi-book',
+            },
           ],
           copy.menuGovernmentMeetingsColumnLabel,
         ),

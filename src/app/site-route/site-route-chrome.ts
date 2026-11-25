@@ -18,6 +18,7 @@ export interface SiteRouteChrome {
   isTermsMode: boolean;
   isBusinessesMode: boolean;
   isHistoryMode: boolean;
+  isOrdinancesMode: boolean;
   isNewsMode: boolean;
   isPaymentsMode: boolean;
   isTopLevelLazyRouteMode: boolean;
@@ -42,6 +43,7 @@ export function resolveSiteRouteChrome(path: string): SiteRouteChrome {
   const isTermsMode = path === '/terms';
   const isBusinessesMode = path === '/businesses';
   const isHistoryMode = path === '/history';
+  const isOrdinancesMode = path === '/ordinances';
   /** `/notices` is a redirect; treat first paint as news hub so chrome does not flash home. */
   const isNewsMode = path === '/news' || path === '/notices';
   const isPaymentsMode = path === '/pay-bill' || path === '/payments';
@@ -57,6 +59,7 @@ export function resolveSiteRouteChrome(path: string): SiteRouteChrome {
     isTermsMode ||
     isBusinessesMode ||
     isHistoryMode ||
+    isOrdinancesMode ||
     isNewsMode ||
     isPaymentsMode;
   const isNotFoundMode =
@@ -82,6 +85,7 @@ export function resolveSiteRouteChrome(path: string): SiteRouteChrome {
     isTermsMode,
     isBusinessesMode,
     isHistoryMode,
+    isOrdinancesMode,
     isNewsMode,
     isPaymentsMode,
     isTopLevelLazyRouteMode,
