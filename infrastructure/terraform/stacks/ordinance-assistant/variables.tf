@@ -42,9 +42,12 @@ variable "generator_model_id" {
   default     = "us.amazon.nova-lite-v1:0"
 }
 
+# Score floor and the Lambda retrieve count are intentionally permissive for
+# conversational municipal questions. Generation still requires a retrieved match.
 variable "min_score" {
-  type    = number
-  default = 0.7
+  type        = number
+  description = "Minimum retrieval score. Permissive for municipal Q&A; a match is still required."
+  default     = 0.50
 }
 
 variable "max_tokens" {

@@ -4,10 +4,8 @@
 The knowledge base should cite 7-6-120, not a whole chapter. Word files start
 with a table of contents (``Sec. 7-1-10\\tTitle``) and then the body
 (``Sec. 7-1-10. Title.``). Only the body heading is a section. Chapter 19,
-Chapter 20, the scanned code PDF, and resolutions are not ingested.
-
-Hierarchical chunking is configured later, on the Bedrock data source. This
-script only prepares the files that data source will read.
+the index, later ordinances, and resolutions are added by expand_corpus.py.
+The scanned code PDF is not ingested. Bedrock chunks the files later.
 """
 
 from __future__ import annotations
@@ -185,13 +183,18 @@ def build_corpus(converted: Path) -> dict[int, list[tuple[str, dict[str, str], s
 
 
 def write_corpus(corpus: dict[int, list[tuple[str, dict[str, str], str]]], output: Path) -> int:
-    if output.exists():
-        for path in output.rglob("*"):
-            if path.is_file() and path.suffix in {".md", ".json"}:
-                path.unlink()
+    """Rewrite only the chapter folders this function owns.
+
+    Later ordinances, resolutions, the disposition table, and the index live
+    beside those folders. A full wipe would drop them on the next code split.
+    """
     count = 0
     for chapter, rows in corpus.items():
         directory = chapter_dir(output, chapter)
+        if directory.exists():
+            for path in directory.rglob("*"):
+                if path.is_file() and path.suffix in {".md", ".json"}:
+                    path.unlink()
         for filename, fields, body in rows:
             write_section(directory, filename, fields, body)
             count += 1

@@ -27,7 +27,7 @@ def settings_from_env() -> dict[str, Any]:
         "guardrail_version": os.environ["GUARDRAIL_VERSION"],
         "grounding_guardrail_id": os.environ["GROUNDING_GUARDRAIL_ID"],
         "grounding_guardrail_version": os.environ["GROUNDING_GUARDRAIL_VERSION"],
-        "min_score": float(os.environ.get("MIN_SCORE", "0.7")),
+        "min_score": float(os.environ.get("MIN_SCORE", "0.50")),
         "max_tokens": int(os.environ.get("MAX_TOKENS", "512")),
         "allowed_origins": [
             origin.strip()
@@ -103,9 +103,11 @@ def converse_blocks(question: str, hits: list[dict[str, Any]]) -> list[dict[str,
     blocks: list[dict[str, Any]] = [
         {
             "text": (
-                "Answer only from the ordinance excerpts below. Cite the section number. "
-                "When an excerpt has authority ordinance-2024-2, it is later law than the municipal code section it supersedes. "
-                "If the excerpts do not answer the question, say the Town Clerk has the official text."
+                "Answer the question using only the ordinance excerpts below. Cite the section number(s). "
+                "Prefer a clear, conversational answer. If the excerpts only partially address the question, "
+                "say what they do cover and note that the Town Clerk has the full official text. "
+                "Do not invent rules, penalties, or requirements that are not present in the excerpts. "
+                "When an excerpt has authority ordinance-2024-2, treat it as later law than the municipal code section it supersedes."
             )
         }
     ]
@@ -174,10 +176,13 @@ def handle(
             allowed,
         )
 
+    # The score floor and result count are intentionally permissive so a
+    # conversational municipal question can still find a relevant chunk.
+    # Generation still requires at least one retrieved match.
     retrieved = clients.retrieve(
         knowledgeBaseId=settings["knowledge_base_id"],
         retrievalQuery={"text": question},
-        retrievalConfiguration={"vectorSearchConfiguration": {"numberOfResults": 5}},
+        retrievalConfiguration={"vectorSearchConfiguration": {"numberOfResults": 10}},
     )
     hits = citations_from(
         retrieved.get("retrievalResults") or [], settings["min_score"]

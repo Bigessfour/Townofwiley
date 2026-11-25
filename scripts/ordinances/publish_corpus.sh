@@ -22,9 +22,15 @@ fi
 
 bucket="tow-ordinance-source-818904800844"
 desktop="${HOME}/Desktop/Town of Wiley Ordinances"
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
+# Adds ordinances/, resolutions/, 19/, and 20/ under ingest/source.
+# Does not rewrite the municipal-code section files and does not embed locally.
+python3 "$repo/scripts/ordinances/expand_corpus.py" --source "$desktop" --output "${desktop}/ingest/source"
+
+# Sync without --delete so files already in the knowledge base stay in the bucket.
 aws s3 sync "${desktop}/ingest/source" "s3://${bucket}/source/" --profile "$profile" --region "$region"
-# Originals of the ingested code only. Resolutions stay off this bucket.
+# Originals of the sectioned code chapters. raw/ is not a knowledge-base prefix.
 raw_files=(
   "01 Wiley Clean.doc" "02 Wiley Clean.doc" "04 Wiley Clean.doc" "05 Wiley Clean.doc"
   "07 Wiley Clean.doc" "08 Wiley Clean.doc" "10 Wiley Clean.doc" "11 Wiley Clean.doc"

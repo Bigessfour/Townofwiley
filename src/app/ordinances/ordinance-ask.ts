@@ -29,8 +29,35 @@ export function planOrdinanceReply(
 }
 
 export function formatOrdinanceCitation(citation: OrdinanceCitation): string {
-  const label = citation.authority === 'ordinance-2024-2' ? 'Ordinance 2024-2' : 'Wiley Municipal Code';
-  return citation.section ? `${label}, Section ${citation.section}` : label;
+  const authority = citation.authority.trim();
+  const section = citation.section.trim();
+  if (authority === 'code') {
+    return section ? `Wiley Municipal Code, Section ${section}` : 'Wiley Municipal Code';
+  }
+  if (authority === 'code-index') {
+    return section ? `Wiley Municipal Code index, ${section}` : 'Wiley Municipal Code index';
+  }
+  if (authority === 'code-disposition') {
+    return 'Wiley Municipal Code disposition table';
+  }
+  const numbered = /^(ordinance|resolution)-(\d{4}-\d+[a-z]?)(?:-(.+))?$/i.exec(authority);
+  if (numbered) {
+    const kind = numbered[1].toLowerCase() === 'resolution' ? 'Resolution' : 'Ordinance';
+    const number = numbered[2];
+    const suffix = numbered[3]?.replace(/-/g, ' ');
+    const base = suffix ? `${kind} ${number} (${suffix})` : `${kind} ${number}`;
+    if (!section || section === number) {
+      return base;
+    }
+    if (/^\d/.test(section)) {
+      return `${base}, Section ${section}`;
+    }
+    return base;
+  }
+  if (authority.startsWith('ordinance-') || authority.startsWith('resolution-')) {
+    return section || authority;
+  }
+  return section ? `${authority}, Section ${section}` : authority;
 }
 
 export async function askOrdinanceQuestion(

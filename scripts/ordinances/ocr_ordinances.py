@@ -274,14 +274,17 @@ def carved_jpegs(path: Path, destination: Path) -> list[Path]:
     return found
 
 
-def iter_sources(root: Path) -> list[Path]:
+def iter_sources(root: Path, *, include_backup: bool = False) -> list[Path]:
+    skipped = set(SKIP_DIR_NAMES)
+    if include_backup:
+        skipped.discard("from Backup")
     files: list[Path] = []
     for path in sorted(root.rglob("*")):
         if not path.is_file():
             continue
         if path.suffix.lower() not in SUPPORTED:
             continue
-        if any(part in SKIP_DIR_NAMES for part in path.relative_to(root).parts):
+        if any(part in skipped for part in path.relative_to(root).parts):
             continue
         if path.name.endswith(".partial"):
             continue
@@ -473,13 +476,18 @@ def main() -> int:
     parser.add_argument(
         "--only", action="append", default=[], help="File name substring to include"
     )
+    parser.add_argument(
+        "--include-backup",
+        action="store_true",
+        help="Also read Ordinances (NAS)/from Backup. Reference models stay excluded.",
+    )
     args = parser.parse_args()
     source_root = args.source.expanduser().resolve()
     output = (args.output or (source_root / "converted")).expanduser().resolve()
     if not source_root.is_dir():
         print(f"Source folder not found: {source_root}", file=sys.stderr)
         return 1
-    files = iter_sources(source_root)
+    files = iter_sources(source_root, include_backup=args.include_backup)
     if args.only:
         files = [
             path for path in files if any(piece in str(path) for piece in args.only)
