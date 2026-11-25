@@ -158,6 +158,12 @@
   gap: 0.45rem;
 }
 
+.cms-record-field textarea {
+  width: 100%;
+  min-height: 7.5rem;
+  resize: none;
+}
+
 .cms-record-field > span:first-child {
   font-weight: 700;
 }

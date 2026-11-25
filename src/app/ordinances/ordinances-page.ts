@@ -5,7 +5,6 @@ import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
 import { MessageModule } from 'primeng/message';
 import { PanelModule } from 'primeng/panel';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { APP_COPY } from '../app-copy';
@@ -146,7 +145,6 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
     MessageModule,
     PanelModule,
     RouterLink,
-    ScrollPanelModule,
     TagModule,
     TextareaModule,
   ],

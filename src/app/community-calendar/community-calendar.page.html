@@ -147,7 +147,7 @@
       </div>
       <div class="community-calendar__field community-calendar__field--wide">
         <label for="community-description">{{ copy().fields.description }}</label>
-        <textarea id="community-description" pTextarea rows="4" formControlName="description" required></textarea>
+        <textarea id="community-description" pTextarea rows="4" [autoResize]="true" formControlName="description" required></textarea>
       </div>
       <div class="community-calendar__field">
         <label for="community-organizer">{{ copy().fields.organizerName }}</label>
@@ -167,7 +167,7 @@
       </div>
       <div class="community-calendar__field community-calendar__field--wide">
         <label for="community-a11y">{{ copy().fields.accessibilityNotes }}</label>
-        <textarea id="community-a11y" pTextarea rows="2" formControlName="accessibilityNotes"></textarea>
+        <textarea id="community-a11y" pTextarea rows="2" [autoResize]="true" formControlName="accessibilityNotes"></textarea>
       </div>
 
       <button type="submit" pButton [disabled]="submitting()">
