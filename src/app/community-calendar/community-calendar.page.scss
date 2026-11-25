@@ -119,6 +119,15 @@
   width: 100%;
 }
 
+.community-calendar__field textarea {
+  resize: none;
+  min-height: 4.5rem;
+}
+
+.community-calendar__field textarea[rows='4'] {
+  min-height: 7.5rem;
+}
+
 .community-calendar__honeypot {
   position: absolute;
   left: -10000px;

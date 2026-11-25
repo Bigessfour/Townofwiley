@@ -112,6 +112,7 @@
             pTextarea
             id="issue-details"
             rows="4"
+            [autoResize]="true"
             formControlName="details"
             [invalid]="issueForm().controls.details.invalid && issueForm().controls.details.touched"
           ></textarea>

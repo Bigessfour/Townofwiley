@@ -16,6 +16,13 @@ describe('resolveSiteRouteChrome', () => {
     expect(chrome.isFeaturePageMode).toBe(true);
   });
 
+  it('marks the municipal code assistant as a feature page', () => {
+    const chrome = resolveSiteRouteChrome('/ordinances');
+    expect(chrome.isOrdinancesMode).toBe(true);
+    expect(chrome.isFeaturePageMode).toBe(true);
+    expect(chrome.isNotFoundMode).toBe(false);
+  });
+
   it('flags unknown public paths as not-found', () => {
     const chrome = resolveSiteRouteChrome('/totally-unknown-town-path');
     expect(chrome.isNotFoundMode).toBe(true);

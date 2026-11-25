@@ -34,6 +34,12 @@
   font-weight: 600;
 }
 
+.cms-community-calendar-admin__form textarea {
+  width: 100%;
+  min-height: 6rem;
+  resize: none;
+}
+
 .cms-community-calendar-admin__wide,
 .cms-community-calendar-admin__dialog-actions {
   grid-column: 1 / -1;

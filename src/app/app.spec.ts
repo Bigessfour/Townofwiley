@@ -263,6 +263,10 @@ describe('App', () => {
         routerLink: '/meetings',
       },
       {
+        label: 'Municipal code assistant',
+        routerLink: '/ordinances',
+      },
+      {
         label: 'Open the full town calendar',
         routerLink: '/meetings',
         fragment: 'calendar',

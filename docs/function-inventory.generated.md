@@ -2,37 +2,42 @@
 <!-- Do NOT edit manually. Lightweight correctness-surface tracker. -->
 
 # Function Inventory — townofwiley-app
-Generated: 2026-08-21T01:57:23.918178+00:00
+Generated: 2026-11-25T00:49:18.424050+00:00
 **Stack:** TypeScript/Angular
 **Tracking mode:** `surfaces`
 **Scan roots:** `src`, `infrastructure/community-calendar`, `scripts/lib`
-**Configured surfaces:** 21 (from `.function-inventory.json` `surfaces` allowlist)
+**Configured surfaces:** 22 (from `.function-inventory.json` `surfaces` allowlist)
 
-**Summary:** 21 correctness surfaces | 21 with proof | 0 without proof
+**Summary:** 22 correctness surfaces | 21 with proof | 1 without proof
 This list is the **correctness queue** — resident/clerk-critical pages, services, and handlers only. Tiny helpers, Angular route paths, and demoted UI shells are omitted.
 
 Ship gate remains project acceptance / smoke checklists — inventory count alone is not “done.”
 
+## Surfaces without proof (review these)
+- **P2** Other Public: OrdinancesPage.OrdinancesPage @ src/app/ordinances/ordinances-page.ts:129
+
+Empty proof ≠ missing feature. Prefer focused vitest / e2e / ops checks on P1 write paths.
+
 ## Priority packages (sampled)
-- @angular/animations (22.1.0)
-- @angular/build (22.1.2)
-- @angular/cdk (^22.1.0)
-- @angular/cli (22.1.2)
-- @angular/common (22.1.0)
-- @angular/compiler (22.1.0)
-- @angular/compiler-cli (22.1.0)
-- @angular/core (22.1.0)
-- @angular/forms (22.1.0)
-- @angular/platform-browser (22.1.0)
-- @angular/platform-browser-dynamic (22.1.0)
-- @angular/platform-server (22.1.0)
-- @angular/router (22.1.0)
-- @angular/service-worker (22.1.0)
-- @angular/ssr (22.1.2)
+- @angular/animations (22.2.2)
+- @angular/build (22.2.2)
+- @angular/cdk (22.2.2)
+- @angular/cli (22.2.2)
+- @angular/common (22.2.2)
+- @angular/compiler (22.2.2)
+- @angular/compiler-cli (22.2.2)
+- @angular/core (22.2.2)
+- @angular/forms (22.2.2)
+- @angular/platform-browser (22.2.2)
+- @angular/platform-browser-dynamic (22.2.2)
+- @angular/platform-server (22.2.2)
+- @angular/router (22.2.2)
+- @angular/service-worker (22.2.2)
+- @angular/ssr (22.2.2)
 - @aws-amplify/ui-angular (^6.0.0)
 - @fullcalendar/angular (^6.1.20)
 - @primeuix/themes (^2.0.3)
-- angular-eslint (^22.1.0)
+- angular-eslint (22.2.0)
 - aws-amplify (^6.20.0)
 
 ## Correctness surfaces
@@ -54,7 +59,8 @@ Ship gate remains project acceptance / smoke checklists — inventory count alon
 | P1 | Angular Page / Component | PayBillPageComponent.PayBillPageComponent | src/app/pay-bill/pay-bill-page.component.ts:22 | src/app/pay-bill/pay-bill-page.component.spec.ts, e2e/specs/... | has logic |
 | P2 | Other Public | CmsAdmin.CmsAdmin | src/app/cms-admin/cms-admin.ts:49 | src/app/cms-admin/cms-admin.vitest.ts | has logic |
 | P2 | Angular Page / Component | CmsClerkTaskHubComponent.CmsClerkTaskHubComponent | src/app/cms-admin/cms-clerk-task-hub.component.ts:33 | src/app/cms-admin/cms-clerk-task-hub.component.vitest.ts | has logic |
-| P2 | Angular Page / Component | CmsContactPageChooserComponent.CmsContactPageChooserComponent | src/app/cms-admin/cms-contact-page-chooser.component.ts:9 | e2e/specs/smoke/admin.cms.spec.ts | has logic |
+| P2 | Angular Page / Component | CmsContactPageChooserComponent.CmsContactPageChooserComponent | src/app/cms-admin/cms-contact-page-chooser.component.ts:7 | e2e/specs/smoke/admin.cms.spec.ts | has logic |
+| P2 | Other Public | OrdinancesPage.OrdinancesPage | src/app/ordinances/ordinances-page.ts:129 | NO PROOF FOUND | has logic |
 | P3 | Angular Page / Component | MeetingDocumentsArchiveComponent.MeetingDocumentsArchiveComponent | src/app/meetings-page/meeting-documents-archive.component.ts:63 | src/app/meetings-page/meeting-documents-archive.component.vi... | has logic |
 | P3 | Angular Page / Component | ThisWeekInWileyComponent.ThisWeekInWileyComponent | src/app/this-week-in-wiley/this-week-in-wiley.component.ts:40 | src/app/this-week-in-wiley/this-week-in-wiley.component.vite... | has logic |
 | P3 | Angular Page / Component | WeatherAlertBannerComponent.WeatherAlertBannerComponent | src/app/weather-alert-banner/weather-alert-banner.component.ts:15 | src/app/weather-alert-banner/weather-alert-banner.component.... | has logic |
