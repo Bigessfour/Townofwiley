@@ -139,8 +139,13 @@ export class OrdinancesPage {
     () => this.draft().trim().length > QUESTION_MAX_LENGTH,
   );
 
-  protected updateDraft(value: string): void {
-    this.draft.set(value);
+  protected onQuestionInput(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    this.draft.set(target.value);
   }
 
   protected askPrompt(prompt: string): void {

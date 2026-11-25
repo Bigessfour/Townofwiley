@@ -205,6 +205,10 @@ export interface AppCopy {
   footerAttestationPhotoAlt: string;
   languageLabel: string;
   languageOptions: Record<SiteLanguage, string>;
+  /** Accessible name for the header control that turns dark mode on. */
+  themeToDarkLabel: string;
+  /** Accessible name for the header control that turns light mode on. */
+  themeToLightLabel: string;
   mobileMenuLabel: string;
   /** Visible "Menu" + drawer purpose for label-in-name (WCAG 2.5.3). */
   mobileMenuButtonAriaLabel: string;

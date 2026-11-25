@@ -60,6 +60,20 @@ Homepage-only marketing classes in `app.html` (avoid clashing with `_wiley-layou
 
 Post-release verification: [`post-deploy-checklist.md`](./post-deploy-checklist.md).
 
+## Theme toggle
+
+Residents switch light and dark from the header control beside the language switcher (sun / moon icon button).
+
+| Piece | Value |
+| --- | --- |
+| Class on `html` | `.wiley-dark` |
+| Stored choice | `localStorage` key `tow-color-scheme` (`light` or `dark`), written only after a toggle |
+| First visit | `prefers-color-scheme`, applied by [`public/wiley-theme-init.js`](../public/wiley-theme-init.js) before paint |
+| PrimeNG | `darkModeSelector: '.wiley-dark'` and `colorScheme.dark` in [`src/app/wiley-theme-preset.ts`](../src/app/wiley-theme-preset.ts) |
+| App surfaces | `html.wiley-dark` overrides in [`src/styles/_wiley-tokens.scss`](../src/styles/_wiley-tokens.scss) |
+
+The forest header, gold accent, and `--wiley-inverse` stay the same in both themes. Dark pages use forest-950 (`#061f18`) with cream ink (`#f4f7f2`). Primary buttons use forest-950 on gold-500 so the label stays at least 4.5:1 (white on gold does not).
+
 ## When to use sage vs teal
 
 - **Teal:** primary actions, links, focus rings, form focus borders.

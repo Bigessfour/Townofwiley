@@ -79,6 +79,15 @@ export class MeetingDocumentsArchiveComponent {
   );
 
   protected readonly searchTerm = signal('');
+
+  protected onSearchInput(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.searchTerm.set(target.value);
+  }
   protected readonly resolvedHrefs = signal<Record<string, string>>({});
   protected readonly hrefResolutionError = signal(false);
   protected readonly displayLimit = signal(MeetingDocumentsArchiveComponent.PAGE_SIZE);

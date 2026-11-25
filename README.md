@@ -221,6 +221,10 @@ Required Amplify environment variables (set in Amplify Console → App settings 
 
 Verify live CMS after deploy: `npm run verify:runtime-config-cms`. API key rotation: [`docs/appsync-api-key-rotation-runbook.md`](docs/appsync-api-key-rotation-runbook.md).
 
+### Municipal code assistant
+
+`/ordinances` posts in-scope questions to `ordinances.apiEndpoint` when `ORDINANCE_API_ENDPOINT` is set, and declines questions outside the municipal code. An empty endpoint keeps the page on its local unavailable reply. Both `ORDINANCE_API_ENDPOINT` and `ORDINANCE_API_KEY` are optional in [`infrastructure/amplify-branch-env.manifest.json`](infrastructure/amplify-branch-env.manifest.json). Do not add them to `requiredForProduction`.
+
 ## Easy-Peasy Chatbot
 
 The site can now load the Easy-Peasy chatbot from deployment-time runtime config instead of hardcoding a bot URL into the Angular app shell.

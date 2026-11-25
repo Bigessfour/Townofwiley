@@ -46,6 +46,14 @@
 
 - [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes. Town account knowledge base `OFI1SQX6LC` ingested 712 of 715 section files with fixed 200-token chunks. The live ask API cites a dog-license section and refuses a homework question. The public site still uses the empty runtime config until PR 182 merges.
 
+### Later: category and PDF browser (sketch only)
+
+Sit a browser in the existing ordinances aside, beside the chat. Do not fetch, and do not add a route.
+
+- `p-accordion` or `p-tree` for category → section (Animals, Zoning, Buildings).
+- Selecting a node fills a `p-panel` with the section title and a link to the official PDF.
+- Static sample nodes only, same bilingual copy pattern as the chat. The adopted ordinance still controls if the assistant and the book disagree.
+
 ---
 
 ## Key workflows

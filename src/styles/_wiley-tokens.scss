@@ -145,3 +145,37 @@
   --wiley-alert-urgent-start: color-mix(in srgb, #b91c1c 86%, var(--wiley-forest-900));
   --wiley-alert-urgent-end: color-mix(in srgb, #dc2626 88%, var(--wiley-forest-900));
 }
+
+/* Dark surfaces only. Forest, gold, and --wiley-inverse stay so the header bar does not invert. */
+html.wiley-dark {
+  --wiley-cream-0: #12352c;
+  --wiley-cream-50: #0c241c;
+  --wiley-cream-100: #174036;
+  --wiley-surface-page: #061f18;
+  --wiley-surface-card: #12352c;
+  --wiley-surface-card-muted: #174036;
+  --wiley-surface-secondary: #12352c;
+
+  --wiley-sage-50: #12352c;
+  --wiley-sage-100: #1a3c34;
+  --wiley-sage-200: #245044;
+
+  --wiley-ink-900: #f4f7f2;
+  --wiley-ink-700: #c5d4cc;
+  --wiley-ink-500: #8fa89c;
+
+  --wiley-color-primary: #d5e8df;
+  --wiley-color-primary-contrast: #061f18;
+  --wiley-color-link: #d5e8df;
+  --wiley-color-link-hover: #f4f7f2;
+
+  --wiley-alert-info-bg: #12352c;
+  --wiley-alert-info-border: #6fa892;
+  --wiley-alert-warn-bg: #2a2416;
+  --wiley-alert-warn-border: #d4a14b;
+
+  --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-medium: 0 12px 24px rgba(0, 0, 0, 0.34);
+  --shadow-strong: 0 22px 44px rgba(0, 0, 0, 0.4);
+  --shadow-floating: 0 26px 70px rgba(0, 0, 0, 0.45);
+}

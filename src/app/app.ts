@@ -58,6 +58,7 @@ import {
 } from './site-cms-content';
 import { applyAppCopySiteCopyOverrides } from './site-copy-overrides';
 import { SiteLanguage, SiteLanguageService } from './site-language';
+import { ThemeToggle } from './theme-toggle';
 import { WeatherAlertBannerComponent } from './weather-alert-banner/weather-alert-banner.component';
 import { HomepageWeatherAlertPrimer } from './weather-panel/homepage-weather-alert-primer';
 import { type HomepageWeatherAlert } from './weather-panel/localized-weather-panel';
@@ -100,6 +101,7 @@ import { scoreSearchItem } from './site-search/score-search-item';
     WeatherAlertBannerComponent,
     HomepageLandingComponent,
     Ripple,
+    ThemeToggle,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

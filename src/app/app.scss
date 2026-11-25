@@ -400,6 +400,16 @@
   gap: var(--space-xs);
 }
 
+/* Field stays white (--wiley-inverse). Dark mode otherwise paints light form text on it. */
+.header-search-row .search-input {
+  color: var(--wiley-forest-900);
+  caret-color: var(--wiley-forest-900);
+}
+
+.header-search-row .search-input::placeholder {
+  color: var(--wiley-forest-700);
+}
+
 .header-search-results {
   position: absolute;
   top: calc(100% + 0.35rem);
@@ -412,6 +422,7 @@
   border: 1px solid var(--wiley-cream-100, #e8e4d9);
   border-radius: var(--radius-lg, 0.75rem);
   background: var(--wiley-cream-0, #fff);
+  color: var(--wiley-ink-900);
 }
 
 .header-search-results--stacked {
@@ -2839,22 +2850,22 @@ button:not(:disabled):active,
   .p-megamenu-overlay,
   .p-megamenu-panel {
     z-index: 20;
-    --p-megamenu-item-color: var(--wiley-forest-900);
-    --p-megamenu-item-focus-color: var(--wiley-forest-950);
-    --p-megamenu-item-active-color: var(--wiley-forest-950);
+    --p-megamenu-item-color: var(--wiley-ink-900);
+    --p-megamenu-item-focus-color: var(--wiley-ink-900);
+    --p-megamenu-item-active-color: var(--wiley-ink-900);
     --p-megamenu-item-focus-background: color-mix(
       in srgb,
-      var(--wiley-forest-900) 8%,
+      var(--wiley-ink-900) 8%,
       var(--surface-card)
     );
     --p-megamenu-item-active-background: color-mix(
       in srgb,
-      var(--wiley-forest-900) 12%,
+      var(--wiley-ink-900) 12%,
       var(--surface-card)
     );
-    --p-megamenu-item-icon-color: var(--wiley-forest-800);
-    --p-megamenu-item-icon-focus-color: var(--wiley-forest-950);
-    --p-megamenu-item-icon-active-color: var(--wiley-forest-950);
+    --p-megamenu-item-icon-color: var(--wiley-ink-700);
+    --p-megamenu-item-icon-focus-color: var(--wiley-ink-900);
+    --p-megamenu-item-icon-active-color: var(--wiley-ink-900);
   }
 
   .p-menuitem-link {
@@ -2943,7 +2954,7 @@ button:not(:disabled):active,
   .p-megamenu-panel .mega-menu-sub-link {
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
-    color: var(--wiley-forest-900);
+    color: var(--wiley-ink-900);
     transition:
       background-color 140ms ease,
       border-color 140ms ease,
@@ -2953,9 +2964,9 @@ button:not(:disabled):active,
 
   .p-megamenu-panel .mega-menu-sub-link:hover,
   .p-megamenu-panel .mega-menu-sub-link:focus-visible {
-    color: var(--wiley-forest-950);
-    background: color-mix(in srgb, var(--wiley-forest-900) 8%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--wiley-forest-900) 14%, transparent);
+    color: var(--wiley-ink-900);
+    background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--surface-card));
+    border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
     box-shadow: var(--shadow-subtle);
   }
 
@@ -3003,8 +3014,9 @@ button:not(:disabled):active,
   .p-megamenu-panel {
     border-radius: 24px;
     box-shadow: 0 20px 42px rgba(17, 36, 61, 0.12);
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid rgba(13, 44, 84, 0.1);
+    background: var(--wiley-surface-card);
+    border: 1px solid var(--surface-border);
+    color: var(--wiley-ink-900);
   }
 
   /* Synthetic column groups use `{ items: [...] }` without a label; hide empty presentation rows. */
