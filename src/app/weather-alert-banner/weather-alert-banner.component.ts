@@ -39,8 +39,8 @@ export class WeatherAlertBannerComponent {
   readonly signupClick = output<void>();
 
   readonly cardPt = {
-    body: { class: 'weather-alert-banner__p-body' },
-    content: { class: 'weather-alert-banner__p-content' },
+    body: { class: 'weather-alert-banner__p-body', style: { padding: '0' } },
+    content: { class: 'weather-alert-banner__p-content', style: { padding: '0' } },
   };
 
   readonly bannerIcon = computed(() => {

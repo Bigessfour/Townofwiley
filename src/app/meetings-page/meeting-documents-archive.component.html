@@ -47,12 +47,21 @@
           </div>
 
           <div class="document-file-actions">
-            <a class="document-file-link" [attr.href]="document.href">
+            <a
+              pButton
+              severity="secondary"
+              [outlined]="true"
+              class="document-file-action"
+              [attr.href]="document.href"
+            >
               {{ copy().openDocumentLabel }}
             </a>
             @if (document.downloadFileName) {
               <a
-                class="document-file-link secondary"
+                pButton
+                severity="secondary"
+                [outlined]="true"
+                class="document-file-action"
                 [attr.href]="document.href"
                 [attr.download]="document.downloadFileName"
               >
@@ -69,6 +78,7 @@
         <p-button
           type="button"
           styleClass="meeting-archive-load-more"
+          severity="secondary"
           [outlined]="true"
           (onClick)="loadMore()"
           [attr.aria-label]="copy().loadMoreLabel"

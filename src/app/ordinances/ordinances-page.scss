@@ -3,21 +3,9 @@
   margin-bottom: var(--space-md);
 }
 
-:host ::ng-deep .ordinances-scope-tag.p-tag {
-  background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--surface-card));
-  color: var(--wiley-ink-900);
-}
-
-:host ::ng-deep .ordinances-scope.p-message {
-  background: color-mix(in srgb, var(--wiley-ink-900) 5%, var(--surface-card));
-  border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
-  color: var(--wiley-ink-900);
-  box-shadow: none;
-}
-
-:host ::ng-deep .ordinances-scope.p-message .p-message-text,
-:host ::ng-deep .ordinances-scope.p-message .p-message-content {
-  color: var(--wiley-ink-900);
+/* Aura info text is blue.500 on a 16% wash. That pair is under 4.5:1 in the dark theme. */
+:host-context(html.wiley-dark) .ordinances-scope {
+  --p-message-info-color: var(--wiley-color-link);
 }
 
 .ordinances-layout {
@@ -37,37 +25,73 @@
   gap: var(--space-sm);
 }
 
+.ordinances-composer,
+.ordinances-thread,
+.ordinance-message__body {
+  color: var(--wiley-ink-900);
+}
+
 .ordinances-thread {
   max-height: min(40rem, 70vh);
   overflow: auto;
-  border: 1px solid color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
   border-radius: var(--radius-md);
-  background: var(--surface-card);
+  background: var(--wiley-surface-card);
 }
 
 .ordinances-thread:focus-visible {
-  outline: 3px solid var(--focus-ring, rgba(13, 44, 84, 0.28));
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--wiley-gold-400);
+  outline-offset: var(--focus-ring-offset-focus);
 }
 
 .ordinances-field textarea {
   width: 100%;
   min-height: 6rem;
   resize: none;
+  background: var(--p-textarea-background, var(--wiley-surface-card));
+  color: var(--p-textarea-color, var(--wiley-ink-900));
+  border-color: var(--p-textarea-border-color, var(--wiley-ink-500));
+  caret-color: var(--wiley-ink-900);
+}
+
+.ordinances-field textarea::placeholder {
+  color: var(--p-textarea-placeholder-color, var(--wiley-ink-500));
+}
+
+.ordinances-field textarea:enabled:hover {
+  border-color: var(--p-textarea-hover-border-color, var(--wiley-ink-700));
+}
+
+.ordinances-field textarea:enabled:focus {
+  border-color: var(--p-textarea-focus-border-color, var(--wiley-color-primary));
+}
+
+/* Aura zeros the textarea focus-ring tokens and uses the border as the indicator.
+   The gold site ring is the visible keyboard focus cue. */
+.ordinances-field textarea:focus-visible {
+  outline: var(--focus-ring-width) solid var(--wiley-gold-500);
+  outline-offset: var(--focus-ring-offset-focus);
 }
 
 .ordinance-message {
   margin: 0;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
+  color: var(--wiley-ink-900);
 }
 
 .ordinance-message--assistant {
-  background: color-mix(in srgb, var(--wiley-forest-900) 6%, var(--surface-card));
+  background: color-mix(in srgb, var(--wiley-ink-900) 6%, var(--wiley-surface-card));
 }
 
 .ordinance-message--user {
-  background: color-mix(in srgb, var(--wiley-forest-900) 14%, var(--surface-card));
+  background: color-mix(in srgb, var(--wiley-ink-900) 14%, var(--wiley-surface-card));
+}
+
+.ordinance-message__role,
+.ordinances-citations,
+.ordinances-helper {
+  color: var(--wiley-ink-700);
 }
 
 .ordinance-message__role {
@@ -76,7 +100,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--wiley-ink-900);
 }
 
 .ordinance-message__body,
@@ -88,6 +111,7 @@
 
 .ordinances-field span {
   font-weight: 600;
+  color: var(--wiley-ink-900);
 }
 
 .ordinances-actions {
@@ -95,20 +119,58 @@
   flex-wrap: wrap;
   gap: var(--space-sm);
   align-items: center;
+  /* Aura's dark text-secondary color reads surface.400. On the inverted ramp that
+     gray is under 4.5:1. Ink-700 matches the light secondary label and stays light in the dark. */
+  --p-button-text-secondary-color: var(--wiley-ink-700);
+  --p-button-text-secondary-hover-background: color-mix(
+    in srgb,
+    var(--wiley-ink-900) 8%,
+    transparent
+  );
+  --p-button-text-secondary-active-background: color-mix(
+    in srgb,
+    var(--wiley-ink-900) 14%,
+    transparent
+  );
 }
 
 .ordinances-prompts {
   justify-items: stretch;
 }
 
+.ordinances-aside {
+  --p-fieldset-background: var(--wiley-surface-card);
+  --p-fieldset-color: var(--wiley-ink-900);
+  --p-fieldset-border-color: color-mix(in srgb, var(--wiley-ink-900) 18%, var(--wiley-cream-100));
+  --p-fieldset-legend-background: var(--wiley-surface-card);
+  --p-fieldset-legend-color: var(--wiley-ink-900);
+  --p-fieldset-legend-hover-background: color-mix(
+    in srgb,
+    var(--wiley-ink-900) 6%,
+    var(--wiley-surface-card)
+  );
+  --p-fieldset-legend-hover-color: var(--wiley-ink-900);
+  --p-fieldset-legend-focus-ring-color: var(--wiley-gold-400);
+}
+
+/* The button element is inside p-button, outside this view. Layout only; colors stay on the Aura preset. */
+:host ::ng-deep .ordinances-actions .p-button,
+:host ::ng-deep .ordinance-prompt.p-button {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
 :host ::ng-deep .ordinance-prompt.p-button {
   width: 100%;
+  height: auto;
   justify-content: flex-start;
 }
 
 :host ::ng-deep .ordinance-prompt .p-button-label {
   white-space: normal;
   text-align: left;
+  line-height: 1.4;
 }
 
 .ordinances-citations {
@@ -118,6 +180,13 @@
 
 .ordinances-clerk a {
   font-weight: 700;
+  color: var(--wiley-color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.ordinances-clerk a:hover {
+  color: var(--wiley-color-link-hover);
 }
 
 @media (max-width: 800px) {

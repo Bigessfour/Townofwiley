@@ -1,31 +1,49 @@
 :host {
   display: block;
-  margin-top: 0.5rem;
+  margin-top: var(--space-xs);
+  color: var(--wiley-ink-900);
 }
 
 .public-page-header h1,
-.news-page-shell h1 {
+.news-page-shell h1,
+.featured-news-card :is(h2, h3),
+.news-card :is(h2, h3),
+.newsletter-item-card :is(h2, h3) {
   margin: 0;
-  color: var(--civic-blue-strong);
-}
-
-.featured-news-card h2,
-.news-card h3 {
-  margin: 0;
-  color: var(--ink-900);
+  color: var(--wiley-ink-900);
   overflow-wrap: break-word;
   word-break: normal;
 }
 
-.featured-news-copy p,
+.news-page-shell .section-kicker {
+  margin: 0;
+  color: var(--wiley-ink-500);
+}
+
+.featured-news-card p,
+.news-card p,
+.newsletter-item-card p,
+.public-page-copy,
 .public-card-copy,
-.newsletter-item-card p {
+.featured-news-date,
+.newsletter-body__para {
+  margin: 0;
+  line-height: var(--line-height-body);
+  color: var(--wiley-ink-700);
   overflow-wrap: break-word;
   word-break: normal;
+}
+
+.featured-news-card .meta-label,
+.news-card .meta-label,
+.newsletter-item-card .meta-label {
+  color: var(--wiley-ink-500);
 }
 
 .featured-news-card-link,
 .news-card-link {
+  display: block;
+  min-height: var(--touch-target-min);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -34,22 +52,14 @@
 .featured-news-card-article,
 .news-card-article {
   display: block;
+  min-height: var(--touch-target-min);
   color: inherit;
 }
 
 .featured-news-card-link:focus-visible,
 .news-card-link:focus-visible {
-  outline: 2px solid var(--wiley-teal-600);
-  outline-offset: 2px;
-}
-
-.public-page-copy,
-.featured-news-copy p,
-.public-card-copy,
-.featured-news-date {
-  margin: 0;
-  line-height: 1.65;
-  color: var(--ink-700);
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset-rest);
 }
 
 .news-card__image {
@@ -58,52 +68,55 @@
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: var(--radius-lg);
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-sm);
 }
 
-/* Consolidated with app.scss card styles + PrimeNG p-card templates/PT */
+/* Card chrome uses theme surfaces. Button fills stay on severity + outlined. */
 .featured-news-card.p-card,
 .public-card.p-card {
-  border: 1px solid var(--surface-border);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-soft));
-  border-radius: 24px;
-  box-shadow: var(--surface-shadow-soft);
-  height: 100%;
+  --p-card-body-padding: 0;
+  --p-card-body-gap: var(--space-sm);
   display: flex;
   flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  padding: var(--space-md);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+  border-radius: var(--radius-xl);
+  background: var(--wiley-surface-card);
+  box-shadow: var(--shadow-subtle);
+  color: var(--wiley-ink-900);
 }
 
-/* Featured has accent left border */
 .featured-news-card.p-card {
-  border-left: 6px solid var(--civic-blue);
-  padding: 1.75rem;
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
-}
-
-/* Local vs External variants via PT or class */
-.news-section-local .public-card.p-card {
-  padding: 1.5rem;
+  padding: var(--space-lg);
+  border-left: 6px solid var(--wiley-color-primary);
 }
 
 .news-section-newsletter .newsletter-item-card.p-card {
-  padding: 1.5rem;
-  border-left: 6px solid color-mix(in srgb, var(--civic-blue) 65%, var(--p-primary-400));
+  padding: var(--space-lg);
+  border-left: 6px solid var(--wiley-gold-500);
+}
+
+.news-card-link:hover .public-card,
+.news-card-link:focus-visible .public-card,
+.featured-news-card-link:hover .featured-news-card,
+.featured-news-card-link:focus-visible .featured-news-card {
+  border-color: color-mix(in srgb, var(--wiley-color-link) 45%, var(--wiley-cream-100));
 }
 
 .newsletter-body {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 
 .newsletter-body__para {
-  margin: 0;
-  line-height: 1.7;
-  color: var(--ink-700);
+  line-height: var(--line-height-loose);
   white-space: pre-wrap;
 }
 
 .newsletter-body__para--error {
-  color: var(--p-message-warn-color, var(--ink-900));
+  color: var(--wiley-gold-600);
   font-weight: 600;
 }
 
@@ -115,9 +128,9 @@
   min-height: 70vh;
   aspect-ratio: 8.5 / 11;
   border: 0;
-  border-radius: 12px;
-  background: var(--surface-card-soft);
-  box-shadow: inset 0 0 0 1px var(--surface-border);
+  border-radius: var(--radius-lg);
+  background: var(--wiley-surface-card-muted);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
   display: block;
 }
 
@@ -128,20 +141,20 @@
   }
 }
 
+.newsletter-download-link,
+.public-card-actions .p-button {
+  min-height: var(--touch-target-min);
+}
+
 .newsletter-download-link {
   width: fit-content;
 }
 
 .news-section-external .public-card.p-card,
 .news-card--external.p-card {
-  background: linear-gradient(
-    180deg,
-    var(--surface-card),
-    color-mix(in srgb, var(--surface-card-soft) 84%, var(--p-primary-50))
-  );
+  background: color-mix(in srgb, var(--wiley-gold-400) 10%, var(--wiley-surface-card));
 }
 
-/* PrimeNG template regions */
 .news-card-header,
 .news-card-content,
 .news-card-footer {
@@ -152,10 +165,28 @@
   flex: 1;
 }
 
+.news-section {
+  gap: var(--space-md);
+}
+
+.news-page-shell .public-empty-state {
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px dashed color-mix(in srgb, var(--wiley-ink-900) 28%, transparent);
+  background: color-mix(in srgb, var(--wiley-ink-900) 6%, var(--wiley-surface-card));
+  color: var(--wiley-ink-700);
+}
+
+.public-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
 /* Mobile-first grid — stacks on phones, 2-col at tablet, 3-col at desktop */
 .news-card-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-md);
   grid-template-columns: 1fr;
 }
 
@@ -172,8 +203,9 @@
 }
 
 .news-section-header h2 {
-  margin: 0.25rem 0 0;
-  font-size: 1.55rem;
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-size-h2);
+  color: var(--wiley-ink-900);
 }
 
 .featured-news-link {

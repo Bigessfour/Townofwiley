@@ -1087,10 +1087,11 @@ h6 {
   gap: var(--space-sm);
   min-height: 100%;
   padding: var(--space-md);
-  border: 1px solid var(--surface-border);
+  border: 1px solid color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--surface-card), var(--surface-card-warm));
+  background: var(--wiley-surface-card);
   box-shadow: var(--shadow-subtle);
+  color: var(--wiley-ink-900);
   scroll-margin-top: var(--sticky-stack-offset);
 }
 
@@ -1108,27 +1109,28 @@ h6 {
   width: fit-content;
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-full);
-  background: rgba(13, 44, 84, 0.06);
+  background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--wiley-surface-card));
+  color: var(--wiley-ink-700);
 }
 
 .notice-card-title {
   margin: 0;
   font-size: var(--font-size-h3);
   font-weight: 700;
-  color: var(--ink-900);
+  color: var(--wiley-ink-900);
   line-height: var(--line-height-title);
 }
 
 .notice-card-detail {
   margin: 0;
   line-height: var(--line-height-body);
-  color: var(--ink-700);
+  color: var(--wiley-ink-700);
 }
 
 .notice-card-cta {
   margin: 0;
   font-weight: 600;
-  color: var(--wiley-teal-700);
+  color: var(--wiley-color-link);
 }
 
 .stack-list {
@@ -1193,7 +1195,6 @@ h6 {
   color: var(--ink-600);
 }
 
-.notice-card,
 .meeting-card,
 .accessibility-row {
   background: transparent;
@@ -1655,8 +1656,8 @@ h6 {
   margin: 0;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
-  background: rgba(212, 161, 75, 0.12);
-  color: var(--ink-900);
+  background: color-mix(in srgb, var(--wiley-gold-400) 18%, var(--wiley-surface-card));
+  color: var(--wiley-ink-900);
   font-weight: 600;
 }
 
@@ -1883,6 +1884,7 @@ h6 {
 :host ::ng-deep .p-button,
 :host ::ng-deep .p-datatable,
 :host ::ng-deep .p-datatable-wrapper,
+:host ::ng-deep .p-datatable-table-container,
 :host ::ng-deep .p-tabs,
 :host ::ng-deep .p-tabpanels,
 :host ::ng-deep .p-tabpanel,
@@ -2332,11 +2334,13 @@ button:not(:disabled):active,
     min-width: 0;
   }
 
-  // FullCalendar and PrimeNG table must not push the layout wider
-  .fc,
-  .fc-view,
-  .fc-view-harness,
-  .p-datatable-wrapper {
+  // FullCalendar and PrimeNG table must not push the layout wider.
+  // ::ng-deep is required so these reach routed page components.
+  :host ::ng-deep .fc,
+  :host ::ng-deep .fc-view,
+  :host ::ng-deep .fc-view-harness,
+  :host ::ng-deep .p-datatable-wrapper,
+  :host ::ng-deep .p-datatable-table-container {
     overflow-x: auto;
     min-width: 0;
     max-width: 100%;
@@ -2454,9 +2458,9 @@ button:not(:disabled):active,
   inset: 0;
   background: linear-gradient(
     105deg,
-    rgba(6, 31, 24, 0.72) 0%,
-    rgba(15, 61, 46, 0.38) 42%,
-    rgba(0, 0, 0, 0.12) 100%
+    color-mix(in srgb, var(--wiley-forest-950) 78%, transparent) 0%,
+    color-mix(in srgb, var(--wiley-forest-900) 42%, transparent) 42%,
+    color-mix(in srgb, var(--wiley-forest-950) 12%, transparent) 100%
   );
   z-index: 1;
 }
@@ -2488,10 +2492,14 @@ button:not(:disabled):active,
   gap: 0.8rem;
   max-width: 42rem;
   padding: clamp(1.25rem, 2.8vw, 2rem);
-  border: 1px solid color-mix(in srgb, var(--surface-inverse) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-inverse) 16%, transparent);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(10, 20, 35, 0.58), rgba(10, 20, 35, 0.42));
-  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.26);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wiley-forest-950) 58%, transparent),
+    color-mix(in srgb, var(--wiley-forest-950) 42%, transparent)
+  );
+  box-shadow: 0 28px 64px color-mix(in srgb, var(--wiley-forest-950) 26%, transparent);
   backdrop-filter: blur(14px);
 }
 
@@ -2532,20 +2540,22 @@ button:not(:disabled):active,
 
 .hero-landing-actions .hero-landing-cta {
   min-width: 13rem;
+  min-height: var(--touch-target-min);
   flex: 1 1 auto;
 }
 
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary {
-  background: var(--wiley-gold-500, #c4923a);
-  border-color: var(--wiley-gold-500, #c4923a);
-  color: var(--wiley-forest-950, #161514);
+/* Anchor buttons inherit the hero's white text. Re-apply the Aura preset so the gold label stays dark in both themes. */
+.hero-landing-actions a.hero-landing-cta.p-button-primary {
+  background: var(--p-button-primary-background);
+  border-color: var(--p-button-primary-border-color);
+  color: var(--p-button-primary-color);
 }
 
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
-:host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
-  background: #b8860b;
-  border-color: #b8860b;
-  color: var(--wiley-forest-950, #161514);
+.hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
+.hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
+  background: var(--p-button-primary-hover-background);
+  border-color: var(--p-button-primary-hover-border-color);
+  color: var(--p-button-primary-color);
 }
 
 .hero-landing-actions .hero-landing-cta.p-button-outlined.p-button-contrast {
@@ -2558,8 +2568,8 @@ button:not(:disabled):active,
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.018em;
-  color: #fff;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.72);
+  color: var(--wiley-inverse);
+  text-shadow: 0 4px 18px color-mix(in srgb, var(--wiley-forest-950) 72%, transparent);
   text-wrap: balance;
   text-rendering: optimizeLegibility;
   margin: 0;
