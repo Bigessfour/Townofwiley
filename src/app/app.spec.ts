@@ -197,6 +197,9 @@ describe('App', () => {
     expect(compiled.querySelector('a.task-card[href="/contact"]')?.textContent).toContain(
       'Contact the Town Clerk',
     );
+    expect(
+      compiled.querySelector('a.task-card--featured[href="/ordinances"]')?.textContent,
+    ).toContain('Ask about a town ordinance');
     expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toContain(
       'resident services, weather alerts, meetings, notices, and Town Hall contacts',
     );

@@ -415,6 +415,7 @@ test.describe('homepage smoke', () => {
     const taskGrid = homePage.page.locator('.landing-task-grid');
     /** Matches `APP_COPY.en.topTasks` href order in `app.ts` (titles also in `siteContent.topTaskHeadings`). */
     const topTaskHrefs = [
+      '/ordinances',
       '/pay-bill',
       '/services#issue-report',
       '/meetings',
