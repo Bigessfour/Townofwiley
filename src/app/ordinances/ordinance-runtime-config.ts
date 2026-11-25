@@ -1,6 +1,6 @@
 /**
  * Public ordinance assistant settings from `public/runtime-config.js`.
- * An empty endpoint keeps the page on the local "not connected" reply.
+ * An empty endpoint keeps the page from calling the assistant.
  */
 export interface OrdinanceRuntimeConfig {
   apiEndpoint: string;

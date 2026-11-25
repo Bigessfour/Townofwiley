@@ -4,7 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
 import { MessageModule } from 'primeng/message';
-import { PanelModule } from 'primeng/panel';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { APP_COPY } from '../app-copy';
@@ -34,17 +33,11 @@ interface OrdinanceChatCopy {
   prompts: string[];
   welcome: string;
   outOfScope: string;
-  pendingKnowledgeBase: string;
   lookingUp: string;
   unavailable: string;
   you: string;
   assistant: string;
   conversationLabel: string;
-  sampleTitle: string;
-  sampleNote: string;
-  sampleQuestion: string;
-  sampleAnswer: string;
-  sampleCitations: string[];
   clerkNote: string;
   clerkLink: string;
 }
@@ -71,24 +64,12 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       'Ask about an adopted Wiley ordinance. This assistant answers from the municipal code and declines questions outside it.',
     outOfScope:
       'I only answer questions about the Town of Wiley municipal code and adopted ordinances. I cannot help with homework, general knowledge, coding, or drafting. Try a question about a permit, animal rule, zoning section, or utility regulation.',
-    pendingKnowledgeBase:
-      'That question is about the Wiley Municipal Code. This page is not connected to the ordinance knowledge base yet, so I will not guess at the section. The Town Clerk can provide the official text.',
     lookingUp: 'Looking up the municipal code.',
     unavailable:
       'The ordinance assistant could not be reached. I will not guess at the section. The Town Clerk can provide the official text.',
     you: 'You',
     assistant: 'Code assistant',
     conversationLabel: 'Conversation',
-    sampleTitle: 'How a cited answer will look',
-    sampleNote:
-      'Layout sample from the code on file. This is not a live answer and is not a substitute for the official book.',
-    sampleQuestion: 'What is the rule for a dog running at large?',
-    sampleAnswer:
-      'Ordinance 2024-2 amends Section 7-6-120. It says it is unlawful for an owner, keeper, or lessee to fail to prevent an animal from running at large, and that an animal found running at large may be impounded.',
-    sampleCitations: [
-      'Ordinance 2024-2, Section 7-6-120',
-      'Wiley Municipal Code index, Section 7-6-170 (license required)',
-    ],
     clerkNote: 'The adopted ordinance controls if this assistant and the code book ever disagree.',
     clerkLink: 'Contact the Town Clerk',
   },
@@ -113,24 +94,12 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       'Pregunte sobre una ordenanza adoptada de Wiley. Este asistente responde desde el código municipal y rechaza las preguntas que no son del código.',
     outOfScope:
       'Solo respondo preguntas sobre el código municipal y las ordenanzas adoptadas del Pueblo de Wiley. No puedo ayudar con tareas, cultura general, programación ni redacción. Pruebe una pregunta sobre un permiso, animales, zonificación o servicios públicos.',
-    pendingKnowledgeBase:
-      'Esa pregunta es sobre el Código Municipal de Wiley. Esta página aún no está conectada a la base de conocimiento, así que no voy a adivinar la sección. La Secretaría del Pueblo puede dar el texto oficial.',
     lookingUp: 'Buscando en el código municipal.',
     unavailable:
       'No se pudo contactar al asistente de ordenanzas. No voy a adivinar la sección. La Secretaría del Pueblo puede dar el texto oficial.',
     you: 'Usted',
     assistant: 'Asistente del código',
     conversationLabel: 'Conversación',
-    sampleTitle: 'Así se verá una respuesta con cita',
-    sampleNote:
-      'Muestra de diseño tomada del código en archivo. No es una respuesta en vivo ni sustituye el libro oficial.',
-    sampleQuestion: '¿Cuál es la regla si un perro anda suelto?',
-    sampleAnswer:
-      'La Ordenanza 2024-2 modifica la Sección 7-6-120. Dice que es ilegal que el dueño, cuidador o arrendatario no impida que un animal ande suelto, y que un animal encontrado suelto puede ser recogido.',
-    sampleCitations: [
-      'Ordenanza 2024-2, Sección 7-6-120',
-      'Índice del Código Municipal de Wiley, Sección 7-6-170 (licencia requerida)',
-    ],
     clerkNote: 'La ordenanza adoptada manda si este asistente y el libro del código no coinciden.',
     clerkLink: 'Contactar a la Secretaría',
   },
@@ -143,7 +112,6 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
     CardModule,
     FieldsetModule,
     MessageModule,
-    PanelModule,
     RouterLink,
     TagModule,
     TextareaModule,
@@ -196,7 +164,7 @@ export class OrdinancesPage {
         { role: 'user', content: text },
         {
           role: 'assistant',
-          content: plan === 'pending' ? copy.pendingKnowledgeBase : copy.outOfScope,
+          content: plan === 'pending' ? copy.unavailable : copy.outOfScope,
         },
       ]);
       this.draft.set('');
