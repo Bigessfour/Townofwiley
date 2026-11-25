@@ -21,7 +21,7 @@
         },
         "owner_repo": {
           "type": "string",
-          "description": "Repository owner/name (e.g., 'Bigessfour/Wiley-Widget')"
+          "description": "Repository owner/name (e.g., 'Bigessfour/Townofwiley')"
         },
         "branch": {
           "type": "string",
