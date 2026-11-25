@@ -18,7 +18,7 @@ import {
     resolveSectionRule,
 } from './cms-media-lib.mjs';
 
-const CF_DISTRIBUTION_ID = process.env.CF_DISTRIBUTION_ID ?? 'E1NZ3XCY5CYR1J';
+const CF_DISTRIBUTION_ID = process.env.CF_DISTRIBUTION_ID ?? 'E19PUUL2H76CZA';
 const STAFF_GROUP = process.env.STAFF_GROUP ?? 'Staff';
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID ?? '';
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID ?? '';

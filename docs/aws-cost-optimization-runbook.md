@@ -1,8 +1,8 @@
 # AWS cost optimization runbook
 
-Town of Wiley account **`570912405222`**, primary region **`us-east-2`**. Target steady-state spend: **under free tier** for low traffic (target <$5-10/mo guardrail with $50 budget alerts).
+Town of Wiley account **`818904800844`**, primary region **`us-east-2`**. Target steady-state spend: **under free tier** for low traffic (target <$5-10/mo guardrail with $50 budget alerts).
 
-**June 2026 final state:** Frontend migrated to S3 + CloudFront (minimal cost); all legacy Wiley Widget resources (Aurora PostgreSQL Serverless, NAT Gateway, App Runner `wiley-widget-api`, separate Amplify app) fully decoupled and deleted; WAF rate-limit WebACLs removed; CloudWatch log retention set to minimum 1 day on all groups. Main site now on `townofwiley-static-site` S3 + CloudFront `E1NZ3XCY5CYR1J`.
+**June 2026 final state:** Frontend migrated to S3 + CloudFront (minimal cost); all legacy Wiley Widget resources (Aurora PostgreSQL Serverless, NAT Gateway, App Runner `wiley-widget-api`, separate Amplify app) fully decoupled and deleted; WAF rate-limit WebACLs removed; CloudWatch log retention set to minimum 1 day on all groups. Main site now on `townofwiley-static-site-818904800844` S3 + CloudFront `E19PUUL2H76CZA`.
 
 Never commit AWS credentials. Use `source scripts/agent-aws-env.sh` (falls back to `steve` / `default` when `townofwiley` is not configured).
 

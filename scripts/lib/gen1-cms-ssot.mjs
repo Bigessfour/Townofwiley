@@ -39,7 +39,7 @@ export function readProductionCmsGraphqlEndpoint() {
 }
 
 export function readProductionAppSyncApiId() {
-  return loadProductionBindings()?.appSync?.apiId?.trim() ?? 'j7b2x3sh7rcezekekkxxiak7hi';
+  return loadProductionBindings()?.appSync?.apiId?.trim() ?? 'okoh3v23ord33kuggsg3p5n4sm';
 }
 
 export function readProductionCmsRegion() {

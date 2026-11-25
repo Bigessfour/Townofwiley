@@ -1,6 +1,6 @@
 variable "expected_account_id" {
   type    = string
-  default = "570912405222"
+  default = "818904800844"
 }
 
 variable "aws_region" {
@@ -10,8 +10,8 @@ variable "aws_region" {
 
 variable "aws_profile" {
   type        = string
-  description = "Optional CLI profile; leave empty when using exported env credentials (see terraform-export-aws-env.sh)."
-  default     = ""
+  description = "CLI profile for the Town account. Leave empty when credentials are already exported."
+  default     = "tow"
 }
 
 variable "environment" {

@@ -1,34 +1,21 @@
 {
   "$schema": "./town-aws-account.schema.json",
   "version": 1,
-  "description": "AWS identity SSOT for this repository. Official Town account hosts the public site (S3 + CloudFront). Gen 1 AppSync/Cognito/Lambdas remain on Steve personal until backend cutover — see aws-infrastructure.manifest.json and migration/CUTOVER-STATUS.md.",
+  "description": "AWS identity SSOT for this repository. The public site, CMS, and Town Lambdas live in the official Town account.",
   "accountId": "818904800844",
   "accountLabel": "Town of Wiley (official)",
   "defaultProfile": "tow",
   "primaryRegion": "us-east-2",
   "site": "townofwiley.gov",
   "verifyCommand": "aws sts get-caller-identity --profile tow --query Account --output text",
-  "legacyPersonalAccount": {
-    "accountId": "570912405222",
-    "accountLabel": "Steve personal (legacy Gen1 backend until cutover)",
-    "profiles": ["steve", "townofwiley"],
-    "agentIamUser": "copilot",
-    "note": "Not the municipal AWS account. Use only for Gen1 AppSync/Cognito/Lambda work until migration completes."
-  },
   "agentAccess": {
     "iamUserName": "(prefer SSO / named profiles below)",
     "cliProfile": "tow",
-    "credentialSetup": "aws sso login --profile tow (hosting) or profile steve for Gen1 backend",
+    "credentialSetup": "aws sso login --profile tow",
     "hosting": {
       "accountId": "818904800844",
       "cliProfile": "tow",
       "roleHint": "GitHubActions-TownOfWiley-StaticSiteDeploy"
-    },
-    "gen1Backend": {
-      "accountId": "570912405222",
-      "cliProfile": "steve",
-      "legacyProfileAlias": "townofwiley",
-      "iamUserName": "copilot"
     }
   },
   "agentSetup": "source scripts/agent-aws-env.sh",

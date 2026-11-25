@@ -27,7 +27,7 @@ export function loadAmplifyOutputsFromRepo() {
 }
 
 export const DEFAULT_CLERK_NAME = 'Deb Dillon';
-export const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
+export const DEFAULT_AWS_ACCOUNT_ID = '818904800844';
 export const DEFAULT_AWS_REGION = 'us-east-2';
 export const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 /** Live Town Paystar hosted portal (public URL; not a secret). */

@@ -1,7 +1,7 @@
 variable "expected_account_id" {
   type        = string
   description = "Town of Wiley production account."
-  default     = "570912405222"
+  default     = "818904800844"
 }
 
 variable "region" {
@@ -12,7 +12,7 @@ variable "region" {
 variable "state_bucket_name" {
   type        = string
   description = "S3 bucket for Terraform state (must be globally unique)."
-  default     = "townofwiley-terraform-state-570912405222"
+  default     = "townofwiley-terraform-state-818904800844"
 }
 
 variable "lock_table_name" {

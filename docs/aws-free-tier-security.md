@@ -2,7 +2,7 @@
 
 **Policy (2026):** Run **free / included** controls only until **city council** approves new recurring AWS spend. Do **not** enable Amplify Firewall, new WAF Web ACLs, Shield Advanced, GuardDuty, or similar paid add-ons without that approval.
 
-Town of Wiley account **`570912405222`**. Apply with:
+Town of Wiley account **`818904800844`**. Apply with:
 
 ```bash
 source scripts/agent-aws-env.sh

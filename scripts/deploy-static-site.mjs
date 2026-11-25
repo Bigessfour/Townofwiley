@@ -28,7 +28,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const hosting = manifest.hosting ?? {};
 const bucket = hosting.s3Bucket ?? 'townofwiley-static-site';
 const region = hosting.region ?? manifest.primaryRegion ?? 'us-east-2';
-const distributionId = hosting.cloudFrontDistributionId ?? 'E1NZ3XCY5CYR1J';
+const distributionId = hosting.cloudFrontDistributionId ?? 'E19PUUL2H76CZA';
 const distDir = join(repoRoot, 'dist', 'townofwiley-app', 'browser');
 
 /** Short TTL at origin so future edge misses pick up fresh HTML/config sooner. */

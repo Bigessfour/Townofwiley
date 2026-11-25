@@ -36,7 +36,7 @@ python3 -m unittest infrastructure.community-calendar.tests.test_app -v
 
 ```bash
 source scripts/agent-aws-env.sh
-aws sts get-caller-identity   # must be 570912405222 / copilot
+aws sts get-caller-identity   # must be 818904800844 / profile tow
 python3 scripts/deploy-community-calendar-backend.py
 ```
 

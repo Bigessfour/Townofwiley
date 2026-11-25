@@ -4,12 +4,10 @@
 #   - Lambda function URLs (CORS / invocation): https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors
 #   - NWS API (User-Agent, formats, points→forecast flow): https://www.weather.gov/documentation/services-web-api
 #
-# IAM user "copilot" keys are usually stored under the CLI profile configured for this repo (default: townofwiley).
-# Use whichever ~/.aws profile resolves to account 570912405222.
+# Use the Town account profile. The NWS proxy runs in 818904800844.
 #
-# Usage (Town of Wiley production account 570912405222, region us-east-2):
-#   export AWS_PROFILE=townofwiley   # must resolve to account 570912405222 (e.g. copilot user)
-#   export NWS_WEATHER_LAMBDA_FUNCTION_NAME='your-nws-proxy-function-name'
+# Usage (Town account 818904800844, region us-east-2):
+#   export AWS_PROFILE=tow
 #   ./scripts/verify-nws-weather-proxy-aws.sh
 #
 # Discover candidate function names (requires lambda:ListFunctions on the profile):
@@ -17,14 +15,14 @@
 #     --query "Functions[?contains(FunctionName, 'TownOfWiley')].FunctionName"
 #
 # Optional: NWS_PROXY_AWS_REGION (default: us-east-2 or AWS_DEFAULT_REGION)
-# Optional: TOWN_OF_WILEY_AWS_ACCOUNT_ID (default: 570912405222) — script warns if caller account differs.
+# Optional: TOWN_OF_WILEY_AWS_ACCOUNT_ID (default: 818904800844) — script warns if caller account differs.
 # Optional: NWS_VERIFY_SKIP_CURL=1 — skip live HTTP checks to the function URL
 # Default function name matches infrastructure/aws-infrastructure.manifest.json.
 
 set -euo pipefail
 
 REGION="${NWS_PROXY_AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-2}}"
-EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-570912405222}"
+EXPECTED_ACCOUNT="${TOWN_OF_WILEY_AWS_ACCOUNT_ID:-818904800844}"
 FN="${NWS_WEATHER_LAMBDA_FUNCTION_NAME:-TownOfWileyNWSWeatherProxy}"
 
 echo "== NWS weather proxy AWS verification (region: ${REGION}) =="

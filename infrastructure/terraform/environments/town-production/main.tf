@@ -9,7 +9,7 @@ data "aws_lambda_function" "manifest" {
   for_each = {
     for entry in module.context.lambda_functions :
     entry.functionName => entry
-    if try(entry.region, var.aws_region) == var.aws_region
+    if try(entry.region, var.aws_region) == var.aws_region && try(entry.accountId, "") == var.expected_account_id
   }
 
   function_name = each.key
@@ -21,7 +21,7 @@ data "aws_lambda_function" "manifest_us_east_1" {
   for_each = {
     for entry in module.context.lambda_functions :
     entry.functionName => entry
-    if try(entry.region, var.aws_region) == "us-east-1"
+    if try(entry.region, var.aws_region) == "us-east-1" && try(entry.accountId, "") == var.expected_account_id
   }
 
   function_name = each.key

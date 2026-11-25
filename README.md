@@ -64,7 +64,7 @@ Frontend is statically hosted on S3 + CloudFront (Amplify Hosting app `d331voxr1
   - Viewer request Function: `townofwiley-spa-redirect` (SPA deep links)
   - Aliases: `townofwiley.gov`, `www.townofwiley.gov`, `staging.townofwiley.gov`
   - ACM certificate: `arn:aws:acm:us-east-1:818904800844:certificate/1ca102fe-d903-47f6-8f0f-15282c340ff5` (us-east-1)
-- **AWS accounts:** Hosting **`818904800844`** / profile **`tow`**; Gen1 backend still **`570912405222`** / **`steve`** until cutover (see `infrastructure/town-aws-account.json`). Legacy personal CF `E1NZ3XCY5CYR1J` is not production.
+- **AWS account:** **`818904800844`** / profile **`tow`** (see `infrastructure/town-aws-account.json`).
 - **Build output:** `dist/townofwiley-app/browser` (same as before; `scripts/generate-static-route-entrypoints.mjs` populates route folders + 404.html for SPA).
 - **Migration status (June 2026):** Frontend fully moved from Amplify Hosting (app `d331voxr1fhoir` deleted) to S3 + CloudFront. Site restored and hardened on 2026-06-02 after discovering artifacts were under `/browser/` prefix instead of bucket root. CustomErrorResponses added to prevent raw S3 errors. See git history around this date for details.
 - **Deploy steps:**
@@ -112,7 +112,7 @@ Old app ID `d331voxr1fhoir`, old targets (`d3fmdu29qcwosh.cloudfront.net`, `*.am
 
 ### AWS infrastructure (IaC SSOT)
 
-Custom Lambdas, AppSync, DynamoDB, and remaining backends are defined in the repo and checked against live AWS (account **`570912405222`**, region **`us-east-2`**).
+Custom Lambdas, AppSync, DynamoDB, and remaining backends are defined in the repo and checked against live AWS (account **`818904800844`**, region **`us-east-2`**).
 
 | Resource                                                  | SSOT in repo                                                                                                                                                                                         |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -136,7 +136,7 @@ python scripts/deploy-*.py   # see individual scripts
 
 **Recent infra changes (June 2026):**
 
-- Full migration of frontend hosting from Amplify to S3 `townofwiley-static-site` + CloudFront `E1NZ3XCY5CYR1J`.
+- Full migration of frontend hosting from Amplify to S3 `townofwiley-static-site-818904800844` + CloudFront `E19PUUL2H76CZA`.
 - Legacy Amplify app `d331voxr1fhoir` deleted.
 - Wiley Widget (Aurora, NAT, App Runner, separate Amplify app) fully decoupled and removed.
 - All WAF rate-limit WebACLs removed; CloudWatch retention minimized to 1 day.
@@ -482,7 +482,7 @@ TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)
 
 AWS account and hosting identifiers that future maintainers will need:
 
-- **Town of Wiley** AWS account ID: **`570912405222`** (production site, Town Lambdas, IAM user `copilot`)
+- **Town of Wiley** AWS account ID: **`818904800844`** (profile `tow`)
 - **Code Platoon** AWS account ID: **`388691194728`** (separate from Town; wrong profile → `NoSuchEntity` for `copilot` in IAM)
 - AWS region: `us-east-2`
 - Amplify app ID: `d331voxr1fhoir`
@@ -540,15 +540,15 @@ Homepage NWS alert banner:
 
 - `HomepageWeatherAlertPrimer` uses the same `weather.apiEndpoint` as the weather panel when it is set (so the banner respects the AWS proxy and NWS `User-Agent` policy). If the proxy fails and `allowBrowserFallback` is true, it falls back to the public `api.weather.gov` chain. In development builds, proxy or NWS failures log a single `console.warn` from `[HomepageWeatherAlertPrimer]` to aid debugging.
 
-Verify the deployed Lambda (requires AWS CLI credentials for account **570912405222**, region **us-east-2**):
+Verify the deployed Lambda (requires AWS CLI credentials for account **818904800844**, region **us-east-2**):
 
 ```bash
-export AWS_PROFILE=townofwiley
+export AWS_PROFILE=tow
 export NWS_WEATHER_LAMBDA_FUNCTION_NAME='your-nws-proxy-lambda-name'
 ./scripts/verify-nws-weather-proxy-aws.sh
 ```
 
-This repository assumes **`townofwiley`** → **`570912405222`**. Use other profiles (**e.g. Code Platoon `388691194728`**) **outside** this workspace default; do not reuse them as the Wiley site profile.
+This repository uses profile **`tow`** for account **`818904800844`**. Keep Code Platoon (`388691194728`) out of that profile.
 
 The script checks caller identity, `NWS_USER_AGENT`, and lists [function URL configs](https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html#urls-cors). If your CLI profile points at another account, the script warns so you can switch profiles before trusting the output.
 
@@ -592,16 +592,15 @@ Required AWS resources created by the deploy script:
 Live backend identifiers at last successful deployment:
 
 - Lambda function name: `TownOfWileySevereWeatherBackend`
-- Lambda role: `arn:aws:iam::570912405222:role/TownOfWileySevereWeatherRole`
-- Public Function URL: `https://o2k7thyksa422tsobyokzgnaly0smhzf.lambda-url.us-east-2.on.aws`
+- Lambda role: `arn:aws:iam::818904800844:role/TownOfWileySevereWeatherRole`
+- Public Function URL: `https://4dbmleno2tqsxpnkbwuu45cvkm0bnqzo.lambda-url.us-east-2.on.aws/`
 - Subscriptions table: `TownOfWileySevereWeatherSubscriptions`
 - Deliveries table: `TownOfWileySevereWeatherDeliveries`
-- EventBridge rule name: `TownOfWileySevereWeatherPoller`
-- SMS origination (toll-free): `+18666509844`
-- SMS configuration set: `Alert`
-- Current sender email: `bigessfour@gmail.com`
+- EventBridge rule name: `TownOfWileySevereWeatherPoller` (`ENABLED`, `rate(5 minutes)`)
+- SMS origination: toll-free `+18666509844`, shared into this account. Lambda `SMS_ORIGINATION_IDENTITY` is the shared phone ARN in `infrastructure/migration/tow-account-818904800844/CUTOVER-STATUS.md`
+- Current sender email: `alerts@townofwiley.gov`
 - Current notification sender name: `Town of Wiley Alerts`
-- Current NWS user agent: `TownOfWileyWeather/1.0 (contact: bigessfour@gmail.com)`
+- Current NWS user agent: `TownOfWileyWeather/1.0 (contact: clerk@townofwiley.gov)`
 - Current allowed ZIP code: `81092`
 - Current alert zone: `COZ098`
 
@@ -612,10 +611,10 @@ Runtime / hosting settings related to alert signup:
 
 Operational warning for future maintainers:
 
-- If email confirmations suddenly stop working, verify the SES identity status for `bigessfour@gmail.com` in `us-east-2` first.
-- If SMS confirmations fail, verify End User Messaging toll-free registration is `COMPLETE`, Lambda env `SMS_ORIGINATION_IDENTITY=+18666509844`, and IAM allows `sms-voice:SendTextMessage` on that phone number.
+- If email confirmations suddenly stop working, verify the SES identity status for `alerts@townofwiley.gov` in `us-east-2` first.
+- The toll-free number can stay in the other account. RAM share `TownOfWiley-SMS-TollFree` is active, and the Town Lambda already sends with that shared phone ARN.
+- If SMS fails with `DESTINATION_PHONE_NUMBER_NOT_VERIFIED`, the number and the send permission are working. The Town account is still in the SMS sandbox (`$1` monthly limit, verified destinations only). SMS production access is a Service Quotas request in the `tow` console for `us-east-2`. This account has no Support API subscription, so the request has to be opened in the console.
 - If the Function URL starts returning `403`, check both Lambda resource-policy statements for Function URL access before changing app code.
-- The current IAM user still lacks `events:DescribeRule`, so deployment verification from this workspace may not be able to read back the EventBridge rule even when the scheduler itself already exists.
 
 Required runtime and secret settings:
 
