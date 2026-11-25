@@ -97,19 +97,6 @@
           </div>
         </p-fieldset>
 
-        <p-panel [header]="copy().sampleTitle">
-          <p class="ordinances-sample-note">{{ copy().sampleNote }}</p>
-          <p class="ordinance-message__role">{{ copy().you }}</p>
-          <p>{{ copy().sampleQuestion }}</p>
-          <p class="ordinance-message__role">{{ copy().assistant }}</p>
-          <p>{{ copy().sampleAnswer }}</p>
-          <ul class="ordinances-citations">
-            @for (citation of copy().sampleCitations; track citation) {
-              <li>{{ citation }}</li>
-            }
-          </ul>
-        </p-panel>
-
         <p class="ordinances-clerk">
           {{ copy().clerkNote }}
           <a routerLink="/contact">{{ copy().clerkLink }}</a>
