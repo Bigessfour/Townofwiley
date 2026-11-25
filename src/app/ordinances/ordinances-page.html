@@ -12,7 +12,7 @@
 
     <div class="ordinances-layout">
       <div class="ordinances-chat">
-        <p-scrollpanel class="ordinances-thread" [style]="{ height: '22rem' }">
+        <div class="ordinances-thread" tabindex="0" [attr.aria-label]="copy().conversationLabel">
           <div
             class="ordinances-messages"
             role="log"
@@ -43,7 +43,7 @@
               </article>
             }
           </div>
-        </p-scrollpanel>
+        </div>
 
         <form class="ordinances-composer" (submit)="$event.preventDefault(); sendMessage()">
           <label class="ordinances-field" for="ordinance-question">
@@ -53,6 +53,7 @@
               id="ordinance-question"
               data-testid="ordinance-question"
               rows="3"
+              [autoResize]="true"
               [value]="draft()"
               (input)="updateDraft($any($event.target).value)"
               [attr.placeholder]="copy().placeholder"

@@ -21,9 +21,22 @@
 }
 
 .ordinances-thread {
+  max-height: min(40rem, 70vh);
+  overflow: auto;
   border: 1px solid color-mix(in srgb, var(--wiley-forest-900) 12%, transparent);
   border-radius: var(--radius-md);
   background: var(--surface-card);
+}
+
+.ordinances-thread:focus-visible {
+  outline: 3px solid var(--focus-ring, rgba(13, 44, 84, 0.28));
+  outline-offset: 3px;
+}
+
+.ordinances-field textarea {
+  width: 100%;
+  min-height: 6rem;
+  resize: none;
 }
 
 .ordinance-message {
