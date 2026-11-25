@@ -699,8 +699,10 @@ test.describe('subcomponent aria contracts', () => {
       - link "Accessibility statement"
       - link "Weather alert privacy"
       - link "Weather alert SMS terms"
+      - link "History & Stories"
       - link "Contact the Town Clerk"
       - link "Meeting notices"
+      - link "Municipal code assistant"
       - link "Contact Town Hall"
       - paragraph: /2026 Town of Wiley/
     `);

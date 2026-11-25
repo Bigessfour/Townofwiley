@@ -1,0 +1,120 @@
+<section class="feature-detail-stack ordinances-page" data-testid="ordinances-page" id="ordinances">
+  <p-card class="panel wiley-panel">
+    <ng-template #header>
+      <div class="wiley-page-header">
+        <p class="section-kicker">{{ pageCopy().ordinancesKicker }}</p>
+        <h1>{{ pageCopy().ordinancesHeading }}</h1>
+        <p-tag [value]="copy().scopeTag" severity="info" [rounded]="true" />
+      </div>
+    </ng-template>
+
+    <p-message severity="info" class="ordinances-scope">{{ copy().scopeNote }}</p-message>
+
+    <div class="ordinances-layout">
+      <div class="ordinances-chat">
+        <div class="ordinances-thread" tabindex="0" [attr.aria-label]="copy().conversationLabel">
+          <div
+            class="ordinances-messages"
+            role="log"
+            aria-live="polite"
+            [attr.aria-label]="copy().conversationLabel"
+          >
+            <article class="ordinance-message ordinance-message--assistant">
+              <p class="ordinance-message__role">{{ copy().assistant }}</p>
+              <p class="ordinance-message__body">{{ copy().welcome }}</p>
+            </article>
+            @for (message of messages(); track $index) {
+              <article
+                class="ordinance-message"
+                [class.ordinance-message--user]="message.role === 'user'"
+                [class.ordinance-message--assistant]="message.role === 'assistant'"
+              >
+                <p class="ordinance-message__role">
+                  {{ message.role === 'user' ? copy().you : copy().assistant }}
+                </p>
+                <p class="ordinance-message__body">{{ message.content }}</p>
+                @if (message.citations?.length) {
+                  <ul class="ordinances-citations">
+                    @for (citation of message.citations; track citation) {
+                      <li>{{ citation }}</li>
+                    }
+                  </ul>
+                }
+              </article>
+            }
+          </div>
+        </div>
+
+        <form class="ordinances-composer" (submit)="$event.preventDefault(); sendMessage()">
+          <label class="ordinances-field" for="ordinance-question">
+            <span>{{ copy().questionLabel }}</span>
+            <textarea
+              pTextarea
+              id="ordinance-question"
+              data-testid="ordinance-question"
+              rows="3"
+              [autoResize]="true"
+              [value]="draft()"
+              (input)="updateDraft($any($event.target).value)"
+              [attr.placeholder]="copy().placeholder"
+              [attr.aria-invalid]="questionTooLong()"
+            ></textarea>
+          </label>
+          <p class="ordinances-helper">
+            {{ questionTooLong() ? copy().tooLong : copy().helper }}
+          </p>
+          <div class="ordinances-actions">
+            <p-button
+              type="submit"
+              [label]="copy().send"
+              [disabled]="questionTooLong() || asking()"
+              data-testid="ordinance-send"
+            />
+            <p-button
+              type="button"
+              [label]="copy().clear"
+              severity="secondary"
+              [text]="true"
+              (onClick)="clearConversation()"
+            />
+          </div>
+        </form>
+      </div>
+
+      <aside class="ordinances-aside">
+        <p-fieldset [legend]="copy().promptsLabel">
+          <div class="ordinances-prompts">
+            @for (prompt of copy().prompts; track prompt) {
+              <p-button
+                type="button"
+                [label]="prompt"
+                severity="secondary"
+                [outlined]="true"
+                styleClass="ordinance-prompt"
+                (onClick)="askPrompt(prompt)"
+              />
+            }
+          </div>
+        </p-fieldset>
+
+        <p-panel [header]="copy().sampleTitle">
+          <p class="ordinances-sample-note">{{ copy().sampleNote }}</p>
+          <p class="ordinance-message__role">{{ copy().you }}</p>
+          <p>{{ copy().sampleQuestion }}</p>
+          <p class="ordinance-message__role">{{ copy().assistant }}</p>
+          <p>{{ copy().sampleAnswer }}</p>
+          <ul class="ordinances-citations">
+            @for (citation of copy().sampleCitations; track citation) {
+              <li>{{ citation }}</li>
+            }
+          </ul>
+        </p-panel>
+
+        <p class="ordinances-clerk">
+          {{ copy().clerkNote }}
+          <a routerLink="/contact">{{ copy().clerkLink }}</a>
+        </p>
+      </aside>
+    </div>
+  </p-card>
+</section>

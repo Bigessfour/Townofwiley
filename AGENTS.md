@@ -1,6 +1,6 @@
 # Town of Wiley — Grok Build project rules
 
-Official site for [townofwiley.gov](https://townofwiley.gov): Angular 22, PrimeNG, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.)
+Official site for [townofwiley.gov](https://townofwiley.gov): Angular 22, **PrimeNG 21 (MIT)**, SCSS, AWS (S3 + CloudFront hosting; AppSync/DynamoDB/Lambda backends), bilingual EN/ES. (Amplify Hosting decommissioned June 2026; see README and docs/AWS_INFRASTRUCTURE_SOT.md for current infra.) Do **not** upgrade to PrimeNG 22+ without a Commercial PrimeUI license — government entities are ineligible for the free Community license and 22+ shows an “Invalid PrimeUI License” banner without a paid key.
 
 ## Stack and conventions
 

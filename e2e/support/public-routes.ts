@@ -72,6 +72,12 @@ export const publicRouteContracts: PublicRouteContract[] = [
     primaryAction: (page) => page.getByTestId('history-document-image'),
   },
   {
+    path: '/ordinances',
+    label: 'ordinances page',
+    heading: 'Municipal code assistant',
+    primaryAction: (page) => page.getByTestId('ordinance-question'),
+  },
+  {
     path: '/pay-bill',
     label: 'pay bill page',
     heading: /Pay Your Utility Bill Online/i,

@@ -134,6 +134,14 @@ export function buildFeaturePages(input: BuildFeaturePagesInput): FeaturePage[] 
       showOnHomepage: false,
     },
     {
+      id: 'ordinances',
+      kicker: copy.ordinancesKicker,
+      title: copy.featureTitles.ordinances,
+      summary: copy.ordinancesFeatureSummary,
+      href: '/ordinances',
+      showOnHomepage: false,
+    },
+    {
       id: 'news',
       kicker: copy.featureTitles.news,
       title: copy.featureTitles.news,

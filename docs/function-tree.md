@@ -13,6 +13,7 @@ flowchart TB
   subgraph Public["Public site P1"]
     Meetings["/meetings + CommunityCalendar"]
     Pay["/pay-bill"]
+    Ordinances["/ordinances code assistant"]
     CmsRead["LocalizedCmsContentStore"]
   end
 
@@ -32,6 +33,7 @@ flowchart TB
 
   Resident --> Meetings --> Svc --> Lambda
   Resident --> Pay
+  Resident --> Ordinances
   Resident --> CmsRead
   Clerk --> Login --> Hub --> Editor --> Generic
   Hub --> Upload

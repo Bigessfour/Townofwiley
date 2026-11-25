@@ -191,6 +191,7 @@
               (ngModelChange)="updateField(field.name, $event)"
               [ngModelOptions]="{ standalone: true }"
               rows="4"
+              [autoResize]="true"
             ></textarea>
             @if (field.help) {
               <span class="cms-record-field__help">{{ field.help }}</span>

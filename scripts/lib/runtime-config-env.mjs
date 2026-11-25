@@ -313,6 +313,10 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     localSecrets.communityCalendar?.apiEndpoint?.trim() ||
     (allowManifestFallbacks ? readDeployedFunctionUrl('TownOfWileyCommunityCalendar') : '') ||
     '';
+  const ordinancesApiEndpoint =
+    env.ORDINANCE_API_ENDPOINT?.trim() || localSecrets.ordinances?.apiEndpoint?.trim() || '';
+  const ordinancesApiKey =
+    env.ORDINANCE_API_KEY?.trim() || localSecrets.ordinances?.apiKey?.trim() || '';
   const cmsMediaUploadEndpoint =
     env.CMS_MEDIA_UPLOAD_API_ENDPOINT?.trim() ||
     localSecrets.cms?.mediaUpload?.apiEndpoint?.trim() ||
@@ -360,6 +364,8 @@ export function buildRuntimeConfigValues(localSecrets, env, options = {}) {
     contactUpdateReviewProxyEndpoint,
     guestbookApiEndpoint,
     communityCalendarApiEndpoint,
+    ordinancesApiEndpoint,
+    ordinancesApiKey,
     cmsMediaUploadEndpoint,
     cmsAuditLogEndpoint,
     paystarMode,
@@ -515,6 +521,10 @@ export function buildPublicRuntimeConfigObject(values, buildMeta) {
     },
     communityCalendar: {
       apiEndpoint: values.communityCalendarApiEndpoint.replace(/\/$/, ''),
+    },
+    ordinances: {
+      apiEndpoint: values.ordinancesApiEndpoint.replace(/\/$/, ''),
+      apiKey: values.ordinancesApiKey,
     },
   };
 }
