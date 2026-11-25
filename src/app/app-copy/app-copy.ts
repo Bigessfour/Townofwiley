@@ -228,6 +228,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'History & Stories', href: '/history' },
       { label: 'Contact the Town Clerk', href: '/contact' },
       { label: 'Meeting notices', href: '/meetings' },
+      { label: 'Municipal code assistant', href: '/ordinances' },
       { label: 'Contact Town Hall', href: '/contact' },
     ],
     communityFacts: [
@@ -690,6 +691,7 @@ export const APP_COPY: Record<SiteLanguage, AppCopy> = {
       { label: 'Historia y Relatos', href: '/history' },
       { label: 'Contactar a la secretaria', href: '/contact' },
       { label: 'Avisos de reuniones', href: '/meetings' },
+      { label: 'Asistente del codigo municipal', href: '/ordinances' },
       { label: 'Contactar al ayuntamiento', href: '/contact' },
     ],
     communityFacts: [

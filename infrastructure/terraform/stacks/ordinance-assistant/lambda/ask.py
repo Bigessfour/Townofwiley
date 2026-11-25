@@ -25,6 +25,8 @@ def settings_from_env() -> dict[str, Any]:
         "model_id": os.environ["MODEL_ID"],
         "guardrail_id": os.environ["GUARDRAIL_ID"],
         "guardrail_version": os.environ["GUARDRAIL_VERSION"],
+        "grounding_guardrail_id": os.environ["GROUNDING_GUARDRAIL_ID"],
+        "grounding_guardrail_version": os.environ["GROUNDING_GUARDRAIL_VERSION"],
         "min_score": float(os.environ.get("MIN_SCORE", "0.7")),
         "max_tokens": int(os.environ.get("MAX_TOKENS", "512")),
         "allowed_origins": [
@@ -79,6 +81,24 @@ def citations_from(
     return chosen[:4]
 
 
+def public_citations(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "section": hit["section"],
+            "authority": hit["authority"],
+            "score": hit["score"],
+        }
+        for hit in hits
+    ]
+
+
+def answer_from(generated: dict[str, Any]) -> str:
+    answer = ""
+    for block in (generated.get("output") or {}).get("message", {}).get("content", []):
+        answer += block.get("text") or ""
+    return answer.strip()
+
+
 def converse_blocks(question: str, hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
     blocks: list[dict[str, Any]] = [
         {
@@ -100,7 +120,17 @@ def converse_blocks(question: str, hits: list[dict[str, Any]]) -> list[dict[str,
                 }
             }
         )
-    blocks.append({"text": question})
+    # Contextual grounding requires a query and content to guard, not only sources.
+    blocks.append(
+        {
+            "guardContent": {
+                "text": {
+                    "text": question,
+                    "qualifiers": ["query"],
+                }
+            }
+        }
+    )
     return blocks
 
 
@@ -165,34 +195,28 @@ def handle(
         messages=[{"role": "user", "content": converse_blocks(question, hits)}],
         inferenceConfig={"maxTokens": settings["max_tokens"], "temperature": 0},
         guardrailConfig={
-            "guardrailIdentifier": settings["guardrail_id"],
-            "guardrailVersion": settings["guardrail_version"],
+            "guardrailIdentifier": settings["grounding_guardrail_id"],
+            "guardrailVersion": settings["grounding_guardrail_version"],
             "trace": "disabled",
         },
     )
     if generated.get("stopReason") == "guardrail_intervened":
         return response(
             200,
-            {"answer": OFF_TOPIC_MESSAGE, "citations": [], "matched": False},
+            {
+                "answer": answer_from(generated) or CLERK_MESSAGE,
+                "citations": public_citations(hits),
+                "matched": False,
+            },
             origin,
             allowed,
         )
-    answer = ""
-    for block in (generated.get("output") or {}).get("message", {}).get("content", []):
-        answer += block.get("text") or ""
     return response(
         200,
         {
-            "answer": answer.strip() or CLERK_MESSAGE,
+            "answer": answer_from(generated) or CLERK_MESSAGE,
             "matched": True,
-            "citations": [
-                {
-                    "section": hit["section"],
-                    "authority": hit["authority"],
-                    "score": hit["score"],
-                }
-                for hit in hits
-            ],
+            "citations": public_citations(hits),
         },
         origin,
         allowed,

@@ -104,10 +104,13 @@ data "aws_iam_policy_document" "ask" {
   }
 
   statement {
-    sid       = "Guardrail"
-    effect    = "Allow"
-    actions   = ["bedrock:ApplyGuardrail"]
-    resources = [aws_bedrock_guardrail.scope.guardrail_arn]
+    sid     = "Guardrail"
+    effect  = "Allow"
+    actions = ["bedrock:ApplyGuardrail"]
+    resources = [
+      aws_bedrock_guardrail.scope.guardrail_arn,
+      aws_bedrock_guardrail.grounding.guardrail_arn,
+    ]
   }
 
   statement {

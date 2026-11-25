@@ -69,7 +69,7 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       'What building regulations does the code adopt?',
     ],
     welcome:
-      'Ask about an adopted Wiley ordinance. Until the Town knowledge base is connected, in-scope questions are acknowledged and not answered from memory. Questions outside the municipal code are declined.',
+      'Ask about an adopted Wiley ordinance. This assistant answers from the municipal code and declines questions outside it.',
     outOfScope:
       'I only answer questions about the Town of Wiley municipal code and adopted ordinances. I cannot help with homework, general knowledge, coding, or drafting. Try a question about a permit, animal rule, zoning section, or utility regulation.',
     pendingKnowledgeBase:
@@ -111,7 +111,7 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       '¿Qué reglamentos de construcción adopta el código?',
     ],
     welcome:
-      'Pregunte sobre una ordenanza adoptada de Wiley. Hasta que la base de conocimiento del Pueblo esté conectada, las preguntas del código se reconocen y no se responden de memoria. Las preguntas fuera del código municipal se rechazan.',
+      'Pregunte sobre una ordenanza adoptada de Wiley. Este asistente responde desde el código municipal y rechaza las preguntas que no son del código.',
     outOfScope:
       'Solo respondo preguntas sobre el código municipal y las ordenanzas adoptadas del Pueblo de Wiley. No puedo ayudar con tareas, cultura general, programación ni redacción. Pruebe una pregunta sobre un permiso, animales, zonificación o servicios públicos.',
     pendingKnowledgeBase:

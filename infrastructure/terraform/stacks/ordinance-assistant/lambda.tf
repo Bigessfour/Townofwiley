@@ -21,13 +21,15 @@ resource "aws_lambda_function" "ask" {
 
   environment {
     variables = {
-      KNOWLEDGE_BASE_ID = aws_bedrockagent_knowledge_base.ordinance.id
-      MODEL_ID          = var.generator_model_id
-      GUARDRAIL_ID      = aws_bedrock_guardrail.scope.guardrail_id
-      GUARDRAIL_VERSION = aws_bedrock_guardrail_version.scope.version
-      MIN_SCORE         = tostring(var.min_score)
-      MAX_TOKENS        = tostring(var.max_tokens)
-      ALLOWED_ORIGINS   = join(",", var.allowed_origins)
+      KNOWLEDGE_BASE_ID           = aws_bedrockagent_knowledge_base.ordinance.id
+      MODEL_ID                    = var.generator_model_id
+      GUARDRAIL_ID                = aws_bedrock_guardrail.scope.guardrail_id
+      GUARDRAIL_VERSION           = aws_bedrock_guardrail_version.scope.version
+      GROUNDING_GUARDRAIL_ID      = aws_bedrock_guardrail.grounding.guardrail_id
+      GROUNDING_GUARDRAIL_VERSION = aws_bedrock_guardrail_version.grounding.version
+      MIN_SCORE                   = tostring(var.min_score)
+      MAX_TOKENS                  = tostring(var.max_tokens)
+      ALLOWED_ORIGINS             = join(",", var.allowed_origins)
     }
   }
 

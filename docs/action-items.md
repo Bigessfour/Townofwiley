@@ -44,7 +44,7 @@
 
 ## Ordinance assistant (layout only)
 
-- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes. Live ask API refuses a homework question. In-scope answers wait on Bedrock: Town account on-demand quotas for Titan Text Embeddings V2 and Nova Lite are 0, so ingestion has not started. Corpus is in `s3://tow-ordinance-source-818904800844/source/`.
+- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes. Town account knowledge base `OFI1SQX6LC` ingested 712 of 715 section files with fixed 200-token chunks. The live ask API cites a dog-license section and refuses a homework question. The public site still uses the empty runtime config until PR 182 merges.
 
 ---
 

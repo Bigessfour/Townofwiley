@@ -13,6 +13,8 @@ SETTINGS = {
     "model_id": "amazon.nova-lite-v1:0",
     "guardrail_id": "guard",
     "guardrail_version": "1",
+    "grounding_guardrail_id": "grounding",
+    "grounding_guardrail_version": "1",
     "min_score": 0.7,
     "max_tokens": 512,
     "allowed_origins": ["https://townofwiley.gov"],
@@ -42,7 +44,8 @@ class FakeClients:
             guard = block.get("guardContent")
             if guard:
                 qualifiers.extend(guard["text"]["qualifiers"])
-        assert qualifiers == ["grounding_source"]
+        assert qualifiers == ["grounding_source", "query"]
+        assert kwargs["guardrailConfig"]["guardrailIdentifier"] == "grounding"
         assert kwargs["inferenceConfig"]["maxTokens"] == 512
         return {
             "output": {
@@ -96,6 +99,42 @@ class AskHandlerTest(unittest.TestCase):
         self.assertEqual(clients.calls, ["guardrail", "retrieve", "converse"])
         self.assertEqual(body["citations"][0]["section"], "7-6-120")
         self.assertEqual(body["citations"][0]["authority"], "ordinance-2024-2")
+
+    def test_blocked_generation_keeps_the_section(self) -> None:
+        clients = FakeClients(
+            results=[
+                {
+                    "score": 0.8,
+                    "content": {
+                        "text": "The Board of Zoning Adjustment may grant a variance."
+                    },
+                    "metadata": {"section": "16-10-10", "authority": "code"},
+                }
+            ]
+        )
+        clients.converse = lambda **kwargs: (
+            clients.calls.append("converse")
+            or {
+                "stopReason": "guardrail_intervened",
+                "output": {
+                    "message": {
+                        "content": [
+                            {
+                                "text": "I could not answer from the municipal code. The Town Clerk can provide the official text."
+                            }
+                        ]
+                    }
+                },
+            }
+        )
+        body = json.loads(
+            handle(event("Where are the zoning variance rules?"), clients, SETTINGS)[
+                "body"
+            ]
+        )
+        self.assertNotIn("only answer questions", body["answer"])
+        self.assertEqual(body["citations"][0]["section"], "16-10-10")
+        self.assertFalse(body["matched"])
 
 
 if __name__ == "__main__":

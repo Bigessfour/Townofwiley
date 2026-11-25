@@ -25,8 +25,10 @@ resource "aws_bedrockagent_knowledge_base" "ordinance" {
   depends_on = [aws_iam_role_policy.knowledge_base]
 }
 
-# Hierarchical chunking cannot be edited after this data source is created.
-# Changing it means deleting this resource and creating it again.
+# Chunking cannot be edited after this data source is created.
+# S3 Vectors rejects a metadata string over 2048 bytes, and Bedrock stores
+# each chunk's text there. Fixed chunks of 200 tokens stay under that limit.
+# A parent chunk of 1500 tokens does not.
 resource "aws_bedrockagent_data_source" "ordinance" {
   knowledge_base_id    = aws_bedrockagent_knowledge_base.ordinance.id
   name                 = "tow-ordinance-source"
@@ -42,15 +44,10 @@ resource "aws_bedrockagent_data_source" "ordinance" {
 
   vector_ingestion_configuration {
     chunking_configuration {
-      chunking_strategy = "HIERARCHICAL"
-      hierarchical_chunking_configuration {
-        overlap_tokens = 60
-        level_configuration {
-          max_tokens = 1500
-        }
-        level_configuration {
-          max_tokens = 300
-        }
+      chunking_strategy = "FIXED_SIZE"
+      fixed_size_chunking_configuration {
+        max_tokens         = 200
+        overlap_percentage = 15
       }
     }
   }
