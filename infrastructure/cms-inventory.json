@@ -2,9 +2,9 @@
   "version": 1,
   "discoveredAt": "2026-06-08T00:00:00.000Z",
   "appSync": {
-    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
-    "name": "townofwiley-main",
-    "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
+    "apiId": "okoh3v23ord33kuggsg3p5n4sm",
+    "name": "townofwiley-cms",
+    "graphqlEndpoint": "https://g6p4g3eyqjhmpctbbvtduj3h7m.appsync-api.us-east-2.amazonaws.com/graphql",
     "authenticationType": "API_KEY",
     "additionalAuth": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -12,21 +12,21 @@
     ]
   },
   "cognito": {
-    "userPoolId": "us-east-2_DmY7BCBIp",
-    "userPoolClientId": "2m6vp91m9938jpbg2efivr2p8k",
-    "identityPoolId": "us-east-2:2c69cd53-7ed6-4032-9e65-b5492cd36e56",
-    "authenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-authRole",
-    "unauthenticatedRoleArn": "arn:aws:iam::570912405222:role/amplify-townofwiley-main-d1245-unauthRole",
+    "userPoolId": "us-east-2_bHk9UcenK",
+    "userPoolClientId": "258binbcvsms0rfqj5g20qakki",
+    "identityPoolId": "us-east-2:86cc6af6-6075-4dd4-a689-1f8b6e760156",
+    "authenticatedRoleArn": "arn:aws:iam::818904800844:role/tow-cms-auth-role-818904800844",
+    "unauthenticatedRoleArn": "arn:aws:iam::818904800844:role/tow-cms-unauth-role-818904800844",
     "staffGroup": "Staff"
   },
   "storage": {
-    "bucket": "townofwiley-documents-storage-main",
+    "bucket": "townofwiley-documents-storage-818904800844",
     "region": "us-east-2"
   },
   "models": [
     {
       "model": "SiteSettings",
-      "tableName": "SiteSettings-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "SiteSettings-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -34,7 +34,7 @@
     },
     {
       "model": "AlertBanner",
-      "tableName": "AlertBanner-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "AlertBanner-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -42,7 +42,7 @@
     },
     {
       "model": "Announcement",
-      "tableName": "Announcement-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "Announcement-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -50,7 +50,7 @@
     },
     {
       "model": "Event",
-      "tableName": "Event-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "Event-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -58,7 +58,7 @@
     },
     {
       "model": "OfficialContact",
-      "tableName": "OfficialContact-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "OfficialContact-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -66,7 +66,7 @@
     },
     {
       "model": "LeadershipRosterEntry",
-      "tableName": "LeadershipRosterEntry-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "LeadershipRosterEntry-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -74,7 +74,7 @@
     },
     {
       "model": "Business",
-      "tableName": "Business-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "Business-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -82,7 +82,7 @@
     },
     {
       "model": "PublicDocument",
-      "tableName": "PublicDocument-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "PublicDocument-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -90,7 +90,7 @@
     },
     {
       "model": "ExternalNewsLink",
-      "tableName": "ExternalNewsLink-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "ExternalNewsLink-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,
@@ -98,7 +98,7 @@
     },
     {
       "model": "SiteCopy",
-      "tableName": "SiteCopy-j7b2x3sh7rcezekekkxxiak7hi-main",
+      "tableName": "SiteCopy-okoh3v23ord33kuggsg3p5n4sm-NONE",
       "itemCount": null,
       "publicApiKeyRead": true,
       "clerkEditorModel": true,

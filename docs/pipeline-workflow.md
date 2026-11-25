@@ -1,6 +1,6 @@
 # Pipeline workflow (CI/CD command reference)
 
-Canonical commands for the Town of Wiley **GitHub Flow + basic CI + continuous deployment** pipeline. Production frontend: **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`).
+Canonical commands for the Town of Wiley **GitHub Flow + basic CI + continuous deployment** pipeline. Production frontend: **S3** (`townofwiley-static-site-818904800844`) + **CloudFront** (`E19PUUL2H76CZA`).
 
 Agents and maintainers: run these in order unless the task is docs-only.
 
@@ -11,13 +11,13 @@ feature branch → PR → site-ci / CI gate (merge required) → merge main
                     → deploy-production → townofwiley.gov
 ```
 
-| Stage | Authority | Doc |
-|-------|-----------|-----|
-| Merge gate | GitHub ruleset + `scripts/ci-gate-check.mjs` | [`github-branch-protection.md`](./github-branch-protection.md) |
-| CI | `.github/workflows/ci.yml` | [`git-workflow.md`](./git-workflow.md) |
-| Runtime secrets | GitHub repository secrets + local locker | [`secrets/README.md`](../secrets/README.md) |
+| Stage             | Authority                                          | Doc                                                                                                                           |
+| ----------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Merge gate        | GitHub ruleset + `scripts/ci-gate-check.mjs`       | [`github-branch-protection.md`](./github-branch-protection.md)                                                                |
+| CI                | `.github/workflows/ci.yml`                         | [`git-workflow.md`](./git-workflow.md)                                                                                        |
+| Runtime secrets   | GitHub repository secrets + local locker           | [`secrets/README.md`](../secrets/README.md)                                                                                   |
 | Production deploy | OIDC → `scripts/deploy-static-site.sh` via Actions | [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) · [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md) |
-| IaC | Terraform (`infrastructure/terraform/`) | [terraform README](../infrastructure/terraform/README.md) |
+| IaC               | Terraform (`infrastructure/terraform/`)            | [terraform README](../infrastructure/terraform/README.md)                                                                     |
 
 ## Shell setup (every session)
 
@@ -28,8 +28,7 @@ cd /path/to/Townofwiley   # repo root
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"   # Intel: /usr/local/opt/node@24/bin
 source scripts/agent-aws-env.sh
 node -v    # expect v24.x (see .nvmrc)
-aws sts get-caller-identity --profile tow   # expect account 818904800844 (hosting)
-# Gen1 backend until cutover: --profile steve → 570912405222
+aws sts get-caller-identity --profile tow   # expect account 818904800844
 ```
 
 **Windows (Cursor / VS Code):**
@@ -159,14 +158,14 @@ npm run deploy:site:dry          # S3 dry-run only
 
 ## When things fail
 
-| Symptom | Command / action |
-|---------|------------------|
-| Strict runtime config missing vars | `npm run secrets:sync-runtime -- --github` |
+| Symptom                               | Command / action                                                                                                                 |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Strict runtime config missing vars    | `npm run secrets:sync-runtime -- --github`                                                                                       |
 | `npm run build` fails on CMS snapshot | AppSync must be reachable; run `npm run secrets:sync-runtime`, then `npm run verify:runtime-config-cms`. CI uses GitHub secrets. |
-| CI build failed on secrets | `gh secret list` — compare to `amplify-branch-env.manifest.json` |
-| OIDC deploy failed | See [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) troubleshooting |
-| CSP / headers drift | `npm run verify:live-csp-probe` |
-| Failed CI job logs | `gh run view <run-id> --log-failed` |
+| CI build failed on secrets            | `gh secret list` — compare to `amplify-branch-env.manifest.json`                                                                 |
+| OIDC deploy failed                    | See [`github-actions-production-deploy.md`](./github-actions-production-deploy.md) troubleshooting                               |
+| CSP / headers drift                   | `npm run verify:live-csp-probe`                                                                                                  |
+| Failed CI job logs                    | `gh run view <run-id> --log-failed`                                                                                              |
 
 ## Related
 

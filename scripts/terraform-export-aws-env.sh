@@ -3,7 +3,7 @@
 # Usage: source scripts/terraform-export-aws-env.sh [profile]
 set -euo pipefail
 
-PROFILE="${1:-${AWS_PROFILE:-steve}}"
+PROFILE="${1:-${AWS_PROFILE:-tow}}"
 if ! eval "$(aws configure export-credentials --profile "${PROFILE}" --format env)"; then
   echo "error: export credentials failed for profile ${PROFILE}. Run: npm run aws:login" >&2
   return 1 2>/dev/null || exit 1

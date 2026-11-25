@@ -61,7 +61,9 @@ Shared into Town via AWS RAM (self-service ownership transfer is not available):
 | Two-way STOP/HELP                     | personal SNS → `TownOfWileySmsInboundForwarder` → tow Lambda                                   |
 | tow SMS tier                          | still **SANDBOX** (`$1` limit; verified destinations only)                                     |
 
-**Still needed (console click in `tow`):** Service Quotas → AWS End User Messaging SMS → **SMS Production Access** for `us-east-2` ([sandbox exit guide](https://docs.aws.amazon.com/sms-voice/latest/userguide/sandbox.html)).
+**Verified 2026-11-25 from `tow`:** RAM resource status `AVAILABLE`. Severe-weather Lambda env uses the shared phone ARN. `sms-voice:SendTextMessage` is allowed. A prior send reached End User Messaging and failed only with `DESTINATION_PHONE_NUMBER_NOT_VERIFIED`. NWS proxy `TownOfWileyNWSWeatherProxy` returned HTTP 200 for Wiley. Scheduled poller returned `activeAlerts: 0` with the subscriber list readable. EventBridge rule `TownOfWileySevereWeatherPoller` is `ENABLED` at `rate(5 minutes)`.
+
+**Still needed (console click in `tow`):** Service Quotas → AWS End User Messaging SMS → **SMS Production Access** for `us-east-2` ([sandbox exit guide](https://docs.aws.amazon.com/sms-voice/latest/userguide/sandbox.html)). The Support API is not enabled on this account, so the case cannot be opened from the CLI. Until that request is granted, resident texts stay limited to verified sandbox destinations.
 
 ### 3. Bake-in then decommission personal CMS
 

@@ -2,7 +2,7 @@
 
 Operator checklist for [townofwiley.gov](https://townofwiley.gov). This file **links** canonical SSOT docs; it does not duplicate CSP or manifest content.
 
-**Account:** `570912405222` · **Profile:** `townofwiley` · **Region:** `us-east-2` · **Hosting:** S3+CloudFront `E1NZ3XCY5CYR1J` (Amplify app `d331voxr1fhoir` deleted June 2026)
+**Account:** `818904800844` · **Profile:** `tow` · **Region:** `us-east-2` · **Hosting:** S3+CloudFront `E19PUUL2H76CZA`
 
 ---
 
@@ -71,11 +71,11 @@ npm run verify:aws-infra
 
 ## Phase 4 — Monthly / before major releases
 
-| Tier            | When                                       | Command                                                                                                                | Pass criteria                                                       |
-| --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| PR smoke        | Every app/e2e change (CI `frontend-smoke`) | `npm run test:e2e:smoke`                                                                                               | Critical tier green; no new console errors in `public-route-health` |
-| Live hosting    | After deploy / weekly                      | `npm run test:e2e:live:production`                                                                                     | `live-hosting` + `live-hosting-headers` specs green                 |
-| Full regression | Pre-marketing / monthly                    | `npm run test:e2e:regression`                                                                                          | All smoke + accessibility + responsive + typography green           |
+| Tier            | When                                       | Command                            | Pass criteria                                                       |
+| --------------- | ------------------------------------------ | ---------------------------------- | ------------------------------------------------------------------- |
+| PR smoke        | Every app/e2e change (CI `frontend-smoke`) | `npm run test:e2e:smoke`           | Critical tier green; no new console errors in `public-route-health` |
+| Live hosting    | After deploy / weekly                      | `npm run test:e2e:live:production` | `live-hosting` + `live-hosting-headers` specs green                 |
+| Full regression | Pre-marketing / monthly                    | `npm run test:e2e:regression`      | All smoke + accessibility + responsive + typography green           |
 
 | Check              | Action                                                                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |

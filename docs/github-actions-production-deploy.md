@@ -1,6 +1,6 @@
 # GitHub Actions production deploy (S3 + CloudFront)
 
-Production frontend hosting for [townofwiley.gov](https://townofwiley.gov) is **S3** (`townofwiley-static-site`) + **CloudFront** (`E1NZ3XCY5CYR1J`). After Site CI passes on a push to **`main`** with deployable app changes, GitHub Actions syncs the CI-built artifact and invalidates CloudFront.
+Production frontend hosting for [townofwiley.gov](https://townofwiley.gov) is **S3** (`townofwiley-static-site-818904800844`) + **CloudFront** (`E19PUUL2H76CZA`). After Site CI passes on a push to **`main`** with deployable app changes, GitHub Actions syncs the CI-built artifact and invalidates CloudFront.
 
 **This is the only supported production frontend deploy path.** Ansible was removed; Terraform is IaC only (not the static site publisher). See [`DEPLOYMENT_SSOT.md`](./DEPLOYMENT_SSOT.md).
 
@@ -34,11 +34,11 @@ GitHub Actions uses **OIDC** — no long-lived `AWS_ACCESS_KEY_ID` secrets for d
 
 ### Files
 
-| File | Purpose |
-|------|---------|
-| [`infrastructure/iam/github-actions-static-site-deploy-trust.json`](../infrastructure/iam/github-actions-static-site-deploy-trust.json) | Trust: repo `Bigessfour/Townofwiley`, branch `main` |
+| File                                                                                                                                      | Purpose                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`infrastructure/iam/github-actions-static-site-deploy-trust.json`](../infrastructure/iam/github-actions-static-site-deploy-trust.json)   | Trust: repo `Bigessfour/Townofwiley`, branch `main`  |
 | [`infrastructure/iam/github-actions-static-site-deploy-policy.json`](../infrastructure/iam/github-actions-static-site-deploy-policy.json) | Least privilege: S3 bucket + CloudFront invalidation |
-| [`scripts/setup-github-actions-deploy-role.sh`](../scripts/setup-github-actions-deploy-role.sh) | Creates OIDC provider (if missing) + role |
+| [`scripts/setup-github-actions-deploy-role.sh`](../scripts/setup-github-actions-deploy-role.sh)                                           | Creates OIDC provider (if missing) + role            |
 
 ### Apply
 
@@ -86,10 +86,10 @@ npm run secrets:lock                  # update encrypted lockbox (safe to commit
 
 ### Workflows
 
-| Workflow | Trigger | Deploy |
-|----------|---------|--------|
-| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) → [`site-ci.yml`](../.github/workflows/site-ci.yml) | PR / push `main` | Job id `site-ci` → `build-and-test` → `ci-gate`; auto `deploy-production` on green push to `main` |
-| [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml) | `workflow_dispatch` | Manual build + deploy from `main` |
+| Workflow                                                                                                      | Trigger             | Deploy                                                                                            |
+| ------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) → [`site-ci.yml`](../.github/workflows/site-ci.yml) | PR / push `main`    | Job id `site-ci` → `build-and-test` → `ci-gate`; auto `deploy-production` on green push to `main` |
+| [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml)                       | `workflow_dispatch` | Manual build + deploy from `main`                                                                 |
 
 ### When auto-deploy runs
 

@@ -7,17 +7,14 @@ alwaysApply: true
 
 | Role | Account ID | Profile(s) | Region |
 | ---- | ---------- | ---------- | ------ |
-| **Official Town** (static site, deploy) | **`818904800844`** (starts with **8**) | **`tow`** | `us-east-2` |
-| **Steve personal** (legacy Gen1 backend until cutover) | **`570912405222`** (starts with **5**) | **`steve`**, legacy alias **`townofwiley`** | `us-east-2` |
-| Code Platoon / class (never for Town hosting) | `388691194728` | `codeplatoon` | — |
+| **Official Town** (site, CMS, Lambdas, deploy) | **`818904800844`** (starts with **8**) | **`tow`** | `us-east-2` |
+| Code Platoon / class (never for Town work) | `388691194728` | `codeplatoon` | — |
 
 **Source of truth:** [`infrastructure/town-aws-account.json`](../infrastructure/town-aws-account.json) + [`infrastructure/aws-infrastructure.manifest.json`](../infrastructure/aws-infrastructure.manifest.json).
 
-Do **not** treat profile `townofwiley` as the municipal account — it historically pointed at Steve personal (`570…`) because the site was built there.
-
 ## Agent rules
 
-1. Before **mutating** AWS: `aws sts get-caller-identity --profile <name>` and confirm the account matches the task (hosting → **818…** / `tow`; Gen1 backend → **570…** / `steve`).
+1. Before **mutating** AWS: `aws sts get-caller-identity --profile tow` and confirm account **`818904800844`**.
 2. Production frontend deploy uses OIDC role in **818…** (`GitHubActions-TownOfWiley-StaticSiteDeploy`) or local `AWS_PROFILE=tow npm run deploy:site`.
-3. Use `source scripts/agent-aws-env.sh` for a default shell (defaults to **`tow`** / **818…**).
-4. Never use Code Platoon (`388…`) for Town site work.
+3. Use `source scripts/agent-aws-env.sh` for a default shell (profile **`tow`**).
+4. Never use Code Platoon (`388…`) for Town work.

@@ -28,12 +28,12 @@ vi.mock('aws-amplify/api', () => ({
 const defaultAdminRuntimeConfig = {
   clerkSetup: {
     clerkName: 'Deb Dillon',
-    awsAccountId: '570912405222',
+    awsAccountId: '818904800844',
     amplifyAppId: 'd331voxr1fhoir',
     awsRegion: 'us-east-2',
     awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
     studioUrl:
-      'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries',
+      'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/okoh3v23ord33kuggsg3p5n4sm/v1/queries',
     cfDistributionId: 'E1NZ3XCY5CYR1J',
     s3Bucket: 'townofwiley-static-site',
   },

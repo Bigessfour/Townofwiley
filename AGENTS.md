@@ -11,7 +11,7 @@ Official site for [townofwiley.gov](https://townofwiley.gov): Angular 22, **Prim
 
 ## CMS Architecture & Gotchas
 
-Headless CMS: **AWS AppSync (GraphQL)** on Gen 1 production API `j7b2x3sh7rcezekekkxxiak7hi`. **Staff day-to-day edits:** `/admin` in-app forms (Cognito). **IT fallback:** AppSync Queries console under **Advanced (IT)**. Amplify Studio / Data Manager is **deprecated** (June 2026). Gen1 Amplify CLI stack remains until decommission — see [`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md).
+Headless CMS: **AWS AppSync (GraphQL)** API `okoh3v23ord33kuggsg3p5n4sm` in the Town account. **Staff day-to-day edits:** `/admin` in-app forms (Cognito). **IT fallback:** AppSync Queries console under **Advanced (IT)**. Amplify Studio / Data Manager is **deprecated** (June 2026). Gen1 Amplify CLI stack remains until decommission — see [`docs/amplify-gen2-migration-plan.md`](docs/amplify-gen2-migration-plan.md).
 
 ### Public vs authenticated read/write
 
@@ -166,17 +166,16 @@ grok --version && grok models && grok -p "reply with exactly: ok" && grok mcp do
 
 ## AWS and secrets
 
-- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — official Town **`818904800844`** / profile **`tow`** for site hosting and deploy; Gen1 backend still on Steve personal **`570912405222`** / **`steve`** (legacy alias `townofwiley`) until cutover. Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Manifest: [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json).
+- **Canonical identity:** [`infrastructure/town-aws-account.json`](infrastructure/town-aws-account.json) — Town account **`818904800844`** / profile **`tow`**. Agents: [`.cursor/rules/aws-account.mdc`](.cursor/rules/aws-account.mdc). Manifest: [`infrastructure/aws-infrastructure.manifest.json`](infrastructure/aws-infrastructure.manifest.json).
 - Never commit credentials; use `npm run secrets:*` scripts.
 - **For agent access (Grok, Cursor, etc.):** Source the helper before working with AWS:
   ```bash
   source scripts/agent-aws-env.sh
   ```
-  This exports `AWS_PROFILE=tow` (818…) by default. For Gen1 backend: `AWS_PROFILE_NAME=steve source scripts/agent-aws-env.sh`.
+  This exports `AWS_PROFILE=tow` (818…).
 - Prefer SSO:
   ```bash
-  aws sso login --profile tow      # hosting / official Town
-  aws sso login --profile steve    # Gen1 backend until cutover
+  aws sso login --profile tow
   ```
 - Always verify with: `aws sts get-caller-identity` (confirm account matches the task)
 - Cost optimization: [`docs/aws-cost-optimization-runbook.md`](docs/aws-cost-optimization-runbook.md) — `npm run aws:optimize:discover` / `aws:optimize:apply`

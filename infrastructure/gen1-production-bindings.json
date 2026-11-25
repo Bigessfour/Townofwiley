@@ -26,13 +26,6 @@
     "cloudFrontDomain": "d1bhtly4h27ucg.cloudfront.net",
     "accountId": "818904800844",
     "region": "us-east-2",
-    "note": "Static hosting + CMS backend both on official Town account (profile tow) as of 2026-08-20 CMS cutover."
-  },
-  "legacyPersonal": {
-    "note": "Pre-cutover Gen 1 Amplify stack on Steve personal 570912405222 — retain until bake-in then decommission.",
-    "cloudFormationStack": "amplify-townofwiley-main-d1245",
-    "appSyncApiId": "j7b2x3sh7rcezekekkxxiak7hi",
-    "userPoolId": "us-east-2_DmY7BCBIp",
-    "documentsBucket": "townofwiley-documents-storage-main"
+    "note": "Static hosting and the CMS backend are both in the Town account."
   }
 }

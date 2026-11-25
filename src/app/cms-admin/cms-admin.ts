@@ -156,7 +156,7 @@ export class CmsAdmin {
   // Advanced (IT) never links at the deleted Amplify Hosting app (d331voxr1fhoir).
   protected readonly dataManagerUrl =
     this.clerkSetupConfig.studioUrl ||
-    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/j7b2x3sh7rcezekekkxxiak7hi/v1/queries';
+    'https://us-east-2.console.aws.amazon.com/appsync/home?region=us-east-2#/okoh3v23ord33kuggsg3p5n4sm/v1/queries';
 
   protected readonly setupDetails = computed<CmsAdminSetupDetail[]>(() => [
     {

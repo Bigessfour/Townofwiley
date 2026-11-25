@@ -2,7 +2,7 @@
  * Gen 1 (production) AppSync API ID for the CMS backend.
  * Source of truth: infrastructure/gen1-production-bindings.json + public/cms-inventory.json.
  */
-export const PRODUCTION_APPSYNC_API_ID = 'j7b2x3sh7rcezekekkxxiak7hi';
+export const PRODUCTION_APPSYNC_API_ID = 'okoh3v23ord33kuggsg3p5n4sm';
 
 export const DEFAULT_APPSYNC_REGION = 'us-east-2';
 

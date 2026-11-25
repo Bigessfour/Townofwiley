@@ -3,8 +3,7 @@
 # scripts/agent-aws-env.sh
 #
 # Town of Wiley — AWS environment setup for AI agents (Grok, Cursor, etc.).
-# Defaults to official Town account (818…) / profile tow for site hosting.
-# For Gen1 backend work: AWS_PROFILE_NAME=steve source scripts/agent-aws-env.sh
+# Defaults to the Town account (818…) / profile tow.
 #
 # Usage:
 #   source scripts/agent-aws-env.sh
@@ -30,16 +29,9 @@ read_account_field() {
 readonly DEFAULT_PROFILE="$(read_account_field defaultProfile tow)"
 readonly DEFAULT_REGION="$(read_account_field primaryRegion us-east-2)"
 readonly EXPECTED_ACCOUNT="$(read_account_field accountId 818904800844)"
-readonly LEGACY_ACCOUNT="$(node -e "const j=require(process.argv[1]);process.stdout.write(j.legacyPersonalAccount?.accountId||'570912405222')" "${ACCOUNT_JSON}" 2>/dev/null || echo "570912405222")"
-
 PROFILE="${AWS_PROFILE_NAME:-$DEFAULT_PROFILE}"
 REGION="${AWS_DEFAULT_REGION:-$DEFAULT_REGION}"
-
-# When targeting Gen1 backend, allow steve / townofwiley → 570…
 EXPECTED_FOR_PROFILE="$EXPECTED_ACCOUNT"
-if [[ "$PROFILE" == "steve" || "$PROFILE" == "townofwiley" ]]; then
-  EXPECTED_FOR_PROFILE="$LEGACY_ACCOUNT"
-fi
 
 resolve_profile() {
   local candidate="$1"
@@ -53,32 +45,13 @@ resolve_profile() {
   return 1
 }
 
-# Never silently fall back from hosting (818/tow) to Gen1 (570/steve).
-# Gen1 profiles only when the caller explicitly set AWS_PROFILE_NAME=steve|townofwiley.
 if ! RESOLVED="$(resolve_profile "$PROFILE" "$EXPECTED_FOR_PROFILE" 2>/dev/null)"; then
-  if [[ "$PROFILE" == "steve" || "$PROFILE" == "townofwiley" ]]; then
-    for fallback in steve townofwiley; do
-      if RESOLVED="$(resolve_profile "$fallback" "$LEGACY_ACCOUNT" 2>/dev/null)"; then
-        echo "[agent-aws-env] Using Gen1 profile '$fallback' (account ${LEGACY_ACCOUNT})."
-        PROFILE="$RESOLVED"
-        EXPECTED_FOR_PROFILE="$LEGACY_ACCOUNT"
-        break
-      fi
-    done
+  if RESOLVED="$(resolve_profile "tow" "$EXPECTED_ACCOUNT" 2>/dev/null)"; then
+    echo "[agent-aws-env] Using profile 'tow' (account ${EXPECTED_ACCOUNT})."
+    PROFILE="$RESOLVED"
   else
-    for fallback in tow; do
-      if RESOLVED="$(resolve_profile "$fallback" "$EXPECTED_ACCOUNT" 2>/dev/null)"; then
-        echo "[agent-aws-env] Using hosting profile '$fallback' (account ${EXPECTED_ACCOUNT})."
-        PROFILE="$RESOLVED"
-        EXPECTED_FOR_PROFILE="$EXPECTED_ACCOUNT"
-        break
-      fi
-    done
-    if [[ -z "${RESOLVED:-}" ]]; then
-      echo "[agent-aws-env] WARNING: No working profile for official Town account ${EXPECTED_ACCOUNT}."
-      echo "               Run: aws sso login --profile tow"
-      echo "               Gen1 backend only: AWS_PROFILE_NAME=steve source scripts/agent-aws-env.sh"
-    fi
+    echo "[agent-aws-env] WARNING: No working profile for Town account ${EXPECTED_ACCOUNT}."
+    echo "               Run: aws sso login --profile tow"
   fi
 else
   PROFILE="$RESOLVED"
@@ -91,8 +64,7 @@ echo "[agent-aws-env] AWS environment configured for agent use:"
 echo "  AWS_PROFILE=$AWS_PROFILE"
 echo "  AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
 echo "  Expected account for this profile: $EXPECTED_FOR_PROFILE"
-echo "  Official Town (hosting): $EXPECTED_ACCOUNT (profile tow)"
-echo "  Legacy Gen1 backend:     $LEGACY_ACCOUNT (profile steve)"
+echo "  Town account: $EXPECTED_ACCOUNT (profile tow)"
 echo ""
 
 if command -v aws >/dev/null 2>&1; then
@@ -110,8 +82,7 @@ if command -v aws >/dev/null 2>&1; then
     fi
   else
     echo "[agent-aws-env] Profile '$PROFILE' not fully configured or credentials expired."
-    echo "               Hosting: aws sso login --profile tow"
-    echo "               Gen1:    aws sso login --profile steve  (or npm run aws:configure-profile for legacy)"
+    echo "               Run: aws sso login --profile tow"
   fi
 else
   echo "[agent-aws-env] aws CLI not found in PATH"

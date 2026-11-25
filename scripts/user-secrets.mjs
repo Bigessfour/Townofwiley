@@ -29,7 +29,7 @@ const templateSecrets = {
   },
   aws: {
     region: 'us-east-2',
-    accountId: '570912405222',
+    accountId: '818904800844',
     amplifyAppId: 'd331voxr1fhoir',
     accessKeyId: '',
     secretAccessKey: '',

@@ -16,13 +16,13 @@ interface RuntimeConfigShape {
 }
 
 const DEFAULT_CLERK_NAME = 'Deb Dillon';
-const DEFAULT_AWS_ACCOUNT_ID = '570912405222';
+const DEFAULT_AWS_ACCOUNT_ID = '818904800844';
 const DEFAULT_AWS_REGION = 'us-east-2';
 const DEFAULT_AMPLIFY_APP_ID = 'd331voxr1fhoir';
 /** Production Gen 1 AppSync Queries console (IT Advanced). */
 const DEFAULT_STUDIO_URL = buildAppSyncQueriesConsoleUrl(DEFAULT_AWS_REGION);
-const DEFAULT_CF_DISTRIBUTION_ID = 'E1NZ3XCY5CYR1J';
-const DEFAULT_S3_BUCKET = 'townofwiley-static-site';
+const DEFAULT_CF_DISTRIBUTION_ID = 'E19PUUL2H76CZA';
+const DEFAULT_S3_BUCKET = 'townofwiley-static-site-818904800844';
 const FALLBACK_CONSOLE_URL = `https://${DEFAULT_AWS_REGION}.console.aws.amazon.com/`;
 
 type ClerkSetupRuntimeWindow = Window & {

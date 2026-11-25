@@ -2,23 +2,23 @@
 
 **Terraform is kept** as a gradual **IaC** layer. It is **not** the production frontend publisher.
 
-| Concern | Authority |
-|---------|-----------|
+| Concern                           | Authority                                                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Static site → townofwiley.gov** | GitHub Actions `deploy-production` (OIDC → S3 + CloudFront) — see [docs/DEPLOYMENT_SSOT.md](../../docs/DEPLOYMENT_SSOT.md) |
-| **Ansible** | **Removed** — use this Terraform tree; [docs/ansible-DEPRECATED.md](../../docs/ansible-DEPRECATED.md) |
-| **This tree** | Manifest alignment, optional log retention, state bootstrap, small stacks |
+| **Ansible**                       | **Removed** — use this Terraform tree; [docs/ansible-DEPRECATED.md](../../docs/ansible-DEPRECATED.md)                      |
+| **This tree**                     | Manifest alignment, optional log retention, state bootstrap, small stacks                                                  |
 
 This repo does **not** manage all AWS through Terraform today. Production CMS uses **Amplify Gen1** (AppSync, Cognito, storage) plus **Python/Node deploy scripts** for integration Lambdas. See [docs/AWS_INFRASTRUCTURE_SOT.md](../../docs/AWS_INFRASTRUCTURE_SOT.md).
 
 ## Account and region
 
-| Field | Value |
-| ----- | ----- |
-| **AWS accounts** | Hosting `818904800844` (`tow`); Gen1 backend still `570912405222` until cutover (see [`town-aws-account.json`](../town-aws-account.json)) |
-| **Primary region** | `us-east-2` |
-| **CLI profile** | `townofwiley` (see `npm run aws:configure-profile`) |
+| Field              | Value                                                                           |
+| ------------------ | ------------------------------------------------------------------------------- |
+| **AWS account**    | `818904800844` (`tow`; see [`town-aws-account.json`](../town-aws-account.json)) |
+| **Primary region** | `us-east-2`                                                                     |
+| **CLI profile**    | `tow`                                                                           |
 
-Plans **fail** if `aws sts get-caller-identity` is not account `570912405222`.
+Plans **fail** if `aws sts get-caller-identity` is not account `818904800844`.
 
 ## Layout
 
@@ -33,7 +33,7 @@ infrastructure/terraform/
 
 ## First-time setup
 
-1. Sign in to AWS account **570912405222** (`aws sso login --profile townofwiley`).
+1. Sign in to AWS account **818904800844** (`aws sso login --profile tow`).
 2. Bootstrap remote state (once per account):
 
    ```bash
@@ -73,7 +73,7 @@ Per [HashiCorp `terraform validate`](https://developer.hashicorp.com/terraform/c
 One-shot IAM cleanup (Lambda/table already gone):
 
 ```bash
-export AWS_PROFILE=steve   # account 570912405222
+export AWS_PROFILE=tow   # account 818904800844
 npm run terraform:guestbook:destroy
 ```
 

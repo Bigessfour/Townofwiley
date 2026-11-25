@@ -1,9 +1,8 @@
 {
   "$schema": "./aws-infrastructure.manifest.schema.json",
   "version": 1,
-  "description": "SSOT for Town of Wiley custom AWS resources. Static hosting (S3+CloudFront) lives in official Town account 818904800844 (profile tow) as of 2026-08-20. Gen 1 AppSync/Cognito/docs storage and most Lambdas still in Steve personal 570912405222 until backend migration. Frontend: S3 townofwiley-static-site-818904800844 + CloudFront E19PUUL2H76CZA (d1bhtly4h27ucg.cloudfront.net). Legacy personal CF E1NZ3XCY5CYR1J aliases cleared.",
+  "description": "SSOT for Town of Wiley custom AWS resources in account 818904800844 (profile tow). Frontend: S3 townofwiley-static-site-818904800844 + CloudFront E19PUUL2H76CZA (d1bhtly4h27ucg.cloudfront.net). CMS AppSync API okoh3v23ord33kuggsg3p5n4sm.",
   "accountId": "818904800844",
-  "legacyPersonalAccountId": "570912405222",
   "primaryRegion": "us-east-2",
   "documentation": "docs/AWS_INFRASTRUCTURE_SOT.md",
   "hosting": {
@@ -23,8 +22,7 @@
     "acmCertArn": "arn:aws:acm:us-east-1:818904800844:certificate/1ca102fe-d903-47f6-8f0f-15282c340ff5",
     "loggingBucket": "townofwiley-cf-logs-818904800844",
     "loggingPrefix": "cf-access/",
-    "legacyPersonalDistributionId": "E1NZ3XCY5CYR1J",
-    "note": "Cut over 2026-08-20. Public DNS (still hosted in 570 zone until NS move) A/AAAA aliases point at E19PUUL2H76CZA. Deploy with AWS_PROFILE=tow.",
+    "note": "Public DNS aliases point at E19PUUL2H76CZA. Deploy with AWS_PROFILE=tow.",
     "deployCommand": "npm run build && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site-818904800844 --delete --cache-control 'public, max-age=31536000, immutable' --exclude 'index.html' --exclude 'runtime-config.js' --exclude '*/*.html' --profile tow && aws s3 sync dist/townofwiley-app/browser s3://townofwiley-static-site-818904800844 --delete --cache-control 'no-cache, no-store, must-revalidate' --include 'index.html' --include 'runtime-config.js' --include '*/*.html' --profile tow && aws cloudfront create-invalidation --distribution-id E19PUUL2H76CZA --paths \"/*\" --profile tow"
   },
   "amplify": {
@@ -43,9 +41,9 @@
     }
   },
   "appsync": {
-    "apiId": "j7b2x3sh7rcezekekkxxiak7hi",
-    "apiName": "townofwiley-main",
-    "graphqlEndpoint": "https://327diwc6cvdqjocdudvrdv7wwu.appsync-api.us-east-2.amazonaws.com/graphql",
+    "apiId": "okoh3v23ord33kuggsg3p5n4sm",
+    "apiName": "townofwiley-cms",
+    "graphqlEndpoint": "https://g6p4g3eyqjhmpctbbvtduj3h7m.appsync-api.us-east-2.amazonaws.com/graphql",
     "defaultAuthorizationType": "API_KEY",
     "additionalAuthorizationTypes": [
       "AWS_IAM",
@@ -97,7 +95,7 @@
       "deployScript": "scripts/deploy-severe-weather-backend.py",
       "required": true,
       "accountId": "818904800844",
-      "notes": "On tow. SES production GRANTED. SMS uses RAM-shared TFN +18666509844 from personal 570 (do not release). tow SMS still SANDBOX until production quota case."
+      "notes": "SES production is granted. SMS uses the RAM-shared toll-free number +18666509844. Do not release that number. Town SMS is still in the sandbox until the production quota is granted."
     },
     {
       "functionName": "TownOfWileyAppSyncKeyReminder",
@@ -120,6 +118,7 @@
       "functionUrlEndpoint": "https://r6ev4nn2vy3zl4w4bc6sm27s3u0baaud.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-cms-media-upload.py",
       "required": false,
+      "accountId": "818904800844",
       "notes": "Staff presigned S3 upload for CMS PDFs/images + CloudFront invalidation; Cognito Staff JWT"
     },
     {
@@ -157,6 +156,7 @@
       "functionUrlEndpoint": "https://rvfxlmux43jltaffqmhatzxpiq0ahlqs.lambda-url.us-east-2.on.aws/",
       "deployScript": "scripts/deploy-community-calendar-backend.py",
       "required": false,
+      "accountId": "818904800844",
       "notes": "Community calendar submissions + clerk email approve/reject"
     }
   ],
@@ -200,7 +200,7 @@
       "Wiley Widget VPC wiley-co-aurora-vpc and interface endpoints",
       "DynamoDB WileyWidgetMessages, TownOfWileyGuestbook, DeveloperMonitorState",
       "Gen 2 Cognito us-east-2_pkewJMUJF",
-      "ECR cdk-hnb659fds-container-assets-570912405222-us-east-2"
+      "CDK container asset repository from the pre-cutover account"
     ],
     "paystar": "Hosted portal only per https://docs.paystar.io/api/query/ \u2014 PAYSTAR_PORTAL_URL in runtime-config; no API proxy Lambda",
     "stephenmckitrick": "CloudFront E1VI8ZZ8L1HW1F remains in this account until DNS/assets migrate to the other account (low-volume bill pay site)"

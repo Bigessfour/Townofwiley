@@ -2,9 +2,9 @@
 
 Canonical reference for Town of Wiley AWS resources.
 
-**Accounts:** Official Town **`818904800844`** (profile **`tow`**) hosts static site + SES domain as of 2026-08-20. Steve personal **`570912405222`** (profiles **`steve`** / legacy **`townofwiley`**) still holds Gen 1 AppSync/Cognito/docs storage and most Lambdas until backend migration. See [infrastructure/migration/tow-account-818904800844/CUTOVER-STATUS.md](../infrastructure/migration/tow-account-818904800844/CUTOVER-STATUS.md).
+**Account:** Town **`818904800844`** (profile **`tow`**), region **`us-east-2`**. Site, CMS, and Town Lambdas live here.
 
-**Current frontend hosting:** S3 `townofwiley-static-site-818904800844` + CloudFront `E19PUUL2H76CZA` (`d1bhtly4h27ucg.cloudfront.net`) with SPA Function, ACM cert (us-east-1 in `818…`), aliases `townofwiley.gov` / `www` / `staging`. Legacy personal distribution `E1NZ3XCY5CYR1J` aliases cleared.
+**Current frontend hosting:** S3 `townofwiley-static-site-818904800844` + CloudFront `E19PUUL2H76CZA` (`d1bhtly4h27ucg.cloudfront.net`) with SPA Function, ACM cert (us-east-1), aliases `townofwiley.gov` / `www` / `staging`.
 
 When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update the manifests and this doc in the same PR.
 
@@ -24,7 +24,7 @@ When Lambdas, DynamoDB, Function URL auth, or backend env keys change, update th
 **Verify live AWS matches repo:**
 
 ```bash
-export AWS_PROFILE=townofwiley
+export AWS_PROFILE=tow
 export AWS_DEFAULT_REGION=us-east-2
 npm run verify:aws-infra
 ```
@@ -113,7 +113,7 @@ Per [AWS Lambda logging](https://docs.aws.amazon.com/lambda/latest/dg/typescript
 **Apply or repair Town of Wiley logging (account admin):**
 
 ```bash
-export AWS_PROFILE=townofwiley AWS_DEFAULT_REGION=us-east-2
+export AWS_PROFILE=tow AWS_DEFAULT_REGION=us-east-2
 python scripts/configure-townofwiley-cloudwatch-logging.py
 # or: npm run configure:cloudwatch-logging
 ```
@@ -134,14 +134,14 @@ Log groups checked: manifest Lambdas, AppSync `/aws/appsync/apis/<apiId>`, and A
 
 ## Hybrid deployment model (why Amplify + scripts)
 
-| Layer                      | Tooling                                                                                  | Owns                                                                       |
-| -------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **Public site + CMS read** | S3+CloudFront (E1NZ3XCY5CYR1J); CMS backend Gen 1 AppSync (`j7b2x3sh7rcezekekkxxiak7hi`) | Angular build, AppSync, Cognito, S3 documents, CloudFront response headers |
-| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                                       | NWS weather proxy, contact updates, email alias router                     |
+| Layer                      | Tooling                                                                      | Owns                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Public site + CMS read** | S3+CloudFront (`E19PUUL2H76CZA`); CMS AppSync (`okoh3v23ord33kuggsg3p5n4sm`) | Angular build, AppSync, Cognito, S3 documents, CloudFront response headers |
+| **Integration Lambdas**    | Python/Node deploy scripts (`scripts/deploy-*.py`)                           | NWS weather proxy, contact updates, email alias router                     |
 
 This is intentional for a small municipal team: Amplify ships the SPA; scripts deploy stateless Lambdas without a second full IaC stack. **Guardrails:** [aws-infrastructure.manifest.json](../infrastructure/aws-infrastructure.manifest.json), `npm run verify:aws-infra`, and this runbook. A future **CDK-only-for-Lambdas** track is optional (see inventory AP IDs); do not block AP-05/AP-16 on that migration.
 
-**Terraform (optional scaffold):** Gradual IaC under [infrastructure/terraform/README.md](../infrastructure/terraform/README.md) — account `570912405222`, workspace `environments/town-production`. Does not replace Amplify Gen1 or deploy scripts until resources are explicitly imported/migrated.
+**Terraform:** IaC under [infrastructure/terraform/README.md](../infrastructure/terraform/README.md) — account `818904800844`, workspace `environments/town-production`, profile `tow`.
 
 ---
 
@@ -165,7 +165,7 @@ Re-enable WAF only after city council approves recurring spend (~$5+/mo per ACL)
 | AP-19       | AppSync API key rotation ([appsync-api-key-rotation-runbook.md](./appsync-api-key-rotation-runbook.md))             |
 | CMS audit   | DynamoDB streams → `TownOfWileyCmsChangeNotifier` + `TownOfWileyCmsAuditLog` — `npm run deploy:cms-change-notifier` |
 | CMS PITR    | `npm run enable:cms-dynamodb-pitr` on tables in [cms-inventory.json](../infrastructure/cms-inventory.json)          |
-| AppSync WAF | `npm run deploy:appsync-waf` — rate limit + AWS managed rules on API `j7b2x3sh7rcezekekkxxiak7hi`                   |
+| AppSync WAF | `npm run deploy:appsync-waf` — rate limit + AWS managed rules on API `okoh3v23ord33kuggsg3p5n4sm`                   |
 
 Full tracker: [post-development-inventory.md](./post-development-inventory.md).
 

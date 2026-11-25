@@ -1,6 +1,6 @@
 # Ordinance assistant
 
-Town account `818904800844`, profile `tow`, region `us-east-2`. This root is separate from `environments/town-production`, which still expects the legacy personal account.
+Town account `818904800844`, profile `tow`, region `us-east-2`. `environments/town-production` uses the same account.
 
 The data source uses **fixed-size** chunking (200 tokens, 15 percent overlap). That choice cannot be edited later. Changing it means deleting `aws_bedrockagent_data_source.ordinance` and creating it again. Ingestion embeds with Titan Text Embeddings v2. Do not generate vectors locally.
 

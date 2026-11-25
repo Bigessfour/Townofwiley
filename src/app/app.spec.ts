@@ -878,12 +878,12 @@ describe('App', () => {
     runtimeWindow.__TOW_RUNTIME_CONFIG__ = {
       clerkSetup: {
         clerkName: 'Deb Dillon',
-        awsAccountId: '570912405222',
+        awsAccountId: '818904800844',
         amplifyAppId: '',
         awsRegion: 'us-east-2',
         awsConsoleUrl: 'https://us-east-2.console.aws.amazon.com/',
         studioUrl: appSyncQueriesUrl,
-        cfDistributionId: 'E1NZ3XCY5CYR1J',
+        cfDistributionId: 'E19PUUL2H76CZA',
         s3Bucket: 'townofwiley-static-site',
       },
     };
@@ -895,8 +895,8 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.cms-title')?.textContent).toContain('Update the Town website');
     expect(compiled.textContent).toContain('What do you want to update?');
-    expect(compiled.textContent).toContain('E1NZ3XCY5CYR1J'); // current CF dist
-    expect(compiled.textContent).toContain('j7b2x3sh7rcezekekkxxiak7hi'); // Gen 1 AppSync Queries (IT Advanced)
+    expect(compiled.textContent).toContain('E19PUUL2H76CZA');
+    expect(compiled.textContent).toContain('okoh3v23ord33kuggsg3p5n4sm');
     expect(compiled.textContent).toContain('Technical details');
     expect(compiled.textContent).toContain('Setup values (IT)');
     expect(compiled.textContent).toContain('You do not need this section for day-to-day edits.');

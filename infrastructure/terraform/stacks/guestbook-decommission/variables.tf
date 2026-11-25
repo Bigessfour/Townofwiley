@@ -1,6 +1,6 @@
 variable "expected_account_id" {
   type    = string
-  default = "570912405222"
+  default = "818904800844"
 }
 
 variable "aws_region" {

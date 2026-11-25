@@ -3,13 +3,13 @@
 #
 # Usage:
 #   npm run terraform:e2e:validate
-#   AWS_PROFILE=steve npm run terraform:e2e:validate
+#   AWS_PROFILE=tow npm run terraform:e2e:validate
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-readonly EXPECTED_ACCOUNT="570912405222"
-PROFILE="${AWS_PROFILE:-steve}"
+readonly EXPECTED_ACCOUNT="818904800844"
+PROFILE="${AWS_PROFILE:-tow}"
 
 ACCT="$(aws sts get-caller-identity --profile "${PROFILE}" --query Account --output text 2>/dev/null || true)"
 if [[ "${ACCT}" != "${EXPECTED_ACCOUNT}" ]]; then

@@ -76,7 +76,7 @@
     "terraform:fmt": "terraform -chdir=infrastructure/terraform fmt -recursive",
     "terraform:town:init": "terraform -chdir=infrastructure/terraform/environments/town-production init -backend-config=backend.hcl",
     "terraform:town:validate": "terraform -chdir=infrastructure/terraform/environments/town-production validate",
-    "terraform:town:plan": "bash -c 'source scripts/terraform-export-aws-env.sh steve && terraform -chdir=infrastructure/terraform/environments/town-production init -input=false && terraform -chdir=infrastructure/terraform/environments/town-production plan'",
+    "terraform:town:plan": "bash -c 'source scripts/terraform-export-aws-env.sh tow && terraform -chdir=infrastructure/terraform/environments/town-production init -input=false && terraform -chdir=infrastructure/terraform/environments/town-production plan'",
     "terraform:e2e:validate": "bash scripts/terraform-validate-town-e2e.sh",
     "test:infra:alerts": "python -m pytest infrastructure/severe-weather-signup/tests",
     "test:infra:community-calendar": "python3 -m unittest infrastructure.community-calendar.tests.test_app -v",
