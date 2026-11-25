@@ -13,6 +13,15 @@
 .news-card h3 {
   margin: 0;
   color: var(--ink-900);
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.featured-news-copy p,
+.public-card-copy,
+.newsletter-item-card p {
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .featured-news-card-link,

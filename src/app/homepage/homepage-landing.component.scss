@@ -99,21 +99,35 @@
 
 .landing-notice-timeline {
   margin-top: var(--space-xs);
+  width: 100%;
 }
 
+.landing-notice-timeline .p-timeline-event {
+  align-items: flex-start;
+}
+
+/* The date only needs its own width. The card takes the rest so titles are not squeezed. */
 .landing-notice-timeline .p-timeline-event-opposite {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 11rem;
   padding-right: var(--space-sm);
 }
 
 .landing-notice-timeline .p-timeline-event-content {
+  flex: 1 1 auto;
+  min-width: 0;
   padding-bottom: var(--space-lg);
 }
 
 .notice-card--timeline {
   display: grid;
   gap: var(--space-xs);
+  width: 100%;
+  min-width: 0;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
+  box-sizing: border-box;
 }
 
 .notice-card--link {
@@ -218,14 +232,14 @@
   font-size: var(--font-size-h3);
   color: var(--ink-900);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .feature-card span {
   line-height: var(--line-height-body);
   color: var(--ink-700);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .feature-card:hover,
@@ -540,13 +554,13 @@
 }
 
 .task-card-copy span {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .task-card-copy small {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .task-card strong,
@@ -560,7 +574,7 @@
   ); /* Consistent visual weight for card titles in unified homepage cards */
   color: var(--ink-900);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .task-card span,
@@ -578,7 +592,7 @@
   line-height: var(--line-height-body);
   color: var(--ink-700);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .task-card small {
@@ -607,7 +621,7 @@
   line-height: 1.2;
   text-align: center;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   cursor: pointer;
   transition:
     transform var(--motion-fast) var(--motion-ease),
@@ -632,7 +646,7 @@
 
 .search-submit .p-button-label {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   line-height: 1.2;
   text-align: center;
 }
