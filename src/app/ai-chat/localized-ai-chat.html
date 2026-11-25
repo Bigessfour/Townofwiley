@@ -18,7 +18,7 @@
           class="assistant-input w-full"
           type="text"
           [value]="draft()"
-          (input)="updateDraft($any($event.target).value)"
+          (input)="onQuestionInput($event)"
           (keydown.enter)="sendMessage()"
           [attr.placeholder]="copy().placeholder"
           [disabled]="isSending()"

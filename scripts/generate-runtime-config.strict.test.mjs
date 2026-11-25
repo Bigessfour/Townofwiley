@@ -192,6 +192,21 @@ describe('public vs admin runtime config split', () => {
     assert.equal(adminConfig.contactUpdate?.reviewApiEndpoint, 'https://review.example/contact-updates');
     assert.equal(adminConfig.contactUpdate?.reviewProxyEndpoint, 'https://proxy.example/review');
     assert.ok(typeof publicConfig.communityCalendar?.apiEndpoint === 'string');
+    assert.equal(publicConfig.ordinances?.apiEndpoint, '');
+  });
+
+  it('publishes an optional ordinances endpoint and strips a trailing slash', () => {
+    const values = buildRuntimeConfigValues(
+      {},
+      { ORDINANCE_API_ENDPOINT: 'https://ordinances.example/ask/' },
+      { allowManifestFallbacks: false },
+    );
+    const publicConfig = buildPublicRuntimeConfigObject(values, {
+      timestamp: '2026-01-01T00:00:00.000Z',
+      gitSha: 'abc1234',
+    });
+
+    assert.equal(publicConfig.ordinances?.apiEndpoint, 'https://ordinances.example/ask');
   });
 });
 

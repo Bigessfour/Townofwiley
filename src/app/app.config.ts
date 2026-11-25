@@ -72,7 +72,7 @@ export const appConfig: ApplicationConfig = {
         preset: WILEY_THEME_PRESET,
         options: {
           prefix: 'p',
-          darkModeSelector: false,
+          darkModeSelector: '.wiley-dark',
           cssLayer: {
             name: 'primeng',
             order: 'theme, base, primeng',

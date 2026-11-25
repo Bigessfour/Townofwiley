@@ -83,6 +83,7 @@ describe('App', () => {
     TestBed.resetTestingModule();
     clearCmsCache();
     window.localStorage.setItem('tow-site-language', 'en');
+    window.localStorage.setItem('tow-color-scheme', 'light');
     await TestBed.configureTestingModule({
       imports: [App, LocalizedWeatherPanel],
       providers: [
@@ -96,7 +97,7 @@ describe('App', () => {
             preset: WILEY_THEME_PRESET,
             options: {
               prefix: 'p',
-              darkModeSelector: false,
+              darkModeSelector: '.wiley-dark',
               cssLayer: {
                 name: 'primeng',
                 order: 'theme, base, primeng',
@@ -137,6 +138,8 @@ describe('App', () => {
     delete runtimeWindow.__TOW_RUNTIME_CONFIG_OVERRIDE__;
     clearCmsCache();
     window.localStorage.removeItem('tow-site-language');
+    window.localStorage.removeItem('tow-color-scheme');
+    document.documentElement.classList.remove('wiley-dark');
     window.history.replaceState({}, '', '/');
     vi.clearAllMocks();
     httpTesting.verify();

@@ -255,8 +255,13 @@ export class LocalizedAiChat {
     });
   }
 
-  protected updateDraft(value: string): void {
-    this.draft.set(value);
+  protected onQuestionInput(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.draft.set(target.value);
   }
 
   protected askPrompt(prompt: string): void {

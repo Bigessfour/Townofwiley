@@ -83,6 +83,10 @@ const templateSecrets = {
   logging: {
     endpoint: '',
   },
+  ordinances: {
+    apiEndpoint: '',
+    apiKey: '',
+  },
 };
 
 const envMappings = [

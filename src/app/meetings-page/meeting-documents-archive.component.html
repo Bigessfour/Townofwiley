@@ -12,7 +12,7 @@
       [placeholder]="copy().searchPlaceholder"
       [attr.aria-label]="copy().searchAriaLabel"
       [value]="searchTerm()"
-      (input)="searchTerm.set($any($event.target).value)"
+      (input)="onSearchInput($event)"
     />
   </div>
 

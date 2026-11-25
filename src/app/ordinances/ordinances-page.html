@@ -55,7 +55,7 @@
               rows="3"
               [autoResize]="true"
               [value]="draft()"
-              (input)="updateDraft($any($event.target).value)"
+              (input)="onQuestionInput($event)"
               [attr.placeholder]="copy().placeholder"
               [attr.aria-invalid]="questionTooLong()"
             ></textarea>
