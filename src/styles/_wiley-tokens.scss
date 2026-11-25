@@ -1,19 +1,19 @@
 /* Town of Wiley — canonical design tokens (light theme).
-   Visual reference: Photos/wiley02.webp — see docs/design-system.md */
+   Soft gray-beige. Dark mode overrides live on html.wiley-dark. */
 
 :root {
-  /* ── Forest primary (header, links, calendar highlights) ── */
-  --wiley-forest-50: #eef5f1;
-  --wiley-forest-100: #d5e8df;
-  --wiley-forest-200: #a9cdbd;
-  --wiley-forest-300: #6fa892;
-  --wiley-forest-400: #45806c;
-  --wiley-forest-500: #2f6354;
-  --wiley-forest-600: #245044;
-  --wiley-forest-700: #1a3c34;
-  --wiley-forest-800: #153229;
-  --wiley-forest-900: #0f3d2e;
-  --wiley-forest-950: #061f18;
+  /* ── Gray primary, centered on #8a8884 / #5c5a57 / #2a2927 ── */
+  --wiley-forest-50: #f7f6f3;
+  --wiley-forest-100: #eceae6;
+  --wiley-forest-200: #d4d2cd;
+  --wiley-forest-300: #b5b3ae;
+  --wiley-forest-400: #9c9a96;
+  --wiley-forest-500: #8a8884;
+  --wiley-forest-600: #5c5a57;
+  --wiley-forest-700: #3f3d3b;
+  --wiley-forest-800: #353330;
+  --wiley-forest-900: #2a2927;
+  --wiley-forest-950: #161514;
 
   /* Legacy aliases → forest (gradual template migration) */
   --wiley-navy-950: var(--wiley-forest-950);
@@ -31,27 +31,27 @@
   --wiley-gold-600: #a67a2f;
 
   /* ── Warm neutrals & page surfaces ── */
-  --wiley-cream-0: #fffdfb;
-  --wiley-cream-50: #faf6f0;
-  --wiley-cream-100: #f1ebe3;
-  --wiley-surface-page: var(--wiley-cream-50);
+  --wiley-cream-0: #ffffff;
+  --wiley-cream-50: #f2f1ed;
+  --wiley-cream-100: #e6e4df;
+  --wiley-surface-page: #f2f1ed;
   --wiley-surface-card: #ffffff;
-  --wiley-surface-card-muted: #f7f5f2;
+  --wiley-surface-card-muted: #e6e4df;
   --wiley-surface-secondary: var(--wiley-surface-card);
 
-  /* Secondary — sage + earth (supporting accents, not primary cards) */
-  --wiley-sage-50: #f4f7f2;
-  --wiley-sage-100: #e3ebe0;
-  --wiley-sage-200: #d0d9c9;
-  --wiley-sage-500: #6b8f71;
-  --wiley-sage-700: #4a6b50;
+  /* Secondary — warm gray (supporting accents, not primary cards) */
+  --wiley-sage-50: #f7f6f3;
+  --wiley-sage-100: #eceae6;
+  --wiley-sage-200: #d4d2cd;
+  --wiley-sage-500: #8a8884;
+  --wiley-sage-700: #5c5a57;
   --wiley-earth-500: #9a7b5a;
   --wiley-earth-700: #6b5344;
 
   /* ── Ink ── */
-  --wiley-ink-900: #1c2b26;
-  --wiley-ink-700: #3d5249;
-  --wiley-ink-500: #5c6f66;
+  --wiley-ink-900: #2a2927;
+  --wiley-ink-700: #5c5a57;
+  --wiley-ink-500: #5c5a57;
   --wiley-inverse: #ffffff;
 
   /* ── Semantic shortcuts ── */
@@ -74,7 +74,15 @@
   --wiley-header-nav-active-bg: color-mix(in srgb, var(--wiley-inverse) 26%, transparent);
   --wiley-header-text-muted: color-mix(in srgb, var(--wiley-inverse) 94%, transparent);
   --wiley-header-border: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
-  --wiley-header-nav-active-indicator: var(--wiley-gold-400);
+  --wiley-header-nav-active-indicator: var(--wiley-gold-500);
+  /* Chips and gold actions on the charcoal header. One fill, one gold. */
+  --wiley-header-control-bg: #3f3d3b;
+  --wiley-header-control-border: #5c5a57;
+  --wiley-header-control-text: #ffffff;
+  --wiley-header-control-muted: #d4d2cd;
+  --wiley-header-action-bg: #c4923a;
+  --wiley-header-action-text: #161514;
+  --wiley-header-action-hover: #b8860b;
 
   /* ── Typography ── */
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
@@ -114,11 +122,11 @@
   --grid-gap: var(--space-lg);
   --grid-gap-compact: var(--space-sm);
 
-  /* ── Shadows (forest-tinted) ── */
-  --shadow-subtle: 0 4px 12px rgba(15, 61, 46, 0.08);
-  --shadow-medium: 0 12px 24px rgba(15, 61, 46, 0.12);
-  --shadow-strong: 0 22px 44px rgba(15, 61, 46, 0.16);
-  --shadow-floating: 0 26px 70px rgba(15, 61, 46, 0.2);
+  /* ── Shadows (warm gray) ── */
+  --shadow-subtle: 0 4px 12px rgba(42, 41, 39, 0.08);
+  --shadow-medium: 0 12px 24px rgba(42, 41, 39, 0.12);
+  --shadow-strong: 0 22px 44px rgba(42, 41, 39, 0.16);
+  --shadow-floating: 0 26px 70px rgba(42, 41, 39, 0.2);
 
   /* ── Radius ── */
   --radius-sm: 0.25rem;
@@ -146,33 +154,57 @@
   --wiley-alert-urgent-end: color-mix(in srgb, #dc2626 88%, var(--wiley-forest-900));
 }
 
-/* Dark surfaces only. Forest, gold, and --wiley-inverse stay so the header bar does not invert. */
+/* Zinc page, cyan links, gold accent. The gray primary stays dark so the header
+   bar and the white search field keep AA labels. */
 html.wiley-dark {
-  --wiley-cream-0: #12352c;
-  --wiley-cream-50: #0c241c;
-  --wiley-cream-100: #174036;
-  --wiley-surface-page: #061f18;
-  --wiley-surface-card: #12352c;
-  --wiley-surface-card-muted: #174036;
-  --wiley-surface-secondary: #12352c;
+  --wiley-cream-0: #18181b;
+  --wiley-cream-50: #09090b;
+  --wiley-cream-100: #27272a;
+  --wiley-surface-page: #09090b;
+  --wiley-surface-card: #18181b;
+  --wiley-surface-card-muted: #27272a;
+  --wiley-surface-secondary: #18181b;
 
-  --wiley-sage-50: #12352c;
-  --wiley-sage-100: #1a3c34;
-  --wiley-sage-200: #245044;
+  --wiley-sage-50: #18181b;
+  --wiley-sage-100: #27272a;
+  --wiley-sage-200: #3f3f46;
 
-  --wiley-ink-900: #f4f7f2;
-  --wiley-ink-700: #c5d4cc;
-  --wiley-ink-500: #8fa89c;
+  --wiley-gold-300: #f3d08a;
+  --wiley-gold-400: #edb657;
+  --wiley-gold-500: #edb657;
+  --wiley-gold-600: #d9a24a;
 
-  --wiley-color-primary: #d5e8df;
-  --wiley-color-primary-contrast: #061f18;
-  --wiley-color-link: #d5e8df;
-  --wiley-color-link-hover: #f4f7f2;
+  --wiley-ink-900: #fafafa;
+  --wiley-ink-700: #d4d4d8;
+  --wiley-ink-500: #a1a1aa;
+  --ink-800: #e4e4e7;
 
-  --wiley-alert-info-bg: #12352c;
-  --wiley-alert-info-border: #6fa892;
-  --wiley-alert-warn-bg: #2a2416;
-  --wiley-alert-warn-border: #d4a14b;
+  --wiley-color-primary: #2ab5d7;
+  --wiley-color-primary-contrast: #09090b;
+  --wiley-color-accent: #edb657;
+  --wiley-color-accent-contrast: #09090b;
+  --wiley-color-link: #2ab5d7;
+  --wiley-color-link-hover: #8adcf0;
+
+  --wiley-header-bg: #18181b;
+  --wiley-header-bg-scrolled: #09090b;
+  --wiley-header-text: #fafafa;
+  --wiley-header-nav-text: #fafafa;
+  --wiley-header-nav-text-hover: #fafafa;
+  --wiley-header-text-muted: #a1a1aa;
+  --wiley-header-nav-active-indicator: #edb657;
+  --wiley-header-control-bg: #27272a;
+  --wiley-header-control-border: #3f3f46;
+  --wiley-header-control-text: #fafafa;
+  --wiley-header-control-muted: #a1a1aa;
+  --wiley-header-action-bg: #edb657;
+  --wiley-header-action-text: #09090b;
+  --wiley-header-action-hover: #d9a24a;
+
+  --wiley-alert-info-bg: #18181b;
+  --wiley-alert-info-border: #2ab5d7;
+  --wiley-alert-warn-bg: #27272a;
+  --wiley-alert-warn-border: #edb657;
 
   --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.28);
   --shadow-medium: 0 12px 24px rgba(0, 0, 0, 0.34);

@@ -141,7 +141,7 @@
           <div class="mobile-menu-bar shrink-0">
             <button
               type="button"
-              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg border border-wiley-header/25 bg-wiley-forest-800 px-3 text-sm font-semibold text-wiley-inverse shadow-wiley-card"
+              class="mobile-menu-button inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-wiley-lg px-3 text-sm font-semibold shadow-wiley-card"
               pRipple
               [attr.aria-label]="appCopy().homepageSectionsAriaLabel"
               [attr.aria-expanded]="sidebarVisible()"
@@ -155,7 +155,7 @@
 
           <a class="town-logo flex min-w-0 flex-col gap-0.5 no-underline" routerLink="/">
             <span
-              class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
+                class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] sm:text-xs"
               >{{ heroContent().status }}</span
             >
             <strong
@@ -178,17 +178,15 @@
           <app-theme-toggle class="shrink-0" testId="theme-toggle" />
           <div class="site-language-switcher shrink-0" [attr.aria-label]="appCopy().languageLabel">
             <div
-              class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
+              class="site-language-toggle inline-flex rounded-wiley-full p-0.5"
               role="group"
               [attr.aria-label]="appCopy().languageLabel"
             >
               @for (choice of languageChoices(); track choice.value) {
                 <button
                   type="button"
-                  class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
+                  class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold transition"
                   [class.active]="siteLanguage() === choice.value"
-                  [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
-                  [class.text-wiley-forest-900]="siteLanguage() === choice.value"
                   [id]="choice.value === 'es' ? 'site-language-es' : 'site-language-en'"
                   [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                   [attr.aria-pressed]="siteLanguage() === choice.value"
@@ -214,7 +212,7 @@
           <ng-template #start>
             <a class="town-logo flex min-w-0 flex-col gap-0.5 no-underline" routerLink="/">
               <span
-                class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-wiley-gold-300 sm:text-xs"
+                class="official-badge font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] sm:text-xs"
                 >{{ heroContent().status }}</span
               >
               <strong
@@ -322,9 +320,9 @@
                 >
                   <label class="sr-only" for="mega-site-search">{{ appCopy().searchLabel }}</label>
                   <div
-                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl border border-wiley-header/30 bg-wiley-inverse px-3 shadow-wiley-card focus-within:border-wiley-gold-400 focus-within:ring-2 focus-within:ring-wiley-gold-400/30"
+                    class="header-search-row flex min-h-11 items-center gap-2 overflow-hidden rounded-wiley-xl px-3"
                   >
-                    <i class="pi pi-search text-wiley-forest-700" aria-hidden="true"></i>
+                    <i class="pi pi-search" aria-hidden="true"></i>
                     <input
                       pInputText
                       id="mega-site-search"
@@ -357,7 +355,7 @@
                 [attr.aria-label]="appCopy().languageLabel"
               >
                 <div
-                  class="site-language-toggle inline-flex rounded-wiley-full border border-wiley-header/25 p-0.5"
+                  class="site-language-toggle inline-flex rounded-wiley-full p-0.5"
                   role="group"
                   [attr.aria-label]="appCopy().languageLabel"
                 >
@@ -365,10 +363,8 @@
                     <!-- duplicate id avoided here (menu context); header instance provides the site-language-es/en ids -->
                     <button
                       type="button"
-                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold text-wiley-inverse transition"
+                      class="language-toggle-btn min-h-9 min-w-9 rounded-wiley-full px-3 text-sm font-bold transition"
                       [class.active]="siteLanguage() === choice.value"
-                      [class.bg-wiley-gold-400]="siteLanguage() === choice.value"
-                      [class.text-wiley-forest-900]="siteLanguage() === choice.value"
                       [attr.aria-label]="appCopy().languageLabel + ': ' + choice.label"
                       [attr.aria-pressed]="siteLanguage() === choice.value"
                       [attr.title]="appCopy().languageLabel + ': ' + choice.label"

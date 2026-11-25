@@ -6,8 +6,8 @@ export type ColorScheme = 'light' | 'dark';
 /** Persisted only after the resident picks a theme. Absent means follow the OS. */
 export const COLOR_SCHEME_STORAGE_KEY = 'tow-color-scheme';
 export const DARK_THEME_CLASS = 'wiley-dark';
-export const THEME_COLOR_LIGHT = '#0f3d2e';
-export const THEME_COLOR_DARK = '#061f18';
+export const THEME_COLOR_LIGHT = '#2a2927';
+export const THEME_COLOR_DARK = '#09090b';
 
 /**
  * Stored choice wins. Otherwise follow `prefers-color-scheme`.

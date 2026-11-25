@@ -372,10 +372,10 @@
   width: fit-content;
   min-height: 2rem;
   padding: 0.3rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--wiley-gold-400) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wiley-header-action-bg) 70%, transparent);
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--wiley-gold-400) 18%, transparent);
-  color: var(--wiley-gold-300);
+  background: color-mix(in srgb, var(--wiley-header-action-bg) 18%, transparent);
+  color: var(--wiley-header-action-bg);
   font-size: var(--header-kicker-size);
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -398,16 +398,30 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  background: var(--wiley-header-control-bg);
+  border: 1px solid var(--wiley-header-control-border);
+  color: var(--wiley-header-control-text);
 }
 
-/* Field stays white (--wiley-inverse). Dark mode otherwise paints light form text on it. */
-.header-search-row .search-input {
-  color: var(--wiley-forest-900);
-  caret-color: var(--wiley-forest-900);
+.header-search-row:focus-within {
+  border-color: var(--wiley-header-action-bg);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--wiley-header-action-bg) 35%, transparent);
+}
+
+.header-search-row .pi-search {
+  color: var(--wiley-header-control-muted);
+}
+
+/* Match the other header chips. A white field reads as a leftover light control. */
+.header-search-row .search-input,
+.header-search-row .search-input.p-inputtext {
+  background: transparent;
+  color: var(--wiley-header-control-text);
+  caret-color: var(--wiley-header-control-text);
 }
 
 .header-search-row .search-input::placeholder {
-  color: var(--wiley-forest-700);
+  color: var(--wiley-header-control-muted);
 }
 
 .header-search-results {
@@ -750,8 +764,8 @@
   display: flex;
   flex-direction: row;
   gap: 2px;
-  background: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
-  border: 1px solid var(--wiley-header-border);
+  background: var(--wiley-header-control-bg);
+  border: 1px solid var(--wiley-header-control-border);
   border-radius: var(--radius-full);
   padding: 2px;
   min-height: var(--header-touch);
@@ -766,7 +780,7 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--wiley-header-text);
+  color: var(--wiley-header-control-text);
   background: transparent;
   cursor: pointer;
   transition: all var(--motion-medium) var(--motion-ease);
@@ -783,9 +797,9 @@
 
 .language-toggle-btn.active,
 .language-toggle-btn[aria-pressed='true'] {
-  background: var(--wiley-gold-400);
-  color: var(--wiley-forest-900);
-  box-shadow: var(--shadow-subtle);
+  background: var(--wiley-header-action-bg);
+  color: var(--wiley-header-action-text);
+  box-shadow: none;
 }
 
 /* Legacy SelectButton rules can be cleaned up later if SelectButtonModule is fully removed */
@@ -2360,9 +2374,9 @@ button:not(:disabled):active,
   min-height: 2.75rem;
   padding: 0.45rem 0.9rem;
   border-radius: 9999px;
-  border: 1px solid color-mix(in srgb, var(--wiley-gold-400) 70%, #fff 10%);
-  background: var(--wiley-gold-400);
-  color: var(--wiley-forest-900);
+  border: 1px solid var(--wiley-header-action-bg);
+  background: var(--wiley-header-action-bg);
+  color: var(--wiley-header-action-text);
   font-size: 0.875rem;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -2378,12 +2392,13 @@ button:not(:disabled):active,
   }
 
   &:hover {
-    background: var(--wiley-gold-500, #c4923a);
-    color: var(--wiley-forest-900);
+    background: var(--wiley-header-action-hover);
+    border-color: var(--wiley-header-action-hover);
+    color: var(--wiley-header-action-text);
   }
 
   &:focus-visible {
-    outline: 3px solid var(--wiley-gold-300);
+    outline: 3px solid var(--wiley-header-action-bg);
     outline-offset: 2px;
   }
 }
@@ -2402,14 +2417,15 @@ button:not(:disabled):active,
   gap: 0.45rem;
   padding: 0.7rem 1rem;
   border-radius: 9999px;
-  border: 1px solid color-mix(in srgb, var(--wiley-gold-400) 70%, #fff 10%);
-  background: var(--wiley-gold-400);
-  color: var(--wiley-forest-900);
+  border: 1px solid var(--wiley-header-action-bg);
+  background: var(--wiley-header-action-bg);
+  color: var(--wiley-header-action-text);
   font-weight: 800;
 
   &:hover {
-    background: var(--wiley-gold-500, #c4923a);
-    color: var(--wiley-forest-900);
+    background: var(--wiley-header-action-hover);
+    border-color: var(--wiley-header-action-hover);
+    color: var(--wiley-header-action-text);
   }
 }
 
@@ -2520,16 +2536,16 @@ button:not(:disabled):active,
 }
 
 :host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary {
-  background: var(--wiley-gold-600, #a67a2f);
-  border-color: var(--wiley-gold-600, #a67a2f);
-  color: var(--wiley-forest-900, #0f3d2e);
+  background: var(--wiley-gold-500, #c4923a);
+  border-color: var(--wiley-gold-500, #c4923a);
+  color: var(--wiley-forest-950, #161514);
 }
 
 :host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:hover,
 :host ::ng-deep .hero-landing-actions a.hero-landing-cta.p-button-primary:focus-visible {
-  background: #8f6828;
-  border-color: #8f6828;
-  color: var(--wiley-forest-900, #0f3d2e);
+  background: #b8860b;
+  border-color: #b8860b;
+  color: var(--wiley-forest-950, #161514);
 }
 
 .hero-landing-actions .hero-landing-cta.p-button-outlined.p-button-contrast {
@@ -2636,10 +2652,10 @@ button:not(:disabled):active,
     gap: 0.65rem;
     min-height: 3rem;
     padding: 0.8rem 1rem;
-    border: 1px solid rgba(13, 44, 84, 0.14);
+    border: 1px solid var(--wiley-header-control-border);
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.94);
-    color: var(--ink-900);
+    background: var(--wiley-header-control-bg);
+    color: var(--wiley-header-control-text);
     font-size: var(--header-control-size);
     font-weight: 800;
     box-shadow: 0 8px 24px rgba(17, 36, 61, 0.08);

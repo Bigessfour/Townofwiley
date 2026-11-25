@@ -16,8 +16,6 @@ import { SiteThemeService } from './site-theme';
         class="theme-toggle-btn"
         icon="pi pi-sun"
         [rounded]="true"
-        [text]="true"
-        severity="contrast"
         [attr.aria-label]="label()"
         aria-pressed="true"
         [attr.data-testid]="testId()"
@@ -30,8 +28,6 @@ import { SiteThemeService } from './site-theme';
         class="theme-toggle-btn"
         icon="pi pi-moon"
         [rounded]="true"
-        [text]="true"
-        severity="contrast"
         [attr.aria-label]="label()"
         aria-pressed="false"
         [attr.data-testid]="testId()"
@@ -45,19 +41,24 @@ import { SiteThemeService } from './site-theme';
       align-items: center;
     }
 
-    .theme-toggle-btn {
+    :host ::ng-deep .theme-toggle-btn.p-button {
       width: 2.75rem;
       min-width: 2.75rem;
       min-height: 2.75rem;
       padding: 0;
-      color: var(--wiley-header-text);
-      background: color-mix(in srgb, var(--wiley-inverse) 12%, transparent);
-      border: 1px solid var(--wiley-header-border);
+      color: var(--wiley-header-control-text);
+      background: var(--wiley-header-control-bg);
+      border: 1px solid var(--wiley-header-control-border);
     }
 
-    .theme-toggle-btn:hover {
-      color: var(--wiley-header-text);
-      background: var(--wiley-header-nav-hover-bg);
+    :host ::ng-deep .theme-toggle-btn.p-button .p-button-icon {
+      color: var(--wiley-header-control-text);
+    }
+
+    :host ::ng-deep .theme-toggle-btn.p-button:hover {
+      color: var(--wiley-header-control-text);
+      background: var(--wiley-header-control-bg);
+      border-color: var(--wiley-header-action-bg);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
