@@ -3,6 +3,23 @@
   margin-bottom: var(--space-md);
 }
 
+:host ::ng-deep .ordinances-scope-tag.p-tag {
+  background: color-mix(in srgb, var(--wiley-ink-900) 8%, var(--surface-card));
+  color: var(--wiley-ink-900);
+}
+
+:host ::ng-deep .ordinances-scope.p-message {
+  background: color-mix(in srgb, var(--wiley-ink-900) 5%, var(--surface-card));
+  border-color: color-mix(in srgb, var(--wiley-ink-900) 14%, transparent);
+  color: var(--wiley-ink-900);
+  box-shadow: none;
+}
+
+:host ::ng-deep .ordinances-scope.p-message .p-message-text,
+:host ::ng-deep .ordinances-scope.p-message .p-message-content {
+  color: var(--wiley-ink-900);
+}
+
 .ordinances-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 0.9fr);
