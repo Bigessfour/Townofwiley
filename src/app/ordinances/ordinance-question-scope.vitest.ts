@@ -10,6 +10,10 @@ describe('assessOrdinanceQuestion', () => {
     expect(assessOrdinanceQuestion('Do I need a license for my dog?')).toBe('ordinance');
     expect(assessOrdinanceQuestion('¿Necesito licencia para mi perro?')).toBe('ordinance');
     expect(assessOrdinanceQuestion('What does section 7-6-120 say?')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('How tall can my grass get before the Town gives me a warning?')).toBe(
+      'ordinance',
+    );
+    expect(assessOrdinanceQuestion('Can I leave an abandoned car on the street?')).toBe('ordinance');
   });
 
   it('declines homework, coding, and general knowledge', () => {

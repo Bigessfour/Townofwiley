@@ -15,8 +15,8 @@ const MISUSE_PATTERNS: readonly RegExp[] = [
 ];
 
 const ORDINANCE_PATTERNS: readonly RegExp[] = [
-  /\b(ordinance|municipal code|wiley|section|sec\.|chapter|permit|zoning|dog|animal|fence|weed|building|alcohol|noise|parking|water|sewer|trash|garbage|license|penalty|trustee|mayor|annexation|subdivision|franchise|utility|sidewalk|traffic|offense|sanitation|nuisance|livestock|rabies)\b/i,
-  /\b(ordenanza|c[oó]digo municipal|permiso|zonificaci[oó]n|perro|animal|licencia|alcald[eí]|anexi[oó]n|basura|agua|alcantarillado|ruido|estacionamiento|acera|tr[aá]fico|multa|malezas|cerc[ao])\b/i,
+  /\b(ordinance|municipal code|wiley|section|sec\.|chapter|permit|zoning|dog|animal|fence|weed|grass|lawn|yard|building|alcohol|noise|parking|water|sewer|trash|garbage|license|penalty|trustee|mayor|annexation|subdivision|franchise|utility|sidewalk|traffic|offense|sanitation|nuisance|livestock|rabies|vehicle|car|automobile|truck|street|abandoned|tree|junk)\b/i,
+  /\b(ordenanza|c[oó]digo municipal|permiso|zonificaci[oó]n|perro|animal|licencia|alcald[eí]|anexi[oó]n|basura|agua|alcantarillado|ruido|estacionamiento|acera|tr[aá]fico|multa|malezas|pasto|c[eé]sped|cerc[ao]|veh[ií]culo|carro|calle|abandonad)\b/i,
   /\b\d{1,2}-\d{1,2}-\d{1,3}\b/,
 ];
 
