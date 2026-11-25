@@ -44,7 +44,7 @@
 
 ## Ordinance assistant (layout only)
 
-- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes; browser check of an in-scope question and an off-topic question. Knowledge base and Bedrock are not connected.
+- [ ] `OrdinancesPage` — `/ordinances` scope filter unit test passes. Live ask API refuses a homework question. In-scope answers wait on Bedrock: Town account on-demand quotas for Titan Text Embeddings V2 and Nova Lite are 0, so ingestion has not started. Corpus is in `s3://tow-ordinance-source-818904800844/source/`.
 
 ---
 

@@ -10,13 +10,16 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { APP_COPY } from '../app-copy';
 import { SiteLanguage, SiteLanguageService } from '../site-language';
+import { askOrdinanceQuestion, formatOrdinanceCitation, planOrdinanceReply } from './ordinance-ask';
 import { assessOrdinanceQuestion } from './ordinance-question-scope';
+import { readOrdinanceRuntimeConfig } from './ordinance-runtime-config';
 
 const QUESTION_MAX_LENGTH = 600;
 
 interface OrdinanceMessage {
   role: 'user' | 'assistant';
   content: string;
+  citations?: string[];
 }
 
 interface OrdinanceChatCopy {
@@ -33,6 +36,8 @@ interface OrdinanceChatCopy {
   welcome: string;
   outOfScope: string;
   pendingKnowledgeBase: string;
+  lookingUp: string;
+  unavailable: string;
   you: string;
   assistant: string;
   conversationLabel: string;
@@ -69,6 +74,9 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       'I only answer questions about the Town of Wiley municipal code and adopted ordinances. I cannot help with homework, general knowledge, coding, or drafting. Try a question about a permit, animal rule, zoning section, or utility regulation.',
     pendingKnowledgeBase:
       'That question is about the Wiley Municipal Code. This page is not connected to the ordinance knowledge base yet, so I will not guess at the section. The Town Clerk can provide the official text.',
+    lookingUp: 'Looking up the municipal code.',
+    unavailable:
+      'The ordinance assistant could not be reached. I will not guess at the section. The Town Clerk can provide the official text.',
     you: 'You',
     assistant: 'Code assistant',
     conversationLabel: 'Conversation',
@@ -108,6 +116,9 @@ const CHAT_COPY: Record<SiteLanguage, OrdinanceChatCopy> = {
       'Solo respondo preguntas sobre el código municipal y las ordenanzas adoptadas del Pueblo de Wiley. No puedo ayudar con tareas, cultura general, programación ni redacción. Pruebe una pregunta sobre un permiso, animales, zonificación o servicios públicos.',
     pendingKnowledgeBase:
       'Esa pregunta es sobre el Código Municipal de Wiley. Esta página aún no está conectada a la base de conocimiento, así que no voy a adivinar la sección. La Secretaría del Pueblo puede dar el texto oficial.',
+    lookingUp: 'Buscando en el código municipal.',
+    unavailable:
+      'No se pudo contactar al asistente de ordenanzas. No voy a adivinar la sección. La Secretaría del Pueblo puede dar el texto oficial.',
     you: 'Usted',
     assistant: 'Asistente del código',
     conversationLabel: 'Conversación',
@@ -147,6 +158,7 @@ export class OrdinancesPage {
   private readonly siteLanguageService = inject(SiteLanguageService);
 
   protected readonly draft = signal('');
+  protected readonly asking = signal(false);
   protected readonly messages = signal<OrdinanceMessage[]>([]);
 
   protected readonly pageCopy = computed(
@@ -173,20 +185,55 @@ export class OrdinancesPage {
   protected sendMessage(): void {
     const text = this.draft().trim();
     const scope = assessOrdinanceQuestion(text);
-    if (scope === 'empty' || this.questionTooLong()) {
+    const endpoint = readOrdinanceRuntimeConfig().apiEndpoint;
+    const plan = planOrdinanceReply(scope, endpoint);
+    if (plan === 'ignore' || this.questionTooLong() || this.asking()) {
       return;
     }
 
     const copy = this.copy();
+    if (plan === 'decline' || plan === 'pending') {
+      this.messages.update((current) => [
+        ...current,
+        { role: 'user', content: text },
+        {
+          role: 'assistant',
+          content: plan === 'pending' ? copy.pendingKnowledgeBase : copy.outOfScope,
+        },
+      ]);
+      this.draft.set('');
+      return;
+    }
+
+    const config = readOrdinanceRuntimeConfig();
+    this.asking.set(true);
     this.messages.update((current) => [
       ...current,
       { role: 'user', content: text },
-      {
-        role: 'assistant',
-        content: scope === 'ordinance' ? copy.pendingKnowledgeBase : copy.outOfScope,
-      },
+      { role: 'assistant', content: copy.lookingUp },
     ]);
     this.draft.set('');
+    void askOrdinanceQuestion(config, text)
+      .then((result) => {
+        this.replacePending(result.answer || copy.unavailable, result.citations.map(formatOrdinanceCitation));
+      })
+      .catch(() => {
+        this.replacePending(copy.unavailable);
+      })
+      .finally(() => {
+        this.asking.set(false);
+      });
+  }
+
+  private replacePending(content: string, citations: string[] = []): void {
+    this.messages.update((current) => {
+      const next = [...current];
+      const last = next[next.length - 1];
+      if (last?.role === 'assistant') {
+        next[next.length - 1] = { role: 'assistant', content, citations };
+      }
+      return next;
+    });
   }
 
   protected clearConversation(): void {

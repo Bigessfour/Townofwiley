@@ -29,6 +29,8 @@ export const runtimeSecretEnvMappings = [
     env: 'COMMUNITY_CALENDAR_ENDPOINT',
     path: ['communityCalendar', 'apiEndpoint'],
   },
+  { env: 'ORDINANCE_API_ENDPOINT', path: ['ordinances', 'apiEndpoint'] },
+  { env: 'ORDINANCE_API_KEY', path: ['ordinances', 'apiKey'] },
   { env: 'EASYPEASY_API_ENDPOINT', path: ['chatbot', 'easyPeasy', 'apiEndpoint'] },
   { env: 'EASYPEASY_CHAT_URL', path: ['chatbot', 'easyPeasy', 'chatUrl'] },
   { env: 'EASYPEASY_BOT_PUBLIC_URL', path: ['chatbot', 'easyPeasy', 'publicUrl'] },

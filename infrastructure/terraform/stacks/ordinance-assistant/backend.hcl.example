@@ -1,0 +1,6 @@
+bucket         = "tow-ordinance-terraform-state-818904800844"
+key            = "ordinance-assistant/terraform.tfstate"
+region         = "us-east-2"
+dynamodb_table = "tow-ordinance-terraform-locks"
+encrypt        = true
+profile        = "tow"
