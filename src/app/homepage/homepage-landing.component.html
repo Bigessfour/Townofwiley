@@ -346,6 +346,7 @@
                     target="_blank"
                     rel="noreferrer noopener"
                   >
+                    <p class="notice-timeline-date notice-timeline-date--in-card">{{ notice.date }}</p>
                     <p class="notice-card-title">{{ notice.title }}</p>
                     <p class="notice-card-detail">{{ notice.detail }}</p>
                     <p class="notice-card-cta">
@@ -359,6 +360,7 @@
                     [routerLink]="noticeLink.path"
                     [fragment]="noticeLink.fragment"
                   >
+                    <p class="notice-timeline-date notice-timeline-date--in-card">{{ notice.date }}</p>
                     <p class="notice-card-title">{{ notice.title }}</p>
                     <p class="notice-card-detail">{{ notice.detail }}</p>
                   </a>
