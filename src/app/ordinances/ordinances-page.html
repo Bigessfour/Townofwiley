@@ -4,11 +4,11 @@
       <div class="wiley-page-header">
         <p class="section-kicker">{{ pageCopy().ordinancesKicker }}</p>
         <h1>{{ pageCopy().ordinancesHeading }}</h1>
-        <p-tag [value]="copy().scopeTag" severity="info" [rounded]="true" />
+        <p-tag class="ordinances-scope-tag" [value]="copy().scopeTag" [rounded]="true" />
       </div>
     </ng-template>
 
-    <p-message severity="info" class="ordinances-scope">{{ copy().scopeNote }}</p-message>
+    <p-message class="ordinances-scope">{{ copy().scopeNote }}</p-message>
 
     <div class="ordinances-layout">
       <div class="ordinances-chat">
