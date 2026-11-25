@@ -2498,7 +2498,7 @@ button:not(:disabled):active,
 .hero-landing-eyebrow,
 .hero-landing-status {
   margin: 0;
-  color: color-mix(in srgb, var(--surface-inverse) 88%, transparent);
+  color: color-mix(in srgb, var(--wiley-inverse) 88%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: var(--font-size-kicker);
@@ -2506,21 +2506,21 @@ button:not(:disabled):active,
 }
 
 .hero-landing-status {
-  color: color-mix(in srgb, var(--surface-inverse) 74%, var(--button-accent-start));
+  color: color-mix(in srgb, var(--wiley-inverse) 74%, var(--wiley-header-action-bg));
 }
 
 .hero-landing-message,
 .hero-landing-subtext {
   margin: 0;
   max-width: 36rem;
-  color: color-mix(in srgb, var(--surface-inverse) 90%, transparent);
+  color: color-mix(in srgb, var(--wiley-inverse) 90%, transparent);
   font-size: clamp(1rem, 2.1vw, 1.15rem);
   line-height: 1.72;
   text-wrap: pretty;
 }
 
 .hero-landing-subtext {
-  color: color-mix(in srgb, var(--surface-inverse) 78%, transparent);
+  color: color-mix(in srgb, var(--wiley-inverse) 82%, transparent);
 }
 
 .hero-landing-actions {

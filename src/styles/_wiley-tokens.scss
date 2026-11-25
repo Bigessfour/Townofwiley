@@ -83,6 +83,14 @@
   --wiley-header-action-bg: #c4923a;
   --wiley-header-action-text: #161514;
   --wiley-header-action-hover: #b8860b;
+  /* Dark panel on the beige page. Text stays light in both themes. */
+  --wiley-footer-bg: #2a2927;
+  --wiley-footer-border: #3f3d3b;
+  --wiley-footer-text: #fafafa;
+  --wiley-footer-muted: #d4d2cd;
+  --wiley-footer-link: #fafafa;
+  --wiley-footer-accent: #c4923a;
+  --wiley-footer-phone: #2ab5d7;
 
   /* ── Typography ── */
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
@@ -200,6 +208,13 @@ html.wiley-dark {
   --wiley-header-action-bg: #edb657;
   --wiley-header-action-text: #09090b;
   --wiley-header-action-hover: #d9a24a;
+  --wiley-footer-bg: #18181b;
+  --wiley-footer-border: #3f3f46;
+  --wiley-footer-text: #fafafa;
+  --wiley-footer-muted: #a1a1aa;
+  --wiley-footer-link: #fafafa;
+  --wiley-footer-accent: #edb657;
+  --wiley-footer-phone: #2ab5d7;
 
   --wiley-alert-info-bg: #18181b;
   --wiley-alert-info-border: #2ab5d7;
