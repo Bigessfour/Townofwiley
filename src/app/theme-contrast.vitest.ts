@@ -17,21 +17,24 @@ function relativeLuminance(hex: string): number {
 }
 
 const textPairs = [
-  ['light body ink on page', '#1c2b26', '#faf6f0'],
-  ['light link on page', '#1a3c34', '#faf6f0'],
-  ['light placeholder on field', '#5c6f66', '#ffffff'],
-  ['dark body ink on page', '#f4f7f2', '#061f18'],
-  ['dark link on page', '#d5e8df', '#061f18'],
-  ['dark link on card', '#d5e8df', '#12352c'],
-  ['dark placeholder on field', '#8fa89c', '#12352c'],
-  ['forest on gold button', '#061f18', '#c4923a'],
-  ['forest on gold button hover', '#061f18', '#b8860b'],
-  ['header label on forest', '#ffffff', '#0f3d2e'],
+  ['light body ink on page', '#2a2927', '#f2f1ed'],
+  ['light link on page', '#3f3d3b', '#f2f1ed'],
+  ['light placeholder on field', '#5c5a57', '#ffffff'],
+  ['dark body ink on page', '#fafafa', '#09090b'],
+  ['dark link on page', '#2ab5d7', '#09090b'],
+  ['dark link on card', '#2ab5d7', '#18181b'],
+  ['dark muted text on card', '#a1a1aa', '#18181b'],
+  ['dark placeholder on field', '#a1a1aa', '#18181b'],
+  ['ink on gold button', '#161514', '#c4923a'],
+  ['ink on gold button hover', '#161514', '#b8860b'],
+  ['ink on dark gold button', '#09090b', '#edb657'],
+  ['header label on charcoal', '#ffffff', '#2a2927'],
+  ['header label on zinc', '#fafafa', '#18181b'],
 ] as const;
 
 const boundaryPairs = [
-  ['light field border on white', '#5c6f66', '#ffffff'],
-  ['dark field border on card', '#6fa892', '#12352c'],
+  ['light field border on white', '#5c5a57', '#ffffff'],
+  ['dark field border on card', '#a1a1aa', '#18181b'],
 ] as const;
 
 describe('Wiley theme contrast', () => {

@@ -37,7 +37,9 @@ resource "aws_bedrockagent_data_source" "ordinance" {
   data_source_configuration {
     type = "S3"
     s3_configuration {
-      bucket_arn         = aws_s3_bucket.corpus.arn
+      bucket_arn = aws_s3_bucket.corpus.arn
+      # source/ already covers nested ordinances/, resolutions/, 19/, and 20/.
+      # Chunking stays fixed-size. Do not add a second data source to change it.
       inclusion_prefixes = ["source/"]
     }
   }

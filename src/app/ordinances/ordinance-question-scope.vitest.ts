@@ -14,6 +14,13 @@ describe('assessOrdinanceQuestion', () => {
       'ordinance',
     );
     expect(assessOrdinanceQuestion('Can I leave an abandoned car on the street?')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('what do I need for a dog')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('can I build a fence')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('parking rules')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('water service')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('noise complaint')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('can I have chickens')).toBe('ordinance');
+    expect(assessOrdinanceQuestion('¿Qué necesito para mis perros?')).toBe('ordinance');
   });
 
   it('declines homework, coding, and general knowledge', () => {

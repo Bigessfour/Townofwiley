@@ -8,7 +8,7 @@ resource "aws_bedrock_guardrail" "scope" {
     topics_config {
       name       = "non-code-use"
       type       = "DENY"
-      definition = "Homework, math, essays, coding, recipes, trivia, and general knowledge. Questions about municipal code requirements are allowed."
+      definition = "Homework, math, essays, coding, recipes, trivia, and requests that are not about town rules. Permit, animal, fence, zoning, parking, water, noise, and other municipal questions are allowed."
       examples = [
         "What is the capital of France?",
         "What is 12 times 8?",
@@ -38,22 +38,31 @@ resource "aws_bedrock_guardrail" "scope" {
   contextual_grounding_policy_config {
     filters_config {
       type      = "GROUNDING"
-      threshold = 0.7
+      threshold = 0.55
     }
     filters_config {
       type      = "RELEVANCE"
-      threshold = 0.7
+      threshold = 0.55
     }
   }
 }
 
 resource "aws_bedrock_guardrail_version" "scope" {
   guardrail_arn = aws_bedrock_guardrail.scope.guardrail_arn
-  description   = "Allow municipal code questions. Refuse homework and general knowledge."
+  description   = "Lower grounding and relevance thresholds. Narrow the denied topic to non-municipal requests."
+  skip_destroy  = true
+
+  # A guardrail edit updates only the draft. Replacing this resource publishes
+  # a new version, which is what the Lambda environment variable reads.
+  lifecycle {
+    replace_triggered_by = [
+      aws_bedrock_guardrail.scope,
+    ]
+  }
 }
 
-# The scope guardrail's denied topic also blocks legitimate code answers.
-# Converse uses this guardrail, which checks grounding and not the topic.
+# Converse uses this guardrail so the scope denied topic cannot block a
+# grounded municipal answer. This guardrail checks grounding only.
 resource "aws_bedrock_guardrail" "grounding" {
   name                      = "tow-ordinance-grounding"
   description               = "Keep ordinance answers tied to the retrieved section"
@@ -81,17 +90,24 @@ resource "aws_bedrock_guardrail" "grounding" {
   contextual_grounding_policy_config {
     filters_config {
       type      = "GROUNDING"
-      threshold = 0.7
+      threshold = 0.55
     }
     filters_config {
       type      = "RELEVANCE"
-      threshold = 0.7
+      threshold = 0.55
     }
   }
 }
 
 resource "aws_bedrock_guardrail_version" "grounding" {
   guardrail_arn = aws_bedrock_guardrail.grounding.guardrail_arn
-  description   = "Grounding check for ordinance answers"
+  description   = "Grounding check with a 0.55 threshold for conversational ordinance answers."
+  skip_destroy  = true
   depends_on    = [aws_bedrock_guardrail.grounding]
+
+  lifecycle {
+    replace_triggered_by = [
+      aws_bedrock_guardrail.grounding,
+    ]
+  }
 }

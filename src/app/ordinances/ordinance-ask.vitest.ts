@@ -24,5 +24,20 @@ describe('formatOrdinanceCitation', () => {
     expect(formatOrdinanceCitation({ section: '16-2-20', authority: 'code' })).toBe(
       'Wiley Municipal Code, Section 16-2-20',
     );
+    expect(formatOrdinanceCitation({ section: '1', authority: 'ordinance-2024-1' })).toBe(
+      'Ordinance 2024-1, Section 1',
+    );
+    expect(formatOrdinanceCitation({ section: '2026-1', authority: 'resolution-2026-1-election' })).toBe(
+      'Resolution 2026-1 (election)',
+    );
+    expect(formatOrdinanceCitation({ section: '20-B', authority: 'code-index' })).toBe(
+      'Wiley Municipal Code index, 20-B',
+    );
+    expect(
+      formatOrdinanceCitation({
+        section: 'Resolution 2025 supplemental budget',
+        authority: 'resolution-2025-supplemental-budget',
+      }),
+    ).toBe('Resolution 2025 supplemental budget');
   });
 });

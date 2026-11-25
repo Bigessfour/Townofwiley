@@ -14,6 +14,6 @@
 
   var meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute('content', dark ? '#061f18' : '#0f3d2e');
+    meta.setAttribute('content', dark ? '#09090b' : '#2a2927');
   }
 })();
